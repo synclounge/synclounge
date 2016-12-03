@@ -1,0 +1,26 @@
+{
+  "devDependencies": {
+    "electron-builder": "^7.3.0",
+    "electron-installer-squirrel-windows": "^1.3.0",
+    "electron-packager": "^8.0.0",
+    "electron-prebuilt": "^1.3.5"
+  },
+  "scripts": {
+    "start": "electron app/app",
+    "build": "electron-packager . PlexTogether -all -icon=./app/img/PlexTogether.ico",
+    "postinstall": "install-app-deps",
+    "pack": "build --dir",
+    "dist": "build"
+  },
+  "build": {
+    "appId": "PlexTogether",
+    "app-category-type": "Utilities",
+    "win": {
+      "iconUrl": "",
+      "msi": true,
+      "title": "PlexTogether",
+      "authors": "Plex Together"
+    }
+  },
+  "license": "MIT"
+}

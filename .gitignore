@@ -1,0 +1,7 @@
+website/
+design/
+node_modules/
+*/node_modules/
+.stversions/
+.stignore
+dist

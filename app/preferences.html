@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Plex Together</title>
+
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="css/photon.min.css">
+        <link rel="stylesheet" type="text/css" href="css/materialize.css">
+        <link rel="stylesheet" type="text/css" href="css/settings.css">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <!-- Fonts -->
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <!-- Javascript -->
+        <script src="js/vendor/jquery.min.js"></script>
+        <script type="text/javascript">
+            window.Hammer = require('./js/hammer.min.js');
+        </script>
+        <script src="js/materialize.js"></script>
+        <script src="js/menu.js" charset="utf-8"></script>
+    </head>
+
+    <body>
+        <div class="window">
+
+            <div class="window-content">
+
+                <div class="container" style="width: 100%">
+
+                    <nav class="plex-shark windowDrag" role="navigation">
+                        <div class="nav-wrapper container">
+                            <a id="logo-container" href="#" class="brand-logo">Preferences</a>
+                                <ul class="right" style="margin-right: -36px">
+                                    <li><i class="material-icons close">close</i></li>
+                                </ul>
+                        </div>
+                    </nav>
+
+                    <div class="settingsTitle" style="border: 1px solid #B3BAC1; height: 85%">
+                        
+                        <div class="row" style="margin-bottom: 0;">
+
+                            <div class="col s12">
+                                <div>
+                                    <h2 style="margin-bottom: 0;"><br></h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s3">
+                                <h5>Metadata</h5>
+                                <div class="switch" style="padding-left: 10px;">
+                                    <label>
+                                        Off
+                                            <input type="checkbox">
+                                            <span class="lever"></span>
+                                        On
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col s3">
+                                <h5>Auto Updates</h5>
+                                <div class="switch" style="padding-left: 10px;">
+                                    <label>
+                                        Off
+                                            <input type="checkbox">
+                                            <span class="lever"></span>
+                                        On
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col s3">
+                                <h5>Client Update Interval</h5>
+                                    <form action="clientUpdateIntervalAction" style="padding-left: 10%">
+                                        <p class="range-field">
+                                          <input type="range" id="clientUpdateInterval" min="0" max="4" />
+                                        </p>
+                                    </form>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <script src="js/preferences.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('select').material_select();
+            });
+
+            $(document).ready(function(){
+                $('#ptServerCustom').keypress(function(e){
+                  if(e.keyCode==13)
+                  $('#ptServerSubmit').click();
+                });
+            });
+
+            $(document).ready(function(){
+                $('#ptRoomPassword').keypress(function(e){
+                  if(e.keyCode==13)
+                  $('#ptRoomJoin').click();
+                });
+            });
+        </script>
+<!--         <script>
+            $(document).keyup(function(e){
+                  if(e.keyCode==27){
+                    ipcRenderer.send('close-settings-window')
+                  }
+                  $('#plexClose').click();
+            });
+        </script> -->
+
+
+    </body>
+</html>

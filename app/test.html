@@ -1,0 +1,104 @@
+<link href="css/materialize.css" rel="stylesheet"/>
+<link href="css/style.css" rel="stylesheet"/>
+      <body>
+  <h1>Multi-Level Accordion Menu</h1>
+
+  <ul class="cd-accordion-menu animated">
+    <li class="has-children">
+      <input type="checkbox" name ="group-1" id="group-1" checked>
+      <label for="group-1">Group 1</label>
+
+          <ul>
+            <li class="has-children">
+              <input type="checkbox" name ="sub-group-1" id="sub-group-1">
+          <label for="sub-group-1">Sub Group 1</label>
+
+          <ul>
+            <li><a href="#0">Image</a></li>
+            <li><a href="#0">Image</a></li>
+            <li><a href="#0">Image</a></li>
+          </ul>
+            </li>
+            <li class="has-children">
+              <input type="checkbox" name ="sub-group-2" id="sub-group-2">
+          <label for="sub-group-2">Sub Group 2</label>
+
+          <ul>
+            <li class="has-children">
+              <input type="checkbox" name ="sub-group-level-3" id="sub-group-level-3">
+              <label for="sub-group-level-3">Sub Group Level 3</label>
+
+              <ul>
+                <li><a href="#0">Image</a></li>
+                <li><a href="#0">Image</a></li>
+              </ul>
+            </li>
+            <li><a href="#0">Image</a></li>
+          </ul>
+            </li>
+            <li><a href="#0">Image</a></li>
+        <li><a href="#0">Image</a></li>
+          </ul>
+    </li>
+
+    <li class="has-children">
+      <input type="checkbox" name ="group-2" id="group-2">
+      <label for="group-2">Group 2</label>
+
+      <ul>
+        <li><a href="#0">Image</a></li>
+        <li><a href="#0">Image</a></li>
+      </ul>
+    </li>
+
+    <li class="has-children">
+      <input type="checkbox" name ="group-3" id="group-3">
+      <label for="group-3">Group 3</label>
+
+      <ul>
+        <li><a href="#0">Image</a></li>
+        <li><a href="#0">Image</a></li>
+      </ul>
+    </li>
+
+    <li class="has-children">
+      <input type="checkbox" name ="group-4" id="group-4">
+      <label for="group-4">Group 4</label>
+
+      <ul>
+        <li class="has-children">
+          <input type="checkbox" name ="sub-group-3" id="sub-group-3">
+          <label for="sub-group-3">Sub Group 3</label>
+
+          <ul>
+            <li><a href="#0">Image</a></li>
+            <li><a href="#0">Image</a></li>
+          </ul>
+        </li>
+        <li><a href="#0">Image</a></li>
+        <li><a href="#0">Image</a></li>
+      </ul>
+    </li>
+  </ul> <!-- cd-accordion-menu -->
+</body>
+
+
+        <script src="js/vendor/jquery.min.js"></script>
+        <script src="js/materialize.js"></script>
+        <script src="js/accordian.js"></script>
+<script type="text/javascript">
+        // Show sideNav
+  $('.button-collapse')('show');
+  // Hide sideNav
+  $('.button-collapse')('hide');
+  $('.dropdown-button').dropdown({
+      inDuration: 300,
+      outDuration: 225,
+      constrain_width: false, // Does not change width of dropdown to that of the activator
+      hover: true, // Activate on hover
+      gutter: 0, // Spacing from edge
+      belowOrigin: false, // Displays dropdown below the button
+      alignment: 'left' // Displays dropdown with edge aligned to the left of button
+    }
+  );
+</script>

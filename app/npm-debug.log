@@ -1,0 +1,47 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files\\nodejs\\node.exe',
+1 verbose cli   'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'start' ]
+2 info using npm@3.10.3
+3 info using node@v6.4.0
+4 verbose run-script [ 'prestart', 'start', 'poststart' ]
+5 info lifecycle plexTogether@0.1.2~prestart: plexTogether@0.1.2
+6 silly lifecycle plexTogether@0.1.2~prestart: no script for prestart, continuing
+7 info lifecycle plexTogether@0.1.2~start: plexTogether@0.1.2
+8 verbose lifecycle plexTogether@0.1.2~start: unsafe-perm in lifecycle true
+9 verbose lifecycle plexTogether@0.1.2~start: PATH: C:\Program Files\nodejs\node_modules\npm\bin\node-gyp-bin;D:\PlexTogether2\app\node_modules\.bin;C:\Program Files\nodejs;C:\Program Files\Oculus\Support\oculus-runtime;c:\programdata\oracle\java\javapath;c:\windows\system32;c:\windows;c:\windows\system32\wbem;c:\windows\system32\windowspowershell\v1.0\;c:\windows\system32\config\systemprofile\.dnx\bin;c:\program files\microsoft dnx\dnvm\;c:\program files\microsoft sql server\130\tools\binn\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files (x86)\Skype\Phone\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Prio;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\Program Files (x86)\Livestreamer;C:\Program Files\Oculus\Support\oculus-runtime;c:\programdata\oracle\java\javapath;c:\windows\system32;c:\windows;c:\windows\system32\wbem;c:\windows\system32\windowspowershell\v1.0\;c:\windows\system32\config\systemprofile\.dnx\bin;c:\program files\microsoft dnx\dnvm\;c:\program files\microsoft sql server\130\tools\binn\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files (x86)\Skype\Phone\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Prio;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\Users\Sam\AppData\Local\Microsoft\WindowsApps;C:\Program Files (x86)\Microsoft VS Code\bin;C:\Users\Sam\AppData\Roaming\npm;C:\Python27;C:\Python27\Scripts;C:\Program Files\Java\jdk1.7.0_79\bin
+10 verbose lifecycle plexTogether@0.1.2~start: CWD: D:\PlexTogether2\app
+11 silly lifecycle plexTogether@0.1.2~start: Args: [ '/d /s /c', 'electron app/app' ]
+12 silly lifecycle plexTogether@0.1.2~start: Returned: code: 1  signal: null
+13 info lifecycle plexTogether@0.1.2~start: Failed to exec start script
+14 verbose stack Error: plexTogether@0.1.2 start: `electron app/app`
+14 verbose stack Exit status 1
+14 verbose stack     at EventEmitter.<anonymous> (C:\Program Files\nodejs\node_modules\npm\lib\utils\lifecycle.js:242:16)
+14 verbose stack     at emitTwo (events.js:106:13)
+14 verbose stack     at EventEmitter.emit (events.js:191:7)
+14 verbose stack     at ChildProcess.<anonymous> (C:\Program Files\nodejs\node_modules\npm\lib\utils\spawn.js:40:14)
+14 verbose stack     at emitTwo (events.js:106:13)
+14 verbose stack     at ChildProcess.emit (events.js:191:7)
+14 verbose stack     at maybeClose (internal/child_process.js:852:16)
+14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:215:5)
+15 verbose pkgid plexTogether@0.1.2
+16 verbose cwd D:\PlexTogether2\app
+17 error Windows_NT 10.0.14393
+18 error argv "C:\\Program Files\\nodejs\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "start"
+19 error node v6.4.0
+20 error npm  v3.10.3
+21 error code ELIFECYCLE
+22 error plexTogether@0.1.2 start: `electron app/app`
+22 error Exit status 1
+23 error Failed at the plexTogether@0.1.2 start script 'electron app/app'.
+23 error Make sure you have the latest version of node.js and npm installed.
+23 error If you do, this is most likely a problem with the plexTogether package,
+23 error not with npm itself.
+23 error Tell the author that this fails on your system:
+23 error     electron app/app
+23 error You can get information on how to open an issue for this project with:
+23 error     npm bugs plexTogether
+23 error Or if that isn't available, you can get their info via:
+23 error     npm owner ls plexTogether
+23 error There is likely additional logging output above.
+24 verbose exit [ 1, true ]
