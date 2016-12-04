@@ -46,8 +46,6 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 #### Mobile
 * iOS (iPhone & iPad)
 
-### Unsupported 
-
 ### Untested 
 
 #### Computer
@@ -123,6 +121,7 @@ Once the above is done you're all set! Depending on whether you're the host or a
 ## Contact
 Twitter:
 
+[Plex Together](https://twitter.com/plextogether)
 [samcm](https://twitter.com/durksau)
 [pureMidi](https://twitter.com/midnitegc)
 
