@@ -1,8 +1,8 @@
 # Plex Together
 
-Plex Together is a tool to sync Plex content across multiple players in multiple locations.
+Plex Together is a tool to sync Plex content across multiple players in multiple locations. Built with [Electron](http://electron.atom.io), Plex Together runs on Windows, Mac and Linux.
 
-This early alpha release does not include a compiled binary. If you are unfamiliar with debugging, NodeJS and port forwarding, this release is not for you. But don't worry! In the near future we'll be releasing a more user friendly update which includes public PlexTogether servers for everyone to use if they want.
+**This early alpha release does not include a compiled binary. If you are unfamiliar with debugging, NodeJS, Electron and port forwarding, this release is not for you. But don't worry! In the near future we'll be releasing a more user friendly update which includes public PlexTogether servers for everyone to use if they want.**
 
 ## How it works
 Plex Together aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this Plex Together utilizes a middle-man server to communicate between each of Plex Together clients. Users choose their Plex client, decide on a Plex Together Server and Room name and join up. Friends can then also do the same. Whoever joins first will become the host. 
@@ -22,7 +22,12 @@ The host has complete control over a room. Commands they send to their client wi
 
 ![Playback](http://plextogether.com/img/6-0playback.png)
 
-For more screenshots, head to the website at http://plextogether.com
+For more screenshots, head to the [website](http://plextogether.com/app)
+
+----
+## Contributing
+Please use the Issue tracker here on Github for Issues & Feature requests. We'll gladly merge Pull requests if you're keen to get hands on with the development. 
+
 ----
 ## Supported Plex Clients
 Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with Plex Together may vary. If you have access to one of the untested clients please let us know how it goes.
@@ -34,11 +39,14 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 * Apple TV
 * iOS (iPhone & iPad)
 * Rasplex
-* Plex Web Player (Chrome)
+* Plex Web Player (Chrome/Safari)
+
 ### Untested 
+
 #### Computer
 * Windows 10 App 
 * Kodi
+
 #### Streaming Devices
 * Amazon Fire TV  
 * Roku
@@ -46,6 +54,7 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 * Chromecast
 * TiVo
 * Sonos
+
 #### TVs and Consoles		
 * Xbox One
 * Xbox 360
@@ -53,6 +62,7 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 * PS4
 * Nvidia Shield
 * Smart TV
+
 #### Mobile
 * Android
 * Windows Phone
@@ -63,7 +73,7 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 
 You need:
 
-* Node v6+
+* Node v6
 * A stable Internet connection
 * With node installed either you or your friend will need to run the PT Server. You can run the PT Server from the same machine, but depending on your network setup you may need to enable port forwarding on your router to let others connect. 
 
@@ -83,6 +93,7 @@ You will need to run Plex Together from the command line:
 * Run the server
 	* ``node index.js``
 * By default, the server will listen on 0.0.0.0:8088. Feel free to change this if that port is in use.
+
 ----
 ## Using Plex Together
 Once you've run the app please follow the below steps:
@@ -91,14 +102,23 @@ Once you've run the app please follow the below steps:
 2. Select your player (make sure the player is open on your device of choice)
 3. Click 'Join Room'
 	* Enter IP:PORT/URL of PT Server
+		* ``http://URL:PORT``
 	* Enter room name + password (if applicable)
-	* note - if you see a STAR next to your name you are the host.
+	* If you see a STAR next to your name you are the host.
 
 Once the above is done you're all set! Depending on whether you're the host or a participant will determine your next steps:
 
 **HOST** - Once all your friends have begun you may start your media in your Plex Player.
 
 **PARTICIPANT** - Wait for the host of the room to start playing media. If the media does not start playing automatically you may manually play the media on your client.
+
+----
+## Contact
+Twitter:
+
+[samcm](https://twitter.com/durksau)
+[pureMidi](https://twitter.com/midnitegc)
+
 
 ----
 ## License
