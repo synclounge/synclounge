@@ -125,7 +125,7 @@ Once the above is done you're all set! Depending on whether you're the host or a
 
 ----
 ## Contact
-[Discord Server](https://discord.gg/fNU2t)
+[Discord Server](https://discord.gg/Cp9RPSJ)
 
 Twitter:
 
