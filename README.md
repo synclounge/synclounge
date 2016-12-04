@@ -100,7 +100,7 @@ You will need to run Plex Together from the command line:
 * Clone this repo
 * cd to the server directory
 * Run the server
-	* ``node index.js``
+	* ``node server.js``
 * By default, the server will listen on 0.0.0.0:8088. Feel free to change this if that port is in use.
 
 ----
