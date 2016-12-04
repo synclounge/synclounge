@@ -2,7 +2,11 @@
 
 Plex Together is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations. Built with [Electron](http://electron.atom.io), Plex Together runs on Windows, Mac and Linux.
 
-**This early alpha release does not include a compiled binary. If you are unfamiliar with debugging, NodeJS, Electron and port forwarding, this release is not for you. But don't worry! In the near future we'll be releasing a more user friendly update which will include public Plex Together servers without the need of hosting your own (if you choose).**
+**Not yet ready for general public use. Most features are still being developed and tested. Please consider the current stage of the app a very early alpha.**
+
+**If you are unfamiliar with NodeJS, Electron, debugging and port forwarding, this release is not for you. But don't worry! In the near future we'll be releasing a more user friendly update which will include public Plex Together servers without the need of hosting your own (if you choose).**
+
+
 
 ## How it works
 Plex Together aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this Plex Together utilizes a middle-man server to communicate between each of Plex Together clients. Users choose their Plex client, decide on a Plex Together Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host. 
