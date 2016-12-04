@@ -99,6 +99,8 @@ You will need to run Plex Together from the command line:
 ## Running PT Server on macOS, Ubuntu & Windows
 * Clone this repo
 * cd to the server directory
+* Install socket.io
+	* ``npm install socket.io -save``
 * Run the server
 	* ``node server.js``
 * By default, the server will listen on 0.0.0.0:8088. Feel free to change this if that port is in use.
