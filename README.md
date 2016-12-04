@@ -2,10 +2,10 @@
 
 Plex Together is a tool to sync Plex content across multiple players in multiple locations. Built with [Electron](http://electron.atom.io), Plex Together runs on Windows, Mac and Linux.
 
-**This early alpha release does not include a compiled binary. If you are unfamiliar with debugging, NodeJS, Electron and port forwarding, this release is not for you. But don't worry! In the near future we'll be releasing a more user friendly update which includes public PlexTogether servers for everyone to use if they want.**
+**This early alpha release does not include a compiled binary. If you are unfamiliar with debugging, NodeJS, Electron and port forwarding, this release is not for you. But don't worry! In the near future we'll be releasing a more user friendly update which will include public Plex Together servers without the need of hosting your own (if you choose).**
 
 ## How it works
-Plex Together aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this Plex Together utilizes a middle-man server to communicate between each of Plex Together clients. Users choose their Plex client, decide on a Plex Together Server and Room name and join up. Friends can then also do the same. Whoever joins first will become the host. 
+Plex Together aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this Plex Together utilizes a middle-man server to communicate between each of Plex Together clients. Users choose their Plex client, decide on a Plex Together Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host. 
 
 The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, Plex Together will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.  
 
@@ -30,16 +30,23 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 
 ----
 ## Supported Plex Clients
-Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with Plex Together may vary. If you have access to one of the untested clients please let us know how it goes.
-### Tested and working
-* Plex Home Theatre
-* OpenPHT
-* Rasplex
+Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with Plex Together may vary. If you have access to one of the untested clients please let us know so we can update our list below.
+### Supported
+
+#### Computer
 * Plex Media Player 
-* Apple TV
-* iOS (iPhone & iPad)
-* Rasplex
 * Plex Web Player (Chrome/Safari)
+* Plex Home Theater
+* OpenPHT
+
+#### Streaming Devices
+* Apple TV
+* Rasplex
+
+#### Mobile
+* iOS (iPhone & iPad)
+
+### Unsupported 
 
 ### Untested 
 
@@ -108,9 +115,9 @@ Once you've run the app please follow the below steps:
 
 Once the above is done you're all set! Depending on whether you're the host or a participant will determine your next steps:
 
-**HOST** - Once all your friends have begun you may start your media in your Plex Player.
+**HOST** - Once all your friends have joined you may start your media in your Plex Player.
 
-**PARTICIPANT** - Wait for the host of the room to start playing media. If the media does not start playing automatically you may manually play the media on your client.
+**PARTICIPANT** - Wait for the host of the room to start playing media. If the media does not start playing automatically you may manually play the media on your player and Plex Together will keep you in sync.
 
 ----
 ## Contact
