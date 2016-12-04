@@ -311,7 +311,7 @@ module.exports = function PlexClient(){
                         if (req.headers['x-plex-client-identifier'] == this.clientIdentifier) {
                             parseXMLString(body, function(err,result){
                                 if (!err) {
-                                    this.lastTimelineObject = result
+                                    //this.lastTimelineObject = result
                                 }
                             })
                         }                        

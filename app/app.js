@@ -67,7 +67,7 @@ app.on('ready', function() {
 	});
 	settingsWindow = new BrowserWindow({
 		frame: false,
-		height: 450,
+		height: 500,
 		resizable: false,
 		width: 752,
 		alwaysOnTop: false,

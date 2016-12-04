@@ -6,7 +6,8 @@ const storage = require('electron-json-storage')
 
 global.faderArray = []
 global.hostReactions = []
-global.nextPlayerAdjust = new Date().getTime()
+global.nextPlayerAdjust = 0
+global.nextPlayerSeek = 0
 
 var metadataIntervals = []
 var ptServerTickers = []
@@ -457,6 +458,10 @@ function handleHostUpdate(data){
         if (timelines == null){
             return
         }
+        if ((new Date().getTime() - global.nextPlayerSeek) < 10000) {
+            return
+        }
+        global.nextPlayerSeek = new Date().getTime()
         // Heard back from our client
         var freshTime
         var freshPlayerState
@@ -479,6 +484,7 @@ function handleHostUpdate(data){
             return
         }
         if (freshPlayerState == 'buffering'){
+            console.log('client is buffering!')
             return
         }
         //Check if we need to pause or unpause
@@ -517,7 +523,7 @@ function handleHostUpdate(data){
         var difference = Math.abs(predictedHostTime - ourTime)
         console.log('Difference from host is ' + difference)
 
-        if (difference > 2000){
+        if (difference > 3500){
             //We're too far out, we should seek to the same time
             //Check if they're actually playing something.. 
             if (data.title == null){
@@ -669,6 +675,9 @@ function handleHostUpdate(data){
                     console.log('no playables')
                     return callback(false)
                 }
+                if (playables[index] == undefined) {
+                    return
+                }
                 var server = playables[index].server
                 var ratingKey = playables[index].result.ratingKey
                 try{
@@ -694,7 +703,8 @@ function handleHostUpdate(data){
                                 if (playResult.response['$'].code == '200'){
                                     //Successfully started playback
                                     return callback(true)
-                                } else {
+                                }
+                                else {
                                     setTimeout(function(){
                                         playPlayables(index+1)
                                     },3000)

@@ -23,6 +23,11 @@
   cursor: default;
 }
 
+.windowBorder {
+  border: 1px solid #B3BAC1;
+  height: 85%;
+}
+
 .windowDrag {
   -webkit-app-region: drag;
 }
