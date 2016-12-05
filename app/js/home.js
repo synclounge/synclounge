@@ -542,11 +542,16 @@ function handleHostUpdate(data){
             var seekTime = parseInt(predictedHostTime)
             var waitTime = 0
             if (data.playerState == 'playing'){
-                seekTime = seekTime + 500
+                if (plex.chosenClient.bufferTime == undefined) {
+                    plex.chosenClient.bufferTime = 0
+                }
+                seekTime = seekTime + plex.chosenClient.bufferTime
                 waitTime = 3000
             }
             fireNotification('Plex Together Sync','Seeking to get back inline with the host')
             plex.chosenClient.seekTo(seekTime,function(result){
+                checkBufferTime()
+                
                 if (data.playerState == 'paused') {
                     fireNotification('Plex Together Sync','Host pressed pause - pressing pause now')
                     plex.chosenClient.pressPause(function(){
@@ -650,8 +655,6 @@ function handleHostUpdate(data){
                 for (let i = 0; i < plex.servers.length; i++){
                     var server = plex.servers[i]
                     server.search(hostData.rawTitle,function(results,fromServer){
-                        console.log('Heard back from ' + fromServer.name)
-                        console.log(results)
                         serversHit.push(fromServer)
                         if (results != null){
                             //Valid result
@@ -684,7 +687,7 @@ function handleHostUpdate(data){
                     return callback(false)
                 }
                 if (playables[index] == undefined) {
-                    return
+                    return callback(false)
                 }
                 var server = playables[index].server
                 var ratingKey = playables[index].result.ratingKey
@@ -699,30 +702,90 @@ function handleHostUpdate(data){
                     console.log('trying to play ' + ratingKey + ' from ' + server.name)
                     // Subscribe to the client now, as some clients won't play media unless you're subscribed
                     plex.chosenClient.subscribe(function(result) {
-                        console.log(result)
+                        console.log('Subscribe result: ' + result)
                         if (!result) {
                             // Failed to subscribe, but lets try anyway
                         }
                         plex.chosenClient.playMedia(ratingKey,server,
-                            function(playResult,time,code){
+                            function(playResult,code,that){
                                 console.log('Play result below')
-                                console.log(playResult)
-                                fireNotification('Plex Together AutoPlay', 'Now playing ' + hostData.title + ' from ' + server.name )
-                                if (playResult.response['$'].code == '200'){
-                                    //Successfully started playback
+                                console.log(playResult)   
+                                console.log(code)
+                                if (code == '200' || code == 200) {
+                                    console.log('Play success because of code')
+                                    checkBufferTime()
+                                    fireNotification('Plex Together AutoPlay', 'Now playing ' + hostData.title + ' from ' + server.name )
                                     return callback(true)
-                                }
-                                else {
+                                }   
+                                if (playResult == undefined || playResult == null) {
+                                    console.log('Play failed bcause of playResult')
                                     setTimeout(function(){
                                         playPlayables(index+1)
                                     },3000)
+                                    return callback(true)
+                                }
+                                if (playResult.response) {
+                                    if (playResult.response['$'].code == '200') {
+                                        checkBufferTime()
+                                        fireNotification('Plex Together AutoPlay', 'Now playing ' + hostData.title + ' from ' + server.name )
+                                        return callback(true)
+                                    }
+                                }                                
+                                if (playResult.Response) {
+                                    if (playResult.Response['$'].code == '200') {
+                                        checkBufferTime()
+                                        fireNotification('Plex Together AutoPlay', 'Now playing ' + hostData.title + ' from ' + server.name )
+                                        return callback(true)
+                                    }
                                 }
                         })
                     })
                 })                
-            }
+            }            
         }
+    }    
+}
+function checkBufferTime(){
+    // This function is used to estimate how long it takes to buffer content when a seek occurs    
+    var plex = remote.getGlobal('plex')
+    var i = 0
+    var firstTime = 0
+    var checkInterval = 200
+    if (plex.chosenClient.platform == 'iOS') {
+        // iOS REALLY doesn't like multiple quick commands
+        checkInterval = 500
     }
+    var checkBuffer = setInterval(function(){
+        console.log('check buffer tick')
+        plex.chosenClient.getTimeline(function(timelines){
+            if (!timelines) {
+                return
+            }
+            let videoTimeline = null
+            for (let j = 0; j < timelines.length; j++){
+                if (timelines[j]['$'].type == 'video'){
+                    videoTimeline = timelines[j]['$']
+                    break
+                }
+            }
+            if (i == 0) {
+                firstTime = videoTimeline.time 
+                i = i + 1
+                return
+            } else {
+                i = i + 1
+                // Check if the player is actually playing content now
+                if (videoTimeline.time > firstTime) {
+                    // We're now playing something!
+
+                    plex.chosenClient.bufferTime = (i * checkInterval)
+                    console.log('Calculated buffer time to be roughly ' + plex.chosenClient.bufferTime + 'ms')
+                    clearInterval(checkBuffer)
+                }
+            }
+            
+        })
+    },checkInterval)
 }
 function updateSelfUserUsername(name){
     var theUser = document.querySelectorAll('.mainUser')

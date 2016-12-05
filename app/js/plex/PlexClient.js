@@ -287,10 +287,10 @@ module.exports = function PlexClient(){
             console.log(result)
             console.log(code)
             if (result != null){
-                return callback(result,that)
+                return callback(result,code,that)
             }
             else {
-                return callback(null, that)
+                return callback(false,code,that)
             }
             //console.log(that.name + ' returned ' + result)
         })

@@ -36,7 +36,6 @@ module.exports = function PlexServer(){
                 if (this.chosenConnection == null){
                     console.log('SERVER: You should find a working connection via #findConnection first!')
                 }
-                connection = this.chosenConnection
             }
             var query = "";
             for (key in params) {
@@ -57,11 +56,13 @@ module.exports = function PlexServer(){
             //console.log('Hitting server ' + this.name + ' with command ' + command)
             //console.log(options)
             request(options, function (error, response, body) {
+                /*
                 console.log('Raw response back from the PMS Server ' + that.name + ' is below')
                 console.log('Body VVV')
                 console.log(body)
                 console.log('Error VVV')
                 console.log(error)
+                */
                 if (!error) {
                     safeParse(body, function (err, json){
                         if (err){
@@ -115,15 +116,26 @@ module.exports = function PlexServer(){
         for (var i in this.plexConnections){
             var connection = this.plexConnections[i]
             this.hitApi('',{},connection,function(result){
+                    console.log('Find connection result below')                    
+                    if (result == null || result == undefined) {
+                        console.log('A connection failed for ' + that.name)
+                        console.log(result)
+                        return(callback(false))
+                    }
                     if (that.chosenConnection != null){
                         //Looks like we've already found a good connection
                         // lets disregard this connection 
+                        console.log('Already have a working connection for ' + that.name)
                         return(callback(true))
                     }
-                    if (result != null){
+                    if (result.MediaContainer != undefined || result._elementType != undefined){
+                        console.log('Found the first working connection for ' + that.name)
                         that.chosenConnection = connection 
                         return(callback(true))                    
-                    } 
+                    }                     
+
+                    console.log('Unsure of what this result is for connection to PMS. Probably failed. Server: ' + that.name)
+                    console.log(result)
                     return(callback(false))                
                 })  
             }                      
