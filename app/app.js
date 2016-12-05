@@ -62,7 +62,7 @@ app.on('ready', function() {
 		frame: false,
 		width: 1280,
 		height: 720,
-		resizable: true,
+		resizable: false,
 		title: 'Plex Together',
 		show: false,
 		icon:'build/icon.ico'
@@ -70,7 +70,7 @@ app.on('ready', function() {
 	settingsWindow = new BrowserWindow({
 		frame: false,
 		height: 500,
-		resizable: true,
+		resizable: false,
 		width: 752,
 		alwaysOnTop: false,
 		show:false,
@@ -81,7 +81,7 @@ app.on('ready', function() {
 	preferencesWindow = new BrowserWindow({
 		frame: false,
 		height: 450,
-		resizable: true,
+		resizable: false,
 		width: 752,
 		alwaysOnTop: false,
 		show:false,
@@ -92,7 +92,7 @@ app.on('ready', function() {
 	aboutWindow = new BrowserWindow({
 		frame: false,
 		height: 450,
-		resizable: true,
+		resizable: false,
 		width: 752,
 		alwaysOnTop: false,
 		show:false,
