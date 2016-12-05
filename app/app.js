@@ -51,7 +51,9 @@ app.on('ready', function() {
 		frame: false,
 		width: 1280,
 		height: 720,
-		resizable: false,
+		minWidth: 1280,
+		minHeight: 720,
+		resizable: true,
 		title: 'Plex Together',
 		show: false,
 		icon:'build/icon.ico'
@@ -204,6 +206,12 @@ ipcMain.on('close-main-window', function () {
 ipcMain.on('minimise-main-window', function () {
     if (mainWindow) {
         mainWindow.minimize();
+    }
+});
+
+ipcMain.on('maximise-main-window', function () {
+    if (mainWindow) {
+        mainWindow.maximize();
     }
 });
 
