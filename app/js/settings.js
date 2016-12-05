@@ -56,6 +56,11 @@ function ServerSelectedChanged(){
     console.log(dropdown.options[dropdown.selectedIndex].value)
     if (dropdown.options[dropdown.selectedIndex].value == 'custom') {
         $('#customField').removeClass('hide')
+    var el = $("input:text").get(0);
+        var elemLen = el.value.length;
+        el.selectionStart = elemLen;
+        el.selectionEnd = elemLen;
+        document.getElementById('ptServerCustom').focus() 
     } else {
         connectToPTServer(dropdown.options[dropdown.selectedIndex].value)
     }
