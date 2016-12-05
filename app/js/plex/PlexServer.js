@@ -53,6 +53,8 @@ module.exports = function PlexServer(){
                 timeout: 8000
             }
             var that = this;
+            //console.log('Hitting server ' + this.name + ' with command ' + command)
+            //console.log(options)
             request(options, function (error, response, body) {
                 if (!error) {
                     safeParse(body, function (err, json){
@@ -145,14 +147,21 @@ module.exports = function PlexServer(){
         //This function hits the PMS and returns the item at the ratingKey
         this.hitApi('/library/metadata/'+ratingKey,{},this.chosenConnection,function(result,that){
             validResults = []
+            console.log('Response back from metadata request')
             if (result != null){
-                for (var i in result._children){
-                    var res = result._children[i]
-                    if (res._elementType == 'Directory' || res._elementType == 'Media' || res._elementType == 'Video'){
-                        validResults.push(res)
+                // Old Server version compatibility
+                if (result._children) {
+                    for (var i in result._children){
+                        var res = result._children[i]
+                        if (res._elementType == 'Directory' || res._elementType == 'Media' || res._elementType == 'Video'){
+                            return callback(res,that)
+                        }
                     }
+                } else {
+                    // New Server compatibility
+                    return callback(result.MediaContainer.Metadata[0],that)
                 }
-                 return callback(validResults,that)
+                return callback(null,that)
             } 
             return callback(null,that)
         })
