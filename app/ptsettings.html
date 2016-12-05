@@ -74,7 +74,7 @@
                         <div class="row hide" id="customField">
                             <div class="col s8">
                                 <div class="input-field col s12">
-                                    <input id="ptServerCustom" type="text" class="validate" placeholder="Custom Server" style="margin-bottom: 0px;">
+                                    <input id="ptServerCustom" type="text" class="validate" value="http://" style="margin-bottom: 0px;">
                                 </div>
                             </div>
 
@@ -159,16 +159,14 @@
                   $('#ptRoomJoin').click();
                 });
             });
-        </script>
-<!--         <script>
-            $(document).keyup(function(e){
-                  if(e.keyCode==27){
-                    ipcRenderer.send('close-settings-window')
-                  }
-                  $('#plexClose').click();
-            });
-        </script> -->
 
+            $(document).ready(function(){
+                $('#ptRoom').keypress(function(e){
+                  if(e.keyCode==13)
+                  $('#ptRoomJoin').click();
+                });
+            });
+        </script>
 
     </body>
 </html>
