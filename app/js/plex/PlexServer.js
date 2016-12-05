@@ -30,6 +30,7 @@ module.exports = function PlexServer(){
 
     //Functions
     this.hitApi = function(command,params,connection,callback){
+        var that = this
         console.log('Hitting server ' + this.name + ' via ' + connection.uri)
             if (connection == null){
                 if (this.chosenConnection == null){
@@ -56,6 +57,11 @@ module.exports = function PlexServer(){
             //console.log('Hitting server ' + this.name + ' with command ' + command)
             //console.log(options)
             request(options, function (error, response, body) {
+                console.log('Raw response back from the PMS Server ' + that.name + ' is below')
+                console.log('Body VVV')
+                console.log(body)
+                console.log('Error VVV')
+                console.log(error)
                 if (!error) {
                     safeParse(body, function (err, json){
                         if (err){
