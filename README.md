@@ -50,6 +50,10 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 #### Mobile
 * iOS (iPhone & iPad)
 
+### Tested but unsupported
+* Plex Web Player (Chrome/Safari)
+	* Relies on a local Plex Media Server to proxy commands. May work if you have a local PMS instance but issues may arise. 
+
 ### Untested 
 
 #### Computer
