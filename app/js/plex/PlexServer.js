@@ -30,6 +30,7 @@ module.exports = function PlexServer(){
 
     //Functions
     this.hitApi = function(command,params,connection,callback){
+        var that = this
         console.log('Hitting server ' + this.name + ' via ' + connection.uri)
             if (connection == null){
                 if (this.chosenConnection == null){
@@ -50,10 +51,17 @@ module.exports = function PlexServer(){
                     'Accept':'application/json',
                     'X-Plex-Token':this.accessToken
                 },
-                timeout: 8000
+                timeout: 15000
             }
             var that = this;
+            //console.log('Hitting server ' + this.name + ' with command ' + command)
+            //console.log(options)
             request(options, function (error, response, body) {
+                console.log('Raw response back from the PMS Server ' + that.name + ' is below')
+                console.log('Body VVV')
+                console.log(body)
+                console.log('Error VVV')
+                console.log(error)
                 if (!error) {
                     safeParse(body, function (err, json){
                         if (err){
@@ -145,15 +153,27 @@ module.exports = function PlexServer(){
         //This function hits the PMS and returns the item at the ratingKey
         this.hitApi('/library/metadata/'+ratingKey,{},this.chosenConnection,function(result,that){
             validResults = []
-            if (result != null){
-                for (var i in result._children){
-                    var res = result._children[i]
-                    if (res._elementType == 'Directory' || res._elementType == 'Media' || res._elementType == 'Video'){
-                        validResults.push(res)
+            console.log('Response back from metadata request')
+            console.log(result)
+            if (result != null){                
+                if (result._children) {
+                    // Old Server version compatibility
+                    for (var i in result._children){
+                        var res = result._children[i]
+                        if (res._elementType == 'Directory' || res._elementType == 'Media' || res._elementType == 'Video'){
+                            return callback(res,that)
+                        }
                     }
+                } else {
+                    // New Server compatibility
+                    return callback(result.MediaContainer.Metadata[0],that)
                 }
-                 return callback(validResults,that)
-            } 
+                console.log('Didnt find a compatible PMS Metadata object. Result from the server is below')
+                console.log(result)
+                return callback(null,that)
+            }                 
+            console.log('Didnt find a compatible PMS Metadata object because result == null. Result from the server is below')
+            console.log(result)
             return callback(null,that)
         })
     }

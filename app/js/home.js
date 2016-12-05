@@ -187,6 +187,7 @@ function checkRatingKey(){
                     //Check our ratingKeys to see if we need to get new Metadata
                     console.log('ratingKey: ' + newRatingKey)
                     if (newRatingKey == null || newRatingKey == undefined){
+                        //$('.mainUser').find('.ptuser-title').text('Nothing is playing on ' + plex.chosenClient.name)
                         document.getElementById('metaDropdownDiv').style.display = 'none'
                         document.getElementById('userMetadata').style.display = 'none'
                         //document.getElementById('mainUser').style.boxshadow = '0 2px 5px 0 rgba(0, 0, 0, 0.16)'
@@ -215,8 +216,11 @@ function checkRatingKey(){
                                 //This is the server we're playing from
                                 //Lets fetch the metadata from that server
                                 server.getMediaByRatingKey(newRatingKey,function(res){
-                                    if (res != null){
+                                    console.log('Got Metadata by rating key below from server ' + server.name)
+                                    console.log(res)
+                                    if (res){
                                         //Valid response from the PMS
+                                        console.log('Valid response from the PMS')
 
                                         if (document.getElementById('metaDropdownDiv').style.display != 'block'){
                                             document.getElementById('metaDropdownDiv').style.display = 'block'
@@ -226,8 +230,9 @@ function checkRatingKey(){
                                         plex.chosenClient.lastTimelineObject = newTimelineObject
                                         updateMeta(server)
                                     } else {
-                                        plex.chosenClient.lastRatingKey = newRatingKey
-                                        plex.chosenClient.lastTimelineObject = newTimelineObject
+                                        console.log('Failed to retrieve metadata from rating key ' + newRatingKey)
+                                        //plex.chosenClient.lastRatingKey = newRatingKey
+                                        //plex.chosenClient.lastTimelineObject = newTimelineObject
                                     }
                                 })
                                 break
@@ -243,15 +248,18 @@ function updateMeta(server){
     //This function will only be fired when we have changed what we're playing or
     // we just want a timed update
     var plex = remote.getGlobal('plex')
-    var metadata = plex.chosenClient.clientPlayingMetadata[0]
+    var metadata = plex.chosenClient.clientPlayingMetadata
     document.getElementById('metaServer').innerHTML = server.name
     ipcRenderer.send('home-metadata-download',server,metadata)
 }
 //This is the reply from the above
 ipcRenderer.on('home-metadata-download-result',function(event,result,path){
+    console.log('metadata download result below')
+    console.log(result)
     if (result){
         var plex = remote.getGlobal('plex')
-        var metadata = plex.chosenClient.clientPlayingMetadata[0]
+        var metadata = plex.chosenClient.clientPlayingMetadata
+        console.log(metadata)
         //First we need to determine if this is a series or a movie
         var title
         var season
@@ -379,7 +387,7 @@ function roomEvents(){
 
             if (plex.chosenClient.clientPlayingMetadata != null){
                 //Good connection to the PMS
-                var metadata = plex.chosenClient.clientPlayingMetadata[0]
+                var metadata = plex.chosenClient.clientPlayingMetadata
                 if (metadata == null) {
                     console.log('Dont have valid metadata :(')
                     return
