@@ -62,6 +62,7 @@ let winTop = '<ul id="dropdown1" class="dropdown-content" style="width: 150px; t
 						</a>\
 						<ul class="right windowNoDrag" style="position: fixed; top:0; right: 0; margin-right: 10px">\
 							<li class="mainMinimise" style="padding-top:7px"><i class="material-icons menuButtons">remove</i></li>\
+							<li class="mainMaximise"><i class="material-icons">crop_square</i></li>\
 							<li class="mainClose"><i class="material-icons menuButtons">close</i></li>\
 						</ul>\
 					</div>\
