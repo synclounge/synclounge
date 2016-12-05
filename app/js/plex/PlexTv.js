@@ -71,11 +71,14 @@ module.exports = function(){
                         //Create a temporary array of object:PlexConnection
                         for (var i in connections){
                             connection = connections[i]["$"]
-                            tempConnection = new PlexConnection()
-                            for (var key in connection){
-                                tempConnection[key] = connection[key]
+                            //Exclude local IPs starting with 169.254
+                            if(!connection.address.startsWith("169.254")){
+                                tempConnection = new PlexConnection()
+                                for (var key in connection){
+                                    tempConnection[key] = connection[key]
+                                }
+                                tempConnectionsArray.push(tempConnection)
                             }
-                            tempConnectionsArray.push(tempConnection)
                         }
                         that.all_devices.push(device)
                         if (device.provides.indexOf("player")!= -1){
