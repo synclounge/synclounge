@@ -148,9 +148,10 @@ module.exports = function PlexServer(){
         this.hitApi('/library/metadata/'+ratingKey,{},this.chosenConnection,function(result,that){
             validResults = []
             console.log('Response back from metadata request')
-            if (result != null){
-                // Old Server version compatibility
+            console.log(result)
+            if (result != null){                
                 if (result._children) {
+                    // Old Server version compatibility
                     for (var i in result._children){
                         var res = result._children[i]
                         if (res._elementType == 'Directory' || res._elementType == 'Media' || res._elementType == 'Video'){
@@ -161,8 +162,12 @@ module.exports = function PlexServer(){
                     // New Server compatibility
                     return callback(result.MediaContainer.Metadata[0],that)
                 }
+                console.log('Didnt find a compatible PMS Metadata object. Result from the server is below')
+                console.log(result)
                 return callback(null,that)
-            } 
+            }                 
+            console.log('Didnt find a compatible PMS Metadata object because result == null. Result from the server is below')
+            console.log(result)
             return callback(null,that)
         })
     }
