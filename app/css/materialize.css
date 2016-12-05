@@ -2555,7 +2555,6 @@ small {
 
 #toast-container {
   display: block;
-  width: 1115px;
   position: fixed;
   z-index: 10000;
 }

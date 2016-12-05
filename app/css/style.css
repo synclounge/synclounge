@@ -173,6 +173,10 @@ body {  min-width:650px; }
   max-width: 100%
 }
 
+#toast-container {
+    width: calc(100% - 165px);
+}
+
 /* -------------------------------- 
 
 Main Components 
