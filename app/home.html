@@ -29,13 +29,11 @@
       
         <div class="window">
             <div class="window-content">
-                <!-- MAC NAVBAR -->
                 <div id="TopBar" style="display:block">
                 </div>   
-                <!-- WINDOWS NAVBAR -->
                 <div class="container">
-                    <div class="pane-group">
-                        <div class="pane-sm sidebar plexServerClientInfo" style="height: 615px">
+                    <div class="pane-group" style="top: 64px">
+                        <div class="pane-sm sidebar plexServerClientInfo" style="height: 100%">
                             <ul class="cd-accordion-menu animated">
                                 <li class="has-children">
                                     <input type="checkbox" name ="group-1" id="group-1" checked>
@@ -90,9 +88,9 @@
                             </div>
                         </div>
 
-                        <div class="pane page-pane" style="overflow-y: scroll; padding-right: 0px; overflow-x: hidden; top: 64px; margin-bottom: 0px; position: inherit; left: 165px; width: 1115px; height: 656px;">             
+                        <div class="pane page-pane" style="overflow-y: scroll; padding-right: 0px; margin-bottom: 0px; position: inherit; left: 165px; width: calc(100% - 165px); height: 100%;">             
 
-                             <ul class="collection page-userlist" style="margin-top:0; width: 1115px">
+                             <ul class="collection page-userlist" style="margin-top:0; width: 100%">
                                 <li class="collection-item avatar ptuser mainUser" mainuser="true" username="" style="padding-bottom:0; box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0);">
                                     <img src="img/safetyAvatar.png" alt="" id = "ptmain-avatar" class="circle ptuser-avatar" style="box-shadow: 0 0 0 2px #E5A00D">
                                     <span class="title ptuser-username">PlexTogether User</span>
@@ -112,10 +110,10 @@
                                             </div>
                                         </div>
                                 </li>
-                                <li class="collection-item" id="userMetadata" style="display: none; padding-bottom:0px;">
-                                    <div class="row plex-riverbed ptUserDropdown" style="margin-left: -20px; width: 1115px">
+                                <li class="collection-item" id="userMetadata" style="display: none; padding-bottom:0px; padding-left: 11px; padding-right: 0px; width: 100%">
+                                    <div class="row plex-riverbed ptUserDropdown">
                                         <div class="col s1" style="padding-left: 0px; margin-top: -10px;">
-                                            <img id="metaThumb" src="img/artwork.jpg" style="padding-bottom: 0%;height: 120px;">
+                                            <img id="metaThumb" src="img/artwork.jpg" style="padding-bottom: 0%;width: 100%; max-width: 120px">
                                         </div>
                                         <div class="col s9">
                                             <h2 id="metaTitle" class="white-text" style="margin-top: -5px; margin-left: -15px;">Placeholder Show</h2>

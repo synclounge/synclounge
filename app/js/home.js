@@ -937,7 +937,7 @@ ipcRenderer.on('pt-server-hideInfo',function(event){
 function ptserverShowInfo() {
   document.getElementById('plexTogetherInfoButton').style.display = 'none'
   document.getElementById('plexTogetherInfo').style.display = 'block'
-  $('.plexServerClientInfo').css({"height": "457px"})
+  $('.plexServerClientInfo').css({"height": "100%"})
 }
 function ptserverHideInfo() {
   document.getElementById('plexTogetherInfo').style.display = 'none'

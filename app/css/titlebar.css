@@ -101,8 +101,8 @@
 .titlebar-fullscreen svg.fullscreen-svg {
 	width: 6px;
 	height: 6px;
-	margin-top: 2px;
-	margin-left: 2px;
+	margin-top: 1px;
+	margin-left: 1px;
 	opacity: 0;
 }
 
