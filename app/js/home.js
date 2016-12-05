@@ -187,6 +187,7 @@ function checkRatingKey(){
                     //Check our ratingKeys to see if we need to get new Metadata
                     console.log('ratingKey: ' + newRatingKey)
                     if (newRatingKey == null || newRatingKey == undefined){
+                        //$('.mainUser').find('.ptuser-title').text('Nothing is playing on ' + plex.chosenClient.name)
                         document.getElementById('metaDropdownDiv').style.display = 'none'
                         document.getElementById('userMetadata').style.display = 'none'
                         //document.getElementById('mainUser').style.boxshadow = '0 2px 5px 0 rgba(0, 0, 0, 0.16)'

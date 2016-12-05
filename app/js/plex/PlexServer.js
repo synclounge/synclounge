@@ -50,7 +50,7 @@ module.exports = function PlexServer(){
                     'Accept':'application/json',
                     'X-Plex-Token':this.accessToken
                 },
-                timeout: 8000
+                timeout: 15000
             }
             var that = this;
             //console.log('Hitting server ' + this.name + ' with command ' + command)

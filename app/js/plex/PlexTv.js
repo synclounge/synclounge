@@ -50,7 +50,7 @@ module.exports = function(){
         }
         console.log("Retrieving devices for " + this.user.username)
         var options = {
-            url: 'https://plex.tv/api/resources',
+            url: 'https://plex.tv/api/resources?includeHttps=1',
             headers: {
                 'X-Plex-Token': this.user.authToken
             }
