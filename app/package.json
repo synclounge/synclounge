@@ -13,6 +13,7 @@
     "appdirectory": "0.1.0",
     "asar": "^0.12.3",
     "electron-json-storage": "^2.0.0",
+    "electron-log": "^1.2.2",
     "electron-packager": "^8.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "graceful-js": "^1.0.0",
@@ -20,7 +21,8 @@
     "mkdirp": "0.5.1",
     "request": "2.74.0",
     "safe-json-parse": "4.0.0",
-    "socket.io": "1.4.8",
+    "socket.io": "1.4.8",    
+    "socket.io-client": "1.4.8",
     "xml2js": "0.4.17"
   }
 }
