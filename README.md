@@ -151,6 +151,7 @@ If you run in to any issues:
 		* on Linux: ~/.config/PlexTogether/log.log
 		* on OS X: ~/Library/Logs/PlexTogether/log.log
 		* on Windows: %USERPROFILE%/AppData/Roaming/PlexTogether/log.log
+		
 ----
 ## Contact
 [Discord Server](https://discord.gg/Cp9RPSJ)
