@@ -67,7 +67,6 @@ let winTop = '<ul id="dropdown1" class="dropdown-content" style="width: 150px; t
 						</ul>\
 					</div>\
 				</nav>'
-console.log(process.platform)
 if (process.platform == 'win32') {
 	document.getElementById('TopBar').innerHTML = winTop
 } else {
@@ -102,5 +101,4 @@ mainEl.addEventListener('click', function () {
 mainEl = document.querySelector('.mainMaximise')
 mainEl.addEventListener('click', function () {
 	ipcRenderer.send('maximise-main-window')
-	console.log('mainMaximise')
 })

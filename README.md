@@ -107,7 +107,8 @@ You will need to run Plex Together from the command line:
 	* ``npm install socket.io -save``
 * Run the server
 	* ``node server.js``
-* By default, the server will listen on 0.0.0.0:8088. Feel free to change this if that port is in use.
+* By default, the server will be listening for Plex Together Clients on 0.0.0.0:8088. Feel free to change this if that port is in use.
+	* The server does not have a web interface.
 
 ----
 ## Using Plex Together
@@ -119,6 +120,7 @@ Once you've run the app please follow the below steps:
 	* Enter IP:PORT/URL of PT Server
 		* ``http://URL:PORT``
 	* Enter room name + password (if applicable)
+		* Rooms are created and destroyed on the fly - there is no need to 'create' a room
 	* If you see a STAR next to your name you are the host.
 
 Once the above is done you're all set! Depending on whether you're the host or a participant will determine your next steps:
@@ -127,6 +129,28 @@ Once the above is done you're all set! Depending on whether you're the host or a
 
 **PARTICIPANT** - Wait for the host of the room to start playing media. If the media does not start playing automatically you may manually play the media on your player and Plex Together will keep you in sync.
 
+----
+## Issues
+If you run in to any issues:
+* Raise an Issue here on Github. Try to be as detailed as possible by including details such as
+	* Node Version
+	* Operating System
+	* Plex Media Server details
+		* Version
+		* Operating System
+		* Location (Local/Remote)
+	* Plex Client details
+		* Name
+		* Version
+		* Network connection (Wired/Wifi)
+		* Platform
+
+* Join the [Discord Server](https://discord.gg/Cp9RPSJ) and raise your issue.
+* Send the log file to anyone who is in the Discord group "Developer" with a link to the Github Issue. Although the log file does not contain any access tokens, it is still not recommended to post your log file publicly.
+	* Obtain your log file from here:
+		* on Linux: ~/.config/PlexTogether/log.log
+		* on OS X: ~/Library/Logs/PlexTogether/log.log
+		* on Windows: %USERPROFILE%/AppData/Roaming/PlexTogether/log.log
 ----
 ## Contact
 [Discord Server](https://discord.gg/Cp9RPSJ)

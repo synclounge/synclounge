@@ -3,6 +3,8 @@
 //var io = require('socket.io-client')
 
 const storage = require('electron-json-storage')
+global.renderLog = require('electron-log')
+renderLog.transports.file.format = '[Renderer] [{level}] {h}:{i}:{s}:{ms} {text}'
 
 global.faderArray = []
 global.hostReactions = []
@@ -33,7 +35,7 @@ ipcRenderer.on('home-tab-me-avatar-result', function(event, result, path) {
 })
 ipcRenderer.on('home-tab-initialize-result', function(event, username, clients, servers) {
     $('#metaDropdown').click(function() {
-        console.log('dropdown')
+        global.renderLog.info('dropdown')
         if (arrowDirection == 'arrow_drop_down'){
             $(this).parent().find('#userMetadata').html('arrow_drop_down');
             $(this).html('arrow_drop_up');
@@ -99,7 +101,7 @@ ipcRenderer.on('home-tab-initialize-result', function(event, username, clients, 
 })
 //Handle logout
 function logoutPlexTv(){
-    console.log('we want to signout!')
+    global.renderLog.info('we want to signout!')
     ipcRenderer.send('plextv-signout')
     return
 }
@@ -116,7 +118,7 @@ ipcRenderer.on('home-tab-serverclicked-result',function(event,result,server){
         var iterServer = serversObj[i]
         var child = iterServer.childNodes[1]
         child.style.color = '#fff'
-        console.log('result:' + result)
+        global.renderLog.info('result:' + result)
         if (server.clientIdentifier == iterServer.getAttribute('plexId')){
             if (result){
                 fireNotification('Plex Server','Successfully set your prefered server to ' + server.name)
@@ -185,7 +187,7 @@ function checkRatingKey(){
                     var newRatingKey = timeline.ratingKey
                     var newTimelineObject = timeline
                     //Check our ratingKeys to see if we need to get new Metadata
-                    console.log('ratingKey: ' + newRatingKey)
+                    global.renderLog.info('ratingKey: ' + newRatingKey)
                     if (newRatingKey == null || newRatingKey == undefined){
                         //$('.mainUser').find('.ptuser-title').text('Nothing is playing on ' + plex.chosenClient.name)
                         document.getElementById('metaDropdownDiv').style.display = 'none'
@@ -209,18 +211,18 @@ function checkRatingKey(){
 
                         var serverId = newTimelineObject.machineIdentifier
                         for (var x in plex.servers){
-                            //console.log(x)
+                            //global.renderLog.info(x)
                             var server = plex.servers[x]
-                            //console.log(server)
+                            //global.renderLog.info(server)
                             if (server.clientIdentifier == serverId){
                                 //This is the server we're playing from
                                 //Lets fetch the metadata from that server
                                 server.getMediaByRatingKey(newRatingKey,function(res){
-                                    console.log('Got Metadata by rating key below from server ' + server.name)
-                                    console.log(res)
+                                    global.renderLog.info('Got Metadata by rating key below from server ' + server.name)
+                                    global.renderLog.info(res)
                                     if (res){
                                         //Valid response from the PMS
-                                        console.log('Valid response from the PMS')
+                                        global.renderLog.info('Valid response from the PMS')
 
                                         if (document.getElementById('metaDropdownDiv').style.display != 'block'){
                                             document.getElementById('metaDropdownDiv').style.display = 'block'
@@ -230,7 +232,7 @@ function checkRatingKey(){
                                         plex.chosenClient.lastTimelineObject = newTimelineObject
                                         updateMeta(server)
                                     } else {
-                                        console.log('Failed to retrieve metadata from rating key ' + newRatingKey)
+                                        global.renderLog.info('Failed to retrieve metadata from rating key ' + newRatingKey)
                                         //plex.chosenClient.lastRatingKey = newRatingKey
                                         //plex.chosenClient.lastTimelineObject = newTimelineObject
                                     }
@@ -254,12 +256,12 @@ function updateMeta(server){
 }
 //This is the reply from the above
 ipcRenderer.on('home-metadata-download-result',function(event,result,path){
-    console.log('metadata download result below')
-    console.log(result)
+    global.renderLog.info('metadata download result below')
+    global.renderLog.info(result)
     if (result){
         var plex = remote.getGlobal('plex')
         var metadata = plex.chosenClient.clientPlayingMetadata
-        console.log(metadata)
+        global.renderLog.info(metadata)
         //First we need to determine if this is a series or a movie
         var title
         var season
@@ -389,7 +391,7 @@ function roomEvents(){
                 //Good connection to the PMS
                 var metadata = plex.chosenClient.clientPlayingMetadata
                 if (metadata == null) {
-                    console.log('Dont have valid metadata :(')
+                    global.renderLog.info('Dont have valid metadata :(')
                     return
                 }
                 temp.type = metadata.type
@@ -455,7 +457,7 @@ function handleHostUpdate(data){
     if (data.title != plex.chosenClient.lastMessageToServer.title){
         // We're not playing the same item!
         autoPlayHostContent(data,function(result){
-            console.log('Play media item returned ' + result)
+            global.renderLog.info('Play media item returned ' + result)
             return
         })
         return
@@ -488,11 +490,11 @@ function handleHostUpdate(data){
         if (freshTime == null){
 
             // Non-valid response
-            console.log('Invalid response from client')
+            global.renderLog.info('Invalid response from client')
             return
         }
         if (freshPlayerState == 'buffering'){
-            console.log('client is buffering!')
+            global.renderLog.info('client is buffering!')
             return
         }
         //Check if we need to pause or unpause
@@ -529,7 +531,7 @@ function handleHostUpdate(data){
         var predictedHostTime = +data.time + predictedTimePast
         var ourTime = (+freshTime + +ourClientResponseTime)
         var difference = Math.abs(predictedHostTime - ourTime)
-        console.log('Difference from host is ' + difference)
+        global.renderLog.info('Difference from host is ' + difference)
 
         if (difference > 3500){
             //We're too far out, we should seek to the same time
@@ -591,31 +593,31 @@ function handleHostUpdate(data){
                 //Do a series of checks to see if this result is OK
                 //Check if content type matches
                 if (data.type != hostData.type){
-                    //console.log('wrong type')
+                    //global.renderLog.info('wrong type')
                     return false
                 }
                 //Check if rawTitle matches
                 if (data.title != hostData.rawTitle){
-                    //console.log('wrong title')
+                    //global.renderLog.info('wrong title')
                     return false
                 }
                 //Check if length is close enough
                 if (Math.abs(data.duration - hostData.maxTime) > 5000){
-                    //console.log('wrong time')
+                    //global.renderLog.info('wrong time')
                     return false
                 }
                 if (hostData.type == 'movie'){
                     //We're good!
-                    console.log('FOUND A PLAYABLE MOVIE')
+                    global.renderLog.info('FOUND A PLAYABLE MOVIE')
                     return true
                 }
                 if (hostData.type == 'episode'){
                     //Check if the show name is the same
                     if (hostData.showName != data.grandparentTitle){
-                        //console.log('wrong showname')
+                        //global.renderLog.info('wrong showname')
                         return false
                     } else {
-                        console.log('FOUND A PLAYABLE TV')
+                        global.renderLog.info('FOUND A PLAYABLE TV')
                         return true
                     }
 
@@ -671,7 +673,7 @@ function handleHostUpdate(data){
                         //Check if we're the last server to respond
                         if (serversHit.length == plex.servers.length){
                             //We're the last server
-                            console.log('Heard back from the last server')
+                            global.renderLog.info('Heard back from the last server')
                             playPlayables(0)
                         }
                     })
@@ -680,10 +682,10 @@ function handleHostUpdate(data){
 
             function playPlayables(index){
                 //We'll use this function to slowly loop through all of the playables
-                console.log('At playables loop ' + index)
-                console.log('Playables size: ' + playables.length)
+                global.renderLog.info('At playables loop ' + index)
+                global.renderLog.info('Playables size: ' + playables.length)
                 if (playables.length == 0){
-                    console.log('no playables')
+                    global.renderLog.info('no playables')
                     return callback(false)
                 }
                 if (playables[index] == undefined) {
@@ -695,30 +697,30 @@ function handleHostUpdate(data){
 
                 }
                 catch(err){
-                    console.log('out of playables')
+                    global.renderLog.info('out of playables')
                     return callback(false)
                 }
                 plex.chosenClient.pressStop(function(result){
-                    console.log('trying to play ' + ratingKey + ' from ' + server.name)
+                    global.renderLog.info('trying to play ' + ratingKey + ' from ' + server.name)
                     // Subscribe to the client now, as some clients won't play media unless you're subscribed
                     plex.chosenClient.subscribe(function(result) {
-                        console.log('Subscribe result: ' + result)
+                        global.renderLog.info('Subscribe result: ' + result)
                         if (!result) {
                             // Failed to subscribe, but lets try anyway
                         }
                         plex.chosenClient.playMedia(ratingKey,server,
                             function(playResult,code,that){
-                                console.log('Play result below')
-                                console.log(playResult)   
-                                console.log(code)
+                                global.renderLog.info('Play result below')
+                                global.renderLog.info(playResult)   
+                                global.renderLog.info(code)
                                 if (code == '200' || code == 200) {
-                                    console.log('Play success because of code')
+                                    global.renderLog.info('Play success because of code')
                                     checkBufferTime()
                                     fireNotification('Plex Together AutoPlay', 'Now playing ' + hostData.title + ' from ' + server.name )
                                     return callback(true)
                                 }   
                                 if (playResult == undefined || playResult == null) {
-                                    console.log('Play failed bcause of playResult')
+                                    global.renderLog.info('Play failed bcause of playResult')
                                     setTimeout(function(){
                                         playPlayables(index+1)
                                     },3000)
@@ -756,7 +758,7 @@ function checkBufferTime(){
         checkInterval = 500
     }
     var checkBuffer = setInterval(function(){
-        console.log('check buffer tick')
+        global.renderLog.info('check buffer tick')
         plex.chosenClient.getTimeline(function(timelines){
             if (!timelines) {
                 return
@@ -779,7 +781,7 @@ function checkBufferTime(){
                     // We're now playing something!
 
                     plex.chosenClient.bufferTime = (i * checkInterval)
-                    console.log('Calculated buffer time to be roughly ' + plex.chosenClient.bufferTime + 'ms')
+                    global.renderLog.info('Calculated buffer time to be roughly ' + plex.chosenClient.bufferTime + 'ms')
                     clearInterval(checkBuffer)
                 }
             }
@@ -796,7 +798,7 @@ function updatePTUser(userData){
     //Find the users element and update it to the new details
     var percent = getPercent(userData.time,userData.maxTime)
     var allUsers = document.querySelectorAll('.ptuser')
-    //console.log(allUsers)
+    //global.renderLog.info(allUsers)
     var vettedData = cleanseUserData(userData)
     for (var i in allUsers){
         var theUser = allUsers[i]
@@ -823,7 +825,7 @@ function updatePTUser(userData){
 
 }
 function addPTUserStart(userData){
-    console.log('Adding a user')
+    global.renderLog.info('Adding a user')
     ipcRenderer.send('ptuser-thumb-download',userData)
 }
 function addPTUserFinish(userData,imgpath){
@@ -877,7 +879,7 @@ function addPTUserFinish(userData,imgpath){
 }
 function removePTUser(username){
     //A user has disconnect, lets remove their element in the list
-    console.log('removing ' + username)
+    global.renderLog.info('removing ' + username)
     var allUsers = document.querySelectorAll('.ptuser')
     for (var i in allUsers){
         var theUser = allUsers[i]
@@ -964,7 +966,7 @@ ipcRenderer.on('pt-updatePTUser',function(event,user){
     updatePTUser(user)
 })
 ipcRenderer.on('pt-removePTUser',function(event,user){
-    console.log('user left')
+    global.renderLog.info('user left')
     removePTUser(user.username)
 })
 ipcRenderer.on('pt-updateSelfUsername',function(event,username){
@@ -1012,7 +1014,7 @@ ipcRenderer.on('pt-server-disconnect', function(event){
   handleDisconnect()  
 })
 function handleDisconnect(){
-  console.log('disconnect time!')
+  global.renderLog.info('disconnect time!')
   for (let j = 0;j < plexClientTickers.length; j++){
     clearInterval(plexClientTickers[j])
   }
@@ -1022,12 +1024,12 @@ function handleDisconnect(){
   }
   let allusers = document.querySelectorAll('.ptuser')
   for (var i = 0; i < allusers.length; i++){
-    console.log(allusers[i].getAttribute('mainuser'))
+    global.renderLog.info(allusers[i].getAttribute('mainuser'))
     if (allusers[i].getAttribute('mainuser') === 'true'){
         // This is us! Skip
       continue
     } else {
-      console.log('removing a user')
+      global.renderLog.info('removing a user')
       removePTUser(allusers[i].getAttribute('username'))
     }
   }
@@ -1040,7 +1042,7 @@ ipcRenderer.on('fire-notification',function(event,title,message,time){
     fireNotification(title,message,time)
 })
 function fireNotification(title,message,time){
-    console.log('sending notification')
+    global.renderLog.info('sending notification: ' + title + ' - ' + message)
     //Fires a toast notification with a message and time
     var titleHTML = '<div style="text-align:center;clear:both">' + title + '</div>'
     var messageHTML = '<div style="text-align:center;font-size:12px;opacity:0.7;clear:both">' + message + '</div>'

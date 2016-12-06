@@ -9,3 +9,6 @@ node_modules/
 dist
 build/
 npm-debug*
+.stfolder*
+.localized
+.DS_STORE*

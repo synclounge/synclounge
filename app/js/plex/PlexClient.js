@@ -40,7 +40,7 @@ module.exports = function PlexClient(){
     this.hitApi = function(command,params,connection,callback){
         if (connection == null){
             if (this.chosenConnection == null){
-                console.log('You should find a working connection via #findConnection first!')
+                global.log.info('You should find a working connection via #findConnection first!')
             }
             connection = this.chosenConnection
         } 
@@ -54,7 +54,7 @@ module.exports = function PlexClient(){
             connection.uri = connection.uri.slice(0,connection.uri.length-1)
         }
         var _url = connection.uri + command + '?' + query
-        console.log(_url)
+        global.log.info(_url)
         this.commandId = this.commandId + 1;
         var options = {
             url: _url,
@@ -69,7 +69,7 @@ module.exports = function PlexClient(){
         var that = this;
         request(options, function (error, response, body) {
             this.commandId = this.commandId + 1
-            //console.log(response)
+            //global.log.info(response)
             if (!error) {
                 parseXMLString(body, function(err,result){
                     if (err){
@@ -235,8 +235,8 @@ module.exports = function PlexClient(){
     this.getPlayerTime = function(callback){
         //Get the current playback time in ms    
         this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result,responseTime,code){
-            console.log('getPlayerTime result: ' + result)
-            console.log('getPlayerTime code: ' + code)
+            global.log.info('getPlayerTime result: ' + result)
+            global.log.info('getPlayerTime code: ' + code)
             if (result){
                 //Valid response back from the client
                 var allTimelines = result.MediaContainer.Timeline
@@ -283,16 +283,16 @@ module.exports = function PlexClient(){
         }
         //Now that we've built our params, it's time to hit the client api
         this.hitApi(command,params,this.chosenConnection,function(result,that,code){
-            console.log('play result: ')
-            console.log(result)
-            console.log(code)
+            global.log.info('play result: ')
+            global.log.info(result)
+            global.log.info(code)
             if (result != null){
                 return callback(result,code,that)
             }
             else {
                 return callback(false,code,that)
             }
-            //console.log(that.name + ' returned ' + result)
+            //global.log.info(that.name + ' returned ' + result)
         })
     }
     this.subscribe = function(callback) {
@@ -326,11 +326,11 @@ module.exports = function PlexClient(){
                 }            
             });
             this.httpServer.on('error',function(e) {
-                console.log('HTTP SERVER ERROR')
-                console.log(e)
+                global.log.info('HTTP SERVER ERROR')
+                global.log.info(e)
             })
             this.httpServer.listen(32500,'0.0.0.0')
-            console.log('Server started')
+            global.log.info('Server started')
         }
         // Already have a valid http server running, lets send the request
         this.tempId = 'PlexTogether' + new Date().getTime()
@@ -342,8 +342,8 @@ module.exports = function PlexClient(){
         }
         //Now that we've built our params, it's time to hit the client api
         this.hitApi(command,params,this.chosenConnection,function(result,that,code){
-            console.log('Subscribe request below')
-            console.log(code)
+            global.log.info('Subscribe request below')
+            global.log.info(code)
             if (result != null){
                 return callback(result,that)
             }

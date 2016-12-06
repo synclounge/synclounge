@@ -5,6 +5,9 @@ var AppDirectory = require('appdirectory')
 const path = require('path');
 const spawn = require('child_process').spawn;
 
+global.log = require('electron-log');
+global.log.transports.file.format = '[App] [{level}] {h}:{i}:{s}:{ms} {text}';
+
 const storage = require('electron-json-storage');
 
 global.io = require('socket.io-client');
@@ -302,7 +305,7 @@ ipcMain.on('home-tab-initialize', function(event){
 		//We need to proc checking all of our servers!
 		var server = plex.servers[i]
 			server.findConnection(function(res){
-				//console.log(plex.servers)
+				//log.info(plex.servers)
 		})
 	}
 	event.sender.send('home-tab-initialize-result',plex.user.username
@@ -335,7 +338,7 @@ ipcMain.on('home-tab-clientclicked',function(event,clientId){
 					//We found a viable connection for this client! 
 					//We need to start some loops that will constantly check this client 
 					// for what is happening.
-					//console.log('This client is good to be used! ' + client.name)
+					//log.info('This client is good to be used! ' + client.name)
 					var clientInterval = setInterval(function(){													
 						if (plex.chosenClient == null){
 							//Looks like we no longer have a valid client, lets stop this loop
@@ -356,7 +359,7 @@ ipcMain.on('home-tab-clientclicked',function(event,clientId){
 				}
 			})
 		} else {
-			console.log('clientId to Server lookup failed on ' + clientId)
+			log.info('clientId to Server lookup failed on ' + clientId)
 		}
 	})
 })
@@ -389,7 +392,7 @@ ipcMain.on('home-metadata-download',function(event,server,metadata){
 		}
 
 		var path = getAppDataDir() + '/plexThumb.jpg'
-		console.log(path)
+		log.info(path)
         var options = {
 			url : _url,
 			headers : {
@@ -411,17 +414,17 @@ ipcMain.on('ptuser-thumb-download',function(event,userData){
 	request(userData.avatarUrl,function(error,response,body){
 		}).pipe(fs.createWriteStream(path))
 			.on('close', function() {
-				console.log('downloading done from ' + path)
+				log.info('downloading done from ' + path)
 				event.sender.send('ptuser-thumb-download-result',true,path,userData)
 			});
 })
 ipcMain.on('ptmain-thumb-download',function(event){
-	console.log('downloading')
+	log.info('downloading')
 	var path = getAppDataDir() + '/Users/' + plex.user.username + '.jpg'
 	request(plex.user.thumb,function(error,response,body){
 		}).pipe(fs.createWriteStream(path))
 			.on('close', function() {
-				console.log('downloading done from ' + path)
+				log.info('downloading done from ' + path)
 				event.sender.send('ptmain-thumb-download-result',true,path)
 			});
 })
@@ -429,19 +432,19 @@ ipcMain.on('connect-to-ptserver',function(event,address){
 	global.socket = global.io.connect(address,{'sync disconnect on unload':true,'forceNew': true,
 	'connect timeout': 2000 })
 	global.socket.on('connect',function(){
-		console.log('good connection')
+		log.info('good connection')
 		settingsWindow.send('connect-ptserver-success')
 	})
 	global.socket.on('connect_error',function(){
 		global.socket.disconnect()
-		console.log('bad connection')
+		log.info('bad connection')
 		settingsWindow.send('connect-ptserver-fail')
 	})	
 })
 ipcMain.on('ptsettings-fetch-serverlist', function(event) {
 	request('http://103.43.75.57:8889/servers',function(error,response,body){
 		if (!error){
-			console.log(body)
+			log.info(body)
 			event.sender.send('ptsettings-fetch-serverlist-result',response,JSON.parse(body))
 		}
 	})
@@ -501,7 +504,7 @@ ipcMain.on('join-room-ok',function(event,data,details,currentUsers){
 		}
 	})
 	global.socket.on('error',function(msg){
-		console.log(msg)		
+		log.info(msg)		
 	})
 	global.socket.on('rejoin',function(){
 		mainWindow.send('pt-clearTickers')
@@ -536,7 +539,7 @@ ipcMain.on('fire-notification',function(event,title,message,time){
 })
 ipcMain.on('disconnect-socket', function(event){
 	if (global.socket.connected){
-		console.log('disconnecting!')
+		log.info('disconnecting!')
 		global.socket.disconnect()
 		global.socket = null;
 		settingsWindow.loadURL('file://' + __dirname + '/ptsettings.html')

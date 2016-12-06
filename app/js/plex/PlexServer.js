@@ -31,10 +31,10 @@ module.exports = function PlexServer(){
     //Functions
     this.hitApi = function(command,params,connection,callback){
         var that = this
-        console.log('Hitting server ' + this.name + ' via ' + connection.uri)
+        global.log.info('Hitting server ' + this.name + ' via ' + connection.uri)
             if (connection == null){
                 if (this.chosenConnection == null){
-                    console.log('SERVER: You should find a working connection via #findConnection first!')
+                    global.log.info('SERVER: You should find a working connection via #findConnection first!')
                 }
             }
             var query = "";
@@ -53,25 +53,25 @@ module.exports = function PlexServer(){
                 timeout: 15000
             }
             var that = this;
-            //console.log('Hitting server ' + this.name + ' with command ' + command)
-            //console.log(options)
+            //global.log.info('Hitting server ' + this.name + ' with command ' + command)
+            //global.log.info(options)
             request(options, function (error, response, body) {
                 /*
-                console.log('Raw response back from the PMS Server ' + that.name + ' is below')
-                console.log('Body VVV')
-                console.log(body)
-                console.log('Error VVV')
-                console.log(error)
+                global.log.info('Raw response back from the PMS Server ' + that.name + ' is below')
+                global.log.info('Body VVV')
+                global.log.info(body)
+                global.log.info('Error VVV')
+                global.log.info(error)
                 */
                 if (!error) {
                     safeParse(body, function (err, json){
                         if (err){
-                            return callback(null,that)
+                            return callback(null,that,connection)
                         }
-                        return callback(json,that)                        
+                        return callback(json,that,connection)                        
                     })
                 } else {
-                    return callback(null,that)
+                    return callback(null,that,connection)
                 }
             }) 
     }
@@ -79,7 +79,7 @@ module.exports = function PlexServer(){
         //For use with #findConnection
         if (connection == null){
             if (this.chosenConnection == null){
-                console.log('You need to specify a connection!')
+                global.log.info('You need to specify a connection!')
             }
         }
         var _url = connection.uri + command
@@ -115,27 +115,28 @@ module.exports = function PlexServer(){
         that.chosenConnection = null;
         for (var i in this.plexConnections){
             var connection = this.plexConnections[i]
-            this.hitApi('',{},connection,function(result){
-                    console.log('Find connection result below')                    
+            this.hitApi('',{},connection,function(result,the,connectionUsed){
+                    global.log.info('Connection attempt result below for ' + the.name)         
+                    global.log.info(connectionUsed)           
                     if (result == null || result == undefined) {
-                        console.log('A connection failed for ' + that.name)
-                        console.log(result)
+                        global.log.info('A connection failed for ' + that.name)
+                        global.log.info(result)
                         return(callback(false))
                     }
                     if (that.chosenConnection != null){
                         //Looks like we've already found a good connection
                         // lets disregard this connection 
-                        console.log('Already have a working connection for ' + that.name)
+                        global.log.info('Already have a working connection for ' + that.name)
                         return(callback(true))
                     }
                     if (result.MediaContainer != undefined || result._elementType != undefined){
-                        console.log('Found the first working connection for ' + that.name)
+                        global.log.info('Found the first working connection for ' + that.name)
                         that.chosenConnection = connection 
                         return(callback(true))                    
                     }                     
 
-                    console.log('Unsure of what this result is for connection to PMS. Probably failed. Server: ' + that.name)
-                    console.log(result)
+                    global.log.info('Unsure of what this result is for connection to PMS. Probably failed. Server: ' + that.name)
+                    global.log.info(result)
                     return(callback(false))                
                 })  
             }                      
@@ -165,8 +166,8 @@ module.exports = function PlexServer(){
         //This function hits the PMS and returns the item at the ratingKey
         this.hitApi('/library/metadata/'+ratingKey,{},this.chosenConnection,function(result,that){
             validResults = []
-            console.log('Response back from metadata request')
-            console.log(result)
+            global.log.info('Response back from metadata request')
+            global.log.info(result)
             if (result != null){                
                 if (result._children) {
                     // Old Server version compatibility
@@ -180,12 +181,12 @@ module.exports = function PlexServer(){
                     // New Server compatibility
                     return callback(result.MediaContainer.Metadata[0],that)
                 }
-                console.log('Didnt find a compatible PMS Metadata object. Result from the server is below')
-                console.log(result)
+                global.log.info('Didnt find a compatible PMS Metadata object. Result from the server is below')
+                global.log.info(result)
                 return callback(null,that)
             }                 
-            console.log('Didnt find a compatible PMS Metadata object because result == null. Result from the server is below')
-            console.log(result)
+            global.log.info('Didnt find a compatible PMS Metadata object because result == null. Result from the server is below')
+            global.log.info(result)
             return callback(null,that)
         })
     }

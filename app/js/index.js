@@ -9,5 +9,5 @@ var settingsEl = document.querySelector('.settings');
 var signinEl = document.querySelector('.signin');
 
 signinEl.addEventListener('click', function() {
-    console.log('Hello world');
+    global.renderLog.info('Hello world');
 });

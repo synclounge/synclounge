@@ -53,7 +53,7 @@ function bindModifierCheckboxes(e) {
 
 function ServerSelectedChanged(){
     var dropdown = document.getElementById('PlexTogetherServers')
-    console.log(dropdown.options[dropdown.selectedIndex].value)
+    global.renderLog.info(dropdown.options[dropdown.selectedIndex].value)
     if (dropdown.options[dropdown.selectedIndex].value == 'custom') {
         $('#customField').removeClass('hide')
         let el = $("input:text").get(0);
@@ -71,12 +71,12 @@ function customClicked(){
 //SocketIO handling
 function connectToPTServer(address){
     document.getElementById('ptServerPreloader').style.opacity = 1
-    console.log('connecting to ' + address)
+    global.renderLog.info('connecting to ' + address)
     ipcRenderer.send('connect-to-ptserver',address)
 	//global.socket = io.connect('au1.plextogether.com',{'sync disconnect on unload':true
     // global.socket = io.connect('localhost',{'sync disconnect on unload':true})
 	ipcRenderer.on('connect-ptserver-fail',function(event){
-		console.log('FAILED TO CONNECT TO THE PTSERVER')
+		global.renderLog.info('FAILED TO CONNECT TO THE PTSERVER')
         $('#serverSuccess').addClass('hide')
         document.getElementById('ptServerPreloader').style.opacity = 0
     })	
@@ -88,15 +88,15 @@ function connectToPTServer(address){
     })
 }
 function joinPTRoom(){
-    console.log('attempting to join room')
+    global.renderLog.info('attempting to join room')
     let wantedRoom = document.getElementById('ptRoom').value	
     if (wantedRoom === '' || wantedRoom === null){
-        console.log('Choose the room you\'d like to join first!')
+        global.renderLog.info('Choose the room you\'d like to join first!')
         return
     }
     let socket = remote.getGlobal('socket')
     if (socket === null || !socket.connected) {
-        console.log('Connect to a server first!')
+        global.renderLog.info('Connect to a server first!')
         return
     }
     ipcRenderer.send('join-ptroom',getHandshakeUser())
@@ -105,7 +105,7 @@ function joinPTRoom(){
     })
 }
 function handleRoomJoinAttempt(result,data,details,currentUsers){
-    console.log(currentUsers)
+    global.renderLog.info(currentUsers)
     if (result){          
         //Join successful			
         //Now we'll pass over control to roomEvents in homejs to handle everything
@@ -117,7 +117,7 @@ function handleRoomJoinAttempt(result,data,details,currentUsers){
 	} else {
         //Join FAILED
         if (details == 'wrong password'){
-            console.log('wrong password')
+            global.renderLog.info('wrong password')
         }
     }
 }
