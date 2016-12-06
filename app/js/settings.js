@@ -138,15 +138,14 @@ function getHandshakeUser(){
     return tempUser
 }
 
-function getSavedCustomPTServer(){
+function getSavedCustomPTServer(input){
     console.log("Loading custom server from storage");
     var storage = remote.getGlobal('storage');
-    var address = "";
-    storage.get('plex-together-custom-settings', function(error, data) {
+    return storage.get('plex-together-custom-settings', function(error, data) {
         if (error) throw error;
         if(data.customPTServer != typeof undefined){
             console.log("custom PT is defined " + data.customPTServer);
-            address = data.customPTServer;
+            input.val(data.customPTServer);
         }else{
             //if key doesn't exists, create one with empty value
             storage.set('plex-together-custom-settings',{'customPTServer':""}, function(error) {
@@ -154,7 +153,6 @@ function getSavedCustomPTServer(){
             });
         }
     });
-    return address;
 }
 
 function saveCustomPTServer(address){
