@@ -5,12 +5,16 @@ var remote = require('electron').remote;
 var path = require('path');
 var io = require('socket.io-client');
 
+global.renderLog = require('electron-log')
+renderLog.transports.file.format = '[Renderer] [{level}] {h}:{i}:{s}:{ms} {text}'
+
 var modifierCheckboxes = document.querySelectorAll('.global-shortcut');
 var closeEl = document.querySelector('.close');
 
 closeEl.addEventListener('click', function (e) {
     ipcRenderer.send('close-ptsettings-window');
 });
+
 // Fetch server list
 ipcRenderer.send('ptsettings-fetch-serverlist')
 ipcRenderer.on('ptsettings-fetch-serverlist-result',function(event,result,servers){
