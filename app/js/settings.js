@@ -85,6 +85,7 @@ function connectToPTServer(address){
         document.getElementById('ptServerPreloader').style.opacity = 0
     })  
     ipcRenderer.on('connect-ptserver-success',function(event){
+        saveCustomPTServer(address);
         document.getElementById('ptServerPreloader').style.opacity = 0
         $('#serverSuccess').removeClass('hide')
         document.getElementById('ptRoom').focus()
@@ -138,27 +139,29 @@ function getHandshakeUser(){
 }
 
 function getSavedCustomPTServer(){
-	var storage = remote.getGlobal('storage');
+    console.log("Loading custom server from storage");
+    var storage = remote.getGlobal('storage');
+    var address = "";
     storage.get('plex-together-custom-settings', function(error, data) {
         if (error) throw error;
-        if(data.customPTServer != null){
-            return data.customPTServer
+        if(data.customPTServer != typeof undefined){
+            console.log("custom PT is defined " + data.customPTServer);
+            address = data.customPTServer;
         }else{
-			//if key doesn't exists, create one with empty value
+            //if key doesn't exists, create one with empty value
             storage.set('plex-together-custom-settings',{'customPTServer':""}, function(error) {
             if (error) throw error;
             });
-            return ""
         }
     });
-	//if storage fail, return empty
-    return ""
+    return address;
 }
 
 function saveCustomPTServer(address){
+    console.log("Saving custom server " + address + " to storage");
     var storage = remote.getGlobal('storage');
     storage.set('plex-together-custom-settings',{'customPTServer':address}, function(error) {
         if (error) throw error;
     });
-    return
+    return address
 }
