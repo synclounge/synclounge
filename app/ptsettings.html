@@ -34,7 +34,7 @@
                         </div>
                     </nav>
 
-                    <div class="settingsTitle">                        
+                    <div class="settingsTitle">
                         <div class="row" style="margin-bottom: 0;">
                             <div class="col s12">
                                 <div>
@@ -47,8 +47,8 @@
                             <div class="col s8">
                                 <div class="input-field windowNoDrag">
                                     <select id="PlexTogetherServers" class="browser-default" onchange="ServerSelectedChanged()">
-                                        <option value="" disabled selected>Select a PT Server</option>
-                                        <option value="custom">Custom</option>
+                                        <option value="" disabled>Select a PT Server</option>
+                                        <option value="custom" selected>Custom</option>
                                     </select>
                                 </div>
                             </div>
@@ -71,7 +71,7 @@
                                 <i class="material-icons close hide" id="serverSuccess" style="color: #1ECD97; margin-top: 24px; margin-left: -75px">check_circle</i>
                             </div>
                         </div>
-                        <div class="row hide" id="customField">
+                        <div class="row" id="customField">
                             <div class="col s8">
                                 <div class="input-field col s12">
                                     <input id="ptServerCustom" type="text" class="validate" value="http://" style="margin-bottom: 0px;">
