@@ -149,7 +149,7 @@ If you run in to any issues:
 * Send the log file to anyone who is in the Discord group "Developer" with a link to the Github Issue. Although the log file does not contain any access tokens, it is still not recommended to post your log file publicly.
 	* Obtain your log file from here:
 		* on Linux: ~/.config/PlexTogether/log.log
-		* on OS X: ~/Library/Logs/PlexTogether/log.log
+		* on macOS: ~/Library/Logs/PlexTogether/log.log
 		* on Windows: %USERPROFILE%/AppData/Roaming/PlexTogether/log.log
 		
 ----
