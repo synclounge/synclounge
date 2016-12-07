@@ -11,7 +11,6 @@ module.exports = function(){
         
     this.user;
     this.username = null;
-    this.password = null;
     this.all_devices = [];
     this.servers = [];
     this.clients = [];
