@@ -132,7 +132,7 @@ Once the above is done you're all set! Depending on whether you're the host or a
 ----
 ## Issues
 If you run in to any issues:
-* Raise an Issue here on Github. Try to be as detailed as possible by including details such as
+* Raise an Issue here on Github. Try to be as detailed as possible by including details such as:
 	* Node Version
 	* Operating System
 	* Plex Media Server details
