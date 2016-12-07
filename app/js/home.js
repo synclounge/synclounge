@@ -285,6 +285,9 @@ ipcRenderer.on('home-metadata-download-result',function(event,result,path){
         if (metadata.type == 'episode'){
             under = metadata.title + ' - S' + season + '&#183E' + episode
         } else {
+            if (metadata.tagline == undefined) {
+                metadata.tagline = ''
+            }
             under = metadata.tagline + ' (' + metadata.year + ')'
         }
 
