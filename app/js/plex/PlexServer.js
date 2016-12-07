@@ -26,60 +26,48 @@ module.exports = function PlexServer(){
     this.publicAddressMatches;
     this.presence;
     this.plexConnections;
-    this.chosenConnection;
+    this.chosenConnection = null;
 
     //Functions
-    this.hitApi = function(command,params,connection,callback){
+    this.hitApi = function(command,params,callback){
         var that = this
-        global.log.info('Hitting server ' + this.name + ' via ' + connection.uri)
-            if (connection == null){
-                if (this.chosenConnection == null){
-                    global.log.info('SERVER: You should find a working connection via #findConnection first!')
-                }
+        var query = "";
+        for (key in params) {
+            query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
+        }
+        global.log.info('Hitting server ' + this.name + ' via ' + this.chosenConnection.uri)
+        var _url = this.chosenConnection.uri + command + '?' + query
+        var options = {
+            url: _url,
+            time: true,
+            headers: {
+                'X-Plex-Client-Identifier': 'PlexTogether',
+                'Accept':'application/json',
+                'X-Plex-Token':this.accessToken
+            },
+            timeout: 15000
+        }
+        //global.log.info('Hitting server ' + this.name + ' with command ' + command)
+        //global.log.info(options)
+        request(options, function (error, response, body) {
+            if (!error) {
+                safeParse(body, function (err, json){
+                    if (err){
+                        return callback(null,that,connection)
+                    }
+                    return callback(json,that,connection)                        
+                })
+            } else {
+                return callback(null,that,connection)
             }
-            var query = "";
-            for (key in params) {
-                query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
-            }
-            var _url = connection.uri + command + '?' + query
-            var options = {
-                url: _url,
-                time: true,
-                headers: {
-                    'X-Plex-Client-Identifier': 'PlexTogether',
-                    'Accept':'application/json',
-                    'X-Plex-Token':this.accessToken
-                },
-                timeout: 15000
-            }
-            var that = this;
-            //global.log.info('Hitting server ' + this.name + ' with command ' + command)
-            //global.log.info(options)
-            request(options, function (error, response, body) {
-                /*
-                global.log.info('Raw response back from the PMS Server ' + that.name + ' is below')
-                global.log.info('Body VVV')
-                global.log.info(body)
-                global.log.info('Error VVV')
-                global.log.info(error)
-                */
-                if (!error) {
-                    safeParse(body, function (err, json){
-                        if (err){
-                            return callback(null,that,connection)
-                        }
-                        return callback(json,that,connection)                        
-                    })
-                } else {
-                    return callback(null,that,connection)
-                }
-            }) 
+        }) 
     }
     this.hitApiTestConnections = function(command,connection,callback){
         //For use with #findConnection
         if (connection == null){
             if (this.chosenConnection == null){
                 global.log.info('You need to specify a connection!')
+                return(callback(false,connection))
             }
         }
         var _url = connection.uri + command
@@ -91,9 +79,8 @@ module.exports = function PlexServer(){
                 'Accept':'application/json',
                 'X-Plex-Token':this.accessToken
             },
-            timeout: 5000
+            timeout: 7500
         }
-        var that = this;
         request(options, function (error, response, body) {
             if (!error) {
                 safeParse(body, function (err, json){
@@ -107,47 +94,50 @@ module.exports = function PlexServer(){
             }
         }) 
     }
-    this.findConnection = function(callback){
+    this.setChosenConnection = function(con) {
+        console.log('Setting the used connection for ' + this.name + ' to ' + con.uri)
+        this.chosenConnection = con
+        return
+    }
+    this.findConnection = function(){
         //This function iterates through all available connections and 
         // if any of them return a valid response we'll set that connection
         // as the chosen connection for future use.
         var that = this;
-        that.chosenConnection = null;
         for (var i in this.plexConnections){
             var connection = this.plexConnections[i]
-            this.hitApi('',{},connection,function(result,the,connectionUsed){
-                    global.log.info('Connection attempt result below for ' + the.name)         
-                    global.log.info(connectionUsed)           
-                    if (result == null || result == undefined) {
-                        global.log.info('A connection failed for ' + that.name)
-                        global.log.info(result)
-                        return(callback(false))
-                    }
-                    if (that.chosenConnection != null){
-                        //Looks like we've already found a good connection
-                        // lets disregard this connection 
-                        global.log.info('Already have a working connection for ' + that.name)
-                        return(callback(true))
-                    }
-                    if (result.MediaContainer != undefined || result._elementType != undefined){
-                        global.log.info('Found the first working connection for ' + that.name)
-                        that.chosenConnection = connection 
-                        return(callback(true))                    
-                    }                     
+            this.hitApiTestConnections('',connection,function(result,connectionUsed){
+                global.log.info('Connection attempt result below for ' + that.name)         
+                global.log.info(connectionUsed)           
+                if (result == null || result == undefined) {
+                    global.log.info('Connection failed: ' + connectionUsed.uri) 
+                    //global.log.info(result)
+                    return
+                }
+                if (that.chosenConnection != null){
+                    //Looks like we've already found a good connection
+                    // lets disregard this connection 
+                    global.log.info('Already have a working connection for ' + that.name + ' which is ' + that.chosenConnection.uri)
+                    return
+                }
+                if (result.MediaContainer != undefined || result._elementType != undefined){
+                    global.log.info('Found the first working connection for ' + that.name + ' which is ' + connectionUsed.uri)
+                    that.setChosenConnection(connectionUsed)
+                    return                   
+                }                     
 
-                    global.log.info('Unsure of what this result is for connection to PMS. Probably failed. Server: ' + that.name)
-                    global.log.info(result)
-                    return(callback(false))                
-                })  
-            }                      
-    
+                global.log.info('Unsure of what this result is for connection to PMS. Probably failed. Server: ' + that.name)
+                global.log.info(result)
+                return              
+            })  
+        }  
     }
 
     //Functions for dealing with media 
     this.search = function(searchTerm,callback){
         //This function hits the PMS using the /search endpoint and returns what the server returns if valid
         var that = this
-        this.hitApi('/search',{'query':searchTerm},this.chosenConnection,function(result){
+        this.hitApi('/search',{'query':searchTerm},function(result){
             validResults = []
             if (result){             
                 for (var i in result._children){
@@ -164,7 +154,7 @@ module.exports = function PlexServer(){
 
     this.getMediaByRatingKey = function(ratingKey,callback){
         //This function hits the PMS and returns the item at the ratingKey
-        this.hitApi('/library/metadata/'+ratingKey,{},this.chosenConnection,function(result,that){
+        this.hitApi('/library/metadata/'+ratingKey,{},function(result,that){
             validResults = []
             global.log.info('Response back from metadata request')
             global.log.info(result)

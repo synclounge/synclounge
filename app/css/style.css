@@ -12,6 +12,11 @@ body {  min-width:650px; }
   background-color: #3F4245 !important;
 }
 
+.plex-white {
+  background-color: #F2F3F4 !important;
+
+}
+
 .white-text {
   color: #fff !important;
 }

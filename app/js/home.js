@@ -217,8 +217,10 @@ function checkRatingKey(){
                             if (server.clientIdentifier == serverId){
                                 //This is the server we're playing from
                                 //Lets fetch the metadata from that server
+
                                 server.getMediaByRatingKey(newRatingKey,function(res){
                                     global.renderLog.info('Got Metadata by rating key below from server ' + server.name)
+                                    console.log(server)
                                     global.renderLog.info(res)
                                     if (res){
                                         //Valid response from the PMS
