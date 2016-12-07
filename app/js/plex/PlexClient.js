@@ -29,58 +29,102 @@ module.exports = function PlexClient(){
     this.httpServer = null;    
     this.tempId = null;
 
-    //Latest objects for reference in the future
+    // Latest objects for reference in the future
     this.lastRatingKey = null;
     this.lastTimelineObject = null;
     this.clientPlayingMetadata = null;
+    this.lastSubscribe = 0;
 
+    // Event listening array
+    this.events = {};
 
-    //Functions
-    
+    // Functions     
+    this.generateGuid = function() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        }
+        return s4() + s4() + '-' + s4();
+    }  
+    this.uuid = this.generateGuid(); 
+
+    this.fire = function(msg) {
+        global.log.info('recieved a fire event for ' + msg)
+        let toProc = this.events[msg]
+        if (toProc == undefined) {
+            return
+        }
+        for (let i = 0; i < toProc.length; i++ ) {
+            global.log.info('Firing event: ' + msg)
+            toProc[i]()
+        }
+    }
+    this.on = function(msg,callback){
+        if (this.events[msg] == undefined) {
+            this.events[msg] = []
+        }
+        this.events[msg].push(callback)
+    }
     this.hitApi = function(command,params,connection,callback){
-        if (connection == null){
-            if (this.chosenConnection == null){
-                global.log.info('You should find a working connection via #findConnection first!')
-            }
-            connection = this.chosenConnection
-        } 
-        var query = '';
-        for (key in params) {
-            query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
-        }
-        query = query + 'commandID=' + this.commandId + '&type=video';
-        if (connection.uri.charAt(connection.uri.length-1) == '/'){
-            //Remove a trailing / that some clients broadcast
-            connection.uri = connection.uri.slice(0,connection.uri.length-1)
-        }
-        var _url = connection.uri + command + '?' + query
-        global.log.info(_url)
-        this.commandId = this.commandId + 1;
-        var options = {
-            url: _url,
-            time: true,
-            headers: {
-                'X-Plex-Device-Name':'PlexTogether',
-                'X-Plex-Client-Identifier': 'PlexTogether',
-                'X-Plex-Target-Client-Identifier':this.clientIdentifier
-            },
-            timeout: 5000
-        }
         var that = this;
-        request(options, function (error, response, body) {
-            this.commandId = this.commandId + 1
-            //global.log.info(response)
-            if (!error) {
-                parseXMLString(body, function(err,result){
-                    if (err){
-                        return callback(null,response.elapsedTime,response.statusCode)
-                    }
-                    return callback(result,response.elapsedTime,response.statusCode)
-                })
-            } else {
-                return callback(null,null,response)
+        global.log.info('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
+        if ( (new Date().getTime() - this.lastSubscribe) > 29000 ) {
+            // We need to subscribe first!
+            this.subscribe(function(result){
+                global.log.info('subscription result: ' + result)
+                if (result) {
+                    that.lastSubscribe = new Date().getTime()
+                }
+                doRequest()
+            })
+        } else {
+            doRequest()
+        }
+        function doRequest(){
+            if (connection == null){
+                if (this.chosenConnection == null){
+                    global.log.info('You should find a working connection via #findConnection first!')
+                }
+                connection = that.chosenConnection
+            } 
+            var query = '';
+            for (key in params) {
+                query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
             }
-        }) 
+            query = query + 'commandID=' + that.commandId + '&type=video';
+            if (connection.uri.charAt(connection.uri.length-1) == '/'){
+                //Remove a trailing / that some clients broadcast
+                connection.uri = connection.uri.slice(0,connection.uri.length-1)
+            }
+            var _url = connection.uri + command + '?' + query
+            global.log.info(_url)
+            that.commandId = that.commandId + 1;
+            var options = {
+                url: _url,
+                time: true,
+                headers: {
+                    'X-Plex-Device-Name':'PlexTogether',
+                    'X-Plex-Client-Identifier': 'PlexTogether',
+                    'X-Plex-Target-Client-Identifier':that.clientIdentifier
+                },
+                timeout: 5000
+            }
+            request(options, function (error, response, body) {
+                //global.log.info(response)
+                if (!error) {
+                    parseXMLString(body, function(err,result){
+                        if (err){
+                            return callback(null,response.elapsedTime,response.statusCode)
+                        }
+                        return callback(result,response.elapsedTime,response.statusCode)
+                    })
+                } else {
+                    return callback(null,null,response)
+                }
+            }) 
+        }
+        
     }
 
     this.findConnection = function(callback){
@@ -296,60 +340,104 @@ module.exports = function PlexClient(){
         })
     }
     this.subscribe = function(callback) {
-        // Check if we've already got a http server running
-        if (this.httpServer == null) {  
-            this.httpServer = http.createServer( function(req, res) { 
-                if (req.method == 'POST') {
-                    res.writeHead(200, {'Content-Type': 'text/html'});
-            
-                    var body = '';
-                    req.on('data', function (data) {
-                        body += data;
-                    });
-                    req.on('end', function () {
-                        // Check if we got a response from the client we want
-                        if (req.headers['x-plex-client-identifier'] == this.clientIdentifier) {
-                            parseXMLString(body, function(err,result){
-                                if (!err) {
-                                    //this.lastTimelineObject = result
-                                }
-                            })
-                        }                        
-                        res.end( '' );
-                    });
+        var that = this
+        doRequest()
+        function doRequest() {
+            // Already have a valid http server running, lets send the request
+            let tempId = 'PlexTogether' + new Date().getTime()
+            var command = '/player/timeline/subscribe'
+            var params = {
+                'port':that.subscribePort,
+                'protocol':'http',
+                'X-Plex-Device-Name':'PlexTogether'            
+            }
+            //Now that we've built our params, it's time to hit the client api
+
+            var query = '';
+            for (key in params) {
+                query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
+            }
+            query = query + 'commandID=' + that.commandId + '&type=video';
+            if (connection.uri.charAt(connection.uri.length-1) == '/'){
+                //Remove a trailing / that some clients broadcast
+                connection.uri = connection.uri.slice(0,connection.uri.length-1)
+            }
+            if (that.chosenConnection == null) {
+                // It is possible to try to subscribe before we've found a working connection
+                global.log.info('Chosen connection has not been set yet.')
+                return(callback(false))
+            }
+            var _url = that.chosenConnection.uri + command + '?' + query
+            global.log.info('subscription url: ' + _url)
+            that.commandId = that.commandId + 1;
+            var options = {
+                url: _url,
+                time: true,
+                headers: {
+                    'X-Plex-Device-Name':'PlexTogether',
+                    'X-Plex-Client-Identifier': 'PlexTogether_' + that.uuid,
+                    'X-Plex-Target-Client-Identifier':that.clientIdentifier
+                },
+                timeout: 5000
+            }
+            request(options, function (error, response, body) {
+                console.log('subscription result below')
+                if (!error) {
+                    return callback(true,that)
+                } else {
+                    return callback(false,that)
                 }
-                else
-                {
-                    res.writeHead(200, {'Content-Type': 'text/html'});
-                    var html = '<html><body>hey :)</body></html>';
-                    res.end(html);
-                }            
-            });
-            this.httpServer.on('error',function(e) {
-                global.log.info('HTTP SERVER ERROR')
-                global.log.info(e)
-            })
-            this.httpServer.listen(32500,'0.0.0.0')
-            global.log.info('Server started')
+            }) 
         }
-        // Already have a valid http server running, lets send the request
-        this.tempId = 'PlexTogether' + new Date().getTime()
-        var command = '/player/timeline/subscribe'
-        var params = {
-            'port':32500,
-            'protocol':'http',
-            'X-Plex-Device-Name':'PlexTogether'            
+    }
+    this.unsubscribe = function(callback) {
+        var that = this
+        doRequest()
+        function doRequest() {
+            // Already have a valid http server running, lets send the request
+            let tempId = 'PlexTogether' + new Date().getTime()
+            var command = '/player/timeline/unsubscribe'
+            var params = {
+                'port':that.subscribePort,
+                'protocol':'http',
+                'X-Plex-Device-Name':'PlexTogether'            
+            }
+            //Now that we've built our params, it's time to hit the client api
+
+            var query = '';
+            for (key in params) {
+                query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
+            }
+            query = query + 'commandID=' + that.commandId + '&type=video';
+            if (connection.uri.charAt(connection.uri.length-1) == '/'){
+                //Remove a trailing / that some clients broadcast
+                connection.uri = connection.uri.slice(0,connection.uri.length-1)
+            }
+            if (that.chosenConnection == null) {
+                // It is possible to try to subscribe before we've found a working connection
+                global.log.info('Chosen connection has not been set yet.')
+                return(callback(false))
+            }
+            var _url = that.chosenConnection.uri + command + '?' + query
+            global.log.info('subscription url: ' + _url)
+            that.commandId = that.commandId + 1;
+            var options = {
+                url: _url,
+                time: true,
+                headers: {
+                    'X-Plex-Device-Name':'PlexTogether',
+                    'X-Plex-Client-Identifier': 'PlexTogether' + that.uuid,
+                    'X-Plex-Target-Client-Identifier':that.clientIdentifier
+                },
+                timeout: 5000
+            }
+            request(options, function (error, response, body) {
+                if (!error) {
+                    return callback(true,that)
+                } else {
+                    return callback(false,that)
+                }
+            }) 
         }
-        //Now that we've built our params, it's time to hit the client api
-        this.hitApi(command,params,this.chosenConnection,function(result,that,code){
-            global.log.info('Subscribe request below')
-            global.log.info(code)
-            if (result != null){
-                return callback(result,that)
-            }
-            else {
-                return callback(null, that)
-            }
-        })
     }
 }

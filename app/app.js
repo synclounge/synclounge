@@ -301,6 +301,7 @@ ipcMain.on('plextv-signout',function(event){
 })
 //Home events
 ipcMain.on('home-tab-initialize', function(event){
+	plex.createHttpServer()
 	for (var i in plex.servers){
 		//We need to proc checking all of our servers!
 		var server = plex.servers[i]
@@ -351,7 +352,17 @@ ipcMain.on('home-tab-clientclicked',function(event,clientId){
 				}
 				event.sender.send('home-tab-clientclicked-result',res,client)
 				if (count == client.plexConnections.length){
-					if (client.chosenConnection != null){
+					if (client.chosenConnection != null){ 
+						
+						if (plex.chosenClient.unsubscribed == undefined) {
+							plex.chosenClient.unsubscribe(function(){})
+							plex.chosenClient.unsubscribed = true
+						}               
+						plex.chosenClient.on('client-update',
+							function(){
+								mainWindow.send('pt-sendPoll-manual')
+							}
+						)
 						event.sender.send('fire-notification','Plex Client','Successfully connected to ' + client.name)
 					} else {
 						event.sender.send('fire-notification','Plex Client','Unable to connect to ' + client.name)
@@ -519,6 +530,7 @@ ipcMain.on('join-room-ok',function(event,data,details,currentUsers){
 })
 ipcMain.on('pt-sendPoll',function(event,data){
 	global.socket.pollStartTime = (new Date).getTime() 
+	global.log.info('Sending our data to the PT server')
 	global.socket.emit('poll',data)
 })
 ipcMain.on('pt-server-address-change',function(event,address){

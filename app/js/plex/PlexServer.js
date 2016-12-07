@@ -107,8 +107,8 @@ module.exports = function PlexServer(){
         for (var i in this.plexConnections){
             var connection = this.plexConnections[i]
             this.hitApiTestConnections('',connection,function(result,connectionUsed){
-                global.log.info('Connection attempt result below for ' + that.name)         
-                global.log.info(connectionUsed)           
+                //global.log.info('Connection attempt result below for ' + that.name)         
+                //global.log.info(connectionUsed)           
                 if (result == null || result == undefined) {
                     global.log.info('Connection failed: ' + connectionUsed.uri) 
                     //global.log.info(result)
@@ -126,8 +126,8 @@ module.exports = function PlexServer(){
                     return                   
                 }                     
 
-                global.log.info('Unsure of what this result is for connection to PMS. Probably failed. Server: ' + that.name)
-                global.log.info(result)
+                //global.log.info('Unsure of what this result is for connection to PMS. Probably failed. Server: ' + that.name)
+                //global.log.info(result)
                 return              
             })  
         }  
