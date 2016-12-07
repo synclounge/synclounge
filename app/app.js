@@ -8,7 +8,7 @@ const spawn = require('child_process').spawn;
 global.log = require('electron-log');
 global.log.transports.file.format = '[App] [{level}] {h}:{i}:{s}:{ms} {text}';
 
-const storage = require('electron-json-storage');
+global.storage = require('electron-json-storage');
 
 global.io = require('socket.io-client');
 global.socket = null;
@@ -127,7 +127,7 @@ app.on('ready', function() {
 	--> If token is valid, send to Home
 	--> If token is not valid, send to Plex Login Screen 
 	*/
-	storage.get('plex-together-settings', function(error, data) {
+	global.storage.get('plex-together-settings', function(error, data) {
 		if (error) throw error;
 		if (data.plextvtoken != null){
 			//We have a token
@@ -273,7 +273,7 @@ ipcMain.on('plextv-signin', function(event,username,password){
 	//Sign in button pressed on Sign In page
 	plex.doStandardLogin(username,password,function(result){
 		if (result == 201){
-			storage.set('plex-together-settings',{'plextvtoken':plex.user.authToken}, function(error) {
+			global.storage.set('plex-together-settings',{'plextvtoken':plex.user.authToken}, function(error) {
 				if (error) throw error;
 			});
 			plex.getDevices(function(devicesResult){
@@ -293,7 +293,7 @@ ipcMain.on('plextv-signin', function(event,username,password){
 });
 ipcMain.on('plextv-signout',function(event){
 	introWindow.loadURL('file://' + __dirname + '/signin.html')
-	storage.set('plex-together-settings',{'plextvtoken':""}, function(error) {
+	global.storage.set('plex-together-settings',{'plextvtoken':""}, function(error) {
 		if (error) throw error;
 	});
 	mainWindow.minimize();
