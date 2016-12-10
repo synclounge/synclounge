@@ -157,7 +157,7 @@ module.exports = function PlexServer(){
         this.hitApi('/library/metadata/'+ratingKey,{},function(result,that){
             validResults = []
             global.log.info('Response back from metadata request')
-            global.log.info(result)
+            //global.log.info(result)
             if (result != null){                
                 if (result._children) {
                     // Old Server version compatibility

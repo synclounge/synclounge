@@ -230,12 +230,12 @@ module.exports = function(){
                 });
                 req.on('end', function () {
                     // Check if we got a response from the client we want
-                    // global.log.info('GOT DATA FROM SUBSCRIBE TIMELINE')
+                    global.log.info('GOT DATA FROM SUBSCRIBE TIMELINE')
                     if (req.headers['x-plex-client-identifier'] == that.chosenClient.clientIdentifier) {
                         parseXMLString(body, function(err,result){
                             if (!err) {
                                 //this.lastTimelineObject = result
-                                var allTimelines = result.MediaContainer.Timeline
+                                var allTimelines = result
                                 that.chosenClient.updateTimelineObject(allTimelines,null,function(){
                                 })
                             }

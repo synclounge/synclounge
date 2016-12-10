@@ -360,7 +360,7 @@ ipcMain.on('home-tab-clientclicked',function(event,clientId){
 						}               
 						plex.chosenClient.on('client-update',
 							function(){
-								mainWindow.send('pt-sendPoll-manual')
+								//mainWindow.send('pt-sendPoll-manual')
 							}
 						)
 						event.sender.send('fire-notification','Plex Client','Successfully connected to ' + client.name)
@@ -529,6 +529,9 @@ ipcMain.on('join-room-ok',function(event,data,details,currentUsers){
 	mainWindow.send('start-handling-room-events',data,details,currentUsers)
 })
 ipcMain.on('pt-sendPoll',function(event,data){
+	if (!global.socket){
+		return
+	}
 	global.socket.pollStartTime = (new Date).getTime() 
 	global.log.info('Sending our data to the PT server')
 	global.socket.emit('poll',data)
