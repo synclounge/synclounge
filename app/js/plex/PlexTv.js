@@ -217,7 +217,7 @@ module.exports = function(){
     this.createHttpServer = function() {
         var that = this
         this.httpServer = http.createServer( function(req, res) { 
-            global.log.info('Got subscription data')
+            //global.log.info('Got subscription data')
             if (that.chosenClient == null ) {
                 global.log.info('Got data from a client but we havent setup a preferred client yet')
                 return
@@ -230,23 +230,14 @@ module.exports = function(){
                 });
                 req.on('end', function () {
                     // Check if we got a response from the client we want
-                    // global.log.info('GOT DATA FROM SUBSCRIBE TIMELINE')
+                    global.log.info('GOT DATA FROM SUBSCRIBE TIMELINE')
                     if (req.headers['x-plex-client-identifier'] == that.chosenClient.clientIdentifier) {
                         parseXMLString(body, function(err,result){
                             if (!err) {
                                 //this.lastTimelineObject = result
-                                var allTimelines = result.MediaContainer.Timeline
-                                for (var i in allTimelines){
-                                    var timeline = allTimelines[i]["$"]    
-                                    //We only want the rating key of whatever is playing in the video timeline                
-                                    if (timeline.type == 'video'){
-                                        // global.log.info('Got a subscription timeline update')
-                                        that.chosenClient.lastTimelineObject = timeline
-                                        that.chosenClient.lastTimelineObject.recievedAt = new Date().getTime()
-                                        //global.log.info('player is now ' + that.chosenClient.lastTimelineObject.state)
-                                        that.chosenClient.fire('client-update')
-                                    }
-                                }
+                                var allTimelines = result
+                                that.chosenClient.updateTimelineObject(allTimelines,null,function(){
+                                })
                             }
                         })
                     }                        

@@ -8,9 +8,8 @@ var fs = require('fs');
 var PlexServer = require('./PlexServer.js')
 var PlexTv = require('./PlexTv.js')
 var PlexConnection = require('./PlexConnection.js')
-module.exports = function PlexClient(){
+module.exports = function PlexClient(){    
     this.commandId = 0;
-
     this.name = null;
     this.product = null;
     this.productVersion = null;
@@ -50,7 +49,7 @@ module.exports = function PlexClient(){
     this.uuid = this.generateGuid(); 
 
     this.fire = function(msg) {
-        global.log.info('recieved a fire event for ' + msg)
+        //global.log.info('recieved a fire event for ' + msg)
         let toProc = this.events[msg]
         if (toProc == undefined) {
             return
@@ -66,13 +65,16 @@ module.exports = function PlexClient(){
         }
         this.events[msg].push(callback)
     }
+    this.clearEvents = function(callback) {
+        this.events = {}
+    }
     this.hitApi = function(command,params,connection,callback){
         var that = this;
-        global.log.info('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
+        //global.log.info('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
         if ( (new Date().getTime() - this.lastSubscribe) > 29000 ) {
             // We need to subscribe first!
             this.subscribe(function(result){
-                global.log.info('subscription result: ' + result)
+                //global.log.info('subscription result: ' + result)
                 if (result) {
                     that.lastSubscribe = new Date().getTime()
                 }
@@ -106,6 +108,7 @@ module.exports = function PlexClient(){
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
                     'X-Plex-Client-Identifier': 'PlexTogether',
+                    'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },
                 timeout: 5000
@@ -156,12 +159,17 @@ module.exports = function PlexClient(){
     }
 
     this.getTimeline = function(callback){
+        var that = this
         //Get the timeline object from the client
         this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result,responseTime){
             if (result){
+                //console.log(JSON.stringify(result,null,4))
                 //Valid response back from the client
                 if (result.MediaContainer != null){
-                    return (callback(result.MediaContainer.Timeline,responseTime))
+                    that.updateTimelineObject(result,responseTime,function(){
+                        return callback(result,responseTime)
+                    })
+                    //return (callback(result.MediaContainer.Timeline,responseTime))
                 }
                 return callback(null,responseTime)
             } else {
@@ -170,6 +178,27 @@ module.exports = function PlexClient(){
         })
     }
 
+    this.updateTimelineObject = function(result,responseTime,callback) {
+        if (!result.MediaContainer.Timeline){
+            // Not a valid timeline object
+            return
+        }
+        // Valid timeline data
+        if (responseTime != null) {
+            this.lastResponseTime = responseTime
+        }
+        let timelines = result.MediaContainer.Timeline
+        for (let i = 0; i < timelines.length; i++){
+            let _timeline = timelines[i]['$']
+            if (_timeline.type == 'video') {
+                this.lastTimelineObject = timelines[i]['$']
+                this.lastTimelineObject.recievedAt = new Date().getTime()
+                this.fire('client-update')
+                return callback(_timeline)
+            }
+        }
+        return callback(null)
+    }
     this.pressPlay = function(callback){
         //Press play on the client        
         this.hitApi('/player/playback/play',{'wait':0},this.chosenConnection,function(result){
@@ -279,8 +308,6 @@ module.exports = function PlexClient(){
     this.getPlayerTime = function(callback){
         //Get the current playback time in ms    
         this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result,responseTime,code){
-            global.log.info('getPlayerTime result: ' + result)
-            global.log.info('getPlayerTime code: ' + code)
             if (result){
                 //Valid response back from the client
                 var allTimelines = result.MediaContainer.Timeline
@@ -303,20 +330,67 @@ module.exports = function PlexClient(){
         //We need the following variables to build our paramaters:
         //MediaId Key, Offset (0 for simplicity), server MachineId,
         //Server Ip, Server Port, Server Protocol, Path 
-        var command = '/player/playback/playMedia'
-        var mediaId = '/library/metadata/' + key
-        var offset = 0
-        var serverId = serverObject.clientIdentifier
-        var address = serverObject.chosenConnection.address
-        var port = serverObject.chosenConnection.port
-        var protocol = serverObject.chosenConnection.protocol
-        var path = serverObject.chosenConnection.uri + mediaId
+        var that = this
+        // First lets mirror the item so the user has an idea of what we're about to play
+        this.mirrorContent(key,serverObject,function(){
+            let command = '/player/playback/playMedia'
+            let mediaId = '/library/metadata/' + key
+            let offset = 0
+            let serverId = serverObject.clientIdentifier
+            let address = serverObject.chosenConnection.address
+            let port = serverObject.chosenConnection.port
+            let protocol = serverObject.chosenConnection.protocol
+            let path = serverObject.chosenConnection.uri + mediaId
 
-        var params = {
+            let params = {
 
-            'X-Plex-Client-Identifier' : 'PlexTogether',
+                'X-Plex-Client-Identifier' : 'PlexTogether_' + that.uuid,
+                'key' : mediaId,
+                'offset' : offset,
+                'machineIdentifier' : serverId,
+                'address' : address,
+                'port' : port,
+                'protocol' : protocol,
+                'path' : path,
+                'wait' : 0,
+                'token': serverObject.accessToken
+            }
+            //Now that we've built our params, it's time to hit the client api
+            that.hitApi(command,params,that.chosenConnection,function(result,the,code){
+                global.log.info('play result: ')
+                global.log.info(code)
+                if (result != null){
+                    return callback(result,code,that)
+                }
+                else {
+                    return callback(false,code,that)
+                }
+                //global.log.info(that.name + ' returned ' + result)
+            })
+        })
+        
+    }
+    this.mirrorContent = function(key,serverObject,callback) {
+        //Mirror a media item given a mediaId key and a server to play from
+        //We need the following variables to build our paramaters:
+        //MediaId Key, Offset (0 for simplicity), server MachineId,
+        //Server Ip, Server Port, Server Protocol, Path 
+        var that = this
+        global.log.info('Trying to mirror content')
+
+        let command = '/player/mirror/details'
+        let mediaId = '/library/metadata/' + key
+        let offset = 0
+        let serverId = serverObject.clientIdentifier
+        let address = serverObject.chosenConnection.address
+        let port = serverObject.chosenConnection.port
+        let protocol = serverObject.chosenConnection.protocol
+        let path = serverObject.chosenConnection.uri + mediaId
+
+        let params = {
+
+            'X-Plex-Client-Identifier' : 'PlexTogether_' + that.uuid,
             'key' : mediaId,
-            'offset' : offset,
             'machineIdentifier' : serverId,
             'address' : address,
             'port' : port,
@@ -327,16 +401,12 @@ module.exports = function PlexClient(){
         }
         //Now that we've built our params, it's time to hit the client api
         this.hitApi(command,params,this.chosenConnection,function(result,that,code){
-            global.log.info('play result: ')
-            global.log.info(result)
-            global.log.info(code)
             if (result != null){
                 return callback(result,code,that)
             }
             else {
                 return callback(false,code,that)
             }
-            //global.log.info(that.name + ' returned ' + result)
         })
     }
     this.subscribe = function(callback) {
@@ -368,7 +438,7 @@ module.exports = function PlexClient(){
                 return(callback(false))
             }
             var _url = that.chosenConnection.uri + command + '?' + query
-            global.log.info('subscription url: ' + _url)
+            //global.log.info('subscription url: ' + _url)
             that.commandId = that.commandId + 1;
             var options = {
                 url: _url,
@@ -376,12 +446,13 @@ module.exports = function PlexClient(){
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
                     'X-Plex-Client-Identifier': 'PlexTogether_' + that.uuid,
+                    'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },
                 timeout: 5000
             }
             request(options, function (error, response, body) {
-                console.log('subscription result below')
+                //console.log('subscription result below')
                 if (!error) {
                     return callback(true,that)
                 } else {
@@ -427,6 +498,7 @@ module.exports = function PlexClient(){
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
                     'X-Plex-Client-Identifier': 'PlexTogether' + that.uuid,
+                    'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },
                 timeout: 5000
