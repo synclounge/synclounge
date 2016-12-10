@@ -50,13 +50,13 @@ module.exports = function PlexClient(){
     this.uuid = this.generateGuid(); 
 
     this.fire = function(msg) {
-        global.log.info('recieved a fire event for ' + msg)
+        //global.log.info('recieved a fire event for ' + msg)
         let toProc = this.events[msg]
         if (toProc == undefined) {
             return
         }
         for (let i = 0; i < toProc.length; i++ ) {
-            global.log.info('Firing event: ' + msg)
+            //global.log.info('Firing event: ' + msg)
             toProc[i]()
         }
     }
@@ -68,11 +68,11 @@ module.exports = function PlexClient(){
     }
     this.hitApi = function(command,params,connection,callback){
         var that = this;
-        global.log.info('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
+        //global.log.info('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
         if ( (new Date().getTime() - this.lastSubscribe) > 29000 ) {
             // We need to subscribe first!
             this.subscribe(function(result){
-                global.log.info('subscription result: ' + result)
+                //global.log.info('subscription result: ' + result)
                 if (result) {
                     that.lastSubscribe = new Date().getTime()
                 }
@@ -369,7 +369,7 @@ module.exports = function PlexClient(){
                 return(callback(false))
             }
             var _url = that.chosenConnection.uri + command + '?' + query
-            global.log.info('subscription url: ' + _url)
+            //global.log.info('subscription url: ' + _url)
             that.commandId = that.commandId + 1;
             var options = {
                 url: _url,
@@ -383,7 +383,7 @@ module.exports = function PlexClient(){
                 timeout: 5000
             }
             request(options, function (error, response, body) {
-                console.log('subscription result below')
+                //console.log('subscription result below')
                 if (!error) {
                     return callback(true,that)
                 } else {

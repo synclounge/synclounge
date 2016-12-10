@@ -81,8 +81,11 @@ ipcRenderer.on('home-tab-initialize-result', function(event, username, clients, 
         clientsObj[i].addEventListener('click', function (event) {
             var clientId = event.toElement.getAttribute('plexId')
             event.toElement.style.color = '#ffb74d'
-            ipcRenderer.send('home-tab-clientclicked',clientId)
             var plex = remote.getGlobal('plex')
+            if (plex.chosenClient != null)  {
+                plex.chosenClient.unsubscribe(function(){})
+            }
+            ipcRenderer.send('home-tab-clientclicked',clientId)
             for (var x in plex.clients){
                 var client = plex.clients[x]
                 client.lastRatingKey = null

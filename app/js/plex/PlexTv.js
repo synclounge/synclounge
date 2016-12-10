@@ -217,7 +217,7 @@ module.exports = function(){
     this.createHttpServer = function() {
         var that = this
         this.httpServer = http.createServer( function(req, res) { 
-            global.log.info('Got subscription data')
+            //global.log.info('Got subscription data')
             if (that.chosenClient == null ) {
                 global.log.info('Got data from a client but we havent setup a preferred client yet')
                 return
