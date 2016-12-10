@@ -106,6 +106,7 @@ module.exports = function PlexClient(){
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
                     'X-Plex-Client-Identifier': 'PlexTogether',
+                    'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },
                 timeout: 5000
@@ -376,6 +377,7 @@ module.exports = function PlexClient(){
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
                     'X-Plex-Client-Identifier': 'PlexTogether_' + that.uuid,
+                    'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },
                 timeout: 5000
@@ -427,6 +429,7 @@ module.exports = function PlexClient(){
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
                     'X-Plex-Client-Identifier': 'PlexTogether' + that.uuid,
+                    'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },
                 timeout: 5000
