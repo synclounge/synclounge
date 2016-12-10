@@ -236,17 +236,8 @@ module.exports = function(){
                             if (!err) {
                                 //this.lastTimelineObject = result
                                 var allTimelines = result.MediaContainer.Timeline
-                                for (var i in allTimelines){
-                                    var timeline = allTimelines[i]["$"]    
-                                    //We only want the rating key of whatever is playing in the video timeline                
-                                    if (timeline.type == 'video'){
-                                        // global.log.info('Got a subscription timeline update')
-                                        that.chosenClient.lastTimelineObject = timeline
-                                        that.chosenClient.lastTimelineObject.recievedAt = new Date().getTime()
-                                        //global.log.info('player is now ' + that.chosenClient.lastTimelineObject.state)
-                                        that.chosenClient.fire('client-update')
-                                    }
-                                }
+                                that.chosenClient.updateTimelineObject(allTimelines,null,function(){
+                                })
                             }
                         })
                     }                        

@@ -180,78 +180,63 @@ function checkRatingKey(){
     // -Get the timeline object
     //	--Check the rating key of old Vs new
     //	---If they're different, retrieve new metadata from PMS
-    global.renderLog.info('Checking the rating key')
+    //global.renderLog.info('Checking the rating key')
     var plex = remote.getGlobal('plex')
     plex.chosenClient.getTimeline(function(result,responseTime){
-        global.renderLog.info('Rating key response ')
-        console.log(result)
-        if (result != null){
-            //Check if we actually got a good response
-            plex.chosenClient.lastResponseTime = responseTime
-            for (var i in result){
-                var timeline = result[i]['$']
-                if (timeline.type == 'video'){
-                    //This is the timeline we care about
-                    var newRatingKey = timeline.ratingKey
-                    var newTimelineObject = timeline
-                    //Check our ratingKeys to see if we need to get new Metadata
-                    global.renderLog.info('ratingKey: ' + newRatingKey)
-                    if (newRatingKey == null || newRatingKey == undefined){
-                        //$('.mainUser').find('.ptuser-title').text('Nothing is playing on ' + plex.chosenClient.name)
-                        document.getElementById('metaDropdownDiv').style.display = 'none'
-                        document.getElementById('userMetadata').style.display = 'none'
-                        //document.getElementById('mainUser').style.boxshadow = '0 2px 5px 0 rgba(0, 0, 0, 0.16)'
-                    }
-                    if (plex.chosenClient.lastRatingKey != newRatingKey){
-                        if (plex.chosenClient.lastRatingKey != null && newRatingKey == null){
-                            //We just stopped playing something
-                            plex.chosenClient.lastRatingKey = newRatingKey
-                            return
-                        }
-                        /*
-                        Looks like we've changed what we were playing
-                        We now need to fetch the metadata from the server
-                        The server may not actually be our prefered server
-                            so we'll need to go through all our server to find
-                            the server we're playing from
-                        */
+        if (!result) {
+            return
+        }
+        var newRatingKey = plex.chosenClient.lastTimelineObject.ratingKey
+        var newTimelineObject = plex.chosenClient.lastTimelineObject
+        //Check our ratingKeys to see if we need to get new Metadata
+        //global.renderLog.info('ratingKey: ' + newRatingKey)
+        if (newRatingKey == null || newRatingKey == undefined){
+            //$('.mainUser').find('.ptuser-title').text('Nothing is playing on ' + plex.chosenClient.name)
+            document.getElementById('metaDropdownDiv').style.display = 'none'
+            document.getElementById('userMetadata').style.display = 'none'
+            //document.getElementById('mainUser').style.boxshadow = '0 2px 5px 0 rgba(0, 0, 0, 0.16)'
+        }
+        if (plex.chosenClient.lastRatingKey != newRatingKey){
+            if (plex.chosenClient.lastRatingKey != null && newRatingKey == null){
+                //We just stopped playing something
+                plex.chosenClient.lastRatingKey = newRatingKey
+                return
+            }
+            global.renderLog.info('We have change what we are playing on this client. Attempting to fetch metadata now')
+            /*
+            Looks like we've changed what we were playing
+            We now need to fetch the metadata from the server
+            The server may not actually be our prefered server
+                so we'll need to go through all our server to find
+                the server we're playing from
+            */
+            var serverId = newTimelineObject.machineIdentifier
+            for (var x in plex.servers){
+                var server = plex.servers[x]
+                if (server.clientIdentifier == serverId){
 
+                    //This is the server we're playing from
+                    //Lets fetch the metadata from that server
 
-                        var serverId = newTimelineObject.machineIdentifier
-                        for (var x in plex.servers){
-                            //global.renderLog.info(x)
-                            var server = plex.servers[x]
-                            //global.renderLog.info(server)
-                            if (server.clientIdentifier == serverId){
-                                //This is the server we're playing from
-                                //Lets fetch the metadata from that server
+                    server.getMediaByRatingKey(newRatingKey,function(res){
+                        global.renderLog.info('Got Metadata by rating key below from server ' + server.name)
+                        //global.renderLog.info(res)
+                        if (res){
+                            //Valid response from the PMS
 
-                                server.getMediaByRatingKey(newRatingKey,function(res){
-                                    global.renderLog.info('Got Metadata by rating key below from server ' + server.name)
-                                    console.log(server)
-                                    global.renderLog.info(res)
-                                    if (res){
-                                        //Valid response from the PMS
-                                        global.renderLog.info('Valid response from the PMS')
-
-                                        if (document.getElementById('metaDropdownDiv').style.display != 'block'){
-                                            document.getElementById('metaDropdownDiv').style.display = 'block'
-                                        }
-                                        plex.chosenClient.clientPlayingMetadata = res
-                                        plex.chosenClient.lastRatingKey = newRatingKey
-                                        plex.chosenClient.lastTimelineObject = newTimelineObject
-                                        plex.chosenClient.lastTimelineObject.recievedAt = new Date().getTime()
-                                        updateMeta(server)
-                                    } else {
-                                        global.renderLog.info('Failed to retrieve metadata from rating key ' + newRatingKey)
-                                        //plex.chosenClient.lastRatingKey = newRatingKey
-                                        //plex.chosenClient.lastTimelineObject = newTimelineObject
-                                    }
-                                })
-                                break
+                            if (document.getElementById('metaDropdownDiv').style.display != 'block'){
+                                document.getElementById('metaDropdownDiv').style.display = 'block'
                             }
+                            plex.chosenClient.clientPlayingMetadata = res
+                            plex.chosenClient.lastRatingKey = newRatingKey
+                            plex.chosenClient.lastTimelineObject = newTimelineObject
+                            plex.chosenClient.lastTimelineObject.recievedAt = new Date().getTime()
+                            updateMeta(server)
+                        } else {
+                            global.renderLog.info('Failed to retrieve metadata from rating key ' + newRatingKey)
                         }
-                    }
+                    })
+                    break
                 }
             }
         }
@@ -358,19 +343,7 @@ function sendPoll()
 {
     var plex = remote.getGlobal('plex')
     plex.chosenClient.getTimeline(function(result,responseTime){
-        if (result != null){
-            // Valid timeline data
-            plex.chosenClient.lastResponseTime = responseTime
-            for (var i in result){
-                var timeline = result[i]['$']
-                if (timeline.type == 'video'){
-                    plex.chosenClient.lastTimelineObject = result[i]['$']
-                    plex.chosenClient.lastTimelineObject.recievedAt = new Date().getTime()
-                    sendValidData()
-                    break
-                }
-            }
-        }
+        sendValidData()
     })
 }  
 function sendValidData(){    
@@ -488,15 +461,8 @@ function handleHostUpdate(data){
 
     // Check if we need to get fresh data from our client to prevent DDoSing our client
     if ((new Date().getTime() - plex.chosenClient.lastTimelineObject.recievedAt) > 1000 ) {
-        plex.chosenClient.getTimeline(function(timelines,ourClientResponseTime){        
-            for (let i = 0; i < timelines.length; i++){
-                if (timelines[i]['$'].type == 'video'){                                
-                    plex.chosenClient.lastTimelineObject = timelines[i]['$']
-                    plex.chosenClient.lastTimelineObject.recievedAt = new Date().getTime()
-                    break
-                }
-            }
-            handleSeek(0)
+        plex.chosenClient.getTimeline(function(timelines,ourClientResponseTime){  
+            handleSeek(ourClientResponseTime) 
         })
     } else {
         // Pass through the amount of time that has passed since this timeline object was created
@@ -834,34 +800,30 @@ function checkBufferTime(){
     }
     var checkBuffer = setInterval(function(){
         global.renderLog.info('check buffer tick')
-        plex.chosenClient.getTimeline(function(timelines){
+        plex.chosenClient.getTimeline(function(timelines,responseTime){            
             if (!timelines) {
                 return
             }
-            let videoTimeline = null
-            for (let j = 0; j < timelines.length; j++){
-                if (timelines[j]['$'].type == 'video'){
-                    videoTimeline = timelines[j]['$']
-                    break
-                }
-            }
-            if (i == 0) {
-                firstTime = videoTimeline.time 
-                i = i + 1
-                return
-            } else {
-                i = i + 1
-                // Check if the player is actually playing content now
-                if (videoTimeline.time > firstTime) {
-                    // We're now playing something!
-
-                    plex.chosenClient.bufferTime = (i * checkInterval)
-                    global.renderLog.info('Calculated buffer time to be roughly ' + plex.chosenClient.bufferTime + 'ms')
-                    clearInterval(checkBuffer)
+            plex.chosenClient.updateTimelineObject(timelines,responseTime,function(result){
+                let videoTimeline = result
+                if (i == 0) {
+                    firstTime = videoTimeline.time 
+                    i = i + 1
+                    return
                 } else {
-                    global.renderLog.info('Buffer iteration at ' + i)
+                    i = i + 1
+                    // Check if the player is actually playing content now
+                    if (videoTimeline.time > firstTime) {
+                        // We're now playing something!
+                        plex.chosenClient.bufferTime = (i * checkInterval)
+                        global.renderLog.info('Calculated buffer time to be roughly ' + plex.chosenClient.bufferTime + 'ms')
+                        clearInterval(checkBuffer)
+                    } else {
+                        global.renderLog.info('Buffer iteration at ' + i)
+                    }
                 }
-            }
+            })
+            
             
         })
     },checkInterval)

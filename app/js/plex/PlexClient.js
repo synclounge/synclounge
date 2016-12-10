@@ -66,6 +66,24 @@ module.exports = function PlexClient(){
         }
         this.events[msg].push(callback)
     }
+    this.updateTimelineObject = function(timelines,responseTime,callback) {
+        if (timelines != null){
+            // Valid timeline data
+            if (responseTime != null) {
+                this.lastResponseTime = responseTime
+            }
+            for (let i in timelines){
+                let _timeline = timelines[i]['$']
+                if (_timeline.type == 'video'){
+                    this.lastTimelineObject = timelines[i]['$']
+                    this.lastTimelineObject.recievedAt = new Date().getTime()
+                    this.fire('client-update')
+                    return callback(_timeline)
+                }
+            }
+        }
+        return callback(null)
+    }
     this.hitApi = function(command,params,connection,callback){
         var that = this;
         //global.log.info('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
@@ -157,12 +175,16 @@ module.exports = function PlexClient(){
     }
 
     this.getTimeline = function(callback){
+        var that = this
         //Get the timeline object from the client
         this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result,responseTime){
             if (result){
                 //Valid response back from the client
                 if (result.MediaContainer != null){
-                    return (callback(result.MediaContainer.Timeline,responseTime))
+                    that.updateTimelineObject(result,responseTime,function(){
+                        return callback(result.MediaContainer.Timeline,responseTime)
+                    })
+                    //return (callback(result.MediaContainer.Timeline,responseTime))
                 }
                 return callback(null,responseTime)
             } else {
