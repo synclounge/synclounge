@@ -38,7 +38,7 @@ module.exports = function PlexServer(){
         }
         global.log.info('Hitting server ' + this.name + ' via ' + this.chosenConnection.uri)
         var _url = this.chosenConnection.uri + command + '?' + query
-        var options = PlexAuth.getApiOptions(_url, this.accessToken, 15000);
+        var options = PlexAuth.getApiOptions(_url, this.accessToken, 15000, 'GET');
         //global.log.info('Hitting server ' + this.name + ' with command ' + command)
         //global.log.info(options)
         request(options, function (error, response, body) {
@@ -63,7 +63,7 @@ module.exports = function PlexServer(){
             }
         }
         var _url = connection.uri + command
-        var options = PlexAuth.getApiOptions(_url, this.accessToken, 7500);
+        var options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET');
         request(options, function (error, response, body) {
             if (!error) {
                 safeParse(body, function (err, json){
