@@ -107,7 +107,7 @@ module.exports = function PlexClient(){
                 time: true,
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
-                    'X-Plex-Client-Identifier': 'PlexTogether',
+                    'X-Plex-Client-Identifier': global.constants.X_PLEX_CLIENT_IDENTIFIER,
                     'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },
@@ -344,7 +344,7 @@ module.exports = function PlexClient(){
 
             let params = {
 
-                'X-Plex-Client-Identifier' : 'PlexTogether_' + that.uuid,
+                'X-Plex-Client-Identifier' : global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
                 'key' : mediaId,
                 'offset' : offset,
                 'machineIdentifier' : serverId,
@@ -389,7 +389,7 @@ module.exports = function PlexClient(){
 
         let params = {
 
-            'X-Plex-Client-Identifier' : 'PlexTogether_' + that.uuid,
+            'X-Plex-Client-Identifier' : global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
             'key' : mediaId,
             'machineIdentifier' : serverId,
             'address' : address,
@@ -445,7 +445,7 @@ module.exports = function PlexClient(){
                 time: true,
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
-                    'X-Plex-Client-Identifier': 'PlexTogether_' + that.uuid,
+                    'X-Plex-Client-Identifier': global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
                     'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },
@@ -497,7 +497,7 @@ module.exports = function PlexClient(){
                 time: true,
                 headers: {
                     'X-Plex-Device-Name':'PlexTogether',
-                    'X-Plex-Client-Identifier': 'PlexTogether' + that.uuid,
+                    'X-Plex-Client-Identifier': global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
                     'X-Plex-Provides':'controller',
                     'X-Plex-Target-Client-Identifier':that.clientIdentifier
                 },

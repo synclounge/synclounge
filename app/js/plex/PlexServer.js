@@ -4,6 +4,7 @@ var parseXMLString = require('xml2js').parseString;
 var PlexTv = require('./PlexTv.js')
 var PlexClient = require('./PlexClient.js')
 var PlexConnection = require('./PlexConnection.js')
+var PlexAuth = require('./PlexAuth.js')
 module.exports = function PlexServer(){
     this.name;
     this.product;
@@ -37,16 +38,7 @@ module.exports = function PlexServer(){
         }
         global.log.info('Hitting server ' + this.name + ' via ' + this.chosenConnection.uri)
         var _url = this.chosenConnection.uri + command + '?' + query
-        var options = {
-            url: _url,
-            time: true,
-            headers: {
-                'X-Plex-Client-Identifier': 'PlexTogether',
-                'Accept':'application/json',
-                'X-Plex-Token':this.accessToken
-            },
-            timeout: 15000
-        }
+        var options = PlexAuth.getApiOptions(_url, this.accessToken, 15000);
         //global.log.info('Hitting server ' + this.name + ' with command ' + command)
         //global.log.info(options)
         request(options, function (error, response, body) {
@@ -71,16 +63,7 @@ module.exports = function PlexServer(){
             }
         }
         var _url = connection.uri + command
-        var options = {
-            url: _url,
-            time: true,
-            headers: {
-                'X-Plex-Client-Identifier': 'PlexTogether',
-                'Accept':'application/json',
-                'X-Plex-Token':this.accessToken
-            },
-            timeout: 7500
-        }
+        var options = PlexAuth.getApiOptions(_url, this.accessToken, 7500);
         request(options, function (error, response, body) {
             if (!error) {
                 safeParse(body, function (err, json){
