@@ -9,4 +9,5 @@ function define(name, value) {
 }
 
 define("X_PLEX_CLIENT_IDENTIFIER", 'PlexTogether');
+define("X_PLEX_DEVICE_NAME", 'PlexTogether');
 define("CLIENT_INTERVAL_REFRESH", 1000);
