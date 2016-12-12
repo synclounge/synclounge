@@ -7,6 +7,7 @@ var portfinder = require('portfinder');
 var PlexServer = require('./PlexServer.js')
 var PlexClient = require('./PlexClient.js')
 var PlexConnection = require('./PlexConnection.js')
+var PlexAuth = require('./PlexAuth.js')
 
 
 module.exports = function(){
@@ -65,12 +66,7 @@ module.exports = function(){
             return(callback(false))
         }
         global.log.info("Retrieving devices for " + this.user.username)
-        var options = {
-            url: 'https://plex.tv/api/resources?includeHttps=1',
-            headers: {
-                'X-Plex-Token': this.user.authToken
-            }
-        }
+        var options = PlexAuth.getApiOptions('https://plex.tv/api/resources?includeHttps=1', this.user.authToken, 5000, 'GET');
         request(options,function(error,response,body){
             if (!error && response.statusCode == 200){ 
                 //Valid response 
@@ -136,14 +132,7 @@ module.exports = function(){
         //Login via a token, this is the normal login path after
         // the initial setup
         global.log.info('Signing in to Plex.tv via token')
-        var options = {
-            url: 'https://plex.tv/users/sign_in.json',
-            headers: {
-                'X-Plex-Token': token,
-                'X-Plex-Client-Identifier': 'PlexTogether'
-            },
-            method:'POST'
-        }
+        var options = PlexAuth.getApiOptions('https://plex.tv/users/sign_in.json', token, 5000, 'POST');
         var that = this;
         request(options, function (error, response, body) {
             if (!error && (response.statusCode == 200 || response.statusCode == 201)) {                
@@ -172,7 +161,7 @@ module.exports = function(){
             url: 'https://plex.tv/users/sign_in.json',
             headers: {
                 'Authorization': 'Basic ' + base64encoded,
-                'X-Plex-Client-Identifier': 'PlexTogether'
+                'X-Plex-Client-Identifier': global.constants.X_PLEX_CLIENT_IDENTIFIER
             },
             method:'POST'
         }

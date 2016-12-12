@@ -8,7 +8,8 @@ var fs = require('fs');
 var PlexServer = require('./PlexServer.js')
 var PlexTv = require('./PlexTv.js')
 var PlexConnection = require('./PlexConnection.js')
-module.exports = function PlexClient(){    
+var PlexAuth = require('./PlexAuth.js')
+module.exports = function PlexClient(){
     this.commandId = 0;
     this.name = null;
     this.product = null;
@@ -102,17 +103,7 @@ module.exports = function PlexClient(){
             var _url = connection.uri + command + '?' + query
             global.log.info(_url)
             that.commandId = that.commandId + 1;
-            var options = {
-                url: _url,
-                time: true,
-                headers: {
-                    'X-Plex-Device-Name':'PlexTogether',
-                    'X-Plex-Client-Identifier': 'PlexTogether',
-                    'X-Plex-Provides':'controller',
-                    'X-Plex-Target-Client-Identifier':that.clientIdentifier
-                },
-                timeout: 5000
-            }
+            var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, null, 5000);
             request(options, function (error, response, body) {
                 //global.log.info(response)
                 if (!error) {
@@ -344,7 +335,7 @@ module.exports = function PlexClient(){
 
             let params = {
 
-                'X-Plex-Client-Identifier' : 'PlexTogether_' + that.uuid,
+                'X-Plex-Client-Identifier' : global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
                 'key' : mediaId,
                 'offset' : offset,
                 'machineIdentifier' : serverId,
@@ -389,7 +380,7 @@ module.exports = function PlexClient(){
 
         let params = {
 
-            'X-Plex-Client-Identifier' : 'PlexTogether_' + that.uuid,
+            'X-Plex-Client-Identifier' : global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
             'key' : mediaId,
             'machineIdentifier' : serverId,
             'address' : address,
@@ -440,17 +431,7 @@ module.exports = function PlexClient(){
             var _url = that.chosenConnection.uri + command + '?' + query
             //global.log.info('subscription url: ' + _url)
             that.commandId = that.commandId + 1;
-            var options = {
-                url: _url,
-                time: true,
-                headers: {
-                    'X-Plex-Device-Name':'PlexTogether',
-                    'X-Plex-Client-Identifier': 'PlexTogether_' + that.uuid,
-                    'X-Plex-Provides':'controller',
-                    'X-Plex-Target-Client-Identifier':that.clientIdentifier
-                },
-                timeout: 5000
-            }
+            var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000);
             request(options, function (error, response, body) {
                 //console.log('subscription result below')
                 if (!error) {
@@ -492,17 +473,7 @@ module.exports = function PlexClient(){
             var _url = that.chosenConnection.uri + command + '?' + query
             global.log.info('subscription url: ' + _url)
             that.commandId = that.commandId + 1;
-            var options = {
-                url: _url,
-                time: true,
-                headers: {
-                    'X-Plex-Device-Name':'PlexTogether',
-                    'X-Plex-Client-Identifier': 'PlexTogether' + that.uuid,
-                    'X-Plex-Provides':'controller',
-                    'X-Plex-Target-Client-Identifier':that.clientIdentifier
-                },
-                timeout: 5000
-            }
+            var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000);
             request(options, function (error, response, body) {
                 if (!error) {
                     return callback(true,that)

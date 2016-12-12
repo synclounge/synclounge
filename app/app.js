@@ -5,6 +5,7 @@ var AppDirectory = require('appdirectory')
 const path = require('path');
 const spawn = require('child_process').spawn;
 
+global.constants = require("./js/constants")
 global.log = require('electron-log');
 global.log.transports.file.format = '[App] [{level}] {h}:{i}:{s}:{ms} {text}';
 
@@ -345,7 +346,7 @@ ipcMain.on('home-tab-clientclicked',function(event,clientId){
 							//Looks like we no longer have a valid client, lets stop this loop
 							clearInterval(clientInterval)
 						}
-					},1000)
+					},global.constants.CLIENT_INTERVAL_REFRESH)
 					plex.chosenClient = client
 				} else {
 					plex.chosenClient = null
