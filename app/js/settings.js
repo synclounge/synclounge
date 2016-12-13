@@ -77,15 +77,16 @@ function connectToPTServer(address){
     document.getElementById('ptServerPreloader').style.opacity = 1
     global.renderLog.info('connecting to ' + address)
     ipcRenderer.send('connect-to-ptserver',address)
-	//global.socket = io.connect('au1.plextogether.com',{'sync disconnect on unload':true
+    //global.socket = io.connect('au1.plextogether.com',{'sync disconnect on unload':true
     // global.socket = io.connect('localhost',{'sync disconnect on unload':true})
-	ipcRenderer.on('connect-ptserver-fail',function(event){
-		global.renderLog.info('FAILED TO CONNECT TO THE PTSERVER')
+    ipcRenderer.on('connect-ptserver-fail',function(event){
+        global.renderLog.info('FAILED TO CONNECT TO THE PTSERVER')
         $('#serverSuccess').addClass('hide')
         document.getElementById('ptServerPreloader').style.opacity = 0
-    })	
+    })  
     ipcRenderer.on('connect-ptserver-success',function(event){
-		document.getElementById('ptServerPreloader').style.opacity = 0
+        saveCustomPTServer(address);
+        document.getElementById('ptServerPreloader').style.opacity = 0
         $('#serverSuccess').removeClass('hide')
         document.getElementById('ptRoom').focus()
         ipcRenderer.send('pt-server-address-change',address)
@@ -93,7 +94,7 @@ function connectToPTServer(address){
 }
 function joinPTRoom(){
     global.renderLog.info('attempting to join room')
-    let wantedRoom = document.getElementById('ptRoom').value	
+    let wantedRoom = document.getElementById('ptRoom').value    
     if (wantedRoom === '' || wantedRoom === null){
         global.renderLog.info('Choose the room you\'d like to join first!')
         return
@@ -111,14 +112,14 @@ function joinPTRoom(){
 function handleRoomJoinAttempt(result,data,details,currentUsers){
     global.renderLog.info(currentUsers)
     if (result){          
-        //Join successful			
+        //Join successful           
         //Now we'll pass over control to roomEvents in homejs to handle everything
         ipcRenderer.send('pt-server-room-change',data.room,document.getElementById('ptRoomPassword').value)
         setTimeout(function(){
             ipcRenderer.send('join-room-ok',data,details,currentUsers,global.socket)
             ipcRenderer.send('pt-server-showInfo')
         },150)         
-	} else {
+    } else {
         //Join FAILED
         if (details == 'wrong password'){
             global.renderLog.info('wrong password')
@@ -135,4 +136,31 @@ function getHandshakeUser(){
         'avatarUrl':plex.user.thumb
     }
     return tempUser
+}
+
+function getSavedCustomPTServer(input){
+    global.renderLog.info("Loading custom server from storage");
+    var storage = remote.getGlobal('storage');
+    storage.get('plex-together-custom-settings', function(error, data) {
+        if (error) throw error;
+        if(data.customPTServer != null){
+            global.renderLog.info("custom PT is defined " + data.customPTServer);
+            input.val(data.customPTServer);
+        }else{
+            //if key doesn't exists, create one with value "http://"
+            input.val("http://");
+            storage.set('plex-together-custom-settings',{'customPTServer':"http://"}, function(error) {
+            if (error) throw error;
+            });
+        }
+    });
+}
+
+function saveCustomPTServer(address){
+    global.renderLog.info("Saving custom server " + address + " to storage");
+    var storage = remote.getGlobal('storage');
+    storage.set('plex-together-custom-settings',{'customPTServer':address}, function(error) {
+        if (error) throw error;
+    });
+    return address
 }

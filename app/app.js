@@ -5,10 +5,11 @@ var AppDirectory = require('appdirectory')
 const path = require('path');
 const spawn = require('child_process').spawn;
 
+global.constants = require("./js/constants")
 global.log = require('electron-log');
 global.log.transports.file.format = '[App] [{level}] {h}:{i}:{s}:{ms} {text}';
 
-const storage = require('electron-json-storage');
+global.storage = require('electron-json-storage');
 
 global.io = require('socket.io-client');
 global.socket = null;
@@ -127,7 +128,7 @@ app.on('ready', function() {
 	--> If token is valid, send to Home
 	--> If token is not valid, send to Plex Login Screen 
 	*/
-	storage.get('plex-together-settings', function(error, data) {
+	global.storage.get('plex-together-settings', function(error, data) {
 		if (error) throw error;
 		if (data.plextvtoken != null){
 			//We have a token
@@ -273,7 +274,7 @@ ipcMain.on('plextv-signin', function(event,username,password){
 	//Sign in button pressed on Sign In page
 	plex.doStandardLogin(username,password,function(result){
 		if (result == 201){
-			storage.set('plex-together-settings',{'plextvtoken':plex.user.authToken}, function(error) {
+			global.storage.set('plex-together-settings',{'plextvtoken':plex.user.authToken}, function(error) {
 				if (error) throw error;
 			});
 			plex.getDevices(function(devicesResult){
@@ -293,7 +294,7 @@ ipcMain.on('plextv-signin', function(event,username,password){
 });
 ipcMain.on('plextv-signout',function(event){
 	introWindow.loadURL('file://' + __dirname + '/signin.html')
-	storage.set('plex-together-settings',{'plextvtoken':""}, function(error) {
+	global.storage.set('plex-together-settings',{'plextvtoken':""}, function(error) {
 		if (error) throw error;
 	});
 	mainWindow.minimize();
@@ -301,6 +302,7 @@ ipcMain.on('plextv-signout',function(event){
 })
 //Home events
 ipcMain.on('home-tab-initialize', function(event){
+	plex.createHttpServer()
 	for (var i in plex.servers){
 		//We need to proc checking all of our servers!
 		var server = plex.servers[i]
@@ -344,14 +346,24 @@ ipcMain.on('home-tab-clientclicked',function(event,clientId){
 							//Looks like we no longer have a valid client, lets stop this loop
 							clearInterval(clientInterval)
 						}
-					},1000)
+					},global.constants.CLIENT_INTERVAL_REFRESH)
 					plex.chosenClient = client
 				} else {
 					plex.chosenClient = null
 				}
 				event.sender.send('home-tab-clientclicked-result',res,client)
 				if (count == client.plexConnections.length){
-					if (client.chosenConnection != null){
+					if (client.chosenConnection != null){ 
+						
+						if (plex.chosenClient.unsubscribed == undefined) {
+							plex.chosenClient.unsubscribe(function(){})
+							plex.chosenClient.unsubscribed = true
+						}               
+						plex.chosenClient.on('client-update',
+							function(){
+								//mainWindow.send('pt-sendPoll-manual')
+							}
+						)
 						event.sender.send('fire-notification','Plex Client','Successfully connected to ' + client.name)
 					} else {
 						event.sender.send('fire-notification','Plex Client','Unable to connect to ' + client.name)
@@ -518,7 +530,11 @@ ipcMain.on('join-room-ok',function(event,data,details,currentUsers){
 	mainWindow.send('start-handling-room-events',data,details,currentUsers)
 })
 ipcMain.on('pt-sendPoll',function(event,data){
+	if (!global.socket){
+		return
+	}
 	global.socket.pollStartTime = (new Date).getTime() 
+	global.log.info('Sending our data to the PT server')
 	global.socket.emit('poll',data)
 })
 ipcMain.on('pt-server-address-change',function(event,address){
