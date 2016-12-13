@@ -20,6 +20,7 @@ const electron = require('electron');
 const app = require('electron').app;
 const BrowserWindow = require('electron').BrowserWindow;
 const {ipcMain} = require('electron');
+const {globalShortcut} = require('electron');
 var updater = require('electron').autoUpdater
 
 var mainWindow = null;
@@ -105,8 +106,6 @@ app.on('ready', function() {
 		parent:mainWindow
 	});
 
-
-
 	introWindow.loadURL('file://' + __dirname + '/splash.html');
 	//mainWindow.setMenu(null);
 	introWindow.webContents.on('did-finish-load', () => {
@@ -157,8 +156,16 @@ app.on('ready', function() {
 	});
 	ipcMain.on('pt-did-finish-load',function(){
 		mainWindow.show()
+
+		globalShortcut.register('CommandOrControl+J', () => {
+			openPTSettings()
+		})
+
+		// Animations GC
+
 		introWindow.hide()
 	})
+
 });
 
 //Splash handling
@@ -220,7 +227,7 @@ ipcMain.on('maximise-main-window', function () {
 });
 
 // PT Settings Window
-ipcMain.on('open-ptsettings-window', function () {
+function openPTSettings(){
 	if (settingsWindow.isVisible()) {
 		return;
 	}
@@ -229,7 +236,11 @@ ipcMain.on('open-ptsettings-window', function () {
 	settingsWindow.on('closed', function () {		
 		settingsWindow.hide()
 	});
+}
+ipcMain.on('open-ptsettings-window', function () {
+	openPTSettings()
 });
+
 
 ipcMain.on('close-ptsettings-window', function () {
 	settingsWindow.reload();
@@ -312,6 +323,7 @@ ipcMain.on('home-tab-initialize', function(event){
 	}
 	event.sender.send('home-tab-initialize-result',plex.user.username
 	,plex.clients,plex.servers);
+
 });
 ipcMain.on('home-tab-me-avatar',function(){
 	var path = getAppDataDir() + '/' + plex.user.username
@@ -473,8 +485,6 @@ ipcMain.on('join-ptroom',function(event,userData){
 	})
 
 })
-
-
 
 //Handlers for once were in a room
 ipcMain.on('join-room-ok',function(event,data,details,currentUsers){
