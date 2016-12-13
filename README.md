@@ -1,3 +1,5 @@
+<p align="center"><img src ="http://plextogether.com/img/logoSmall.png" /></p>
+
 # Plex Together
 
 Plex Together is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations. Built with [Electron](http://electron.atom.io), Plex Together runs on Windows, Mac and Linux.
