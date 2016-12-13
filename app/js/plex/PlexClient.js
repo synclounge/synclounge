@@ -213,6 +213,7 @@ module.exports = function PlexClient(){
             }
         })
     }
+
     this.pressStop = function(callback){
         //Press pause on the client        
         this.hitApi('/player/playback/stop',{'wait':0},this.chosenConnection,function(result){
@@ -227,6 +228,28 @@ module.exports = function PlexClient(){
     this.seekTo = function(time,callback){
         //Seek to a time (in ms)       
         this.hitApi('/player/playback/seekTo',{'wait':0,'offset':time},this.chosenConnection,function(result){
+            if (result){
+                //Valid response back from the client
+                return callback(result)
+            } else {
+                return callback(null)
+            }
+        })
+    }
+    this.stepBack = function(callback){
+        //Seek to a time (in ms)       
+        this.hitApi('/player/playback/stepBack',{'wait':0},this.chosenConnection,function(result){
+            if (result){
+                //Valid response back from the client
+                return callback(result)
+            } else {
+                return callback(null)
+            }
+        })
+    }
+    this.stepForward = function(callback){
+        //Seek to a time (in ms)       
+        this.hitApi('/player/playback/stepForward',{'wait':0},this.chosenConnection,function(result){
             if (result){
                 //Valid response back from the client
                 return callback(result)

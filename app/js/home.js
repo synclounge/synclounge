@@ -35,22 +35,6 @@ ipcRenderer.on('home-tab-me-avatar-result', function(event, result, path) {
     document.getElementById('meAvatar').src = relPath
 })
 ipcRenderer.on('home-tab-initialize-result', function(event, username, clients, servers) {
-    $('#metaDropdown').click(function() {
-        global.renderLog.info('dropdown')
-        if (arrowDirection == 'arrow_drop_down'){
-            $(this).parent().find('#userMetadata').html('arrow_drop_down');
-            $(this).html('arrow_drop_up');
-            $('#userMetadata').css('display', 'block');
-            $('#mainUser').css('box-shadow', '0 2px 5px 0 rgba(0, 0, 0, 0.16)');
-            arrowDirection = 'arrow_drop_up'
-        } else {
-            $(this).parent().find('#userMetadata').html('arrow_drop_down');
-            $(this).html('arrow_drop_down');
-            $('#userMetadata').css('display', 'none');
-            $('#mainUser').css('box-shadow', '0 2px 5px 0 rgba(0, 0, 0, 0)');
-            arrowDirection = 'arrow_drop_down'                    
-        }
-    });
     updateSelfUserUsername(username)
 
     ipcRenderer.send('ptmain-thumb-download')
@@ -166,7 +150,6 @@ ipcRenderer.on('home-tab-clientclicked-result',function(event,result,client){
                     checkRatingKey()
                 },5000)
                 metadataIntervals.push(ratingKeyInterval)
-
                 document.getElementById('metaPlayer').innerHTML = client.name
             } else {
                 //The swap wasn't a success, reflect this!'
@@ -258,7 +241,7 @@ function updateMeta(server){
     // we just want a timed update
     var plex = remote.getGlobal('plex')
     var metadata = plex.chosenClient.clientPlayingMetadata
-    document.getElementById('metaServer').innerHTML = server.name
+    // document.getElementById('metaServer').innerHTML = server.name
     ipcRenderer.send('home-metadata-download',server,metadata)
 }
 // This is the reply from the above
@@ -282,7 +265,7 @@ ipcRenderer.on('home-metadata-download-result',function(event,result,path){
         }
         var under
         if (metadata.type == 'episode'){
-            under = metadata.title + ' - S' + season + '&#183E' + episode
+            under = metadata.title + '<br>S' + season + '&#183E' + episode
         } else {
             if (metadata.tagline == undefined) {
                 metadata.tagline = ''
@@ -291,23 +274,12 @@ ipcRenderer.on('home-metadata-download-result',function(event,result,path){
         }
 
         document.getElementById('metaThumb').src = path + '#' + new Date().getTime()
-        var originalTitle = title
-        if (title.length > 40){
-            document.getElementById('metaTitle').style.fontSize = '32px'
-        }
-        if (originalTitle.length > 50){
-            originalTitle = originalTitle.substring(0,50)
-            title = originalTitle + '...'
-        }
-        document.getElementById('metaTitle').innerHTML = title
-
         document.getElementById('metaUnder').innerHTML = under
-        var summary = metadata.summary
-        if (summary.length > 280){
-            summary = summary.substring(0,280)
-            summary = summary + '...'
-        }
-        document.getElementById('metaSummary').innerHTML = summary
+
+        //Display Metadata + play controls
+        $('#userMetadata').css('display', 'block'); 
+        $('.plexServerClientInfo').css({'height': 'calc(100% - 401px)'})
+ 
     }
 })
 ipcRenderer.on('ptuser-thumb-download-result',function(event,result,path,userData){
@@ -1015,6 +987,25 @@ function getPercent(current,max){
     }
     return percent
 }
+function PlexClientPlayPause(){
+    var plex = remote.getGlobal('plex')
+    if (plex.chosenClient.lastTimelineObject.state == 'paused') {
+        plex.chosenClient.pressPlay(function(){})
+    }
+    if (plex.chosenClient.lastTimelineObject.state == 'playing') {
+        plex.chosenClient.pressPause(function(){})
+    }}
+
+function PlexClientStepBack(){
+    var plex = remote.getGlobal('plex')
+    plex.chosenClient.stepBack(function(){})
+}
+
+function PlexClientStepForward(){
+    var plex = remote.getGlobal('plex')
+    plex.chosenClient.stepForward(function(){})
+}
+
 function getTimeFromMs(ms){
     var hours = ms / (1000*60*60)
     var absoluteHours = Math.floor(hours)
@@ -1070,7 +1061,7 @@ ipcRenderer.on('pt-server-hideInfo',function(event){
 function ptserverShowInfo() {
   document.getElementById('plexTogetherInfoButton').style.display = 'none'
   document.getElementById('plexTogetherInfo').style.display = 'block'
-  $('.plexServerClientInfo').css({"height": "100%"})
+  $('.plexServerClientInfo').css({"height": "calc(100% - 401px)"})
 }
 function ptserverHideInfo() {
   document.getElementById('plexTogetherInfo').style.display = 'none'
