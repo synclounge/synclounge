@@ -9,501 +9,527 @@ var PlexServer = require('./PlexServer.js')
 var PlexTv = require('./PlexTv.js')
 var PlexConnection = require('./PlexConnection.js')
 var PlexAuth = require('./PlexAuth.js')
-module.exports = function PlexClient(){
-    this.commandId = 0;
-    this.name = null;
-    this.product = null;
-    this.productVersion = null;
-    this.platform = null;
-    this.platformVersion = null;
-    this.device = null;
-    this.clientIdentifier = null;
-    this.createdAt = null;
-    this.lastSeenAt = null;
-    this.provides = null;
-    this.owned = null;
-    this.publicAddressMatches = null;
-    this.presence = null;
-    this.plexConnections = null;
-    this.chosenConnection = null;   
-    this.httpServer = null;    
-    this.tempId = null;
+module.exports = function PlexClient() {
+  this.commandId = 0;
+  this.name = null;
+  this.product = null;
+  this.productVersion = null;
+  this.platform = null;
+  this.platformVersion = null;
+  this.device = null;
+  this.clientIdentifier = null;
+  this.createdAt = null;
+  this.lastSeenAt = null;
+  this.provides = null;
+  this.owned = null;
+  this.publicAddressMatches = null;
+  this.presence = null;
+  this.plexConnections = null;
+  this.chosenConnection = null;
+  this.httpServer = null;
+  this.tempId = null;
 
-    // Latest objects for reference in the future
-    this.lastRatingKey = null;
-    this.lastTimelineObject = null;
-    this.clientPlayingMetadata = null;
-    this.lastSubscribe = 0;
+  // Latest objects for reference in the future
+  this.lastRatingKey = null;
+  this.lastTimelineObject = null;
+  this.clientPlayingMetadata = null;
+  this.lastSubscribe = 0;
 
-    // Event listening array
-    this.events = {};
+  // Event listening array
+  this.events = {};
 
-    // Functions     
-    this.generateGuid = function() {
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-        }
-        return s4() + s4() + '-' + s4();
-    }  
-    this.uuid = this.generateGuid(); 
-
-    this.fire = function(msg) {
-        //global.log.info('recieved a fire event for ' + msg)
-        let toProc = this.events[msg]
-        if (toProc == undefined) {
-            return
-        }
-        for (let i = 0; i < toProc.length; i++ ) {
-            global.log.info('Firing event: ' + msg)
-            toProc[i]()
-        }
+  // Functions     
+  this.generateGuid = function() {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
     }
-    this.on = function(msg,callback){
-        if (this.events[msg] == undefined) {
-            this.events[msg] = []
+    return s4() + s4() + '-' + s4();
+  }
+  this.uuid = this.generateGuid();
+
+  this.fire = function(msg) {
+    //global.log.info('recieved a fire event for ' + msg)
+    let toProc = this.events[msg]
+    if (toProc == undefined) {
+      return
+    }
+    for (let i = 0; i < toProc.length; i++) {
+      global.log.info('Firing event: ' + msg)
+      toProc[i]()
+    }
+  }
+  this.on = function(msg, callback) {
+    if (this.events[msg] == undefined) {
+      this.events[msg] = []
+    }
+    this.events[msg].push(callback)
+  }
+  this.clearEvents = function(callback) {
+    this.events = {}
+  }
+  this.hitApi = function(command, params, connection, callback) {
+    var that = this;
+    //global.log.info('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
+    if ((new Date().getTime() - this.lastSubscribe) > 29000) {
+      // We need to subscribe first!
+      this.subscribe(function(result) {
+        //global.log.info('subscription result: ' + result)
+        if (result) {
+          that.lastSubscribe = new Date().getTime()
         }
-        this.events[msg].push(callback)
+        doRequest()
+      })
+    } else {
+      doRequest()
     }
-    this.clearEvents = function(callback) {
-        this.events = {}
-    }
-    this.hitApi = function(command,params,connection,callback){
-        var that = this;
-        //global.log.info('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
-        if ( (new Date().getTime() - this.lastSubscribe) > 29000 ) {
-            // We need to subscribe first!
-            this.subscribe(function(result){
-                //global.log.info('subscription result: ' + result)
-                if (result) {
-                    that.lastSubscribe = new Date().getTime()
-                }
-                doRequest()
-            })
+
+    function doRequest() {
+      if (connection == null) {
+        if (this.chosenConnection == null) {
+          global.log.info('You should find a working connection via #findConnection first!')
+        }
+        connection = that.chosenConnection
+      }
+      var query = '';
+      for (key in params) {
+        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
+      }
+      query = query + 'commandID=' + that.commandId + '&type=video';
+      if (connection.uri.charAt(connection.uri.length - 1) == '/') {
+        //Remove a trailing / that some clients broadcast
+        connection.uri = connection.uri.slice(0, connection.uri.length - 1)
+      }
+      var _url = connection.uri + command + '?' + query
+      global.log.info(_url)
+      that.commandId = that.commandId + 1;
+      var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, null, 5000);
+      request(options, function(error, response, body) {
+        //global.log.info(response)
+        if (!error) {
+          parseXMLString(body, function(err, result) {
+            if (err) {
+              return callback(null, response.elapsedTime, response.statusCode)
+            }
+            return callback(result, response.elapsedTime, response.statusCode)
+          })
         } else {
-            doRequest()
+          return callback(null, null, response)
         }
-        function doRequest(){
-            if (connection == null){
-                if (this.chosenConnection == null){
-                    global.log.info('You should find a working connection via #findConnection first!')
-                }
-                connection = that.chosenConnection
-            } 
-            var query = '';
-            for (key in params) {
-                query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
-            }
-            query = query + 'commandID=' + that.commandId + '&type=video';
-            if (connection.uri.charAt(connection.uri.length-1) == '/'){
-                //Remove a trailing / that some clients broadcast
-                connection.uri = connection.uri.slice(0,connection.uri.length-1)
-            }
-            var _url = connection.uri + command + '?' + query
-            global.log.info(_url)
-            that.commandId = that.commandId + 1;
-            var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, null, 5000);
-            request(options, function (error, response, body) {
-                //global.log.info(response)
-                if (!error) {
-                    parseXMLString(body, function(err,result){
-                        if (err){
-                            return callback(null,response.elapsedTime,response.statusCode)
-                        }
-                        return callback(result,response.elapsedTime,response.statusCode)
-                    })
-                } else {
-                    return callback(null,null,response)
-                }
-            }) 
-        }
-        
+      })
     }
 
-    this.findConnection = function(callback){
-        //This function iterates through all available connections and 
-        // if any of them return a valid response we'll set that connection
-        // as the chosen connection for future use.
-        var that = this;
-        that.chosenConnection = null;
-        for (var i in this.plexConnections){
-            var connection = this.plexConnections[i]
-            this.hitApi('/player/timeline/poll',{'wait':0},connection,function(result){
-                if (that.chosenConnection != null){
-                    //Looks like we've already found a good connection
-                    // lets disregard this connection 
-                    return(callback(true))
-                }
-                if (result != null){
-                    if (result.MediaContainer != null){
-                        that.chosenConnection = connection 
-                        return(callback(true))
-                    } else {
-                        return(callback(false))
-                    }
-                } 
-                return(callback(false))
-                
-            })            
-        }
-    }
+  }
 
-    this.getTimeline = function(callback){
-        var that = this
-        //Get the timeline object from the client
-        this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result,responseTime){
-            if (result){
-                //console.log(JSON.stringify(result,null,4))
-                //Valid response back from the client
-                if (result.MediaContainer != null){
-                    that.updateTimelineObject(result,responseTime,function(){
-                        return callback(result,responseTime)
-                    })
-                    //return (callback(result.MediaContainer.Timeline,responseTime))
-                }
-                return callback(null,responseTime)
-            } else {
-                return callback(null,responseTime)
-            }
-        })
-    }
+  this.findConnection = function(callback) {
+    //This function iterates through all available connections and 
+    // if any of them return a valid response we'll set that connection
+    // as the chosen connection for future use.
+    var that = this;
+    that.chosenConnection = null;
+    for (var i in this.plexConnections) {
+      var connection = this.plexConnections[i]
+      this.hitApi('/player/timeline/poll', {
+        'wait': 0
+      }, connection, function(result) {
+        if (that.chosenConnection != null) {
+          //Looks like we've already found a good connection
+          // lets disregard this connection 
+          return (callback(true))
+        }
+        if (result != null) {
+          if (result.MediaContainer != null) {
+            that.chosenConnection = connection
+            return (callback(true))
+          } else {
+            return (callback(false))
+          }
+        }
+        return (callback(false))
 
-    this.updateTimelineObject = function(result,responseTime,callback) {
-        if (!result.MediaContainer.Timeline){
-            // Not a valid timeline object
-            return
+      })
+    }
+  }
+
+  this.getTimeline = function(callback) {
+    var that = this
+      //Get the timeline object from the client
+    this.hitApi('/player/timeline/poll', {
+      'wait': 0
+    }, this.chosenConnection, function(result, responseTime) {
+      if (result) {
+        //console.log(JSON.stringify(result,null,4))
+        //Valid response back from the client
+        if (result.MediaContainer != null) {
+          that.updateTimelineObject(result, responseTime, function() {
+              return callback(result, responseTime)
+            })
+            //return (callback(result.MediaContainer.Timeline,responseTime))
         }
-        // Valid timeline data
-        if (responseTime != null) {
-            this.lastResponseTime = responseTime
-        }
-        let timelines = result.MediaContainer.Timeline
-        for (let i = 0; i < timelines.length; i++){
-            let _timeline = timelines[i]['$']
-            if (_timeline.type == 'video') {
-                this.lastTimelineObject = timelines[i]['$']
-                this.lastTimelineObject.recievedAt = new Date().getTime()
-                this.fire('client-update')
-                return callback(_timeline)
-            }
+        return callback(null, responseTime)
+      } else {
+        return callback(null, responseTime)
+      }
+    })
+  }
+
+  this.updateTimelineObject = function(result, responseTime, callback) {
+    if (!result.MediaContainer.Timeline) {
+      // Not a valid timeline object
+      return
+    }
+    // Valid timeline data
+    if (responseTime != null) {
+      this.lastResponseTime = responseTime
+    }
+    let timelines = result.MediaContainer.Timeline
+    for (let i = 0; i < timelines.length; i++) {
+      let _timeline = timelines[i]['$']
+      if (_timeline.type == 'video') {
+        this.lastTimelineObject = timelines[i]['$']
+        this.lastTimelineObject.recievedAt = new Date().getTime()
+        this.fire('client-update')
+        return callback(_timeline)
+      }
+    }
+    return callback(null)
+  }
+  this.pressPlay = function(callback) {
+    //Press play on the client        
+    this.hitApi('/player/playback/play', {
+      'wait': 0
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        return callback(result)
+      } else {
+        return callback(null)
+      }
+    })
+  }
+
+  this.pressPause = function(callback) {
+    //Press pause on the client        
+    this.hitApi('/player/playback/pause', {
+      'wait': 0
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        return callback(result)
+      } else {
+        return callback(null)
+      }
+    })
+  }
+
+  this.pressStop = function(callback) {
+    //Press pause on the client        
+    this.hitApi('/player/playback/stop', {
+      'wait': 0
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        return callback(result)
+      } else {
+        return callback(null)
+      }
+    })
+  }
+  this.seekTo = function(time, callback) {
+    //Seek to a time (in ms)       
+    this.hitApi('/player/playback/seekTo', {
+      'wait': 0,
+      'offset': time
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        return callback(result)
+      } else {
+        return callback(null)
+      }
+    })
+  }
+  this.stepBack = function(callback) {
+    //Seek to a time (in ms)       
+    this.hitApi('/player/playback/stepBack', {
+      'wait': 0
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        return callback(result)
+      } else {
+        return callback(null)
+      }
+    })
+  }
+  this.stepForward = function(callback) {
+    //Seek to a time (in ms)       
+    this.hitApi('/player/playback/stepForward', {
+      'wait': 0
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        return callback(result)
+      } else {
+        return callback(null)
+      }
+    })
+  }
+
+  this.getRatingKey = function(callback) {
+    //Get the ratingKey, aka the mediaId, of the item playing        
+    this.hitApi('/player/timeline/poll', {
+      'wait': 0
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        var allTimelines = result.MediaContainer.Timeline
+        for (var i in allTimelines) {
+          var timeline = allTimelines[i]["$"]
+            //We only want the rating key of whatever is playing in the video timeline                
+          if (timeline.type == 'video') {
+            return callback(timeline.ratingKey)
+          }
         }
         return callback(null)
-    }
-    this.pressPlay = function(callback){
-        //Press play on the client        
-        this.hitApi('/player/playback/play',{'wait':0},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                return callback(result)
-            } else {
-                return callback(null)
-            }
-        })
-    }    
-    
-    this.pressPause = function(callback){
-        //Press pause on the client        
-        this.hitApi('/player/playback/pause',{'wait':0},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                return callback(result)
-            } else {
-                return callback(null)
-            }
-        })
-    }
+      } else {
+        return callback(null)
+      }
+    })
+  }
 
-    this.pressStop = function(callback){
-        //Press pause on the client        
-        this.hitApi('/player/playback/stop',{'wait':0},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                return callback(result)
-            } else {
-                return callback(null)
-            }
-        })
-    }
-    this.seekTo = function(time,callback){
-        //Seek to a time (in ms)       
-        this.hitApi('/player/playback/seekTo',{'wait':0,'offset':time},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                return callback(result)
-            } else {
-                return callback(null)
-            }
-        })
-    }
-    this.stepBack = function(callback){
-        //Seek to a time (in ms)       
-        this.hitApi('/player/playback/stepBack',{'wait':0},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                return callback(result)
-            } else {
-                return callback(null)
-            }
-        })
-    }
-    this.stepForward = function(callback){
-        //Seek to a time (in ms)       
-        this.hitApi('/player/playback/stepForward',{'wait':0},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                return callback(result)
-            } else {
-                return callback(null)
-            }
-        })
-    }
+  this.getServerId = function(callback) {
+    //Get the machineId of the server we're playing from'    
+    this.hitApi('/player/timeline/poll', {
+      'wait': 0
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        var allTimelines = result.MediaContainer.Timeline
+        for (var i in allTimelines) {
+          var timeline = allTimelines[i]["$"]
+            //We only want the rating key of whatever is playing in the video timeline                
+          if (timeline.type == 'video') {
+            return callback(timeline.machineIdentifier)
+          }
+        }
+        return callback(null)
+      } else {
+        return callback(null)
+      }
+    })
+  }
 
-    this.getRatingKey = function(callback){
-        //Get the ratingKey, aka the mediaId, of the item playing        
-        this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                var allTimelines = result.MediaContainer.Timeline
-                for (var i in allTimelines){
-                    var timeline = allTimelines[i]["$"]    
-                    //We only want the rating key of whatever is playing in the video timeline                
-                    if (timeline.type == 'video'){
-                        return callback(timeline.ratingKey)
-                    }
-                }
-                return callback(null)
-            } else {
-                return callback(null)
-            }
-        })
-    }
+  this.getPlayerState = function(callback) {
+    //Get the Player State (playing, paused or stopped)      
+    this.hitApi('/player/timeline/poll', {
+      'wait': 0
+    }, this.chosenConnection, function(result) {
+      if (result) {
+        //Valid response back from the client
+        var allTimelines = result.MediaContainer.Timeline
+        for (var i in allTimelines) {
+          var timeline = allTimelines[i]["$"]
+            //We only want the rating key of whatever is playing in the video timeline                
+          if (timeline.type == 'video') {
+            return callback(timeline.state)
+          }
+        }
+        return callback(null)
+      } else {
+        return callback(null)
+      }
+    })
+  }
 
-    this.getServerId = function(callback){
-        //Get the machineId of the server we're playing from'    
-        this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                var allTimelines = result.MediaContainer.Timeline
-                for (var i in allTimelines){
-                    var timeline = allTimelines[i]["$"]    
-                    //We only want the rating key of whatever is playing in the video timeline                
-                    if (timeline.type == 'video'){
-                        return callback(timeline.machineIdentifier)
-                    }
-                }
-                return callback(null)
-            } else {
-                return callback(null)
-            }
-        })
-    }
+  this.getPlayerTime = function(callback) {
+    //Get the current playback time in ms    
+    this.hitApi('/player/timeline/poll', {
+      'wait': 0
+    }, this.chosenConnection, function(result, responseTime, code) {
+      if (result) {
+        //Valid response back from the client
+        var allTimelines = result.MediaContainer.Timeline
+        for (var i in allTimelines) {
+          var timeline = allTimelines[i]["$"]
+            //We only want the rating key of whatever is playing in the video timeline                
+          if (timeline.type == 'video') {
+            return callback(timeline.time, responseTime)
+          }
+        }
+        return callback(null, responseTime)
+      } else {
+        return callback(null, responseTime)
+      }
+    })
+  }
 
-    this.getPlayerState = function(callback){
-        //Get the Player State (playing, paused or stopped)      
-        this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result){
-            if (result){
-                //Valid response back from the client
-                var allTimelines = result.MediaContainer.Timeline
-                for (var i in allTimelines){
-                    var timeline = allTimelines[i]["$"]    
-                    //We only want the rating key of whatever is playing in the video timeline                
-                    if (timeline.type == 'video'){
-                        return callback(timeline.state)
-                    }
-                }
-                return callback(null)
-            } else {
-                return callback(null)
-            }
-        })
-    }
+  this.playMedia = function(key, serverObject, callback) {
+    //Play a media item given a mediaId key and a server to play from
+    //We need the following variables to build our paramaters:
+    //MediaId Key, Offset (0 for simplicity), server MachineId,
+    //Server Ip, Server Port, Server Protocol, Path 
+    var that = this
+      // First lets mirror the item so the user has an idea of what we're about to play
+    this.mirrorContent(key, serverObject, function() {
+      let command = '/player/playback/playMedia'
+      let mediaId = '/library/metadata/' + key
+      let offset = 0
+      let serverId = serverObject.clientIdentifier
+      let address = serverObject.chosenConnection.address
+      let port = serverObject.chosenConnection.port
+      let protocol = serverObject.chosenConnection.protocol
+      let path = serverObject.chosenConnection.uri + mediaId
 
-    this.getPlayerTime = function(callback){
-        //Get the current playback time in ms    
-        this.hitApi('/player/timeline/poll',{'wait':0},this.chosenConnection,function(result,responseTime,code){
-            if (result){
-                //Valid response back from the client
-                var allTimelines = result.MediaContainer.Timeline
-                for (var i in allTimelines){
-                    var timeline = allTimelines[i]["$"]    
-                    //We only want the rating key of whatever is playing in the video timeline                
-                    if (timeline.type == 'video'){
-                        return callback(timeline.time,responseTime)
-                    }
-                }
-                return callback(null,responseTime)
-            } else {
-                return callback(null,responseTime)
-            }
-        })
-    }
+      let params = {
 
-    this.playMedia = function(key,serverObject,callback){
-        //Play a media item given a mediaId key and a server to play from
-        //We need the following variables to build our paramaters:
-        //MediaId Key, Offset (0 for simplicity), server MachineId,
-        //Server Ip, Server Port, Server Protocol, Path 
-        var that = this
-        // First lets mirror the item so the user has an idea of what we're about to play
-        this.mirrorContent(key,serverObject,function(){
-            let command = '/player/playback/playMedia'
-            let mediaId = '/library/metadata/' + key
-            let offset = 0
-            let serverId = serverObject.clientIdentifier
-            let address = serverObject.chosenConnection.address
-            let port = serverObject.chosenConnection.port
-            let protocol = serverObject.chosenConnection.protocol
-            let path = serverObject.chosenConnection.uri + mediaId
-
-            let params = {
-
-                'X-Plex-Client-Identifier' : global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
-                'key' : mediaId,
-                'offset' : offset,
-                'machineIdentifier' : serverId,
-                'address' : address,
-                'port' : port,
-                'protocol' : protocol,
-                'path' : path,
-                'wait' : 0,
-                'token': serverObject.accessToken
-            }
-            //Now that we've built our params, it's time to hit the client api
-            that.hitApi(command,params,that.chosenConnection,function(result,the,code){
-                global.log.info('play result: ')
-                global.log.info(code)
-                if (result != null){
-                    return callback(result,code,that)
-                }
-                else {
-                    return callback(false,code,that)
-                }
-                //global.log.info(that.name + ' returned ' + result)
-            })
-        })
-        
-    }
-    this.mirrorContent = function(key,serverObject,callback) {
-        //Mirror a media item given a mediaId key and a server to play from
-        //We need the following variables to build our paramaters:
-        //MediaId Key, Offset (0 for simplicity), server MachineId,
-        //Server Ip, Server Port, Server Protocol, Path 
-        var that = this
-        global.log.info('Trying to mirror content')
-
-        let command = '/player/mirror/details'
-        let mediaId = '/library/metadata/' + key
-        let offset = 0
-        let serverId = serverObject.clientIdentifier
-        let address = serverObject.chosenConnection.address
-        let port = serverObject.chosenConnection.port
-        let protocol = serverObject.chosenConnection.protocol
-        let path = serverObject.chosenConnection.uri + mediaId
-
-        let params = {
-
-            'X-Plex-Client-Identifier' : global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
-            'key' : mediaId,
-            'machineIdentifier' : serverId,
-            'address' : address,
-            'port' : port,
-            'protocol' : protocol,
-            'path' : path,
-            'wait' : 0,
-            'token': serverObject.accessToken
+          'X-Plex-Client-Identifier': global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
+          'key': mediaId,
+          'offset': offset,
+          'machineIdentifier': serverId,
+          'address': address,
+          'port': port,
+          'protocol': protocol,
+          'path': path,
+          'wait': 0,
+          'token': serverObject.accessToken
         }
         //Now that we've built our params, it's time to hit the client api
-        this.hitApi(command,params,this.chosenConnection,function(result,that,code){
-            if (result != null){
-                return callback(result,code,that)
-            }
-            else {
-                return callback(false,code,that)
-            }
-        })
-    }
-    this.subscribe = function(callback) {
-        var that = this
-        doRequest()
-        function doRequest() {
-            // Already have a valid http server running, lets send the request
-            let tempId = 'PlexTogether' + new Date().getTime()
-            var command = '/player/timeline/subscribe'
-            var params = {
-                'port':that.subscribePort,
-                'protocol':'http',
-                'X-Plex-Device-Name':'PlexTogether'            
-            }
-            //Now that we've built our params, it's time to hit the client api
-
-            var query = '';
-            for (key in params) {
-                query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
-            }
-            query = query + 'commandID=' + that.commandId + '&type=video';
-            if (connection.uri.charAt(connection.uri.length-1) == '/'){
-                //Remove a trailing / that some clients broadcast
-                connection.uri = connection.uri.slice(0,connection.uri.length-1)
-            }
-            if (that.chosenConnection == null) {
-                // It is possible to try to subscribe before we've found a working connection
-                global.log.info('Chosen connection has not been set yet.')
-                return(callback(false))
-            }
-            var _url = that.chosenConnection.uri + command + '?' + query
-            //global.log.info('subscription url: ' + _url)
-            that.commandId = that.commandId + 1;
-            var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000);
-            request(options, function (error, response, body) {
-                //console.log('subscription result below')
-                if (!error) {
-                    return callback(true,that)
-                } else {
-                    return callback(false,that)
-                }
-            }) 
+      that.hitApi(command, params, that.chosenConnection, function(result, the, code) {
+        global.log.info('play result: ')
+        global.log.info(code)
+        if (result != null) {
+          return callback(result, code, that)
+        } else {
+          return callback(false, code, that)
         }
-    }
-    this.unsubscribe = function(callback) {
-        var that = this
-        doRequest()
-        function doRequest() {
-            // Already have a valid http server running, lets send the request
-            let tempId = 'PlexTogether' + new Date().getTime()
-            var command = '/player/timeline/unsubscribe'
-            var params = {
-                'port':that.subscribePort,
-                'protocol':'http',
-                'X-Plex-Device-Name':'PlexTogether'            
-            }
-            //Now that we've built our params, it's time to hit the client api
+        //global.log.info(that.name + ' returned ' + result)
+      })
+    })
 
-            var query = '';
-            for (key in params) {
-                query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
-            }
-            query = query + 'commandID=' + that.commandId + '&type=video';
-            if (connection.uri.charAt(connection.uri.length-1) == '/'){
-                //Remove a trailing / that some clients broadcast
-                connection.uri = connection.uri.slice(0,connection.uri.length-1)
-            }
-            if (that.chosenConnection == null) {
-                // It is possible to try to subscribe before we've found a working connection
-                global.log.info('Chosen connection has not been set yet.')
-                return(callback(false))
-            }
-            var _url = that.chosenConnection.uri + command + '?' + query
-            global.log.info('subscription url: ' + _url)
-            that.commandId = that.commandId + 1;
-            var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000);
-            request(options, function (error, response, body) {
-                if (!error) {
-                    return callback(true,that)
-                } else {
-                    return callback(false,that)
-                }
-            }) 
+  }
+  this.mirrorContent = function(key, serverObject, callback) {
+    //Mirror a media item given a mediaId key and a server to play from
+    //We need the following variables to build our paramaters:
+    //MediaId Key, Offset (0 for simplicity), server MachineId,
+    //Server Ip, Server Port, Server Protocol, Path 
+    var that = this
+    global.log.info('Trying to mirror content')
+
+    let command = '/player/mirror/details'
+    let mediaId = '/library/metadata/' + key
+    let offset = 0
+    let serverId = serverObject.clientIdentifier
+    let address = serverObject.chosenConnection.address
+    let port = serverObject.chosenConnection.port
+    let protocol = serverObject.chosenConnection.protocol
+    let path = serverObject.chosenConnection.uri + mediaId
+
+    let params = {
+
+        'X-Plex-Client-Identifier': global.constants.X_PLEX_CLIENT_IDENTIFIER + '_' + that.uuid,
+        'key': mediaId,
+        'machineIdentifier': serverId,
+        'address': address,
+        'port': port,
+        'protocol': protocol,
+        'path': path,
+        'wait': 0,
+        'token': serverObject.accessToken
+      }
+      //Now that we've built our params, it's time to hit the client api
+    this.hitApi(command, params, this.chosenConnection, function(result, that, code) {
+      if (result != null) {
+        return callback(result, code, that)
+      } else {
+        return callback(false, code, that)
+      }
+    })
+  }
+  this.subscribe = function(callback) {
+    var that = this
+    doRequest()
+
+    function doRequest() {
+      // Already have a valid http server running, lets send the request
+      let tempId = 'PlexTogether' + new Date().getTime()
+      var command = '/player/timeline/subscribe'
+      var params = {
+          'port': that.subscribePort,
+          'protocol': 'http',
+          'X-Plex-Device-Name': 'PlexTogether'
         }
+        //Now that we've built our params, it's time to hit the client api
+
+      var query = '';
+      for (key in params) {
+        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
+      }
+      query = query + 'commandID=' + that.commandId + '&type=video';
+      if (connection.uri.charAt(connection.uri.length - 1) == '/') {
+        //Remove a trailing / that some clients broadcast
+        connection.uri = connection.uri.slice(0, connection.uri.length - 1)
+      }
+      if (that.chosenConnection == null) {
+        // It is possible to try to subscribe before we've found a working connection
+        global.log.info('Chosen connection has not been set yet.')
+        return (callback(false))
+      }
+      var _url = that.chosenConnection.uri + command + '?' + query
+        //global.log.info('subscription url: ' + _url)
+      that.commandId = that.commandId + 1;
+      var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000);
+      request(options, function(error, response, body) {
+        //console.log('subscription result below')
+        if (!error) {
+          return callback(true, that)
+        } else {
+          return callback(false, that)
+        }
+      })
     }
+  }
+  this.unsubscribe = function(callback) {
+    var that = this
+    doRequest()
+
+    function doRequest() {
+      // Already have a valid http server running, lets send the request
+      let tempId = 'PlexTogether' + new Date().getTime()
+      var command = '/player/timeline/unsubscribe'
+      var params = {
+          'port': that.subscribePort,
+          'protocol': 'http',
+          'X-Plex-Device-Name': 'PlexTogether'
+        }
+        //Now that we've built our params, it's time to hit the client api
+
+      var query = '';
+      for (key in params) {
+        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
+      }
+      query = query + 'commandID=' + that.commandId + '&type=video';
+      if (connection.uri.charAt(connection.uri.length - 1) == '/') {
+        //Remove a trailing / that some clients broadcast
+        connection.uri = connection.uri.slice(0, connection.uri.length - 1)
+      }
+      if (that.chosenConnection == null) {
+        // It is possible to try to subscribe before we've found a working connection
+        global.log.info('Chosen connection has not been set yet.')
+        return (callback(false))
+      }
+      var _url = that.chosenConnection.uri + command + '?' + query
+      global.log.info('subscription url: ' + _url)
+      that.commandId = that.commandId + 1;
+      var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000);
+      request(options, function(error, response, body) {
+        if (!error) {
+          return callback(true, that)
+        } else {
+          return callback(false, that)
+        }
+      })
+    }
+  }
 }

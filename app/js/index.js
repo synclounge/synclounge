@@ -1,7 +1,9 @@
 'use strict';
 
 // const remote = require('remote');
-const {ipcRenderer} = require('electron');
+const {
+  ipcRenderer
+} = require('electron');
 var path = require('path');
 
 var closeEl = document.querySelector('.close');
@@ -9,5 +11,5 @@ var settingsEl = document.querySelector('.settings');
 var signinEl = document.querySelector('.signin');
 
 signinEl.addEventListener('click', function() {
-    global.renderLog.info('Hello world');
+  global.renderLog.info('Hello world');
 });

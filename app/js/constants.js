@@ -2,10 +2,10 @@
  * Global constants
  */
 function define(name, value) {
-    Object.defineProperty(exports, name, {
-        value:      value,
-        enumerable: true
-    });
+  Object.defineProperty(exports, name, {
+    value: value,
+    enumerable: true
+  });
 }
 
 define("X_PLEX_CLIENT_IDENTIFIER", 'PlexTogether');
