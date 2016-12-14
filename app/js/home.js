@@ -127,6 +127,7 @@ ipcRenderer.on('home-tab-clientclicked-result', function(event, result, client) 
 
   //console.log('Set port to ' + plex.httpServerPort)
   var clientsObj = document.querySelectorAll('.plexClient')
+  clientTestInProgress = false
   for (let i = 0; i < clientsObj.length; i++) {
     var iterClient = clientsObj[i]
     var child = iterClient.childNodes[1]
@@ -160,7 +161,6 @@ ipcRenderer.on('home-tab-clientclicked-result', function(event, result, client) 
       }
     }
   }
-  clientTestInProgress = false
 
 })
 
