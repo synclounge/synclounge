@@ -575,7 +575,7 @@ function handleHostUpdate(data) {
     console.log('Our raw time: ' + plex.chosenClient.lastTimelineObject.time)
     console.log('Our predicted time ' + ourTime)
     console.log('The difference: ' + difference)
-    if (difference > 3000) {
+    if (difference > 4000) {
       //We're too far out, we should seek to the same time
       //Check if they're actually playing something.. 
       if (data.title == null || data.title == 'Nothing') {
