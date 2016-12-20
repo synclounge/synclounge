@@ -41,21 +41,22 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 
 #### Computer
 * Plex Media Player 
-* Plex Web Player (Chrome/Safari)
 * Plex Home Theater
 * OpenPHT
 
 #### Streaming Devices
 * Apple TV
 * Rasplex
+* Roku
 
 #### Mobile
 * iOS (iPhone & iPad)
+* Android
 
-### Tested but unsupported
+### Tested and Unsupported
 * Plex Web Player (Chrome/Safari)
 	* Relies on a local Plex Media Server to proxy commands. May work if you have a local PMS instance but issues may arise. 
-
+	
 ### Untested 
 
 #### Computer
@@ -64,11 +65,9 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 
 #### Streaming Devices
 * Amazon Fire TV  
-* Roku
 * Android TV
 * Chromecast
 * TiVo
-* Sonos
 
 #### TVs and Consoles		
 * Xbox One
@@ -79,7 +78,6 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 * Smart TV
 
 #### Mobile
-* Android
 * Windows Phone
 
 ----
