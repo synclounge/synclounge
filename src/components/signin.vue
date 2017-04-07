@@ -5,42 +5,40 @@
               <div class="row">
                   <div v-if="plex == null" class="col s12 l6 offset-l3">
                       <div>
-                          <h1 class="center">Sign in to Plex</h1>
+                          <h1 class="center">Sign in to Plex.tv</h1>
                       </div>
-                      <div class="row center">
-                        <p> It's time to login to your Plex.tv account.</p>
-                        <p class="col s12"> Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run Plex Together yourself
-                          have a look <a target="_target" href="https://github.com/samcm/plextogether"> here </a> for details. </p>  
-                      </div>
-                      <div class="row">
-                          <div class="col s12 l12">
-                              <div class="row">
-                                  <div class="input-field col s12">
-                                      <input v-model="user" id="plexUsername" type="text" class="validate" placeholder="Enter Username">
-                                  </div>
-                                  <div class="input-field col s12">
-                                      <input v-on:keyup.enter="hitAPI()" v-model="pass" id="plexPassword" type="password" class="validate" placeholder="Enter Password">
-                                  </div>
-                              </div>
-                          </div>
-                          <div class="col s12 l12 signin" style="text-align: center;">
-                              <div v-if="signinProgress=='nothing' || signinProgress == 'failed'" class="progress-button">
-                                <p v-on:click="hitAPI()" style="background-color:#E5A00D; width: 100%" class="waves-effect waves-light btn-large">Submit</p>
-                              </div>
-                              <div v-if="signinProgress=='sent'" class="preloader-wrapper active">
-                                <div class="spinner-layer spinner-plex-orange-only">
-                                  <div class="circle-clipper left">
-                                    <div class="circle"></div>
-                                    <div class="circle"></div>
-                                  </div><div class="circle-clipper right">
-                                    <div class="circle"></div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div v-if="errormsg">
-                                <span class="blue-text text-darken-2">{{ errormsg }} </span>
-                              </div>
-                          </div>
+
+
+                      <div v-if="!pin" class="center">
+                            <v-progress-circular active large></v-progress-circular>
+                      </div>      
+                      <div v-if="token" class="center row">
+                        <div class="col s12 l4 offset-l4">
+                          <i style="font-size:150px; color:green" class="material-icons">done</i>
+                        </div>                       
+                         <div class="col s12 l4 offset-l4">                          
+                            Signed in!
+                        </div>
+                      </div> 
+                      <div v-if="pin && !token">                       
+                        <div class="row">
+                            <div class="col s12 l4 offset-l4">
+                                <h1 class="center">{{ pin }}</h1>
+                            </div>
+                        </div>              
+                        <div class="row">                           
+                            <div class="col s4 l4 offset-l4 offset-s4">                                
+                                <button style="width:100%;background-color: #E5A00D" class="waves-effect waves-light btn" v-clipboard="pin"><i class="material-icons left">content_paste</i>Copy</button>
+                            </div>
+                            <div class="col s12 l12">
+                                <p class="center">Enter the pin above at <a target="_target" href="https://plex.tv/pin"> https://plex.tv/pin </a></p>
+                            </div>
+
+                        </div>                      
+                        <div class="row center">
+                          <label class="col s12"> Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run Plex Together yourself
+                            have a look <a target="_target" href="https://github.com/samcm/plextogether"> here </a> for details. </label>  
+                        </div>
                       </div>
                   </div>                  
               </div>
@@ -50,26 +48,86 @@
 </template>
 
 <script>
+
+
+var parseString = require('xml2js').parseString;
+var request = require('request')
+var clipboard = require('clipboard')
+
 export default {
   name: 'signin',
   data () {
     return {
-      signinProgress:'nothing',
-      signedin: false,
-      errormsg: null,
-      user: '',
-      pass: ''
+      pin: null,
+      ID: null,
+      token: null,
+      status: 'startup'
     }
   },
   mounted() {
-    if (window['localStorage'].getItem('plexuser') != null){
-      this.$store.state.plexuser = JSON.parse(window['localStorage'].getItem('plexuser'))
+    var that = this
+    let storage = window['localStorage']
+    storage.removeItem('plexuser')
+
+    function getPin(){
+      that.$http.post('https://plex.tv/pins.xml',null,{
+        headers:{
+          'X-Plex-Client-Identifier': 'PlexTogether'
+        }
+      })
+      .then((response) => {
+
+        parseString(response.body, function(err,result){
+          if (!err){
+            that.pin = result.pin.code[0]
+            that.ID = result.pin.id[0]._
+
+
+
+
+
+            let checker = setInterval(function(){
+                var options = {
+                  url: 'https://plex.tv/pins/' + that.ID + '.xml',
+                  headers: {
+                    'X-Plex-Client-Identifier': 'PlexTogether'
+                  }
+                };
+
+                function callback(error, response, body) {
+                  if (!error && response.statusCode == 404){
+                    clearInterval(checker)
+                    getPin()
+                    return
+                  }
+                  if (!error && response.statusCode == 200) {
+                    parseString(body, function(err, result){
+                      if (!err){
+                        if (result.pin.auth_token[0] != null && result.pin.auth_token[0].length > 1){
+                          console.log('GOT TOKEN!')
+                          that.token = result.pin.auth_token[0]
+                          let jsonObj = {
+                            authToken: that.token
+                          }
+                          storage.setItem('plexuser',JSON.stringify(jsonObj))
+                          setTimeout(function(){
+                              that.$router.push('/app')
+                          },2500)
+                          clearInterval(checker)
+                        }
+                      }
+                    })
+                  }
+                }
+                request(options, callback);
+              },2000)
+          }           
+        })
+        return
+      })
     }
-  },
-  computed: {
-    loggedIn: function() {
-      return this.$store.state.plexuser
-    }
+    getPin()
+    
   },
   methods: {
     signout: function(){
@@ -82,37 +140,7 @@ export default {
       var that = this
       var base64encoded = new Buffer(this.user + ":" + this.pass).toString('base64')
 
-      this.$http.post('https://plex.tv/users/sign_in.json',null,{
-        headers:{
-          'Content-type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Basic ' + base64encoded,
-          'X-Plex-Client-Identifier': 'PlexTogetherWeb'
-        }
-      })
-      .then((response) => {
-        // success callback
-        let jsonObj = response.body
-        if (jsonObj.user){
-          let storage = window['localStorage']
-          storage.setItem('plexuser',JSON.stringify(jsonObj))
-          that.$store.state.plexuser = jsonObj
-          that.signedin = true    
-          setTimeout(function(){
-            that.$router.push('/app')
-        },2000)
-        } else {
-          that.errormsg = response.body.error
-          that.signinProgress = 'nothing'
-        }
-      }, (response) => {
-        // error callback
-        if (response.body != undefined && response.body.error != undefined){
-          that.errormsg = response.body.error
-        } else {
-          that.errormsg = 'Sign in failed. Try again.'
-        }
-        that.signinProgress = 'failed'
-      });
+      
     }
   }
 }
