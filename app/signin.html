@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Plex Together</title>
+
+        <!-- Stylesheets -->
+        <link rel="stylesheet" type="text/css" href="./css/materialize.css">
+        <link rel="stylesheet" href="./css/submitButton/component.css">
+        <link rel="stylesheet" href="./css/submitButton/normalize.css">
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="stylesheet" href="./css/titlebar.css">
+        <!-- Fonts -->
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <!-- Javascript -->
+        <script src="js/vendor/jquery.min.js"></script>
+        <script src="js/materialize.js"></script>
+        <script src="js/menu.js" charset="utf-8"></script>
+        <script src="js/submitButton/modernizr.custom.js"></script>
+    </head>
+
+    <body style="background-color: #F2F3F4">
+        <div class="window">
+
+            <div class="window-content">
+
+                <div class="container">
+
+<!-- MAC NAVBAR -->
+
+                <nav style="height: 64px; position: fixed; top: 0;">
+
+                    <div class="titlebar">
+                        <div class="titlebar-stoplight">
+                            <div class="titlebar-close mainClose">
+                                <svg x="0px" y="0px" viewBox="0 0 6.4 6.4">
+                                    <polygon fill="#4d0000" points="6.4,0.8 5.6,0 3.2,2.4 0.8,0 0,0.8 2.4,3.2 0,5.6 0.8,6.4 3.2,4 5.6,6.4 6.4,5.6 4,3.2"></polygon>
+                                </svg>
+                            </div>
+                            <div class="titlebar-minimize mainMinimise">
+                                <svg x="0px" y="0px" viewBox="0 0 8 1.1">
+                                    <rect fill="#995700" width="6" height="1.1"></rect>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+<!-- WINDOWS NAVBAR -->
+
+                <!-- <nav style="height: 64px; position: fixed; top: 0;">
+                    <div class="nav-wrapper windowDrag">
+                        
+                        <ul class="right windowNoDrag" style="position: fixed; top:0; right: 0; margin-right: 10px">
+                            <li class="mainMinimise" style="padding-top:7px"><i class="material-icons menuButtons">remove</i></li>
+                            <li class="mainClose"><i class="material-icons menuButtons">close</i></li>
+                        </ul>
+                    </div>
+                </nav> -->                
+
+                    <div style="padding-left:5%; padding-right:5%; padding-top: 10%">
+                    
+                        <div class="row">
+                            <div class="col m12">
+                                <div>
+                                    <h2 class="center">Sign in to Plex</h2>
+                                </div>
+                                <div class="row">
+                                    <div class="col s6 offset-s3">
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input id="plexUsername" type="text" class="validate" placeholder="Enter Username">
+                                            </div>
+                                            <div class="input-field col s12">
+                                                <input id="plexPassword" type="password" class="validate" placeholder="Enter Password">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col s6 offset-s3 signin" style="text-align: center;">
+                                        <div class="progress-button">
+                                            <button class="plex-riverbed" id="plexSubmit" type="submit" name="action"><span>Submit</span></button>   
+                                                <svg class="progress-circle" width="70" height="70"><path d="m35,2.5c17.955803,0 32.5,14.544199 32.5,32.5c0,17.955803 -14.544197,32.5 -32.5,32.5c-17.955803,0 -32.5,-14.544197 -32.5,-32.5c0,-17.955801 14.544197,-32.5 32.5,-32.5z"/></svg>
+                                                <svg class="checkmark" width="70" height="70"><path d="m31.5,46.5l15.3,-23.2"/><path d="m31.5,46.5l-8.5,-7.1"/></svg>
+                                                <svg class="cross" width="70" height="70"><path d="m35,35l-9.3,-9.3"/><path d="m35,35l9.3,9.3"/><path d="m35,35l-9.3,9.3"/><path d="m35,35l9.3,-9.3"/></svg> 
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col s6 offset-s3">
+                                        <div id="plexStatus" style="display: none;">
+                                            SIGNIN                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+        <script src="js/signin.js"></script>
+        <script src="js/submitButton/classie.js"></script>
+        <script src="js/submitButton/uiProgressButton.js"></script>
+        <script>
+            [].slice.call( document.querySelectorAll( '.progress-button' ) ).forEach( function( bttn ) {
+
+                new UIProgressButton( bttn, {
+                    callback : function( instance ) {
+
+                        var progress = 0,
+                            interval = setInterval( function() {
+                                var result = 0;
+                                if (document.getElementById('plexStatus').innerHTML == 'SUCCESS'){
+                                    result = 1;
+                                    progress = 1;
+                                    document.getElementById('plexStatus').innerHTML = 'NEXT'
+                                }
+                                if (document.getElementById('plexStatus').innerHTML == 'FAILURE'){
+                                    result = -1;
+                                    progress = 1;
+                                    document.getElementById('plexStatus').innerHTML = 'NEXT'
+                                }
+
+                                if( progress === 1 ) {
+                                    instance.stop(result);
+                                    clearInterval( interval );
+                                    progress = 0
+                                    instance.setProgress(1)
+                                    return
+                                }
+
+                                progress = Math.min( progress + Math.random() * 0.1, 1 );
+                                instance.setProgress( progress );
+
+                                if( progress === 1 ) {
+                                    instance.stop(result);
+                                    clearInterval( interval );
+                                    progress = 0
+                                    instance.setProgress(1)
+                                    return
+                                }
+                            }, 150 );
+                    }
+                } );
+            } );
+        </script>
+        <script>
+            $(document).ready(function(){
+                $('#plexPassword').keypress(function(e){
+                  if(e.keyCode==13)
+                  $('#plexSubmit').click();
+                });
+            });
+
+            $(function() {
+              $("#plexUsername").focus();
+            });
+        </script>
+    </body>
+</html>

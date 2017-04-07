@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Plex Together</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/photon.min2.css">
+    <link rel="stylesheet" type="text/css" href="css/materialize.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/scroll.css">
+    <link rel="stylesheet" type="text/css" href="css/titlebar.css">
+    <link rel="stylesheet" href="./css/submitButton/component.css">
+    <link rel="stylesheet" href="./css/submitButton/normalize.css">
+    <!-- Fonts -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Javascript -->
+    <script src="js/vendor/jquery.min.js"></script>
+    <script type="text/javascript">
+    window.Hammer = require('./js/hammer.min.js');
+    </script>
+    <script src="js/materialize.js"></script>
+    <!-- <script src="js/menu.js" charset="utf-8"></script> -->
+</head>
+
+<body>
+    <div class="window">
+        <div class="window-content">
+            <div class="container">
+                <div class="pane-group plex-shark">
+                    <div class="topbar" id="TopBar"></div>
+                    <div class="pane-sm sidebar plexServerClientInfo" style="height: calc(100% - 50px); top: 50px;box-shadow:0 0px 0px 0 rgba(0, 0, 0, 0.16), 0 2px 0px 0 rgba(0, 0, 0, 0.12);">
+                        <ul class="cd-accordion-menu animated" style="margin: 0">
+                            <li class="has-children">
+                                <input type="checkbox" name="group-1" id="group-1" checked>
+                                <label for="group-1" style="color: #E5A00D; margin: 0; padding-top: 5px">Plex Player
+                                    <i class="material-icons right" style="float: right; color: #F2F3F4; margin-top: -1px; margin-right: -22px; opacity: 0.5;">arrow_drop_down</i>
+                                    <!-- <p class="playerDropdown" style="float: right; color: #F2F3F4; margin-top: 0px; margin-right: -15px; opacity: 0.5;">Hide</p> -->
+                                </label>
+                                <ul id=plexPlayers>
+                                    <li style="line-height: 24px">
+                                        <a href="#0"></a>
+                                    </li>
+                                    <li style="line-height: 24px">
+                                        <a href="#0"></a>
+                                    </li>
+                                    <li style="line-height: 24px">
+                                        <a href="#0"></a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul class="cd-accordion-menu animated" style="margin: 0">
+                            <li class="has-children">
+                                <input type="checkbox" name="group-2" id="group-2" checked>
+                                <label for="group-2" style="color: #E5A00D; margin: 0">Plex Server
+                                    <i class="material-icons right" style="float: right; color: #F2F3F4; margin-top: -1px; margin-right: -22px; opacity: 0.5;">arrow_drop_down</i>
+                                    <!-- <p class="serverDropdown" style="float: right; color: #F2F3F4; margin-top: 0px; margin-right: -15px; opacity: 0.5;">Hide</p> -->
+                                </label>
+                                <ul id=plexServers>
+                                    <li style="line-height: 24px"><a href="#0">Image</a></li>
+                                    <li style="line-height: 24px"><a href="#0">Image</a></li>
+                                    <li style="line-height: 24px"><a href="#0">Image</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <div>
+                            <h5 class="nav-group-title">PT Server</h5>
+                            <span class="nav-group-item" id="plexTogetherServerAddress">
+                            </span>
+                            <h5 class="nav-group-title">PT Room</h5>
+                            <span class="nav-group-item" id="plexTogetherRoomName">
+                            </span>
+                            <h5 class="nav-group-title">PT Password</h5>
+                            <span class="nav-group-item" id="plexTogetherRoomPassword">
+                            </span>
+                        </div>
+                    </div>
+                    <div class="pane-sm sidebar plexTogetherInfo" id="userMetadata" style="display: none; height: 300px; bottom: 51px">
+                        <div class="row"></div>
+                        <div class="row" style="margin-bottom: 0">
+                            <div class="col s12 center">
+                                <img id=metaThumb src="img/artwork.jpg" style="width: 80%">
+                            </div>
+                            <div class="col s12 center white-text truncate" id=metaUnder >
+                                Episode Title
+                                <br> Season - Episode
+                            </div>
+                            <div class="col s4 center">
+                                <i class="material-icons center white-text" onclick="PlexClientStepBack()">replay</i>
+                            </div>
+                            <div class="col s4 center">
+                                <i class="material-icons center white-text" onclick="PlexClientPlayPause()">play_circle_outline</i>
+                            </div>
+                            <div class="col s4 center">
+                                <i class="material-icons center white-text" onclick="PlexClientStepForward()">forward_30</i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pane-sm sidebar plexTogetherInfo" id="plexTogetherInfo" style="display: none;">
+                            <div class="disconnect" onclick="handleDisconnect()" style="display: block; padding-top: 10px">
+                                <a class="waves-effect waves-light btn disconnect"  style="width:159px; background-color: #E5A00D; left: 3px">Leave Room</a>
+                            </div>
+                        </div>
+                        <div class="pane-sm sidebar plexTogetherInfoButton" id="plexTogetherInfoButton" style="display: block;">
+                            <div class="ptsettings" style="display: block;">
+                                <a class="waves-effect waves-light btn ptsettings" style="width:159px; background-color: #E5A00D; left: 3px">Join Room</a>
+                            </div>
+                        </div>
+                </div>
+                <div class="pane-group plex-white" style="left: 165px">
+                    <div class="pane page-pane plex-white container-test" style="overflow-y: scroll; padding-right: 0px; margin-bottom: 0px; position: inherit; width: 100%">
+                        <ul class="collection page-userlist" style="margin-top:0; width: 100%">
+                            <li class="collection-item avatar ptuser mainUser" mainuser="true" username="" style="padding-bottom:0; box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0);">
+                                <img src="img/safetyAvatar.png" alt="" id="ptmain-avatar" class="circle ptuser-avatar" style="box-shadow: 0 0 0 2px #E5A00D">
+                                <span class="title ptuser-username">PlexTogether User</span>
+                                <div class="ptuser-title">Select a player and join a room</div>
+                                <div class="row" style="margin-bottom:0">
+                                    <div class="col s10">
+                                        <div class="progress">
+                                            <div class="determinate ptuser-percent" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col s1" id="metaDropdownDiv" style="display:none">
+                                        <p class="ptuser-time" style="color: #E5A00D; margin-left:-138px; margin-top:-14px;">00:00:00 / 00:00:00</p>
+                                    </div>
+                                    <div class="col s1">
+                                        <a href="#!" class="secondary-content ptuser-role" style="margin-top:9px;display:none"><i class="material-icons" style="color: #E5A00D; font-size: 35px; ">star</i></a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/titlebar.js"></script>
+    <script src="js/home.js"></script>
+    <!-- <script src="js/plex/PlexClient.js"></script> -->
+    <script>
+        $(document).ready(function() {
+            $(".dropdown-button").dropdown();
+        });
+    </script>
+</body>
+
+</html>

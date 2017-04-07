@@ -1,17 +1,6 @@
 
 
-var PORT = 8089
-
-var express = require('express');
-var app = express();
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
-    next();
-});
-var server = require('http').createServer(app);
+var server = require('http').createServer();
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket){
@@ -93,7 +82,7 @@ io.on('connection', function(socket){
             room.users.push(tempUser)
             console.log('they joined OK and were given the username ' + tempUser.username)
 
-            socket.broadcast.to(data.room).emit('user-joined',room.users,tempUser)
+            socket.broadcast.to(data.room).emit('user-joined',tempUser)
             //Set some objects on the socket for ease of use down the road
             socket.ourRoom = data.room
             socket.selfUser = tempUser
@@ -113,15 +102,6 @@ io.on('connection', function(socket){
         }
         //Recieved an update from a user
         updateUserData(socket.selfUser.username,data,socket.selfUser.room)
-        //var users = io.sockets.adapter.rooms['hotline123'].users
-        //console.log(JSON.stringify(io.sockets.adapter.rooms, null, 2))
-        /*var clients_in_the_room = io.sockets.adapter.rooms[roomId]; 
-        for (var clientId in clients_in_the_room ) {
-            //console.log('client: %s', clientId); //Seeing is believing 
-            var client_socket = io.sockets.connected[clientId];//Do whatever you want with this
-        }
-        */
-
 
         socket.emit('poll-result',io.sockets.adapter.rooms[socket.selfUser.room].users)
         var room = io.sockets.adapter.rooms[socket.selfUser.room]
@@ -140,24 +120,6 @@ io.on('connection', function(socket){
             socket.broadcast.to(socket.selfUser.room).emit('host-update',temp)
         }
     });
-    socket.on('send_message',function(msg){
-        console.log(msg)
-        if (socket.ourRoom == null){
-            console.log('This user should join a room first')
-            socket.emit('flowerror','You aren\' connected to a room! Use join')
-            socket.emit('rejoin')
-            return
-        }
-        console.log('New message in channel ' + socket.selfUser.room + ' from ' + socket.selfUser.username + ' saying ' + msg)
-        socket.broadcast.to(socket.selfUser.room).emit('new_message',{
-            msg: msg.msg,
-            user: {
-                username: socket.selfUser.username,
-                thumb: socket.selfUser.avatarUrl
-            },
-            type: msg.type
-        })
-    })
     socket.on('connect_timeout',function(){
         console.log('timeout')
         handleDisconnect(true)
@@ -176,22 +138,12 @@ io.on('connection', function(socket){
             socket.broadcast.to(socket.selfUser.room).emit('host-swap',newHost)
         }
         removeUser(socket.selfUser.room,socket.selfUser.username)
-        if (io.sockets.adapter.rooms[socket.selfUser.room]){
-            socket.broadcast.to(socket.selfUser.room).emit('user-left',io.sockets.adapter.rooms[socket.selfUser.room].users,socket.selfUser)
-        }        
+        socket.broadcast.to(socket.selfUser.room).emit('user-left',socket.selfUser)
         socket.disconnect(disconnect)           
     }
 });
-server.listen(PORT);
-console.log('PlexTogether Server successfully started on port ' + PORT)
-
-
-
-
-setInterval(function(){
-   console.log('Connected users: ' + Object.keys(io.sockets.connected).length)
-},5000)
-
+server.listen(8088);
+console.log('PlexTogether Server successfully started on port 8088')
 
 function updateUserData(username,userData,room){
     for (var i in io.sockets.adapter.rooms[room].users){
@@ -246,16 +198,13 @@ function removeHost(room){
     }
 }
 function removeUser(roomname,username){
-    var room = io.sockets.adapter.rooms[roomname]
+    var room = io.sockets.adapter.rooms[room]
     if (room === undefined){
-        console.log('room undefined')
         return
     }
     for (var i in room.users){
-        console.log('Does ' + room.users[i].username + ' equal ' + username)
         if (room.users[i].username == username){
             //This is the user that we need to remove
-            console.log('Removing ' + room.users[i].username)
             room.users.splice(i,1)
         }
     }
