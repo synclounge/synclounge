@@ -1,13 +1,10 @@
-<p align="center"><img src ="http://plextogether.com/img/logoSmall.png" /></p>
+<p align="center"><img src ="https://plextogether.com/img/new/logo-long-dark.png" /></p>
 
-# Plex Together
+Plex Together is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations. 
 
-Plex Together is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations. Built with [Electron](http://electron.atom.io), Plex Together runs on Windows, Mac and Linux.
+Utilising [Vue.js](https://vuejs.org/) and Webpack, Plex Together has been rewritten and brought to the browser. While we run a live version available at [plextogether.com](http://app.plextogether.com), the project can be built and deployed completely seperate from plextogether.com. We also provide a handful of public Plex Together Server instances that everyone is free to use. 
 
-**Plex Together is not yet ready for general public use. Most features are still being developed and tested. Please consider the current stage of the app a very early alpha.**
-
-**If you are unfamiliar with NodeJS, Electron, debugging and port forwarding, this release is not for you. But don't worry! In the near future we'll be releasing a more user friendly update which will include public Plex Together servers without the need of hosting your own (if you choose).**
-
+[Live version](http://app.plextogether.com)
 
 
 ## How it works
@@ -17,26 +14,45 @@ The host has complete control over a room. Commands they send to their client wi
 
 ## Features
 * Syncing between Plex Clients over the Internet
-* Automatic searching of content across all your Plex Media Servers
-* Searching from Shared Plex Media Servers
+* Settings to tune Plex Together to your environment
+	* Client Polling Interval - Sets how frequently Plex Together will poll the client for new information. 
+	* Sync Flexability - Sets the acceptable distance away from the host in milliseconds.
+	* Sync method:
+		* Clean seek - Seeks straight to where the host is.
+		* Skip ahead - Seeks 10 seconds ahead, pauses and then resumes 10 seconds later.
+* Autoplay content 
+	* Plex Together will automatically search all of your available Plex Media Servers for content that is similar to the Host.
 * Metadata fetching from Plex Media Server
+* Chat to others in your room
 * Password locked rooms
-* Movies and TV Shows
-* Restrict auto play to a specific Plex Media Server
+* Movies and TV Shows (Music not supported)
+## FAQ
+* _I have to login to Plex.tv on the site, how come?_
+	* Plex Together uses your Plex account to fetch details about your Plex Clients and Media Servers to use within the app. While having to enter your username and password is not optimal it is the only real option until Plex implements a public OAUTH scheme.
+* _Won't you have access to my username, password and Plex account?_
+	* All of your details are stored client side (in your browser). Absolutely none of your **confidential** data is sent to our server. You can verify this by inspecting the Network tab within Chrome developer tools or if you would like you can deploy Plex Together yourself - read the 'Building and deploying' section below.
+* _What is sent then?_
+	* When you've connected to a Plex Together room, a few details are sent back and forth to the Plex Together Server to enable syncing. The data sent contains the following:
+		* Plex Username
+		* Plex User Thumbnail URL
+		* Content playing title (Eg. Lord of the Rings: The Fellowship of the Ring)
+		* Current timestamp (Eg. 00:35:02)
+		* Maximum timestamp (Eg. 03:48:18)
+		* Playerstate (Eg. paused, stopped, playing)
+		* Client response time (Ping time between you and your Plex Client)
+* _What about the public server provided by Plex Together? Is my data safe?_
+	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
+* _Speaking of SSL, why isn't the site served over HTTPS?_
+ 	* While we would love to run the Plex Together application over HTTPS, doing so forces modern browsers in to blocking all HTTP connections. This effectively stops all communication with Plex Clients which are all HTTP. 
 ## Screenshots
 
-![Playback](http://plextogether.com/img/6-0playback.png)
+Head to the [website](http://plextogether.com/screenshots)
 
-For more screenshots, head to the [website](http://plextogether.com/app)
-
-----
-## Contributing
-Please use the Issue tracker here on Github for Issues & Feature requests. We'll gladly merge Pull requests if you're keen to get hands on with the development. 
-
-----
 ## Supported Plex Clients
 Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with Plex Together may vary. If you have access to one of the untested clients please let us know so we can update our list below.
+
+Some low powered clients may be hard to achieve a perfect sync with (for example: Raspberry Pi clients).
 ### Supported
 
 #### Computer
@@ -80,61 +96,53 @@ Theoretically, all Plex Clients that implement the Plex Client Protocol will wor
 #### Mobile
 * Windows Phone
 
-----
+## Contributing
+Please use the Issue tracker here on Github for Issues & Feature requests. We'll gladly merge Pull requests if you're keen to get hands on with the development. 
 
-## Getting Started
+
+## Building and deploying
+
+### Building the app:
+
+* Make sure you have Node v6+ installed
+ 
+	*  ``git clone https://github.com/samcm/plextogether``
+	*  ``cd plextogether``
+	*  ``npm install``
+	*  ``npm run build``
+* When complete, copy the contents of dist/ to the root of your web server.
+
+### Running the server:
+
+* Make sure you have Node v6+ installed
+ 
+	*  ``git clone https://github.com/samcm/plextogether``
+	*  ``cd plextogether``	
+	*  ``cd server``
+	*  ``npm install``
+	*  ``node server.js``
+* The server will now be listening on all interfaces on port 8089. Note: you may have to port forward if you are behind a router.
+
+## Developing
 
 You need:
 
-* Node v6
-* A stable Internet connection
-* With node installed either you or your friend will need to run the PT Server. You can run the PT Server from the same machine, but depending on your network setup you may need to enable port forwarding on your router to let others connect. 
+* Node v6+
+ 
+	*  ``git clone https://github.com/samcm/plextogether``
+	*  ``cd plextogether``
+	*  ``npm install``
+	*  ``npm run dev``
+* Once Webpack has finished compiling, navigate to http://localhost:8080 in your web browser. 
+	* Hot reload is enabled
+	* Suggested to install [Vue.js Devtools](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en)
 
-## Running PT Client on macOS & Windows
 
-You will need to run Plex Together from the command line:
-* Clone this repo
-* Navigate to Plex Together directory
-* Install dependencies with npm:
-  * ``npm install``
-* Run using npm
-	* ``npm start``
-
-## Running PT Server on macOS, Ubuntu & Windows
-* Clone this repo
-* cd to the server directory
-* Install socket.io
-	* ``npm install socket.io -save``
-* Run the server
-	* ``node server.js``
-* By default, the server will be listening for Plex Together Clients on 0.0.0.0:8088. Feel free to change this if that port is in use.
-	* The server does not have a web interface.
-
-----
-## Using Plex Together
-Once you've run the app please follow the below steps:
-
-1. Log in with your plex.tv credentials
-2. Select your player (make sure the player is open on your device of choice)
-3. Click 'Join Room'
-	* Enter IP:PORT/URL of PT Server
-		* ``http://URL:PORT``
-	* Enter room name + password (if applicable)
-		* Rooms are created and destroyed on the fly - there is no need to 'create' a room
-	* If you see a STAR next to your name you are the host.
-
-Once the above is done you're all set! Depending on whether you're the host or a participant will determine your next steps:
-
-**HOST** - Once all your friends have joined you may start your media in your Plex Player.
-
-**PARTICIPANT** - Wait for the host of the room to start playing media. If the media does not start playing automatically you may manually play the media on your player and Plex Together will keep you in sync.
-
-----
 ## Issues
 If you run in to any issues:
 * Raise an Issue here on Github. Try to be as detailed as possible by including details such as:
-	* Node Version
 	* Operating System
+		* Web Browser name and version
 	* Plex Media Server details
 		* Version
 		* Operating System
@@ -146,24 +154,25 @@ If you run in to any issues:
 		* Platform
 
 * Join the [Discord Server](https://discord.gg/Cp9RPSJ) and raise your issue.
-* Send the log file to anyone who is in the Discord group "Developer" with a link to the Github Issue. Although the log file does not contain any access tokens, it is still not recommended to post your log file publicly.
-	* Obtain your log file from here:
-		* on Linux: ~/.config/PlexTogether/log.log
-		* on macOS: ~/Library/Logs/PlexTogether/log.log
-		* on Windows: %USERPROFILE%/AppData/Roaming/PlexTogether/log.log
-		
-----
+
+
+## Contributors
+[samcm](https://twitter.com/durksau) - Developer
+
+[pureMidi](https://twitter.com/midnitegc) - User Interface
+
+[Brandz](https://twitter.com/homebrandz) - Design
+
+[TheGrimmChester](https://github.com/TheGrimmChester) - Developer/Tester
+
+kg6jay - Tester
+
 ## Contact
 [Discord Server](https://discord.gg/Cp9RPSJ)
 
 Twitter:
-
 [Plex Together](https://twitter.com/plextogether)
-[samcm](https://twitter.com/durksau)
-[pureMidi](https://twitter.com/midnitegc)
 
-
-----
 ## License
 
 Plex Together is licensed under MIT License. See the ``LICENSE.txt`` file.
