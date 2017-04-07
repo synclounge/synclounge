@@ -1,0 +1,544 @@
+/* Ensure layout covers the entire screen. */
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    overflow: auto;
+}
+
+a {
+  color: #E5A00D !important;
+}
+
+.sweet-action-close:hover {
+  background:  #E5A00D !important;
+}
+/* Place drawer and content side by side. */
+
+.main-body {
+	display: flex;
+	flex-direction: row;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	height: 100%;
+	width: 100%;
+}
+/* Stack toolbar and main on top of each other. */
+
+.content {
+	display: inline-flex;
+	flex-direction: column;
+	flex-grow: 1;
+	height: 100%;
+	box-sizing: border-box;
+}
+/* A quick and simple toolbar, while we're waiting for mdc-toolbar. */
+
+.main-toolbar {
+	display: list-item;
+	width: 100%;
+	height: 56px;
+	line-height: 56px;
+	padding: 0 16px;
+	box-sizing: border-box;
+	color: #000;
+	background-color: #fff;
+}
+
+@media (min-width: 600px) {
+	.main-toolbar {
+		height: 64px;
+		line-height: 64px;
+	}
+}
+/* Place drawer above toolbar shadow. */
+
+.mdc-permanent-drawer {
+	z-index: 2;
+}
+
+
+/*
+	TEXT
+*/
+
+/* User list */
+
+plexName {
+  font-size: 1.1rem;
+}
+
+small {
+  font-size: 75%;
+}
+
+/* Devices list */
+.connection_success {
+  color:#1ECD97 !important;
+}
+.connection_wait {
+  color:#ffb74d !important;
+}
+.connection_failed {
+  color: #FF262E !important;
+}
+.connection_fresh {
+  color:#000;
+}
+
+/*
+	TITLEBAR
+*/
+
+.plexNavAccount {
+	height: 42px; 
+	box-shadow: 0 0 0 0 #F2F3F4; 
+	cursor: default;
+	transition: box-shadow 0.3s ease-in-out;
+}
+
+.plexNavAccount:hover {
+	box-shadow: 0 0 0 2px #F2F3F4; 
+}
+
+.plexNavAccount:active {
+	box-shadow: 0 0 0 2px #E5A00D; 
+}
+
+/* 
+	SCROLLBAR
+*/
+
+/* Turn on custom 8px wide scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  /* This is more usable for users trying to click it. */
+  background-color: rgba(63,66,69,0);
+  -webkit-border-radius: 100px;
+}
+/* hover effect for both scrollbar area, and scrollbar 'thumb' */
+::-webkit-scrollbar:hover {
+  background-color: rgba(229, 160, 13, 1);
+}
+
+/* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
+::-webkit-scrollbar-thumb:vertical {
+  background: rgba(229,160,13,1);
+  -webkit-border-radius: 100px;
+}
+::-webkit-scrollbar-thumb:vertical:active {
+  background: rgba(229,160,13,0.61); /* Darker coloUr when you click it */
+  -webkit-border-radius: 100px;
+}
+
+/* 
+	PLEX COLOURS
+*/
+
+.plex-gamboge {
+  background-color: #E5A00D !important;
+}
+
+.plex-gamboge-text {
+  color: #E5A00D !important;
+} 
+
+.plex-gamboge-border {
+	border: 2px #E5A00D solid;
+}
+
+.plex-shark {
+  background-color: #282A2D !important;
+}
+
+.plex-shark-text {
+  color: #282A2D !important;
+}
+
+.plex-riverbed {
+  background-color: #3F4245 !important;
+}
+
+.plex-riverbed-text {
+  color: #3F4245 !important;
+}
+
+.plex-shuttlegray {
+  background-color: #575B61 !important;
+}
+
+.plex-shuttlegray-text {
+  color: #575B61 !important;
+}
+
+.plex-raven {
+  background-color: #868C96 !important;
+}
+
+.plex-raven-text {
+  color: #868C96 !important;
+}
+
+.plex-graychateau {
+  background-color: #B3BAC1 !important;
+}
+
+.plex-graychateau-text {
+  color: #B3BAC1 !important;
+}
+
+.plex-mercury {
+  background-color: #E0E3E6 !important;
+}
+
+.plex-mercury-text {
+  color: #E0E3E6 !important;
+}
+
+.plex-atehnsgray {
+  background-color: #F2F3F4 !important;
+}
+
+.plex-atehnsgray-text {
+  color: #F2F3F4 !important;
+}
+
+.plex-alabaster {
+  background-color: #F9F9F9 !important;
+}
+
+.plex-alabaster-text {
+  color: #F9F9F9 !important;
+}
+
+.plex-riverbed {
+  background-color: #3F4245 !important;
+}
+
+/* 
+	UTILITY
+*/
+
+.hide {
+  display: none !important;
+}
+
+.left-align {
+  text-align: left;
+}
+
+.right-align {
+  text-align: right;
+}
+
+.center, .center-align {
+  text-align: center;
+}
+
+.left {
+  float: left !important;
+}
+
+.right {
+  float: right !important;
+}
+
+.no-select, input[type=range],
+input[type=range] + .thumb {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.truncate {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-padding {
+  padding: 0 !important;
+}
+
+.windowDrag {
+  -webkit-app-region: drag;
+}
+
+
+.windowNoDrag {
+  -webkit-app-region: no-drag;
+}
+
+.divider {
+  height: 1px;
+  overflow: hidden;
+  background-color: #3F4245;
+}
+
+a {
+  text-decoration: none;
+}
+
+/*
+	PRELOADERS
+*/
+
+.progress {
+  position: relative;
+  height: 4px;
+  display: block;
+  width: 100%;
+  background-color: #F2F3F4;
+  border-radius: 2px;
+  margin: 0.5rem 0 1rem 0;
+  overflow: hidden;
+}
+
+.progress .determinate  {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #E5A00D;
+  transition: width .3s linear;
+}
+
+/*
+	DROPDOWN
+*/
+
+.dropdown-content {
+  background: #fff;
+  -webkit-box-shadow: 0 2px 10 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 10 0 rgba(0, 0, 0, 0.5);
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+  width: 229px;
+  opacity: 0;
+  position: absolute;
+  z-index: 999;
+  will-change: width, height;
+}
+
+.dropdown-content li {
+  clear: both;
+  color: rgba(0, 0, 0, 0.87);
+  cursor: default;
+  min-height: 50px;
+  line-height: 1.5rem;
+  width: 100%;
+  text-align: left;
+  text-transform: none;
+}
+
+.dropdown-content li:hover, .dropdown-content li.active, .dropdown-content li.selected {
+  background-color: #282A2D;
+}
+
+.dropdown-content li.active.selected {
+  background-color: #e1e1e1;
+}
+
+.dropdown-content li.divider {
+  min-height: 0;
+  height: 1px;
+}
+
+.dropdown-content li > a, .dropdown-content li > span {
+  font-size: 12px;
+  color: #E5A00D;
+  display: block;
+  line-height: 22px;
+  padding: 14px 16px;
+}
+
+.dropdown-content li > span > label {
+  top: 1px;
+  left: 3px;
+  height: 18px;
+}
+
+.dropdown-content li > a > i {
+  height: inherit;
+  line-height: inherit;
+}
+
+ul li {
+  list-style-type: none;
+  display: inline
+}
+
+/*
+	CHAT INTERFACE
+*/
+
+.chatInterface {
+	width: 100%;
+	height: 100%;
+	border-left: 1px solid rgba(0, 0, 0, 0.12);
+	/* box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.12) */
+}
+
+.channel-textarea {
+    margin: 20px 0 30px;
+    padding: 0 10px 30px 10px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0)
+}
+
+.channel-textarea-inner {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: box;
+    display: flex;
+    position: relative;
+    padding: 12px 10px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    border: 2px solid #dadddf;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: #fff
+}
+
+.channel-textarea-inner textarea {
+    resize: none;
+    outline: 0;
+    border: none;
+    color: #747f8d;
+    /* font-family: Whitney, "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; */
+    font-size: 14px;
+    line-height: 18px;
+    max-height: 144px;
+    background-color: #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    margin: 0;
+    padding: 3px 0 0 5px;
+}
+
+.channel-textarea-upload {
+    position: relative;
+    width: 100%;
+    -webkit-transition: background-color .1s, border-right .1s;
+    -moz-transition: background-color .1s, border-right .1s;
+    -o-transition: background-color .1s, border-right .1s;
+    -ms-transition: background-color .1s, border-right .1s;
+    transition: background-color .1s, border-right .1s;
+    overflow: hidden;
+    margin: -12px 10px -12px -10px
+}
+
+plexName {
+	font-size: 1.1em;
+}
+
+.chat-body {
+	font-size: 0.9em;
+}
+
+/*
+	DARK THEME
+*/
+
+.dark-theme, .dark-theme span, .dark-theme textarea, .dark-theme nav, .dark-theme div, .dark-theme h2, .dark-theme input, .dark-theme select, .dark-theme body {
+	background-color: #282A2D; 
+	color: #F9F9F9; 
+	border-color: #575B61 !important;
+}
+
+.dark-theme button {
+  color: #F9F9F9;
+  background-color: #E5A00D;
+}
+
+.dark-theme .progress {
+  background-color: rgba(242, 243, 244, 0.1);
+}
+
+/* .dark-theme .progressbar {
+	background-color: #E5A00D;
+} */
+
+.dark-theme metadata {
+	background-color: #3F4245;
+}
+
+.dark-theme i {
+	color: #F9F9F9;
+}
+
+.dark-theme .side-nav {
+  background-color: #282A2D;
+}
+
+/*
+	METADATA
+*/
+
+.metadata {
+	height: 180px;
+	width: calc(66.6666666667% - 240px);
+	bottom: 0px;
+	position: absolute;
+}
+
+.titlebar li {
+    display: inline-block;
+}
+
+body {
+    overflow-x: hidden;
+}
+.tooltip {
+  display: none;
+  opacity: 0;
+  transition: opacity .15s;
+  pointer-events: none;
+  padding: 4px;
+  z-index: 10000;
+}
+
+.tooltip .tooltip-content {
+  background: black;
+  color: white;
+  border-radius: 16px;
+  padding: 5px 10px 4px;
+}
+
+.tooltip.tooltip-open-transitionend {
+  display: block;
+}
+
+.tooltip.tooltip-after-open {
+  opacity: 1;
+}
