@@ -29,6 +29,7 @@ The host has complete control over a room. Commands they send to their client wi
 ## FAQ
 * _I have to login to Plex.tv on the site, how come?_
 	* Plex Together uses your Plex account to fetch details about your Plex Clients and Media Servers to use within the app. While having to enter your username and password is not optimal it is the only real option until Plex implements a public OAUTH scheme.
+	* (Update) Pin login method is currently in the dev branch
 * _Won't you have access to my username, password and Plex account?_
 	* All of your details are stored client side (in your browser). Absolutely none of your **confidential** data is sent to our server. You can verify this by inspecting the Network tab within Chrome developer tools or if you would like you can deploy Plex Together yourself - read the 'Building and deploying' section below.
 * _What is sent then?_
