@@ -124,13 +124,14 @@ export default {
   mounted: function(){        
     $('.button-collapse').sideNav();$(".button-collapse").sideNav();
     if (window['localStorage'].getItem('plexuser') == null){
+        console.log('User isnt signed in  - sending to signin')
         this.$router.push('/signin')
         return
     }
     var that = this
     console.log('Logging in to Plex.Tv')
     let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
-    Plex.doTokenLogin(plexstorage.user.authToken,function(result,response,body){
+    Plex.doTokenLogin(plexstorage.authToken,function(result,response,body){
         
         if (result){
             console.log('Logged in.')
