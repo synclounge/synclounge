@@ -33,8 +33,11 @@
                   <div class="mdc-permanent-drawer chatInterface">
                       <div class="mdc-permanent-drawer__toolbar-spacer" style="padding: 0; height: 76px">
                           <div class="row" style="width: 100%;">
-                              <div class="col l12  right-align truncate">
-                                  <h2 id="plexTogetherRoomNameChat">#{{ ptRoom }}</h2>
+                              <div class="col l8  left-align truncate">
+                                  <h2 id="plexTogetherRoomNameChat">{{ ptRoom }}</h2>                                  
+                              </div>                              
+                              <div class="col l4  right-align truncate">
+                                   <h2> {{ userCount }}</h2>                                 
                               </div>
                           </div>
                       </div>
@@ -194,8 +197,12 @@ export default {
        ptUsers: function(){
            return this.$store.getters.getUsers
        },
-       usersInRoom: function(){
-           return this.$store.getters.getUsers.length
+       userCount: function(){
+           let count = this.$store.getters.getUsers.length
+           if (count == 1){
+               return count + ' user'
+           }
+           return count + ' users'
        },
        chatBoxMessage: function(){
            return "Message " + this.$store.getters.getRoom
