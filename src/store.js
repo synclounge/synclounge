@@ -315,7 +315,7 @@ const plexTogether = {
       let address = data.address
       let callback = data.callback
       var that = this
-      state._socket = state._io.connect(address,{'sync disconnect on unload':true,'forceNew': true,
+      state._socket = state._io.connect(address,{'forceNew':true,
       'connect timeout': 7000 })
       state._socket.on('connect',function(result){
           // Good connection
@@ -325,16 +325,16 @@ const plexTogether = {
           })
           commit('SET_CONNECTED',true)
           commit('SET_SERVER',address)
+          if (state.room){
+            // Looks like the server disconnected on us, lets rejoin
+            console.log('Attempting to rejoin our room...')
+            state._socket.emit('join',new getHandshakeUser(rootState.plex.user,state.room,state.password))
+          }
           return
       })
       state._socket.on('connect_error',function(result){
           // Bad connection
-          state._socket.disconnect();
           console.log('Failed to connect')
-          callback({
-            result:false,
-            data:result
-          })
           commit('SET_CONNECTED',false)
           commit('SET_SERVER',null)
           return
@@ -345,15 +345,7 @@ const plexTogether = {
         if (!state._socket || !state.connected){
             return callback(false)
         }
-        function getHandshakeUser(user,room,password){
-          var tempUser = {
-              'username':user.username,
-              'room':room,
-              'password':password,
-              'avatarUrl':user.thumb
-          }
-          return tempUser
-        } 
+
         state._socket.emit('join',new getHandshakeUser(data.user,data.roomName,data.password))
         state._socket.on('join-result',function(result,_data,details,currentUsers){
           commit('CLEAR_MESSAGES')
@@ -561,13 +553,19 @@ const plexTogether = {
               }
             })
             state._socket.on('disconnect',function(data){
-              commit('SET_ROOM',null)
-              commit('SET_PASSWORD',null)
-              commit('SET_USERS',[])            
-              commit('SET_CONNECTED',false)
-              commit('SET_SERVER',null)
-              commit('SET_CHAT',false)
-              state.serverError = null
+              if (data == 'io client disconnect'){
+                console.log('We disconnected from the server')              
+                commit('SET_ROOM',null)
+                commit('SET_PASSWORD',null)
+                commit('SET_USERS',[])            
+                commit('SET_CONNECTED',false)
+                commit('SET_SERVER',null)
+                commit('SET_CHAT',false)
+                state.serverError = null
+              }
+              if (data == 'transport close'){
+                console.log('The server disconnected on us')
+              }
             })
             state._socket.on('new_message',function(msgObj){
               commit('ADD_MESSAGE',msgObj)
@@ -614,7 +612,15 @@ const plexTogether = {
     
   }
 }
-
+function getHandshakeUser(user,room,password){
+  var tempUser = {
+      'username':user.username,
+      'room':room,
+      'password':password,
+      'avatarUrl':user.thumb
+  }
+  return tempUser
+} 
 const store = new Vuex.Store({
   state,
   mutations,
