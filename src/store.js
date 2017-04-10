@@ -324,6 +324,9 @@ const plexTogether = {
       let address = data.address
       let callback = data.callback
       var that = this
+      if (state._socket){
+        state._socket.disconnect()
+      }
       state._socket = state._io.connect(address,{'forceNew':true,
       'connect timeout': 7000 })
       state._socket.on('connect',function(result){
@@ -354,7 +357,6 @@ const plexTogether = {
         if (!state._socket || !state.connected){
             return callback(false)
         }
-
         state._socket.emit('join',new getHandshakeUser(data.user,data.roomName,data.password))
         state._socket.on('join-result',function(result,_data,details,currentUsers){
           commit('CLEAR_MESSAGES')
