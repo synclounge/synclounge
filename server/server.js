@@ -143,7 +143,7 @@ io.on('connection', function(socket){
     socket.on('send_message',function(msg){
         //console.log(msg)
         if (socket.ourRoom == null){
-            console.log('This user should join a room first')
+            //console.log('This user should join a room first')
             socket.emit('flowerror','You aren\' connected to a room! Use join')
             socket.emit('rejoin')
             return
@@ -159,7 +159,7 @@ io.on('connection', function(socket){
         })
     })
     socket.on('connect_timeout',function(){
-        console.log('timeout')
+        //console.log('timeout')
         handleDisconnect(true)
     })
 	socket.on('disconnect', function(){        
@@ -169,12 +169,12 @@ io.on('connection', function(socket){
         if (socket.selfUser === undefined || socket.selfUser === null){
             return
         }
-        console.log('User left: ' + socket.selfUser.username)     
+        //console.log('User left: ' + socket.selfUser.username)     
         if (socket.selfUser.role == 'host'){
             //Our Host has left, lets give the next Guest the Host role
             var newHost = transferHost(socket.selfUser.room)
-            console.log('The new host is ' + newHost)
-            console.log(JSON.stringify(newHost,null,4))
+            //console.log('The new host is ' + newHost)
+            //console.log(JSON.stringify(newHost,null,4))
             socket.broadcast.to(socket.selfUser.room).emit('host-swap',newHost)
         }
         removeUser(socket.selfUser.room,socket.selfUser.username)
@@ -221,15 +221,13 @@ function transferHost(roomName){
         return
     }
     var oldHost = removeHost(room) 
-    console.log('root rooms object ')
-    console.log(JSON.stringify(io.sockets.adapter.rooms))
     if (oldHost === null || oldHost === undefined) {
         return
     }
     for (var i in room.users){
         if (room.users[i].username != oldHost.username){
             //This is a valid user
-            console.log('Transferred host to ' + room.users[i].username)            
+            //console.log('Transferred host to ' + room.users[i].username)            
             room.users[i].role = 'host'
             room.hostUser = room.users[i]
             room.hostUsername = room.users[i].username
@@ -238,8 +236,6 @@ function transferHost(roomName){
     }
 }
 function removeHost(room){
-    console.log('Room object below')
-    console.log(JSON.stringify(room,null,4))
     if (room === undefined){
         //Room has already been destroyed!
         return
@@ -254,14 +250,11 @@ function removeHost(room){
 function removeUser(roomname,username){
     var room = io.sockets.adapter.rooms[roomname]
     if (room === undefined){
-        console.log('room undefined')
         return
     }
     for (var i in room.users){
-        console.log('Does ' + room.users[i].username + ' equal ' + username)
         if (room.users[i].username == username){
             //This is the user that we need to remove
-            console.log('Removing ' + room.users[i].username)
             room.users.splice(i,1)
         }
     }
