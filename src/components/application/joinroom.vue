@@ -151,7 +151,6 @@ export default {
         joinRoom: function(){
             var that = this
             console.log('Attempting to join room ' + this.room)
-            console.log(this)
             if (!this.context.getters.getConnected){
                 console.log('Cant join room because we arent connected to a server!')
                 return

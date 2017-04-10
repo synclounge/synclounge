@@ -64,7 +64,7 @@
 
         <!-- MODALS -->
         <div v-if="darkMode">
-            <sweet-modal ref="joinroomModal" overlay-theme="dark" modal-theme="dark" >
+            <sweet-modal v-on:close="joinRoomModalClosed()" ref="joinroomModal" overlay-theme="dark" modal-theme="dark" >
                 <joinroom></joinroom>       
             </sweet-modal>
         </div>        
@@ -312,6 +312,11 @@ export default {
            //console.log('trying to open')
            return this.$refs.joinroomModal.open()
            //$('#joinRoomModal').modal('open');
+       },
+       joinRoomModalClosed: function(){
+           if (!this.ptRoom){
+                this.$store.dispatch('disconnectServer')
+           }
        },
        showChat: function(){
             this.showToggleChat = !this.showToggleChat
