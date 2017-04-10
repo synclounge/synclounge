@@ -445,6 +445,9 @@ const plexTogether = {
                 if (ourTimeline.playerState == 'buffering'){
                   return
                 }
+                if (hostTimeline.playerState == 'stopped'){
+                  return
+                }
 
                 // Check if we need to autoplay
                 if ((ourTimeline.state == 'stopped' || !ourTimeline.state) && (hostTimeline.playerState != 'stopped')){
