@@ -99,7 +99,7 @@ io.on('connection', function(socket){
             socket.selfUser = tempUser
             currentUsers = room.users
         } else {
-            console.log('they joined NOT OK and were given the username ' + tempUser.username)
+            console.log('User failed to join a room')
         }     
         _data = tempUser
         socket.emit('join-result',result,_data,details,currentUsers)
@@ -141,14 +141,14 @@ io.on('connection', function(socket){
         }
     });
     socket.on('send_message',function(msg){
-        console.log(msg)
+        //console.log(msg)
         if (socket.ourRoom == null){
             console.log('This user should join a room first')
             socket.emit('flowerror','You aren\' connected to a room! Use join')
             socket.emit('rejoin')
             return
         }
-        console.log('New message in channel ' + socket.selfUser.room + ' from ' + socket.selfUser.username + ' saying ' + msg)
+        //console.log('New message in channel ' + socket.selfUser.room + ' from ' + socket.selfUser.username + ' saying ' + msg)
         socket.broadcast.to(socket.selfUser.room).emit('new_message',{
             msg: msg.msg,
             user: {
@@ -173,6 +173,8 @@ io.on('connection', function(socket){
         if (socket.selfUser.role == 'host'){
             //Our Host has left, lets give the next Guest the Host role
             var newHost = transferHost(socket.selfUser.room)
+            console.log('The new host is ' + newHost)
+            console.log(JSON.stringify(newHost,null,4))
             socket.broadcast.to(socket.selfUser.room).emit('host-swap',newHost)
         }
         removeUser(socket.selfUser.room,socket.selfUser.username)
@@ -211,13 +213,16 @@ function updateUserData(username,userData,room){
         }
     }
 }
-function transferHost(room){
-    var room = io.sockets.adapter.rooms[room]
+function transferHost(roomName){
+    console.log('Transfering the host in the room ' + roomName)
+    var room = io.sockets.adapter.rooms[roomName]
     if (room === undefined){
         //Room has already been destroyed!
         return
     }
-    var oldHost = removeHost() 
+    var oldHost = removeHost(room) 
+    console.log('root rooms object ')
+    console.log(JSON.stringify(io.sockets.adapter.rooms))
     if (oldHost === null || oldHost === undefined) {
         return
     }
@@ -228,12 +233,13 @@ function transferHost(room){
             room.users[i].role = 'host'
             room.hostUser = room.users[i]
             room.hostUsername = room.users[i].username
-            return (room.users[i].username)        
+            return (room.users[i])        
         } 
     }
 }
 function removeHost(room){
-    var room = io.sockets.adapter.rooms[room]
+    console.log('Room object below')
+    console.log(JSON.stringify(room,null,4))
     if (room === undefined){
         //Room has already been destroyed!
         return
@@ -267,7 +273,7 @@ function getValidUsername(usersarray,wantedname){
         var found = false;
         for (var i in usersarray){
             if (usersarray[i].username == tempname){
-                console.log(usersarray[i].username + ' == ' + tempname)
+                //console.log(usersarray[i].username + ' == ' + tempname)
                 found = true;
             }
         }
