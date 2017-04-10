@@ -161,7 +161,7 @@ export default {
             }
             let temporaryObj = {
                 user:this.plex.user,
-                roomName:this.room,
+                roomName:this.room.toLowerCase(),
                 password:this.password,
                 callback:function(result){
                     if (result){

@@ -12,7 +12,7 @@ module.exports = function PlexAuth(){
             url: url,
             time: true,
             headers: {
-                'X-Plex-Client-Identifier': 'PlexTogetherWeb',
+                'X-Plex-Client-Identifier': 'PlexTogether',
                 'Accept': 'application/json',
                 'X-Plex-Token': accessToken
             },
@@ -34,8 +34,8 @@ module.exports = function PlexAuth(){
             url: url,
             time: true,
             headers: {
-                'X-Plex-Device-Name': 'PlexTogetherWeb',
-                'X-Plex-Client-Identifier': 'PlexTogetherWeb',
+                'X-Plex-Device-Name': 'PlexTogether',
+                'X-Plex-Client-Identifier': 'PlexTogether',
                 'X-Plex-Provides': 'controller',
                 'X-Plex-Target-Client-Identifier': clientIdentifier
             },
