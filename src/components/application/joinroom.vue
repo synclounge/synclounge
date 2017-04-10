@@ -24,7 +24,7 @@
             <div v-if="selectedServer == 'custom'" class="row" id="customField">
                 <div class="col s11">
                     <div class="mdc-textfield mdc-textfield--upgraded" style="width: 100%">
-                        <input v-model="customServer" id="ptServerCustom" type="text" class="mdc-textfield__input" value="http://" style="width: 100%; margin-bottom: 0px">
+                        <input v-model="CUSTOMSERVER" id="ptServerCustom" type="text" class="mdc-textfield__input" value="http://" style="width: 100%; margin-bottom: 0px">
                         <label class="mdc-textfield__label mdc-textfield__label--float-above plex-gamboge-text">
                             Custom Server
                         </label>
@@ -106,7 +106,6 @@ export default {
     data() {
         return {
             selectedServer:'',
-            customServer: 'https://',
             serverError: null,
             roomError: null,
             room:'',
@@ -136,9 +135,9 @@ export default {
         },
         attemptConnectCustom: function(){
             var that = this
-            console.log('Attempting to connect to ' + this.customServer )
+            console.log('Attempting to connect to ' + this.CUSTOMSERVER )
             this.$store.dispatch('socketConnect',{
-                address:this.customServer,
+                address:this.CUSTOMSERVER,
                 callback:function(data){
                     if (!data.result){
                         console.log('Failed to connect')
@@ -182,7 +181,18 @@ export default {
         },
         context: function(){
             return this.$store
-        }
+        },        
+        CUSTOMSERVER: {
+            get () {
+                if (!this.$store.getters.getSettingCUSTOMSERVER){
+                    return 'http://'
+                }
+                return this.$store.getters.getSettingCUSTOMSERVER
+            },
+            set (value) {
+                this.$store.commit('setSettingCUSTOMSERVER',value)
+            }
+        },
     },    
     mounted: function() {
         // Create event listeners 

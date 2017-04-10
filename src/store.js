@@ -25,7 +25,8 @@ if(!getSetting('INIT')){
   setSetting('CLIENTPOLLINTERVAL',1000)
   setSetting('DARKMODE',false)
   setSetting('SYNCMODE','cleanseek')
-  setSetting('SYNCFLEXABILITY',4000)
+  setSetting('SYNCFLEXABILITY',4000)  
+  setSetting('CUSTOMSERVER','http://')
   setSetting('INIT',true)
 }
 
@@ -45,6 +46,7 @@ const state = {
   CLIENTPOLLINTERVAL: getSetting('CLIENTPOLLINTERVAL'),
   SYNCMODE: getSetting('SYNCMODE'),
   SYNCFLEXABILITY: getSetting('SYNCFLEXABILITY'),
+  CUSTOMSERVER: getSetting('CUSTOMSERVER'),
   stats: {}
 }
 
@@ -159,6 +161,10 @@ const mutations = {
     setSetting('SYNCFLEXABILITY',data)
     state.SYNCFLEXABILITY = data
   },  
+  setSettingCUSTOMSERVER(state,data){
+    setSetting('CUSTOMSERVER',data)
+    state.CUSTOMSERVER = data
+  },
   setSettingDARKMODE(state,data){
     setSetting('DARKMODE',data)
     state.DARKMODE = data
@@ -219,7 +225,10 @@ const getters = {
   },  
   getSettingSYNCFLEXABILITY: state => {
     return state.SYNCFLEXABILITY
-  },  
+  },   
+  getSettingCUSTOMSERVER: state => {
+    return state.CUSTOMSERVER
+  },   
   getSettingDARKMODE: state => {
     return state.DARKMODE
   },
