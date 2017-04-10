@@ -392,6 +392,9 @@ const plexTogether = {
               })
             })              
             state._socket.on('host-swap',function(user){
+              if (!user){
+                return
+              }
               commit('ADD_MESSAGE',{
                 msg: user.username + ' is now the host',
                 user: user,
