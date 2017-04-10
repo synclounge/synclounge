@@ -31,11 +31,14 @@
                 <img class="hide-on-med-and-down" style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px" v-bind:src="logo"></img>
               </li>
               <li style="padding:1%;">
-                <a class="navbar-brand" href="/"> Home </a>
+                <a class="navbar-brand" href="/ptweb"> Home </a>
               </li>
               <li style="padding:1%;">
                 <router-link to="/app" class="nav-item nav-link"> Launch </router-link>        
               </li> 
+              <li v-if="showLinkShortener">
+                <v-btn v-on:click.native="generateShortLink()">Invite</v-btn>
+              </li>
               <li class="right">
                 <div class="nav navbar-nav right">
                   <div class="switch">
@@ -84,6 +87,11 @@ import statistics from './application/statistics'
       SweetModal,
       SweetModalTab
     },
+    data(){
+      return {
+        shortUrl: null
+      }
+    },
     mounted: function (){
     },
     computed: {
@@ -102,6 +110,24 @@ import statistics from './application/statistics'
         }
         return 'static/logo-small-dark.png'
       },
+      ptConnected: function(){
+          return this.$store.getters.getConnected
+      },
+      ptServer: function(){
+          return this.$store.getters.getServer
+      },       
+      ptRoom: function(){
+          return this.$store.getters.getRoom
+      },       
+      ptPassword: function(){
+          return this.$store.getters.getPassword
+      }, 
+      showLinkShortener: function(){
+        if (this.ptConnected && this.ptServer && this.ptRoom){
+          return true
+        }
+        return false
+      }, 
       darkMode: {
           get () {
               return this.$store.getters.getSettingDARKMODE
@@ -120,6 +146,32 @@ import statistics from './application/statistics'
       },
       openStatistics: function(){
         return this.$refs.statisticsModal.open()
+      },
+      generateShortLink: function(){
+        console.log('Generating a shortened link')
+        let socket = this.$store.getters.getSocket
+        let url = window.location.origin
+
+        let password = ''
+        if (this.$store.getters.getPassword){
+          password = this.$store.getters.getPassword
+        }
+        let data = {
+          urlOrigin: window.location.origin,
+          owner: this.$store.getters.getPlex.user.username,
+          ptserver: this.$store.getters.getServer,
+          ptroom: this.$store.getters.getRoom,
+          ptpassword: password
+          
+        }
+        console.log(data)
+
+
+
+        socket.on('shorten-result',function(shortUrl){
+          console.log('Our short url is ' + shortUrl)
+        })
+        socket.emit('shorten',data)
       },
       refreshPlexDevices: function(){
         let oldClient = this.$store.getters.getChosenClient

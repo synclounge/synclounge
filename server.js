@@ -3,7 +3,11 @@
 var PORT = 8089
 
 var express = require('express');
+var path = require('path');
+
+var all = express()
 var app = express();
+
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -11,14 +15,77 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
     next();
 });
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+app.use('/',express.static(path.join(__dirname, 'dist')));
+
+
+
+all.use('/ptweb',app)
+all.use('/join/:id',function(req,res){
+    let shortObj = shortenedLinks[req.params.id]
+    if (!shortObj){
+        return res.send('Whoops, looks like youve made a wrong turn..')        
+    }
+    return res.redirect(shortObj.fullUrl)
+})
+all.use('/',function(req,res){
+    res.redirect('/ptweb');
+})
+var rootServer = require('http').createServer(all);
+var io = require('socket.io')(rootServer);
+
+var shortenedLinks = {}
+
+function getUniqueId(){    
+    while (true){
+        let testId = (0|Math.random()*9e6).toString(36)
+        if (!shortenedLinks[testId]){    // Check if we already have a shortURL using that id
+            return testId
+        }
+    }
+
+}
+
+function shortenObj(data){
+    let returnable = {}
+    returnable.urlOrigin = data.urlOrigin
+    returnable.owner = data.owner
+
+    returnable.ptserver = data.ptserver
+    returnable.ptroom = data.ptroomm
+    returnable.ptpassword = data.ptpassword
+
+    returnable.starttime = (new Date).getTime()
+    returnable.id = getUniqueId()
+    returnable.shortUrl = data.urlOrigin + '/join/' + returnable.id
+
+    let params = {
+        ptserver: data.ptserver,
+        ptroom: data.ptroom,
+        ptpassword: data.ptpassword,
+        owner: data.owner
+    }
+    let query = ''
+    for (let key in params) {
+        query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
+    }
+    returnable.fullUrl = data.urlOrigin + '/ptweb#/join?' + query
+
+    shortenedLinks[returnable.id] = returnable
+    console.log(returnable)
+    return returnable.shortUrl
+}
+
+
+
+
+
 
 io.on('connection', function(socket){
     console.log('new connection')
-    socket.on('hello',function(){
-        console.log('Client said hello')
-        socket.emit('hello-result',true)
+    socket.on('shorten',function(data){
+        console.log('Creating a shortened link')
+
+        socket.emit('shorten-result',shortenObj(data))
     })
     socket.on('join',function(data){
         //A user is attempting to join a room    
@@ -183,8 +250,111 @@ io.on('connection', function(socket){
         }        
         socket.disconnect(disconnect)           
     }
+    function updateUserData(username,userData,room){
+        for (var i in io.sockets.adapter.rooms[room].users){
+            var user = io.sockets.adapter.rooms[room].users[i]
+            if (user.username == username){
+                //This is our user
+                user.time = userData.time
+                user.maxTime = userData.maxTime
+                user.title = userData.title
+                user.lastHeartbeat = (new Date).getTime()
+                user.playerState = userData.playerState
+                user.rawTitle = userData.rawTitle
+                user.clientResponseTime = userData.clientResponseTime
+                user.type = userData.type
+                user.showName = userData.showName
+                return
+            }
+        }
+    }
+    function transferHost(roomName){
+        console.log('Transfering the host in the room ' + roomName)
+        var room = io.sockets.adapter.rooms[roomName]
+        if (room === undefined){
+            //Room has already been destroyed!
+            return
+        }
+        var oldHost = removeHost(room) 
+        if (oldHost === null || oldHost === undefined) {
+            return
+        }
+        for (var i in room.users){
+            if (room.users[i].username != oldHost.username){
+                //This is a valid user
+                //console.log('Transferred host to ' + room.users[i].username)            
+                room.users[i].role = 'host'
+                room.hostUser = room.users[i]
+                room.hostUsername = room.users[i].username
+                return (room.users[i])        
+            } 
+        }
+    }
+    function removeHost(room){
+        if (room === undefined){
+            //Room has already been destroyed!
+            return
+        }
+        for (var i in room.users){
+            if (room.users[i].role == 'host'){
+                room.users[i].role = 'guest'
+                return(room.users[i])                       
+            } 
+        }
+    }
+    function removeUser(roomname,username){
+        var room = io.sockets.adapter.rooms[roomname]
+        if (room === undefined){
+            return
+        }
+        for (var i in room.users){
+            if (room.users[i].username == username){
+                //This is the user that we need to remove
+                room.users.splice(i,1)
+            }
+        }
+    }
+    function getValidUsername(usersarray,wantedname){
+        var tempname = wantedname
+        while (true){
+            //We need to loop through the users list until we create a valid name
+            var found = false;
+            for (var i in usersarray){
+                if (usersarray[i].username == tempname){
+                    //console.log(usersarray[i].username + ' == ' + tempname)
+                    found = true;
+                }
+            }
+            if (found){
+                //Looks like that username is taken
+                //Check if we've already appended '(x)'
+                if (tempname.indexOf('(') > -1){
+                    //we have
+                    var value = parseInt(tempname.substring(
+                        tempname.indexOf('(')+1,tempname.indexOf(')')))
+                    var newvalue = value + 1
+                    tempname = tempname.replace('('+value+')','('+newvalue+')')
+                } else {
+                    //we haven't
+                    tempname = tempname + '(1)'
+                }
+            } else {
+                //This is a valid name!
+                return tempname
+            }
+        }
+    }
+
+    var user = function(){
+        this.username = null;
+        this.role = null;
+        this.room = null;
+        this.title = null;
+        this.time = null;
+        this.avatarUrl = null;
+    }
 });
-server.listen(PORT);
+rootServer.listen(PORT);
 console.log('PlexTogether Server successfully started on port ' + PORT)
 
 
@@ -195,109 +365,7 @@ setInterval(function(){
 },5000)
 
 
-function updateUserData(username,userData,room){
-    for (var i in io.sockets.adapter.rooms[room].users){
-        var user = io.sockets.adapter.rooms[room].users[i]
-        if (user.username == username){
-            //This is our user
-            user.time = userData.time
-            user.maxTime = userData.maxTime
-            user.title = userData.title
-            user.lastHeartbeat = (new Date).getTime()
-            user.playerState = userData.playerState
-            user.rawTitle = userData.rawTitle
-            user.clientResponseTime = userData.clientResponseTime
-            user.type = userData.type
-            user.showName = userData.showName
-            return
-        }
-    }
-}
-function transferHost(roomName){
-    console.log('Transfering the host in the room ' + roomName)
-    var room = io.sockets.adapter.rooms[roomName]
-    if (room === undefined){
-        //Room has already been destroyed!
-        return
-    }
-    var oldHost = removeHost(room) 
-    if (oldHost === null || oldHost === undefined) {
-        return
-    }
-    for (var i in room.users){
-        if (room.users[i].username != oldHost.username){
-            //This is a valid user
-            //console.log('Transferred host to ' + room.users[i].username)            
-            room.users[i].role = 'host'
-            room.hostUser = room.users[i]
-            room.hostUsername = room.users[i].username
-            return (room.users[i])        
-        } 
-    }
-}
-function removeHost(room){
-    if (room === undefined){
-        //Room has already been destroyed!
-        return
-    }
-    for (var i in room.users){
-        if (room.users[i].role == 'host'){
-            room.users[i].role = 'guest'
-            return(room.users[i])                       
-        } 
-    }
-}
-function removeUser(roomname,username){
-    var room = io.sockets.adapter.rooms[roomname]
-    if (room === undefined){
-        return
-    }
-    for (var i in room.users){
-        if (room.users[i].username == username){
-            //This is the user that we need to remove
-            room.users.splice(i,1)
-        }
-    }
-}
-function getValidUsername(usersarray,wantedname){
-    var tempname = wantedname
-    while (true){
-        //We need to loop through the users list until we create a valid name
-        var found = false;
-        for (var i in usersarray){
-            if (usersarray[i].username == tempname){
-                //console.log(usersarray[i].username + ' == ' + tempname)
-                found = true;
-            }
-        }
-        if (found){
-            //Looks like that username is taken
-            //Check if we've already appended '(x)'
-            if (tempname.indexOf('(') > -1){
-                //we have
-                var value = parseInt(tempname.substring(
-                    tempname.indexOf('(')+1,tempname.indexOf(')')))
-                var newvalue = value + 1
-                tempname = tempname.replace('('+value+')','('+newvalue+')')
-            } else {
-                //we haven't
-                tempname = tempname + '(1)'
-            }
-        } else {
-            //This is a valid name!
-            return tempname
-        }
-    }
-}
 
-var user = function(){
-    this.username = null;
-    this.role = null;
-    this.room = null;
-    this.title = null;
-    this.time = null;
-    this.avatarUrl = null;
-}
 
 
 

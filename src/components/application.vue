@@ -1,5 +1,5 @@
 <template>
-	<div class="main-body mdc-typography" style="height: calc(100% - 64px">
+	<div class="main-body mdc-typography" style="height: calc(100% - 64px)">
       <div class="nav-wrapper hide-on-large-only"><a id="logo-container" href="#" class="brand-logo"></a>
         <ul id="nav-mobile" class="side-nav" style="height: 100%">
           <sidebar :mobile="true"></sidebar>
