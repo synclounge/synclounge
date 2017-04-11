@@ -70,9 +70,30 @@ export default {
     storage.removeItem('plexuser')
 
     function getPin(){
+      var sBrowser, sUsrAg = navigator.userAgent;
+
+      if(sUsrAg.indexOf("Chrome") > -1) {
+          sBrowser = "Google Chrome";
+      } else if (sUsrAg.indexOf("Safari") > -1) {
+          sBrowser = "Apple Safari";
+      } else if (sUsrAg.indexOf("Opera") > -1) {
+          sBrowser = "Opera";
+      } else if (sUsrAg.indexOf("Firefox") > -1) {
+          sBrowser = "Mozilla Firefox";
+      } else if (sUsrAg.indexOf("MSIE") > -1) {
+          sBrowser = "Microsoft Internet Explorer";
+      }
+      console.log('Browser: ' + sBrowser)
+
       that.$http.post('https://plex.tv/pins.xml',null,{
         headers:{
-          'X-Plex-Client-Identifier': 'PlexTogether'
+          'X-Plex-Device':'',
+          'X-Plex-Device-Name':'PlexTogether',
+          'X-Plex-Product':'PlexTogether',
+          'X-Plex-Version':'1.0',
+          'X-Plex-Platform':sBrowser,
+          'X-Plex-Platform-Version':'',
+          'X-Plex-Client-Identifier': (Math.random()*1e32).toString(36)
         }
       })
       .then((response) => {
@@ -81,11 +102,6 @@ export default {
           if (!err){
             that.pin = result.pin.code[0]
             that.ID = result.pin.id[0]._
-
-
-
-
-
             let checker = setInterval(function(){
                 var options = {
                   url: 'https://plex.tv/pins/' + that.ID + '.xml',
