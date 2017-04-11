@@ -97,7 +97,6 @@ var Plex = new _Plex()
 let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
 
 
-
 // Components
 import plexclient from './application/plexclient'
 import plexserver from './application/plexserver'
@@ -149,8 +148,40 @@ export default {
             that.$router.push('/signin')
 
         }
-    })
-      
+    }) 
+
+    if (this.$store.getters.getAutoJoin){
+        // Attempt to auto join 
+        console.log('Attempting to auto join ' + that.$store.getters.getAutoJoinUrl)
+        that.$store.dispatch('socketConnect',{
+            address:that.$store.getters.getAutoJoinUrl,
+            callback:function(data){
+                if (!data.result){
+                    console.log('Failed to connect')
+                    that.serverError = "Failed to connect to " + that.$store.getAutoJoinUrl
+                } else {
+                    that.serverError = null
+                    console.log('Attempting to join room ' + that.$store.getters.getAutoJoinRoom)
+                    if (!that.context.getters.getConnected){
+                        console.log('Cant join room because we arent connected to a server!')
+                        return
+                    }
+                    if (that.$store.getters.getAutoJoinRoom == '' || that.$store.getters.getAutoJoinRoom == null){
+                        return
+                    }
+                    let temporaryObj = {
+                        user:that.plex.user,
+                        roomName:that.$store.getters.getAutoJoinRoom.toLowerCase(),
+                        password:that.$store.getters.getAutoPassword,
+                        callback:function(result){
+                        }
+                    }
+                    this.$store.dispatch('joinRoom',temporaryObj)
+                }
+            }
+        })
+    }
+
   },
   created: function(){    
   },

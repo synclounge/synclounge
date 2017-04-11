@@ -14,7 +14,8 @@
                 <div class="col s12">
                     <select v-model="selectedServer" v-on:change="attemptConnect()" id="PlexTogetherServers" class="mdc-select"  style="width: 100%">
                         <option value="" disabled>Select a PT Server</option>
-                        <option value="custom">Custom</option>                    
+                        <option value="custom">Custom</option>                        
+                        <option v-bind:value="thisServer" >{{ thisServer }}</option>                       
                         <option value="https://au1.plextogether.com" >PlexTogether AU1</option>                        
                         <option value="https://us1.plextogether.com" >PlexTogether US1</option>
                         <option value="https://eu1.plextogether.com" >PlexTogether EU1</option>
@@ -110,7 +111,8 @@ export default {
             roomError: null,
             room:'',
             password:'',
-            connectionPending: false
+            connectionPending: false,
+            thisServer: window.location.origin
         }
     },
     methods: {

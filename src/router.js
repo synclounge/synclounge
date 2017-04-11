@@ -12,10 +12,10 @@ import join from './components/join'
 // ==================== Router registration ====================
 export default new Router({
   mode: 'hash',
-  base: '/ptweb/',
+  base: '/pt/web/',
   routes: [
     { path: '/', component: home },
-    { path: '/app', component: application },
+    { path: '/sync', component: application },
     { path: '/signin', component: signin },    
     { path: '/signout', component: signout },    
     { path: '/join', component: join },

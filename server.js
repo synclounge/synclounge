@@ -1,37 +1,61 @@
 
-
+// USER CONFIG
 var PORT = 8089
+var accessIp = 'http://10.0.0.38:8089/pt' // EG 'http://95.231.444.12:8089/pt/' or 'http://example.com/pt' 
 
+
+
+
+
+// END USER CONFIG
 var express = require('express');
 var path = require('path');
+var cors = require('cors')
 
-var all = express()
-var app = express();
+var root = express()
+root.use(cors())
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
-    next();
-});
-app.use('/',express.static(path.join(__dirname, 'dist')));
+var combined = express()
 
+var webapp = express();
+var ptserver = express();
 
+// Setup our web app
+webapp.use('/',express.static(path.join(__dirname, 'dist')));
 
-all.use('/ptweb',app)
-all.use('/join/:id',function(req,res){
+webapp.get('/join/:id',function(req,res){
     let shortObj = shortenedLinks[req.params.id]
     if (!shortObj){
         return res.send('Whoops, looks like youve made a wrong turn..')        
     }
     return res.redirect(shortObj.fullUrl)
 })
-all.use('/',function(req,res){
-    res.redirect('/ptweb');
+
+// Setup our PTServer
+ptserver.get('/',function(req,res){
+    return res.send("You've connected to the PTServer, you're probably looking for the webapp located at /pt/web")
 })
-var rootServer = require('http').createServer(all);
-var io = require('socket.io')(rootServer);
+
+// Merge everything together
+
+combined.use('/server',ptserver)
+combined.use('/web',webapp)
+combined.get('*',function(req,res){
+    return res.redirect('/pt/web/')
+})
+root.use('/pt',combined)
+root.get('*',function(req,res){
+    return res.redirect('/pt/web')
+})
+
+
+
+
+
+var rootserver = require('http').createServer(root);
+
+var webapp_io = require('socket.io')(rootserver,{path: '/pt/web/socket.io'});
+var ptserver_io = require('socket.io')(rootserver,{path: '/pt/server/socket.io'});
 
 var shortenedLinks = {}
 
@@ -47,7 +71,7 @@ function getUniqueId(){
 
 function shortenObj(data){
     let returnable = {}
-    returnable.urlOrigin = data.urlOrigin
+    returnable.urlOrigin = accessIp
     returnable.owner = data.owner
 
     returnable.ptserver = data.ptserver
@@ -56,7 +80,7 @@ function shortenObj(data){
 
     returnable.starttime = (new Date).getTime()
     returnable.id = getUniqueId()
-    returnable.shortUrl = data.urlOrigin + '/join/' + returnable.id
+    returnable.shortUrl = accessIp + '/web/join/' + returnable.id
 
     let params = {
         ptserver: data.ptserver,
@@ -68,25 +92,26 @@ function shortenObj(data){
     for (let key in params) {
         query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
     }
-    returnable.fullUrl = data.urlOrigin + '/ptweb#/join?' + query
+    returnable.fullUrl = accessIp + '/web#/join?' + query
 
     shortenedLinks[returnable.id] = returnable
     console.log(returnable)
     return returnable.shortUrl
 }
 
-
-
-
-
-
-io.on('connection', function(socket){
-    console.log('new connection')
+webapp_io.on('connection', function(socket){
+    console.log('Someone connected to the webapp socket')
     socket.on('shorten',function(data){
         console.log('Creating a shortened link')
-
         socket.emit('shorten-result',shortenObj(data))
     })
+})
+
+
+
+ptserver_io.on('connection', function(socket){
+    console.log('Someone connected to the ptserver socket')
+
     socket.on('join',function(data){
         //A user is attempting to join a room    
         if (data == null){
@@ -101,12 +126,12 @@ io.on('connection', function(socket){
             //Already in a room! Leave the room we're in
             handleDisconnect(false)
         }
-        var room = io.sockets.adapter.rooms[data.room]
+        var room = ptserver_io.sockets.adapter.rooms[data.room]
         let isFresh = false
         if (room === undefined || room.users === undefined || room.users === null){
             isFresh = true  
             socket.join(data.room)
-            room = io.sockets.adapter.rooms[data.room]
+            room = ptserver_io.sockets.adapter.rooms[data.room]
             room.users = []                  
             room.password = data.password   
             tempUser.role = 'host'
@@ -190,8 +215,8 @@ io.on('connection', function(socket){
         */
 
 
-        socket.emit('poll-result',io.sockets.adapter.rooms[socket.selfUser.room].users)
-        var room = io.sockets.adapter.rooms[socket.selfUser.room]
+        socket.emit('poll-result',ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users)
+        var room = ptserver_io.sockets.adapter.rooms[socket.selfUser.room]
         if (socket.selfUser.role == 'host'){
             //We're the host, broadcast to all clients our data
             var temp = {}
@@ -245,14 +270,14 @@ io.on('connection', function(socket){
             socket.broadcast.to(socket.selfUser.room).emit('host-swap',newHost)
         }
         removeUser(socket.selfUser.room,socket.selfUser.username)
-        if (io.sockets.adapter.rooms[socket.selfUser.room]){
-            socket.broadcast.to(socket.selfUser.room).emit('user-left',io.sockets.adapter.rooms[socket.selfUser.room].users,socket.selfUser)
+        if (ptserver_io.sockets.adapter.rooms[socket.selfUser.room]){
+            socket.broadcast.to(socket.selfUser.room).emit('user-left',ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users,socket.selfUser)
         }        
         socket.disconnect(disconnect)           
     }
     function updateUserData(username,userData,room){
-        for (var i in io.sockets.adapter.rooms[room].users){
-            var user = io.sockets.adapter.rooms[room].users[i]
+        for (var i in ptserver_io.sockets.adapter.rooms[room].users){
+            var user = ptserver_io.sockets.adapter.rooms[room].users[i]
             if (user.username == username){
                 //This is our user
                 user.time = userData.time
@@ -270,7 +295,7 @@ io.on('connection', function(socket){
     }
     function transferHost(roomName){
         console.log('Transfering the host in the room ' + roomName)
-        var room = io.sockets.adapter.rooms[roomName]
+        var room = ptserver_io.sockets.adapter.rooms[roomName]
         if (room === undefined){
             //Room has already been destroyed!
             return
@@ -303,7 +328,7 @@ io.on('connection', function(socket){
         }
     }
     function removeUser(roomname,username){
-        var room = io.sockets.adapter.rooms[roomname]
+        var room = ptserver_io.sockets.adapter.rooms[roomname]
         if (room === undefined){
             return
         }
@@ -354,14 +379,14 @@ io.on('connection', function(socket){
         this.avatarUrl = null;
     }
 });
-rootServer.listen(PORT);
+rootserver.listen(PORT);
 console.log('PlexTogether Server successfully started on port ' + PORT)
 
 
 
 
 setInterval(function(){
-   console.log('Connected users: ' + Object.keys(io.sockets.connected).length)
+   console.log('Connected users: ' + Object.keys(ptserver_io.sockets.connected).length)
 },5000)
 
 

@@ -41,7 +41,7 @@
 
                     <div class="center">                    
                         <p> We hope you enjoy. </p>
-                        <router-link to="/app" class="center nav-item nav-link"> Let's get started. </router-link>
+                        <router-link to="/sync" class="center nav-item nav-link"> Let's get started. </router-link>
                     </div>
                 </div>
               </div>

@@ -31,13 +31,13 @@
                 <img class="hide-on-med-and-down" style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px" v-bind:src="logo"></img>
               </li>
               <li style="padding:1%;">
-                <a class="navbar-brand" href="/ptweb"> Home </a>
+                <a class="navbar-brand" href="/"> Home </a>
               </li>
               <li style="padding:1%;">
-                <router-link to="/app" class="nav-item nav-link"> Launch </router-link>        
+                <router-link to="/sync" class="nav-item nav-link"> Launch </router-link>        
               </li> 
               <li v-if="showLinkShortener">
-                <v-btn v-on:click.native="generateShortLink()">Invite</v-btn>
+                <v-btn v-clipboard="shortUrl">Invite</v-btn>
               </li>
               <li class="right">
                 <div class="nav navbar-nav right">
@@ -59,6 +59,9 @@
       </sweet-modal>
       <sweet-modal ref="statisticsModal" overlay-theme="dark" modal-theme="dark">
           <statistics></statistics>             
+      </sweet-modal>      
+      <sweet-modal ref="inviteSuccess" icon="success" overlay-theme="dark" modal-theme="dark">
+        This is a success!
       </sweet-modal>
     </div>
     <div v-if="!darkMode">
@@ -67,7 +70,7 @@
       </sweet-modal>
       <sweet-modal ref="statisticsModal" overlay-theme="light" modal-theme="light">
           <statistics></statistics>             
-      </sweet-modal>
+      </sweet-modal>    
     </div>
 
   </div>
@@ -79,20 +82,41 @@
 import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 import settings from './application/settings'
 import statistics from './application/statistics'
+import invite from './application/invite'
+
+let socketio = require('socket.io-client')
+var ip = require('ip');
 
   export default {   
     components: {
       settings,
       statistics,
+      invite,
       SweetModal,
       SweetModalTab
     },
     data(){
       return {
-        shortUrl: null
+        shortUrl: null,
+        generating: null,
+        webapp_socket: null,
+        oldserver: null,
+        oldroom: null
       }
     },
-    mounted: function (){
+    mounted: function (){    
+      this.webapp_socket = socketio.connect({'forceNew':true,
+      'connect timeout': 1000,path: '/pt/web/socket.io'})
+      console.log('Attempted to join...')
+      this.webapp_socket.on('connection',function(){
+          console.log('connected')
+      })     
+      this.webapp_socket.on('connect_error',function(){
+          console.log('not connected')
+      })     
+      this.webapp_socket.on('hey',function(){
+          console.log('hey')
+      }) 
     },
     computed: {
       plex: function () {
@@ -124,8 +148,36 @@ import statistics from './application/statistics'
       }, 
       showLinkShortener: function(){
         if (this.ptConnected && this.ptServer && this.ptRoom){
+          if (this.ptServer != this.oldserver && this.ptRoom != this.oldroom){
+            // Generate our short url        
+            let socket = this.webapp_socket
+            let url = window.location.origin
+
+            let password = ''
+            if (this.$store.getters.getPassword){
+              password = this.$store.getters.getPassword
+            }
+            let urlOrigin = window.location.origin
+            let data = {
+              urlOrigin: urlOrigin,
+              owner: this.$store.getters.getPlex.user.username,
+              ptserver: this.$store.getters.getServer,
+              ptroom: this.$store.getters.getRoom,
+              ptpassword: password
+              
+            }
+            var that = this
+            socket.on('shorten-result',function(shortUrl){
+              console.log('Our short url is ' + shortUrl)
+              that.shortUrl = shortUrl
+            })
+            socket.emit('shorten',data)
+            this.oldroom = this.ptRoom
+            this.oldserver = this.ptServer
+          }
           return true
         }
+        this.shortUrl = null
         return false
       }, 
       darkMode: {
@@ -149,29 +201,10 @@ import statistics from './application/statistics'
       },
       generateShortLink: function(){
         console.log('Generating a shortened link')
-        let socket = this.$store.getters.getSocket
-        let url = window.location.origin
+        return this.sendShortLinkRequest(false)
+      },
+      sendShortLinkRequest: function(overrideHost){
 
-        let password = ''
-        if (this.$store.getters.getPassword){
-          password = this.$store.getters.getPassword
-        }
-        let data = {
-          urlOrigin: window.location.origin,
-          owner: this.$store.getters.getPlex.user.username,
-          ptserver: this.$store.getters.getServer,
-          ptroom: this.$store.getters.getRoom,
-          ptpassword: password
-          
-        }
-        console.log(data)
-
-
-
-        socket.on('shorten-result',function(shortUrl){
-          console.log('Our short url is ' + shortUrl)
-        })
-        socket.emit('shorten',data)
       },
       refreshPlexDevices: function(){
         let oldClient = this.$store.getters.getChosenClient

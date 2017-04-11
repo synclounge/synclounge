@@ -41,6 +41,10 @@ const state = {
   chosenClientTimeSet: (new Date).getTime(),
   plexuser: JSON.parse(window['localStorage'].getItem('plexuser')),
   blockAutoPlay: false,
+  autoJoin: false,
+  autoJoinUrl: null,
+  autoJoinRoom: null,
+  autoJoinPassword: null,
   // SETTINGS
   DARKMODE: JSON.parse(getSetting('DARKMODE')),
   CLIENTPOLLINTERVAL: getSetting('CLIENTPOLLINTERVAL'),
@@ -143,6 +147,18 @@ const mutations = {
   },
   SET_PLEX(state,value){
     state.plex = value
+  },  
+  SET_AUTOJOIN(state,value){
+    state.autoJoin = value
+  },  
+  SET_AUTOJOINROOM(state,value){
+    state.autoJoinRoom = value
+  },  
+  SET_AUTOJOINPASSWORD(state,value){
+    state.autoJoinPassword = value
+  },  
+  SET_AUTOJOINURL(state,value){
+    state.autoJoinUrl = value
   },
   setSetting(state,data){
     let orignal = state.settings
@@ -214,6 +230,18 @@ const getters = {
   },
   getBlockAutoPlay: state => {
     return state.blockAutoPlay
+  },  
+  getAutoJoin: state => {
+    return state.autoJoin
+  },  
+  getAutoJoinRoom: state => {
+    return state.autoJoinRoom
+  },  
+  getAutoJoinPassword: state => {
+    return state.autoJoinPassword
+  },  
+  getAutoJoinUrl: state => {
+    return state.autoJoinUrl
   },
 
   // SETTINGS 
@@ -327,8 +355,9 @@ const plexTogether = {
       if (state._socket){
         state._socket.disconnect()
       }
+      console.log('Socket attempt connect on ' + address)
       state._socket = state._io.connect(address,{'forceNew':true,
-      'connect timeout': 7000 })
+      'connect timeout': 7000,path:'/pt/server/socket.io' })
       state._socket.on('connect',function(result){
           // Good connection
           callback({

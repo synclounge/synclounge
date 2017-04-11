@@ -30,12 +30,25 @@ import 'assets/css/style2.css';
 
 export default {
   name: 'join',
-  mounted: function(){        
-      console.log('Hello from join...')
-      this.password = this.$route.query.ptpassword
-      this.room = this.$route.query.ptroom
-      this.server = this.$route.query.ptserver
-      this.owner = this.$route.query.owner
+  mounted: function(){       
+    var that = this 
+    console.log('Hello from join...')
+    this.password = this.$route.query.ptpassword
+    this.room = this.$route.query.ptroom
+    this.server = this.$route.query.ptserver
+    this.owner = this.$route.query.owner
+
+    if (this.room && this.server){
+        // Looks like a valid request...
+        // Lets setup an auto join and then move the user to /sync
+        this.$store.commit('SET_AUTOJOIN',true)
+        this.$store.commit('SET_AUTOJOINROOM',this.room)
+        this.$store.commit('SET_AUTOJOINPASSWORD',this.password)
+        this.$store.commit('SET_AUTOJOINURL',this.server)
+    }
+    setTimeout(function(){
+        that.$router.push('/sync')
+    },2500)
   },
   created: function(){    
   },

@@ -111,7 +111,7 @@ export default {
                           }
                           storage.setItem('plexuser',JSON.stringify(jsonObj))
                           setTimeout(function(){
-                              that.$router.push('/app')
+                              that.$router.push('/sync')
                           },2500)
                           clearInterval(checker)
                         }
