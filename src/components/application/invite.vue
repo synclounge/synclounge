@@ -8,6 +8,7 @@
             This means if you send this link to someone they will likely be unable to connect. 
             If you know what this means and would still like to proceed, ignore this and press the continue button below.
             Otherwise, change the hostname below so that others can access PlexTogether.
+        </div>    
     </div>
 </template>
 
