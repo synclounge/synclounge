@@ -73,7 +73,7 @@ export default {
         playerState: function(){
             if (this.object.playerState){
                 if (this.object.playerState == 'stopped'){
-                    return 'stop'
+                    return false
                 }
                 if (this.object.playerState == 'paused'){
                     return 'pause'
