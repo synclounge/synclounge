@@ -53,6 +53,9 @@
 <script>
 export default {
   name: 'home',
+  mounted: function(){
+        
+  },
   methods: {
       letsStart: function(){
           this.$router.push('/')

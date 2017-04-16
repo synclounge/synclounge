@@ -16,11 +16,11 @@
 
               <!-- MAIN CONTENT -->
 
-              <div class="col l12 s12 no-padding" id="main-body" style="height: 100%">
-                  <div v-if="!ptConnected && validDevices" style="height: 100%; overflow-y: visible">
+              <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%">               
+                  <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
                       <walkthrough></walkthrough>
                   </div>
-                  <div v-if="ptConnected" style="height: 100%; overflow-y: scroll">
+                  <div v-if="ptConnected && chosenClient" style="height: 100%; overflow-y: scroll">
                       <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers" style="overflow-y: scroll">
                           <ptuser :object="user"></ptuser>
                       </ul>
@@ -29,7 +29,7 @@
 
               <!-- CHAT INTERFACE -->
 
-              <div class="col l3 no-padding hide-on-med-and-down" id="plexTogetherChat" v-bind:style="{ display: showChatValue }" style="height: 100%">
+              <div v-if="ptConnected && chosenClient" class="col l3 no-padding hide-on-med-and-down" id="plexTogetherChat" v-bind:style="{ display: showChatValue }" style="height: 100%">
                   <div class="mdc-permanent-drawer chatInterface">
                       <div class="mdc-permanent-drawer__toolbar-spacer" style="padding: 0; height: 76px">
                           <div class="row" style="width: 100%;">
@@ -133,12 +133,15 @@ export default {
     var that = this
     console.log('Logging in to Plex.Tv')
     let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
-    Plex.doTokenLogin(plexstorage.authToken,function(result,response,body){
-        
+    Plex.doTokenLogin(plexstorage.authToken,function(result,response,body){        
         if (result){
             console.log('Logged in.')
             Plex.getDevices(function(){            
                 that.$store.commit('SET_PLEX',Plex) 
+                if (that.$store.getters.getAutoJoin){                    
+                    that.$store.dispatch('autoJoin')
+                    that.$store.commit('SET_AUTOJOIN',false)
+                }
             })
         } else {
             console.log('Signin failed')
@@ -156,28 +159,7 @@ export default {
         that.$store.dispatch('socketConnect',{
             address:that.$store.getters.getAutoJoinUrl,
             callback:function(data){
-                if (!data.result){
-                    console.log('Failed to connect')
-                    that.serverError = "Failed to connect to " + that.$store.getAutoJoinUrl
-                } else {
-                    that.serverError = null
-                    console.log('Attempting to join room ' + that.$store.getters.getAutoJoinRoom)
-                    if (!that.context.getters.getConnected){
-                        console.log('Cant join room because we arent connected to a server!')
-                        return
-                    }
-                    if (that.$store.getters.getAutoJoinRoom == '' || that.$store.getters.getAutoJoinRoom == null){
-                        return
-                    }
-                    let temporaryObj = {
-                        user:that.plex.user,
-                        roomName:that.$store.getters.getAutoJoinRoom.toLowerCase(),
-                        password:that.$store.getters.getAutoPassword,
-                        callback:function(result){
-                        }
-                    }
-                    this.$store.dispatch('joinRoom',temporaryObj)
-                }
+                
             }
         })
     }

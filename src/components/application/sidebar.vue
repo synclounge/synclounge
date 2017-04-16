@@ -6,7 +6,7 @@
                     Plex Players {{playercount}}
                 </li>      
                 <li v-if="plex && chosenClient" v-for="client in clients" id="plexPlayers">
-                    <plexclient v-on:click.native="clientClicked(client)":sidebar="true" :object="client"></plexclient>
+                    <plexclient :sidebar="true" :object="client"></plexclient>
                 </li>
             </div>
             <div v-if="ptConnected" style="margin-bottom: 20px">

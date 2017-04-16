@@ -6,7 +6,7 @@ import moment from '../node_modules/moment/moment.js'
 
 const EventEmitter = require('events');
 var request = require('request')
-
+var socketio = require('socket.io-client')
 
 
 Vue.use(Vuex)
@@ -29,7 +29,22 @@ if(!getSetting('INIT')){
   setSetting('CUSTOMSERVER','http://')
   setSetting('INIT',true)
 }
-
+// Set up out web app socket for fetching short urls
+let _webapp_socket = null
+if (process.env.NODE_ENV == 'development'){
+  console.log('running in development')
+  _webapp_socket = socketio.connect(''+window.location.hostname+':8088',{'forceNew':true,
+  'connect timeout': 1000,path: '/pt/web/socket.io'})
+} else {
+  _webapp_socket = socketio.connect({'forceNew':true,
+  'connect timeout': 1000,path: '/pt/web/socket.io'})
+}
+_webapp_socket.on('connection',function(){
+    console.log('connected')
+})     
+_webapp_socket.on('connect_error',function(){
+    console.log('not connected')
+})     
 
 const state = {
   count: 0,
@@ -45,6 +60,8 @@ const state = {
   autoJoinUrl: null,
   autoJoinRoom: null,
   autoJoinPassword: null,
+  shortLink: null,
+  webapp_socket: _webapp_socket,
   // SETTINGS
   DARKMODE: JSON.parse(getSetting('DARKMODE')),
   CLIENTPOLLINTERVAL: getSetting('CLIENTPOLLINTERVAL'),
@@ -159,6 +176,9 @@ const mutations = {
   },  
   SET_AUTOJOINURL(state,value){
     state.autoJoinUrl = value
+  },  
+  SET_SHORTLINK(state,value){
+    state.shortLink = value
   },
   setSetting(state,data){
     let orignal = state.settings
@@ -242,6 +262,9 @@ const getters = {
   },  
   getAutoJoinUrl: state => {
     return state.autoJoinUrl
+  },  
+  getShortLink: state => {
+    return state.shortLink
   },
 
   // SETTINGS 
@@ -347,7 +370,31 @@ const plexTogether = {
     }
    },
 
-  actions: {     
+  actions: {    
+    autoJoin({ state, commit, rootState, dispatch }, data){
+      console.log('Attempting to auto join..')
+      console.log(rootState)
+      dispatch('socketConnect',{
+          address: rootState.autoJoinUrl,
+          callback:function(data){
+              console.log('Socket connection result below')
+              console.log(data)
+              if (!data.result){
+                  console.log('Failed to connect')
+              } else {
+                let temporaryObj = {
+                  user: rootState.plex.user,
+                  roomName: rootState.autoJoinRoom,
+                  password: rootState.autoJoinPassword,
+                  callback: function(result){
+                    console.log(result)
+                  }
+                }
+                dispatch('joinRoom',temporaryObj)
+              }
+          }
+      })
+    }, 
     socketConnect({ state, commit, rootState },data) {
       let address = data.address
       let callback = data.callback
@@ -361,7 +408,7 @@ const plexTogether = {
       state._socket.on('connect',function(result){
           // Good connection
           callback({
-            result:false,
+            result:true,
             data:result
           })
           commit('SET_CONNECTED',true)
@@ -384,17 +431,44 @@ const plexTogether = {
     joinRoom({ state, commit, rootState },data){
         var that = this
         if (!state._socket || !state.connected){
-            return callback(false)
+            return data.callback(false)
         }
+        commit('SET_PASSWORD',data.password)
+        console.log('Attempting to join')
+        console.log(data)
         state._socket.emit('join',new getHandshakeUser(data.user,data.roomName,data.password))
         state._socket.on('join-result',function(result,_data,details,currentUsers){
           commit('CLEAR_MESSAGES')
           if (result){
             commit('SET_ROOM',_data.room)
-            commit('SET_PASSWORD',_data.password)
             commit('SET_USERS',currentUsers)
-            commit('SET_ME',data.username)
+            commit('SET_ME',_data.username)
             commit('SET_CHAT',true)
+
+
+            // Generate our short url/invite link    
+            console.log('generating our invite link')    
+            console.log(state)
+            let webapp_socket = rootState.webapp_socket
+            let url = window.location.origin
+
+            let urlOrigin = window.location.origin
+            let data = {
+              urlOrigin: urlOrigin,
+              owner: rootState.plex.user.username,
+              ptserver: state.server,
+              ptroom: state.room,
+              ptpassword: state.password
+              
+            }
+            var that = this
+            console.log('Invite link data below')
+            console.log(data)
+            webapp_socket.on('shorten-result',function(shortUrl){
+              console.log('Our short url is ' + shortUrl)
+              commit('SET_SHORTLINK',shortUrl)
+            })
+            webapp_socket.emit('shorten',data)
 
             // Now we need to setup events for dealing with the PTServer.
             // We will regularly be recieving and sending data to and from the server.

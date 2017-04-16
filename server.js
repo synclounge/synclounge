@@ -1,7 +1,9 @@
+// ABOUT
+// Runs the Plex Together Server software - handles rooms 
+// Defaults to 8089
 
 // USER CONFIG
 var PORT = 8089
-var accessIp = 'http://10.0.0.38:8089/pt' // EG 'http://95.231.444.12:8089/pt/' or 'http://example.com/pt' 
 
 
 
@@ -33,19 +35,18 @@ webapp.get('/join/:id',function(req,res){
 
 // Setup our PTServer
 ptserver.get('/',function(req,res){
-    return res.send("You've connected to the PTServer, you're probably looking for the webapp located at /pt/web")
+    return res.send("You've connected to the PTServer, you're probably looking for the webapp.")
 })
 
 // Merge everything together
 
 combined.use('/server',ptserver)
-combined.use('/web',webapp)
 combined.get('*',function(req,res){
-    return res.redirect('/pt/web/')
+    return res.send('You\'ve connected to the PTServer, you\'re probably looking for the webapp.')
 })
 root.use('/pt',combined)
 root.get('*',function(req,res){
-    return res.redirect('/pt/web')
+    return res.send('You\'ve connected to the PTServer, you\'re probably looking for the webapp.')
 })
 
 
@@ -53,60 +54,7 @@ root.get('*',function(req,res){
 
 
 var rootserver = require('http').createServer(root);
-
-var webapp_io = require('socket.io')(rootserver,{path: '/pt/web/socket.io'});
 var ptserver_io = require('socket.io')(rootserver,{path: '/pt/server/socket.io'});
-
-var shortenedLinks = {}
-
-function getUniqueId(){    
-    while (true){
-        let testId = (0|Math.random()*9e6).toString(36)
-        if (!shortenedLinks[testId]){    // Check if we already have a shortURL using that id
-            return testId
-        }
-    }
-
-}
-
-function shortenObj(data){
-    let returnable = {}
-    returnable.urlOrigin = accessIp
-    returnable.owner = data.owner
-
-    returnable.ptserver = data.ptserver
-    returnable.ptroom = data.ptroomm
-    returnable.ptpassword = data.ptpassword
-
-    returnable.starttime = (new Date).getTime()
-    returnable.id = getUniqueId()
-    returnable.shortUrl = accessIp + '/web/join/' + returnable.id
-
-    let params = {
-        ptserver: data.ptserver,
-        ptroom: data.ptroom,
-        ptpassword: data.ptpassword,
-        owner: data.owner
-    }
-    let query = ''
-    for (let key in params) {
-        query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
-    }
-    returnable.fullUrl = accessIp + '/web#/join?' + query
-
-    shortenedLinks[returnable.id] = returnable
-    console.log(returnable)
-    return returnable.shortUrl
-}
-
-webapp_io.on('connection', function(socket){
-    console.log('Someone connected to the webapp socket')
-    socket.on('shorten',function(data){
-        console.log('Creating a shortened link')
-        socket.emit('shorten-result',shortenObj(data))
-    })
-})
-
 
 
 ptserver_io.on('connection', function(socket){
@@ -198,7 +146,7 @@ ptserver_io.on('connection', function(socket){
     })
 	socket.on('poll', function(data){
         if (socket.ourRoom == null){
-            console.log('This user should join a room first')
+            //console.log('This user should join a room first')
             socket.emit('flowerror','You aren\' connected to a room! Use join')
             socket.emit('rejoin')
             return

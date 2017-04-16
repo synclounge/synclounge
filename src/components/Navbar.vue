@@ -36,8 +36,8 @@
               <li style="padding:1%;">
                 <router-link to="/sync" class="nav-item nav-link"> Launch </router-link>        
               </li> 
-              <li v-if="showLinkShortener">
-                <v-btn v-clipboard="shortUrl">Invite</v-btn>
+              <li v-if="showLinkShortener && chosenClient">
+                <v-btn style="background-color: #E5A00D" class="waves-effect waves-light btn" v-on:click.native="$dialog('Copied link')" v-clipboard="shortUrl">Invite</v-btn>
               </li>
               <li class="right">
                 <div class="nav navbar-nav right">
@@ -84,7 +84,6 @@ import settings from './application/settings'
 import statistics from './application/statistics'
 import invite from './application/invite'
 
-let socketio = require('socket.io-client')
 var ip = require('ip');
 
   export default {   
@@ -97,31 +96,18 @@ var ip = require('ip');
     },
     data(){
       return {
-        shortUrl: null,
-        generating: null,
-        webapp_socket: null,
-        oldserver: null,
-        oldroom: null
       }
     },
     mounted: function (){    
-      this.webapp_socket = socketio.connect({'forceNew':true,
-      'connect timeout': 1000,path: '/pt/web/socket.io'})
-      console.log('Attempted to join...')
-      this.webapp_socket.on('connection',function(){
-          console.log('connected')
-      })     
-      this.webapp_socket.on('connect_error',function(){
-          console.log('not connected')
-      })     
-      this.webapp_socket.on('hey',function(){
-          console.log('hey')
-      }) 
+
     },
     computed: {
       plex: function () {
         return this.$store.getters.getPlex
-      },
+      },       
+      chosenClient: function(){
+           return this.$store.getters.getChosenClient
+       },
       plexusername: function() {
         return this.$store.state.plex.user.username
       },      
@@ -147,39 +133,13 @@ var ip = require('ip');
           return this.$store.getters.getPassword
       }, 
       showLinkShortener: function(){
-        if (this.ptConnected && this.ptServer && this.ptRoom){
-          if (this.ptServer != this.oldserver && this.ptRoom != this.oldroom){
-            // Generate our short url        
-            let socket = this.webapp_socket
-            let url = window.location.origin
-
-            let password = ''
-            if (this.$store.getters.getPassword){
-              password = this.$store.getters.getPassword
-            }
-            let urlOrigin = window.location.origin
-            let data = {
-              urlOrigin: urlOrigin,
-              owner: this.$store.getters.getPlex.user.username,
-              ptserver: this.$store.getters.getServer,
-              ptroom: this.$store.getters.getRoom,
-              ptpassword: password
-              
-            }
-            var that = this
-            socket.on('shorten-result',function(shortUrl){
-              console.log('Our short url is ' + shortUrl)
-              that.shortUrl = shortUrl
-            })
-            socket.emit('shorten',data)
-            this.oldroom = this.ptRoom
-            this.oldserver = this.ptServer
-          }
-          return true
-        }
-        this.shortUrl = null
-        return false
+          return (this.ptConnected && this.ptServer && this.ptRoom)
       }, 
+      shortUrl: function(){
+        console.log('Short url calc done below')
+        console.log(this.$store.getters.getShortLink)
+        return this.$store.getters.getShortLink
+      },
       darkMode: {
           get () {
               return this.$store.getters.getSettingDARKMODE
