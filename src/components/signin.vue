@@ -31,7 +31,7 @@
                                 <button style="width:100%;background-color: #E5A00D" class="waves-effect waves-light btn" v-clipboard="pin"><i class="material-icons left">content_paste</i>Copy</button>
                             </div>
                             <div class="col s12 l12">
-                                <p class="center">Enter the pin above at <a target="_target" href="https://plex.tv/pin"> https://plex.tv/pin </a></p>
+                                <p class="center">Enter the pin above at <a target="_target" href="https://plex.tv/link"> https://plex.tv/link </a></p>
                             </div>
 
                         </div>                      
