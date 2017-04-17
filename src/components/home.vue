@@ -3,7 +3,7 @@
       <div class="window-content">
           <div class="container">    
               <div class="row" style="padding-top:2%">
-                <div class="col s8 offset-s2" v-if="firstRun">
+                <div class="col s8 offset-s2">
                     <div class="row">
                         <div class="col s8 offset-s2 center">
                             <img style="max-width:100%" v-bind:src="logo">
