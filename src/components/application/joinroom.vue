@@ -12,7 +12,7 @@
                     <p>  For details on how to host your own server click <a target="_blank" href="https://github.com/samcm/plextogether">here.</a> </p>
                 </div>
                 <div class="col s12">
-                    <select v-model="selectedServer" v-on:change="attemptConnect()" id="PlexTogetherServers" class="mdc-select"  style="width: 100%">
+                    <select v-model="selectedServer" v-on:change="attemptConnect()" id="PlexTogetherServers" class="mdc-select" v-bind:style="darkModeBackground" style="width: 100%">
                         <option value="" disabled>Select a PT Server</option>
                         <option value="custom">Custom</option>                        
                         <option v-bind:value="thisServer" >{{ thisServer }}</option>                       
@@ -182,7 +182,16 @@ export default {
         },
         context: function(){
             return this.$store
-        },        
+        },     
+        darkModeBackground: function(){
+            if (this.$store.getters.getSettingDARKMODE){
+                return {
+                    'background-color':'#282A2D'
+                }
+            }
+            return {}
+
+        },   
         CUSTOMSERVER: {
             get () {
                 if (!this.$store.getters.getSettingCUSTOMSERVER){

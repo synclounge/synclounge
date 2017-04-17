@@ -33,18 +33,21 @@ if(!getSetting('INIT')){
 let _webapp_socket = null
 if (process.env.NODE_ENV == 'development'){
   console.log('running in development')
-  _webapp_socket = socketio.connect(''+window.location.hostname+':8088',{'forceNew':true,
-  'connect timeout': 1000,path: '/ptweb/socket.io'})
+  /*
+  _webapp_socket = socketio.connect(''+window.location.hostname+':8088',{'forceNew':true,'connect timeout': 1000,path: '/ptweb/socket.io'})
+  _webapp_socket.on('connection',function(){
+  })     
+  _webapp_socket.on('connect_error',function(){
+  })    
+  */ 
 } else {
   _webapp_socket = socketio.connect({'forceNew':true,
-  'connect timeout': 1000,path: '/ptweb/socket.io'})
+  'connect timeout': 1000,path: '/ptweb/socket.io'})  
+  _webapp_socket.on('connection',function(){
+  })     
+  _webapp_socket.on('connect_error',function(){
+  })    
 }
-_webapp_socket.on('connection',function(){
-    console.log('connected')
-})     
-_webapp_socket.on('connect_error',function(){
-    console.log('not connected')
-})     
 
 const state = {
   count: 0,
@@ -462,13 +465,15 @@ const plexTogether = {
               
             }
             var that = this
-            console.log('Invite link data below')
-            console.log(data)
-            webapp_socket.on('shorten-result',function(shortUrl){
-              console.log('Our short url is ' + shortUrl)
-              commit('SET_SHORTLINK',shortUrl)
-            })
-            webapp_socket.emit('shorten',data)
+            if (process.env.NODE_ENV != 'development'){
+              console.log('Invite link data below')
+              console.log(data)
+              webapp_socket.on('shorten-result',function(shortUrl){
+                console.log('Our short url is ' + shortUrl)
+                commit('SET_SHORTLINK',shortUrl)
+              })
+              webapp_socket.emit('shorten',data)
+            }
 
             // Now we need to setup events for dealing with the PTServer.
             // We will regularly be recieving and sending data to and from the server.
