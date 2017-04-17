@@ -34,10 +34,10 @@ let _webapp_socket = null
 if (process.env.NODE_ENV == 'development'){
   console.log('running in development')
   _webapp_socket = socketio.connect(''+window.location.hostname+':8088',{'forceNew':true,
-  'connect timeout': 1000,path: '/pt/web/socket.io'})
+  'connect timeout': 1000,path: '/ptweb/socket.io'})
 } else {
   _webapp_socket = socketio.connect({'forceNew':true,
-  'connect timeout': 1000,path: '/pt/web/socket.io'})
+  'connect timeout': 1000,path: '/ptweb/socket.io'})
 }
 _webapp_socket.on('connection',function(){
     console.log('connected')
@@ -404,7 +404,7 @@ const plexTogether = {
       }
       console.log('Socket attempt connect on ' + address)
       state._socket = state._io.connect(address,{'forceNew':true,
-      'connect timeout': 7000,path:'/pt/server/socket.io' })
+      'connect timeout': 7000,path:'/ptserver/socket.io' })
       state._socket.on('connect',function(result){
           // Good connection
           callback({

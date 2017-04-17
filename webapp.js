@@ -5,7 +5,6 @@
 
 // USER CONFIG
 var PORT = 8088
-var accessIp = 'http://10.0.0.38:8088/pt' // EG 'http://95.231.444.12:8088/pt' or 'http://example.com/pt' 
 
 
 
@@ -15,14 +14,14 @@ var accessIp = 'http://10.0.0.38:8088/pt' // EG 'http://95.231.444.12:8088/pt' o
 var express = require('express');
 var path = require('path');
 var cors = require('cors')
+var httpProxy = require('http-proxy')
+var proxy = httpProxy.createProxyServer({ ws: true });
 
 var root = express()
-root.use(cors())
 
 var combined = express()
 
 var webapp = express();
-var ptserver = express();
 
 // Setup our web app
 webapp.use('/',express.static(path.join(__dirname, 'dist')));
@@ -30,8 +29,8 @@ webapp.use('/',express.static(path.join(__dirname, 'dist')));
 
 // Merge everything together
 
-combined.use('/web',webapp)
-combined.get('/invite/:id',function(req,res){
+webapp.get('/invite/:id',function(req,res){
+    console.log('handling an invite')
     let shortObj = shortenedLinks[req.params.id]
     if (!shortObj){
         return res.send('Whoops, looks like youve made a wrong turn..')        
@@ -39,23 +38,20 @@ combined.get('/invite/:id',function(req,res){
     console.log('Redirecting an invite link')
     return res.redirect(shortObj.fullUrl)
 })
-combined.get('*',function(req,res){
-    return res.redirect('/pt/web/')
-})
-
-
-root.use('/pt',combined)
+root.use('/ptweb',webapp)
 root.get('*',function(req,res){
-    return res.redirect('/pt/web')
+    console.log('Catch all')
+    return res.redirect('/ptweb')
 })
 
 
 
 
+root.use(cors())
 
 var rootserver = require('http').createServer(root);
 
-var webapp_io = require('socket.io')(rootserver,{path: '/pt/web/socket.io'});
+var webapp_io = require('socket.io')(rootserver,{path: '/ptweb/socket.io'});
 
 var shortenedLinks = {}
 
@@ -94,11 +90,11 @@ function shortenObj(data){
     for (let key in params) {
         query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
     }
-    returnable.fullUrl = accessIp + '/web/#/?' + query
+    returnable.fullUrl = accessIp + '/#/?' + query
 
     shortenedLinks[returnable.id] = returnable
     return returnable.shortUrl
-}
+} 
 
 webapp_io.on('connection', function(socket){
     console.log('Someone connected to the webapp socket')

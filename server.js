@@ -19,19 +19,7 @@ root.use(cors())
 
 var combined = express()
 
-var webapp = express();
 var ptserver = express();
-
-// Setup our web app
-webapp.use('/',express.static(path.join(__dirname, 'dist')));
-
-webapp.get('/join/:id',function(req,res){
-    let shortObj = shortenedLinks[req.params.id]
-    if (!shortObj){
-        return res.send('Whoops, looks like youve made a wrong turn..')        
-    }
-    return res.redirect(shortObj.fullUrl)
-})
 
 // Setup our PTServer
 ptserver.get('/',function(req,res){
@@ -40,11 +28,7 @@ ptserver.get('/',function(req,res){
 
 // Merge everything together
 
-combined.use('/server',ptserver)
-combined.get('*',function(req,res){
-    return res.send('You\'ve connected to the PTServer, you\'re probably looking for the webapp.')
-})
-root.use('/pt',combined)
+root.use('/ptserver',ptserver)
 root.get('*',function(req,res){
     return res.send('You\'ve connected to the PTServer, you\'re probably looking for the webapp.')
 })
@@ -54,7 +38,7 @@ root.get('*',function(req,res){
 
 
 var rootserver = require('http').createServer(root);
-var ptserver_io = require('socket.io')(rootserver,{path: '/pt/server/socket.io'});
+var ptserver_io = require('socket.io')(rootserver,{path: '/ptserver/socket.io'});
 
 
 ptserver_io.on('connection', function(socket){
