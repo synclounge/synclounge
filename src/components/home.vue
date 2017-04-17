@@ -53,13 +53,12 @@
 <script>
 export default {
   name: 'home',
-  mounted: function(){
+  created: function(){    
         if (this.$store.getters.getSettingHOMEINIT){
-            var that = this
-            setTimeout(function(){
-                that.$router.push('/sync')
-            },200)
+            this.$router.push('/sync')           
         }
+  },
+  mounted: function(){
         this.$store.commit('setSettingHOMEINIT',true)
   },
   methods: {
