@@ -6,7 +6,7 @@ import moment from '../node_modules/moment/moment.js'
 
 const EventEmitter = require('events');
 var request = require('request')
-
+var socketio = require('socket.io-client')
 
 
 Vue.use(Vuex)
@@ -25,10 +25,29 @@ if(!getSetting('INIT')){
   setSetting('CLIENTPOLLINTERVAL',1000)
   setSetting('DARKMODE',false)
   setSetting('SYNCMODE','cleanseek')
-  setSetting('SYNCFLEXABILITY',4000)
+  setSetting('SYNCFLEXABILITY',4000)  
+  setSetting('CUSTOMSERVER','http://')
   setSetting('INIT',true)
 }
-
+// Set up out web app socket for fetching short urls
+let _webapp_socket = null
+if (process.env.NODE_ENV == 'development'){
+  console.log('running in development')
+  /*
+  _webapp_socket = socketio.connect(''+window.location.hostname+':8088',{'forceNew':true,'connect timeout': 1000,path: '/ptweb/socket.io'})
+  _webapp_socket.on('connection',function(){
+  })     
+  _webapp_socket.on('connect_error',function(){
+  })    
+  */ 
+} else {
+  _webapp_socket = socketio.connect({'forceNew':true,
+  'connect timeout': 1000,path: '/ptweb/socket.io'})  
+  _webapp_socket.on('connection',function(){
+  })     
+  _webapp_socket.on('connect_error',function(){
+  })    
+}
 
 const state = {
   count: 0,
@@ -40,11 +59,19 @@ const state = {
   chosenClientTimeSet: (new Date).getTime(),
   plexuser: JSON.parse(window['localStorage'].getItem('plexuser')),
   blockAutoPlay: false,
+  autoJoin: false,
+  autoJoinUrl: null,
+  autoJoinRoom: null,
+  autoJoinPassword: null,
+  shortLink: null,
+  webapp_socket: _webapp_socket,
   // SETTINGS
   DARKMODE: JSON.parse(getSetting('DARKMODE')),
   CLIENTPOLLINTERVAL: getSetting('CLIENTPOLLINTERVAL'),
   SYNCMODE: getSetting('SYNCMODE'),
   SYNCFLEXABILITY: getSetting('SYNCFLEXABILITY'),
+  CUSTOMSERVER: getSetting('CUSTOMSERVER'),
+  HOMEINIT: getSetting('HOMEINIT'),
   stats: {}
 }
 
@@ -141,6 +168,21 @@ const mutations = {
   },
   SET_PLEX(state,value){
     state.plex = value
+  },  
+  SET_AUTOJOIN(state,value){
+    state.autoJoin = value
+  },  
+  SET_AUTOJOINROOM(state,value){
+    state.autoJoinRoom = value
+  },  
+  SET_AUTOJOINPASSWORD(state,value){
+    state.autoJoinPassword = value
+  },  
+  SET_AUTOJOINURL(state,value){
+    state.autoJoinUrl = value
+  },  
+  SET_SHORTLINK(state,value){
+    state.shortLink = value
   },
   setSetting(state,data){
     let orignal = state.settings
@@ -159,9 +201,17 @@ const mutations = {
     setSetting('SYNCFLEXABILITY',data)
     state.SYNCFLEXABILITY = data
   },  
+  setSettingCUSTOMSERVER(state,data){
+    setSetting('CUSTOMSERVER',data)
+    state.CUSTOMSERVER = data
+  },
   setSettingDARKMODE(state,data){
     setSetting('DARKMODE',data)
     state.DARKMODE = data
+  },  
+  setSettingHOMEINIT(state,data){
+    setSetting('HOMEINIT',data)
+    state.HOMEINIT = data
   },
   SET_CHAT(state,value){
     state.shownChat = value
@@ -208,6 +258,21 @@ const getters = {
   },
   getBlockAutoPlay: state => {
     return state.blockAutoPlay
+  },  
+  getAutoJoin: state => {
+    return state.autoJoin
+  },  
+  getAutoJoinRoom: state => {
+    return state.autoJoinRoom
+  },  
+  getAutoJoinPassword: state => {
+    return state.autoJoinPassword
+  },  
+  getAutoJoinUrl: state => {
+    return state.autoJoinUrl
+  },  
+  getShortLink: state => {
+    return state.shortLink
   },
 
   // SETTINGS 
@@ -219,10 +284,16 @@ const getters = {
   },  
   getSettingSYNCFLEXABILITY: state => {
     return state.SYNCFLEXABILITY
-  },  
+  },   
+  getSettingCUSTOMSERVER: state => {
+    return state.CUSTOMSERVER
+  },   
   getSettingDARKMODE: state => {
     return state.DARKMODE
   },
+  getSettingHOMEINIT: state => {
+    return state.HOMEINIT
+  }
 }
 const actions = {
   incrementAsync({commit}) {
@@ -310,31 +381,59 @@ const plexTogether = {
     }
    },
 
-  actions: {     
+  actions: {    
+    autoJoin({ state, commit, rootState, dispatch }, data){
+      console.log('Attempting to auto join..')
+      console.log(rootState)
+      dispatch('socketConnect',{
+          address: rootState.autoJoinUrl,
+          callback:function(data){
+              console.log('Socket connection result below')
+              console.log(data)
+              if (!data.result){
+                  console.log('Failed to connect')
+              } else {
+                let temporaryObj = {
+                  user: rootState.plex.user,
+                  roomName: rootState.autoJoinRoom,
+                  password: rootState.autoJoinPassword,
+                  callback: function(result){
+                    console.log(result)
+                  }
+                }
+                dispatch('joinRoom',temporaryObj)
+              }
+          }
+      })
+    }, 
     socketConnect({ state, commit, rootState },data) {
       let address = data.address
       let callback = data.callback
       var that = this
-      state._socket = state._io.connect(address,{'sync disconnect on unload':true,'forceNew': true,
-      'connect timeout': 7000 })
+      if (state._socket){
+        state._socket.disconnect()
+      }
+      console.log('Socket attempt connect on ' + address)
+      state._socket = state._io.connect(address,{'forceNew':true,
+      'connect timeout': 7000,path:'/ptserver/socket.io' })
       state._socket.on('connect',function(result){
           // Good connection
           callback({
-            result:false,
+            result:true,
             data:result
           })
           commit('SET_CONNECTED',true)
           commit('SET_SERVER',address)
+          if (state.room){
+            // Looks like the server disconnected on us, lets rejoin
+            console.log('Attempting to rejoin our room...')
+            state._socket.emit('join',new getHandshakeUser(rootState.plex.user,state.room,state.password))
+          }
           return
       })
       state._socket.on('connect_error',function(result){
           // Bad connection
-          state._socket.disconnect();
           console.log('Failed to connect')
-          callback({
-            result:false,
-            data:result
-          })
           commit('SET_CONNECTED',false)
           commit('SET_SERVER',null)
           return
@@ -343,26 +442,46 @@ const plexTogether = {
     joinRoom({ state, commit, rootState },data){
         var that = this
         if (!state._socket || !state.connected){
-            return callback(false)
+            return data.callback(false)
         }
-        function getHandshakeUser(user,room,password){
-          var tempUser = {
-              'username':user.username,
-              'room':room,
-              'password':password,
-              'avatarUrl':user.thumb
-          }
-          return tempUser
-        } 
+        commit('SET_PASSWORD',data.password)
+        console.log('Attempting to join')
+        console.log(data)
         state._socket.emit('join',new getHandshakeUser(data.user,data.roomName,data.password))
         state._socket.on('join-result',function(result,_data,details,currentUsers){
           commit('CLEAR_MESSAGES')
           if (result){
             commit('SET_ROOM',_data.room)
-            commit('SET_PASSWORD',_data.password)
             commit('SET_USERS',currentUsers)
-            commit('SET_ME',data.username)
+            commit('SET_ME',_data.username)
             commit('SET_CHAT',true)
+
+
+            // Generate our short url/invite link    
+            console.log('generating our invite link')    
+            console.log(state)
+            let webapp_socket = rootState.webapp_socket
+            let url = window.location.origin
+
+            let urlOrigin = window.location.origin
+            let data = {
+              urlOrigin: urlOrigin,
+              owner: rootState.plex.user.username,
+              ptserver: state.server,
+              ptroom: state.room,
+              ptpassword: state.password
+              
+            }
+            var that = this
+            if (process.env.NODE_ENV != 'development'){
+              console.log('Invite link data below')
+              console.log(data)
+              webapp_socket.on('shorten-result',function(shortUrl){
+                console.log('Our short url is ' + shortUrl)
+                commit('SET_SHORTLINK',shortUrl)
+              })
+              webapp_socket.emit('shorten',data)
+            }
 
             // Now we need to setup events for dealing with the PTServer.
             // We will regularly be recieving and sending data to and from the server.
@@ -389,6 +508,9 @@ const plexTogether = {
               })
             })              
             state._socket.on('host-swap',function(user){
+              if (!user){
+                return
+              }
               commit('ADD_MESSAGE',{
                 msg: user.username + ' is now the host',
                 user: user,
@@ -440,6 +562,9 @@ const plexTogether = {
                 let hostTimeline = data
 
                 if (ourTimeline.playerState == 'buffering'){
+                  return
+                }
+                if (hostTimeline.playerState == 'stopped'){
                   return
                 }
 
@@ -561,13 +686,19 @@ const plexTogether = {
               }
             })
             state._socket.on('disconnect',function(data){
-              commit('SET_ROOM',null)
-              commit('SET_PASSWORD',null)
-              commit('SET_USERS',[])            
-              commit('SET_CONNECTED',false)
-              commit('SET_SERVER',null)
-              commit('SET_CHAT',false)
-              state.serverError = null
+              if (data == 'io client disconnect'){
+                console.log('We disconnected from the server')              
+                commit('SET_ROOM',null)
+                commit('SET_PASSWORD',null)
+                commit('SET_USERS',[])            
+                commit('SET_CONNECTED',false)
+                commit('SET_SERVER',null)
+                commit('SET_CHAT',false)
+                state.serverError = null
+              }
+              if (data == 'transport close'){
+                console.log('The server disconnected on us')
+              }
             })
             state._socket.on('new_message',function(msgObj){
               commit('ADD_MESSAGE',msgObj)
@@ -614,7 +745,15 @@ const plexTogether = {
     
   }
 }
-
+function getHandshakeUser(user,room,password){
+  var tempUser = {
+      'username':user.username,
+      'room':room,
+      'password':password,
+      'avatarUrl':user.thumb
+  }
+  return tempUser
+} 
 const store = new Vuex.Store({
   state,
   mutations,

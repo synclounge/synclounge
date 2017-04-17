@@ -1,5 +1,5 @@
 <template>
-	<div class="main-body mdc-typography" style="height: calc(100% - 64px">
+	<div class="main-body mdc-typography" style="height: calc(100% - 64px)">
       <div class="nav-wrapper hide-on-large-only"><a id="logo-container" href="#" class="brand-logo"></a>
         <ul id="nav-mobile" class="side-nav" style="height: 100%">
           <sidebar :mobile="true"></sidebar>
@@ -16,11 +16,11 @@
 
               <!-- MAIN CONTENT -->
 
-              <div class="col l12 s12 no-padding" id="main-body" style="height: 100%">
-                  <div v-if="!ptConnected && validDevices" style="height: 100%; overflow-y: visible">
+              <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%">               
+                  <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
                       <walkthrough></walkthrough>
                   </div>
-                  <div v-if="ptConnected" style="height: 100%; overflow-y: scroll">
+                  <div v-if="ptConnected && chosenClient" style="height: 100%; overflow-y: scroll">
                       <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers" style="overflow-y: scroll">
                           <ptuser :object="user"></ptuser>
                       </ul>
@@ -29,12 +29,15 @@
 
               <!-- CHAT INTERFACE -->
 
-              <div class="col l3 no-padding hide-on-med-and-down" id="plexTogetherChat" v-bind:style="{ display: showChatValue }" style="height: 100%">
+              <div v-if="ptConnected && chosenClient" class="col l3 no-padding hide-on-med-and-down" id="plexTogetherChat" v-bind:style="{ display: showChatValue }" style="height: 100%">
                   <div class="mdc-permanent-drawer chatInterface">
                       <div class="mdc-permanent-drawer__toolbar-spacer" style="padding: 0; height: 76px">
                           <div class="row" style="width: 100%;">
-                              <div class="col l12  right-align truncate">
-                                  <h2 id="plexTogetherRoomNameChat">#{{ ptRoom }}</h2>
+                              <div class="col l8  left-align truncate">
+                                  <h2 id="plexTogetherRoomNameChat">{{ ptRoom }}</h2>                                  
+                              </div>                              
+                              <div class="col l4  right-align truncate">
+                                   <h2> {{ userCount }}</h2>                                 
                               </div>
                           </div>
                       </div>
@@ -61,7 +64,7 @@
 
         <!-- MODALS -->
         <div v-if="darkMode">
-            <sweet-modal ref="joinroomModal" overlay-theme="dark" modal-theme="dark" >
+            <sweet-modal v-on:close="joinRoomModalClosed()" ref="joinroomModal" overlay-theme="dark" modal-theme="dark" >
                 <joinroom></joinroom>       
             </sweet-modal>
         </div>        
@@ -92,7 +95,6 @@ import _Plex from 'assets/js/plex/PlexTv.js';
 
 var Plex = new _Plex()
 let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
-
 
 
 // Components
@@ -131,12 +133,15 @@ export default {
     var that = this
     console.log('Logging in to Plex.Tv')
     let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
-    Plex.doTokenLogin(plexstorage.authToken,function(result,response,body){
-        
+    Plex.doTokenLogin(plexstorage.authToken,function(result,response,body){        
         if (result){
             console.log('Logged in.')
             Plex.getDevices(function(){            
                 that.$store.commit('SET_PLEX',Plex) 
+                if (that.$store.getters.getAutoJoin){                    
+                    that.$store.dispatch('autoJoin')
+                    that.$store.commit('SET_AUTOJOIN',false)
+                }
             })
         } else {
             console.log('Signin failed')
@@ -146,8 +151,19 @@ export default {
             that.$router.push('/signin')
 
         }
-    })
-      
+    }) 
+
+    if (this.$store.getters.getAutoJoin){
+        // Attempt to auto join 
+        console.log('Attempting to auto join ' + that.$store.getters.getAutoJoinUrl)
+        that.$store.dispatch('socketConnect',{
+            address:that.$store.getters.getAutoJoinUrl,
+            callback:function(data){
+                
+            }
+        })
+    }
+
   },
   created: function(){    
   },
@@ -194,8 +210,12 @@ export default {
        ptUsers: function(){
            return this.$store.getters.getUsers
        },
-       usersInRoom: function(){
-           return this.$store.getters.getUsers.length
+       userCount: function(){
+           let count = this.$store.getters.getUsers.length
+           if (count == 1){
+               return count + ' user'
+           }
+           return count + ' users'
        },
        chatBoxMessage: function(){
            return "Message " + this.$store.getters.getRoom
@@ -305,6 +325,11 @@ export default {
            //console.log('trying to open')
            return this.$refs.joinroomModal.open()
            //$('#joinRoomModal').modal('open');
+       },
+       joinRoomModalClosed: function(){
+           if (!this.ptRoom){
+                this.$store.dispatch('disconnectServer')
+           }
        },
        showChat: function(){
             this.showToggleChat = !this.showToggleChat

@@ -6,7 +6,7 @@
                     Plex Players {{playercount}}
                 </li>      
                 <li v-if="plex && chosenClient" v-for="client in clients" id="plexPlayers">
-                    <plexclient v-on:click.native="clientClicked(client)":sidebar="true" :object="client"></plexclient>
+                    <plexclient :sidebar="true" :object="client"></plexclient>
                 </li>
             </div>
             <div v-if="ptConnected" style="margin-bottom: 20px">
@@ -36,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <div class="row" style="position: absolute;left: 0; margin-bottom: 0" v-bind:style="mobileStyle">
+        <div class="row" style="position: absolute;left: 0; margin-bottom: 0; width:100%" v-bind:style="mobileStyle">
             <div v-if="plex && chosenClient" class="plexTogetherInfo col l12 s12" style="padding-top: 11.25px; min-height:30%; max-height:50%; padding-left: 0; padding-right: 0">
                 <div class="row" v-if="chosenClient.clientPlayingMetadata" style="margin-bottom: 0;" id="userMetadata">
                     <div class="col s12 center">

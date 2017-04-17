@@ -3,7 +3,7 @@
       <div class="window-content">
           <div class="container">    
               <div class="row" style="padding-top:2%">
-                <div class="col s8 offset-s2">
+                <div class="col s8 offset-s2" v-if="firstRun">
                     <div class="row">
                         <div class="col s8 offset-s2 center">
                             <img style="max-width:100%" v-bind:src="logo">
@@ -41,7 +41,7 @@
 
                     <div class="center">                    
                         <p> We hope you enjoy. </p>
-                        <router-link to="/app" class="center nav-item nav-link"> Let's get started. </router-link>
+                        <router-link to="/sync" class="center nav-item nav-link"> Let's get started. </router-link>
                     </div>
                 </div>
               </div>
@@ -53,6 +53,15 @@
 <script>
 export default {
   name: 'home',
+  mounted: function(){
+        if (this.$store.getters.getSettingHOMEINIT){
+            var that = this
+            setTimeout(function(){
+                that.$router.push('/sync')
+            },200)
+        }
+        this.$store.commit('setSettingHOMEINIT',true)
+  },
   methods: {
       letsStart: function(){
           this.$router.push('/')
@@ -64,6 +73,9 @@ export default {
           return 'static/logo-long-light.png'
         }
         return 'static/logo-long-dark.png'
+      },
+      firstRun: function(){
+          return !this.$store.getters.getSettingHOMEINIT
       }
   }
 }

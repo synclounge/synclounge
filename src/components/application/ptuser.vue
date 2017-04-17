@@ -6,7 +6,7 @@
         <span class="mdc-list-item__text" style="width: 89%; line-height: 1.2">
             <span class="mdc-list-item__text__primary">
                 <div class="ptuser-username">{{ object.username }} </div>
-                <small class="ptuser-title">{{ object.title }}</small>
+                <small class="ptuser-title"><i class="material-icons" v-if="playerState" style="font-size:smaller">{{ playerState }}</i>  {{ getTitle }}</small>
                 <i class="material-icons plex-gamboge-text ptuser-role right" v-bind:style="{ display: isHost }">
                     star
                 </i>
@@ -65,10 +65,24 @@ export default {
             return this.getTimeFromMs(this.object.maxTime)
         },
         getTitle: function(){
-            if (this.object.title){
+            if (this.object.title && this.object.title.length > 0){
                 return this.object.title
             } 
             return 'Nothing'
+        },
+        playerState: function(){
+            if (this.object.playerState){
+                if (this.object.playerState == 'stopped'){
+                    return false
+                }
+                if (this.object.playerState == 'paused'){
+                    return 'pause'
+                }
+                if (this.object.playerState == 'playing'){
+                    return 'play_arrow'
+                }
+            }
+            return false
         }
     }
 }

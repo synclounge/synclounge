@@ -17,7 +17,10 @@
                     <hr style="border-color: rgba(0,0,0,0.1); width: 90%">      
                     <li>
                       <a class="navbar-brand" target="_blank" href="https://github.com/samcm/PlexTogether"> Github </a>        
-                    </li>              
+                    </li>                          
+                    <li>
+                      <a class="navbar-brand" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TKAR59DZ4HPWC&lc=AU&item_name=Plex%20Together&currency_code=AUD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted"> Donate </a>        
+                    </li>         
                     <li>
                       <a class="navbar-brand" target="_blank" href="https://discord.gg/fKQB3yt"> Discord </a>
                     <hr style="border-color: rgba(0,0,0,0.1); width: 90%">        
@@ -28,14 +31,17 @@
             </a>
             <ul class="nav navbar-nav center">
               <li style="padding:1%;">
-                <img class="hide-on-med-and-down" style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px" v-bind:src="logo"></img>
+                <a href="http://plextogether.com" target="_blank"><img class="hide-on-med-and-down" style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px" v-bind:src="logo"></img></a>
               </li>
               <li style="padding:1%;">
                 <a class="navbar-brand" href="/"> Home </a>
               </li>
-              <li style="padding:1%;">
-                <router-link to="/app" class="nav-item nav-link"> Launch </router-link>        
+              <li v-if="firstRun" style="padding:1%;">
+                <router-link to="/sync" class="nav-item nav-link"> Launch </router-link>        
               </li> 
+              <li v-if="showLinkShortener && chosenClient">
+                <v-btn style="background-color: #E5A00D" class="waves-effect waves-light btn" v-on:click.native="$dialog('Copied link')" v-clipboard="shortUrl">Invite</v-btn>
+              </li>
               <li class="right">
                 <div class="nav navbar-nav right">
                   <div class="switch">
@@ -56,6 +62,9 @@
       </sweet-modal>
       <sweet-modal ref="statisticsModal" overlay-theme="dark" modal-theme="dark">
           <statistics></statistics>             
+      </sweet-modal>      
+      <sweet-modal ref="inviteSuccess" icon="success" overlay-theme="dark" modal-theme="dark">
+        This is a success!
       </sweet-modal>
     </div>
     <div v-if="!darkMode">
@@ -64,7 +73,7 @@
       </sweet-modal>
       <sweet-modal ref="statisticsModal" overlay-theme="light" modal-theme="light">
           <statistics></statistics>             
-      </sweet-modal>
+      </sweet-modal>    
     </div>
 
   </div>
@@ -76,20 +85,32 @@
 import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 import settings from './application/settings'
 import statistics from './application/statistics'
+import invite from './application/invite'
+
+var ip = require('ip');
 
   export default {   
     components: {
       settings,
       statistics,
+      invite,
       SweetModal,
       SweetModalTab
     },
-    mounted: function (){
+    data(){
+      return {
+      }
+    },
+    mounted: function (){    
+
     },
     computed: {
       plex: function () {
         return this.$store.getters.getPlex
-      },
+      },       
+      chosenClient: function(){
+           return this.$store.getters.getChosenClient
+       },
       plexusername: function() {
         return this.$store.state.plex.user.username
       },      
@@ -102,6 +123,26 @@ import statistics from './application/statistics'
         }
         return 'static/logo-small-dark.png'
       },
+      ptConnected: function(){
+          return this.$store.getters.getConnected
+      },
+      ptServer: function(){
+          return this.$store.getters.getServer
+      },       
+      ptRoom: function(){
+          return this.$store.getters.getRoom
+      },       
+      ptPassword: function(){
+          return this.$store.getters.getPassword
+      }, 
+      showLinkShortener: function(){
+          return (this.ptConnected && this.ptServer && this.ptRoom)
+      }, 
+      shortUrl: function(){
+        console.log('Short url calc done below')
+        console.log(this.$store.getters.getShortLink)
+        return this.$store.getters.getShortLink
+      },
       darkMode: {
           get () {
               return this.$store.getters.getSettingDARKMODE
@@ -109,7 +150,10 @@ import statistics from './application/statistics'
           set (value) {
             this.$store.commit('setSettingDARKMODE',value)
           }
-      },
+      },      
+      firstRun: function(){
+          return !this.$store.getters.getSettingHOMEINIT
+      }
     },
     methods: {
       setDarkMode: function (){
@@ -120,6 +164,13 @@ import statistics from './application/statistics'
       },
       openStatistics: function(){
         return this.$refs.statisticsModal.open()
+      },
+      generateShortLink: function(){
+        console.log('Generating a shortened link')
+        return this.sendShortLinkRequest(false)
+      },
+      sendShortLinkRequest: function(overrideHost){
+
       },
       refreshPlexDevices: function(){
         let oldClient = this.$store.getters.getChosenClient

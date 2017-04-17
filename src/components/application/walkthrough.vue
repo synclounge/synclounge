@@ -63,7 +63,10 @@
                         <button :disabled="!testClient" v-on:click="clientClicked()" v-bind:style="{ opacity: upToStep2 }" class="btn-large mdc-button mdc-button--raised mdc-button--accent plex-gamboge ptsettings" style="width: 100%">
                             Connect
                         </button>   
-                    </div>
+                    </div>                    
+                    <div v-if="testClient.product.indexOf('Web') > -1">
+                        Note: Plex Web is currently not supported
+                    </div>   
                     <div v-if="testClientErrorMsg">
                         {{ testClientErrorMsg }}
                     </div>          

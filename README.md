@@ -25,6 +25,7 @@ The host has complete control over a room. Commands they send to their client wi
 * Metadata fetching from Plex Media Server
 * Chat to others in your room
 * Password locked rooms
+* Invite others via generated short link
 * Movies and TV Shows (Music not supported)
 ## FAQ
 * _I have to login to Plex.tv on the site, how come?_
@@ -41,6 +42,7 @@ The host has complete control over a room. Commands they send to their client wi
 		* Maximum timestamp (Eg. 03:48:18)
 		* Playerstate (Eg. paused, stopped, playing)
 		* Client response time (Ping time between you and your Plex Client)
+	* NEW v1.01 - PT Server address, PT Server Room and PT Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
 * _What about the public server provided by Plex Together? Is my data safe?_
 	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
@@ -71,7 +73,7 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 * Android
 
 ### Tested and Unsupported
-* Plex Web Player (Chrome/Safari)
+* Plex Web Player (Chrome/Safari/Firefox)
 	* Relies on a local Plex Media Server to proxy commands. May work if you have a local PMS instance but issues may arise. 
 	
 ### Untested 
@@ -103,7 +105,7 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 
 ## Building and deploying
 
-### Building the app:
+### Building and running the webapp:
 
 * Make sure you have Node v6+ installed
  
@@ -111,7 +113,10 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 	*  ``cd plextogether``
 	*  ``npm install``
 	*  ``npm run build``
-* When complete, copy the contents of dist/ to the root of your web server.
+	*  Change the accessIp variable in webapp.js to the address users will be using to access PT (used for invite links)
+	*  ``npm run webapp``
+* The PT web app will be running at http://ip:8088/ptweb.
+	
 
 ### Running the server:
 
@@ -121,9 +126,36 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 	*  ``cd plextogether``	
 	*  ``cd server``
 	*  ``npm install``
-	*  ``node server.js``
-* The server will now be listening on all interfaces on port 8089. Note: you may have to port forward if you are behind a router.
+	*  ``npm run server``
+* The PT server will be running at http://ip:8089/ptserver.
 
+### Deploying:
+* To run both the Plex Together webapp and the Plex Together server through a web server like nginx you will need to make sure you proxy websockets. Example nginx.conf:
+	```
+    server {
+        listen 80;
+    	server_name example.com;
+    	root /location/of/plextogether/;
+    	location /ptweb {
+    		proxy_pass http://localhost:8088/ptweb;
+		    proxy_http_version 1.1;
+		    proxy_set_header Upgrade $http_upgrade;
+		    proxy_set_header Connection "upgrade";
+    	}     	
+    	location /ptserver {
+    		proxy_pass http://localhost:8089/ptserver;
+		    proxy_http_version 1.1;
+		    proxy_set_header Upgrade $http_upgrade;
+		    proxy_set_header Connection "upgrade";
+    	}     	
+    	location / {
+		    proxy_http_version 1.1;
+		    proxy_set_header Upgrade $http_upgrade;
+		    proxy_set_header Connection "upgrade";
+    		proxy_pass http://localhost:8088/ptweb;
+    	}
+    }
+    ```
 ## Developing
 
 You need:

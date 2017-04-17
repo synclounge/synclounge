@@ -12,9 +12,10 @@
                     <p>  For details on how to host your own server click <a target="_blank" href="https://github.com/samcm/plextogether">here.</a> </p>
                 </div>
                 <div class="col s12">
-                    <select v-model="selectedServer" v-on:change="attemptConnect()" id="PlexTogetherServers" class="mdc-select"  style="width: 100%">
+                    <select v-model="selectedServer" v-on:change="attemptConnect()" id="PlexTogetherServers" class="mdc-select" v-bind:style="darkModeBackground" style="width: 100%">
                         <option value="" disabled>Select a PT Server</option>
-                        <option value="custom">Custom</option>                    
+                        <option value="custom">Custom</option>                        
+                        <option v-bind:value="thisServer" >{{ thisServer }}</option>                       
                         <option value="https://au1.plextogether.com" >PlexTogether AU1</option>                        
                         <option value="https://us1.plextogether.com" >PlexTogether US1</option>
                         <option value="https://eu1.plextogether.com" >PlexTogether EU1</option>
@@ -24,7 +25,7 @@
             <div v-if="selectedServer == 'custom'" class="row" id="customField">
                 <div class="col s11">
                     <div class="mdc-textfield mdc-textfield--upgraded" style="width: 100%">
-                        <input v-model="customServer" id="ptServerCustom" type="text" class="mdc-textfield__input" value="http://" style="width: 100%; margin-bottom: 0px">
+                        <input v-model="CUSTOMSERVER" id="ptServerCustom" type="text" class="mdc-textfield__input" value="http://" style="width: 100%; margin-bottom: 0px">
                         <label class="mdc-textfield__label mdc-textfield__label--float-above plex-gamboge-text">
                             Custom Server
                         </label>
@@ -106,12 +107,12 @@ export default {
     data() {
         return {
             selectedServer:'',
-            customServer: 'https://',
             serverError: null,
             roomError: null,
             room:'',
             password:'',
-            connectionPending: false
+            connectionPending: false,
+            thisServer: window.location.origin
         }
     },
     methods: {
@@ -136,9 +137,9 @@ export default {
         },
         attemptConnectCustom: function(){
             var that = this
-            console.log('Attempting to connect to ' + this.customServer )
+            console.log('Attempting to connect to ' + this.CUSTOMSERVER )
             this.$store.dispatch('socketConnect',{
-                address:this.customServer,
+                address:this.CUSTOMSERVER,
                 callback:function(data){
                     if (!data.result){
                         console.log('Failed to connect')
@@ -152,7 +153,6 @@ export default {
         joinRoom: function(){
             var that = this
             console.log('Attempting to join room ' + this.room)
-            console.log(this)
             if (!this.context.getters.getConnected){
                 console.log('Cant join room because we arent connected to a server!')
                 return
@@ -163,7 +163,7 @@ export default {
             }
             let temporaryObj = {
                 user:this.plex.user,
-                roomName:this.room,
+                roomName:this.room.toLowerCase(),
                 password:this.password,
                 callback:function(result){
                     if (result){
@@ -182,7 +182,27 @@ export default {
         },
         context: function(){
             return this.$store
-        }
+        },     
+        darkModeBackground: function(){
+            if (this.$store.getters.getSettingDARKMODE){
+                return {
+                    'background-color':'#282A2D'
+                }
+            }
+            return {}
+
+        },   
+        CUSTOMSERVER: {
+            get () {
+                if (!this.$store.getters.getSettingCUSTOMSERVER){
+                    return 'http://'
+                }
+                return this.$store.getters.getSettingCUSTOMSERVER
+            },
+            set (value) {
+                this.$store.commit('setSettingCUSTOMSERVER',value)
+            }
+        },
     },    
     mounted: function() {
         // Create event listeners 

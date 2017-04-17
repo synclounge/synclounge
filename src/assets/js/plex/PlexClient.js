@@ -381,7 +381,7 @@ module.exports = function PlexClient(){
 
             let params = {
 
-                'X-Plex-Client-Identifier' : 'PlexTogetherWeb',
+                'X-Plex-Client-Identifier' : 'PlexTogether',
                 'key' : mediaId,
                 'offset' : offset,
                 'machineIdentifier' : serverId,
@@ -426,7 +426,7 @@ module.exports = function PlexClient(){
 
         let params = {
 
-            'X-Plex-Client-Identifier' : 'PlexTogetherWeb',
+            'X-Plex-Client-Identifier' : 'PlexTogether',
             'key' : mediaId,
             'machineIdentifier' : serverId,
             'address' : address,
@@ -460,7 +460,7 @@ module.exports = function PlexClient(){
             var params = {
                 'port':that.subscribePort,
                 'protocol':'http',
-                'X-Plex-Device-Name':'PlexTogetherWeb'            
+                'X-Plex-Device-Name':'PlexTogether'            
             }
             //Now that we've built our params, it's time to hit the client api
 
@@ -493,7 +493,7 @@ module.exports = function PlexClient(){
         doRequest()
         function doRequest() {
             // Already have a valid http server running, lets send the request
-            let tempId = 'PlexTogetherWeb'
+            let tempId = 'PlexTogether'
             var command = '/player/timeline/unsubscribe'
             var params = {
                 'port':that.subscribePort,

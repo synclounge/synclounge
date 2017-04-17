@@ -68,11 +68,32 @@ export default {
     var that = this
     let storage = window['localStorage']
     storage.removeItem('plexuser')
-
+    let id = (Math.random()*1e32).toString(36)
     function getPin(){
+      var sBrowser, sUsrAg = navigator.userAgent;
+
+      if(sUsrAg.indexOf("Chrome") > -1) {
+          sBrowser = "Google Chrome";
+      } else if (sUsrAg.indexOf("Safari") > -1) {
+          sBrowser = "Apple Safari";
+      } else if (sUsrAg.indexOf("Opera") > -1) {
+          sBrowser = "Opera";
+      } else if (sUsrAg.indexOf("Firefox") > -1) {
+          sBrowser = "Mozilla Firefox";
+      } else if (sUsrAg.indexOf("MSIE") > -1) {
+          sBrowser = "Microsoft Internet Explorer";
+      }
+      console.log('Browser: ' + sBrowser)
+
       that.$http.post('https://plex.tv/pins.xml',null,{
         headers:{
-          'X-Plex-Client-Identifier': 'PlexTogether'
+          'X-Plex-Device':'Web',
+          'X-Plex-Device-Name':'PlexTogether',
+          'X-Plex-Product':'PlexTogether',
+          'X-Plex-Version':'1.0',
+          'X-Plex-Platform':sBrowser,
+          'X-Plex-Platform-Version':'',
+          'X-Plex-Client-Identifier': id
         }
       })
       .then((response) => {
@@ -81,23 +102,23 @@ export default {
           if (!err){
             that.pin = result.pin.code[0]
             that.ID = result.pin.id[0]._
-
-
-
-
-
             let checker = setInterval(function(){
                 var options = {
                   url: 'https://plex.tv/pins/' + that.ID + '.xml',
                   headers: {
-                    'X-Plex-Client-Identifier': 'PlexTogether'
+                      'X-Plex-Device':'Web',
+                      'X-Plex-Device-Name':'PlexTogether',
+                      'X-Plex-Product':'PlexTogether',
+                      'X-Plex-Version':'1.0',
+                      'X-Plex-Platform':sBrowser,
+                      'X-Plex-Platform-Version':'',
+                      'X-Plex-Client-Identifier': id
                   }
                 };
 
                 function callback(error, response, body) {
                   if (!error && response.statusCode == 404){
                     clearInterval(checker)
-                    getPin()
                     return
                   }
                   if (!error && response.statusCode == 200) {
@@ -111,7 +132,7 @@ export default {
                           }
                           storage.setItem('plexuser',JSON.stringify(jsonObj))
                           setTimeout(function(){
-                              that.$router.push('/app')
+                              that.$router.push('/sync')
                           },2500)
                           clearInterval(checker)
                         }
