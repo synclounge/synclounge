@@ -71,6 +71,7 @@ const state = {
   SYNCMODE: getSetting('SYNCMODE'),
   SYNCFLEXABILITY: getSetting('SYNCFLEXABILITY'),
   CUSTOMSERVER: getSetting('CUSTOMSERVER'),
+  HOMEINIT: getSetting('HOMEINIT'),
   stats: {}
 }
 
@@ -207,6 +208,10 @@ const mutations = {
   setSettingDARKMODE(state,data){
     setSetting('DARKMODE',data)
     state.DARKMODE = data
+  },  
+  setSettingHOMEINIT(state,data){
+    setSetting('HOMEINIT',data)
+    state.HOMEINIT = data
   },
   SET_CHAT(state,value){
     state.shownChat = value
@@ -286,6 +291,9 @@ const getters = {
   getSettingDARKMODE: state => {
     return state.DARKMODE
   },
+  getSettingHOMEINIT: state => {
+    return state.HOMEINIT
+  }
 }
 const actions = {
   incrementAsync({commit}) {

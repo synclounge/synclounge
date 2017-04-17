@@ -3,7 +3,7 @@
       <div class="window-content">
           <div class="container">    
               <div class="row" style="padding-top:2%">
-                <div class="col s8 offset-s2">
+                <div class="col s8 offset-s2" v-if="firstRun">
                     <div class="row">
                         <div class="col s8 offset-s2 center">
                             <img style="max-width:100%" v-bind:src="logo">
@@ -54,7 +54,13 @@
 export default {
   name: 'home',
   mounted: function(){
-        
+        if (this.$store.getters.getSettingHOMEINIT){
+            var that = this
+            setTimeout(function(){
+                that.$router.push('/sync')
+            },200)
+        }
+        this.$store.commit('setSettingHOMEINIT',true)
   },
   methods: {
       letsStart: function(){
@@ -67,6 +73,9 @@ export default {
           return 'static/logo-long-light.png'
         }
         return 'static/logo-long-dark.png'
+      },
+      firstRun: function(){
+          return !this.$store.getters.getSettingHOMEINIT
       }
   }
 }

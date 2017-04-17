@@ -17,7 +17,10 @@
                     <hr style="border-color: rgba(0,0,0,0.1); width: 90%">      
                     <li>
                       <a class="navbar-brand" target="_blank" href="https://github.com/samcm/PlexTogether"> Github </a>        
-                    </li>              
+                    </li>                          
+                    <li>
+                      <a class="navbar-brand" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TKAR59DZ4HPWC&lc=AU&item_name=Plex%20Together&currency_code=AUD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted"> Donate </a>        
+                    </li>         
                     <li>
                       <a class="navbar-brand" target="_blank" href="https://discord.gg/fKQB3yt"> Discord </a>
                     <hr style="border-color: rgba(0,0,0,0.1); width: 90%">        
@@ -28,12 +31,12 @@
             </a>
             <ul class="nav navbar-nav center">
               <li style="padding:1%;">
-                <img class="hide-on-med-and-down" style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px" v-bind:src="logo"></img>
+                <a href="http://plextogether.com" target="_blank"><img class="hide-on-med-and-down" style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px" v-bind:src="logo"></img></a>
               </li>
               <li style="padding:1%;">
                 <a class="navbar-brand" href="/"> Home </a>
               </li>
-              <li style="padding:1%;">
+              <li v-if="firstRun" style="padding:1%;">
                 <router-link to="/sync" class="nav-item nav-link"> Launch </router-link>        
               </li> 
               <li v-if="showLinkShortener && chosenClient">
@@ -147,7 +150,10 @@ var ip = require('ip');
           set (value) {
             this.$store.commit('setSettingDARKMODE',value)
           }
-      },
+      },      
+      firstRun: function(){
+          return !this.$store.getters.getSettingHOMEINIT
+      }
     },
     methods: {
       setDarkMode: function (){
