@@ -5,6 +5,7 @@
 
 // USER CONFIG
 var PORT = 8088
+var accessIp = 'http://ip:port/ptweb' // EG 'http://95.231.444.12:8088/ptweb' or 'http://example.com/ptweb' 
 
 
 
