@@ -130,10 +130,22 @@ module.exports = function(){
                                 }
                             })
                         }
-                    }
+                    }                   
+                    let ptplayer = new PlexClient()
+                    ptplayer.provides = 'player'
+                    ptplayer.clientIdentifier = 'PTPLAYER9PLUS10'
+                    ptplayer.platform = 'Web'
+                    ptplayer.device = 'Web'
+                    ptplayer.product = 'Plex Together'
+                    ptplayer.lastSeenAt = Math.round((new Date).getTime() / 1000);
+
+                    that.clients.push(ptplayer)
                     that.clients.sort(function(a,b){
                         return parseInt(b.lastSeenAt) - parseInt(a.lastSeenAt)
                     })
+                    
+                    // Setup our PTPlayer 
+
                     console.log('Succesfully retrieved all Plex Devices')
                     that.gotDevices = true
                     return(callback(true))
@@ -265,7 +277,8 @@ module.exports = function(){
             console.log('Attempting to play from ')
             console.log(server)
             var ratingKey = playables[index].result.ratingKey
-            client.subscribe(function(result){
+
+            if (client.clientIdentifier == 'PTPLAYER9PLUS10'){
                 client.playMedia(ratingKey,server,function(playResult,code){
                     console.log('Play result: ' + code)
                     if (code == 200){
@@ -275,7 +288,22 @@ module.exports = function(){
                         return start(playables,parseInt(parseInt(index)+1))
                     }
                 })
-            })
+            } else {
+                // Standard Plex Player                                
+                client.subscribe(function(result){
+                    client.playMedia(ratingKey,server,function(playResult,code){
+                        console.log('Play result: ' + code)
+                        if (code == 200){
+                            return callback(true)
+                        } else {
+                            
+                            return start(playables,parseInt(parseInt(index)+1))
+                        }
+                    })
+                })             
+                
+            }
+
         }
         function checkResult(data,hostData) {
             console.log('Checking compatibility for this item')

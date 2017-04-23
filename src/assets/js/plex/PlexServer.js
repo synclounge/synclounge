@@ -159,7 +159,7 @@ module.exports = function PlexServer(){
         })
     }
     this.getUrlForLibraryLoc = function(location){
-        return this.chosenConnection.uri + location + '.jpg?X-Plex-Token=' + this.accessToken
+       return this.chosenConnection.uri + '/photo/:/transcode?url=' + this.chosenConnection.uri + location + '&X-Plex-Token=' + this.accessToken + '&height=600&width=300'
     }
     function handleMetadata(result,that,callback){
         if (result != null){                

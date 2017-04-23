@@ -1,5 +1,5 @@
 <template>
-  <div class="mdc-permanent-drawer__toolbar-spacer windowDrag" style="padding: 0">
+  <div v-if="!isPlayer" class="mdc-permanent-drawer__toolbar-spacer windowDrag" style="padding: 0">
     <div class="row" style="width: 100%">
         <div class="col s12 " style="height: 63px">
             <a class="left" style="padding-top: 5px">
@@ -122,6 +122,13 @@ var ip = require('ip');
           return 'static/logo-small-light.png'
         }
         return 'static/logo-small-dark.png'
+      },
+      isPlayer: function(){
+        console.log('Router path is ' + this.$route.path)
+        if (this.$route.path == '/'){
+          return true
+        }
+        return false
       },
       ptConnected: function(){
           return this.$store.getters.getConnected
