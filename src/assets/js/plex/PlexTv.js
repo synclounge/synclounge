@@ -137,6 +137,7 @@ module.exports = function(){
                     ptplayer.platform = 'Web'
                     ptplayer.device = 'Web'
                     ptplayer.product = 'Plex Together'
+                    ptplayer.name = 'Plex Together Player (BETA)'
                     ptplayer.lastSeenAt = Math.round((new Date).getTime() / 1000);
 
                     that.clients.push(ptplayer)
