@@ -7,7 +7,13 @@ import VTooltip from 'v-tooltip'
 import Materials from 'vue-materials'
 import VueChatScroll from 'vue-chat-scroll'
 import VueClipboards from 'vue-clipboards'
+import VueVideoPlayer from 'vue-video-player'
+ 
+// Our Event bus 
+window.EventBus = new Vue()
 
+// mount with global 
+Vue.use(VueVideoPlayer)
 Vue.use(VueClipboards);
 Vue.use(VueChatScroll)
 Vue.use(Materials)

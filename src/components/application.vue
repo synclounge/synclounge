@@ -15,22 +15,20 @@
               <sidebar :mobile="false" class="hide-on-med-and-down"></sidebar>
 
               <!-- MAIN CONTENT -->
-
+              <div class="col l12 s12 center" id="main-body" v-if="!validDevices" style="padding-top:5%">               
+                    <v-progress-circular yellow active large></v-progress-circular>
+              </div>
               <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%">               
                   <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
                       <walkthrough></walkthrough>
                   </div>
-                  <div v-if="ptConnected && chosenClient" style="height: 100%; overflow-y: scroll">
-                      <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers" style="overflow-y: scroll">
-                          <ptuser :object="user"></ptuser>
-                      </ul>
-                  </div>
+                  <ptplayer v-if="chosenClient && chosenClient.clientIdentifier == 'PTPLAYER9PLUS10'" style="height:100%;"></ptplayer>
               </div>
 
               <!-- CHAT INTERFACE -->
 
-              <div v-if="ptConnected && chosenClient" class="col l3 no-padding hide-on-med-and-down" id="plexTogetherChat" v-bind:style="{ display: showChatValue }" style="height: 100%">
-                  <div class="mdc-permanent-drawer chatInterface">
+              <div v-if="ptConnected && chosenClient" class="col l3 s12 no-padding" id="plexTogetherChat" style="height: 100%; border-left: 1px solid rgba(0, 0, 0, 0.12)">
+                 <div class="mdc-permanent-drawer chatInterface" style="height:100%">
                       <div class="mdc-permanent-drawer__toolbar-spacer" style="padding: 0; height: 76px">
                           <div class="row" style="width: 100%;">
                               <div class="col l8  left-align truncate">
@@ -40,8 +38,13 @@
                                    <h2> {{ userCount }}</h2>                                 
                               </div>
                           </div>
-                      </div>
-                      <div class="mdc-list-group" style="overflow-y: auto; height: calc(100% - 64px); top: 110px">
+                      </div>                
+                      <div style="height: 60%;  overflow-y: scroll; border-top: 1px solid rgba(0, 0, 0, 0.12)">
+                        <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers" style="overflow-y: scroll">
+                            <ptuser :object="user"></ptuser>
+                        </ul>
+                    </div>
+                      <div class="mdc-list-group" style="overflow-y: auto; height: calc(40% - 64px); top: 110px; border-top: 1px solid rgba(0, 0, 0, 0.12) ">
                           <section>
                               <ul v-for="msg in messages" id="chatBox">
                                   <chatmessage :object="msg"></chatmessage>
@@ -57,7 +60,8 @@
                               </div>
                           </div>
                       </div>
-                  </div>
+                  </div>             
+
               </div>
           </div>
       </div>
@@ -92,6 +96,7 @@ import 'assets/css/style2.css';
 
 // JS imports
 import _Plex from 'assets/js/plex/PlexTv.js';
+import PlexClient from 'assets/js/plex/PlexClient.js';
 
 var Plex = new _Plex()
 let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
@@ -105,6 +110,7 @@ import joinroom from './application/joinroom'
 import chatmessage from './application/chatmessage'
 import walkthrough from './application/walkthrough'
 import sidebar from './application/sidebar'
+import ptplayer from './application/ptplayer'
 
 import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 
@@ -120,6 +126,7 @@ export default {
       ptuser,
       chatmessage,
       walkthrough,
+      ptplayer,
       SweetModal,
       SweetModalTab
   },
@@ -137,11 +144,17 @@ export default {
         if (result){
             console.log('Logged in.')
             Plex.getDevices(function(){            
+
+
+
                 that.$store.commit('SET_PLEX',Plex) 
+
                 if (that.$store.getters.getAutoJoin){                    
                     that.$store.dispatch('autoJoin')
                     that.$store.commit('SET_AUTOJOIN',false)
                 }
+
+
             })
         } else {
             console.log('Signin failed')

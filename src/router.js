@@ -18,6 +18,7 @@ export default new Router({
     { path: '/sync', component: application },
     { path: '/signin', component: signin },    
     { path: '/signout', component: signout },    
-    { path: '/join', component: join },
+    { path: '/join', component: join },    
+    { path: '*', component: home },
   ]
 })

@@ -78,6 +78,7 @@ const state = {
 const mutations = {
   SET_CHOSENCLIENT(state,client){    
     function playbackChange(ratingKey){
+      console.log('Playback change!')
         if (ratingKey != null) { 
             // Playing something different!
             let server = state.plex.getServerById(state.chosenClient.lastTimelineObject.machineIdentifier)
@@ -96,6 +97,7 @@ const mutations = {
         }
     }
     function newTimeline(timeline){   
+      console.log('Got timeline')
       if (!state.plextogether.connected){
         return
       }
@@ -531,6 +533,7 @@ const plexTogether = {
                 console.log('We are not going to make a decision from the host data because a command is already running')
                 return
               }
+              console.log('Decision isnt blocked')
               if (!data.rawTitle){
                   // Host has probably stopped playing, lets ignore
                   console.log('Host isnt playing anything!')
@@ -616,7 +619,7 @@ const plexTogether = {
                 function checkForSeek(){
                   if (parseInt(difference) > parseInt(rootState.SYNCFLEXABILITY) ){
                     // We need to seek! 
-
+                    console.log('STORE: we need to seek')
                     // Decide what seeking method we want to use
                     if (rootState.SYNCMODE == 'cleanseek'){
                       cleanSeek()
@@ -661,7 +664,6 @@ const plexTogether = {
                           })
                           
                         
-                        extra = parseInt(server.chosenConnection.responseTime) * 2 
 
 
                         
@@ -677,8 +679,10 @@ const plexTogether = {
 
                   function cleanSeek(){
                     state.decisionBlocked = true
-                    rootState.chosenClient.seekTo(parseInt(hostTimeline.time),function(){
-                      state.decisionBlocked = false
+                    rootState.chosenClient.seekTo(parseInt(hostTimeline.time),function(result){
+                      console.log('Result from within store for seek was ' + result)
+                      console.log('Seeking decision blocked to false ')
+                      state.decisionBlocked = false 
                     })
                   }
                 }

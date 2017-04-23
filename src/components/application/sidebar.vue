@@ -1,5 +1,5 @@
 <template>
-    <div v-if="chosenClient && plex" class="col l2 s12" v-bind:style="{ position: isMobile }" style="border-right-color: rgba(0,0,0,0.1); border-right-width: 1px; border-right-style: solid; border-bottom-color: rgba(0,0,0,0.1); border-bottom-width: 1px; border-bottom-style: solid; width: 100% min-height: 50%; overflow-y:auto"> 
+    <div v-if="chosenClient && plex" class="col l2 s12" v-bind:style="{ position: isMobile }" style="border-right-color: rgba(0,0,0,0.1); border-right-width: 1px; border-right-style: solid; border-bottom-color: rgba(0,0,0,0.1); border-bottom-width: 1px; border-bottom-style: solid; width: 100% min-height: 50%;"> 
         <div style="overflow-y: auto;max-height: 50%;">
             <div class="mdc-list" >
                 <li v-if="chosenClient" class="mdc-list-item mdc-permanent-drawer--selected plex-gamboge-text truncate" href="#">

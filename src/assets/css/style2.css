@@ -122,7 +122,7 @@ small {
 }
 /* hover effect for both scrollbar area, and scrollbar 'thumb' */
 ::-webkit-scrollbar:hover {
-  background-color: rgba(229, 160, 13, 1);
+background-color: rgba(229, 160, 13, 1);
 }
 
 /* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
@@ -131,7 +131,7 @@ small {
   -webkit-border-radius: 100px;
 }
 ::-webkit-scrollbar-thumb:vertical:active {
-  background: rgba(229,160,13,0.61); /* Darker coloUr when you click it */
+ background: rgba(229,160,13,0.61); /* Darker coloUr when you click it */
   -webkit-border-radius: 100px;
 }
 
@@ -470,10 +470,15 @@ plexName {
 	DARK THEME
 */
 
+div.vjs-text-track-display{
+  background-color:transparent !important;
+  background:none;
+}
 .dark-theme, .dark-theme span, .dark-theme textarea, .dark-theme nav, .dark-theme div, .dark-theme h2, .dark-theme input, .dark-theme select, .dark-theme body {
 	background-color: #282A2D; 
 	color: #F9F9F9; 
 	border-color: #575B61 !important;
+  
 }
 
 .dark-theme button {
@@ -541,4 +546,101 @@ body {
 
 .tooltip.tooltip-after-open {
   opacity: 1;
+}
+
+/* VideoJs skin */
+
+.ptplayer .video-js .vjs-menu-button-inline.vjs-slider-active,.video-js .vjs-menu-button-inline:focus,.video-js .vjs-menu-button-inline:hover,.video-js.vjs-no-flex .vjs-menu-button-inline {
+    width: 10em
+}
+
+.ptplayer .video-js .vjs-controls-disabled .vjs-big-play-button {
+    display: none!important
+}
+
+.ptplayer .video-js .vjs-control {
+    width: 3em
+}
+
+.ptplayer .video-js .vjs-menu-button-inline:before {
+    width: 1.5em
+}
+
+.ptplayer .vjs-menu-button-inline .vjs-menu {
+    left: 3em
+}
+
+.ptplayer .vjs-paused.vjs-has-started.video-js .vjs-big-play-button,.video-js.vjs-ended .vjs-big-play-button,.video-js.vjs-paused .vjs-big-play-button {
+    display: block
+}
+
+.ptplayer .video-js .vjs-load-progress div,.vjs-seeking .vjs-big-play-button,.vjs-waiting .vjs-big-play-button {
+    display: none!important
+}
+
+.ptplayer .video-js .vjs-mouse-display:after,.video-js .vjs-play-progress:after {
+    padding: 0 .4em .3em
+}
+
+.ptplayer .video-js.vjs-ended .vjs-loading-spinner {
+    display: none;
+}
+
+.ptplayer .video-js.vjs-ended .vjs-big-play-button {
+    display: block !important;
+}
+
+.ptplayer video-js.vjs-ended .vjs-big-play-button,.video-js.vjs-paused .vjs-big-play-button,.vjs-paused.vjs-has-started.video-js .vjs-big-play-button {
+    display: block
+}
+
+.ptplayer .video-js .vjs-big-play-button {
+    top: 50%;
+    left: 50%;
+    margin-left: -1.5em;
+    margin-top: -1em
+}
+
+.ptplayer .video-js .vjs-big-play-button {
+    background-color: rgba(255,255,255,0.25);
+    font-size: 2em;
+    border-radius: 20%;
+    height: 2em !important;
+    line-height: 2em !important;
+    margin-top: -1em !important
+}
+
+.ptplayer .video-js:hover .vjs-big-play-button,.video-js .vjs-big-play-button:focus,.video-js .vjs-big-play-button:active {
+    background-color: rgba(255,255,255,0.45)
+}
+
+.ptplayer .video-js .vjs-loading-spinner {
+    border-color: rgba(255,255,255,0.7)
+}
+
+.ptplayer .video-js .vjs-control-bar2 {
+    background-color: transparent
+}
+
+.ptplayer .video-js .vjs-control-bar {
+    /*background-color: rgba(0,0,0,0) !important;*/
+    color: #ffffff;
+    font-size: 16px
+}
+
+.ptplayer .video-js .vjs-play-progress,.video-js  .vjs-volume-level {
+    background-color: #cccccc
+}
+
+.ptplayer .video-js  .vjs-progress-holder {
+    font-size: 1.7em;
+    border-radius: 10px;
+}
+
+.ptplayer .video-js .vjs-progress-holder .vjs-play-progress, .video-js .vjs-progress-holder .vjs-load-progress, .video-js .vjs-progress-holder .vjs-load-progress div, .video-js .vjs-slider,.vjs-volume-level {
+    border-radius: 10px;
+}
+
+.pyplayer .video-js .vjs-load-progress {
+    background: rgba(255,255,255,0.2);
 }
