@@ -210,7 +210,6 @@ export default {
             var that = this
             let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id
             let baseparams = this.getSourceByLabel(this.chosenQuality).params
-            console.log('lol')
             let params = {
                 'audioStreamID': audioStreamID,
                 'X-Plex-Product': baseparams['X-Plex-Product'],
@@ -250,7 +249,6 @@ export default {
                 subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].id
             }
             let baseparams = this.getSourceByLabel(this.chosenQuality).params
-            console.log('lol')
             let params = {
                 'subtitleStreamID': subtitleStreamID,
                 'X-Plex-Product': baseparams['X-Plex-Product'],
@@ -479,7 +477,6 @@ export default {
             this.playerduration = data.duration
         },
         playerSeekDone(data){
-            console.log('PARENT: apparently the child video player is happy with its seek result of ' + data)
         },
         generateTranscodeUrl(overrideparams){            
             let params = this.getBaseParams(overrideparams)

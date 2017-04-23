@@ -122,7 +122,7 @@ small {
 }
 /* hover effect for both scrollbar area, and scrollbar 'thumb' */
 ::-webkit-scrollbar:hover {
-  background-color: rgba(0, 0, 0, 0.2);
+background-color: rgba(229, 160, 13, 1);
 }
 
 /* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
@@ -131,7 +131,7 @@ small {
   -webkit-border-radius: 100px;
 }
 ::-webkit-scrollbar-thumb:vertical:active {
-  background: rgba(229,160,13,1); /* Darker coloUr when you click it */
+ background: rgba(229,160,13,0.61); /* Darker coloUr when you click it */
   -webkit-border-radius: 100px;
 }
 
