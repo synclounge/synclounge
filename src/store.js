@@ -86,7 +86,8 @@ const mutations = {
                 return
             }
             // Fetch our metadata from this server
-            server.getMediaByRatingKey(ratingKey,function(metadata){
+            console.log('Loading content metadata from store ' + ratingKey)
+            server.getMediaByRatingKey(ratingKey.replace('/library/metadata/',''),function(metadata){
                 if (!metadata){
                     return
                 }

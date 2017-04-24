@@ -245,8 +245,7 @@
         },
         onPlayerLoaded(player){
         },
-        onPlayerCanplay(player){
-
+        onPlayerCanplay(player){            
         },
         onPlayerCanplaythrough(player){
         },
@@ -315,12 +314,14 @@
         onPlayerSeeking(player){
         },        
         onPlayerSeeked(player){
-            console.log('Seeke')
             console.log(player)
         },
         playerStateChanged(playerCurrentState) {
           this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000)
           this.duration = Math.round(this.player.duration() * 1000)
+          if (this.player.error_){
+              this.$emit('playerError')
+          }
           if (playerCurrentState.timeupdate){
               this.lastTime = Math.round(playerCurrentState.timeupdate * 1000)
           }

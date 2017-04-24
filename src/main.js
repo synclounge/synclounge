@@ -8,11 +8,14 @@ import Materials from 'vue-materials'
 import VueChatScroll from 'vue-chat-scroll'
 import VueClipboards from 'vue-clipboards'
 import VueVideoPlayer from 'vue-video-player'
- 
+import VueObserveVisibility from 'vue-observe-visibility'
+
 // Our Event bus 
 window.EventBus = new Vue()
 
 // mount with global 
+
+Vue.use(VueObserveVisibility)
 Vue.use(VueVideoPlayer)
 Vue.use(VueClipboards);
 Vue.use(VueChatScroll)

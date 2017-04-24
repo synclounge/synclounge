@@ -161,6 +161,28 @@ module.exports = function PlexServer(){
     this.getUrlForLibraryLoc = function(location){
        return this.chosenConnection.uri + '/photo/:/transcode?url=' + this.chosenConnection.uri + location + '&X-Plex-Token=' + this.accessToken + '&height=600&width=300'
     }
+    this.getAllLibraries = function(callback){
+        this.hitApi('/library/sections',{},function(result,that){
+            callback(result)
+        })
+    }    
+    this.getLibraryContents = function(key,start,size,callback){
+        this.hitApi('/library/sections/'+key+'/all',{
+            'X-Plex-Container-Start':start,
+            'X-Plex-Container-Size':size
+        },function(result,that){
+            callback(result)
+        })
+    }    
+    this.getSeriesContent = function(key,start,size,excludeAllLeaves,callback){
+        this.hitApi(key,{
+            'X-Plex-Container-Start':start,
+            'X-Plex-Container-Size':size,
+            'excludeAllLeaves': excludeAllLeaves
+        },function(result,that){
+            callback(result)
+        })
+    }
     function handleMetadata(result,that,callback){
         if (result != null){                
             if (result._children) {

@@ -1,9 +1,10 @@
 <template>
 	<div style="height: 100%">
+        <plexbrowser v-if="!playingMetadata"></plexbrowser>
         <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
             @playerMounted="playerMounted()"
             @timelineUpdate="timelineUpdate"
-
+            @playerError="changedPlaying(false)"
 
 
             :metadata="playingMetadata"
@@ -14,8 +15,8 @@
             :initialOffset="offset"
             :createdAt="playerCreatedAt"
         ></videoplayer>
-        <div class="row">
-            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+        <div class="row" v-if="playingMetadata && chosenServer && chosenQuality">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12 offset-l2">
                 <v-select name="select"
                             id="select"
                             v-model="chosenMediaIndex"
@@ -23,7 +24,7 @@
                 ></v-select>
                 <label for="select">Version</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12">
                 <v-select name="select"
                             id="select"
                             v-model="chosenQuality"
@@ -31,7 +32,7 @@
                 ></v-select>
                 <label for="select">Quality</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12">
                 <v-select name="select"
                             id="select"
                             v-model="chosenAudioTrackIndex"
@@ -40,7 +41,7 @@
                 ></v-select>
                 <label for="select">Audio</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12">
                 <v-select name="select"
                             id="select"
                             v-model="chosenSubtitleIndex"
@@ -48,6 +49,9 @@
                             :items="subtitleTrackSelect"
                 ></v-select>
                 <label for="select">Subtitles</label>
+            </div>
+            <div class="col s12 l4 offset-l5">     
+                <v-btn class="center" style="width:50%;background-color: #E5A00D" v-on:click.native="stopPlayback()">Stop playback</v-btn>
             </div>
         </div>
     </div>
@@ -62,6 +66,7 @@ var parseXMLString = require('xml2js').parseString;
 
 // Components
 import videoplayer from './ptplayer/videoplayer.vue'
+import plexbrowser from './plexbrowser.vue'
 
 import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 
@@ -70,7 +75,8 @@ import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 export default {
     name: 'ptplayer',
     components: {
-        videoplayer
+        videoplayer,
+        plexbrowser
     },
     created(){        
         $(document).ready(function() {
@@ -84,11 +90,10 @@ export default {
         // Similuate a real plex client
         this.eventbus.$on('command',function(data){
             if (data.command == '/player/timeline/poll'){
-                let key = null
-                let ratingKey = null
-                if (that.playingMetadata){
-                    key = that.playingMetadata.key
-                    ratingKey = that.playingMetadata.ratingKey
+                let key = that.chosenKey
+                let ratingKey = null 
+                if (key){
+                    ratingKey = '/library/metadata/' + key
                 }
                 let machineIdentifier = null
                 if (that.chosenServer){
@@ -119,8 +124,12 @@ export default {
             }
             if (data.command == '/player/playback/stop'){
                 that.ready = false
-                that.chosenKey = 0
+                that.chosenKey = null
                 that.chosenServer = null
+                that.playerduration = null
+                that.playertime = 0
+                that.bufferedTile = null
+                that.playingMetadata = null
                 return data.callback(true)
             }
             if (data.command == '/player/playback/seekTo'){
@@ -152,7 +161,9 @@ export default {
                 that.chosenKey = data.params.key.replace('/library/metadata/','')
                 that.chosenServer = that.plex.getServerById(data.params.machineIdentifier)
                 that.playertime = data.params.offset
-                return data.callback(true)
+                setTimeout(function(){
+                    return data.callback(true)
+                },5000)
             }
             console.log('Unable to process the remote control command ' + data.command)
         })
@@ -187,7 +198,10 @@ export default {
             // These are changed by the watched functions
             playingMetadata: null,
             ready: false,
-            transcodeSessionMetadata: {}
+            transcodeSessionMetadata: {},
+
+            // Browser
+            browser: this.getBrowser()
         }
     },
     watch: {
@@ -289,6 +303,9 @@ export default {
             // Helper for our watch chosenCombo
             return this.chosenKey || chosenServer
         }, 
+        chosenClient(){
+            return this.$store.getters.getChosenClient
+        },
         mediaIndexSelect(){
             let mediaDone = []
             if (!this.playingMetadata){
@@ -316,7 +333,7 @@ export default {
                 if (current.streamType == 2){
                     audioTracks.push({
                         id: i,
-                        text: current.language + ' (' + current.codec.toUpperCase() + ' ' + current.audioChannelLayout.toUpperCase() + ')'
+                        text: current.language + ' (' + current.codec + ' ' + current.audioChannelLayout + ')'
                     })
                 }
 
@@ -340,7 +357,7 @@ export default {
                 if (current.streamType == 3){
                     subtitleTracks.push({
                         id: i,
-                        text: current.language + ' (' + current.codec.toUpperCase() + ')'
+                        text: current.language + ' (' + current.codec + ')'
                     })
                 }
 
@@ -425,6 +442,11 @@ export default {
             ]
             return qualities
         },
+        stopPlayback(){
+            this.chosenClient.pressStop(function(){
+
+            })
+        },
         changedPlaying: function(changeItem){
             var that = this
             this.ready = false
@@ -452,6 +474,7 @@ export default {
                 }) 
             }
             if (changeItem){
+                this.playingMetadata = null
                 this.chosenServer.getMediaByRatingKey(this.chosenKey,function(result){
                     console.log(result)
                     that.playingMetadata = result      
@@ -495,7 +518,7 @@ export default {
                 'X-Plex-Product': 'PlexTogether',
                 'X-Plex-Version': '3.4.1',
                 'X-Plex-Client-Identifier': 'PLEXTOGETHERWEB',
-                'X-Plex-Platform':'Chrome',
+                'X-Plex-Platform':this.browser,
                 'X-Plex-Platform-Version':'57.0',
                 'X-Plex-Devices': 'Windows',
                 'X-Plex-Device-Screen-Resolution':'2560x1440',
@@ -537,7 +560,7 @@ export default {
                 protocol: 'http',
                 fastSeek: 1,
                 directPlay: 0,
-                directStream: 1,
+                directStream: 0,
                 subtitleSize: 100,
                 audioBoost: 100,
                 location: 'lan',
@@ -551,7 +574,7 @@ export default {
                 'X-Plex-Product': 'PlexTogether',
                 'X-Plex-Version': '3.4.1',
                 'X-Plex-Client-Identifier': 'PLEXTOGETHERPLAYER',
-                'X-Plex-Platform':'Chrome',
+                'X-Plex-Platform':this.browser,
                 'X-Plex-Platform-Version':'57.0',
                 'X-Plex-Device': 'Windows',
                 'X-Plex-Device-Name': 'PlexTogetherPlayer',
@@ -580,7 +603,7 @@ export default {
                     'X-Plex-Product': 'PlexTogether',
                     'X-Plex-Version': '3.4.1',
                     'X-Plex-Client-Identifier': 'PLEXTOGETHERPLAYER',
-                    'X-Plex-Platform':'Chrome',
+                    'X-Plex-Platform':that.browser,
                     'X-Plex-Platform-Version':'57.0',
                     'X-Plex-Device': 'Windows',
                     'X-Plex-Device-Name': 'PlexTogetherPlayer',
@@ -617,6 +640,23 @@ export default {
                 .substring(1);
             }
             return s4() + s4() + s4() + s4();
+        },
+        getBrowser(){
+            var sBrowser, sUsrAg = navigator.userAgent;
+            console.log(navigator.userAgent)
+            if(sUsrAg.indexOf("Chrome") > -1) {
+                sBrowser = "Chrome";
+            } else if (sUsrAg.indexOf("Safari") > -1) {
+                sBrowser = "Safari";
+            } else if (sUsrAg.indexOf("Opera") > -1) {
+                sBrowser = "Opera";
+            } else if (sUsrAg.indexOf("Firefox") > -1) {
+                sBrowser = "Firefox";
+            } else if (sUsrAg.indexOf("MSIE") > -1) {
+                sBrowser = "Microsoft Internet Explorer";
+            }
+            console.log('Browser: ' + sBrowser)
+            return sBrowser
         }  
 
     }
