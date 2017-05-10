@@ -1,24 +1,24 @@
 <template>
     <div>
         <div v-if="contents && !browsingContent">                
-            <v-card class="blue-grey darken-1 col l12 s12" style="height:100%">
+            <v-card class="blue-grey darken-1 col l12 s12" style="height:100%; ;box-shadow:none">
                 <div class="white-text row">
                     <img :src="getThumb(content)" style="height:100%" class="col s6 l3"/>
                     <div class="col l9 s6" style="padding-left:1%">
                         <div v-if="content.type == 'episode'">
-                            <div style="font-size: 1vw;"> {{ content.grandparentTitle }} </div>      
-                            <div style="font-size: .7vw;padding-left:1%">{{ content.title }}</div>                       
-                            <div style="font-size: .5vw;padding-left:1%"> Season {{ content.parentIndex }} Episode {{ content.index }} </div>
-                            <label style="padding-left:1%"> Available in {{ largestRes }}p </label>
-                            <p style="padding-left:1%"> {{ content.summary }} </p>
+                            <div style="font-size: 1vw;"> {{ content.grandparentTitle }} </div>                         
+                            <label style="font-size: .5vw"> Season {{ content.parentIndex }} Episode {{ content.index }} </label>
+                            <label> - {{ largestRes }}p </label>
+                            <div style="font-size: .8vw">{{ content.title }}</div>    
+                            <p> {{ content.summary }} </p>
                         </div>
                         <div v-if="content.type == 'movie'">
                             <div  style="font-size: 1vw;" class="card-title truncate">{{ content.title }}</div>
                             <div> {{ content.year }} </div>                            
-                            <label> Available in {{ largestRes }}p </label>
+                            <label> {{ largestRes }}p </label>
                             <p> {{ content.summary }} </p>
                         </div>     
-                        <div style="padding-left:1%">       
+                        <div>       
                             <button v-on:click="playMedia(content)" style="background-color: #E5A00D" class="waves-effect waves-light btn">Play</button>   
                         </div>         
                     </div>                    

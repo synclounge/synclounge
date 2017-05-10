@@ -1,7 +1,7 @@
 <template>
     <div style="height:100%; width:100%; overflow-y:auto; padding:1%" class="row">
         <div v-if="!browsingServer" v-for="server in availableServers">
-            <v-card v-on:click.native="setServer(server)" class="blue col s12 l3">
+            <v-card v-on:click.native="setServer(server)" class="blue col s12 l3 hoverable" style="box-shadow:none">
                 <div class="col s3 l3" style="height:100%">
                     <img src="static/plexlogo.png" style="height:100%; width:100%" >
                 </div>
@@ -35,7 +35,7 @@ export default {
             if (server.owned == '1'){
                 return 'you'
             } else {
-                return server.owner
+                return server.sourceTitle
             }
         },
     },    

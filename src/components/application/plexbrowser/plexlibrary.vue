@@ -3,13 +3,15 @@
         <h2 v-if="!browsingLibrary"> {{ library.title }}</h2>
         <div v-if="contents && !browsingContent" >
             <div v-for="content in contents.MediaContainer.Metadata">
-                <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s3">
-                    <div class="white-text" >
-                        <img :src="getThumb(content)" style="width:100%"/>
-                        <span style="font-size: .5vw;" class="card-title truncate">{{ content.title }}</span>
-                        <div> 
-                            <label v-if="content.type == 'show'"> {{ content.childCount }} seasons </label> 
-                            <label v-if="content.type == 'movie'"> {{ content.year }}</label> 
+                <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh">
+                    <div style="height:100%;bottom:0">
+                        <img style="height:auto;width:100%;display:block" :src="getThumb(content)"/>
+                        <div style="padding:3%; padding-left:1%; height:25%;">
+                            <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
+                            <div> 
+                                <label v-if="content.type == 'show'"> {{ content.childCount }} seasons </label> 
+                                <label v-if="content.type == 'movie'"> {{ content.year }}</label> 
+                            </div>
                         </div>
                     </div>
                 </v-card>
@@ -46,6 +48,8 @@ import plexseries from './plexseries'
           startingIndex: 0,
           size: 50,
 
+          libraryTotalSize: false,
+          
           stopNewContent: false,
           busy: false,
 
@@ -82,6 +86,7 @@ import plexseries from './plexseries'
             this.server.getLibraryContents(this.library.key, this.startingIndex,this.size,function(result){
                 console.log('Metadata result',result)
                 if (result && result.MediaContainer && result.MediaContainer.Metadata){
+                    that.libraryTotalSize = result.MediaContainer.totalSize
                     that.startingIndex = that.startingIndex + 50
                     if (that.contents){
                         for (let i = 0; i < result.MediaContainer.Metadata.length; i++){

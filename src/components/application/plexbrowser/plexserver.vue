@@ -2,7 +2,7 @@
     <div>
         <h2 v-if="!browsingLibrary"> {{ server.name }}</h2>
         <div v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries">
-            <v-card v-on:click.native="setLibrary(library)" class="blue-grey darken-1 col l3 s12">
+            <v-card v-on:click.native="setLibrary(library)" class="blue-grey darken-1 col l3 s12 hoverable" style="box-shadow:none">
                 <div class="col s3 l3" style="height:100%">
                     <img :src="getThumb(library)" style="height:100%; width:100%" >
                 </div>
