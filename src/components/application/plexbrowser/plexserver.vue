@@ -67,8 +67,9 @@ import plexlibrary from './plexlibrary'
             this.browsingLibrary = library
         },
         getThumb(object){
-            console.log('Getting url for thumb ' + object.thumb)
-            return this.server.getUrlForLibraryLoc(object.thumb)
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+            return this.server.getUrlForLibraryLoc(object.thumb,w/12, h/4)
         },
 
         

@@ -229,7 +229,9 @@
     },
 
     metadataImage: function(){
-        return this.server.getUrlForLibraryLoc(this.metadata.thumb)
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        return this.server.getUrlForLibraryLoc(this.metadata.thumb,w/12, h/4)
     }
       
     },

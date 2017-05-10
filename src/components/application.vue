@@ -20,7 +20,8 @@
                   </div>
                   
                   <plexbrowser v-if="showBrowser"></plexbrowser>
-                  <ptplayer v-if="chosenClient && chosenClient.clientIdentifier == 'PTPLAYER9PLUS10'" style="height:100%;"></ptplayer>
+                  <ptplayer v-if="isPTPlayer" style="height:100%;"></ptplayer>
+                  <nowplaying v-if="showMetadata"></nowplaying>
               </div>
 
               <!-- CHAT INTERFACE -->
@@ -111,6 +112,7 @@ import walkthrough from './application/walkthrough'
 import sidebar from './application/sidebar'
 import ptplayer from './application/ptplayer'
 import plexbrowser from './application/plexbrowser'
+import nowplaying from './application/nowplaying'
 
 import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 
@@ -129,7 +131,8 @@ export default {
       ptplayer,
       SweetModal,
       SweetModalTab,
-      plexbrowser
+      plexbrowser,
+      nowplaying
   },
   mounted: function(){        
     $('.button-collapse').sideNav();$(".button-collapse").sideNav();
@@ -209,6 +212,12 @@ export default {
        showBrowser(){
            return (this.chosenClient && !this.chosenClient.clientPlayingMetadata)
        },
+       isPTPlayer(){
+           return (this.chosenClient && this.chosenClient.clientIdentifier == 'PTPLAYER9PLUS10')
+       },
+       showMetadata(){
+           return (!this.isPTPlayer && !this.showBrowser && this.chosenClient && this.chosenClient.clientPlayingMetadata)
+       },
        darkMode: function(){
            return this.$store.getters.getSettingDARKMODE
        },
@@ -248,69 +257,7 @@ export default {
                return '(' + this.$store.state.plex.servers.length + ')'
            }
            return ''
-       },       
-       metadataThumb: function(){
-            if (!this.validPlex ) {                
-                return ''
-            }
-            let plexObj = this.$store.state.plex
-            if (!this.$store.getters.getChosenClient){
-                return ''
-            }
-            let metadata = this.$store.getters.getChosenClient.clientPlayingMetadata
-            if (!metadata){
-                return ''
-            }
-            let server;
-            let content = metadata.thumb;
-            if (metadata.parentThumb){
-                content = metadata.parentThumb
-            }
-            if (!plexObj.getServerById(metadata.machineIdentifier)){
-                return ''
-            }
-            console.log(plexObj.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(content))
-            return plexObj.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(content)
-       },
-       metadataTitle: function(){
-           if (!this.validPlex){
-               return ''
-           }
-           if (!this.$store.getters.getChosenClient){
-               return ''
-           } 
-           let metadata = this.$store.getters.getChosenClient.clientPlayingMetadata
-           if (!metadata){
-               return ''
-           }
-           if (metadata.type == 'movie'){
-               return metadata.title
-           } 
-           if (metadata.type == 'episode'){
-                return metadata.grandparentTitle
-           }
-           return metadata.index
-       },
-       metadataInfo: function(){
-           if (!this.validPlex){
-               return ''
-           }
-           if (!this.$store.getters.getChosenClient){
-               return ''
-           }
-           let metadata = this.$store.getters.getChosenClient.clientPlayingMetadata           
-           if (!metadata){
-               return ''
-           }
-           if (metadata.type == 'movie'){
-               return metadata.year
-           } 
-           if (metadata.type == 'episode'){
-                return metadata.title + ' (S' + metadata.parentIndex + '·E' + metadata.index + ')'
-           }
-           return metadata.index
-           
-       },
+       },  
        showChatValue: function(){
            if (this.$store.getters.getShownChat){
                return 'block'

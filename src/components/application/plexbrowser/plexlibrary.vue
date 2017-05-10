@@ -74,7 +74,10 @@ import plexseries from './plexseries'
             this.browsingContent = content
         },
         getThumb(object){
-            return this.server.getUrlForLibraryLoc(object.thumb)
+            console.log('Getting url for thumb ' + object.thumb)
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+            return this.server.getUrlForLibraryLoc(object.thumb,w/12, h/4)
         },
         getMoreContent(){
             if (this.stopNewContent || this.busy){
