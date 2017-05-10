@@ -1,6 +1,5 @@
 <template>
 	<div style="height: 100%">
-        <plexbrowser v-if="!playingMetadata"></plexbrowser>
         <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
             @playerMounted="playerMounted()"
             @timelineUpdate="timelineUpdate"
@@ -66,7 +65,6 @@ var parseXMLString = require('xml2js').parseString;
 
 // Components
 import videoplayer from './ptplayer/videoplayer.vue'
-import plexbrowser from './plexbrowser.vue'
 
 import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 
@@ -76,7 +74,6 @@ export default {
     name: 'ptplayer',
     components: {
         videoplayer,
-        plexbrowser
     },
     created(){        
         $(document).ready(function() {

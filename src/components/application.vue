@@ -22,6 +22,8 @@
                   <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
                       <walkthrough></walkthrough>
                   </div>
+                  
+                  <plexbrowser v-if="showBrowser"></plexbrowser>
                   <ptplayer v-if="chosenClient && chosenClient.clientIdentifier == 'PTPLAYER9PLUS10'" style="height:100%;"></ptplayer>
               </div>
 
@@ -111,6 +113,7 @@ import chatmessage from './application/chatmessage'
 import walkthrough from './application/walkthrough'
 import sidebar from './application/sidebar'
 import ptplayer from './application/ptplayer'
+import plexbrowser from './application/plexbrowser'
 
 import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 
@@ -128,7 +131,8 @@ export default {
       walkthrough,
       ptplayer,
       SweetModal,
-      SweetModalTab
+      SweetModalTab,
+      plexbrowser
   },
   mounted: function(){        
     $('.button-collapse').sideNav();$(".button-collapse").sideNav();
@@ -204,6 +208,9 @@ export default {
            if (!this.plex){
                return false
            } return this.plex.gotDevices
+       },
+       showBrowser(){
+           return (this.chosenClient && !this.chosenClient.clientPlayingMetadata)
        },
        darkMode: function(){
            return this.$store.getters.getSettingDARKMODE
