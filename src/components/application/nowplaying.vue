@@ -1,15 +1,18 @@
 <template>
-    <div class="row center container" style="margin-top:20%">
-        <div class="col s12 m12 l12">
-            <div class="row">
-                <div class="col s12 l4 m4">
-                    <img :src="metadataThumb" style="width:100%;height:auto">
-                </div>
-                <div class="col s12 l8 m8" style="text-align:left">
-                    <h2> {{chosenClient.name}} </h2>
-                    <label>Playing {{ metadataTitle }} {{ metadataInfo }} from {{ metadataServer }}</label>
-                    <p> {{metadata.summary}}</p>
-
+    <div style="position:relative">
+        <img style="position:absolute;width:100%;height:auto;z-index:0;opacity:0.1" :src="metadataArt"/>
+        <div class="row center container" style="z-index:3;margin-bottom:0">
+            <div class="col s12 m12 l12" style="margin-top:20%;opacity:0.9">
+                <div class="row">
+                    <div class="col s12 l4 m4">
+                        <img :src="metadataThumb" style="width:100%;height:auto">
+                    </div>
+                    <div class="col s12 l8 m8" style="text-align:left">
+                        <h3> Now Playing </h3>
+                        <h2> {{ chosenClient.name }} </h2>
+                        <label>Playing {{ metadataTitle }} {{ metadataInfo }} from {{ metadataServer }}</label>
+                        <p> {{ metadata.summary }}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -42,7 +45,12 @@ export default {
        },
         context: function(){
             return this.$store
-        },      
+        },    
+        backgroundImgObj: function(){
+            return {
+                'background-image': this.metadataArt
+            }
+        },  
         metadataThumb: function(){
             if (!this.validPlex ) {                
                 return ''
@@ -64,6 +72,25 @@ export default {
                 return ''
             }
             return plexObj.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(content,700,700)
+        },        
+        metadataArt: function(){
+            if (!this.validPlex ) {                
+                return ''
+            }
+            let plexObj = this.$store.state.plex
+            if (!this.$store.getters.getChosenClient){
+                return ''
+            }
+            let metadata = this.$store.getters.getChosenClient.clientPlayingMetadata
+            if (!metadata){
+                return ''
+            }
+            let server;
+            let content = metadata.art;
+            if (!plexObj.getServerById(metadata.machineIdentifier)){
+                return ''
+            }
+            return plexObj.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(content,700,700,1)
         },
         metadataServer: function(){
             if (!this.validPlex){

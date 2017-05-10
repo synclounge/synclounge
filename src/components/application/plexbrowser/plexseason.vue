@@ -12,6 +12,7 @@
                     </div>
                 </div>
             </v-card>
+            <div class="divider"></div>
             <h2> Episodes </h2>
             <div v-for="content in contents.MediaContainer.Metadata">
                 <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l2 s6 hoverable" style="box-shadow:none">

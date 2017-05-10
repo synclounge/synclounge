@@ -17,8 +17,7 @@
               <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%">               
                   <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
                       <walkthrough></walkthrough>
-                  </div>
-                  
+                  </div>                  
                   <plexbrowser v-if="showBrowser"></plexbrowser>
                   <ptplayer v-if="isPTPlayer" style="height:100%;"></ptplayer>
                   <nowplaying v-if="showMetadata"></nowplaying>
@@ -60,8 +59,7 @@
                               </div>
                           </div>
                       </div>
-                  </div>             
-
+                  </div>
               </div>
           </div>
       </div>
@@ -210,7 +208,7 @@ export default {
            } return this.plex.gotDevices
        },
        showBrowser(){
-           return (this.chosenClient && !this.chosenClient.clientPlayingMetadata)
+           return (this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom)
        },
        isPTPlayer(){
            return (this.chosenClient && this.chosenClient.clientIdentifier == 'PTPLAYER9PLUS10')

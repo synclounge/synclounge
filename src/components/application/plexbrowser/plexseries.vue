@@ -4,21 +4,22 @@
             <v-card class="blue-grey darken-1 col l12 s12" style="height:100%;box-shadow:none">
                 <div class="white-text row">
                     <img :src="getThumb(content)" style="height:100%" class="col s6 l2"/>
-                    <div class="col l10 s6">
+                    <div class="col l9 s6">
                         <h2 class="card-title truncate">{{ content.title }}</h2>
                         <label> {{ content.leafCount }} episodes since {{ content.year }} </label>
                         <p> {{ content.summary }} </p>
                     </div>
                 </div>
-            </v-card>
+            </v-card>            
+            <div class="divider"></div>
             <h2> Seasons </h2>
             <div v-for="content in contents.MediaContainer.Metadata">
                 <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none">
                     <div class="white-text">
                         <img :src="getThumb(content)" style="width:100%"/>
-                        <span style="font-size: .5vw;" class="card-title truncate">{{ content.title }}</span>
+                        <span style="font-size: .7vw;" class="card-title truncate">{{ content.title }}</span>
                         <div> 
-                            <label> {{ content.leafCount }} episodes </label> 
+                            <label style="font-size: .7vw;"> {{ content.leafCount }} episodes </label> 
                         </div>
                     </div>
                 </v-card>

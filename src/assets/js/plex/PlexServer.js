@@ -158,8 +158,11 @@ module.exports = function PlexServer(){
             return handleMetadata(result,that,callback)
         })
     }
-    this.getUrlForLibraryLoc = function(location,width,height){
-       return this.chosenConnection.uri + '/photo/:/transcode?url=' + this.chosenConnection.uri + location + '&X-Plex-Token=' + this.accessToken + '&height='+Math.floor(height)+'&width='+Math.floor(width)
+    this.getUrlForLibraryLoc = function(location,width,height,blur){
+        if (!(blur > 0)){
+            blur = 0
+        }
+        return this.chosenConnection.uri + '/photo/:/transcode?url=' + this.chosenConnection.uri + location + '&X-Plex-Token=' + this.accessToken + '&height='+Math.floor(height)+'&width='+Math.floor(width) + '&blur='+blur
     }
     this.getAllLibraries = function(callback){
         this.hitApi('/library/sections',{},function(result,that){
