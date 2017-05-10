@@ -10,10 +10,6 @@
       <div class="content row" style="margin-bottom: 0">
           <div class="row main-body" style="height: 100%; margin-bottom: 0">
 
-              <!-- SIDE BAR -->
-
-              <sidebar :mobile="false" class="hide-on-med-and-down"></sidebar>
-
               <!-- MAIN CONTENT -->
               <div class="col l12 s12 center" id="main-body" v-if="!validDevices" style="padding-top:5%">               
                     <v-progress-circular yellow active large></v-progress-circular>
@@ -31,13 +27,14 @@
 
               <div v-if="ptConnected && chosenClient" class="col l3 s12 no-padding" id="plexTogetherChat" style="height: 100%; border-left: 1px solid rgba(0, 0, 0, 0.12)">
                  <div class="mdc-permanent-drawer chatInterface" style="height:100%">
-                      <div class="mdc-permanent-drawer__toolbar-spacer" style="padding: 0; height: 76px">
+                      <div class="mdc-permanent-drawer__toolbar-spacer">
                           <div class="row" style="width: 100%;">
                               <div class="col l8  left-align truncate">
-                                  <h2 id="plexTogetherRoomNameChat">{{ ptRoom }}</h2>                                  
+                                  <div id="plexTogetherRoomNameChat" style="font-size:1.5vh">#{{ ptRoom }}</div>                           
                               </div>                              
                               <div class="col l4  right-align truncate">
-                                   <h2> {{ userCount }}</h2>                                 
+                                   <div> {{ userCount }}</div>    
+                                  <label> {{ ptServer }}</label>                                    
                               </div>
                           </div>
                       </div>                
