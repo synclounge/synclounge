@@ -9,12 +9,14 @@ import VueChatScroll from 'vue-chat-scroll'
 import VueClipboards from 'vue-clipboards'
 import VueVideoPlayer from 'vue-video-player'
 import VueObserveVisibility from 'vue-observe-visibility'
+import VueLazyload from 'vue-lazyload'
+
 
 // Our Event bus 
 window.EventBus = new Vue()
 
 // mount with global 
-
+Vue.use(VueLazyload)
 Vue.use(VueObserveVisibility)
 Vue.use(VueVideoPlayer)
 Vue.use(VueClipboards);

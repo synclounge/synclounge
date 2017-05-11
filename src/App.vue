@@ -1,5 +1,4 @@
 <template>
-  <div id="app" v-bind:class="{ 'dark-theme': darkMode }" style="height: 100%; overflow:hidden">
   <meta name="viewport" content="width=device-width">
     <navbar></navbar>
     <router-view></router-view>

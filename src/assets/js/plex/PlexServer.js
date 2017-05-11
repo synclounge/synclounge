@@ -162,7 +162,7 @@ module.exports = function PlexServer(){
         if (!(blur > 0)){
             blur = 0
         }
-        return this.chosenConnection.uri + '/photo/:/transcode?url=' + this.chosenConnection.uri + location + '&X-Plex-Token=' + this.accessToken + '&height='+Math.floor(height)+'&width='+Math.floor(width) + '&blur='+blur
+        return this.chosenConnection.uri + '/photo/:/transcode?url=' + location + '&X-Plex-Token=' + this.accessToken + '&height='+Math.floor(height)+'&width='+Math.floor(width) + '&blur='+blur
     }
     this.getAllLibraries = function(callback){
         this.hitApi('/library/sections',{},function(result,that){
