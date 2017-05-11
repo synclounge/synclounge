@@ -27,7 +27,6 @@ Vue.use(VTooltip)
 Vue.use(VueResource)
 Vue.use(VueTranslate)
 
-require('vue2-animate/dist/vue2-animate.min.css')
 
 
 
