@@ -836,3 +836,48 @@ body {
     color: #E5A00D;
     text-shadow: none
 }
+
+/* Library View ATV Effect */
+
+.atv {
+  box-shadow: 0 3px 3px 0 rgba( 0, 0, 0, 0.3 );
+  position: relative;
+  /* width: 150px; */
+  margin: 0 auto;
+  transition: box-shadow 0.15s ease-out, transform 0.25s ease;
+  perspective: 500px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  
+  &:hover {
+    transform: scale( 1.1 );
+    box-shadow: none;
+  }
+  
+  &.hover--ending {
+    transition: box-shadow 0.5s ease;
+  }
+  
+  @include breakpoint( 540px ) {    
+    display: inline-block;
+  }
+}
+
+.atv__link {
+  display: block;
+  position: relative;
+  width: 150px;
+  height: 228px;
+  overflow: hidden;       
+  transform-origin: center center;
+  transform-style: preserve-3d;
+}
+
+.atv__image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  object-fit: cover;
+}
