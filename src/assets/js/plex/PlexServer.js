@@ -133,9 +133,7 @@ module.exports = function PlexServer(){
         //console.log('Searching ' + this.name + ' for ' + searchTerm)
         this.hitApi('/search',{query:searchTerm},function(result){
             let validResults = []
-            console.log('Response from ' + that.name + ' below')
-            console.log(result)
-            if (result.MediaContainer){ 
+            if (result && result.MediaContainer){ 
                 if (result.MediaContainer.Metadata){
                     for (let i = 0; i < result.MediaContainer.Metadata.length; i++ ){
                         validResults.push(result.MediaContainer.Metadata[i])

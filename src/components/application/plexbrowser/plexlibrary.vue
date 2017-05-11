@@ -5,7 +5,7 @@
             <div v-if="!browsingContent" class="input-field col l4 offset-l4">
                 <v-text-area name="ta"
                         id="ta"
-                        v-model="searchWord"
+                        v-model="searchPhrase"
                 ></v-text-area>
                 <label for="ta">Search</label>
             </div>
@@ -40,6 +40,8 @@
 <script>
 import plexcontent from './plexcontent'
 import plexseries from './plexseries'
+
+var _ = require('lodash');
   export default {
     props: ['library','server'],
     components: {
@@ -64,7 +66,7 @@ import plexseries from './plexseries'
 
           contents: null,
           status: "loading..",
-          searchWord: ''
+          searchPhrase: null
       }
     },
     mounted() {                    
@@ -77,15 +79,8 @@ import plexseries from './plexseries'
         
     },
     watch: {
-        searchWord: function(){
-            for (let i = 0; i < this.contents.MediaContainer.Metadata.length; i++){
-                let item = this.contents.MediaContainer.Metadata[i]
-                if (item.title.toLowerCase().indexOf(this.searchWord.toLowerCase()) > -1){
-                    item.active = true
-                } else {
-                    item.active = false
-                }
-            }
+        searchPhrase: function(){
+            this.filterItems()
         }
     },
     computed: {
@@ -108,6 +103,23 @@ import plexseries from './plexseries'
             }
             return {}
         },
+        filterItems:_.debounce(
+            function () {
+                for (let i = 0; i < this.contents.MediaContainer.Metadata.length; i++){
+                    let item = this.contents.MediaContainer.Metadata[i]
+                    if (!this.searchPhrase){
+                        item.active = true
+                        continue
+                    }
+                    if (item.title.toLowerCase().indexOf(this.searchPhrase.toLowerCase()) > -1){
+                        item.active = true
+                    } else {
+                        item.active = false
+                    }
+                }
+            },
+            500
+        ),
         getMoreContent(){
             if (this.stopNewContent || this.busy){
                 return
