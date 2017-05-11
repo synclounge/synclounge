@@ -15,7 +15,9 @@
               <sidebar :mobile="false" class="hide-on-med-and-down"></sidebar>
 
               <!-- MAIN CONTENT -->
-
+              <div class="col l12 s12 center" id="main-body" v-if="!validDevices" style="padding-top:5%">               
+                    <v-progress-circular yellow active large></v-progress-circular>
+              </div>
               <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%">               
                   <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
                       <walkthrough></walkthrough>

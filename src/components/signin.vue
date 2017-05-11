@@ -31,13 +31,13 @@
                                 <button style="width:100%;background-color: #E5A00D" class="waves-effect waves-light btn" v-clipboard="pin"><i class="material-icons left">content_paste</i>Copy</button>
                             </div>
                             <div class="col s12 l12">
-                                <p class="center">Enter the pin above at <a target="_target" href="https://plex.tv/pin"> https://plex.tv/pin </a></p>
+                                <p class="center">Enter the pin above at <a target="_blank" href="https://plex.tv/link"> https://plex.tv/link </a></p>
                             </div>
 
                         </div>                      
                         <div class="row center">
                           <label class="col s12"> Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run Plex Together yourself
-                            have a look <a target="_target" href="https://github.com/samcm/plextogether"> here </a> for details. </label>  
+                            have a look <a target="_blank" href="https://github.com/samcm/plextogether"> here </a> for details. </label>  
                         </div>
                       </div>
                   </div>                  
