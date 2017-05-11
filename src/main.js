@@ -28,16 +28,8 @@ Vue.use(VueTranslate)
 
 require('vue2-animate/dist/vue2-animate.min.css')
 
-Vue.directive('focus', {
-    inserted: function (el) {
-        el.focus();
-    },
-    update: function (el) {
-        Vue.nextTick(function() {
-              el.focus();
-        })
-    }
-})
+
+
 
 import store from './store'
 import router from './router'

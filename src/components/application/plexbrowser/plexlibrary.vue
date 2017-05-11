@@ -139,6 +139,10 @@ var _ = require('lodash');
                             that.contents.MediaContainer.Metadata.push(media)
                         }
                     } else {
+                        for (let i = 0; i < result.MediaContainer.Metadata.length; i++){
+                            let media = result.MediaContainer.Metadata[i]
+                            media.active = true
+                        }
                         that.contents = result
                     }
                     if (result.MediaContainer.size < 100){
