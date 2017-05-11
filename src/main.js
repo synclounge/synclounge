@@ -11,9 +11,10 @@ import VueVideoPlayer from 'vue-video-player'
 import VueObserveVisibility from 'vue-observe-visibility'
 import VueLazyload from 'vue-lazyload'
 
-
 // Our Event bus 
 window.EventBus = new Vue()
+
+require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
 
 // mount with global 
 Vue.use(VueLazyload)

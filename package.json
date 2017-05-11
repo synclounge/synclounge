@@ -33,6 +33,7 @@
     "sweet-modal-vue": "^1.0.2",
     "v-tooltip": "^1.1.6",
     "video.js": "^5.19.1",
+    "videojs-contrib-hls": "^5.5.2",
     "videojs-resolution-switcher": "^0.4.2",
     "videojs-settings-menu": "0.0.2",
     "vue": "^2.0.1",

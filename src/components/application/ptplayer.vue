@@ -419,7 +419,7 @@ export default {
                 this.stopUrl = that.generateTranscodeStopUrl({
                     "session":session
                 })
-                this.type = 'video/mp4'
+                this.type = 'application/x-mpegURL'
             }
             let qualities = [
                 new qualityTemplate('64 Kbps','220x128',64,10),
@@ -517,7 +517,7 @@ export default {
                 'X-Plex-Client-Identifier': 'PLEXTOGETHERWEB',
                 'X-Plex-Platform':this.browser,
                 'X-Plex-Platform-Version':'57.0',
-                'X-Plex-Devices': 'Windows',
+                'X-Plex-Device': 'Windows',
                 'X-Plex-Device-Screen-Resolution': window.screen.availWidth+'x'+window.screen.availHeight,
                 'X-Plex-Token': this.chosenServer.accessToken,
             }         
@@ -558,7 +558,7 @@ export default {
                 path: this.playingMetadata.key,
                 mediaIndex: this.chosenMediaIndex,
                 partIndex: 0,
-                protocol: 'http',
+                protocol: 'hls',
                 fastSeek: 1,
                 directPlay: 0,
                 directStream: 0,

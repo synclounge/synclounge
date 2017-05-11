@@ -29,6 +29,7 @@
 <script>
   var request = require('request')
   require('videojs-settings-menu')
+
   export default {
     props: ['server','metadata','initialOffset','src','initUrl','stopUrl','params','sources'],
     created(){
@@ -196,7 +197,6 @@
             preload:'auto',
             volume: 0.2,
             autoplay: true,
-            playbackRates: [0.7, 1.0, 1.5, 2.0],
             poster: this.metadataImage,
             width: '100%',
             language: 'en',
