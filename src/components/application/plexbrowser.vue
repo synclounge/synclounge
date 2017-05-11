@@ -24,7 +24,7 @@
                     </div>
                 </v-card>
             </div>            
-            <div v-if="filteredShows.length > 0" class="row"> 
+            <div v-if="filteredShows.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)"> 
                 <h3> TV Shows ({{filteredShows.length}}) </h3>
                 <v-card v-on:click.native="setContent(content)" v-for="content in filteredShows"  class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh">
                     <div style="height:100%;bottom:0">
@@ -39,7 +39,7 @@
                     </div>
                 </v-card>
             </div>
-            <div v-if="filteredSeasons.length > 0" class="row"> 
+            <div v-if="filteredSeasons.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)"> 
                 <h3> Seasons ({{filteredSeasons.length}})</h3>
                 <v-card v-on:click.native="setContent(content)" v-for="content in filteredSeasons"  class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh">
                     <div style="height:100%;bottom:0">
@@ -54,7 +54,7 @@
                     </div>
                 </v-card>
             </div>            
-            <div v-if="filteredEpisodes.length > 0" class="row"> 
+            <div v-if="filteredEpisodes.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)"> 
                 <h3> Episodes ({{filteredEpisodes.length}})</h3>
                 <v-card v-on:click.native="setContent(content)" v-for="content in filteredEpisodes"  class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh">
                     <div style="height:100%;bottom:0">
