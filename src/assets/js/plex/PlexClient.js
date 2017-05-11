@@ -69,12 +69,10 @@ module.exports = function PlexClient(){
                     callback(resultData, 0, 200, 'PTPLAYER')
                 }
             }
-            console.log('Sending our client the command ' + data.command)
             that.eventbus.$emit('command', data)
 
 
         } else {
-            console.log('Interacting with a standard client')
             if ( (new Date().getTime() - this.lastSubscribe) > 29000 ) {
                 // We need to subscribe first!
                 this.subscribe(function(result){

@@ -2,14 +2,12 @@
     <div style="height:100%; width:100%; overflow-y:auto; padding:1%" class="row">
         <div v-if="!selectedItem && !browsingServer">
             <h2 class="col l12"> Search </h2>
-                <div v-if="!browsingContent" class="input-field col l12 ">
-                    <input v-model="searchWord" style="width:20%" id="search" type="text">
+                <div v-if="!browsingContent" class="input-field col l12 valign-wrapper">
+                    <input class="valign" v-model="searchWord" style="width:20%" id="search" type="text">      
+                    <v-progress-circular class="valign"  v-if="searching && serversResponded != plex.servers.length" small active></v-progress-circular>            
                     <label for="search">Keyword</label>
                 </div>
-                <div v-if="searchStatus == 'Searching..'">
-                    <v-progress-circular small active></v-progress-circular>
-                </div>
-                <div v-if="results && results.length > 0 && !selectedItem" style="margin-top:10%" class="row">
+                <div v-if="results && results.length > 0 && !selectedItem" class="row">
                     <div v-if="filteredMovies.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)"> 
                         <h3> Movies ({{filteredMovies.length}}) </h3>
                         <v-card v-on:click.native="setContent(content)" v-for="content in filteredMovies"  class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:20vh">
@@ -147,12 +145,14 @@ export default {
         },
         searchAllServers: _.debounce(
             function () {
-                this.searchStatus = 'Searching..'
+                this.searching = true
                 var vm = this
                 this.results = []
+                this.serversResponded = 0
                 for (let i = 0; i < this.plex.servers.length; i++){
                     let server = this.plex.servers[i]
                     server.search(this.searchWord,(serverSearchResults) => {
+                        this.serversResponded++
                         console.log(serverSearchResults)
                         if (serverSearchResults){
                             for (let j = 0; j < serverSearchResults.length; j++){
@@ -174,7 +174,8 @@ export default {
 
           results: [],
           searchWord: '',
-          searchStatus: ''
+          searchStatus: '',
+          searching: false
       }
     },
     watch: {
