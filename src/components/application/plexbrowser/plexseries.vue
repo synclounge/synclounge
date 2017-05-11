@@ -1,11 +1,11 @@
 <template>
     <div>
         <div v-if="contents && !browsingContent">                
-            <v-card class="blue-grey darken-1 col l12 s12" style="height:100%;box-shadow:none">
+            <v-card class="blue-grey darken-1 col l12 s12" style="box-shadow:none">
                 <div class="white-text row">
-                    <img :src="getThumb(content)" style="height:100%" class="col s6 l2"/>
-                    <div class="col l9 s6">
-                        <h2 class="card-title truncate">{{ content.title }}</h2>
+                    <img :src="getArt(content)" style="height:100%" class="col s12 l4"/>
+                    <div class="col l8 s12">
+                        <h2 class="card-title">{{ content.title }}</h2>
                         <label> {{ content.leafCount }} episodes since {{ content.year }} </label>
                         <p> {{ content.summary }} </p>
                     </div>
@@ -14,12 +14,12 @@
             <div class="divider"></div>
             <h2> Seasons </h2>
             <div v-for="content in contents.MediaContainer.Metadata">
-                <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none">
+                <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l2 s6 hoverable" style="box-shadow:none">
                     <div class="white-text">
                         <img :src="getThumb(content)" style="width:100%"/>
-                        <span style="font-size: .7vw;" class="card-title truncate">{{ content.title }}</span>
+                        <span style="font-size: 2vh;" class="card-title">{{ content.title }}</span>
                         <div> 
-                            <label style="font-size: .7vw;"> {{ content.leafCount }} episodes </label> 
+                            <label style="font-size: 1.5vh;"> {{ content.leafCount }} episodes </label> 
                         </div>
                     </div>
                 </v-card>
@@ -80,6 +80,11 @@ import plexseason from './plexseason.vue'
             var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
             var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
             return this.server.getUrlForLibraryLoc(object.thumb,w/12, h/4)
+        },
+        getArt(object){
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+            return this.server.getUrlForLibraryLoc(object.art,w/3, h/2)
         }
 
         

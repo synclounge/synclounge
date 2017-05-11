@@ -1,7 +1,7 @@
 <template>
-    <li v-if="object" class="mdc-list-item avatar ptuser mainUser" style="height: 100%; margin-bottom: 1%;">
-        <span class="mdc-list-item__start-detail" style="height:50px; width: 50px">
-            <img v-bind:src="object.avatarUrl" class="circle plex-gamboge-border" style="height: 54px; width: 54px">
+    <li v-if="object" class="mdc-list-item avatar ptuser mainUser" style="height: 100%; margin-bottom: 1%; overflow-y:hidden">
+        <span class="mdc-list-item__start-detail" style="height:3em; width: 3em">
+            <img v-bind:src="object.avatarUrl" class="circle plex-gamboge-border" style="height:3em; width: 3em">
         </span>
         <span class="mdc-list-item__text" style="width: 89%; line-height: 1.2">
             <span class="mdc-list-item__text__primary">

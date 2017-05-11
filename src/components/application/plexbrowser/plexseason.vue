@@ -3,11 +3,11 @@
         <div v-if="contents && !browsingContent">            
             <v-card class="blue-grey darken-1 col l12 s12 hoverable" style="height:100%;box-shadow:none">
                 <div class="white-text row">
-                    <img :src="getThumb(content)" style="height:100%" class="col s6 l2"/>
-                    <div class="col l10 s6">
-                        <h1> {{ content.parentTitle }}</h1>
-                        <h2 class="card-title truncate">{{ content.title }}</h2>
-                        <label> {{ content.leafCount }} episodes </label>
+                    <img :src="getThumb(content)" style="height:100%" class="col s12 l2"/>
+                    <div class="col l10 s12">
+                        <h1 style="font-size: 3vh;"> {{ content.parentTitle }}</h1>
+                        <h2 style="font-size: 2vh;" class="card-title truncate">{{ content.title }}</h2>
+                        <label  style="font-size: 2vh;"> {{ content.leafCount }} episodes </label>
                         <p> {{ content.summary }} </p>
                     </div>
                 </div>
@@ -15,13 +15,13 @@
             <div class="divider"></div>
             <h2> Episodes </h2>
             <div v-for="content in contents.MediaContainer.Metadata">
-                <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l2 s6 hoverable" style="box-shadow:none">
+                <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l2 s12 hoverable" style="box-shadow:none">
                     <div class="white-text">
                         <img :src="getThumb(content)" style="width:100%"/>
-                        <span style="font-size: .5vw;" class="card-title truncate">                        
+                        <span style="font-size: 1vh;" class="card-title truncate">                        
                             {{ content.title }} 
                         </span>                        
-                        <span style="font-size: .4vw;" class="card-title truncate">                        
+                        <span style="font-size: 1vh;" class="card-title truncate">                        
                             Episode {{ content.index }} 
                         </span>
                     </div>

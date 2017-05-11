@@ -1,25 +1,24 @@
 <template>
     <div>
         <div v-if="contents && !browsingContent">                
-            <v-card class="blue-grey darken-1 col l12 s12" style="height:100%; ;box-shadow:none">
+            <v-card class="blue-grey darken-1 col l12 s12" style="height:100%;box-shadow:none">
                 <div class="white-text row">
-                    <img :src="getThumb(content)" style="height:100%" class="col s6 l3"/>
-                    <div class="col l9 s6" style="padding-left:1%">
+                    <img :src="getThumb(content)" style="height:100%" class="col s12 l3"/>
+                    <div class="col l9 s12">
                         <div v-if="content.type == 'episode'">
-                            <div style="font-size: 1vw;"> {{ content.grandparentTitle }} </div>                         
-                            <label style="font-size: .5vw"> Season {{ content.parentIndex }} Episode {{ content.index }} </label>
-                            <label> - {{ largestRes }}p </label>
-                            <div style="font-size: .8vw">{{ content.title }}</div>    
-                            <p> {{ content.summary }} </p>
+                            <div style="font-size: 3vh;"> {{ content.grandparentTitle }} </div>                         
+                            <label style="font-size: 2vh"> Season {{ content.parentIndex }} Episode {{ content.index }} </label>
+                            <div style="font-size: 2vh; font-style:italic">{{ content.title }}</div>    
+                            <p style="font-size: 1.5vh"> {{ content.summary }} </p>
                         </div>
                         <div v-if="content.type == 'movie'">
-                            <div  style="font-size: 1vw;" class="card-title truncate">{{ content.title }}</div>
-                            <div> {{ content.year }} </div>                            
-                            <label> {{ largestRes }}p </label>
-                            <p> {{ content.summary }} </p>
+                            <div style="font-size: 3vh">{{ content.title }}</div>
+                            <div style="font-size: 2vh"> {{ content.year }} </div>            
+                            <p style="font-size: 1.5vh"> {{ content.summary }} </p>
                         </div>     
                         <div>       
-                            <button v-on:click="playMedia(content)" style="background-color: #E5A00D" class="waves-effect waves-light btn">Play</button>   
+                            <button v-on:click="playMedia(content)" id="play" style="background-color: #E5A00D" class="waves-effect waves-light btn">Play</button>
+                            <label for="play"> {{ largestRes }}p </label>   
                         </div>         
                     </div>                    
                 </div>                

@@ -2,12 +2,9 @@
     <div>
         <div v-if="!browsingLibrary" class="row"> 
             <h2 class="col l4">{{ library.title }}</h2>            
-            <div v-if="!browsingContent" class="input-field col l4 offset-l4">
-                <v-text-area name="ta"
-                        id="ta"
-                        v-model="searchPhrase"
-                ></v-text-area>
-                <label for="ta">Search</label>
+            <div v-if="!browsingContent" class="input-field col l2 offset-l6 valign">
+                <input  v-model="searchPhrase" id="search" type="text">      
+                <label for="search">Search</label>
             </div>
         </div>
         <div v-if="contents && !browsingContent" >

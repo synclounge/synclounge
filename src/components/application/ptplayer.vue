@@ -518,7 +518,7 @@ export default {
                 'X-Plex-Platform':this.browser,
                 'X-Plex-Platform-Version':'57.0',
                 'X-Plex-Devices': 'Windows',
-                'X-Plex-Device-Screen-Resolution':'2560x1440',
+                'X-Plex-Device-Screen-Resolution': window.screen.availWidth+'x'+window.screen.availHeight,
                 'X-Plex-Token': this.chosenServer.accessToken,
             }         
             for (let key in overrideparams) {
@@ -549,6 +549,10 @@ export default {
             return url
         },
         getBaseParams(overrideparams){
+            let location = 'remote'
+            if (this.plex.getServerById(this.playingMetadata.machineIdentifier).publicAddressMatches == '1'){
+                location = 'lan'
+            }
             let params = {
                 hasMDE: 1,
                 path: this.playingMetadata.key,
@@ -560,7 +564,7 @@ export default {
                 directStream: 0,
                 subtitleSize: 100,
                 audioBoost: 100,
-                location: 'lan',
+                location: location,
                 session: this.sessionId,
                 offset: Math.round(this.playertime / 1000),
                 subtitles: 'burn',
@@ -573,9 +577,9 @@ export default {
                 'X-Plex-Client-Identifier': 'PLEXTOGETHERPLAYER',
                 'X-Plex-Platform':this.browser,
                 'X-Plex-Platform-Version':'57.0',
-                'X-Plex-Device': 'Windows',
+                'X-Plex-Device': 'iOS',
                 'X-Plex-Device-Name': 'PlexTogetherPlayer',
-                'X-Plex-Device-Screen-Resolution':'2560x1440',
+                'X-Plex-Device-Screen-Resolution': window.screen.availWidth+'x'+window.screen.availHeight,
                 'X-Plex-Token': this.chosenServer.accessToken,
             }         
             for (let key in overrideparams) {
@@ -604,7 +608,7 @@ export default {
                     'X-Plex-Platform-Version':'57.0',
                     'X-Plex-Device': 'Windows',
                     'X-Plex-Device-Name': 'PlexTogetherPlayer',
-                    'X-Plex-Device-Screen-Resolution':'2560x1440,2560x1440',
+                    'X-Plex-Device-Screen-Resolution':window.screen.availWidth+'x'+window.screen.availHeight,
                     'X-Plex-Token': that.chosenServer.accessToken,
 
                 }              
