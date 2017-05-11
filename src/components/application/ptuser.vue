@@ -50,7 +50,11 @@ export default {
             return 'none'
         },
         percent: function(){
-            return (parseInt(this.object.time) / parseInt(this.object.maxTime))*100 + '%'
+            let perc = (parseInt(this.object.time) / parseInt(this.object.maxTime))*100
+            if (isNaN(perc)){
+                perc = 0
+            }
+            return perc + '%'
         },
         getCurrent: function(){
             if (isNaN(this.object.time)){
