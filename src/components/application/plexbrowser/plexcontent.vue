@@ -94,7 +94,7 @@ import plexcontent from './plexcontent.vue'
             console.log('Getting url for thumb ' + object.thumb)
             var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
             var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-            return this.server.getUrlForLibraryLoc(object.thumb,w/12, h/4)
+            return this.server.getUrlForLibraryLoc(object.thumb,w/3, h/1)
         },
         playMedia(content){
             console.log('Attempting to play')
