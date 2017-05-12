@@ -1,26 +1,26 @@
 <p align="center"><img src ="https://plextogether.com/img/new/logo-long-dark.png" /></p>
 
-Plex Together is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations. 
+Plex Together is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
 
-Utilising [Vue.js](https://vuejs.org/) and Webpack, Plex Together has been rewritten and brought to the browser. While we run a live version available at [plextogether.com](http://app.plextogether.com), the project can be built and deployed completely seperate from plextogether.com. We also provide a handful of public Plex Together Server instances that everyone is free to use. 
+Utilising [Vue.js](https://vuejs.org/) and Webpack, Plex Together has been rewritten and brought to the browser. While we run a live version available at [plextogether.com](http://app.plextogether.com), the project can be built and deployed completely seperate from plextogether.com. We also provide a handful of public Plex Together Server instances that everyone is free to use.
 
 [Live version](http://app.plextogether.com)
 
 
 ## How it works
-Plex Together aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this Plex Together utilizes a middle-man server to communicate between each of Plex Together clients. Users choose their Plex client, decide on a Plex Together Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host. 
+Plex Together aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this Plex Together utilizes a middle-man server to communicate between each of Plex Together clients. Users choose their Plex client, decide on a Plex Together Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
 
 The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, Plex Together will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.  
 
 ## Features
 * Syncing between Plex Clients over the Internet
 * Settings to tune Plex Together to your environment
-	* Client Polling Interval - Sets how frequently Plex Together will poll the client for new information. 
+	* Client Polling Interval - Sets how frequently Plex Together will poll the client for new information.
 	* Sync Flexability - Sets the acceptable distance away from the host in milliseconds.
 	* Sync method:
 		* Clean seek - Seeks straight to where the host is.
 		* Skip ahead - Seeks 10 seconds ahead, pauses and then resumes 10 seconds later.
-* Autoplay content 
+* Autoplay content
 	* Plex Together will automatically search all of your available Plex Media Servers for content that is similar to the Host.
 * Metadata fetching from Plex Media Server
 * Chat to others in your room
@@ -47,7 +47,7 @@ The host has complete control over a room. Commands they send to their client wi
 	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
 * _Speaking of SSL, why isn't the site served over HTTPS?_
- 	* While we would love to run the Plex Together application over HTTPS, doing so forces modern browsers in to blocking all HTTP connections. This effectively stops all communication with Plex Clients which are all HTTP. 
+ 	* While we would love to run the Plex Together application over HTTPS, doing so forces modern browsers in to blocking all HTTP connections. This effectively stops all communication with Plex Clients which are all HTTP.
 ## Screenshots
 
 Head to the [website](http://plextogether.com/screenshots)
@@ -59,7 +59,7 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 ### Supported
 
 #### Computer
-* Plex Media Player 
+* Plex Media Player
 * Plex Home Theater
 * OpenPHT
 
@@ -74,12 +74,12 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 
 ### Tested and Unsupported
 * Plex Web Player (Chrome/Safari/Firefox)
-	* Relies on a local Plex Media Server to proxy commands. May work if you have a local PMS instance but issues may arise. 
-	
-### Untested 
+	* Relies on a local Plex Media Server to proxy commands. May work if you have a local PMS instance but issues may arise.
+
+### Untested
 
 #### Computer
-* Windows 10 App 
+* Windows 10 App
 * Kodi
 
 #### Streaming Devices
@@ -100,15 +100,31 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 * Windows Phone
 
 ## Contributing
-Please use the Issue tracker here on Github for Issues & Feature requests. We'll gladly merge Pull requests if you're keen to get hands on with the development. 
+Please use the Issue tracker here on Github for Issues & Feature requests. We'll gladly merge Pull requests if you're keen to get hands on with the development.
 
 
 ## Building and deploying
 
+### Docker
+This is the official Docker container for PlexTogether: https://hub.docker.com/r/starbix/plextogether
+
+The following tags are available:
+* latest / alpine: webapp and server based on alpine
+* debian: webapp and server based on alpine
+* server: only server based on alpine
+* dev: development version of webapp and server based on alpine
+```
+docker create \
+  --name=plextogether \
+	-p 8088:8088 \
+	-p 8089:8089 \
+  starbix/plextogether
+```
+
 ### Building and running the webapp:
 
 * Make sure you have Node v6+ installed
- 
+
 	*  ``git clone https://github.com/samcm/plextogether``
 	*  ``cd plextogether``
 	*  ``npm install``
@@ -116,14 +132,14 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 	*  Change the accessIp variable in webapp.js to the address users will be using to access PT (used for invite links)
 	*  ``npm run webapp``
 * The PT web app will be running at http://ip:8088/ptweb.
-	
+
 
 ### Running the server:
 
 * Make sure you have Node v6+ installed
- 
+
 	*  ``git clone https://github.com/samcm/plextogether``
-	*  ``cd plextogether``	
+	*  ``cd plextogether``
 	*  ``cd server``
 	*  ``npm install``
 	*  ``npm run server``
@@ -161,12 +177,12 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 You need:
 
 * Node v6+
- 
+
 	*  ``git clone https://github.com/samcm/plextogether``
 	*  ``cd plextogether``
 	*  ``npm install``
 	*  ``npm run dev``
-* Once Webpack has finished compiling, navigate to http://localhost:8080 in your web browser. 
+* Once Webpack has finished compiling, navigate to http://localhost:8080 in your web browser.
 	* Hot reload is enabled
 	* Suggested to install [Vue.js Devtools](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en)
 
