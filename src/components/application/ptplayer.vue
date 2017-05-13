@@ -564,7 +564,7 @@ export default {
                 'X-Plex-Client-Identifier': 'PLEXTOGETHERPLAYER',
                 'X-Plex-Platform':'Web',
                 'X-Plex-Platform-Version':'57.0',
-                'X-Plex-Device': 'Andriod',
+                'X-Plex-Device': 'Android',
                 'X-Plex-Device-Name': 'PlexTogether Player',
                 'X-Plex-Device-Screen-Resolution': window.screen.availWidth+'x'+window.screen.availHeight,
                 'X-Plex-Token': this.chosenServer.accessToken,

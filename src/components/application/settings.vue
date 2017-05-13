@@ -24,7 +24,7 @@
 
         <div class="row" style="margin-bottom: 0;">
             <div class="col l5 s12">
-                <h4 style="padding-bottom: 10px"><i class="material-icons" title="Sets the acceptable distance away from the host in milliseconds. Syncs below 1500ms may be hard to achieve. Default is 3000ms(3 seconds).">info_outline</i> Sync Flexability </h4>
+                <h4 style="padding-bottom: 10px"><i class="material-icons" title="Sets the acceptable distance away from the host in milliseconds. Syncs below 1500ms may be hard to achieve. Default is 3000ms(3 seconds).">info_outline</i> Sync Flexibility </h4>
             </div>
             <div class="col l4 s12">
                 <form action="#" style="margin-top: -15px">
