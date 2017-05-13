@@ -49,6 +49,7 @@
         bufferedTill: 0,
 
         decisionResult: null,
+        blockedSpeedChanges: false,
         ticker: null,
       }
     },
@@ -106,7 +107,9 @@
             }
             let oldVolume = that.player.volume()
             console.log('Player checks passed')
-            if (seekTo > that.lastTime){
+            let lastPlayerSpeed = that.player.currentTime()
+            let lastPlayerTime = that.player.currentTime() * 1000
+            if (Math.abs(seekTo - that.lastTime) < 10000 && !that.blockedSpeedChanges){
                 console.log('Seeking via the speed up method')
                 let clicker = setInterval(function(){
                     if (that.isPlaying == 'paused' || that.isPlaying == 'buffering'){
@@ -118,16 +121,25 @@
                         return
                     }
                     console.log('Playback rate: ' + that.player.playbackRate())
-                    if (that.isPlaying == 'paused'){
+                    if (lastPlayerSpeed == that.player.playbackRate()){
+                        // Our played doesnt want to change it speed, lets swap to clean seek
+                        console.log('Failed seek attempt - swapping to clean seek')
+                        that.blockedSpeedChanges = true
+                        data.callback(false)
+                        return clearInterval(clicker)
+                    }
+                    if (that.isPlaying == 'paused' || (lastPlayerTime == that.player.currentTime() * 1000)){
+                        console.log('Skipping this iteration because our player state is ' + that.isPlaying + ' or lastPlayerTime is equal to the current player time')
                         return
                     }
+                    lastPlayerTime = that.player.currentTime * 1000
                     let slidingTime = seekTo+(25*iterations)
                     let current = Math.round(that.player.currentTime() * 1000)
                     let difference = Math.abs(current - (slidingTime))
                     if (current < slidingTime){
                         // Speed up
                         playbackSpeed = playbackSpeed + 0.025
-                        if (that.player.playbackRate() < 3.0){
+                        if (that.player.playbackRate() < 1.3){
                             that.player.playbackRate(playbackSpeed)
                         }
                     }
@@ -147,27 +159,18 @@
                         clearInterval(clicker)
                         return
                     }
+                    lastPlayerSpeed = that.player.currentTime()
                 },25)
             } else {
+
+
                 if (!that.player || !that.player.currentTime()){
                     data.callback(false)
                 }
-                let bufferStart = that.player.buffered().start(0)
-                let bufferEnd = that.player.buffered().end(0)
-                if ( seekTo > bufferStart && seekTo < bufferEnd){
-                    console.log('Seeking to within the buffered range')
-                    that.player.currentTime(seekTo / 1000)
-                    return callback(true)
-                }
-                console.log('Unable to seek to that point in time - not within the buffer and is backwards')
-                return data.callback(false)
-            }
-            
-
+                that.player.currentTime(seekTo / 1000)
+                return data.callback(true)
+            }           
         })
-
-
-
     },
     beforeDestroy(){
         clearInterval(this.ticker)
@@ -197,7 +200,6 @@
             preload:'auto',
             volume: 0.2,
             autoplay: true,
-            poster: this.metadataImage,
             width: '100%',
             language: 'en',
             sources: [

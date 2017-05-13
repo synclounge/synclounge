@@ -131,26 +131,13 @@ export default {
             }
             if (data.command == '/player/playback/seekTo'){
                 console.log('Recieved a seek')
-                if (Math.abs(that.playertime - data.params.offset ) > 10000 || that.playerTime > data.params.offset){
-                    console.log('Jump seeking')
-                    that.playertime = data.params.offset
-                    that.changedPlaying(false)
-                    let checker = setInterval(function(){
-                        console.log('Waiting for the player to start before returning seek result')
-                        if (that.playerstatus == 'playing'){
-                            clearInterval(checker)
-                            return data.callback(true)
-                        }
-                    },1000)
-                } else {
-                    that.eventbus.$emit('player-seek', {
-                        time: data.params.offset,
-                        callback: function(res){
-                            console.log('Player reported a seek result of ' + res)
-                            data.callback(res)
-                        }
-                    })
-                }
+                that.eventbus.$emit('player-seek', {
+                    time: data.params.offset,
+                    callback: function(res){
+                        console.log('Player reported a seek result of ' + res)
+                        data.callback(res)
+                    }
+                })
                 return
             }
             if (data.command == '/player/playback/playMedia'){
@@ -549,7 +536,7 @@ export default {
             return url
         },
         getBaseParams(overrideparams){
-            let location = 'remote'
+            let location = 'wan'
             if (this.plex.getServerById(this.playingMetadata.machineIdentifier).publicAddressMatches == '1'){
                 location = 'lan'
             }
@@ -575,10 +562,10 @@ export default {
                 'X-Plex-Product': 'PlexTogether',
                 'X-Plex-Version': '3.4.1',
                 'X-Plex-Client-Identifier': 'PLEXTOGETHERPLAYER',
-                'X-Plex-Platform':this.browser,
+                'X-Plex-Platform':'Web',
                 'X-Plex-Platform-Version':'57.0',
-                'X-Plex-Device': 'iOS',
-                'X-Plex-Device-Name': 'PlexTogetherPlayer',
+                'X-Plex-Device': 'Andriod',
+                'X-Plex-Device-Name': 'PlexTogether Player',
                 'X-Plex-Device-Screen-Resolution': window.screen.availWidth+'x'+window.screen.availHeight,
                 'X-Plex-Token': this.chosenServer.accessToken,
             }         
