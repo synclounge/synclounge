@@ -68,9 +68,6 @@ export default {
   },
   computed: {
       logo: function(){
-        if (this.$store.getters.getSettingDARKMODE){
-          return 'static/logo-long-light.png'
-        }
         return 'static/logo-long-dark.png'
       },
       firstRun: function(){

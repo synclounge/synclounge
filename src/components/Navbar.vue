@@ -11,7 +11,7 @@
                         <i class="material-icons navDropdown right plex-shuttlegray-text" style="opacity: 0.6;margin-top: 39px;margin-left: -17px;margin-right: -7px;">arrow_drop_down</i> 
                     </div>
                 </div>
-                <ul id="dropdown1" class="dropdown-content plex-riverbed" style="width: 229px; top: 68px; left: 5px; position: absolute; opacity: 1; display: none; padding: 0">
+                <ul id="dropdown1" class="dropdown-content" style="width: 229px; top: 68px; left: 5px; position: absolute; opacity: 1; display: none; padding: 0">
                     <li v-on:click="openSettings()" class="preferences"><a>Preferences</a></li>
                     <li v-on:click="refreshPlexDevices()" class="preferences"><a>Refresh Plex Devices</a></li>
                     <hr style="border-color: rgba(0,0,0,0.1); width: 90%">      
@@ -42,36 +42,14 @@
               <li v-if="showLinkShortener && chosenClient">
                 <v-btn style="background-color: #E5A00D" class="waves-effect waves-light btn" v-on:click.native="$dialog('Copied link')" v-clipboard="shortUrl">Invite</v-btn>
               </li>
-              <li class="right">
-                <div class="nav navbar-nav right">
-                  <div class="switch">
-                    <label>
-                      Dark mode
-                      <input v-model="darkMode" type="checkbox">
-                      <span style="background-color:#818181 !important;" class="lever"></span>
-                    </label>
-                  </div>
-                </div>
-              </li>
             </ul>            
         </div>
     </div>        
-    <div v-if="darkMode">
+    <div v-if="!darkMode">
       <sweet-modal ref="settingsModal" overlay-theme="dark" modal-theme="dark">
           <settings></settings>           
       </sweet-modal>
       <sweet-modal ref="statisticsModal" overlay-theme="dark" modal-theme="dark">
-          <statistics></statistics>             
-      </sweet-modal>      
-      <sweet-modal ref="inviteSuccess" icon="success" overlay-theme="dark" modal-theme="dark">
-        This is a success!
-      </sweet-modal>
-    </div>
-    <div v-if="!darkMode">
-      <sweet-modal ref="settingsModal" overlay-theme="light" modal-theme="light">
-          <settings></settings>           
-      </sweet-modal>
-      <sweet-modal ref="statisticsModal" overlay-theme="light" modal-theme="light">
           <statistics></statistics>             
       </sweet-modal>    
     </div>
@@ -118,10 +96,7 @@ var ip = require('ip');
         return this.$store.state.plex.user.thumb
       },
       logo: function(){
-        if (this.$store.getters.getSettingDARKMODE){
-          return 'static/logo-small-light.png'
-        }
-        return 'static/logo-small-dark.png'
+        return 'static/logo-small-light.png'
       },
       isPlayer: function(){
         console.log('Router path is ' + this.$route.path)
@@ -149,23 +124,12 @@ var ip = require('ip');
         console.log('Short url calc done below')
         console.log(this.$store.getters.getShortLink)
         return this.$store.getters.getShortLink
-      },
-      darkMode: {
-          get () {
-              return this.$store.getters.getSettingDARKMODE
-          },
-          set (value) {
-            this.$store.commit('setSettingDARKMODE',value)
-          }
-      },      
+      },     
       firstRun: function(){
           return !this.$store.getters.getSettingHOMEINIT
       }
     },
     methods: {
-      setDarkMode: function (){
-        return this.$store.commit('setSettingDARKMODE',!this.$store.getters.getSettingDARKMODE)
-      },
       openSettings: function(){
         return this.$refs.settingsModal.open()
       },

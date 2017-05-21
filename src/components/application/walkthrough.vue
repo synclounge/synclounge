@@ -43,7 +43,7 @@
                     <div class="mdc-list-item mdc-permanent-drawer--selected plex-gamboge-text" href="#">
                         Selected Player
                     </div>    
-                    <h2 style="margin-top: 0; margin-bottom: 5px">{{ testClient.name }}</h2>                      
+                    <h3 style="margin-top: 0; margin-bottom: 5px">{{ testClient.name }}</h3>                      
                     <div>    
                         <label>Last seen</label><span>  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
                     </div>                   
@@ -128,10 +128,7 @@ export default {
             return this.$store
         },
         logo: function(){
-            if (this.$store.getters.getSettingDARKMODE){
             return 'static/logo-long-light.png'
-            }
-            return 'static/logo-long-dark.png'
         },       
         playercount: function(){
             if (this.$store.state.plex && this.$store.state.plex.gotDevices){

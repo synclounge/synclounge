@@ -1,5 +1,5 @@
 <template>
-	<div class="main-body mdc-typography" style="height: calc(100% - 64px);overflow-y:auto">
+	<div class="main-body mdc-typography" style="height: calc(100% - 64px);overflow-y:hidden">
       <div class="nav-wrapper hide-on-large-only"><a id="logo-container" href="#" class="brand-logo"></a>
         <ul id="nav-mobile" class="side-nav" style="height: 100%">
           <sidebar :mobile="true"></sidebar>
@@ -30,27 +30,27 @@
                       <div class="mdc-permanent-drawer__toolbar-spacer">
                           <div class="row" style="width: 100%;">
                               <div class="col l8  left-align truncate">
-                                  <div id="plexTogetherRoomNameChat" style="font-size:1.5vh">#{{ ptRoom }}</div>                           
+                                  <div id="plexTogetherRoomNameChat" style="font-size:1.5vh">#{{ ptRoom }}</div>    
+                                  <label> {{ ptServer }}</label>                           
                               </div>                              
                               <div class="col l4  right-align truncate">
-                                   <div> {{ userCount }}</div>    
-                                  <label> {{ ptServer }}</label>                                    
+                                   <div> {{ userCount }}</div>
                               </div>
                           </div>
                       </div>                
-                      <div style="height: 60%;  overflow-y: scroll; border-top: 1px solid rgba(0, 0, 0, 0.12)">
+                      <div style="height: 60%;  overflow-y: scroll">
                         <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers" style="overflow-y: scroll">
                             <ptuser :object="user"></ptuser>
                         </ul>
                     </div>
-                      <div class="mdc-list-group" style="overflow-y: auto; height: calc(40% - 64px); top: 110px; border-top: 1px solid rgba(0, 0, 0, 0.12) ">
+                      <div class="mdc-list-group" style="overflow-y: auto; height: calc(40% - 64px); top: 110px; border-top: 1px solid 1px solid  rgba(240,245,255,0.15)">
                           <section>
                               <ul v-for="msg in messages" id="chatBox">
                                   <chatmessage :object="msg"></chatmessage>
                               </ul>
                           </section>
                       </div>      
-                      <div class="mdc-permanent-drawer__toolbar-spacer no-padding" style="border: 0">
+                      <div class="mdc-permanent-drawer__toolbar-spacer no-padding" style="border: 0; box-shadow: 10px 0px 10px 10px rgba(0, 0, 0, 0.12) !important">
                           <div class="channel-textarea">  
                               <div class="channel-textarea-inner">
                                   <div class="channel-textarea-upload">
@@ -71,7 +71,7 @@
             </sweet-modal>
         </div>        
         <div v-if="!darkMode">
-            <sweet-modal ref="joinroomModal" overlay-theme="light" modal-theme="light" >
+            <sweet-modal ref="joinroomModal" overlay-theme="dark" modal-theme="dark" >
                 <joinroom></joinroom>       
             </sweet-modal>
         </div>
