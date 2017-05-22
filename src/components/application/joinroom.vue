@@ -50,7 +50,7 @@
             </div>
 
             <div class="row" style="margin-bottom: 0;">
-                <div class="col s11">
+                <div class="col s12">
                     <div class="mdc-textfield mdc-textfield--upgraded" style="width: 100%">
                         <input v-on:keyup.enter="joinRoom()" v-model="room" id="ptRoom" type="text" class="mdc-textfield__input" style="margin-bottom: 0px;" autofocus>
                         <label class="mdc-textfield__label mdc-textfield__label--float-above plex-gamboge-text">
@@ -60,7 +60,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col s11">
+                <div class="col s12">
                     <div class="mdc-textfield mdc-textfield--upgraded" style="width: 100%">
                         <input v-on:keyup.enter="joinRoom()" v-model="password" id="ptRoomPassword" type="text" class="mdc-textfield__input" style="margin-bottom: 0px">
                         <label class="mdc-textfield__label mdc-textfield__label--float-above plex-gamboge-text">

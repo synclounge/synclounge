@@ -1,33 +1,36 @@
 <template>
-    <div>
-        <div v-if="contents && !browsingContent">                
-            <v-card class="blue-grey darken-1 col l12 s12" style="height:100%;box-shadow:none">
-                <div class="white-text row">
-                    <img :src="getThumb(content)" style="height:100%" class="col s12 l3"/>
-                    <div class="col l9 s12">
-                        <div v-if="content.type == 'episode'">
-                            <div style="font-size: 3vh;"> {{ content.grandparentTitle }} </div>                         
-                            <label style="font-size: 2vh"> Season {{ content.parentIndex }} Episode {{ content.index }} </label>
-                            <div style="font-size: 2vh; font-style:italic">{{ content.title }}</div>    
-                            <p style="font-size: 1.5vh"> {{ content.summary }} </p>
-                        </div>
-                        <div v-if="content.type == 'movie'">
-                            <div style="font-size: 3vh">{{ content.title }}</div>
-                            <div style="font-size: 2vh"> {{ content.year }} </div>            
-                            <p style="font-size: 1.5vh"> {{ content.summary }} </p>
-                        </div>     
-                        <div>       
-                            <button v-on:click="playMedia(content)" id="play" style="background-color: #E5A00D" class="waves-effect waves-light btn">Play</button>
-                            <label for="play"> {{ largestRes }}p </label>   
-                        </div>         
-                    </div>                    
-                </div>                
-            </v-card>       
+    <span>
+        <span  v-on:click="reset()">{{ title }}</span>
+        <div v-if="!browsingContent">
+            <div v-if="contents && !browsingContent">                
+                <v-card class="blue-grey darken-1 col l12 s12" style="height:100%;box-shadow:none">
+                    <div class="white-text row">
+                        <img :src="getThumb(content)" style="height:100%" class="col s12 l3"/>
+                        <div class="col l9 s12">
+                            <div v-if="content.type == 'episode'">
+                                <div style="font-size: 3vh;"> {{ content.grandparentTitle }} </div>                         
+                                <label style="font-size: 2vh"> Season {{ content.parentIndex }} Episode {{ content.index }} </label>
+                                <div style="font-size: 2vh; font-style:italic">{{ content.title }}</div>    
+                                <p style="font-size: 1.5vh"> {{ content.summary }} </p>
+                            </div>
+                            <div v-if="content.type == 'movie'">
+                                <div style="font-size: 3vh">{{ content.title }}</div>
+                                <div style="font-size: 2vh"> {{ content.year }} </div>            
+                                <p style="font-size: 1.5vh"> {{ content.summary }} </p>
+                            </div>     
+                            <div>       
+                                <button v-on:click="playMedia(content)" id="play" style="background-color: #E5A00D" class="waves-effect waves-light btn">Play</button>
+                                <label for="play"> {{ largestRes }}p </label>   
+                            </div>         
+                        </div>                    
+                    </div>                
+                </v-card>       
+            </div>
+            <div v-if="!contents && !browsingContent" class="center">
+                <v-progress-circular active large></v-progress-circular>
+            </div>
         </div>
-        <div v-if="!contents && !browsingContent" class="center">
-            <v-progress-circular active large></v-progress-circular>
-        </div>
-    </div>
+    </span>
 </template>
  
 <script>
@@ -83,6 +86,12 @@ import plexcontent from './plexcontent.vue'
       },
       plex(){
           return this.$store.getters.getPlex
+      },
+      title(){
+          if (this.content.type == 'episode'){
+              return 'Episode ' + this.content.index
+          } 
+          return this.content.title
       }
     },
     methods: {
@@ -100,6 +109,9 @@ import plexcontent from './plexcontent.vue'
             this.chosenClient.playMedia(this.content.ratingKey,this.server, function(result){
                 console.log('Auto play result: ' + result)
             })
+        },
+        reset(){
+            this.browsingContent = false
         }
 
         

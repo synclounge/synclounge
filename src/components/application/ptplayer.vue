@@ -436,6 +436,7 @@ export default {
             this.ready = false
             console.log('Changed what we are meant to be playing!')
             if (!this.chosenKey || !this.chosenServer){
+                this.playerstatus = 'stopped'
                 this.playerMetadata = null
                 return
             }
@@ -492,7 +493,7 @@ export default {
             for (let key in params) {
                 query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
             }
-            let url = this.chosenServer.chosenConnection.uri + '/video/:/transcode/universal/start?' + query 
+            let url = this.chosenServer.chosenConnection.uri + '/video/:/transcode/universal/start.m3u8?' + query 
             //console.log(url)
             return url
         },        
@@ -564,7 +565,7 @@ export default {
                 'X-Plex-Client-Identifier': 'PLEXTOGETHERPLAYER',
                 'X-Plex-Platform':'Web',
                 'X-Plex-Platform-Version':'57.0',
-                'X-Plex-Device': 'Android',
+                'X-Plex-Device': 'HTML TV App',
                 'X-Plex-Device-Name': 'PlexTogether Player',
                 'X-Plex-Device-Screen-Resolution': window.screen.availWidth+'x'+window.screen.availHeight,
                 'X-Plex-Token': this.chosenServer.accessToken,

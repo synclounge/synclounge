@@ -1,19 +1,19 @@
 <template>
-    <div>
-        <div v-if="!browsingLibrary" class="row"> 
-            <h2 class="col l4">{{ library.title }}</h2>            
-            <div v-if="!browsingContent" class="input-field col l2 offset-l6 valign">
-                <input  v-model="searchPhrase" id="search" type="text">      
-                <label for="search">Search</label>
+    <span >
+        <span v-on:click="reset()"> {{ library.title }} <span v-if="browsingContent"> > </span></span>   
+        <div v-if="!browsingContent" >
+            <div v-if="!browsingLibrary" class="row">          
+                <div v-if="!browsingContent" class="input-field col l2 offset-l10 valign">
+                    <input  v-model="searchPhrase" id="search" type="text">      
+                    <label for="search">Search</label>
+                </div>
             </div>
-        </div>
-        <div v-if="contents && !browsingContent" >
-            <div v-for="content in contents.MediaContainer.Metadata">
-                <v-card :style="isShown(content)" v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh">
+            <div v-if="contents && !browsingContent" class="row" style="height:100%;overflow-y:auto">
+                <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)" v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh">
                     <div style="height:100%;bottom:0">
                         <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
                         <div style="padding:3%; padding-left:1%; height:25%;">
-                            <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
+                            <span style="font-size: 1vh" class="card-title truncate">{{ content.title }}</span>
                             <div> 
                                 <label v-if="content.type == 'show'"> {{ content.childCount }} seasons </label> 
                                 <label v-if="content.type == 'movie'"> {{ content.year }}</label> 
@@ -21,17 +21,17 @@
                         </div>
                     </div>
                 </v-card>
-            </div>  
-        </div>           
-         <div class="col l12 center" v-if="contents && !browsingContent && !stopNewContent" >
+            </div>           
+            <div class="col l12 center" v-if="contents && !browsingContent && !stopNewContent">
                 Loading...
             </div>      
-        <div v-if="!contents && !browsingContent" class="center">
-            <v-progress-circular active large></v-progress-circular>
+            <div v-if="!contents && !browsingContent" class="center">
+                <v-progress-circular active large></v-progress-circular>
+            </div>
         </div>
         <plexcontent v-if="browsingContent && browsingContent.type != 'show'"  :content="browsingContent" :server="server" :library="library" ></plexcontent>
         <plexseries v-if="browsingContent && browsingContent.type == 'show'"  :content="browsingContent" :server="server" :library="library" ></plexseries>
-    </div>
+    </span>
 </template>
  
 <script>
@@ -81,6 +81,10 @@ var _ = require('lodash');
         }
     },
     computed: {
+    },
+    watch: {
+        browsingContent: function(){
+        }
     },
     methods: {
         setContent(content){
@@ -152,6 +156,9 @@ var _ = require('lodash');
                 that.busy = false
                 that.getMoreContent()
             })
+        },
+        reset(){
+            this.browsingContent = false
         }
 
         

@@ -12,7 +12,7 @@
                 </i>
             </span>
             <span class="mdc-list-item__text__secondary" id="metaDropdownDiv" >
-                <div class="progress" style="margin-bottom: 0">
+                <div class="progress" style="margin-bottom: 0;background-color: rgba(242, 243, 244, 0.11)">
                     <div class="determinate ptuser-percent" v-bind:style="{ width: percent }"></div>
                 </div>
                 <div>
@@ -77,7 +77,7 @@ export default {
         playerState: function(){
             if (this.object.playerState){
                 if (this.object.playerState == 'stopped'){
-                    return false
+                    return 'pause'
                 }
                 if (this.object.playerState == 'paused'){
                     return 'pause'

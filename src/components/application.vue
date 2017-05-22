@@ -25,34 +25,34 @@
 
               <!-- CHAT INTERFACE -->
 
-              <div v-if="ptConnected && chosenClient" class="col l3 s12 no-padding" id="plexTogetherChat" style="height: 100%; border-left: 1px solid rgba(0, 0, 0, 0.12)">
+              <div v-if="ptConnected && chosenClient" class="col l3 s12 no-padding" id="plexTogetherChat" style="height: 100%; border-left: 1px solid rgba(0, 0, 0, 0.12); z-index:1">
                  <div class="mdc-permanent-drawer chatInterface" style="height:100%">
-                      <div class="mdc-permanent-drawer__toolbar-spacer">
+                      <div class="mdc-permanent-drawer__toolbar" style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">
                           <div class="row" style="width: 100%;">
-                              <div class="col l8  left-align truncate">
-                                  <div id="plexTogetherRoomNameChat" style="font-size:1.5vh">#{{ ptRoom }}</div>    
-                                  <label> {{ ptServer }}</label>                           
+                              <div class="col l8 left-align truncate">
+                                  <h5 id="plexTogetherRoomNameChat">#{{ ptRoom }}</h5>        
+                                  <h5> {{ ptServer }} </h5>                       
                               </div>                              
-                              <div class="col l4  right-align truncate">
-                                   <div> {{ userCount }}</div>
+                              <div class="col l4 right-align truncate">
+                                   <h5> {{ userCount }} </h5>
                               </div>
                           </div>
                       </div>                
-                      <div style="height: 60%;  overflow-y: scroll">
+                      <div style="height: 60%;  overflow-y: scroll; border-bottom: 1px solid rgba(0, 0, 0, 0.8)">
                         <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers" style="overflow-y: scroll">
                             <ptuser :object="user"></ptuser>
                         </ul>
-                    </div>
-                      <div class="mdc-list-group" style="overflow-y: auto; height: calc(40% - 64px); top: 110px; border-top: 1px solid 1px solid  rgba(240,245,255,0.15)">
+                      </div>
+                      <div class="mdc-list-group" style="overflow-y: auto; height: calc(40% - 64px); top: 110px; border-top: 1px solid 1px solid  rgba(240,245,255,0.3)">
                           <section>
                               <ul v-for="msg in messages" id="chatBox">
                                   <chatmessage :object="msg"></chatmessage>
                               </ul>
                           </section>
                       </div>      
-                      <div class="mdc-permanent-drawer__toolbar-spacer no-padding" style="border: 0; box-shadow: 10px 0px 10px 10px rgba(0, 0, 0, 0.12) !important">
-                          <div class="channel-textarea">  
-                              <div class="channel-textarea-inner">
+                      <div class="mdc-permanent-drawer__toolbar no-padding" style="border: 0;">
+                          <div class="channel-textarea" style="margin:0;padding:0">  
+                              <div class="channel-textarea-inner" >
                                   <div class="channel-textarea-upload">
                                       <textarea rows="1" v-bind:placeholder="chatBoxMessage" style="height: auto; overflow-y: auto;" v-on:keyup.enter="sendMessage()" v-model="messageToBeSent"></textarea>
                                   </div>
