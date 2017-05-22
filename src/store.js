@@ -568,12 +568,15 @@ const plexTogether = {
                 }
                 if (hostTimeline.playerState == 'stopped' && ourTimeline.state != 'stopped'){
                   console.log('Pressing stop because the host did')
-                  rootState.chosenClient.pressStop(function(){
-
+                  rootState.chosenClient.pressStop(() => {
+                    state.decisionBlocked = false
                   })
                   return
                 }
 
+                if (hostTimeline.playerState == 'stopped'){
+                  return
+                }
                 // Check if we need to autoplay
                 if ((ourTimeline.state == 'stopped' || !ourTimeline.state) && (hostTimeline.playerState != 'stopped')){
                   if (rootState.blockAutoPlay){
