@@ -214,13 +214,6 @@
 
                     'flexibleWidthSpacer':{},
                     'progressControl':{},
-
-                    'settingsMenuButton': {
-                        entries : [
-                            'subtitlesButton',
-                            'playbackRateMenuButton'
-                        ]
-                    },
                     'timeDivider':{},
                     'liveDisplay':{},
                     'durationDisplay':{},

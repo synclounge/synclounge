@@ -17,12 +17,12 @@
                 <div class="divider"></div>
                 <h2> Seasons </h2>
                 <div v-for="content in contents.MediaContainer.Metadata">
-                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l2 s6 hoverable" style="box-shadow:none">
+                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s6 hoverable" style="box-shadow:none">
                         <div class="white-text">
                             <img :src="getThumb(content)" style="width:100%"/>
-                            <span style="font-size: 2vh;" class="card-title">{{ content.title }}</span>
+                            <span style="font-size: 1.3vh;" class="card-title">{{ content.title }}</span>
                             <div> 
-                                <label style="font-size: 1.5vh;"> {{ content.leafCount }} episodes </label> 
+                                <label style="font-size: 1vh;"> {{ content.leafCount }} episodes </label> 
                             </div>
                         </div>
                     </v-card>

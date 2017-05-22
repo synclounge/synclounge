@@ -221,6 +221,9 @@ const mutations = {
   },
   SET_BLOCKAUTOPLAY(state,value){
     state.blockAutoPlay = value
+  },    
+  SET_DECISIONBLOCKED(state,value){
+    state.decisionBlocked = value
   },  
   REFRESH_PLEXDEVICES(state){
     store.state.plex.getDevices(function(){
@@ -579,8 +582,10 @@ const plexTogether = {
                   }
                   // We need to autoplay!
                   rootState.blockAutoPlay = true
+                  state.decisionBlocked = true
                   rootState.plex.playContentAutomatically(rootState.chosenClient,hostTimeline, function(result){
                     console.log('Auto play result: ' + result)
+                    state.decisionBlocked = false
                     setTimeout(function(){
                       rootState.blockAutoPlay = false
                     },15000)
@@ -588,21 +593,6 @@ const plexTogether = {
                   return
                 }
                 let difference = Math.abs((parseInt(ourTimeline.time) + parseInt(timelineAge)) - parseInt(hostTimeline.time))
-
-
-                // If we are greater than 4 seconds from the host we want to seek to them
-                // We also want to try and 'predict' where we are and where the host is 
-                // taking in to condsideration the lag between 
-                /* 
-                -> Host to client
-                -> Host to PTServer
-                -> Us to client
-                -> Us to PTserver 
-                -> 500ms extra for the lag of Plex Clients
-
-
-
-                */
 
                 if (hostTimeline.playerState == 'playing' && ourTimeline.state == 'paused'){
                   rootState.chosenClient.pressPlay(function(){
@@ -682,7 +672,7 @@ const plexTogether = {
                     state.decisionBlocked = true
                     rootState.chosenClient.seekTo(parseInt(hostTimeline.time),function(result){
                       console.log('Result from within store for seek was ' + result)
-                      console.log('Seeking decision blocked to false ')
+                      console.log('Setting decision blocked to false ')
                       state.decisionBlocked = false 
                     })
                   }

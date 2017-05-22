@@ -85,53 +85,53 @@ export default {
         
 
         // Similuate a real plex client
-        this.eventbus.$on('command',function(data){
+        this.eventbus.$on('command',(data) => {
             if (data.command == '/player/timeline/poll'){
-                let key = that.chosenKey
+                let key = this.chosenKey
                 let ratingKey = null 
                 if (key){
                     ratingKey = '/library/metadata/' + key
                 }
                 let machineIdentifier = null
-                if (that.chosenServer){
-                    machineIdentifier = that.chosenServer.clientIdentifier
+                if (this.chosenServer){
+                    machineIdentifier = this.chosenServer.clientIdentifier
                 }
                 let playerdata = {                    
                     key: key,
                     ratingKey: ratingKey,
-                    time: that.playertime,
+                    time: this.playertime,
                     type: 'video',
                     machineIdentifier: machineIdentifier,
-                    duration: that.playerduration,
-                    state: that.playerstatus
+                    duration: this.playerduration,
+                    state: this.playerstatus
                 }
                 return data.callback(playerdata)
             }
             if (data.command == '/player/playback/play'){
-                that.eventbus.$emit('player-press-play', function(res){
+                this.eventbus.$emit('player-press-play', function(res){
                     return data.callback(res)
                 })
                 return
             }
             if (data.command == '/player/playback/pause'){
-                that.eventbus.$emit('player-press-pause',function(res){
+                this.eventbus.$emit('player-press-pause',function(res){
                     return data.callback(res)
                 })
                 return
             }
             if (data.command == '/player/playback/stop'){
-                that.ready = false
-                that.chosenKey = null
-                that.chosenServer = null
-                that.playerduration = null
-                that.playertime = 0
-                that.bufferedTile = null
-                that.playingMetadata = null
+                this.ready = false
+                this.chosenKey = null
+                this.chosenServer = null
+                this.playerduration = null
+                this.playertime = 0
+                this.bufferedTile = null
+                this.playingMetadata = null
                 return data.callback(true)
             }
             if (data.command == '/player/playback/seekTo'){
                 console.log('Recieved a seek')
-                that.eventbus.$emit('player-seek', {
+                this.eventbus.$emit('player-seek', {
                     time: data.params.offset,
                     callback: function(res){
                         console.log('Player reported a seek result of ' + res)
@@ -141,13 +141,26 @@ export default {
                 return
             }
             if (data.command == '/player/playback/playMedia'){
-                console.log
-                that.chosenKey = data.params.key.replace('/library/metadata/','')
-                that.chosenServer = that.plex.getServerById(data.params.machineIdentifier)
-                that.playertime = data.params.offset
-                setTimeout(function(){
-                    return data.callback(true)
-                },5000)
+                this.chosenKey = data.params.key.replace('/library/metadata/','')
+                this.chosenServer = this.plex.getServerById(data.params.machineIdentifier)
+                this.playertime = data.params.offset
+                let oldtime = this.playertime
+                let oldkey = this.chosenKey
+                let checkers = 0
+                let tick = setInterval(() => {
+                    console.log('Checking..')
+                    if (Math.abs(parseInt(this.playertime) - parseInt(oldtime) > 1000)){
+                        console.log('STARTED PLAYING!')
+                        clearInterval(tick)
+                        return data.callback(true)
+                    }
+                    checkers++
+                    if (checkers > 300 || oldkey != this.chosenKey){
+                        // It has been 30 seconds since - fail
+                        clearInterval(tick)
+                        return data.callback(false)
+                    }
+                },100)
             }
             console.log('Unable to process the remote control command ' + data.command)
         })
@@ -427,6 +440,7 @@ export default {
             return qualities
         },
         stopPlayback(){
+            this.$store.commit('SET_DECISIONBLOCKED',false)
             this.chosenClient.pressStop(function(){
 
             })
@@ -434,6 +448,7 @@ export default {
         changedPlaying: function(changeItem){
             var that = this
             this.ready = false
+            this.$store.commit('SET_DECISIONBLOCKED',false)
             console.log('Changed what we are meant to be playing!')
             if (!this.chosenKey || !this.chosenServer){
                 this.playerstatus = 'stopped'
@@ -468,8 +483,6 @@ export default {
             } else {
                 req()
             }
-    
-
             if (this.playingMetadata){
                 console.log('We should fire our closing event')
                 request(this.getSourceByLabel(this.chosenQuality).stopUrl, function (error, response, body) {

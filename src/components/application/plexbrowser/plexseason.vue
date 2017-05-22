@@ -17,7 +17,7 @@
                 <div class="divider"></div>
                 <h2> Episodes </h2>
                 <div v-for="content in contents.MediaContainer.Metadata">
-                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l2 s12 hoverable" style="box-shadow:none">
+                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none">
                         <div class="white-text">
                             <img :src="getThumb(content)" style="width:100%"/>
                             <span style="font-size: 1vh;" class="card-title truncate">                        
@@ -83,7 +83,7 @@ import plexcontent from './plexcontent'
         getThumb(object){
             var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
             var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-            return this.server.getUrlForLibraryLoc(object.thumb,w/6, h/4)
+            return this.server.getUrlForLibraryLoc(object.thumb,w/12, h/4)
         },
         reset(){
             this.browsingContent = false
