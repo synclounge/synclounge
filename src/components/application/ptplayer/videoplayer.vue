@@ -89,7 +89,7 @@
             return callback(false)
         })
 
-        this.eventbus.$on('player-seek',function(data){
+        this.eventbus.$on('player-seek',(data) => {
             let seekTo = data.time
             console.log('We have been told we need to seek to position ' + seekTo)
             // The parent will only ever send us this command if we are within 10s, lets change our playback speed to 3x to catch up 
@@ -167,8 +167,22 @@
                 if (!that.player || !that.player.currentTime()){
                     data.callback(false)
                 }
+                let oldTime = this.lastTime
                 that.player.currentTime(seekTo / 1000)
-                return data.callback(true)
+                let ticks = 0
+                let ticker = setInterval(() => {
+                    console.log('Waiting for the player to skip..')
+                    if (oldTime != this.lastTime){
+                        clearInterval(ticker)
+                        console.log('Success on seeking to a direct point in time')
+                        return data.callback(true)
+                    }
+                    ticks++
+                    if (ticks > 30000){
+                        clearInterval(ticker)
+                        return data.callback(false)
+                    }
+                },100)
             }           
         })
     },
