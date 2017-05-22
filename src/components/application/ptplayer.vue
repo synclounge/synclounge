@@ -441,6 +441,7 @@ export default {
         },
         stopPlayback(){
             this.$store.commit('SET_DECISIONBLOCKED',false)
+            this.playerstatus = 'stopped'
             this.chosenClient.pressStop(function(){
 
             })

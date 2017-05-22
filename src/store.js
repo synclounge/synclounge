@@ -538,11 +538,6 @@ const plexTogether = {
                 return
               }
               console.log('Decision isnt blocked')
-              if (!data.rawTitle){
-                  // Host has probably stopped playing, lets ignore
-                  console.log('Host isnt playing anything!')
-                  return
-              }
               if (!rootState.chosenClient){
                 console.log('We dont have a client chosen yet!')
                 return
@@ -571,7 +566,11 @@ const plexTogether = {
                 if (ourTimeline.playerState == 'buffering'){
                   return
                 }
-                if (hostTimeline.playerState == 'stopped'){
+                if (hostTimeline.playerState == 'stopped' && ourTimeline.state != 'stopped'){
+                  console.log('Pressing stop because the host did')
+                  rootState.chosenClient.pressStop(function(){
+
+                  })
                   return
                 }
 
