@@ -209,12 +209,12 @@ export default {
             this.changedPlaying(true)
         },
         chosenQuality: function(){
-            this.changedPlaying(false)
+            this.changedPlaying(true)
         },    
         chosenMediaIndex: function(){
             this.chosenSubtitleIndex = 0
             this.chosenAudioTrackIndex = 0
-            this.changedPlaying(false)
+            this.changedPlaying(true)
         },                    
         chosenAudioTrackIndex: function(){
             console.log('Audio track change')
@@ -245,7 +245,7 @@ export default {
             }
             request(options, function(error,response,body){
                 if (!error){
-                    that.changedPlaying(false)
+                    that.changedPlaying(true)
                     return
                 }
                 console.log(error)
@@ -284,7 +284,7 @@ export default {
             }
             request(options, function(error,response,body){
                 if (!error){
-                    that.changedPlaying(false)
+                    that.changedPlaying(true)
                     return
                 }
                 console.log(error)
@@ -447,6 +447,7 @@ export default {
             })
         },
         changedPlaying: function(changeItem){
+
             var that = this
             this.ready = false
             this.$store.commit('SET_DECISIONBLOCKED',false)
@@ -474,6 +475,11 @@ export default {
                     }
                 }) 
             }
+            if (this.playingMetadata){
+                console.log('We should fire our closing event')
+                request(this.getSourceByLabel(this.chosenQuality).stopUrl, function (error, response, body) {
+                }) 
+            }
             if (changeItem){
                 this.playingMetadata = null
                 this.chosenServer.getMediaByRatingKey(this.chosenKey,function(result){
@@ -483,11 +489,6 @@ export default {
                 })    
             } else {
                 req()
-            }
-            if (this.playingMetadata){
-                console.log('We should fire our closing event')
-                request(this.getSourceByLabel(this.chosenQuality).stopUrl, function (error, response, body) {
-                }) 
             }
         },
         timelineUpdate(data){
