@@ -8,20 +8,14 @@
                     <label for="search">Search</label>
                 </div>
             </div>
-            <div v-if="contents && !browsingContent" class="row" style="height:100%">
-                <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)" v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh">
-                    <div class="row" style="margin:0">
-                        <div class="col s12 ">
-                            <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                        </div>
-                        <div class="col s12">
-                            <div style="padding:3%; padding-left:1%; height:25%;">
-                                <span style="font-size: 1vh; vmin: 2vh" class="card-title truncate">{{ content.title }}</span>
-                                <div> 
-                                    <label v-if="content.type == 'show'" style="font-size: 0.8vh; vmin: 2vh"> {{ content.childCount }} seasons </label> 
-                                    <label v-if="content.type == 'movie'" style="font-size: 0.8vh; vmin: 2vh"> {{ content.year }}</label> 
-                                </div>
-                            </div>
+            <div v-if="contents && !browsingContent" style="height:100%">
+                <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)" v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh; min-height:200px">
+                    <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
+                    <div style="padding:3%; padding-left:1%; height:25%;">
+                        <span style="font-size: 1vh; vmin: 2vh" class="card-title truncate">{{ content.title }}</span>
+                        <div> 
+                            <label v-if="content.type == 'show'"> {{ content.childCount }} seasons </label> 
+                            <label v-if="content.type == 'movie'"> {{ content.year }}</label> 
                         </div>
                     </div>
                 </v-card>
@@ -41,7 +35,6 @@
 <script>
 import plexcontent from './plexcontent'
 import plexseries from './plexseries'
-
 var _ = require('lodash');
   export default {
     props: ['library','server'],
@@ -59,12 +52,10 @@ var _ = require('lodash');
           browsingContent: null,
           startingIndex: 0,
           size: 100,
-
           libraryTotalSize: false,
           
           stopNewContent: false,
           busy: false,
-
           contents: null,
           status: "loading..",
           searchPhrase: null
@@ -72,9 +63,6 @@ var _ = require('lodash');
     },
     mounted() {                    
         
-
-
-
     },
     beforeDestroy(){
         
@@ -164,9 +152,7 @@ var _ = require('lodash');
         reset(){
             this.browsingContent = false
         }
-
         
-
  
     }
   }
