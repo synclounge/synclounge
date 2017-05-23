@@ -8,14 +8,14 @@
                         <img :src="getArt(content)" style="height:100%" class="col s12 l4"/>
                         <div class="col l8 s12">
                             <h2 class="card-title">{{ content.title }}</h2>
-                            <label> {{ content.leafCount }} episodes since {{ content.year }} - </label>
+                            <label> {{ content.leafCount }} episodes since {{ content.year }} </label>
                             <label> {{ content.sourceTitle }}</label>
                             <p> {{ content.summary }} </p>
                         </div>
                     </div>
                 </v-card>            
                 <div class="divider"></div>
-                <h2> Seasons </h2>
+                <h5> Seasons </h5>
                 <div v-for="content in contents.MediaContainer.Metadata">
                     <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s6 hoverable" style="box-shadow:none">
                         <div class="white-text">

@@ -1,6 +1,6 @@
 <template>
     <span>
-        <span  v-on:click="reset()">{{ title }}</span>
+        <span v-on:click="reset()">{{ title }}</span>
         <div v-if="!browsingContent">
             <div v-if="contents && !browsingContent">                
                 <v-card class="blue-grey darken-1 col l12 s12" style="height:100%;box-shadow:none">
@@ -15,7 +15,8 @@
                             </div>
                             <div v-if="content.type == 'movie'">
                                 <div style="font-size: 3vh">{{ content.title }}</div>
-                                <div style="font-size: 2vh"> {{ content.year }} </div>            
+                                <div style="font-size: 2vh"> {{ content.year }} </div>   
+                                <div style="font-size: 1vh"> {{ content.sourceTitle }} </div>           
                                 <p style="font-size: 1.5vh"> {{ content.summary }} </p>
                             </div>     
                             <div class="col l2 s12">       
