@@ -18,8 +18,8 @@
                                 <div style="font-size: 2vh"> {{ content.year }} </div>            
                                 <p style="font-size: 1.5vh"> {{ content.summary }} </p>
                             </div>     
-                            <div>       
-                                <button v-on:click="playMedia(content)" id="play" style="background-color: #E5A00D" class="waves-effect waves-light btn">Play</button>
+                            <div class="col l2 s12">       
+                                <button v-on:click="playMedia(content)" id="play" style="background-color: #E5A00D;width:100%" class="waves-effect waves-light btn">Play</button>
                                 <label for="play"> {{ largestRes }}p </label>   
                             </div>         
                         </div>                    

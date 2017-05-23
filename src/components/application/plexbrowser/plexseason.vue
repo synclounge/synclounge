@@ -5,8 +5,8 @@
             <div v-if="contents && !browsingContent">            
                 <v-card class="blue-grey darken-1 col l12 s12 hoverable" style="height:100%;box-shadow:none">
                     <div class="white-text row">
-                        <img :src="getThumb(content)" style="height:100%" class="col s12 l2"/>
-                        <div class="col l10 s12">
+                        <img :src="getThumb(content)" style="height:100%" class="col s4 l2"/>
+                        <div class="col l10 s8">
                             <h1 style="font-size: 3vh;"> {{ content.parentTitle }}</h1>
                             <h2 style="font-size: 2vh;" class="card-title truncate">{{ content.title }}</h2>
                             <label  style="font-size: 2vh;"> {{ content.leafCount }} episodes </label>
@@ -15,9 +15,9 @@
                     </div>
                 </v-card>
                 <div class="divider"></div>
-                <h2> Episodes </h2>
+                <h5> Episodes </h5>
                 <div v-for="content in contents.MediaContainer.Metadata">
-                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none">
+                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none">
                         <div class="white-text">
                             <img :src="getThumb(content)" style="width:100%"/>
                             <span style="font-size: 1vh;" class="card-title truncate">                        
