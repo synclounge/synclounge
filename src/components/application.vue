@@ -4,7 +4,6 @@
         <ul id="nav-mobile" class="side-nav" style="height: 100%">
           <sidebar :mobile="true"></sidebar>
         </ul>
-<!--         <a class="button-collapse "><i class="material-icons">keyboard_arrow_right</i></a> -->
         <a href="#" data-activates="nav-mobile" class="button-collapse btn-floating btn-large waves-effect waves-light plex-gamboge" style="position: fixed; bottom: 15px; left: 15px"><i class="material-icons">keyboard_arrow_right</i></a>
       </div>
       <div class="content row" style="margin-bottom: 0">
@@ -14,18 +13,18 @@
               <div class="col l12 s12 center" id="main-body" v-if="!validDevices" style="padding-top:5%">               
                     <v-progress-circular yellow active large></v-progress-circular>
               </div>
-              <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%">               
+              <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%; overflow-y: auto">               
                   <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
                       <walkthrough></walkthrough>
                   </div>                  
                   <plexbrowser v-if="showBrowser"></plexbrowser>
-                  <ptplayer v-if="isPTPlayer" style="height:100%;"></ptplayer>
+                  <ptplayer v-if="isPTPlayer"></ptplayer>
                   <nowplaying v-if="showMetadata"></nowplaying>
               </div>
 
               <!-- CHAT INTERFACE -->
 
-              <div v-if="ptConnected && chosenClient" class="col l3 s12 no-padding" id="plexTogetherChat" style="height: 100%; border-left: 1px solid rgba(0, 0, 0, 0.12); z-index:1">
+              <div v-if="ptConnected && chosenClient" class="col l3 s12 no-padding" id="plexTogetherChat" style="height: 100%; z-index:1">
                  <div class="mdc-permanent-drawer chatInterface" style="height:100%">
                       <div class="mdc-permanent-drawer__toolbar" style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">
                           <div class="row" style="width: 100%;">
@@ -38,7 +37,7 @@
                               </div>
                           </div>
                       </div>                
-                      <div style="height: 60%;  overflow-y: scroll; border-bottom: 1px solid rgba(0, 0, 0, 0.8)">
+                      <div style="height: 60%;  overflow-y: scroll; border-bottom: 1px solid rgba(0, 0, 0, 0.4)">
                         <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers" style="overflow-y: scroll">
                             <ptuser :object="user"></ptuser>
                         </ul>
@@ -75,14 +74,6 @@
                 <joinroom></joinroom>       
             </sweet-modal>
         </div>
-
-<!--         <div id="joinRoomModal" class="modal" style="width: 25%; min-width: 400px; overflow: hidden">   
-            <joinroom></joinroom>         
-        </div>
-        <div id="settingsModal" class="modal" style="width: 45%; min-width: 400px; overflow: hidden">     
-        </div>        
-        <div id="statisticsModal" class="modal" style="width: 70%; min-width: 400px; overflow: hidden">   
-        </div> -->
     </div>
 </template>
  

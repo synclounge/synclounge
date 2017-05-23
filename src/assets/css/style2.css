@@ -3,7 +3,18 @@
 */
 .mdc-permanent-drawer__toolbar-spacer {
   background-color: rgba(21, 25, 36, 1) !important;
-  box-shadow: 0 6px 50px rgba(0, 0, 0, 0.3)
+  box-shadow: 0 6px 50px rgba(0, 0, 0, 0.3) !important;
+  z-index: 5;
+}
+
+.mdc-permanent-drawer__toolbar {
+  box-shadow: 0 6px 50px rgba(0, 0, 0, 0.3) !important;
+  border-bottom: 0 !important;
+}
+
+.side-nav {
+  background-color: rgba(21, 25, 36, 1) !important;
+  box-shadow: 0 6px 50px rgba(0, 0, 0, 0.3);
 }
 
 /* 
@@ -48,6 +59,7 @@ h2 {
 
 .mdc-select {
   color: rgba(240,245,255,0.85);
+  border-bottom: 1px solid rgba(240,245,255,0.85);
 }
 
 .mdc-textfield__input {
@@ -93,7 +105,8 @@ h2 {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    background-color: #rgba(21, 25, 36, 1)
+    background-color: #rgba(21, 25, 36, 1);
+    margin: 10px;
 }
 
 .channel-textarea-inner textarea {
@@ -287,6 +300,7 @@ a {
 
 .mdc-permanent-drawer {
 	z-index: 2;
+  border-right: 0;
 }
 
 

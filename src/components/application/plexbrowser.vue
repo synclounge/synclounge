@@ -80,15 +80,19 @@
                     <h2> Browse </h2>
                     <div v-if="!browsingServer" v-for="server in availableServers">
                         <v-card v-on:click.native="setServer(server)" class="blue col s12 l3 hoverable" style="box-shadow:none">
-                            <div class="col s3 l4" style="height:100%">
-                                <img src="static/plexlogo.png" style="height:100%; width:100%" >
+                            <div class="row">
+                                <div class="col s3 l4" style="height:100%">
+                                    <img src="static/plexlogo.png" style="height:100%; width:100%" >
+                                </div>
                             </div>
-                            <div class="col s9 l8">
-                                <div style="font-size: 2vh;">{{ server.name }}</div>
-                                <label style="font-size: 1vh;">
-                                v{{ server.productVersion }}
-                                </label>
-                                <div style="font-size: 1vh;"> Owned by {{ ownerOfServer(server) }}</div>
+                            <div class="row">
+                                <div class="col s9 l8">
+                                    <div style="font-size: 2vh;">{{ server.name }}</div>
+                                    <label style="font-size: 1vh">
+                                    v{{ server.productVersion }}
+                                    </label>
+                                    <div style="font-size: 1vh;"> Owned by {{ ownerOfServer(server) }}</div>
+                                </div>
                             </div>
                         </v-card>
                     </div>
