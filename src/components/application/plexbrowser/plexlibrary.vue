@@ -8,7 +8,7 @@
                     <label for="search">Search</label>
                 </div>
             </div>
-            <div v-if="contents && !browsingContent" class="row" style="height:100%;overflow-y:auto">
+            <div v-if="contents && !browsingContent" class="row" style="height:100%">
                 <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)" v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:15vh">
                     <div class="row" style="margin:0">
                         <div class="col s12 ">
