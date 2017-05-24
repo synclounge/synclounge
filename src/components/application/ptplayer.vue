@@ -578,6 +578,7 @@ export default {
                 'X-Plex-Product': 'PlexTogether',
                 'X-Plex-Version': '3.4.1',
                 'X-Plex-Client-Identifier': 'PLEXTOGETHERPLAYER',
+                'X-Plex-Platform':'PlexTogether',
                 'X-Plex-Platform-Version':'57.0',
                 'X-Plex-Device': 'HTML TV App',
                 'X-Plex-Device-Name': 'PlexTogether Player',
