@@ -35,7 +35,7 @@
     "videojs-contrib-hls": "^5.5.2",
     "videojs-resolution-switcher": "^0.4.2",
     "videojs-settings-menu": "0.0.2",
-    "vue": "^2.0.1",
+    "vue": "2.3.3",
     "vue-animate": "0.0.4",
     "vue-clipboards": "^0.2.6",
     "vue-infinite-scroll": "^2.0.1",
