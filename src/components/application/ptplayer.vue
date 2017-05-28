@@ -289,7 +289,6 @@ export default {
                 }
                 console.log(error)
             })
-
         }
     },
     computed:{       
@@ -375,9 +374,6 @@ export default {
         xplexsession(){
             return this.generateGuid()
         }
-
-
-
     },
     methods: {
         playerMounted: function(){
@@ -478,6 +474,7 @@ export default {
             if (this.playingMetadata){
                 console.log('We should fire our closing event')
                 request(this.getSourceByLabel(this.chosenQuality).stopUrl, function (error, response, body) {
+                    // We dont need to know what this resulted in
                 }) 
             }
             if (changeItem){
@@ -492,8 +489,6 @@ export default {
             }
         },
         timelineUpdate(data){
-            //console.log("Got timeline update from player")
-            //console.log(data)
             this.playertime = data.time 
             this.playerstatus = data.status
             this.bufferedTill = data.bufferedTill

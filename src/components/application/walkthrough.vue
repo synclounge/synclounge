@@ -43,7 +43,7 @@
                     <div class="mdc-list-item mdc-permanent-drawer--selected plex-gamboge-text" href="#">
                         Selected Player
                     </div>    
-                    <h3 style="margin-top: 0; margin-bottom: 5px">{{ testClient.name }}</h3>                      
+                    <h3 style="margin-top: 0; margin-bottom: 5px;opacity:1">{{ testClient.name }}</h3>                      
                     <div>    
                         <label>Last seen</label><span>  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
                     </div>                   

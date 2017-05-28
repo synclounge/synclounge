@@ -109,7 +109,7 @@
             console.log('Player checks passed')
             let lastPlayerSpeed = that.player.currentTime()
             let lastPlayerTime = that.player.currentTime() * 1000
-            if (Math.abs(seekTo - that.lastTime) < 10000 && !that.blockedSpeedChanges){
+            if (Math.abs(seekTo - that.lastTime) < 7000 && !that.blockedSpeedChanges){
                 console.log('Seeking via the speed up method')
                 let clicker = setInterval(function(){
                     if (that.isPlaying == 'paused' || that.isPlaying == 'buffering'){

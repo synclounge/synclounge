@@ -38,7 +38,7 @@
                           </div>
                       </div>                
                       <div style="height: 60%;  overflow-y: scroll; border-bottom: 1px solid rgba(0, 0, 0, 0.4)">
-                        <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers" style="overflow-y: scroll">
+                        <ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers">
                             <ptuser :object="user"></ptuser>
                         </ul>
                       </div>
