@@ -26,7 +26,7 @@
 
               <div v-if="ptConnected && chosenClient" class="col l3 s12 no-padding" id="plexTogetherChat" style="height: 100%; z-index:1">
                  <div class="mdc-permanent-drawer chatInterface" style="height:100%">
-                      <div class="mdc-permanent-drawer__toolbar" style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">
+                      <div class="" style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">
                           <div class="row" style="width: 100%;">
                               <div class="col l8 left-align truncate">
                                   <h5 id="plexTogetherRoomNameChat">#{{ ptRoom }}</h5>        
@@ -42,7 +42,7 @@
                             <ptuser :object="user"></ptuser>
                         </ul>
                       </div>
-                      <div class="mdc-list-group" style="overflow-y: auto; height: calc(40% - 64px); top: 110px; border-top: 1px solid 1px solid  rgba(240,245,255,0.3)">
+                      <div class="mdc-list-group" style="overflow-y: auto; height: calc(40% - 64px); top: 110px; border-top: 1px solid 1px solid rgba(240,245,255,0.3)">
                           <section>
                               <ul v-for="msg in messages" id="chatBox">
                                   <chatmessage :object="msg"></chatmessage>

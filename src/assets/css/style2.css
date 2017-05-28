@@ -593,11 +593,15 @@ body {
 }
 
 .ptplayer .video-js .vjs-controls-disabled .vjs-big-play-button {
-    display: none!important
+    display: none !important;
 }
 
 .ptplayer .video-js .vjs-control {
-    width: 3em
+    width: 5em
+}
+
+.ptplayer .video-js .vjs-volume-control {
+    width: 10em
 }
 
 .ptplayer .video-js .vjs-menu-button-inline:before {
@@ -613,7 +617,7 @@ body {
 }
 
 .ptplayer .video-js .vjs-load-progress div,.vjs-seeking .vjs-big-play-button,.vjs-waiting .vjs-big-play-button {
-    display: none!important
+    display: none !important;
 }
 
 .ptplayer .video-js .vjs-mouse-display:after,.video-js .vjs-play-progress:after {
@@ -636,8 +640,8 @@ body {
 }
 
 .ptplayer .video-js.vjs-fullscreen,.video-js.vjs-fullscreen .vjs-tech {
-    width: 100%!important;
-    height: 100%!important
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .ptplayer .video-js {
@@ -654,7 +658,7 @@ body {
 }
 
 .ptplayer .video-js .vjs-volume-menu-button.vjs-volume-menu-button-horizontal:hover .vjs-menu .vjs-menu-content {
-    height: 3em;
+    height: 2em;
     width: 6.35em
 }
 
@@ -788,7 +792,7 @@ body {
 }
 
 .ptplayer .video-js.vjs-live .vjs-live-control {
-    margin-left: 1em
+    margin-left: 100%
 }
 
 .ptplayer .video-js .vjs-big-play-button {

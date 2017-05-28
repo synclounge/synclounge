@@ -208,9 +208,9 @@
             },
 
             fluid: true,
-            muted: true,
             preload:'auto',
-            volume: 0.2,
+            volume: 0.5,
+            aspectRatio:'16:9',
             autoplay: true,
             width: '100%',
             language: 'en',
