@@ -162,8 +162,6 @@
                     lastPlayerSpeed = that.player.currentTime()
                 },25)
             } else {
-
-
                 if (!that.player || !that.player.currentTime()){
                     data.callback(false)
                 }

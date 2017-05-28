@@ -209,12 +209,12 @@ export default {
             this.changedPlaying(true)
         },
         chosenQuality: function(){
-            this.changedPlaying(true)
+            this.changedPlaying(false)
         },    
         chosenMediaIndex: function(){
             this.chosenSubtitleIndex = 0
             this.chosenAudioTrackIndex = 0
-            this.changedPlaying(true)
+            this.changedPlaying(false)
         },                    
         chosenAudioTrackIndex: function(){
             console.log('Audio track change')
@@ -245,7 +245,7 @@ export default {
             }
             request(options, function(error,response,body){
                 if (!error){
-                    that.changedPlaying(true)
+                    that.changedPlaying(false)
                     return
                 }
                 console.log(error)
@@ -284,7 +284,7 @@ export default {
             }
             request(options, function(error,response,body){
                 if (!error){
-                    that.changedPlaying(true)
+                    that.changedPlaying(false)
                     return
                 }
                 console.log(error)
@@ -569,7 +569,8 @@ export default {
                 audioBoost: 100,
                 location: location,
                 session: this.sessionId,
-                offset: Math.round(this.playertime / 1000),
+                offset: 0,
+                //offset: Math.round(this.playertime / 1000),
                 subtitles: 'burn',
                 copyts: 1,
                 'Accept-Language': 'en',
