@@ -64,7 +64,7 @@
       </div>
 
         <!-- MODALS -->
-        <div v-if="darkMode">
+        <div v-if="darkMode" id="joinRoom">
             <sweet-modal v-on:close="joinRoomModalClosed()" ref="joinroomModal" overlay-theme="dark" modal-theme="dark" >
                 <joinroom></joinroom>       
             </sweet-modal>

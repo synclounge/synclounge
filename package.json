@@ -28,7 +28,6 @@
     "lodash": "^4.17.4",
     "materialize-css": "^0.97.8",
     "moment": "^2.18.1",
-    "portscanner": "^2.1.1",
     "safe-json-parse": "^4.0.0",
     "sweet-modal-vue": "^1.0.2",
     "v-tooltip": "^1.1.6",
@@ -38,7 +37,6 @@
     "videojs-settings-menu": "0.0.2",
     "vue": "^2.0.1",
     "vue-animate": "0.0.4",
-    "vue-chat-scroll": "^1.1.0",
     "vue-clipboards": "^0.2.6",
     "vue-infinite-scroll": "^2.0.1",
     "vue-lazyload": "^1.0.3",
@@ -48,7 +46,6 @@
     "vue-router": "^2.4.0",
     "vue-translate-plugin": "^1.1.11",
     "vue-video-player": "^3.0.6",
-    "vue2-animate": "^1.0.4",
     "vuex": "^2.0.0",
     "xml2js": "^0.4.17"
   },

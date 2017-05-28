@@ -138,14 +138,14 @@
                     let difference = Math.abs(current - (slidingTime))
                     if (current < slidingTime){
                         // Speed up
-                        playbackSpeed = playbackSpeed + 0.025
+                        playbackSpeed = playbackSpeed + 0.001
                         if (that.player.playbackRate() < 1.3){
                             that.player.playbackRate(playbackSpeed)
                         }
                     }
                     if (current > slidingTime){
                         // Slow down                        
-                        playbackSpeed = playbackSpeed - 0.025
+                        playbackSpeed = playbackSpeed - 0.001
                         if (that.player.playbackRate() > 0.1){
                             that.player.playbackRate(playbackSpeed)
                         }
@@ -176,7 +176,7 @@
                         return data.callback(true)
                     }
                     ticks++
-                    if (ticks > 30000){
+                    if (ticks > 300){
                         clearInterval(ticker)
                         return data.callback(false)
                     }
