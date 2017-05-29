@@ -20,7 +20,7 @@
                     </div>
                 </v-card>
             </div>           
-            <div class="col l12 center" v-if="contents && !browsingContent && !stopNewContent">
+            <div class="col l12 center" v-if="contents && !browsingContent && !stopNewContent" v-observe-visibility="getMoreContent">
                 Loading...
             </div>      
             <div v-if="!contents && !browsingContent" class="center">
@@ -146,7 +146,6 @@ var _ = require('lodash');
                     that.status = 'Error loading libraries!'
                 }
                 that.busy = false
-                that.getMoreContent()
             })
         },
         reset(){
