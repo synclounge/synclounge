@@ -68,7 +68,7 @@ export default {
   },
   computed: {
       logo: function(){
-        return 'static/logo-long-dark.png'
+        return 'static/logo-long-light.png'
       },
       firstRun: function(){
           return !this.$store.getters.getSettingHOMEINIT

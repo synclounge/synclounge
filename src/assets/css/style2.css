@@ -48,10 +48,42 @@
   background-color: rgba(39, 44, 56, 1) !important
 }
 
+h1 {
+  color: rgba(240,245,255,0.85) !important;
+}
+
 h2 {
   color: rgba(240,245,255,0.85) !important;
   border-bottom: 1pm solid rgba(240,245,255,0.85);
 }
+
+p {
+  color: rgba(240,245,255,0.85) !important;
+}
+
+label {
+  color: rgba(240,245,255,0.55) !important
+}
+
+ul li {
+  list-style-type: none;
+  display: inline
+}
+
+/* Ensure layout covers the entire screen. */
+html {
+    height: 100%;
+    background-color: rgba(39, 44, 56, 1) !important;
+}
+
+body {
+    height: 100%;
+}
+
+a {
+  color: #E5A00D !important;
+}
+
 
 /* 
   MODAL 
@@ -67,8 +99,18 @@ h2 {
 }
 
 #joinRoom .sweet-modal {
-  background: #191b1a;
+  background: rgba(21, 25, 36, 1);
 }
+
+.sweet-action-close:hover {
+  background:  #E5A00D !important;
+}
+
+.sweet-modal-overlay.theme-dark {
+  background: rgba(39, 44, 56, 0.85) !important;
+}
+
+
 /*
   CHAT INTERFACE
 */
@@ -245,31 +287,9 @@ plexName {
   line-height: inherit;
 }
 
-ul li {
-  list-style-type: none;
-  display: inline
-}
-
 
 /* --------------------------------------------------------------------------------------- */
 
-
-/* Ensure layout covers the entire screen. */
-html {
-    height: 100%;
-}
-
-body {
-    height: 100%;
-}
-
-a {
-  color: #E5A00D !important;
-}
-
-.sweet-action-close:hover {
-  background:  #E5A00D !important;
-}
 
 /* Stack toolbar and main on top of each other. */
 
@@ -524,15 +544,6 @@ input[type=range] + .thumb {
   padding: 0 !important;
 }
 
-.windowDrag {
-  -webkit-app-region: drag;
-}
-
-
-.windowNoDrag {
-  -webkit-app-region: no-drag;
-}
-
 .divider {
   height: 1px;
   overflow: hidden;
@@ -592,6 +603,10 @@ body {
     width: 10em
 }
 
+.vjs-volume-bar {
+  width: 100% !important;
+}
+
 .ptplayer .video-js .vjs-controls-disabled .vjs-big-play-button {
     display: none !important;
 }
@@ -601,7 +616,7 @@ body {
 }
 
 .ptplayer .video-js .vjs-volume-control {
-    width: 10em
+    width: 10em;
 }
 
 .ptplayer .video-js .vjs-menu-button-inline:before {
@@ -859,7 +874,7 @@ body {
 }
 
 .ptplayer .video-js .vjs-control-bar {
-    background-color: rgba(0,0,0,0.4) !important;
+    background-color: rgba(0,0,0,1) !important;
     color: #ffffff;
     font-size: 12px
 }
@@ -869,7 +884,7 @@ body {
 }
 
 .ptplayer .video-js .vjs-load-progress {
-    background: rgba(255,255,255,0.8);
+    background: rgba(115,133,159,0.5);
 }
 
 .ptplayer .video-js .vjs-big-play-button:hover {
@@ -879,4 +894,17 @@ body {
 .ptplayer .video-js .vjs-control:focus:before, .video-js .vjs-control:hover:before {
     color: #E5A00D;
     text-shadow: none
+}
+
+.vjs-volume-level {
+  background-color: #E5A00D !important;
+} 
+
+.vjs-fullscreen-control {
+  position:  absolute !important;
+  right: 0px;
+}
+
+button:focus {
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }

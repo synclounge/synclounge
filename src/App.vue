@@ -1,5 +1,5 @@
 <template>
-  <div id="app" v-bind:class="{ 'dark-theme': darkMode }" style="height: 100%; overflow-y: auto">
+  <div id="app" style="height: 100%; overflow-y: auto">
     <navbar></navbar>
     <router-view></router-view>
   </div>

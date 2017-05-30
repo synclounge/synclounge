@@ -15,7 +15,10 @@
             :createdAt="playerCreatedAt"
         ></videoplayer>
         <div class="row" v-if="playingMetadata && chosenServer && chosenQuality">
-            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12 offset-l2">
+            <div class="col l4 s12">     
+                <v-btn class="center" style="width:80%;background-color: #E5A00D" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+            </div>
+            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12">
                 <v-select name="select"
                             id="select"
                             v-model="chosenMediaIndex"
@@ -48,9 +51,6 @@
                             :items="subtitleTrackSelect"
                 ></v-select>
                 <label for="select">Subtitles</label>
-            </div>
-            <div class="col s12 l4 offset-l5">     
-                <v-btn class="center" style="width:50%;background-color: #E5A00D" v-on:click.native="stopPlayback()">Stop playback</v-btn>
             </div>
         </div>
     </div>
