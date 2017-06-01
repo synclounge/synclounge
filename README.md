@@ -113,6 +113,7 @@ The following tags are available:
 * debian: webapp and server based on alpine
 * server: only server based on alpine
 * dev: development version of webapp and server based on alpine
+* nginx: latest + nginx reverse proxy
 ```
 docker create \
   --name=plextogether \
@@ -120,7 +121,14 @@ docker create \
 	-p 8089:8089 \
   starbix/plextogether
 ```
-
+Use this for the nginx tag:
+```
+docker create \
+  --name=plextogether \
+	-p 80:80 \
+	-e DOMAIN=example.com \
+  starbix/plextogether:nginx
+```
 ### Building and running the webapp:
 
 * Make sure you have Node v6+ installed
