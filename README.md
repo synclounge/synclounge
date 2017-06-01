@@ -110,7 +110,7 @@ This is the official Docker container for PlexTogether: https://hub.docker.com/r
 
 The following tags are available:
 * latest / alpine: webapp and server based on alpine
-* debian: webapp and server based on alpine
+* debian: webapp and server based on debian
 * server: only server based on alpine
 * dev: development version of webapp and server based on alpine
 * nginx: latest + nginx reverse proxy
