@@ -52,6 +52,7 @@
             </div>        
             <div class="row">
                 <div class="col l12 s12">     
+                    <v-btn class="center" style="background-color: #d32f2f" v-on:click.native="stopPlayback()">Stop playback</v-btn>
                 </div>
             </div>
         </sweet-modal>
