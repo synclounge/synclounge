@@ -155,7 +155,6 @@ export default {
             }
         },        
         getThumb(object){
-            console.log('Getting url for thumb ' + object.thumb)
             var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
             var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
             return object.server.getUrlForLibraryLoc(object.thumb,w/6, h/4)

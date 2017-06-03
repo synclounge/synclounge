@@ -175,6 +175,19 @@ module.exports = function PlexServer(){
             callback(result)
         })
     }    
+    this.getRecentlyAddedAll = function(start,size,callback){
+        this.hitApi('/library/recentlyAdded',{}, function(result,that){
+            return callback(result)
+        })
+    }
+    this.getOnDeck = function(start,size,callback){
+        this.hitApi('/library/onDeck',{
+            'X-Plex-Container-Start':start,
+            'X-Plex-Container-Size':size,
+        },function(result,that){
+            return callback(result)
+        })
+    }
     this.getSeriesContent = function(key,start,size,excludeAllLeaves,callback){
         this.hitApi(key,{
             'X-Plex-Container-Start':start,
