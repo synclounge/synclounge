@@ -14,19 +14,17 @@
             :initialOffset="offset"
             :createdAt="playerCreatedAt"
         ></videoplayer>
-        <div class="row" v-if="playingMetadata && chosenServer && chosenQuality">
-            <div class="col l4 s12">     
-                <v-btn class="center" style="width:80%;background-color: #E5A00D" v-on:click.native="stopPlayback()">Stop playback</v-btn>
-            </div>
-            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12">
-                <v-select name="select"
-                            id="select"
-                            v-model="chosenMediaIndex"
-                            :items="mediaIndexSelect"
-                ></v-select>
-                <label for="select">Version</label>
+        <sweet-modal ref="playersettingsModal" modal-theme="dark" overlay-theme="dark">
+            <h3> Playback Settings </h3>
+            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+                    <v-select name="select"
+                                id="select"
+                                v-model="chosenMediaIndex"
+                                :items="mediaIndexSelect"
+                    ></v-select>
+                    <label for="select">Version</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
                 <v-select name="select"
                             id="select"
                             v-model="chosenQuality"
@@ -34,7 +32,7 @@
                 ></v-select>
                 <label for="select">Quality</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
                 <v-select name="select"
                             id="select"
                             v-model="chosenAudioTrackIndex"
@@ -43,7 +41,7 @@
                 ></v-select>
                 <label for="select">Audio</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l2 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
                 <v-select name="select"
                             id="select"
                             v-model="chosenSubtitleIndex"
@@ -51,8 +49,18 @@
                             :items="subtitleTrackSelect"
                 ></v-select>
                 <label for="select">Subtitles</label>
+            </div>        
+            <div class="row">
+                <div class="col l12 s12">     
+                </div>
+            </div>
+        </sweet-modal>
+        <div class="row" v-if="playingMetadata && chosenServer">
+            <div class="col l4 offset-l4 s12 center" style="padding-top:1%">     
+                <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="openModal()">Playback settings</v-btn>
             </div>
         </div>
+            
     </div>
 </template>
  
@@ -62,11 +70,9 @@
 
 var request = require('request')
 var parseXMLString = require('xml2js').parseString;
-
+import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 // Components
 import videoplayer from './ptplayer/videoplayer.vue'
-
-import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 
 
 
@@ -74,6 +80,8 @@ export default {
     name: 'ptplayer',
     components: {
         videoplayer,
+        SweetModal,
+        SweetModalTab
     },
     created(){        
         $(document).ready(function() {
@@ -388,7 +396,10 @@ export default {
                 }
             }
             return null
-        },     
+        },  
+        openModal(){
+            return this.$refs.playersettingsModal.open()
+        },   
         generateSources(){
             var that = this
             let qualityTemplate = function(label,resolution,bitrate,videoQuality){
