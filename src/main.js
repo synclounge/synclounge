@@ -9,13 +9,15 @@ import VueClipboards from 'vue-clipboards'
 import VueVideoPlayer from 'vue-video-player'
 import VueObserveVisibility from 'vue-observe-visibility'
 import VueLazyload from 'vue-lazyload'
+import Toast from 'vue-easy-toast'
 
 // Our Event bus 
 window.EventBus = new Vue()
 
 require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
 
-// mount with global 
+// mount with global
+Vue.use(Toast)
 Vue.use(VueLazyload,{
   lazyComponent: true
 })
@@ -27,6 +29,13 @@ Vue.use(VTooltip)
 Vue.use(VueResource)
 Vue.use(VueTranslate)
 
+// Toast notifications
+window.EventBus.$on('notification',(message) => {
+  console.log('Sending notification: ' + message)
+  Vue.toast(message,{
+    mode: 'override'
+  })
+})
 
 
 

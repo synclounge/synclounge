@@ -18,6 +18,9 @@ function getSetting(key) {
 function setSetting(key,value) {
   return window['localStorage'].setItem(key,value)
 }
+function sendNotification(message){
+  return window.EventBus.$emit('notification',message)
+}
 
 if(!getSetting('INIT')){
   // Initially setup our settings
@@ -79,23 +82,29 @@ const mutations = {
   SET_CHOSENCLIENT(state,client){    
     function playbackChange(ratingKey){
       console.log('Playback change!')
-        if (ratingKey != null) { 
-            // Playing something different!
-            let server = state.plex.getServerById(state.chosenClient.lastTimelineObject.machineIdentifier)
-            if (!server){
-                return
-            }
-            // Fetch our metadata from this server
-            console.log('Loading content metadata from store ' + ratingKey)
-            server.getMediaByRatingKey(ratingKey.replace('/library/metadata/',''),function(metadata){
-                if (!metadata){
-                    return
-                }
-                state.chosenClient.clientPlayingMetadata = metadata
-            })
-        } else {
-            state.chosenClient.clientPlayingMetadata = null
-        }
+      if (ratingKey != null) { 
+          // Playing something different!
+          let server = state.plex.getServerById(state.chosenClient.lastTimelineObject.machineIdentifier)
+          if (!server){
+              return
+          }
+          // Fetch our metadata from this server
+          console.log('Loading content metadata from store ' + ratingKey)
+          server.getMediaByRatingKey(ratingKey.replace('/library/metadata/',''),function(metadata){
+              if (!metadata){
+                  return
+              }
+              if (metadata.type == 'movie'){
+                sendNotification('Now Playing: ' + metadata.title + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name )
+              }              
+              if (metadata.type == 'episode'){
+                sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name )
+              }
+              state.chosenClient.clientPlayingMetadata = metadata
+          })
+      } else {
+          state.chosenClient.clientPlayingMetadata = null
+      }
     }
     function newTimeline(timeline){   
       console.log('Got timeline')
@@ -424,6 +433,7 @@ const plexTogether = {
       'connect timeout': 7000,path:'/ptserver/socket.io' })
       state._socket.on('connect',function(result){
           // Good connection
+          sendNotification('Connected to ' + address)
           callback({
             result:true,
             data:result
@@ -462,6 +472,7 @@ const plexTogether = {
             commit('SET_ME',_data.username)
             commit('SET_CHAT',true)
 
+            sendNotification('Joined room: ' + _data.room)
 
             // Generate our short url/invite link    
             console.log('generating our invite link')    
@@ -568,6 +579,7 @@ const plexTogether = {
                 }
                 if (hostTimeline.playerState == 'stopped' && ourTimeline.state != 'stopped'){
                   console.log('Pressing stop because the host did')
+                  sendNotification('The host pressed stop')
                   rootState.chosenClient.pressStop(() => {
                     state.decisionBlocked = false
                   })
@@ -585,8 +597,12 @@ const plexTogether = {
                   // We need to autoplay!
                   rootState.blockAutoPlay = true
                   state.decisionBlocked = true
+                  sendNotification('Searching ' + rootState.plex.servers.length + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
                   rootState.plex.playContentAutomatically(rootState.chosenClient,hostTimeline, function(result){
                     console.log('Auto play result: ' + result)
+                    if (!result){
+                      sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle)
+                    }
                     state.decisionBlocked = false
                     setTimeout(function(){
                       rootState.blockAutoPlay = false
@@ -597,12 +613,14 @@ const plexTogether = {
                 let difference = Math.abs((parseInt(ourTimeline.time) + parseInt(timelineAge)) - parseInt(hostTimeline.time))
 
                 if (hostTimeline.playerState == 'playing' && ourTimeline.state == 'paused'){
+                  sendNotification('The host pressed play')
                   rootState.chosenClient.pressPlay(function(){
                     checkForSeek()
                   })
                   return
                 }
                 if (hostTimeline.playerState == 'paused' && ourTimeline.state == 'playing'){
+                  sendNotification('The host pressed pause')
                   rootState.chosenClient.pressPause(function(){
                     checkForSeek()
                   })
@@ -654,12 +672,7 @@ const plexTogether = {
                             },difference)
                           }
                           rootState.chosenClient.pressPause(function(result,responseTime){
-                          })
-                          
-                        
-
-
-                        
+                          })                          
                       } else {
                         state.decisionBlocked = true
                         rootState.chosenClient.seekTo(parseInt(hostTimeline.time) + 10000,function(){
@@ -668,8 +681,6 @@ const plexTogether = {
                       }
                     return
                   }
-                  
-
                   function cleanSeek(){
                     state.decisionBlocked = true
                     rootState.chosenClient.seekTo(parseInt(hostTimeline.time),function(result){
@@ -683,6 +694,7 @@ const plexTogether = {
               }
             })
             state._socket.on('disconnect',function(data){
+              sendNotification('Disconnected from the PlexTogether server')
               if (data == 'io client disconnect'){
                 console.log('We disconnected from the server')              
                 commit('SET_ROOM',null)
@@ -710,7 +722,6 @@ const plexTogether = {
           }     
           return data.callback(result)       
       })
-
     },
     disconnectServer({state, commit, rootState}){
       state._socket.disconnect()              
@@ -738,8 +749,7 @@ const plexTogether = {
       }
     },
     getServerList(){
-    },
-    
+    },    
   }
 }
 function getHandshakeUser(user,room,password){

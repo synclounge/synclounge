@@ -16,10 +16,12 @@
               <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%; overflow-y: auto">               
                   <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
                       <walkthrough></walkthrough>
-                  </div>                  
-                  <plexbrowser v-if="showBrowser"></plexbrowser>
-                  <ptplayer v-if="isPTPlayer"></ptplayer>
-                  <nowplaying v-if="showMetadata"></nowplaying>
+                  </div>
+                  <div v-else>
+                    <plexbrowser v-if="showBrowser"></plexbrowser>
+                    <ptplayer v-if="isPTPlayer"></ptplayer>
+                    <nowplaying v-if="showMetadata"></nowplaying>
+                 </div>
               </div>
 
               <!-- CHAT INTERFACE -->
