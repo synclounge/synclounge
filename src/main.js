@@ -16,7 +16,9 @@ window.EventBus = new Vue()
 require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
 
 // mount with global 
-Vue.use(VueLazyload)
+Vue.use(VueLazyload,{
+  lazyComponent: true
+})
 Vue.use(VueObserveVisibility)
 Vue.use(VueVideoPlayer)
 Vue.use(VueClipboards)

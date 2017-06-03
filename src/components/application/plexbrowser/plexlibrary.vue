@@ -1,13 +1,7 @@
 <template>
-    <span >
+    <span>
         <span v-on:click="reset()"> {{ library.title }} <span v-if="browsingContent"> > </span></span>   
         <div v-if="!browsingContent" >
-            <div v-if="!browsingLibrary" class="row">          
-                <div v-if="!browsingContent" class="input-field col l2 offset-l10 valign">
-                    <input  v-model="searchPhrase" id="search" type="text">      
-                    <label for="search">Search</label>
-                </div>
-            </div>
             <div v-if="contents && !browsingContent" style="height:100%">
                 <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)" v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh; min-height:200px">
                     <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
@@ -67,11 +61,6 @@ var _ = require('lodash');
     beforeDestroy(){
         
     },
-    watch: {
-        searchPhrase: function(){
-            this.filterItems()
-        }
-    },
     computed: {
     },
     watch: {
@@ -81,6 +70,9 @@ var _ = require('lodash');
     methods: {
         setContent(content){
             this.browsingContent = content
+        },
+        handler(component){
+            console.log(component)
         },
         getThumb(object){
             console.log('Getting url for thumb ' + object.thumb)
