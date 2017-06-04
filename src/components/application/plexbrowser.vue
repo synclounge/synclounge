@@ -1,7 +1,7 @@
 <template>
     <div> 
         <span v-if="browsingServer || selectedItem">            
-            <span v-on:click="reset()" class="material-icons" style="padding-left:1%">home</span>
+            <span v-on:click="reset()" class="material-icons" style="padding-left:1%; cursor: pointer; line-height: 1.5em">home</span>
         </span>
         <div v-if="!browsingServer && !selectedItem">
             <div v-if="!selectedItem && !browsingServer" class="row"  style="height:100%; width:100%; overflow-y:auto; padding:1%">

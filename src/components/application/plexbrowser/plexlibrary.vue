@@ -1,11 +1,11 @@
 <template>
     <span>
-        <span v-on:click="reset()"> {{ library.title }} <span v-if="browsingContent"> > </span></span>   
+        <span v-on:click="reset()" style="cursor: pointer !important"> {{ library.title }} <span v-if="browsingContent"> > </span></span>   
         <div v-if="!browsingContent" >
             <div v-if="contents && !browsingContent" style="height:100%">
-                <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)" v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable" style="padding:0.5%;box-shadow:none;height:20vh; min-height:200px">
-                    <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                    <div style="padding:3%; padding-left:1%; height:25%;">
+                <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)" v-on:click.native="setContent(content)" class="col l1 m3 s4" style="padding:0.5%; box-shadow:none;">
+                        <img style="height:auto; width:100%" v-lazy="getThumb(content)"/>
+                    <div style="padding:3%; padding-left:1%;">
                         <span style="font-size: 1vh; vmin: 2vh" class="card-title truncate">{{ content.title }}</span>
                         <div> 
                             <label v-if="content.type == 'show'"> {{ content.childCount }} seasons </label> 

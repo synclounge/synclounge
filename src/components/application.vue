@@ -1,17 +1,13 @@
 <template>
 	<div class="main-body mdc-typography" style="height: calc(100% - 64px);overflow-y:hidden">
       <div class="nav-wrapper hide-on-large-only"><a id="logo-container" href="#" class="brand-logo"></a>
-        <ul id="nav-mobile" class="side-nav" style="height: 100%">
-          <sidebar :mobile="true"></sidebar>
-        </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse btn-floating btn-large waves-effect waves-light plex-gamboge" style="position: fixed; bottom: 15px; left: 15px"><i class="material-icons">keyboard_arrow_right</i></a>
       </div>
       <div class="content row" style="margin-bottom: 0">
           <div class="row main-body" style="height: 100%; margin-bottom: 0">
 
               <!-- MAIN CONTENT -->
               <div class="col l12 s12 center" id="main-body" v-if="!validDevices" style="padding-top:5%">               
-                    <v-progress-circular yellow active large></v-progress-circular>
+                    <v-progress-circular active large></v-progress-circular>
               </div>
               <div class="col l12 s12 no-padding" id="main-body" v-if="validDevices" style="height: 100%; overflow-y: auto">               
                   <div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">

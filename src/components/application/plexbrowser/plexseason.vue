@@ -1,6 +1,6 @@
 <template>
     <span>
-        <span v-on:click="reset()"> Season {{ content.index }}<span v-if="browsingContent"> > </span> </span>
+        <span v-on:click="reset()" style="cursor: pointer !important"> Season {{ content.index }}<span v-if="browsingContent"> > </span> </span>
         <div v-if="!browsingContent" class="row">
             <div v-if="contents && !browsingContent">            
                 <v-card class="blue-grey darken-1 col l12 s12 hoverable" style="height:100%;box-shadow:none">

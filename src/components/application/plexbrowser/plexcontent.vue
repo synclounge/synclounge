@@ -1,6 +1,6 @@
 <template>
     <span>
-        <span v-on:click="reset()">{{ title }}</span>
+        <span v-on:click="reset()" style="cursor: pointer !important">{{ title }}</span>
         <div v-if="!browsingContent">
             <div v-if="contents && !browsingContent">                
                 <v-card class="blue-grey darken-1 col l12 s12" style="height:100%;box-shadow:none">
