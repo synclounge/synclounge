@@ -10,7 +10,7 @@ Utilising [Vue.js](https://vuejs.org/) and Webpack, Plex Together has been rewri
 ## How it works
 Plex Together aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this Plex Together utilizes a middle-man server to communicate between each of Plex Together clients. Users choose their Plex client, decide on a Plex Together Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
 
-The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, Plex Together will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.  
+The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, Plex Together will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.
 
 ## Features
 * Syncing between Plex Clients over the Internet
@@ -83,12 +83,12 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 * Kodi
 
 #### Streaming Devices
-* Amazon Fire TV  
+* Amazon Fire TV
 * Android TV
 * Chromecast
 * TiVo
 
-#### TVs and Consoles		
+#### TVs and Consoles
 * Xbox One
 * Xbox 360
 * PS3
@@ -137,8 +137,7 @@ docker create \
 	*  ``cd plextogether``
 	*  ``npm install``
 	*  ``npm run build``
-	*  Change the accessIp variable in webapp.js to the address users will be using to access PT (used for invite links)
-	*  ``npm run webapp``
+	*  ``node webapp.js --url=http://example.com/ptweb``
 * The PT web app will be running at http://ip:8088/ptweb.
 
 
@@ -148,7 +147,6 @@ docker create \
 
 	*  ``git clone https://github.com/samcm/plextogether``
 	*  ``cd plextogether``
-	*  ``cd server``
 	*  ``npm install``
 	*  ``npm run server``
 * The PT server will be running at http://ip:8089/ptserver.
@@ -165,13 +163,13 @@ docker create \
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
-    	}     	
+    	}
     	location /ptserver {
     		proxy_pass http://localhost:8089/ptserver;
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
-    	}     	
+    	}
     	location / {
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
@@ -216,11 +214,12 @@ If you run in to any issues:
 ## Contributors
 [samcm](https://twitter.com/durksau) - Developer
 
-[pureMidi](https://twitter.com/midnitegc) - User Interface
+[gcordalis](https://twitter.com/midnitegc) - User Interface
 
 [Brandz](https://twitter.com/homebrandz) - Design
 
 [TheGrimmChester](https://github.com/TheGrimmChester) - Developer/Tester
+
 
 kg6jay - Tester
 
