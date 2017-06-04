@@ -1,15 +1,24 @@
 // ABOUT
 // Runs the Plex Together Web App - handles serving the static web content and link shortening services
-// Defaults to 8088
+// Port defaults to 8088
+// REQUIRED: --url argument
 
-
-// USER CONFIG
+const args = require("args-parser")(process.argv)
+if (!args['url']){
+  console.log('Missing required argument -url. EG. "node webapp.js --url=http://example.com/ptweb". This URL is used for redirecting invite links.')
+  return
+}
+var accessIp = args['url'] // EG 'http://95.231.444.12:8088/ptweb' or 'http://example.com/ptweb'
+if (accessIp.indexOf('/ptweb') == -1){
+  console.log('WARNING: /ptweb was not found in your url. Unless you have changed the URL Base make sure to include this.')
+}
 var PORT = 8088
-var accessIp = 'http://ip:port/ptweb' // EG 'http://95.231.444.12:8088/ptweb' or 'http://example.com/ptweb' 
-
-
-
-
+if (args['port']){
+  PORT = parseInt(args['port'])
+} else {
+  console.log('Defaulting to port 8088')
+}
+// USER CONFIG
 
 // END USER CONFIG
 var express = require('express');
@@ -34,14 +43,15 @@ webapp.get('/invite/:id',function(req,res){
     console.log('handling an invite')
     let shortObj = shortenedLinks[req.params.id]
     if (!shortObj){
-        return res.send('Whoops, looks like youve made a wrong turn..')        
+        return res.send('Invite expired')
     }
     console.log('Redirecting an invite link')
+    console.log(JSON.stringify(shortObj,null,4))
     return res.redirect(shortObj.fullUrl)
 })
 root.use('/ptweb',webapp)
 root.get('*',function(req,res){
-    console.log('Catch all')
+    console.log('Catch all - have you run `npm run build`?')
     return res.redirect('/ptweb')
 })
 
@@ -56,7 +66,7 @@ var webapp_io = require('socket.io')(rootserver,{path: '/ptweb/socket.io'});
 
 var shortenedLinks = {}
 
-function getUniqueId(){    
+function getUniqueId(){
     while (true){
         let testId = (0|Math.random()*9e6).toString(36)
         if (!shortenedLinks[testId]){    // Check if we already have a shortURL using that id
@@ -91,14 +101,14 @@ function shortenObj(data){
     for (let key in params) {
         query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
     }
-    returnable.fullUrl = accessIp + '/#/?' + query
+    returnable.fullUrl = accessIp + '/#/join?' + query
 
     shortenedLinks[returnable.id] = returnable
     return returnable.shortUrl
-} 
+}
 
 webapp_io.on('connection', function(socket){
-    console.log('Someone connected to the webapp socket')
+    console.log('New connection to the webapp socket')
     socket.on('shorten',function(data){
         console.log('Creating a shortened link')
         socket.emit('shorten-result',shortenObj(data))
