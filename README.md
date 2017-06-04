@@ -220,6 +220,7 @@ If you run in to any issues:
 
 [TheGrimmChester](https://github.com/TheGrimmChester) - Developer/Tester
 
+[Starbix](https://github.com/Starbix) - Docker Support
 
 kg6jay - Tester
 
