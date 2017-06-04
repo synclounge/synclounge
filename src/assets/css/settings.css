@@ -1,26 +1,26 @@
 html,
 body {
-    background: #044D7F;
-    overflow: hidden;
+  background: #044D7F;
+  overflow: hidden;
 }
 
 #settings-screen {
-    color: #fff;
+  color: #fff;
 }
 
 h2 {
-    margin-top: 8px;
+  margin-top: 8px;
 }
 
 input,
 label {
-    -webkit-app-region: no-drag;
+  -webkit-app-region: no-drag;
 }
 
 input {
-    padding: 10px;
+  padding: 10px;
 }
 
 .close {
-    -webkit-app-region: no-drag;
+  -webkit-app-region: no-drag;
 }

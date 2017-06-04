@@ -2,26 +2,26 @@
  * Like, basically PERFECT scrollbars
  */
 
-/* 
-   It's pure CSS. 
+/*
+   It's pure CSS.
    Since a quick google search will confirm people going crazy about Mac OS Lion scrollbars...
    this has no fade-out effect.
-  
+
    In Mac OS Lion, the lowest common denominator is always showing scrollbars by a setting.
    So, this fits that lowest common denominator.
    Facebook, lifehacker, and Google have all basically taken this approach. Of course Google uses incredibly ugly square scrollbars, but so be it.
    Also, in regards to the fade in/out effect, this may just be one reason why soo many people outraged (and still hide) the ticker.
    Ending note: I recommend this for non-lion users. As a lion user, I prefer my fading out scrollbars. If you sniff a UA of mac os lion, don't add this css.
 */
- 
 
 /* Turn on custom 8px wide scrollbar */
 ::-webkit-scrollbar {
   width: 5px; /* 1px wider than Lion. */
   /* This is more usable for users trying to click it. */
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   -webkit-border-radius: 100px;
 }
+
 /* hover effect for both scrollbar area, and scrollbar 'thumb' */
 ::-webkit-scrollbar:hover {
   background-color: rgba(0, 0, 0, 0.09);
@@ -29,22 +29,23 @@
 
 /* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
 ::-webkit-scrollbar-thumb:vertical {
-  /* This is the EXACT color of Mac OS scrollbars. 
+  /* This is the EXACT color of Mac OS scrollbars.
      Yes, I pulled out digital color meter */
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   -webkit-border-radius: 100px;
 }
+
 ::-webkit-scrollbar-thumb:vertical:active {
-  background: rgba(0,0,0,0.61); /* Some darker color when you click it */
+  background: rgba(0, 0, 0, 0.61); /* Some darker color when you click it */
   -webkit-border-radius: 100px;
 }
 
 /*
-  After doing my first post here on Dabblet, I dug into their custom 
+  After doing my first post here on Dabblet, I dug into their custom
   scrollbar css.
-  
+
   here that is, I starred the box-shadow css for the nice pop.
-  
+
 section.page:not(.focus):not(:hover)::-webkit-scrollbar {
   display: none;
 }
