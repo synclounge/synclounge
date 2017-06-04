@@ -56,8 +56,8 @@
                     <div style="padding-bottom:2%">
                         <label>Platform</label><span v-tooltip="testClient.platformVersion">  {{ testClient.platform }} </span>
                     </div> 
-                    <div v-if="testClientWaiting" class="center">
-                        <v-progress-circular :class="spinner-plex-orange-only" small active></v-progress-circular>
+                    <div v-if="testClientWaiting" class="center spinner-orange">
+                        <v-progress-circular small active></v-progress-circular>
                     </div>                    
                     <div v-if="!testClientWaiting">
                         <button :disabled="!testClient" v-on:click="clientClicked()" v-bind:style="{ opacity: upToStep2 }" class="btn-large mdc-button mdc-button--raised mdc-button--accent plex-gamboge ptsettings" style="width: 100%">

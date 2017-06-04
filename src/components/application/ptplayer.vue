@@ -15,16 +15,16 @@
             :createdAt="playerCreatedAt"
         ></videoplayer>
         <sweet-modal ref="playersettingsModal" modal-theme="dark" overlay-theme="dark">
-            <h3> Playback Settings </h3>
-            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+            <h2> Playback Settings </h2>
+            <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
                     <v-select name="select"
-                                id="select"
-                                v-model="chosenMediaIndex"
-                                :items="mediaIndexSelect"
+                            id="select"
+                            v-model="chosenMediaIndex"
+                            :items="mediaIndexSelect"
                     ></v-select>
                     <label for="select">Version</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
                 <v-select name="select"
                             id="select"
                             v-model="chosenQuality"
@@ -32,7 +32,7 @@
                 ></v-select>
                 <label for="select">Quality</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
                 <v-select name="select"
                             id="select"
                             v-model="chosenAudioTrackIndex"
@@ -41,7 +41,7 @@
                 ></v-select>
                 <label for="select">Audio</label>
             </div>            
-            <div v-if="playingMetadata && chosenServer" class="input-field col l3 s12">
+            <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
                 <v-select name="select"
                             id="select"
                             v-model="chosenSubtitleIndex"

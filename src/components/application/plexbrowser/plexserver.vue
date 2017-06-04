@@ -1,6 +1,6 @@
 <template>
     <span>
-        <span v-on:click="reset()">{{ server.name }}<span v-if="browsingLibrary || selectedItem"> ></span></span>
+        <span v-on:click="reset()" style="cursor: pointer !important">{{ server.name }}<span v-if="browsingLibrary || selectedItem"> ></span></span>
         <div v-if="!browsingLibrary && !selectedItem">
             <div v-if="!libraries && !browsingLibrary" class="center" >
                 <v-progress-circular active large></v-progress-circular>

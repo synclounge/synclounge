@@ -48,6 +48,21 @@
   background-color: rgba(39, 44, 56, 1) !important
 }
 
+.select-dropdown li.disabled {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.testDropdown .select-dropdown {
+  width: 100% !important;
+  max-height: 300px;
+}
+
+.dropdown-content li.disabled > span {
+  color: rgba(255, 255, 255, 0.6) !important 
+}
+
+.spinner-layer spinner-blue-only
+
 h1 {
   color: rgba(240,245,255,0.85) !important;
 }
@@ -84,6 +99,13 @@ a {
   color: #E5A00D !important;
 }
 
+v-progress-circular {
+  color:  #E5A00D !important;
+}
+
+img[lazy=error] {
+  content: url('../img/poster.jpg');
+}
 
 /* 
   MODAL 
