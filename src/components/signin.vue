@@ -1,5 +1,5 @@
 <template>
-  <div class="window">  
+  <div class="window">
       <div class="window-content">
           <div class="container">
               <div class="row">
@@ -11,38 +11,38 @@
 
                       <div v-if="!pin" class="center spinner-orange">
                             <v-progress-circular active large></v-progress-circular>
-                      </div>      
+                      </div>
                       <div v-if="token" class="center row">
                         <div class="col s12 l4 offset-l4">
                           <i style="font-size:150px; color:green" class="material-icons">done</i>
-                        </div>                       
-                         <div class="col s12 l4 offset-l4">                          
+                        </div>
+                         <div class="col s12 l4 offset-l4" style="color:white">
                             Signed in!
                         </div>
-                      </div> 
-                      <div v-if="pin && !token">                       
+                      </div>
+                      <div v-if="pin && !token">
                         <div class="row">
                             <div class="col s12 l4 offset-l4">
                                 <h1 class="center">{{ pin }}</h1>
                             </div>
-                        </div>              
-                        <div class="row">                           
-                            <div class="col s4 l4 offset-l4 offset-s4">                                
+                        </div>
+                        <div class="row">
+                            <div class="col s4 l4 offset-l4 offset-s4">
                                 <button style="width:100%;background-color: #E5A00D" class="waves-effect waves-light btn" v-clipboard="pin"><i class="material-icons left">content_paste</i>Copy</button>
                             </div>
                             <div class="col s12 l12">
                                 <p class="center">Enter the pin above at <a target="_blank" href="https://plex.tv/link"> https://plex.tv/link </a></p>
                             </div>
 
-                        </div>                      
+                        </div>
                         <div class="row center">
                           <label class="col s12"> Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run Plex Together yourself
-                            have a look <a target="_blank" href="https://github.com/samcm/plextogether"> here </a> for details. </label>  
+                            have a look <a target="_blank" href="https://github.com/samcm/plextogether"> here </a> for details. </label>
                         </div>
                       </div>
-                  </div>                  
+                  </div>
               </div>
-          </div>  
+          </div>
       </div>
   </div>
 </template>
@@ -142,13 +142,13 @@ export default {
                 }
                 request(options, callback);
               },2000)
-          }           
+          }
         })
         return
       })
     }
     getPin()
-    
+
   },
   methods: {
     signout: function(){
@@ -161,7 +161,7 @@ export default {
       var that = this
       var base64encoded = new Buffer(this.user + ":" + this.pass).toString('base64')
 
-      
+
     }
   }
 }

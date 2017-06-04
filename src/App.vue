@@ -7,13 +7,14 @@
 
 <script>
 import Navbar from './components/Navbar'
-import 'assets/css/materialize.css'; 
-import 'assets/js/materialize.js'; 
+import 'assets/css/materialize.css';
+import 'assets/js/materialize.js';
 
 
 
 export default {
   mounted (){
+    console.log('route',this.$route)
     if (this.$route.query.ptserver && this.$route.query.ptroom){
         console.log('We should auto join')
         // Looks like a valid request...

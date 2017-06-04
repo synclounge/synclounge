@@ -28,7 +28,7 @@ if(!getSetting('INIT')){
   setSetting('CLIENTPOLLINTERVAL',1000)
   setSetting('DARKMODE',false)
   setSetting('SYNCMODE','cleanseek')
-  setSetting('SYNCFLEXABILITY',4000)  
+  setSetting('SYNCFLEXABILITY',3000)
   setSetting('CUSTOMSERVER','http://')
   setSetting('INIT',true)
 }
@@ -36,20 +36,20 @@ if(!getSetting('INIT')){
 let _webapp_socket = null
 if (process.env.NODE_ENV == 'development'){
   console.log('running in development')
-  /*
+
   _webapp_socket = socketio.connect(''+window.location.hostname+':8088',{'forceNew':true,'connect timeout': 1000,path: '/ptweb/socket.io'})
   _webapp_socket.on('connection',function(){
-  })     
+  })
   _webapp_socket.on('connect_error',function(){
-  })    
-  */ 
+  })
+
 } else {
   _webapp_socket = socketio.connect({'forceNew':true,
-  'connect timeout': 1000,path: '/ptweb/socket.io'})  
+  'connect timeout': 1000, path: '/ptweb/socket.io'})
   _webapp_socket.on('connection',function(){
-  })     
+  })
   _webapp_socket.on('connect_error',function(){
-  })    
+  })
 }
 
 const state = {
@@ -57,7 +57,7 @@ const state = {
   appTitle: 'PlexTogether',
   appVersion: '1.0.0',
   shownChat: false,
-  plex: null, 
+  plex: null,
   chosenClient: null,
   chosenClientTimeSet: (new Date).getTime(),
   plexuser: JSON.parse(window['localStorage'].getItem('plexuser')),
@@ -79,10 +79,10 @@ const state = {
 }
 
 const mutations = {
-  SET_CHOSENCLIENT(state,client){    
+  SET_CHOSENCLIENT(state,client){
     function playbackChange(ratingKey){
       console.log('Playback change!')
-      if (ratingKey != null) { 
+      if (ratingKey != null) {
           // Playing something different!
           let server = state.plex.getServerById(state.chosenClient.lastTimelineObject.machineIdentifier)
           if (!server){
@@ -96,9 +96,9 @@ const mutations = {
               }
               if (metadata.type == 'movie'){
                 sendNotification('Now Playing: ' + metadata.title + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name )
-              }              
+              }
               if (metadata.type == 'episode'){
-                sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name )
+                sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name)
               }
               state.chosenClient.clientPlayingMetadata = metadata
           })
@@ -106,7 +106,7 @@ const mutations = {
           state.chosenClient.clientPlayingMetadata = null
       }
     }
-    function newTimeline(timeline){   
+    function newTimeline(timeline){
       console.log('Got timeline')
       if (!state.plextogether.connected){
         return
@@ -140,15 +140,15 @@ const mutations = {
       state.plextogether._socket.pollStartTime = (new Date).getTime()
       state.plextogether._socket.emit('poll',end_obj)
     }
-              
-    // Set up our client poller 
+
+    // Set up our client poller
     function clientPoller(time){
       if (state.chosenClient == null){
           return
       }
       if (state.chosenClientTimeSet != time){
-        // We have a new chosen client, we need to stop 
-        return 
+        // We have a new chosen client, we need to stop
+        return
       }
       state.chosenClient.getTimeline(function(timeline){
           //console.log(timeline)
@@ -156,43 +156,43 @@ const mutations = {
       setTimeout(function(){
         clientPoller(time)
       },state.CLIENTPOLLINTERVAL)
-    }      
+    }
 
     // Check if we need to remove old handlers
     if (state.chosenClient){
-      state.chosenClient.events.removeAllListeners(); 
+      state.chosenClient.events.removeAllListeners();
     }
-    state.chosenClient = client   
+    state.chosenClient = client
     if (state.chosenClient && state.chosenClient.lastTimelineObject){
       state.chosenClient.lastTimelineObject.ratingKey = -1
-    }      
+    }
     if (state.chosenClient == null){
       return
     }
-    state.chosenClient.events.on('new_timeline',newTimeline)         
-    state.chosenClient.events.on('playback_change',playbackChange)  
+    state.chosenClient.events.on('new_timeline',newTimeline)
+    state.chosenClient.events.on('playback_change',playbackChange)
     state.chosenClientTimeSet = (new Date).getTime()
     clientPoller(state.chosenClientTimeSet)
-    state.chosenClient.getTimeline(function(timeline){})  
-      
+    state.chosenClient.getTimeline(function(timeline){})
 
-    
+
+
   },
   SET_PLEX(state,value){
     state.plex = value
-  },  
+  },
   SET_AUTOJOIN(state,value){
     state.autoJoin = value
-  },  
+  },
   SET_AUTOJOINROOM(state,value){
     state.autoJoinRoom = value
-  },  
+  },
   SET_AUTOJOINPASSWORD(state,value){
     state.autoJoinPassword = value
-  },  
+  },
   SET_AUTOJOINURL(state,value){
     state.autoJoinUrl = value
-  },  
+  },
   SET_SHORTLINK(state,value){
     state.shortLink = value
   },
@@ -208,11 +208,11 @@ const mutations = {
   setSettingSYNCMODE(state,data){
     setSetting('SYNCMODE',data)
     state.SYNCMODE = data
-  },  
+  },
   setSettingSYNCFLEXABILITY(state,data){
     setSetting('SYNCFLEXABILITY',data)
     state.SYNCFLEXABILITY = data
-  },  
+  },
   setSettingCUSTOMSERVER(state,data){
     setSetting('CUSTOMSERVER',data)
     state.CUSTOMSERVER = data
@@ -220,7 +220,7 @@ const mutations = {
   setSettingDARKMODE(state,data){
     setSetting('DARKMODE',data)
     state.DARKMODE = data
-  },  
+  },
   setSettingHOMEINIT(state,data){
     setSetting('HOMEINIT',data)
     state.HOMEINIT = data
@@ -230,13 +230,13 @@ const mutations = {
   },
   SET_BLOCKAUTOPLAY(state,value){
     state.blockAutoPlay = value
-  },    
+  },
   SET_DECISIONBLOCKED(state,value){
     state.decisionBlocked = value
-  },  
+  },
   REFRESH_PLEXDEVICES(state){
     store.state.plex.getDevices(function(){
-      
+
     })
   },
 
@@ -273,36 +273,36 @@ const getters = {
   },
   getBlockAutoPlay: state => {
     return state.blockAutoPlay
-  },  
+  },
   getAutoJoin: state => {
     return state.autoJoin
-  },  
+  },
   getAutoJoinRoom: state => {
     return state.autoJoinRoom
-  },  
+  },
   getAutoJoinPassword: state => {
     return state.autoJoinPassword
-  },  
+  },
   getAutoJoinUrl: state => {
     return state.autoJoinUrl
-  },  
+  },
   getShortLink: state => {
     return state.shortLink
   },
 
-  // SETTINGS 
+  // SETTINGS
   getSettingCLIENTPOLLINTERVAL: state => {
     return state.CLIENTPOLLINTERVAL
-  },  
+  },
   getSettingSYNCMODE: state => {
     return state.SYNCMODE
-  },  
+  },
   getSettingSYNCFLEXABILITY: state => {
     return state.SYNCFLEXABILITY
-  },   
+  },
   getSettingCUSTOMSERVER: state => {
     return state.CUSTOMSERVER
-  },   
+  },
   getSettingDARKMODE: state => {
     return state.DARKMODE
   },
@@ -325,8 +325,8 @@ const actions = {
 
 }
 const plexTogether = {
-  state: { 
-    _io: require('socket.io-client'),     
+  state: {
+    _io: require('socket.io-client'),
     _socket:null,
     ptevents: new EventEmitter(),
     ptservers: [],
@@ -342,13 +342,13 @@ const plexTogether = {
   getters: {
     getServer: state => {
       return state.server
-    }, 
+    },
     getMe: state => {
       return state.me
     },
     getRoom: state => {
       return state.room
-    }, 
+    },
     getPassword: state => {
       return state.password
     },
@@ -365,7 +365,7 @@ const plexTogether = {
       return state._socket
     }
   },
-  mutations: { 
+  mutations: {
     SET_CONNECTED(state, value) {
       state.connected = value
     },
@@ -389,14 +389,14 @@ const plexTogether = {
     },
     ADD_MESSAGE(state,msg){
       msg.time = moment().format('h:mm A')
-      state.messages.push(msg)  
+      state.messages.push(msg)
     },
     CLEAR_MESSAGES(state,msg){
       state.messages = []
     }
    },
 
-  actions: {    
+  actions: {
     autoJoin({ state, commit, rootState, dispatch }, data){
       console.log('Attempting to auto join..')
       console.log(rootState)
@@ -420,7 +420,7 @@ const plexTogether = {
               }
           }
       })
-    }, 
+    },
     socketConnect({ state, commit, rootState },data) {
       let address = data.address
       let callback = data.callback
@@ -474,8 +474,8 @@ const plexTogether = {
 
             sendNotification('Joined room: ' + _data.room)
 
-            // Generate our short url/invite link    
-            console.log('generating our invite link')    
+            // Generate our short url/invite link
+            console.log('generating our invite link')
             console.log(state)
             let webapp_socket = rootState.webapp_socket
             let url = window.location.origin
@@ -487,7 +487,7 @@ const plexTogether = {
               ptserver: state.server,
               ptroom: state.room,
               ptpassword: state.password
-              
+
             }
             var that = this
             if (process.env.NODE_ENV != 'development'){
@@ -506,16 +506,16 @@ const plexTogether = {
             state._socket.on('poll-result',function(users){
               commit('SET_OURCLIENTRESPONSETIME', Math.abs((new Date().getTime()) - state._socket.pollStartTime))
               commit('SET_USERS',users)
-            })              
+            })
             state._socket.on('user-joined',function(users,user){
-              commit('SET_USERS',users)       
+              commit('SET_USERS',users)
               commit('ADD_MESSAGE',{
                 msg: user.username + ' joined',
                 user: user,
                 type: 'alert'
               })
               console.log(users)
-            })              
+            })
             state._socket.on('user-left',function(users,user){
               commit('SET_USERS',users)
               commit('ADD_MESSAGE',{
@@ -523,7 +523,7 @@ const plexTogether = {
                 user: user,
                 type: 'alert'
               })
-            })              
+            })
             state._socket.on('host-swap',function(user){
               if (!user){
                 return
@@ -540,8 +540,8 @@ const plexTogether = {
 
                 We need to limit how ourself to make sure we dont hit the client too hard.
                 We'll only fetch new data if our data is older than 1000ms.
-                If we need to fetch new data, we'll do that and then decide 
-                if we need to seek or start playing something. 
+                If we need to fetch new data, we'll do that and then decide
+                if we need to seek or start playing something.
                 */
               rootState.hostClientResponseTime = data.clientResponseTime
               if (state.decisionBlocked){
@@ -557,7 +557,7 @@ const plexTogether = {
                 console.log('Dont have our first timeline data yet.')
                 return
               }
-              // Check previous timeline data age 
+              // Check previous timeline data age
               let timelineAge = new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt
               if (timelineAge > 1000){
                 rootState.chosenClient.getTimeline(function(newtimeline){
@@ -591,7 +591,7 @@ const plexTogether = {
                 }
                 // Check if we need to autoplay
                 if ((ourTimeline.state == 'stopped' || !ourTimeline.state) && (hostTimeline.playerState != 'stopped')){
-                  if (rootState.blockAutoPlay){
+                  if (rootState.blockAutoPlay || !hostTimeline.rawTitle){
                     return
                   }
                   // We need to autoplay!
@@ -629,7 +629,7 @@ const plexTogether = {
                 checkForSeek()
                 function checkForSeek(){
                   if (parseInt(difference) > parseInt(rootState.SYNCFLEXABILITY) ){
-                    // We need to seek! 
+                    // We need to seek!
                     console.log('STORE: we need to seek')
                     // Decide what seeking method we want to use
                     if (rootState.SYNCMODE == 'cleanseek'){
@@ -672,7 +672,7 @@ const plexTogether = {
                             },difference)
                           }
                           rootState.chosenClient.pressPause(function(result,responseTime){
-                          })                          
+                          })
                       } else {
                         state.decisionBlocked = true
                         rootState.chosenClient.seekTo(parseInt(hostTimeline.time) + 10000,function(){
@@ -686,7 +686,7 @@ const plexTogether = {
                     rootState.chosenClient.seekTo(parseInt(hostTimeline.time),function(result){
                       console.log('Result from within store for seek was ' + result)
                       console.log('Setting decision blocked to false ')
-                      state.decisionBlocked = false 
+                      state.decisionBlocked = false
                     })
                   }
                 }
@@ -696,10 +696,10 @@ const plexTogether = {
             state._socket.on('disconnect',function(data){
               sendNotification('Disconnected from the PlexTogether server')
               if (data == 'io client disconnect'){
-                console.log('We disconnected from the server')              
+                console.log('We disconnected from the server')
                 commit('SET_ROOM',null)
                 commit('SET_PASSWORD',null)
-                commit('SET_USERS',[])            
+                commit('SET_USERS',[])
                 commit('SET_CONNECTED',false)
                 commit('SET_SERVER',null)
                 commit('SET_CHAT',false)
@@ -712,22 +712,22 @@ const plexTogether = {
             state._socket.on('new_message',function(msgObj){
               commit('ADD_MESSAGE',msgObj)
             })
-    
+
           } else {
-            commit('SET_ME',null)              
+            commit('SET_ME',null)
             commit('SET_ROOM',null)
             commit('SET_PASSWORD',null)
             commit('SET_USERS',[])
             commit('SET_CHAT',false)
-          }     
-          return data.callback(result)       
+          }
+          return data.callback(result)
       })
     },
     disconnectServer({state, commit, rootState}){
-      state._socket.disconnect()              
+      state._socket.disconnect()
       commit('SET_ROOM',null)
       commit('SET_PASSWORD',null)
-      commit('SET_USERS',[])            
+      commit('SET_USERS',[])
       commit('SET_CONNECTED',false)
       commit('SET_SERVER',null)
       commit('SET_CHAT',false)
@@ -749,7 +749,7 @@ const plexTogether = {
       }
     },
     getServerList(){
-    },    
+    },
   }
 }
 function getHandshakeUser(user,room,password){
@@ -760,7 +760,7 @@ function getHandshakeUser(user,room,password){
       'avatarUrl':user.thumb
   }
   return tempUser
-} 
+}
 const store = new Vuex.Store({
   state,
   mutations,
