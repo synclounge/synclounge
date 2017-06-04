@@ -2,7 +2,7 @@
 ::-webkit-scrollbar {
   width: 7px;
 
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   -webkit-border-radius: 100px;
 }
 
@@ -11,12 +11,12 @@
 }
 
 ::-webkit-scrollbar-thumb:vertical {
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   -webkit-border-radius: 100px;
 }
 
 ::-webkit-scrollbar-thumb:vertical:active {
-  background: rgba(0,0,0,0.61);
+  background: rgba(0, 0, 0, 0.61);
   background-clip: padding-box;
   border: 2px solid rgba(0, 0, 0, 0);
   -webkit-border-radius: 100px;
