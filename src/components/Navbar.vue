@@ -56,14 +56,14 @@
         </ul>
       </div>
     </div>
-    <div v-if="!darkMode">
-      <sweet-modal ref="settingsModal" overlay-theme="dark" modal-theme="dark">
+    <sweet-modal class="prefsModal" ref="settingsModal" overlay-theme="dark" modal-theme="dark">
+      <sweet-modal-tab title="PlexTogether Settings" id="pt">
         <settings></settings>
-      </sweet-modal>
-      <sweet-modal ref="statisticsModal" overlay-theme="dark" modal-theme="dark">
-        <statistics></statistics>
-      </sweet-modal>
-    </div>
+      </sweet-modal-tab>
+      <sweet-modal-tab title="Plex Settings" id="plex">
+        <plexsettings></plexsettings>
+      </sweet-modal-tab>
+    </sweet-modal>
 
   </div>
 </template>
@@ -74,15 +74,13 @@
   import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
   import settings from './application/settings'
   import statistics from './application/statistics'
-  import invite from './application/invite'
-
-  var ip = require('ip');
+  import plexsettings from './application/plexsettings'
 
   export default {
     components: {
       settings,
+      plexsettings,
       statistics,
-      invite,
       SweetModal,
       SweetModalTab
     },

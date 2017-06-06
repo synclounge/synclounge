@@ -1,8 +1,13 @@
 <template>
   <div class="container" style="padding: 10px; font-family:'Open Sans', sans-serif !important;">
-    <div class="row" style="margin-bottom: 0;">
+    <div class="row">
       <div class="col s12">
-        <h4 style="padding-bottom: 10px; float: right">Settings</h4>
+        <div class="col s2 offset-s3">
+          <img style="width:100%;height:auto" v-bind:src="logo"/>
+        </div>
+        <div class="col s4">
+          <h3 style="">PlexTogether Settings</h3>
+        </div>
       </div>
     </div>
     <div class="row" style="margin-bottom: 0;">
@@ -93,6 +98,9 @@
       },
       context: function () {
         return this.$store
+      },
+      logo: function () {
+        return 'static/logo-small-light.png'
       },
       syncmode: {
         get () {

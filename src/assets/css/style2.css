@@ -131,6 +131,10 @@ img[lazy=error] {
   background: rgba(39, 44, 56, 0.85) !important;
 }
 
+.blockedServers {
+  text-align:left
+}
+
 /*
   CHAT INTERFACE
 */
@@ -573,6 +577,10 @@ input[type=range] + .thumb {
 
 a {
   text-decoration: none;
+}
+
+.prefsModal .sweet-content {
+  padding-top:5px !important;
 }
 
 /*

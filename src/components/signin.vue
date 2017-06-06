@@ -7,8 +7,6 @@
             <div>
               <h1 class="center" style="color:white !important">Sign in to Plex.tv</h1>
             </div>
-
-
             <div v-if="!pin" class="center spinner-orange">
               <v-progress-circular active large></v-progress-circular>
             </div>

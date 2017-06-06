@@ -80,6 +80,7 @@ const state = {
   SYNCMODE: getSetting('SYNCMODE'),
   SYNCFLEXABILITY: getSetting('SYNCFLEXABILITY'),
   CUSTOMSERVER: getSetting('CUSTOMSERVER'),
+  BLOCKEDSERVERS: JSON.parse(window['localStorage'].getItem('BLOCKEDSERVERS')),
   HOMEINIT: getSetting('HOMEINIT'),
   stats: {}
 }
@@ -225,6 +226,10 @@ const mutations = {
   setSettingDARKMODE (state, data) {
     setSetting('DARKMODE', data)
     state.DARKMODE = data
+  },  
+  setSettingBLOCKEDSERVERS (state, data) {
+    window['localStorage'].setItem('BLOCKEDSERVERS', JSON.stringify(data))
+    state.BLOCKEDSERVERS = data
   },
   setSettingHOMEINIT (state, data) {
     setSetting('HOMEINIT', data)
@@ -309,6 +314,9 @@ const getters = {
   },
   getSettingDARKMODE: state => {
     return state.DARKMODE
+  },  
+  getSettingBLOCKEDSERVERS: state => {
+    return state.BLOCKEDSERVERS
   },
   getSettingHOMEINIT: state => {
     return state.HOMEINIT
@@ -602,8 +610,16 @@ const plexTogether = {
                 // We need to autoplay!
                 rootState.blockAutoPlay = true
                 state.decisionBlocked = true
-                sendNotification('Searching ' + rootState.plex.servers.length + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
-                rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, function (result) {
+
+                let blockedServers = rootState.BLOCKEDSERVERS
+                let validServers = 0
+                for (let i in blockedServers){
+                  if (blockedServers[i].enabled){
+                    validServers++
+                  }
+                }
+                sendNotification('Searching ' + validServers + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
+                rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, blockedServers, function (result) {
                   console.log('Auto play result: ' + result)
                   if (!result) {
                     sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle)

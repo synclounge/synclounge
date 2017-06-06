@@ -134,8 +134,8 @@ module.exports = function () {
           ptplayer.clientIdentifier = 'PTPLAYER9PLUS10'
           ptplayer.platform = 'Web'
           ptplayer.device = 'Web'
-          ptplayer.product = 'Plex Together'
-          ptplayer.name = 'Plex Together Player (BETA)'
+          ptplayer.product = 'PlexTogether'
+          ptplayer.name = 'PlexTogether Player (BETA)'
           ptplayer.lastSeenAt = Math.round((new Date).getTime() / 1000)
 
           that.clients.push(ptplayer)
@@ -233,15 +233,26 @@ module.exports = function () {
     }
     return null
   }
-  this.playContentAutomatically = function (client, hostData, callback) {
+  this.playContentAutomatically = function (client, hostData, blockedServers, callback) {
     // Automatically play content on the client searching all servers based on the title
     var that = this
 
     // First lets find all of our playable items
     let playables = []
     let j = 0
+
+    let validServers = 0
+    for (let i in blockedServers){
+      if (blockedServers[i].enabled){
+        validServers++
+      }
+    }
     for (let i = 0; i < this.servers.length; i++) {
       var server = this.servers[i]
+      if (blockedServers[server.clientIdentifier] && !blockedServers[server.clientIdentifier].enabled){
+        console.log('Server: ' + server.name + ' is blocked - not searching')
+        continue
+      }
       server.search(hostData.rawTitle, function (results, _server) {
         j++
         console.log('Heard back from ' + j + ' servers')
@@ -259,7 +270,7 @@ module.exports = function () {
           }
         }
 
-        if (j == that.servers.length) {
+        if (j == validServers) {
           console.log('Found ' + playables.length + ' playable items')
           start(playables, 0)
         }
