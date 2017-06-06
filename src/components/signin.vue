@@ -5,7 +5,7 @@
         <div class="row">
           <div v-if="plex == null" class="col s12 l6 offset-l3">
             <div>
-              <h1 class="center">Sign in to Plex.tv</h1>
+              <h1 class="center" style="color:white !important">Sign in to Plex.tv</h1>
             </div>
 
 
@@ -16,14 +16,14 @@
               <div class="col s12 l4 offset-l4">
                 <i style="font-size:150px; color:green" class="material-icons">done</i>
               </div>
-              <div class="col s12 l4 offset-l4" style="color:white">
+              <div class="col s12 l4 offset-l4" style="color:white !important">
                 Signed in!
               </div>
             </div>
             <div v-if="pin && !token">
               <div class="row">
                 <div class="col s12 l4 offset-l4">
-                  <h1 class="center">{{ pin }}</h1>
+                  <h1 class="center" style="color:white !important">{{ pin }}</h1>
                 </div>
               </div>
               <div class="row">
