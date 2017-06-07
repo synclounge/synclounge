@@ -61,7 +61,7 @@ if (process.env.NODE_ENV == 'development') {
 const state = {
   count: 0,
   appTitle: 'PlexTogether',
-  appVersion: '1.0.0',
+  appVersion: '1.1.1',
   shownChat: false,
   plex: null,
   chosenClient: null,
@@ -226,7 +226,7 @@ const mutations = {
   setSettingDARKMODE (state, data) {
     setSetting('DARKMODE', data)
     state.DARKMODE = data
-  },  
+  },
   setSettingBLOCKEDSERVERS (state, data) {
     window['localStorage'].setItem('BLOCKEDSERVERS', JSON.stringify(data))
     state.BLOCKEDSERVERS = data
@@ -314,7 +314,7 @@ const getters = {
   },
   getSettingDARKMODE: state => {
     return state.DARKMODE
-  },  
+  },
   getSettingBLOCKEDSERVERS: state => {
     return state.BLOCKEDSERVERS
   },

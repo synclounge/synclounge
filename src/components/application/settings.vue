@@ -7,6 +7,7 @@
         </div>
         <div class="col s4">
           <h3 style="">PlexTogether Settings</h3>
+          <label> v{{ appVersion }} </label>
         </div>
       </div>
     </div>
@@ -101,6 +102,9 @@
       },
       logo: function () {
         return 'static/logo-small-light.png'
+      },
+      appVersion () {
+        return this.$store.state.appVersion
       },
       syncmode: {
         get () {
