@@ -49,6 +49,7 @@
     "vue-translate-plugin": "^1.1.11",
     "vue-video-player": "^3.0.6",
     "vuex": "^2.0.0",
+    "webworkify-webpack-dropin": "^1.1.9",
     "xml2js": "^0.4.17"
   },
   "devDependencies": {

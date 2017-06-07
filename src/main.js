@@ -20,7 +20,7 @@ import App from './App'
 // Our Event bus
 window.EventBus = new Vue()
 
-require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
+require('videojs-contrib-hls')
 
 // mount with global
 Vue.use(Toast)

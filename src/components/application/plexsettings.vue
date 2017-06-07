@@ -20,7 +20,7 @@
         <h4 style="padding-bottom: 10px; text-align: left;">Autoplay Plex Servers</h4>
       </div>
       <div class="col l5 s12 valign" v-if="plex && plex.gotDevices && plex.servers && localServersList.length > 0" >
-        <div class="row blockedServers" v-for="server in localServersList">        
+        <div class="row blockedServers" v-for="server in localServersList">
           <div class="col s8 truncate">{{ server.name }}</div>
           <div class="col s4">
             <v-switch
@@ -28,9 +28,9 @@
               :on="''"
               :off="''"
               v-on:input="updateServer(server.id,server.name,$event)"
-            ></v-switch>    
+            ></v-switch>
           </div>
-        </div>     
+        </div>
       </div>
     </div>
   </div>
@@ -69,7 +69,7 @@
       context: function () {
         return this.$store
       },
-      localServersList(){
+      localServersList () {
         let servers = []
         if (this.$store.getters.getSettingBLOCKEDSERVERS) {
           for (let i in this.$store.getters.getSettingBLOCKEDSERVERS){
@@ -80,7 +80,7 @@
           return servers
         }
         this.plex.servers.forEach((server) => {
-          if (this.$store.getters.getSettingBLOCKEDSERVERS[server.clientIdentifier]){
+          if (this.$store.getters.getSettingBLOCKEDSERVERS && this.$store.getters.getSettingBLOCKEDSERVERS[server.clientIdentifier]){
             return
           }
           servers.push({

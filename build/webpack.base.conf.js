@@ -20,6 +20,8 @@ module.exports = {
       'src': path.resolve(__dirname, '../src'),
       'assets': path.resolve(__dirname, '../src/assets'),
       'components': path.resolve(__dirname, '../src/components'),
+      'webworkify': 'webworkify-webpack-dropin',
+      'videojs-contrib-hls': path.resolve(__dirname, '../node_modules/videojs-contrib-hls/dist/videojs-contrib-hls'),
       'jquery': path.resolve(__dirname, '../node_modules/jquery/src/jquery')
     }
   },
@@ -27,6 +29,7 @@ module.exports = {
     fallback: [path.join(__dirname, '../node_modules')]
   },
   module: {
+    noParse: ['/videojs-contrib-hls/'],
     loaders: [
       {
         test: /\.scss$/,
