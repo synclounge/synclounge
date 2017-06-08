@@ -11,7 +11,7 @@
             </div>
             <div class="center">
               <div class="col s3 offset-s9">
-                <h1 class="right">G'day</h1>
+                <h1 class="right" style="color:white">G'day</h1>
               </div>
             </div>
             <p> Plex Together is a tool to sync Plex playback with friends and family anywhere in the world.
