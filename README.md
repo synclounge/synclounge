@@ -10,6 +10,7 @@
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
   <br>
 </p>
+
 PlexTogether is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
 
 Utilising [Vue.js](https://vuejs.org/) and Webpack, PlexTogether has been rewritten and brought to the browser. While we run a live version available at [plextogether.com](http://app.plextogether.com), the project can be built and deployed completely seperate from plextogether.com. We also provide a handful of public PlexTogether Server instances that everyone is free to use.
