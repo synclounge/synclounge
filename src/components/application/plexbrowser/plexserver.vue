@@ -6,9 +6,9 @@
             <div v-if="!libraries && !browsingLibrary" class="center">
                 <v-progress-circular active large></v-progress-circular>
             </div>
-            <h2> Libraries </h2>
+            <h2 class="col s12"> Libraries </h2>
             <div v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries">
-                <v-card v-on:click.native="setLibrary(library)" class="row blue-grey darken-1 col l3 s12 hoverable"
+                <v-card v-on:click.native="setLibrary(library)" class="blue-grey darken-1 col l3 s12 hoverable"
                         style="box-shadow:none">
                     <div class="col s3 l3" style="height:100%">
                         <img :src="getThumb(library)" style="height:100%; width:100%">
@@ -18,8 +18,8 @@
                     </div>
                 </v-card>
             </div>
-            <h2> On Deck </h2>
-            <div v-if="!libraries && !browsingLibrary && !selectedItem" class="center">
+            <h2 class="col s12"> On Deck </h2>
+            <div v-if="!libraries && !browsingLibrary && !selectedItem" class="center row">
                 <v-progress-circular active large></v-progress-circular>
             </div>
             <div v-if="onDeck.length != 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
@@ -56,7 +56,7 @@
                     </v-card>
                 </div>
             </div>
-            <h2> Recently Added </h2>
+            <h2 class="col s12"> Recently Added </h2>
             <div v-if="!libraries && !browsingLibrary && !selectedItem" class="center">
                 <v-progress-circular active large></v-progress-circular>
             </div>
