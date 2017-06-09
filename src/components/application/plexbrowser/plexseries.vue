@@ -21,9 +21,9 @@
                             style="box-shadow:none">
                         <div class="white-text">
                             <img :src="getThumb(content)" style="width:100%"/>
-                            <span style="font-size: 1.3vh;" class="card-title">{{ content.title }}</span>
+                            <span style="font-size: 1.3em;" class="card-title">{{ content.title }}</span>
                             <div>
-                                <label style="font-size: 1vh;"> {{ content.leafCount }} episodes </label>
+                                <label style="font-size: 1em;"> {{ content.leafCount }} episodes </label>
                             </div>
                         </div>
                     </v-card>
@@ -80,7 +80,7 @@
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 12, h / 4)
+        return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 4)
       },
       getArt (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));

@@ -8,13 +8,13 @@
             </div>
             <h2 class="col s12"> Libraries </h2>
             <div v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries">
-                <v-card v-on:click.native="setLibrary(library)" class="blue-grey darken-1 col l3 s12 hoverable"
-                        style="box-shadow:none">
+                <v-card v-on:click.native="setLibrary(library)" class="blue-grey darken-1 col l3 s12 hoverable card"
+                        >
                     <div class="col s3 l3" style="height:100%">
                         <img :src="getThumb(library)" style="height:100%; width:100%">
                     </div>
                     <div class="col s9 l9">
-                        <div style="font-size: 1vw;">{{ library.title }}</div>
+                        <div style="font-size: 1.5em;">{{ library.title }}</div>
                     </div>
                 </v-card>
             </div>
@@ -25,13 +25,13 @@
             <div v-if="onDeck.length != 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
                 <div v-for="content in subsetOnDeck(3)">
                     <v-card v-if="content.type == 'movie'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l4 s12 hoverable" style="box-shadow:none">
+                            class="blue-grey darken-1 col l4 s12 hoverable">
                         <div style="height:100%">
                             <img style="height:auto;width:100%;display:block" v-lazy="getArt(content)"/>
                             <v-progress-linear determinate :width="progress(content)"
                                                style="padding-top:0;margin-top:0;background-color:grey;margin:0"></v-progress-linear>
                             <div style="margin-left:1%;">
-                                <span style="font-size: 1.5vh;" class="card-title truncate">{{ content.title }}</span>
+                                <span style="font-size: 1.5em;" class="card-title truncate">{{ content.title }}</span>
                                 <div>
                                     <label style="display:block"> {{ content.year }}</label>
                                 </div>
@@ -39,13 +39,13 @@
                         </div>
                     </v-card>
                     <v-card v-if="content.type == 'episode'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l4 s12 hoverable" style="box-shadow:none">
+                            class="blue-grey darken-1 col l4 s12 hoverable">
                         <div style="height:100%;bottom:0">
                             <img style="height:auto;width:100%;display:block" v-lazy="getArt(content)"/>
                             <v-progress-linear determinate :width="progress(content)"
-                                               style="padding-top:0;margin-top:0;background-color:grey;margin:0"></v-progress-linear>
-                            <div style="padding-left:1%; height:25%;">
-                                <span style="font-size: 1.5vh;" class="card-title truncate">{{ content.grandparentTitle
+                                               style="padding-top:5px;margin-top:0;background-color:grey;margin:0"></v-progress-linear>
+                            <div style="padding-left:1%; height:25%; padding-top:1%">
+                                <span style="font-size: 1.5em;" class="card-title truncate">{{ content.grandparentTitle
                                   }}</span>
                                 <div>
                                     <label> S{{ content.parentIndex }}E{{ content.index}} </label>
@@ -63,11 +63,11 @@
             <div v-if="recentlyAdded.length != 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
                 <div v-for="content in subsetRecentlyAdded(12)">
                     <v-card v-if="content.type == 'movie'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:250px">
+                            class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:250px">
                         <div style="height:100%">
                             <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
                             <div style="margin:3%; margin-left:1%; height:25%;">
-                                <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
+                                <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
                                 <div>
                                     <label style="display:block"> {{ content.year }}</label>
                                 </div>
@@ -75,11 +75,11 @@
                         </div>
                     </v-card>
                     <v-card v-if="content.type == 'episode'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:250px">
+                            class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:250px">
                         <div style="height:100%;bottom:0">
                             <img style="height:auto;width:100%;display:block" v-lazy="getGrandparentThumb(content)"/>
                             <div style="padding:3%; padding-left:1%; height:25%;">
-                                <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
+                                <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
                                 <div>
                                     <label style="display:block"> {{ content.grandparentTitle }} </label>
                                     <label style="display:block"> S{{ content.parentIndex }}E{{ content.index}} </label>
@@ -88,11 +88,11 @@
                         </div>
                     </v-card>
                     <v-card v-if="content.type == 'season'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:250px">
+                            class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:250px">
                         <div style="height:100%;bottom:0">
-                            <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
+                            <img style="height:auto;width:100%;display:block" class="center" v-lazy="getThumb(content)"/>
                             <div style="padding:3%; padding-left:1%; height:25%;">
-                                <span style="font-size: 1vh;" class="card-title truncate">{{ content.parentTitle
+                                <span style="font-size: 1em;" class="card-title truncate">{{ content.parentTitle
                                   }}</span>
                                 <div>
                                     <label style="display:block"> {{ content.title }} </label>
@@ -101,11 +101,11 @@
                         </div>
                     </v-card>
                     <v-card v-if="content.type == 'series'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:250px">
+                            class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:12px">
                         <div style="height:100%;bottom:0">
                             <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
                             <div style="padding:3%; padding-left:1%; height:25%;">
-                                <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
+                                <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
                             </div>
                         </div>
                     </v-card>
@@ -213,17 +213,17 @@
       getArt (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.art, w / 3, h / 4)
+        return this.server.getUrlForLibraryLoc(object.art, w / 2, h / 2)
       },
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 12, h / 4)
+        return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 4)
       },
       getGrandparentThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 12, h / 4)
+        return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 4)
       },
       reset () {
         this.browsingLibrary = false

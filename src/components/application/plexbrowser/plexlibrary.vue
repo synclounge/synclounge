@@ -4,11 +4,11 @@
         <div v-if="!browsingContent">
             <div v-if="contents && !browsingContent" style="height:100%">
                 <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)"
-                        v-on:click.native="setContent(content)" class="col l1 m3 s4"
-                        style="padding:0.5%; box-shadow:none;">
+                        v-on:click.native="setContent(content)" class="col l1 m3 s4 hoverable"
+                        style="padding:0.5%;box-shadow:none; height:250px">
                         <img style="height:auto; width:100%" v-lazy="getThumb(content)"/>
                     <div style="padding:3%; padding-left:1%;">
-                        <span style="font-size: 1vh; vmin: 2vh" class="card-title truncate">{{ content.title }}</span>
+                        <span style="font-size: 1em" class="card-title truncate">{{ content.title }}</span>
                         <div>
                             <label v-if="content.type == 'show'"> {{ content.childCount }} seasons </label>
                             <label v-if="content.type == 'movie'"> {{ content.year }}</label>
@@ -82,7 +82,7 @@
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 12, h / 4)
+        return this.server.getUrlForLibraryLoc(object.thumb, w / 6, h / 4)
       },
       isShown (item) {
         if (!item.active) {

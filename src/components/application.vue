@@ -16,7 +16,7 @@
 					<div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
 						<walkthrough></walkthrough>
 					</div>
-					<div v-else>
+					<div v-else style="height:100%">
 						<plexbrowser v-if="showBrowser"></plexbrowser>
 						<ptplayer v-if="isPTPlayer"></ptplayer>
 						<nowplaying v-if="showMetadata"></nowplaying>
@@ -27,23 +27,18 @@
 
 				<div v-if="ptConnected && chosenClient" class="col s12 l3 no-padding" id="plexTogetherChat" style="height: 100%; z-index:1">
 				  
-					<div class="mdc-permanent-drawer chatInterface">
-				   
-						<div style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">
-						  
-							<div class="row" style="width: 100%;">
-							
-							<div class="col l8 left-align truncate">
-								<h5 id="plexTogetherRoomNameChat">#{{ ptRoom }}</h5>
-								<h5> {{ ptServer }} </h5>
-							</div>
-							<div class="col l4 right-align truncate">
-								<h5> {{ userCount }} </h5>
-							</div>
-
+					<div class="mdc-permanent-drawer chatInterface">				   
+						<div style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">						  
+							<div class="row" style="width: 100%;">							
+							  <div class="col l8 left-align truncate">
+                  <h5 id="plexTogetherRoomNameChat">#{{ ptRoom }}</h5>
+                  <h5> {{ ptServer }} </h5>
+							  </div>
+                <div class="col l4 right-align truncate">
+                  <h5> {{ userCount }} </h5>
+                </div>
 							</div>
 						</div>
-
 						<div style="height: 60%;  overflow-y: scroll; border-bottom: 1px solid rgba(0, 0, 0, 0.4)">
 							<ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers">
 							<ptuser :object="user"></ptuser>
@@ -57,29 +52,18 @@
 							</ul>
 							</section>
 						</div>
-
-						<div class="mdc-permanent-drawer__toolbar no-padding hide-on-med-and-down" style="border: 0;">
-						  
-							<div class="channel-textarea" style="margin:0;padding:0">
-							
-							<div class="channel-textarea-inner">
-							  
-								<div class="channel-textarea-upload">
-								<textarea rows="1" v-bind:placeholder="chatBoxMessage" style="height: auto; overflow-y: auto;" v-on:keyup.enter="sendMessage()" v-model="messageToBeSent"></textarea>
-								</div>
-
-							</div>
-						  
-							</div>
-						
-						</div>
-				  
-					</div>
-				
-				</div>
-			
+						<div class="mdc-permanent-drawer__toolbar no-padding hide-on-med-and-down" style="border: 0;">						  
+							<div class="channel-textarea" style="margin:0;padding:0">							
+                <div class="channel-textarea-inner">                  
+                  <div class="channel-textarea-upload">
+                    <textarea rows="1" v-bind:placeholder="chatBoxMessage" style="height: auto; overflow-y: auto;" v-on:keyup.enter="sendMessage()" v-model="messageToBeSent"></textarea>
+                  </div>
+                </div>						  
+							</div>						
+						</div>				  
+					</div>				
+				</div>			
 			</div>
-
 		</div>
 
 		<!-- MODALS -->

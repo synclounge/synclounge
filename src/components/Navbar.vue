@@ -47,12 +47,8 @@
           </li>
           <li v-if="firstRun" style="padding:1%;">
             <router-link to="/sync" class="nav-item nav-link"> Launch </router-link>
-          </li>
-        </ul>
-      </div>
-      <div class="col s4">
-        <ul class="nav navbar-nav right">
-          <li v-if="showLinkShortener && chosenClient" class="right">
+          </li>          
+          <li v-if="showLinkShortener && chosenClient">
             <v-btn style="background-color: #E5A00D" class="waves-effect waves-light btn"
                    v-on:click.native="$dialog('Copied link')" v-clipboard="shortUrl">Invite
             </v-btn>
@@ -130,7 +126,7 @@
         return this.$store.getters.getPassword
       },
       showLinkShortener: function () {
-        return (this.ptConnected && this.ptServer && this.ptRoom)
+        return (this.ptConnected && this.ptServer && this.ptRoom && this.shortUrl)
       },
       shortUrl: function () {
         console.log('Short url calc done below')

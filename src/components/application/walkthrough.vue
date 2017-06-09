@@ -1,13 +1,13 @@
 <template>
-  <div class="container" style="padding: 10px; font-family:'Open Sans', sans-serif !important;">
+  <div class="col l12 s12" style="padding: 10px; font-family:'Open Sans', sans-serif !important;">
     <div class="row">
-      <div class="col s8 offset-s2 l8 offset-l4" style="text-align:center;padding-top:1%">
+      <div class="col s8 offset-s2 l4 offset-l6" style="text-align:center;padding-top:1%; center">
         <img style="max-width:100%" v-bind:src="logo">
       </div>
     </div>
     <div v-if="!chosenClient">
       <div class="row" v-if="plex && plex.gotDevices">
-        <h4 style="text-align:center" class="col s12 l8 offset-l4">Connect to your Plex Client</h4>
+        <h4 style="text-align:center" class="col s12 l4 offset-l6">Connect to your Plex Client</h4>
       </div>
       <div class="row" v-if="plex && plex.gotDevices && plex.clients.length > 0">
         <div class="col s12 l8 offset-l4" v-bind:style="{ opacity: step1Complete }">
@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="row" v-if="plex && plex.gotDevices && plex.clients.length == 0">
-        <div class="col s12 l8 offset-l4" v-bind:style="{ opacity: step1Complete }">
+        <div class="col s12 l4 offset-l6" v-bind:style="{ opacity: step1Complete }">
           Unfortunately Plex Together couldn't find any players on Plex.tv. Plex.tv periodically forgets your clients so you need to have the client open and signed in to the same Plex user.
           If Plex Together still cannot find your client, try playing something. This usually forces the client to appear on Plex.tv.
           <br><br>
@@ -81,7 +81,7 @@
     </div>
     <div v-if="chosenClient">
       <div class="row">
-        <div class="col s12 l8 offset-l4" v-bind:style="{ opacity: upToStep2 }">
+        <div class="col s12 l4 offset-l6" v-bind:style="{ opacity: upToStep2 }">
           <h4 style="text-align:center">Join your Plex Together room</h4>
         </div>
       </div>
@@ -92,7 +92,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col s12 l4 offset-l6">
+        <div class="col s12 l2 offset-l7">
           <button :disabled="!chosenClient" v-on:click="openJoinRoomModal()" v-bind:style="{ opacity: upToStep2 }"
                   class="btn-large mdc-button mdc-button--raised mdc-button--accent plex-gamboge ptsettings"
                   style="width: 100%">

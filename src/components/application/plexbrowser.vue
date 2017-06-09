@@ -18,13 +18,13 @@
         </div>
         <div v-if="results && (results.length > 0 && !selectedItem)">
           <div v-if="filteredMovies.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-            <h3> Movies ({{filteredMovies.length}}) </h3>
+            <h3 class="col s12"> Movies ({{filteredMovies.length}}) </h3>
             <v-card v-on:click.native="setContent(content)" v-for="content in filteredMovies"
-                    class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:350px">
+                    class="blue-grey darken-1 col l2 s14 hoverable" style="box-shadow:none">
               <div style="height:100%">
                 <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
                 <div style="margin:3%; margin-left:1%; height:25%;">
-                  <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
+                  <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
                   <div>
                     <label style="display:block"> {{ content.year }}</label>
                     <label> {{ content.server.name }} </label>
@@ -34,29 +34,31 @@
             </v-card>
           </div>
           <div v-if="filteredShows.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-            <h3> TV Shows ({{filteredShows.length}}) </h3>
-            <v-card v-on:click.native="setContent(content)" v-for="content in filteredShows"
-                    class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:350px">
-              <div style="height:100%;bottom:0">
-                <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                <div style="padding:3%; padding-left:1%; height:25%;">
-                  <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
-                  <div>
-                    <label style="display:block"> {{ content.childCount }} seasons </label>
-                    <label style="display:block"> {{ content.server.name }} </label>
+            <h3 class="col s12"> TV Shows ({{filteredShows.length}}) </h3>
+            <div class="row">
+              <v-card v-on:click.native="setContent(content)" v-for="content in filteredShows"
+                      class="blue-grey darken-1 col l2 s4 hoverable" style="box-shadow:none">
+                <div style="height:100%;bottom:0">
+                  <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
+                  <div style="padding:3%; padding-left:1%; height:25%;">
+                    <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
+                    <div>
+                      <label style="display:block"> {{ content.childCount }} seasons </label>
+                      <label style="display:block"> {{ content.server.name }} </label>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </v-card>
+              </v-card>
+            </div>  
           </div>
           <div v-if="filteredSeasons.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-            <h3> Seasons ({{filteredSeasons.length}})</h3>
+            <h3 class="col s12"> Seasons ({{filteredSeasons.length}})</h3>
             <v-card v-on:click.native="setContent(content)" v-for="content in filteredSeasons"
-                    class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:350px">
+                    class="blue-grey darken-1 col l2 s4 hoverable" style="box-shadow:none">
               <div style="height:100%;bottom:0">
                 <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
                 <div style="padding:3%; padding-left:1%; height:25%;">
-                  <span style="font-size: 1vh;" class="card-title truncate">{{content.grandParentTitle
+                  <span style="font-size: 1em;" class="card-title truncate">{{content.grandParentTitle
                     }} - S{{ content.title }}</span>
                   <div>
                     <label style="display:block"> {{ content.childCount }} episodes </label>
@@ -67,13 +69,13 @@
             </v-card>
           </div>
           <div v-if="filteredEpisodes.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-            <h3> Episodes ({{filteredEpisodes.length}})</h3>
+            <h3 class="col s12"> Episodes ({{filteredEpisodes.length}})</h3>
             <v-card v-on:click.native="setContent(content)" v-for="content in filteredEpisodes"
-                    class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:350px">
+                    class="blue-grey darken-1 col l2 s4 hoverable" style="box-shadow:none">
               <div style="height:100%;bottom:0">
                 <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
                 <div style="padding:3%; padding-left:1%; height:25%;">
-                  <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
+                  <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
                   <div>
                     <label style="display:block"> {{ content.grandparentTitle }} </label>
                     <label style="display:block"> S{{ content.parentIndex }}E{{ content.index}} </label>
@@ -163,7 +165,7 @@
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return object.server.getUrlForLibraryLoc(object.thumb, w / 6, h / 4)
+        return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
       },
       searchAllServers: _.debounce(
         function () {

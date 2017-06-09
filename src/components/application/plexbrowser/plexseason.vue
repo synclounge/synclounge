@@ -8,9 +8,9 @@
                     <div class="white-text row">
                         <img :src="getThumb(content)" style="height:100%" class="col s4 l2"/>
                         <div class="col l10 s8">
-                            <h1 style="font-size: 3vh;"> {{ content.parentTitle }}</h1>
-                            <h2 style="font-size: 2vh;" class="card-title truncate">{{ content.title }}</h2>
-                            <label style="font-size: 2vh;"> {{ content.leafCount }} episodes </label>
+                            <h1 style="font-size: 3em;"> {{ content.parentTitle }}</h1>
+                            <h2 style="font-size: 2em;" class="card-title truncate">{{ content.title }}</h2>
+                            <label style="font-size: 2em;"> {{ content.leafCount }} episodes </label>
                             <p> {{ content.summary }} </p>
                         </div>
                     </div>
@@ -18,14 +18,13 @@
                 <div class="divider"></div>
                 <h5> Episodes </h5>
                 <div v-for="content in contents.MediaContainer.Metadata">
-                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s4 hoverable"
-                            style="box-shadow:none">
+                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l2 s4 hoverable" style="box-shadow:none">
                         <div class="white-text">
                             <img :src="getThumb(content)" style="width:100%"/>
-                            <span style="font-size: 1vh;" class="card-title truncate">
+                            <span style="font-size: 1em;" class="card-title truncate">
                                 {{ content.title }}
                             </span>
-                            <span style="font-size: 1vh;" class="card-title truncate">
+                            <span style="font-size: 1em;" class="card-title truncate">
                                 Episode {{ content.index }}
                             </span>
                         </div>
@@ -82,7 +81,7 @@
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 12, h / 4)
+        return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 4)
       },
       reset () {
         this.browsingContent = false
