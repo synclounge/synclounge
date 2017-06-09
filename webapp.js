@@ -18,14 +18,14 @@ if (args['port']){
 } else {
   console.log('Defaulting to port 8088')
 }
-// USER CONFIG
 
-// END USER CONFIG
 var express = require('express');
 var path = require('path');
 var cors = require('cors')
 var httpProxy = require('http-proxy')
 var proxy = httpProxy.createProxyServer({ ws: true });
+var jsonfile = require('jsonfile')
+var file = 'ptinvites.json'
 
 var root = express()
 
@@ -57,14 +57,11 @@ root.get('*',function(req,res){
 
 
 
-
 root.use(cors())
 
 var rootserver = require('http').createServer(root);
 
 var webapp_io = require('socket.io')(rootserver,{path: '/ptweb/socket.io'});
-
-var shortenedLinks = {}
 
 function getUniqueId(){
     while (true){
@@ -104,6 +101,7 @@ function shortenObj(data){
     returnable.fullUrl = accessIp + '/#/join?' + query
 
     shortenedLinks[returnable.id] = returnable
+    saveToFile(shortenedLinks,()=>{})
     return returnable.shortUrl
 }
 
@@ -115,9 +113,31 @@ webapp_io.on('connection', function(socket){
     })
 })
 
+function saveToFile(content,callback){
+    jsonfile.writeFile(file, content, function (err) {
+        return callback(err)
+    })
+}
+
+function loadFromFile(callback){
+    jsonfile.readFile(file, function(err, obj) {
+        if (err || !obj){
+            // File doesn't exist or an error occured
+            return callback({})
+        } else {
+            return callback(obj)
+        }
+    })
+}
 
 
-rootserver.listen(PORT);
+var shortenedLinks = {}
+loadFromFile((result) => {
+    console.log(result)
+    shortenedLinks = result
+    rootserver.listen(PORT);
+})
+
 console.log('PlexTogether WebApp successfully started on port ' + PORT)
 
 
