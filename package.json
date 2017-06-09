@@ -26,6 +26,7 @@
     "grunt": "^0.4.5",
     "ip": "^1.1.5",
     "jquery": "^3.1.1",
+    "jsonfile": "^3.0.0",
     "lodash": "^4.17.4",
     "materialize-css": "^0.97.8",
     "moment": "^2.18.1",
