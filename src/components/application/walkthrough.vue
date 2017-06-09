@@ -1,21 +1,21 @@
 <template>
   <div class="container" style="padding: 10px; font-family:'Open Sans', sans-serif !important;">
     <div class="row">
-      <div class="col s8 offset-s2 l4 offset-l4" style="text-align:center;padding-top:1%">
+      <div class="col s8 offset-s2 l8 offset-l4" style="text-align:center;padding-top:1%">
         <img style="max-width:100%" v-bind:src="logo">
       </div>
     </div>
     <div v-if="!chosenClient">
       <div class="row" v-if="plex && plex.gotDevices">
-        <h4 style="text-align:center" class="col s12 l4 offset-l4">Connect to your Plex Client</h4>
+        <h4 style="text-align:center" class="col s12 l8 offset-l4">Connect to your Plex Client</h4>
       </div>
       <div class="row" v-if="plex && plex.gotDevices && plex.clients.length > 0">
-        <div class="col s12 l6 offset-l3" v-bind:style="{ opacity: step1Complete }">
+        <div class="col s12 l8 offset-l4" v-bind:style="{ opacity: step1Complete }">
           Choose a client from the list below. Once you've found the client you would like to use, click the connect button below. Plex Together will test to see if it can connect with the client and will let you know if it cannot.
         </div>
       </div>
       <div class="row" v-if="plex && plex.gotDevices && plex.clients.length == 0">
-        <div class="col s12 l6 offset-l3" v-bind:style="{ opacity: step1Complete }">
+        <div class="col s12 l8 offset-l4" v-bind:style="{ opacity: step1Complete }">
           Unfortunately Plex Together couldn't find any players on Plex.tv. Plex.tv periodically forgets your clients so you need to have the client open and signed in to the same Plex user.
           If Plex Together still cannot find your client, try playing something. This usually forces the client to appear on Plex.tv.
           <br><br>
@@ -28,7 +28,7 @@
 
       </div>
       <div class="row" v-if="plex && plex.gotDevices && plex.clients.length > 0">
-        <div class="col s12 l4 offset-l3">
+        <div class="col s12 l4 offset-l4">
           <div v-if="plex" id="plexPlayers">
             <div class="mdc-list-item mdc-permanent-drawer--selected plex-gamboge-text" href="#">
               Plex Players {{ playercount }}
@@ -41,7 +41,7 @@
             </div>
           </div>
         </div>
-        <div v-if="testClient" class="col s12 l2">
+        <div v-if="testClient" class="col s12 l4">
           <div class="mdc-list-item mdc-permanent-drawer--selected plex-gamboge-text" href="#">
             Selected Player
           </div>
@@ -81,18 +81,18 @@
     </div>
     <div v-if="chosenClient">
       <div class="row">
-        <div class="col s12 l12" v-bind:style="{ opacity: upToStep2 }">
+        <div class="col s12 l8 offset-l4" v-bind:style="{ opacity: upToStep2 }">
           <h4 style="text-align:center">Join your Plex Together room</h4>
         </div>
       </div>
       <div class="row">
-        <div class="col s12 l6 offset-l3" v-bind:style="{ opacity: upToStep2 }">
+        <div class="col s12 l8 offset-l4" v-bind:style="{ opacity: upToStep2 }">
           It's time to join a server and then a room. Decide with your friends what server and room to join and then click the Join Room button below. If you're hosting your
           own server make sure you choose a custom server.
         </div>
       </div>
       <div class="row">
-        <div class="col s12 l4 offset-l4">
+        <div class="col s12 l4 offset-l6">
           <button :disabled="!chosenClient" v-on:click="openJoinRoomModal()" v-bind:style="{ opacity: upToStep2 }"
                   class="btn-large mdc-button mdc-button--raised mdc-button--accent plex-gamboge ptsettings"
                   style="width: 100%">

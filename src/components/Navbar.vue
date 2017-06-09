@@ -1,20 +1,19 @@
 <template>
   <div v-if="!isPlayer" class="mdc-permanent-drawer__toolbar-spacer windowDrag" style="padding: 0">
     <div class="row" style="width: 100%">
-      <div class="col s12 " style="height: 63px">
+      <div class="col s4" style="height: 63px">
         <a class="left" style="padding-top: 5px">
           <div class="windowNoDrag dropdown-button" data-activates="dropdown1">
             <div class="left">
               <img v-if="plex" v-bind:src="plex.user.thumb" alt="" id="meAvatar"
-                   class="circle ptuser-avatar plexNavAccount right" style="height: 54px; width: 54px">
+                   class="circle ptuser-avatar plexNavAccount right" style="height: 54px; max-height: calc(85% - 5px)">
             </div>
-            <div class="right" style="bottom: 0">
+            <div class="right">
               <i class="material-icons navDropdown right plex-shuttlegray-text"
-                 style="opacity: 0.6;margin-top: 39px;margin-left: -17px;margin-right: -7px;">arrow_drop_down</i>
+                 style="opacity: 0.6; top: 70%; left: 35px; position: absolute">arrow_drop_down</i>
             </div>
           </div>
-          <ul id="dropdown1" class="dropdown-content"
-              style="width: 229px; top: 68px; left: 5px; position: absolute; opacity: 1; display: none; padding: 0">
+          <ul id="dropdown1" class="dropdown-content" style="width: 229px; top: 68px; left: 5px; position: absolute; opacity: 1; display: none; padding: 0">
             <li v-on:click="openSettings()" class="preferences"><a>Preferences</a></li>
             <li v-on:click="refreshPlexDevices()" class="preferences"><a>Refresh Plex Devices</a></li>
             <hr style="border-color: rgba(0,0,0,0.1); width: 90%">
@@ -36,19 +35,24 @@
             </li>
           </ul>
         </a>
+      </div>
+      <div class="col s4">
         <ul class="nav navbar-nav center">
           <li style="padding:1%;">
-            <a href="http://plextogether.com" target="_blank"><img class="hide-on-med-and-down"
-                                                                   style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px"
-                                                                   v-bind:src="logo"></img></a>
+            <a href="http://plextogether.com" target="_blank">
+            <img class="hide-on-med-and-down" style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px" v-bind:src="logo"></img></a>
           </li>
           <li style="padding:1%;">
-            <a class="navbar-brand" href="/"> Home </a>
+            <a class="navbar-brand" href="/" style="vertical-align"> Home </a>
           </li>
           <li v-if="firstRun" style="padding:1%;">
             <router-link to="/sync" class="nav-item nav-link"> Launch </router-link>
           </li>
-          <li v-if="showLinkShortener && chosenClient">
+        </ul>
+      </div>
+      <div class="col s4">
+        <ul class="nav navbar-nav right">
+          <li v-if="showLinkShortener && chosenClient" class="right">
             <v-btn style="background-color: #E5A00D" class="waves-effect waves-light btn"
                    v-on:click.native="$dialog('Copied link')" v-clipboard="shortUrl">Invite
             </v-btn>

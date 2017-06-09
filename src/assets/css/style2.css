@@ -21,7 +21,7 @@
   Main Body
  */
 .main-body {
-  display: flex;
+  display: block;
   flex-direction: row;
   padding: 0;
   margin: 0;
@@ -315,7 +315,7 @@ plexName {
 /* Stack toolbar and main on top of each other. */
 
 .content {
-  display: inline-flex;
+  /* display: inline-flex; */
   flex-direction: column;
   flex-grow: 1;
   height: 100%;
@@ -413,7 +413,7 @@ small {
 
 /* hover effect for both scrollbar area, and scrollbar 'thumb' */
 ::-webkit-scrollbar:hover {
-  background-color: rgba(229, 160, 13, 1);
+  background-color: rgba(229, 160, 13, 0.2);
 }
 
 /* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */

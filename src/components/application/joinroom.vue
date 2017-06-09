@@ -7,7 +7,7 @@
         </div>
       </div>
       <div class="row">
-        <div style="text-align:left" class="col s11">
+        <div style="text-align:left" class="col s12">
           <p>
             It's time to join a Plex Together Server. You can choose to join a server hosted by Plex Together or you can host your own.</p>
           <p> For details on how to host your own server click <a target="_blank"
