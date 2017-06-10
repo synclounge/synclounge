@@ -94,7 +94,7 @@
           return data.callback(false)
         }
         try {
-          if (!that.player.currentTime()) {
+          if (!that.player || !that.player.currentTime()) {
             return data.callback(false)
           }
         } catch (e) {
@@ -106,14 +106,21 @@
         let lastPlayerTime = that.player.currentTime() * 1000
         if (Math.abs(seekTo - that.lastTime) < 7000 && !that.blockedSpeedChanges) {
           console.log('Seeking via the speed up method')
+          let oldSources = that.player.options_.sources
           let clicker = setInterval(function () {
-            if (that.isPlaying == 'paused' || that.isPlaying == 'buffering') {
+            if (that.isPlaying == 'paused' || that.isPlaying == 'buffering' || oldSources != that.player.options_.sources) {
               clearInterval(clicker)
               return data.callback(false)
             }
             iterations++
-            if (!that.player || !that.player.currentTime() || !that.player.playbackRate()) {
-              return
+            try{
+              if (!that.player || !that.player.currentTime() || !that.player.playbackRate()) {
+                return
+              }
+            }
+            catch (e) {
+              clearInterval(clicker)
+              return data.callback(false)
             }
             console.log('Playback rate: ' + that.player.playbackRate())
             if (lastPlayerSpeed == that.player.playbackRate()) {
