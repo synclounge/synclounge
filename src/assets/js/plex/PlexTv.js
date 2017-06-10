@@ -252,6 +252,9 @@ module.exports = function () {
         validServers++
       }
     })
+    if (validServers == 0){
+      return callback(false)
+    }
     for (let i = 0; i < this.servers.length; i++) {
       var server = this.servers[i]
       if (blockedServers[server.clientIdentifier] && !blockedServers[server.clientIdentifier].enabled){
