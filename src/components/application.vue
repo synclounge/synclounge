@@ -1,22 +1,17 @@
 <template>
-	<div class="main-body mdc-typography" style="height: calc(100% - 64px);overflow-y:auto">
-
-		<div class="nav-wrapper hide-on-large-only">
-			<a id="logo-container" href="#" class="brand-logo"></a>
-		</div>
-
-		<div class="content" style="margin-bottom: 0">
-			<div class="row main-body" style="height: 100%; margin-bottom: 0">
+	<div>
+		<div style="margin-bottom: 0">
+			<div class="row" style="margin-bottom: 0">
 
 				<!-- MAIN CONTENT -->
-				<div class="col s12 l12 center" id="main-body" v-if="!validDevices" style="padding-top:5%">
-					<v-progress-circular active large></v-progress-circular>
+				<div class="col s12 l12 center" v-if="!validDevices" style="padding-top:5%">
+						<v-progress-circular indeterminate v-bind:size="50" class="amber--text"></v-progress-circular>
 				</div>
-				<div class="col s12 l9 no-padding" id="main-body" v-if="validDevices" style="overflow-y: auto">
-					<div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
+				<div class="col s12 l12 no-padding" v-if="validDevices">
+					<div v-if="!ptConnected || !chosenClient || !ptRoom">
 						<walkthrough></walkthrough>
 					</div>
-					<div v-else style="height:100%">
+					<div v-else>
 						<plexbrowser v-if="showBrowser"></plexbrowser>
 						<ptplayer v-if="isPTPlayer"></ptplayer>
 						<nowplaying v-if="showMetadata"></nowplaying>
@@ -25,8 +20,7 @@
 
 			<!-- CHAT INTERFACE -->
 
-				<div v-if="ptConnected && chosenClient" class="col s12 l3 no-padding" id="plexTogetherChat" style="height: 100%; z-index:1">
-				  
+				<div v-if="ptConnected && chosenClient && ptRoom" class="col s12 l3 no-padding" id="plexTogetherChat" style="z-index:1">				  
 					<div class="mdc-permanent-drawer chatInterface">				   
 						<div style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">						  
 							<div class="row" style="width: 100%;">							
@@ -67,30 +61,18 @@
 		</div>
 
 		<!-- MODALS -->
-		<div v-if="darkMode" id="joinRoom">
-			<sweet-modal v-on:close="joinRoomModalClosed()" ref="joinroomModal" overlay-theme="dark" modal-theme="dark">
-			<joinroom></joinroom>
-			</sweet-modal>
-		</div>
-
-		<div v-if="!darkMode">
-			<sweet-modal ref="joinroomModal" overlay-theme="dark" modal-theme="dark">
-			<joinroom></joinroom>
-			</sweet-modal>
-		</div>
 
 	</div>
 </template>
 
 <script>
   // CSS imports
-  import 'assets/css/material-components-web.css';
-  import 'assets/css/grid.css';
-  import 'assets/css/style2.css';
+  //import 'assets/css/material-components-web.css';
+  //import 'assets/css/grid.css';
+  //import 'assets/css/style2.css';
 
   // JS imports
-  import _Plex from 'assets/js/plex/PlexTv.js';
-  import PlexClient from 'assets/js/plex/PlexClient.js';
+  import _Plex from '../assets/js/plex/PlexTv.js';
 
   var Plex = new _Plex()
   let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
@@ -107,8 +89,6 @@
   import plexbrowser from './application/plexbrowser'
   import nowplaying from './application/nowplaying'
 
-  import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
-
   export default {
 	name: 'application',
 	components: {
@@ -120,14 +100,10 @@
 	  chatmessage,
 	  walkthrough,
 	  ptplayer,
-	  SweetModal,
-	  SweetModalTab,
 	  plexbrowser,
 	  nowplaying
 	},
 	mounted: function () {
-	  $('.button-collapse').sideNav();
-	  $(".button-collapse").sideNav();
 	  if (window['localStorage'].getItem('plexuser') == null) {
 		console.log('User isnt signed in  - sending to signin')
 		this.$router.push('/signin')

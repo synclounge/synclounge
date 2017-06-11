@@ -1,19 +1,7 @@
 <template>
   <div class="container" style="padding: 10px; font-family:'Open Sans', sans-serif !important;">
     <div v-if="!context.getters.getConnected">
-      <div class="row" style="margin-bottom: 0;">
-        <div class="col s12">
-          <h4 style="padding-bottom: 10px; padding-left: 0">Connect to a Plex Together Server</h4>
-        </div>
-      </div>
       <div class="row">
-        <div style="text-align:left" class="col s12">
-          <p>
-            It's time to join a Plex Together Server. You can choose to join a server hosted by Plex Together or you can host your own.</p>
-          <p> For details on how to host your own server click <a target="_blank"
-                                                                  href="https://github.com/samcm/plextogether">here.</a>
-          </p>
-        </div>
         <div class="col s12">
           <select v-model="selectedServer" v-on:change="attemptConnect()" id="PlexTogetherServers" class="mdc-select"
                   style="width: 100%;background-color:rgba(39, 44, 56, 0.85)">
@@ -49,14 +37,6 @@
       </div>
     </div>
     <div v-if="context.getters.getConnected">
-      <div class="row" style="margin-bottom: 0;">
-        <div class="col s12">
-          <div>
-            <h4 style="margin-bottom: 0; padding-left: 0">Join a Plex Together Room</h4>
-          </div>
-        </div>
-      </div>
-
       <div class="row" style="margin-bottom: 0;">
         <div class="col s12">
           <div class="mdc-textfield mdc-textfield--upgraded" style="width: 100%">
@@ -179,7 +159,7 @@
           password: this.password,
           callback: function (result) {
             if (result) {
-              that.$parent.$parent.$refs.joinroomModal.close()
+              //that.$parent.$parent.$refs.joinroomModal.close()
               //$('#joinRoomModal').modal('close');
               that.selectedServer = ''
             }

@@ -232,7 +232,7 @@ module.exports = function PlexClient () {
     if (responseTime == -1) {
       // PTPLAYER
       this.events.emit('new_timeline', result)
-      console.log(result)
+      //console.log(result)
       var clonetimeline = this.lastTimelineObject
       this.lastTimelineObject = result
       this.lastTimelineObject.recievedAt = new Date().getTime()

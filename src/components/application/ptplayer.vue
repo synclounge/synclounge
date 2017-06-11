@@ -14,7 +14,7 @@
                  :initialOffset="offset"
                  :createdAt="playerCreatedAt"
     ></videoplayer>
-    <sweet-modal ref="playersettingsModal" modal-theme="dark" overlay-theme="dark">
+    <v-dialog>
       <h2> Playback Settings </h2>
       <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
         <v-select name="select"
@@ -56,7 +56,7 @@
           </v-btn>
         </div>
       </div>
-    </sweet-modal>
+    </v-dialog>
     <div class="row" v-if="playingMetadata && chosenServer">
       <div class="col l4 offset-l4 s12 center" style="padding-top:1%">
         <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="openModal()">Playback settings
@@ -72,7 +72,6 @@
 
   var request = require('request')
   var parseXMLString = require('xml2js').parseString;
-  import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
   // Components
   import videoplayer from './ptplayer/videoplayer.vue'
 
@@ -80,8 +79,6 @@
     name: 'ptplayer',
     components: {
       videoplayer,
-      SweetModal,
-      SweetModalTab
     },
     created () {
       $(document).ready(function () {

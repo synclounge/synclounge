@@ -115,7 +115,7 @@ const mutations = {
     }
 
     function newTimeline (timeline) {
-      //console.log('Got timeline')
+      console.log('Got timeline')
       if (!state.plextogether.connected) {
         return
       }

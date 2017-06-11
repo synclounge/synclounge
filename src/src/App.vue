@@ -1,6 +1,6 @@
 <template>
-  <v-app dark>
-    <v-navigation-drawer temporary v-model="drawer" :mini-variant.sync="mini" dark class="grey darken-4">
+  <v-app id="plextogether" dark >
+       <v-navigation-drawer temporary v-model="drawer" :mini-variant.sync="mini" dark class="grey darken-4">
       <v-list class="pa-0">
         <v-list-item>
           <v-list-tile avatar tag="div" v-if="validDevices">
@@ -51,58 +51,26 @@
         <v-toolbar-item class="hidden-sm-and-down">
           <img style="height:70%;width:auto" v-bind:src="logo"/>
         </v-toolbar-item>
-        <v-toolbar-item class="hidden-sm-and-down" v-for="link in links" :key="link" :href="link.href" :target="link.target">{{ link.title }}</v-toolbar-item>    
+        <v-toolbar-item class="hidden-sm-and-down" v-for="link in links" :href="link.href" :target="link.target">{{ link.title }}</v-toolbar-item>    
       </v-toolbar-items>
     </v-toolbar>
     <main>
-      <v-container fluid>
+      <v-container fluid style="height: 100%; background-color: rgba(39, 44, 56, 1)" class="white--text">
+        <!--App contents-->        
         <router-view></router-view>
       </v-container>
-    </main>    
-    <v-footer :fixed="fixed">
-      <span>&copy; 2017</span>
-    </v-footer>
+    </main>
   </v-app>
 </template>
 
 <script>
+  //import Navbar from './components/Navbar'
+  //import sidebar from './components/sidebar'
+  //import 'vuetify/dist/vuetify.min.css';
+
+  require('./stylus/main.styl')
+
   export default {
-    data () {
-      return {        
-        drawer: false,
-        mini: false,
-        right: null,
-        fixed: false,        
-        items: [
-          {
-            title: 'Preferences'
-          },
-          {
-            title: 'Refresh Plex Devices'
-          },
-          {
-            title: 'Signout'
-          }
-        ],
-        links: [          
-          {
-            title: 'Github',
-            href: 'https://github.com/samcm/PlexTogether',
-            target: '_blank'
-          },
-          {
-            title: 'Discord',
-            target: '_blank',
-            href: 'https://discord.gg/fKQB3yt'
-          },
-          {
-            title: 'Donate ♥',
-            target: '_blank',
-            href: 'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TKAR59DZ4HPWC&lc=AU&item_name=Plex%20Together&currency_code=AUD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted'
-          },
-        ]
-      }
-    },
     mounted () {
       console.log('route', this.$route)
       if (this.$route.query.ptserver && this.$route.query.ptroom) {
@@ -170,9 +138,40 @@
     },
     components: {
     },
+    data() {  
+      return {        
+        drawer: false,
+        mini: false,
+        right: null,        
+        items: [
+          {
+            title: 'Preferences'
+          },
+          {
+            title: 'Refresh Plex Devices'
+          },
+          {
+            title: 'Signout'
+          }
+        ],
+        links: [          
+          {
+            title: 'Github',
+            href: 'https://github.com/samcm/PlexTogether',
+            target: '_blank'
+          },
+          {
+            title: 'Discord',
+            target: '_blank',
+            href: 'https://discord.gg/fKQB3yt'
+          },
+          {
+            title: 'Donate ♥',
+            target: '_blank',
+            href: 'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TKAR59DZ4HPWC&lc=AU&item_name=Plex%20Together&currency_code=AUD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted'
+          },
+        ]
+      }
+    }
   }
 </script>
-
-<style lang="stylus">
-  @import './stylus/main'
-</style>

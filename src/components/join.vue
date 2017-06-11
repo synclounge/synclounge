@@ -29,9 +29,6 @@
 
 <script>
   // CSS imports
-  import 'assets/css/material-components-web.css';
-  import 'assets/css/grid.css';
-  import 'assets/css/style2.css';
 
   export default {
     name: 'join',

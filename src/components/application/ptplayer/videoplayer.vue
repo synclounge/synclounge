@@ -28,7 +28,6 @@
 
 <script>
   var request = require('request')
-  require('videojs-settings-menu')
 
   export default {
     props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],

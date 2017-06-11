@@ -3,7 +3,7 @@
         <span v-on:click="reset()" style="cursor: pointer !important"> {{ library.title }} <span v-if="browsingContent"> > </span></span>
         <div v-if="!browsingContent">
             <div v-if="contents && !browsingContent" style="height:100%">
-                <v-card v-for="content in contents.MediaContainer.Metadata" :style="isShown(content)"
+                <v-card v-for="content in contents.MediaContainer.Metadata" :key="content" :style="isShown(content)"
                         v-on:click.native="setContent(content)" class="col l1 m3 s4 hoverable"
                         style="padding:0.5%;box-shadow:none; height:250px">
                         <img style="height:auto; width:100%" v-lazy="getThumb(content)"/>
