@@ -20,7 +20,7 @@
           ></v-text-field>
         </v-flex>
         <v-flex xs2>
-          <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''" style="cursor:pointer" class="red--text">clear</v-icon>
+          <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''" style="cursor:pointer;" class="red--text">clear</v-icon>
         </v-flex>  
       </v-layout> 
       <v-layout row wrap v-if="searching || results.length > 0">  
@@ -39,17 +39,8 @@
           <v-flex xs12 lg12 >
             <v-subheader light> Movies ({{filteredMovies.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 v-for="movie in filteredMovies" :key="movie">
-            <div class="portrait">
-              <v-card v-on:click="setContent(movie)" >                  
-                  <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{movie.server.name}}</small>                    
-                  <v-card-row :img="getThumb(movie)" height="20em">  </v-card-row>                       
-                  <v-card-row height="3em" style="background: rgba(0, 0, 0, .7)">
-                      <small> {{ getTitleMovie(movie) }} </small>
-                    </v-card-row>            
-                </v-card>       
-              </v-card>
-            </div>
+          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="movie in filteredMovies" :key="movie">            
+            <plexthumb :content="movie" :server="movie.server" showServer fullTitle @contentSet="setContent(movie)"></plexthumb>
           </v-flex>
         </v-layout>
         <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
@@ -57,17 +48,8 @@
           <v-flex xs12 lg12 >
             <v-subheader light> TV Shows ({{filteredShows.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 v-for="show in filteredShows" :key="show">
-            <div class="portrait">
-              <v-card v-on:click="setContent(show)" >    
-                  <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{show.server.name}}</small>                  
-                  <v-card-row :img="getThumb(show)" height="20em">  </v-card-row>                       
-                  <v-card-row  height="3em" style="background: rgba(0, 0, 0, .7)">
-                      <small> {{ getTitleMovie(show) }} </small>
-                    </v-card-row>                 
-                </v-card>       
-              </v-card>
-            </div>
+          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="show in filteredShows" :key="show">            
+            <plexthumb :content="show" :server="show.server" showServer fullTitle @contentSet="setContent(show)"></plexthumb>
           </v-flex>
         </v-layout>        
         <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
@@ -75,22 +57,14 @@
           <v-flex xs12 lg12 >
             <v-subheader light> TV Episodes ({{filteredEpisodes.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 v-for="episode in filteredEpisodes" :key="episode">
-            <div class="portrait">
-              <v-card v-on:click="setContent(episode)" >    
-                  <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{episode.server.name}}</small>           
-                  <v-card-row :img="getThumb(episode)" height="10em">  </v-card-row>        
-                  <v-card-row height="3em" style="background: rgba(0, 0, 0, .7)">
-                     <small class="pa-0 ma-0"> {{ episode.grandparentTitle }} S{{ episode.parentIndex }}E{{episode.index}} - {{ episode.title }}</small> 
-                  </v-card-row>       
-                </v-card>       
-              </v-card>
-            </div>
+          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="episode in filteredEpisodes" :key="episode">
+            <plexthumb :content="episode" :server="episode.server" showServer fullTitle @contentSet="setContent(episode)"></plexthumb>
           </v-flex>
         </v-layout>
       </div>
+      <v-divider></v-divider>
       <div v-if="results.length == 0">
-        <h3> Browse </h3>
+        <h4> Browse </h4>
         <v-layout row wrap>  
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server" class="pa-2">  
             <v-card v-on:click="setServer(server)" horizontal height="130px">
@@ -135,6 +109,7 @@
   import plexlibrary from './plexbrowser/plexlibrary'
   import plexseason from './plexbrowser/plexseason'
   import plexseries from './plexbrowser/plexseries'
+  import plexthumb from './plexbrowser/plexthumb'
 
   var _ = require('lodash');
 
@@ -144,7 +119,8 @@
       plexcontent,
       plexlibrary,
       plexseason,
-      plexseries
+      plexseries,
+      plexthumb
     },
     name: 'plexbrowser',
     methods: {
@@ -167,11 +143,16 @@
         } else {
           return server.sourceTitle
         }
-      },
+      },      
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
+      },
+      getArt (object) {
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        return object.server.getUrlForLibraryLoc(object.art, w / 4, h / 4)
       },
       getTitleMovie(movie){
         if (movie.year){
@@ -183,11 +164,9 @@
         for (let i = 0; i < this.serversHeardBack.length; i++) {
           let tempserver = this.serversHeardBack[i]
           if (tempserver.clientIdentifier == server.clientIdentifier){
-            console.log('Yes')
             return true
           }
         }
-        console.log('No')
         return false
       },
       searchAllServers: _.debounce(

@@ -1,28 +1,17 @@
 <template>
     <span>
         <span v-on:click="reset()" style="cursor: pointer !important"> {{ library.title }} <span v-if="browsingContent"> > </span></span>
-        <div v-if="!browsingContent">
-            <div v-if="contents && !browsingContent" style="height:100%">
-                <v-card v-for="content in contents.MediaContainer.Metadata" :key="content" :style="isShown(content)"
-                        v-on:click.native="setContent(content)" class="col l1 m3 s4 hoverable"
-                        style="padding:0.5%;box-shadow:none; height:250px">
-                        <img style="height:auto; width:100%" v-lazy="getThumb(content)"/>
-                    <div style="padding:3%; padding-left:1%;">
-                        <span style="font-size: 1em" class="card-title truncate">{{ content.title }}</span>
-                        <div>
-                            <label v-if="content.type == 'show'"> {{ content.childCount }} seasons </label>
-                            <label v-if="content.type == 'movie'"> {{ content.year }}</label>
-                        </div>
-                    </div>
-                </v-card>
-            </div>
-            <div class="col l12 center" v-if="contents && !browsingContent && !stopNewContent"
-                 v-observe-visibility="getMoreContent">
+        <div v-if="!browsingContent && contents" class="mt-3">
+          <v-layout class="row" row wrap>
+                <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
+                  <plexthumb :content="content" :server="server" type="thumb" :height="'20em'" @contentSet="setContent(content)"></plexthumb>
+                </v-flex>
+            </v-layout>  
+            <v-layout row>
+              <v-flex xs12 v-if="contents && !browsingContent && !stopNewContent" v-observe-visibility="getMoreContent" justify-center>
                 Loading...
-            </div>
-            <div v-if="!contents && !browsingContent" class="center">
-                <v-progress-circular active large></v-progress-circular>
-            </div>
+              </v-flex>  
+            </v-layout>   
         </div>
         <plexcontent v-if="browsingContent && browsingContent.type != 'show'" :content="browsingContent"
                      :server="server" :library="library"></plexcontent>
@@ -33,14 +22,16 @@
 
 <script>
   import plexcontent from './plexcontent'
-  import plexseries from './plexseries'
+  import plexseries from './plexseries'  
+  import plexthumb from './plexthumb'
 
   var _ = require('lodash');
   export default {
     props: ['library', 'server'],
     components: {
       plexcontent,
-      plexseries
+      plexseries,
+      plexthumb
     },
     created () {
       // Hit the PMS endpoing /library/sections
@@ -91,6 +82,12 @@
           }
         }
         return {}
+      },
+      getTitleMovie(movie){
+        if (movie.year){
+          return movie.title + ' (' + movie.year + ')'
+        }
+        return movie.title
       },
       filterItems: _.debounce(
         function () {

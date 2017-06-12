@@ -82,3 +82,47 @@ span {
 	-moz-box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12) !important;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12) !important;
 }
+
+
+/* PlexBrowser */
+
+.pt-content-title {
+	font-size:1em;
+	position:absolute; 
+	width:100%; 
+	height:3em; 
+	bottom:0;
+	text-align: center;
+	background: rgba(0, 0, 0, .7)
+} 
+.pt-content-title span {
+	font-weight:450;
+  display: block;
+	overflow:hidden;
+	height:100%;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+} 
+.pt-content-unwatched {
+	position:absolute; 
+	top:0;
+	left: 0;
+	text-align:center;
+}
+.pt-content-progress {
+	min-height:1px;	
+	background:white;
+}
+.progress-linear .progress-linear__bar {
+	background:white;
+}
+.pt-poster {
+	position:fixed;
+  left:0px;
+  top:0px;
+  width:60vw;
+  height:40vw;
+  border:1px solid;
+  font-size:10vw;
+}

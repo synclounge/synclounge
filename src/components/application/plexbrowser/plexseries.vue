@@ -1,37 +1,12 @@
 <template>
     <span>
         <span v-on:click="reset()" style="cursor: pointer !important"> {{ content.title }} <span v-if="browsingContent"> > </span></span>
-        <div v-if="!browsingContent">
-            <div v-if="contents && !browsingContent">
-                <v-card class="blue-grey darken-1 col l12 s12" style="box-shadow:none">
-                    <div class="white-text row">
-                        <img :src="getArt(content)" style="height:100%" class="col s12 l4"/>
-                        <div class="col l8 s12">
-                            <h2 class="card-title">{{ content.title }}</h2>
-                            <label> {{ content.leafCount }} episodes since {{ content.year }} </label>
-                            <label> {{ content.sourceTitle }}</label>
-                            <p> {{ content.summary }} </p>
-                        </div>
-                    </div>
-                </v-card>
-                <div class="divider"></div>
-                <h5> Seasons </h5>
-                <div v-for="content in contents.MediaContainer.Metadata">
-                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s6 hoverable"
-                            style="box-shadow:none">
-                        <div class="white-text">
-                            <img :src="getThumb(content)" style="width:100%"/>
-                            <span style="font-size: 1.3em;" class="card-title">{{ content.title }}</span>
-                            <div>
-                                <label style="font-size: 1em;"> {{ content.leafCount }} episodes </label>
-                            </div>
-                        </div>
-                    </v-card>
-                </div>
-            </div>
-            <div v-if="!contents && !browsingContent" class="center">
-                <v-progress-circular active large></v-progress-circular>
-            </div>
+        <div v-if="contents && !browsingContent" class="mt-3">
+            <v-layout class="row" row wrap>
+                <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
+                  <plexthumb :content="content" :server="server" type="thumb" :height="'20em'" @contentSet="setContent(content)"></plexthumb>
+                </v-flex>
+            </v-layout>  
         </div>
         <plexseason v-if="browsingContent" :content="browsingContent" :server="server" :library="library"></plexseason>
     </span>
@@ -39,11 +14,13 @@
 
 <script>
   import plexseason from './plexseason.vue'
+  import plexthumb from './plexthumb.vue'
 
   export default {
     props: ['library', 'server', 'content'],
     components: {
-      plexseason
+      plexseason,
+      plexthumb
     },
     created () {
       // Hit the PMS endpoing /library/sections

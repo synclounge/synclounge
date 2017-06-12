@@ -1,38 +1,49 @@
 <template>
     <span>
         <span v-on:click="reset()" style="cursor: pointer !important">{{ title }}</span>
-        <div v-if="!browsingContent">
-            <div v-if="contents && !browsingContent">
-                <v-card class="blue-grey darken-1 col l12 s12" style="height:100%;box-shadow:none">
-                    <div class="white-text row">
-                        <img :src="getThumb(content)" style="height:100%" class="col s12 l3"/>
-                        <div class="col l9 s12">
-                            <div v-if="content.type == 'episode'">
-                                <div style="font-size: 3vh;"> {{ content.grandparentTitle }} </div>
-                                <label style="font-size: 2vh"> Season {{ content.parentIndex }} Episode {{ content.index
-                                  }} </label>
-                                <div style="font-size: 2vh; font-style:italic">{{ content.title }}</div>
-                                <p style="font-size: 1.5vh"> {{ content.summary }} </p>
-                            </div>
-                            <div v-if="content.type == 'movie'">
-                                <div style="font-size: 3vh">{{ content.title }}</div>
-                                <div style="font-size: 2vh"> {{ content.year }} </div>
-                                <div style="font-size: 1vh"> {{ content.sourceTitle }} </div>
-                                <p style="font-size: 1.5vh"> {{ content.summary }} </p>
-                            </div>
-                            <div class="col l2 s12">
-                                <button v-on:click="playMedia(content)" id="play"
-                                        style="background-color: #E5A00D;width:100%"
-                                        class="waves-effect waves-light btn">Play</button>
-                                <label for="play"> {{ largestRes }}p </label>
-                            </div>
-                        </div>
-                    </div>
-                </v-card>
-            </div>
-            <div v-if="!contents && !browsingContent" class="center">
-                <v-progress-circular active large></v-progress-circular>
-            </div>
+        <div v-if="!browsingContent" class="mt-3">    
+          <v-card v-if="contents" horizontal height="50em">
+            <v-card-row :img="getThumb(content)" height="100%"></v-card-row>
+            <v-card-column>
+              <v-card-row height="11em"  class="blue-grey darken-3 white--text">
+                <v-card-text v-if="content.type == 'episode'">
+                  <h3> {{ content.grandparentTitle }}</h3>
+                  <p> Season {{ contents.parentIndex }} Episode {{ contents.index }} </p>   
+                  <h6>{{ content.title }}</h6>                              
+                  <p style="font-style: italic" v-if="contents.viewCount == 0 || !contents.viewCount"> Episode summary automatically hidden for unwatched episodes </p> 
+                  <p style="font-style: italic" v-else> {{ content.summary }} </p>            
+                  <v-divider></v-divider>
+                  <div>     
+                    <v-chip bottom v-tooltip:top="{ html: 'Resolution' }" class="grey darken-4 white--text" outline left> {{ largestRes }}p</v-chip> 
+                    <v-chip bottom v-tooltip:top="{ html: 'Year' }" class="grey darken-4 white--text" outline left> {{ contents.year }}</v-chip>   
+                    <v-chip v-if="contents.contentRating" v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>     
+                    <v-chip v-for="genre in contents.Genre" :key="genre" v-tooltip:top="{ html: 'Genre' }" class="grey darken-4 white--text"  small label> {{ genre.tag }}</v-chip>
+                  </div>
+                </v-card-text>                
+                <v-card-text v-if="content.type == 'movie'" >
+                  <h3>{{ content.title }}</h3>
+                  <h6> {{ contents.year }} </h6>   
+                  <div>     
+                    <v-chip bottom v-tooltip:top="{ html: 'Resolution' }" class="grey darken-4 white--text" outline left> {{ largestRes }}p</v-chip>    
+                    <v-chip v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>                  
+                    <v-chip v-tooltip:top="{ html: 'Studio' }"  class="grey darken-4 white--text" small label> {{ contents.studio }}</v-chip>
+                    <v-chip v-for="genre in contents.Genre" :key="genre" v-tooltip:top="{ html: 'Genre' }" class="grey darken-4 white--text"  small label> {{ genre.tag }}</v-chip>
+                  </div>
+                  <p style="font-style: italic"> {{ content.summary }} </p>      
+                  <v-divider></v-divider>
+                  <v-subheader class="white--text"> Featuring </v-subheader>
+                  <div v-for="actor in contents.Role.slice(0,3)" :key="actor">
+                    {{actor.tag}} as {{actor.role}}
+                  </div>
+                </v-card-text>
+              </v-card-row>
+              <v-card-row actions class="blue-grey darken-4">    
+                <v-btn style="width:15%" v-on:click.native="playMedia(content)" raised large class="primary white--text">
+                  <v-icon light>play_arrow</v-icon> Play 
+                </v-btn>
+              </v-card-row>
+            </v-card-column>
+          </v-card>
         </div>
     </span>
 </template>
@@ -101,14 +112,15 @@
         this.browsingContent = content
       },
       getThumb (object) {
-        console.log('Getting url for thumb ' + object.thumb)
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 1)
+        if (object.type == 'movie'){          
+          return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 1)
+        }
+        return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 1)
       },
       playMedia (content) {
-        console.log('Attempting to play')
-        this.chosenClient.playMedia(this.content.ratingKey, this.server, function (result) {
+        this.chosenClient.playMedia(this.contents.ratingKey, this.server, function (result) {
           console.log('Auto play result: ' + result)
         })
       },

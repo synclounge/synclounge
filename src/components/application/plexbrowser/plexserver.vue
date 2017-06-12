@@ -1,118 +1,45 @@
 <template>
     <span>
         <span v-on:click="reset()" style="cursor: pointer !important">{{ server.name }}<span
-          v-if="browsingLibrary || selectedItem"> ></span></span>
-        <div v-if="!browsingLibrary && !selectedItem">
-            <div v-if="!libraries && !browsingLibrary" class="center">
+          v-if="browsingLibrary || selectedItem"> ></span>
+        </span>
+        <v-layout v-if="!libraries && !browsingLibrary && !selectedItem" row >
+            <v-flex xs12>
+                <v-progress-circular indeterminate class="amber--text"></v-progress-circular>
+            </v-flex>
+        </v-layout>
+        <div v-if="!browsingLibrary && !selectedItem && libraries" class="mt-3">            
+            <div v-if="!libraries && !browsingLibrary">
                 <v-progress-circular active large></v-progress-circular>
             </div>
-            <h2 class="col s12"> Libraries </h2>
+            <h4> Libraries </h4>
             <v-layout>
-              <v-flex xs4 lg1 v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries">
-                  <v-card v-on:click.native="setLibrary(library)" class="text-xs-center hoverable card"
-                          >
+              <v-flex xs4 lg1 v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries" :key="library">
+                  <v-card v-on:click="setLibrary(library)" class="text-xs-center hoverable card">
                       <div>
                           <img :src="getThumb(library)" style="width:75%">
                       </div>
                       <div>
-                          <div>{{ library.title }}</div>
+                          <span>{{ library.title }}</span>
                       </div>
                   </v-card>
               </v-flex>
             </v-layout>
-            <h2 class="col s12"> On Deck </h2>
-            <div v-if="!libraries && !browsingLibrary && !selectedItem" class="center row">
-                <v-progress-circular active large></v-progress-circular>
-            </div>
-            <div v-if="onDeck.length != 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-                <div v-for="content in subsetOnDeck(3)">
-                    <v-card v-if="content.type == 'movie'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l4 s12 hoverable">
-                        <div style="height:100%">
-                            <img style="height:auto;width:100%;display:block" v-lazy="getArt(content)"/>
-                            <v-progress-linear determinate :width="progress(content)"
-                                               style="padding-top:0;margin-top:0;background-color:grey;margin:0"></v-progress-linear>
-                            <div style="margin-left:1%;">
-                                <span style="font-size: 1.5em;" class="card-title truncate">{{ content.title }}</span>
-                                <div>
-                                    <label style="display:block"> {{ content.year }}</label>
-                                </div>
-                            </div>
-                        </div>
-                    </v-card>
-                    <v-card v-if="content.type == 'episode'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l4 s12 hoverable">
-                        <div style="height:100%;bottom:0">
-                            <img style="height:auto;width:100%;display:block" v-lazy="getArt(content)"/>
-                            <v-progress-linear determinate :width="progress(content)"
-                                               style="padding-top:5px;margin-top:0;background-color:grey;margin:0"></v-progress-linear>
-                            <div style="padding-left:1%; height:25%; padding-top:1%">
-                                <span style="font-size: 1.5em;" class="card-title truncate">{{ content.grandparentTitle
-                                  }}</span>
-                                <div>
-                                    <label> S{{ content.parentIndex }}E{{ content.index}} </label>
-                                    <label> - {{ content.title }} </label>
-                                </div>
-                            </div>
-                        </div>
-                    </v-card>
-                </div>
-            </div>
-            <h2 class="col s12"> Recently Added </h2>
-            <div v-if="!libraries && !browsingLibrary && !selectedItem" class="center">
-                <v-progress-circular active large></v-progress-circular>
-            </div>
-            <div v-if="recentlyAdded.length != 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-                <div v-for="content in subsetRecentlyAdded(12)">
-                    <v-card v-if="content.type == 'movie'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:250px">
-                        <div style="height:100%">
-                            <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                            <div style="margin:3%; margin-left:1%; height:25%;">
-                                <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
-                                <div>
-                                    <label style="display:block"> {{ content.year }}</label>
-                                </div>
-                            </div>
-                        </div>
-                    </v-card>
-                    <v-card v-if="content.type == 'episode'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:250px">
-                        <div style="height:100%;bottom:0">
-                            <img style="height:auto;width:100%;display:block" v-lazy="getGrandparentThumb(content)"/>
-                            <div style="padding:3%; padding-left:1%; height:25%;">
-                                <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
-                                <div>
-                                    <label style="display:block"> {{ content.grandparentTitle }} </label>
-                                    <label style="display:block"> S{{ content.parentIndex }}E{{ content.index}} </label>
-                                </div>
-                            </div>
-                        </div>
-                    </v-card>
-                    <v-card v-if="content.type == 'season'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:250px">
-                        <div style="height:100%;bottom:0">
-                            <img style="height:auto;width:100%;display:block" class="center" v-lazy="getThumb(content)"/>
-                            <div style="padding:3%; padding-left:1%; height:25%;">
-                                <span style="font-size: 1em;" class="card-title truncate">{{ content.parentTitle
-                                  }}</span>
-                                <div>
-                                    <label style="display:block"> {{ content.title }} </label>
-                                </div>
-                            </div>
-                        </div>
-                    </v-card>
-                    <v-card v-if="content.type == 'series'" v-on:click.native="setContent(content)"
-                            class="blue-grey darken-1 col l1 s4 hoverable" style="box-shadow:none;height:12px">
-                        <div style="height:100%;bottom:0">
-                            <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                            <div style="padding:3%; padding-left:1%; height:25%;">
-                                <span style="font-size: 1em;" class="card-title truncate">{{ content.title }}</span>
-                            </div>
-                        </div>
-                    </v-card>
-                </div>
-            </div>
+            <v-divider class="mt-3 ma-2"></v-divider>
+            <h4> On Deck </h4>
+            <v-layout v-if="onDeck" row wrap>
+                <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content">                    
+                    <plexthumb :content="content" :server="server" type="art" :height="'30em'" fullTitle @contentSet="setContent(content)"></plexthumb>
+
+                </v-flex>
+            </v-layout>
+            <v-divider class="mt-3 ma-2"></v-divider>
+            <h4> Recently Added </h4>      
+            <v-layout v-if="recentlyAdded" class="row" row wrap>
+                <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content">
+                    <plexthumb :content="content" :server="server" type="thumb" fullTitle @contentSet="setContent(content)"></plexthumb>
+                </v-flex>
+            </v-layout>  
         </div>
         <span v-if="selectedItem">
             <plexcontent v-if="selectedItem.type == 'episode' || selectedItem.type == 'movie'" :server="server"
@@ -133,6 +60,7 @@
   import plexseason from './plexseason'
   import plexseries from './plexseries'
   import plexlibrary from './plexlibrary'
+  import plexthumb from './plexthumb'
 
   export default {
     props: ['server'],
@@ -140,7 +68,8 @@
       plexlibrary,
       plexcontent,
       plexseason,
-      plexseries
+      plexseries,
+      plexthumb
     },
     created () {
       // Hit the PMS endpoing /library/sections
@@ -155,8 +84,8 @@
         libraries: null,
         status: "loading..",
 
-        recentlyAdded: [],
-        onDeck: []
+        recentlyAdded: null,
+        onDeck: null
       }
     },
     mounted () {
@@ -215,12 +144,18 @@
       getArt (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.art, w / 2, h / 2)
+        return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1)
       },
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 4)
+      },
+      getTitleMovie(movie){
+        if (movie.year){
+          return movie.title + ' (' + movie.year + ')'
+        }
+        return movie.title
       },
       getGrandparentThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
