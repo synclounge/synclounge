@@ -43,7 +43,7 @@
             <div class="portrait">
               <v-card v-on:click="setContent(movie)" >                  
                   <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{movie.server.name}}</small>                    
-                  <v-card-row class="grey darken-4" :img="getThumb(movie)" height="20em">  </v-card-row>                       
+                  <v-card-row :img="getThumb(movie)" height="20em">  </v-card-row>                       
                   <v-card-row height="3em" style="background: rgba(0, 0, 0, .7)">
                       <small> {{ getTitleMovie(movie) }} </small>
                     </v-card-row>            
@@ -61,7 +61,7 @@
             <div class="portrait">
               <v-card v-on:click="setContent(show)" >    
                   <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{show.server.name}}</small>                  
-                  <v-card-row class="grey darken-4" :img="getThumb(show)" height="20em">  </v-card-row>                       
+                  <v-card-row :img="getThumb(show)" height="20em">  </v-card-row>                       
                   <v-card-row  height="3em" style="background: rgba(0, 0, 0, .7)">
                       <small> {{ getTitleMovie(show) }} </small>
                     </v-card-row>                 
@@ -79,7 +79,7 @@
             <div class="portrait">
               <v-card v-on:click="setContent(episode)" >    
                   <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{episode.server.name}}</small>           
-                  <v-card-row class="grey darken-4" :img="getThumb(episode)" height="10em">  </v-card-row>        
+                  <v-card-row :img="getThumb(episode)" height="10em">  </v-card-row>        
                   <v-card-row height="3em" style="background: rgba(0, 0, 0, .7)">
                      <small class="pa-0 ma-0"> {{ episode.grandparentTitle }} S{{ episode.parentIndex }}E{{episode.index}} - {{ episode.title }}</small> 
                   </v-card-row>       
@@ -93,7 +93,7 @@
         <h3> Browse </h3>
         <v-layout row wrap>  
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server" class="pa-2">  
-            <v-card v-on:click="setServer(server)" class="grey darken-4" horizontal height="130px">
+            <v-card v-on:click="setServer(server)" horizontal height="130px">
               <v-card-row img="static/plexlogo.png" height="100%" style="overflow:hidden !important"></v-card-row>
               <v-card-column>
                 <v-card-row>

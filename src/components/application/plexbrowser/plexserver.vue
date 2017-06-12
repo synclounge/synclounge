@@ -7,17 +7,19 @@
                 <v-progress-circular active large></v-progress-circular>
             </div>
             <h2 class="col s12"> Libraries </h2>
-            <div v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries">
-                <v-card v-on:click.native="setLibrary(library)" class="blue-grey darken-1 col l3 s12 hoverable card"
-                        >
-                    <div class="col s3 l3" style="height:100%">
-                        <img :src="getThumb(library)" style="height:100%; width:100%">
-                    </div>
-                    <div class="col s9 l9">
-                        <div style="font-size: 1.5em;">{{ library.title }}</div>
-                    </div>
-                </v-card>
-            </div>
+            <v-layout>
+              <v-flex xs4 lg1 v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries">
+                  <v-card v-on:click.native="setLibrary(library)" class="text-xs-center hoverable card"
+                          >
+                      <div>
+                          <img :src="getThumb(library)" style="width:75%">
+                      </div>
+                      <div>
+                          <div>{{ library.title }}</div>
+                      </div>
+                  </v-card>
+              </v-flex>
+            </v-layout>
             <h2 class="col s12"> On Deck </h2>
             <div v-if="!libraries && !browsingLibrary && !selectedItem" class="center row">
                 <v-progress-circular active large></v-progress-circular>
