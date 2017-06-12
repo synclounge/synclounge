@@ -463,7 +463,11 @@ const plexTogether = {
       })
       state._socket.on('connect_error', function (result) {
         // Bad connection
-        console.log('Failed to connect')
+        console.log('Failed to connect')        
+        callback({
+          result: false,
+          data: result
+        })
         commit('SET_CONNECTED', false)
         commit('SET_SERVER', null)
         return

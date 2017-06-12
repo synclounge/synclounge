@@ -4,13 +4,13 @@
       <v-icon v-on:click="reset()" light>home</v-icon>
     </span>
     <div v-if="!browsingServer && !selectedItem && !browsingContent">
-      <h5> Search </h5>
+      <h4> Search </h4>
       <v-layout v-if="!selectedItem && !browsingServer" row wrap>
-        <v-flex xs12 lg4>
+        <v-flex xs10 lg4>
           <v-text-field
             name="searchInput"
             label="Search"
-            hint="Search all of your available Plex Media Servers"
+            :hint="searchStatus"
             id="testing"
             persistent-hint
             light
@@ -19,10 +19,12 @@
             v-model="searchWord"
           ></v-text-field>
         </v-flex>
-        <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''" style="cursor:pointer" class="red--text">clear</v-icon>
+        <v-flex xs2>
+          <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''" style="cursor:pointer" class="red--text">clear</v-icon>
+        </v-flex>  
       </v-layout> 
-      <v-layout row wrap v-if="searching || results.length > 0">    
-         <v-chip v-for="server in plex.servers" :key="server" outline class="blue white--text">
+      <v-layout row wrap v-if="searching || results.length > 0">  
+         <v-chip v-for="server in plex.servers" :key="server" outline class="green darken-3 white--text">
            <v-avatar>
              <v-icon v-if="!heardBack(server)">clear</v-icon>
             <v-icon v-if="heardBack(server)">check_circle</v-icon>
@@ -32,19 +34,18 @@
       </v-layout>
       <v-progress-circular v-if="searching" indeterminate class="amber--text"></v-progress-circular>
       <div v-if="results.length > 0">
-        <v-subheader class="white--text" v-text="searchStatus"></v-subheader>
         <v-layout v-if="filteredMovies && filteredMovies.length > 0" row wrap>
           <!--Movies-->
           <v-flex xs12 lg12 >
-            <h6> Movies ({{filteredMovies.length}})</h6>
+            <v-subheader light> Movies ({{filteredMovies.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 class="mb-3" v-for="movie in filteredMovies" :key="movie">
+          <v-flex xs6 md3 xl1 lg2 v-for="movie in filteredMovies" :key="movie">
             <div class="portrait">
               <v-card v-on:click="setContent(movie)" >                  
                   <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{movie.server.name}}</small>                    
                   <v-card-row class="grey darken-4" :img="getThumb(movie)" height="20em">  </v-card-row>                       
-                  <v-card-row style="background: rgba(0, 0, 0, .3)">
-                      <div> {{ getTitleMovie(movie) }} </div>
+                  <v-card-row height="3em" style="background: rgba(0, 0, 0, .7)">
+                      <small> {{ getTitleMovie(movie) }} </small>
                     </v-card-row>            
                 </v-card>       
               </v-card>
@@ -54,15 +55,15 @@
         <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
           <!--Shows-->
           <v-flex xs12 lg12 >
-            <h6> TV Shows ({{filteredShows.length}})</h6>
+            <v-subheader light> TV Shows ({{filteredShows.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 class="mb-3" v-for="show in filteredShows" :key="show">
+          <v-flex xs6 md3 xl1 lg2 v-for="show in filteredShows" :key="show">
             <div class="portrait">
               <v-card v-on:click="setContent(show)" >    
                   <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{show.server.name}}</small>                  
                   <v-card-row class="grey darken-4" :img="getThumb(show)" height="20em">  </v-card-row>                       
-                  <v-card-row style="background: rgba(0, 0, 0, .3)">
-                      <div> {{ getTitleMovie(show) }} </div>
+                  <v-card-row  height="3em" style="background: rgba(0, 0, 0, .7)">
+                      <small> {{ getTitleMovie(show) }} </small>
                     </v-card-row>                 
                 </v-card>       
               </v-card>
@@ -72,18 +73,15 @@
         <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
           <!--Episodes-->
           <v-flex xs12 lg12 >
-            <h6> TV Episodes ({{filteredEpisodes.length}})</h6>
+            <v-subheader light> TV Episodes ({{filteredEpisodes.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 class="mb-3" v-for="episode in filteredEpisodes" :key="episode">
+          <v-flex xs6 md3 xl1 lg2 v-for="episode in filteredEpisodes" :key="episode">
             <div class="portrait">
               <v-card v-on:click="setContent(episode)" >    
                   <small style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{episode.server.name}}</small>           
-                  <v-card-row class="grey darken-4" :img="getThumb(episode)" height="10em">  </v-card-row>                       
-                  <v-card-row style="background: rgba(0, 0, 0, .3)">
-                      {{ episode.title }}
-                  </v-card-row>
-                  <v-card-row style="background: rgba(0, 0, 0, .3)">
-                     <label> {{ episode.grandparentTitle }} S{{ episode.parentIndex }}E{{episode.index}} </label> 
+                  <v-card-row class="grey darken-4" :img="getThumb(episode)" height="10em">  </v-card-row>        
+                  <v-card-row height="3em" style="background: rgba(0, 0, 0, .7)">
+                     <small class="pa-0 ma-0"> {{ episode.grandparentTitle }} S{{ episode.parentIndex }}E{{episode.index}} - {{ episode.title }}</small> 
                   </v-card-row>       
                 </v-card>       
               </v-card>
@@ -92,7 +90,7 @@
         </v-layout>
       </div>
       <div v-if="results.length == 0">
-        <h5> Browse </h5>
+        <h3> Browse </h3>
         <v-layout row wrap>  
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server" class="pa-2">  
             <v-card v-on:click="setServer(server)" class="grey darken-4" horizontal height="130px">
@@ -196,6 +194,7 @@
         function () {
           if (this.searchWord == ''){
             this.results = []
+            this.searchStatus = 'Search your available Plex Media Servers'
             return
           }
           this.searching = true
@@ -238,7 +237,7 @@
 
         results: [],
         searchWord: '',
-        searchStatus: '',
+        searchStatus: 'Search your available Plex Media Servers',
         searching: false,
         serversHeardBack: []
       }
@@ -246,6 +245,8 @@
     watch: {
       searchWord () {
         if (this.searchWord == '') {
+          this.results = []
+          this.searchStatus = 'Search your available Plex Media Servers'
           return
         }
         this.searchAllServers()

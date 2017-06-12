@@ -32,7 +32,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar class="grey darken-4">
+    <v-toolbar class="grey darken-4" light>
       <v-toolbar-side-icon light @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title class="white--text"></v-toolbar-title>
       <v-toolbar-items>
@@ -66,7 +66,14 @@
 </template>
 
 <script>
+
+  // Custom css
+  import './assets/css/styleNew.css'
+
+
+
   export default {
+      
     data () {
       return {        
         drawer: false,

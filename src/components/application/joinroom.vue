@@ -1,95 +1,73 @@
 <template>
-  <div class="container" style="padding: 10px; font-family:'Open Sans', sans-serif !important;">
-    <div v-if="!context.getters.getConnected">
-      <div class="row">
-        <div class="col s12">
-          <select v-model="selectedServer" v-on:change="attemptConnect()" id="PlexTogetherServers" class="mdc-select"
-                  style="width: 100%;background-color:rgba(39, 44, 56, 0.85)">
-            <option value="" disabled>Select a PT Server</option>
-            <option value="custom">Custom</option>
-            <option v-bind:value="thisServer">{{ thisServer }}</option>
-            <option value="https://au1.plextogether.com">PlexTogether AU1</option>
-            <option value="https://us1.plextogether.com">PlexTogether US1</option>
-            <option value="https://eu1.plextogether.com">PlexTogether EU1</option>
-          </select>
-        </div>
-      </div>
-      <div v-if="selectedServer == 'custom'" class="row" id="customField">
-        <div class="col s11">
-          <div class="mdc-textfield mdc-textfield--upgraded" style="width: 100%">
-            <input v-model="CUSTOMSERVER" id="ptServerCustom" type="text" class="mdc-textfield__input" value="http://"
-                   style="width: 100%; margin-bottom: 0px">
-            <label class="mdc-textfield__label mdc-textfield__label--float-above plex-gamboge-text">
-              Custom Server
-            </label>
-          </div>
-        </div>
-        <div class="col s12" style="text-align: center; margin-top: 19px">
-          <button class="mdc-button mdc-button--raised mdc-button--accent plex-gamboge"
-                  v-on:click="attemptConnectCustom()" id="ptServerSubmit" type="submit" name="action"
-                  style="width:100%">Connect
-          </button>
-        </div>
-      </div>
-      <div class="valign-wrapper" v-if="serverError">
-        <i style="color:red" class="valign material-icons">info_outline</i>
-        <span class="valign">  {{ serverError }}</span>
-      </div>
-    </div>
-    <div v-if="context.getters.getConnected">
-      <div class="row" style="margin-bottom: 0;">
-        <div class="col s12">
-          <div class="mdc-textfield mdc-textfield--upgraded" style="width: 100%">
-            <input v-on:keyup.enter="joinRoom()" v-model="room" id="ptRoom" type="text" class="mdc-textfield__input"
-                   style="margin-bottom: 0px;" autofocus>
-            <label class="mdc-textfield__label mdc-textfield__label--float-above plex-gamboge-text">
-              Room Name
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col s12">
-          <div class="mdc-textfield mdc-textfield--upgraded" style="width: 100%">
-            <input v-on:keyup.enter="joinRoom()" v-model="password" id="ptRoomPassword" type="text"
-                   class="mdc-textfield__input" style="margin-bottom: 0px">
-            <label class="mdc-textfield__label mdc-textfield__label--float-above plex-gamboge-text">
-              Password
-            </label>
-          </div>
-        </div>
-
-        <div class="col s12	" style="text-align: center; margin-top: 19px">
-          <div class="progress-button">
-            <button class="mdc-button mdc-button--raised mdc-button--accent plex-gamboge" id="ptRoomJoin"
-                    v-on:click="joinRoom()" type="submit" name="action" style="width:100%">Join
-            </button>
-          </div>
-        </div>
-
-        <div class="col s1">
-          <div class="preloader-wrapper small active" style="margin-top: 21px; margin-left:-27px; opacity:0">
-            <div class="spinner-layer spinner-plex-orange-only" id="ptRoomSubmitLoader">
-              <div class="circle-clipper left">
-                <div class="circle"></div>
-              </div>
-              <div class="gap-patch">
-                <div class="circle"></div>
-              </div>
-              <div class="circle-clipper right">
-                <div class="circle"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="valign-wrapper" v-if="roomError">
-        <i style="color:red" class="valign material-icons">info_outline</i>
-        <span class="valign">  {{ roomError }}</span>
-      </div>
-    </div>
-  </div>
-  </div>
+  <v-layout row wrap>
+    <v-flex xs12 v-if="!context.getters.getConnected"
+        style="color:white !important">
+      <v-select
+        light
+        :dark="false"
+        v-bind:items="ptservers"
+        class="input-group--focused"
+        v-model="selectedServer"
+        label="Select a server"
+        item-value="value"
+      ></v-select> 
+      <v-text-field
+        v-if="selectedServer == 'custom'"
+        name="input-2"
+        label="Custom Server"
+        v-model="CUSTOMSERVER"
+        class="input-group--focused"
+        light
+      ></v-text-field>
+      <v-layout row wrap v-if="selectedServer == 'custom'">
+        <v-flex xs4 offset-xs4>
+          <v-btn class="plex-gamboge white--text pa-0 ma-0" style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
+        </v-flex>  
+      </v-layout>       
+      <v-layout row wrap v-if="connectionPending">
+        <v-flex xs4 offset-xs4 center>          
+          <v-progress-circular indeterminate v-bind:size="50" class="amber--text text-xs-center"></v-progress-circular>      
+        </v-flex>  
+      </v-layout>       
+      <v-layout class="pt-3" row wrap v-if="serverError">
+        <v-flex xs12 class="red--text">          
+         <v-icon class="red--text">info</v-icon> {{ serverError }}   
+        </v-flex>  
+      </v-layout> 
+    </v-flex>     
+    <v-flex xs12 v-if="context.getters.getConnected">
+      <v-layout row wrap>
+        <v-flex xs12>          
+         <v-text-field
+            name="input-2"
+            label="Room name"
+            v-on:keyup.enter="joinRoom()"
+            v-model="room"
+            class="input-group pd-0 mb-0"
+            light
+          ></v-text-field>
+        </v-flex>  
+        <v-flex xs12>          
+         <v-text-field
+            name="input-2"
+            label="Room password"
+            v-on:keyup.enter="joinRoom()"
+            v-model="password"
+            class="pt-0 mt-0 input-group orange--text"
+            light
+          ></v-text-field>
+        </v-flex>        
+        <v-flex xs4 offset-xs4>
+          <v-btn class="plex-gamboge white--text pa-0 ma-0" style="width:100%" v-on:click.native="joinRoom()">Join</v-btn>
+        </v-flex>  
+        <v-layout class="pt-3" row wrap v-if="roomError">
+          <v-flex xs12 class="red--text">          
+          <v-icon class="red--text">info</v-icon> {{ roomError }}   
+          </v-flex>  
+        </v-layout>   
+      </v-layout>       
+    </v-flex> 
+  </v-layout>  
 </template>
 
 <script>
@@ -104,23 +82,44 @@
         room: '',
         password: '',
         connectionPending: false,
-        thisServer: window.location.origin
+        thisServer: window.location.origin,
+
+        ptservers: [
+          {
+            text: 'PlexTogether AU1',
+            value: 'https://au1.plextogether.com'
+          },
+          {
+            text: 'PlexTogether US1',
+            value: 'https://us1.plextogether.com'
+          },
+          {
+            text: 'PlexTogether EU1',
+            value: 'https://eu1.plextogether.com'
+          },
+          {
+            text: 'Custom Server',
+            value: 'custom'
+          }
+        ]
       }
     },
     methods: {
       attemptConnect: function () {
         var that = this
-        this.connectionPending = true
         // Attempt the connection
+        this.serverError = null
         if (this.selectedServer != 'custom') {
           console.log('Attempting to connect to ' + this.selectedServer)
+          this.connectionPending = true
           this.$store.dispatch('socketConnect', {
             address: this.selectedServer,
-            callback: function (data) {
+            callback: (data) => {
+              this.connectionPending = false
               if (!data.result) {
-                that.serverError = "Failed to connect to " + that.selectedServer
+                this.serverError = "Failed to connect to " + this.selectedServer
               } else {
-                that.serverError = null
+                this.serverError = null
               }
             }
           })
@@ -129,15 +128,19 @@
       },
       attemptConnectCustom: function () {
         var that = this
+        this.connectionPending = true
+        this.serverError = null
         console.log('Attempting to connect to ' + this.CUSTOMSERVER)
         this.$store.dispatch('socketConnect', {
           address: this.CUSTOMSERVER,
-          callback: function (data) {
+          callback: (data) => {
+            console.log(data)
+            this.connectionPending = false
             if (!data.result) {
               console.log('Failed to connect')
-              that.serverError = "Failed to connect to " + that.customServer
+              this.serverError = "Failed to connect to " + this.CUSTOMSERVER
             } else {
-              that.serverError = null
+              this.serverError = null
             }
           }
         })
@@ -166,6 +169,12 @@
           }
         }
         this.$store.dispatch('joinRoom', temporaryObj)
+      }
+    },
+    watch: {
+      selectedServer: function() {
+        this.attemptConnect()
+        this.serverError = null
       }
     },
     computed: {
