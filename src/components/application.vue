@@ -4,7 +4,7 @@
 			<div class="row" style="margin-bottom: 0">
 
 				<!-- MAIN CONTENT -->
-				<div class="col s12 l12 center" v-if="!validDevices" style="padding-top:5%">
+				<div class="col s12 l12 center" v-if="!validDevices" style="position: absolute; top: 50%; left: 50%">
 						<v-progress-circular indeterminate v-bind:size="50" class="amber--text"></v-progress-circular>
 				</div>
 				<div class="col s12 l12 no-padding" v-if="validDevices">
