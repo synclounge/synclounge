@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <v-navigation-drawer temporary v-model="drawer" :mini-variant.sync="mini" dark class="grey darken-4">
+    <v-navigation-drawer temporary v-model="drawer" :mini-variant.sync="mini" dark >
       <v-list class="pa-0">
         <v-list-item>
           <v-list-tile avatar tag="div" v-if="validDevices">
@@ -32,7 +32,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar class="grey darken-4" light>
+    <v-toolbar light>
       <v-toolbar-side-icon light @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title class="white--text"></v-toolbar-title>
       <v-toolbar-items>

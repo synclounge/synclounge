@@ -21,7 +21,7 @@
       <div v-if="!chosenClient">        
         <v-layout class="pa-1 mt-2" row wrap>        
           <v-flex xs12 center>
-            <h3>Connect to your client</h3>
+            <h3>Choose your Plex player</h3>
           </v-flex>
           <v-flex xs12>
             Choose a client from the list below. Once you've found the client you would like to use, click the connect button. PlexTogether will test to see if it can connect with the client and will let you know if it cannot.
@@ -58,7 +58,7 @@
                 <v-progress-circular small active></v-progress-circular>
               </div>
               <div v-if="!testClientWaiting">
-                <v-btn class="plex-gamboge" large light style="width:100%" v-on:click.native="clientClicked()">Connect</v-btn>
+                <v-btn class="pt-orange" large light style="width:100%" v-on:click.native="clientClicked()">Connect</v-btn>
               </div>
               <div v-if="testClient.product.indexOf('Web') > -1">
                 Note: Plex Web is currently not supported
@@ -73,13 +73,12 @@
       <div v-if="chosenClient">
         <v-layout row wrap>
           <v-flex xs12>
-            <h5 class="text-xs-center">Join your PlexTogether room</h5>
+            <h5 class="text-xs-center">Connect to a PlexTogether room</h5>
           </v-flex>
         </v-layout>
         <v-layout row wrap>
           <v-flex xs12>
-            It's time to join a server and then a room. Decide with your friends what server and room to join and then click the Join Room button below. If you're hosting your
-            own server make sure you choose a custom server.
+            It's time to connect to PlexTogether. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join.
           </v-flex>
         </v-layout>
         <v-layout row wrap> 

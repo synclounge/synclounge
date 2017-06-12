@@ -21,7 +21,7 @@
       ></v-text-field>
       <v-layout row wrap v-if="selectedServer == 'custom'">
         <v-flex xs4 offset-xs4>
-          <v-btn class="plex-gamboge white--text pa-0 ma-0" style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
+          <v-btn class="pt-orange white--text pa-0 ma-0" style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
         </v-flex>  
       </v-layout>       
       <v-layout row wrap v-if="connectionPending">
@@ -58,7 +58,7 @@
           ></v-text-field>
         </v-flex>        
         <v-flex xs4 offset-xs4>
-          <v-btn class="plex-gamboge white--text pa-0 ma-0" style="width:100%" v-on:click.native="joinRoom()">Join</v-btn>
+          <v-btn class="pt-orange white--text pa-0 ma-0" style="width:100%" v-on:click.native="joinRoom()">Join</v-btn>
         </v-flex>  
         <v-layout class="pt-3" row wrap v-if="roomError">
           <v-flex xs12 class="red--text">          
