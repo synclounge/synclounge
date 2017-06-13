@@ -6,14 +6,14 @@
           <v-card horizontal height="15em">
             <v-card-row :img="getThumb(content)" height="100%"></v-card-row>
             <v-card-column>
-              <v-card-row height="11em"  class="blue-grey darken-3 white--text">
+              <v-card-row height="11em"  class="season-content white--text">
                 <v-card-text>
                   <h3> {{ content.parentTitle }}</h3>
                   <h6>{{ content.title }}</h6>
                   <p> {{ contents.MediaContainer.size }} episodes </p>
                 </v-card-text>
               </v-card-row>
-              <v-card-row actions class="blue-grey darken-4">
+              <v-card-row actions class="season-info">
                 <v-btn flat class="white--text">
                   <v-chip v-if="contents.MediaContainer.grandparentContentRating" v-tooltip:top="{ html: 'Content Rating' }" label> {{ contents.MediaContainer.grandparentContentRating }}</v-chip>
                   <v-chip v-if="contents.MediaContainer.grandparentStudio" v-tooltip:top="{ html: 'Studio' }" secondary> {{ contents.MediaContainer.grandparentStudio }}</v-chip>

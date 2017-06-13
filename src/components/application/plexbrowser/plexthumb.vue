@@ -1,7 +1,7 @@
 <template>
   <div class="portrait">
-    <v-card v-on:click="emitContentClicked(content)" :height="height || '20em'" >                       
-        <div class="pt-content-unwatched pt-orange" v-if="unfinished"> 
+    <v-card v-on:click="emitContentClicked(content)" :height="height || '20em'">                       
+        <div class="pt-content-unwatched pt-orange unwatched" v-if="unfinished"> 
             <span class="pa-2 black--text">
               <span v-if="unwatchedCount > 0">
                 {{ unwatchedCount }}
@@ -9,8 +9,8 @@
             </span>
         </div>   
         <small v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{ server.name }}</small>  
-        <v-card-row :img="getImg(content)" height="100%">  </v-card-row>   
-        <div class="pt-content-title"> 
+        <v-card-row :img="getImg(content)" height="100%" class="thumb">  </v-card-row>   
+        <div class="pt-content-title thumb-title"> 
             <v-layout row>
                 <v-flex xs12>
                 <v-progress-linear class="pa-0 ma-0 pt-content-progress" v-if="unfinished" height="2" :value="unwatchedPercent"></v-progress-linear>

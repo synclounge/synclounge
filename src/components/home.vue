@@ -1,19 +1,18 @@
 <template>
-  <div class="window">
-    <div class="window-content">
-      <div class="container">
-        <div class="row" style="padding-top:2%">
-          <div class="col s8 offset-s2">
-            <div class="row">
-              <div class="col s8 offset-s2 center">
-                <img style="max-width:100%" v-bind:src="logo">
-              </div>
-            </div>
-            <div class="center">
-              <div class="col s3 offset-s9">
-                <h1 class="right" style="color:white">G'day</h1>
-              </div>
-            </div>
+  <v-app dark>
+    <main>
+        <v-layout>
+          <v-flex xs12 lg6 offset-lg3>
+            <img style="max-width:100%" v-bind:src="logo">
+          </v-flex>
+        </v-layout>
+        <v-layout>
+          <v-flex lg3 offset lg9>
+            <h1 class="right" style="color:white">G'day</h1>
+          </v-flex>
+        </v-layout>
+        <v-layout>
+          <v-flex xs12>
             <p> Plex Together is a tool to sync Plex playback with friends and family anywhere in the world.
               We started off with a Python script which we distributed amongst our friends. With a command line based UI we quickly realised this was too difficult for our friends to use reliably.
               After playing around with the concept we decided to make a version that we could release that all Plex users could enjoy.
@@ -50,11 +49,11 @@
               <p> We hope you enjoy. </p>
               <router-link to="/sync" class="center nav-item nav-link"> Let's get started. </router-link>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+          </v-flex>
+        </v-layout>
+    </main>    
+  </v-app>
+  
 </template>
 
 <script>
