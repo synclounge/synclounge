@@ -72,7 +72,7 @@ span {
 }
 
 .card {
-	background: #323948 !important;
+	background: #323948;
 	/* border-radius */
 	-webkit-border-radius: 5px !important;
 	-moz-border-radius: 5px !important;

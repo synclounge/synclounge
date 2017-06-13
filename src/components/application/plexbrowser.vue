@@ -1,11 +1,11 @@
 <template>
   <div>
     <span v-if="browsingServer || selectedItem">
-      <v-icon v-on:click="reset()" light>home</v-icon>
+      <v-icon v-on:click="reset()" light style="cursor: pointer !important">home</v-icon>
     </span>
     <div v-if="!browsingServer && !selectedItem && !browsingContent">
       <h4> Search </h4>
-      <v-layout v-if="!selectedItem && !browsingServer" row wrap>
+      <v-layout class="mb-3" v-if="!selectedItem && !browsingServer" row wrap>
         <v-flex xs10 lg4>
           <v-text-field
             name="searchInput"
@@ -63,7 +63,7 @@
         </v-layout>
       </div>
       <v-divider></v-divider>
-      <div v-if="results.length == 0">
+      <div class="pt-4" v-if="results.length == 0">
         <h4> Browse </h4>
         <v-layout row wrap>  
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server" class="pa-2">  

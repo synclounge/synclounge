@@ -3,7 +3,7 @@
         <span v-on:click="reset()" style="cursor: pointer !important">{{ server.name }}<span
           v-if="browsingLibrary || selectedItem"> ></span>
         </span>
-        <v-layout v-if="!libraries && !browsingLibrary && !selectedItem" row >
+        <v-layout v-if="!libraries && !browsingLibrary && !selectedItem" row align-center>
             <v-flex xs12>
                 <v-progress-circular indeterminate class="amber--text"></v-progress-circular>
             </v-flex>
@@ -25,16 +25,16 @@
                   </v-card>
               </v-flex>
             </v-layout>
-            <v-divider class="mt-3 ma-2"></v-divider>
-            <h4> On Deck </h4>
+            <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
+            <h4 v-if="onDeck"> On Deck </h4>
             <v-layout v-if="onDeck" row wrap>
                 <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content">                    
                     <plexthumb :content="content" :server="server" type="art" :height="'30em'" fullTitle @contentSet="setContent(content)"></plexthumb>
 
                 </v-flex>
             </v-layout>
-            <v-divider class="mt-3 ma-2"></v-divider>
-            <h4> Recently Added </h4>      
+            <v-divider v-if="recentlyAdded" class="mt-3 ma-2"></v-divider>
+            <h4 v-if="recentlyAdded"> Recently Added </h4>      
             <v-layout v-if="recentlyAdded" class="row" row wrap>
                 <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content">
                     <plexthumb :content="content" :server="server" type="thumb" fullTitle @contentSet="setContent(content)"></plexthumb>

@@ -1,9 +1,9 @@
 <template>
   <div class="portrait">
     <v-card v-on:click="emitContentClicked(content)" :height="height || '20em'">                       
-        <div class="pt-content-unwatched pt-orange unwatched" v-if="unfinished"> 
+        <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
             <span class="pa-2 black--text">
-              <span v-if="unwatchedCount > 0">
+              <span>
                 {{ unwatchedCount }}
               </span>
             </span>
@@ -13,7 +13,7 @@
         <div class="pt-content-title thumb-title"> 
             <v-layout row>
                 <v-flex xs12>
-                <v-progress-linear class="pa-0 ma-0 pt-content-progress" v-if="unfinished" height="2" :value="unwatchedPercent"></v-progress-linear>
+                <v-progress-linear class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>
                 </v-flex>  
             </v-layout>                              
             <v-layout row>
@@ -29,6 +29,7 @@
 <script>
 
   export default {
+
     props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle'],
     components: {
     },
@@ -47,6 +48,42 @@
     computed: {      
       plex () {
         return this.$store.getters.getPlex
+      },
+      showUnwatchedFlag (){
+        if (this.content.type == 'movie' || this.content.type == 'episode'){
+          if ( (!this.content.viewCount || this.content.viewCount == 0) && !this.showProgressBar){
+            return true
+          }
+          return false
+        }
+        if (this.content.type == 'season' || this.content.type == 'show'){
+          if ((this.content.leafCount != this.content.viewedLeafCount)){
+            return true
+          }
+          return false
+        }
+      },
+      showProgressBar (){
+        if (this.content.type == 'movie' || this.content.type == 'episode'){
+          if (this.content.viewOffset && this.content.viewOffset > 0){
+            return true
+          }
+          return false
+        }        
+        if (this.content.type == 'season' || this.content.type == 'show'){
+          if ((this.content.leafCount != this.content.viewedLeafCount) && this.content.viewedLeafCount != 0){
+            return true
+          }
+          return false
+        }
+      },
+      unwatched (){
+        if (this.content.type == 'movie' || this.content.type == 'episode'){
+          if (this.content.viewCount && this.content.viewCount > 0){
+            return false
+          }
+          return true
+        }
       },
       unfinished (){
         // Lol
@@ -92,7 +129,7 @@
         switch (content.type){
           case 'movie':
             if (content.year){              
-              return content.title + '(' + content.year + ')'
+              return content.title + ' (' + content.year + ')'
             }
             return content.title
           case 'show': 
