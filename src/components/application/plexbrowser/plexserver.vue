@@ -25,7 +25,7 @@
                   </v-card>
               </v-flex>
             </v-layout>
-            <v-divider v-if="subsetOnDeck(3).length > 0" class="mt-3 ma-2"></v-divider>
+            <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
             <h4 v-if="subsetOnDeck(3).length > 0"> On Deck </h4>
             <v-layout v-if="onDeck" row wrap>
                 <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content">                    
