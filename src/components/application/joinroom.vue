@@ -41,6 +41,7 @@
          <v-text-field
             name="input-2"
             label="Room name"
+            autoFocus
             v-on:keyup.enter="joinRoom()"
             v-model="room"
             class="input-group pd-0 mb-0"

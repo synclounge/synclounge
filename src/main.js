@@ -4,10 +4,11 @@ import Vue from 'vue'
 
 import Vuetify from 'vuetify'
 import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visibility'
+import VueVideoPlayer from 'vue-video-player'
 
 Vue.directive('observe-visibility', ObserveVisibility)
 Vue.use(Vuetify)
-
+Vue.use(VueVideoPlayer)
 
 
 import App from './App'

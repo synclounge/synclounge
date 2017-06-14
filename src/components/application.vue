@@ -1,13 +1,12 @@
 <template>
 	<div>
 		<div style="margin-bottom: 0">
-			<div class="row" style="margin-bottom: 0">
-
+			<div style="margin-bottom: 0">
 				<!-- MAIN CONTENT -->
-				<div class="col s12 l12 center" v-if="!validDevices" style="position: absolute; top: 50%; left: 50%">
+				<div v-if="!validDevices" style="position: absolute; top: 50%; left: 50%">
 						<v-progress-circular indeterminate v-bind:size="50" class="amber--text"></v-progress-circular>
 				</div>
-				<div class="col s12 l12 no-padding" v-if="validDevices">
+				<div v-if="validDevices">
 					<div v-if="!ptConnected || !chosenClient || !ptRoom">
 						<walkthrough></walkthrough>
 					</div>
@@ -17,50 +16,8 @@
 						<nowplaying v-if="showMetadata"></nowplaying>
 					</div>
 				</div>
-
-
-				<div v-if="ptConnected && chosenClient && ptRoom" class="col s12 l3 no-padding" id="plexTogetherChat" style="z-index:1">				  
-					<div class="mdc-permanent-drawer chatInterface">				   
-						<div style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">						  
-							<div class="row" style="width: 100%;">							
-							  <div class="col l8 left-align truncate">
-				                  <h5 id="plexTogetherRoomNameChat">#{{ ptRoom }}</h5>
-				                  <h5> {{ ptServer }} </h5>
-							  </div>
-			                  <div class="col l4 right-align truncate">
-			                    <h5> {{ userCount }} </h5>
-			                  </div>
-							</div>
-						</div>
-						<div style="height: 60%;  overflow-y: scroll; border-bottom: 1px solid rgba(0, 0, 0, 0.4)">
-							<ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers">
-							<ptuser :object="user"></ptuser>
-							</ul>
-						</div>
-
-						<div class="mdc-list-group hide-on-med-and-down" style="overflow-y: auto; height: 40%; border-top: 1px solid 1px solid rgba(240,245,255,0.3)">
-							<section>
-							<ul v-for="msg in messages" id="chatBox">
-								<chatmessage :object="msg"></chatmessage>
-							</ul>
-							</section>
-						</div>
-						<div class="mdc-permanent-drawer__toolbar no-padding hide-on-med-and-down" style="border: 0;">						  
-							<div class="channel-textarea" style="margin:0;padding:0">							
-							    <div class="channel-textarea-inner">                  
-							      <div class="channel-textarea-upload">
-							        <textarea rows="1" v-bind:placeholder="chatBoxMessage" style="height: auto; overflow-y: auto;" v-on:keyup.enter="sendMessage()" v-model="messageToBeSent"></textarea>
-							      </div>
-							    </div>						  
-							</div>						
-						</div>				  
-					</div>				
-				</div>			
 			</div>
 		</div>
-
-		<!-- MODALS -->
-
 	</div>
 </template>
 

@@ -32,6 +32,9 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
+    <v-navigation-drawer persistent v-model="drawerRight" light right light enable-resize-watcher>
+      <drawerright></drawerright>
+    </v-navigation-drawer>
     <v-toolbar light>
       <v-toolbar-side-icon light @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title class="white--text"></v-toolbar-title>
@@ -52,6 +55,7 @@
           <img style="height:70%;width:auto" v-bind:src="logo"/>
         </v-toolbar-item>
         <v-toolbar-item class="hidden-sm-and-down" v-for="link in links" :key="link" :href="link.href" :target="link.target">{{ link.title }}</v-toolbar-item>    
+        <v-toolbar-side-icon light @click.native.stop="drawerRight = !drawerRight"></v-toolbar-side-icon>
       </v-toolbar-items>
     </v-toolbar>
     <main v-bind:style="mainStyle">
@@ -59,9 +63,6 @@
         <router-view></router-view>
       </v-container>
     </main>    
-    <v-footer :fixed="fixed">
-      <span>&copy; 2017</span>
-    </v-footer>
   </v-app>
 </template>
 
@@ -70,14 +71,18 @@
   // Custom css
   import './assets/css/styleNew.css'
 
+  import drawerright from './sidebar'
 
 
   export default {
-      
+    components: {
+      drawerright
+    },
     data () {
       return {        
         drawer: false,
         mini: false,
+        drawerRight: false,
         right: null,
         fixed: false,        
         items: [
@@ -192,8 +197,6 @@
           }
         }
       }
-    },
-    components: {
     },
   }
 </script>

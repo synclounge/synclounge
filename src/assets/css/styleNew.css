@@ -28,9 +28,19 @@ h7 {
 
 
 /* Background/Text Colors */
-
+html {
+    overflow: scroll;
+    overflow-x: hidden;
+}
+::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+}
 .pt-orange {
   background-color: #E5A00D;
+}
+.pt-orange-text {
+  color: #E5A00D;
 }
 
 .toolbar {
