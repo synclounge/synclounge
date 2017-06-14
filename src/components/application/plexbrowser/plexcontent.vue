@@ -1,40 +1,79 @@
 <template>
     <span>
         <span v-on:click="reset()" style="cursor: pointer !important">{{ title }}</span>
+        <v-layout v-if="!contents && !browsingContent" row>
+          <v-flex xs12 style="position:relative">
+              <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+          </v-flex>
+        </v-layout>
         <div v-if="!browsingContent" class="mt-3">    
           <v-card v-if="contents" horizontal height="50em" :img="getArtUrl" >
-            <v-card-row :img="getThumb(content)" height="100%"></v-card-row>
+            <v-card-row class="hidden-sm-and-down" :img="getThumb(content)" height="100%"></v-card-row>
             <v-card-column style="background: rgba(0, 0, 0, .4)">
               <v-card-row height="11em"  class="white--text">
                 <v-card-text v-if="content.type == 'episode'">
                   <h3> {{ content.grandparentTitle }}</h3>
                   <p> Season {{ contents.parentIndex }} Episode {{ contents.index }} </p> 
-                  <h6>{{ content.title }}</h6>   <span style="opacity:0.5">{{ length }}</span>                             
-                  <p style="font-style: italic" v-if="contents.viewCount == 0 || !contents.viewCount"> Episode summary automatically hidden for unwatched episodes </p> 
-                  <p style="font-style: italic" v-else> {{ content.summary }} </p>            
-                  <v-divider></v-divider>
-                  <div>     
-                    <v-chip bottom v-tooltip:top="{ html: 'Resolution' }" class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip> 
-                    <v-chip bottom v-tooltip:top="{ html: 'Year' }" class="grey darken-4 white--text" outline left> {{ contents.year }}</v-chip>   
-                    <v-chip v-if="contents.contentRating" v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>     
-                    <v-chip v-for="genre in contents.Genre" :key="genre" v-tooltip:top="{ html: 'Genre' }" class="grey darken-4 white--text"  small label> {{ genre.tag }}</v-chip>
-                  </div>
+                  <h6>{{ content.title }}</h6>   
+                  <v-layout row wrap align-end>
+                    <v-flex xs12 sm6 style="opacity:0.5">                      
+                      {{ length }}
+                    </v-flex>                      
+                    <v-flex xs12 sm6 style="position:relative">     
+                      <div style="float:right">                 
+                        <v-chip bottom v-tooltip:top="{ html: 'Resolution' }" class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip> 
+                        <v-chip bottom v-tooltip:top="{ html: 'Year' }" class="grey darken-4 white--text" outline left> {{ contents.year }}</v-chip>   
+                        <v-chip v-if="contents.contentRating" v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>     
+                      </div>
+                    </v-flex>  
+                  </v-layout>   
+                  <v-divider></v-divider>             
+                  <p class="pt-3" style="font-style: italic" v-if="contents.viewCount == 0 || !contents.viewCount"> Episode summary automatically hidden for unwatched episodes </p> 
+                  <p class="pt-3" style="font-style: italic" v-else> {{ content.summary }} </p>    
                 </v-card-text>                
                 <v-card-text v-if="content.type == 'movie'" >
                   <h3>{{ content.title }}</h3>
-                  <h6> {{ contents.year }} <span style="opacity:0.5">{{ length }}</span> </h6>   
-                  <div>     
-                    <v-chip bottom v-tooltip:top="{ html: 'Resolution' }" class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip>    
-                    <v-chip v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>                  
-                    <v-chip v-tooltip:top="{ html: 'Studio' }"  class="grey darken-4 white--text" small label> {{ contents.studio }}</v-chip>
-                    <v-chip v-for="genre in contents.Genre" :key="genre" v-tooltip:top="{ html: 'Genre' }" class="grey darken-4 white--text"  small label> {{ genre.tag }}</v-chip>
-                  </div>   
+                  <h4> {{ contents.year }} </h4>   
+                  <v-layout row wrap align-end>
+                    <v-flex xs12 sm6  style="opacity:0.5">                      
+                      {{ length }}
+                    </v-flex>                      
+                    <v-flex xs12 sm6 style="position:relative">     
+                      <div style="float:right">                 
+                        <v-chip bottom v-tooltip:top="{ html: 'Resolution' }" class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip>    
+                        <v-chip v-if="contents.contentRating" v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>                  
+                        <v-chip v-if="contents.studio" v-tooltip:top="{ html: 'Studio' }"  class="grey darken-4 white--text" small label> {{ contents.studio }}</v-chip>
+                      </div>
+                    </v-flex>  
+                  </v-layout>   
                   <v-divider></v-divider>
-                  <p style="font-style: italic"> {{ content.summary }} </p>   
-                  <v-subheader class="white--text"> Featuring </v-subheader>
-                  <div v-for="actor in contents.Role.slice(0,3)" :key="actor">
-                    {{actor.tag}} as {{actor.role}}
-                  </div>
+                  <p class="pt-3" style="font-style: italic"> {{ content.summary }} </p>                     
+                  <v-layout row wrap class="hidden-sm-and-down">
+                    <v-flex lg3 xl2 v-if="contents.Role && contents.Role.length > 0">                      
+                      <v-subheader class="white--text"> Featuring </v-subheader>
+                      <div v-for="actor in contents.Role.slice(0,6)" :key="actor">
+                        {{actor.tag}} <span style="opacity:0.7;font-size:80%"> {{actor.role}} </span>
+                      </div>
+                    </v-flex>                      
+                    <v-flex lg3 xl2 v-if="contents.Director && contents.Director.length > 0">                      
+                      <v-subheader class="white--text"> Director </v-subheader>
+                      <div v-for="director in contents.Director.slice(0,3)" :key="director">
+                        {{director.tag}}
+                      </div>
+                    </v-flex>                    
+                    <v-flex lg3 xl2 v-if="contents.Producer && contents.Producer.length > 0">                      
+                      <v-subheader class="white--text"> Producers </v-subheader>
+                      <div v-for="producer in contents.Producer.slice(0,3)" :key="producer">
+                        {{producer.tag}}
+                      </div>
+                    </v-flex>                     
+                    <v-flex lg3 xl2 v-if="contents.Writer && contents.Writer.length > 0">                      
+                      <v-subheader class="white--text"> Writers </v-subheader>
+                      <div v-for="writer in contents.Writer.slice(0,3)" :key="writer">
+                        {{writer.tag}}
+                      </div>
+                    </v-flex>      
+                  </v-layout>
                 </v-card-text>
               </v-card-row>
               <v-card-row actions class="pa-4">    
@@ -61,11 +100,12 @@
       // Hit the PMS endpoing /library/sections
       var that = this
       console.log('Loading content metadata: ' + this.content.ratingKey)
-      this.server.getMediaByRatingKey(this.content.ratingKey, function (result) {
+      this.server.getMediaByRatingKey(this.content.ratingKey, (result) => {
         if (result) {
-          that.contents = result
+          this.contents = result
+          this.setBackground()
         } else {
-          that.status = 'Error loading libraries!'
+          this.status = 'Error loading libraries!'
         }
       })
     },
@@ -105,9 +145,9 @@
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         if (this.content.type == 'movie'){          
-          return this.server.getUrlForLibraryLoc(this.content.art, w / 3, h / 1, 10)
+          return this.server.getUrlForLibraryLoc(this.contents.art, w / 3, h / 1, 10)
         }
-        return this.server.getUrlForLibraryLoc(this.content.grandparentArt, w / 3, h / 1, 10)
+        return this.server.getUrlForLibraryLoc(this.contents.thumb, w / 3, h / 1, 10)
       },
       length () {
         return humanizeDuration(this.contents.duration, { 
@@ -127,13 +167,18 @@
       setContent (content) {
         this.browsingContent = content
       },
-      getThumb (object) {
+      setBackground () {        
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        if (object.type == 'movie'){          
-          return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 1)
+        this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8))
+      },
+      getThumb () {
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        if (this.contents.type == 'movie'){          
+          return this.server.getUrlForLibraryLoc(this.contents.thumb, w / 3, h / 1)
         }
-        return this.server.getUrlForLibraryLoc(object.parentThumb, w / 3, h / 1)
+        return this.server.getUrlForLibraryLoc(this.contents.parentThumb, w / 3, h / 1)
       },
       playMedia (content) {
         this.chosenClient.playMedia(this.contents.ratingKey, this.server, function (result) {

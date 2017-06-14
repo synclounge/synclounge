@@ -40,7 +40,7 @@
             <v-subheader light> Movies ({{filteredMovies.length}})</v-subheader>
           </v-flex>          
           <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="movie in filteredMovies" :key="movie">            
-            <plexthumb :content="movie" :server="movie.server" showServer fullTitle @contentSet="setContent(movie)"></plexthumb>
+            <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
           </v-flex>
         </v-layout>
         <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
@@ -49,7 +49,7 @@
             <v-subheader light> TV Shows ({{filteredShows.length}})</v-subheader>
           </v-flex>          
           <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="show in filteredShows" :key="show">            
-            <plexthumb :content="show" :server="show.server" showServer fullTitle @contentSet="setContent(show)"></plexthumb>
+            <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
           </v-flex>
         </v-layout>        
         <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
@@ -58,7 +58,7 @@
             <v-subheader light> TV Episodes ({{filteredEpisodes.length}})</v-subheader>
           </v-flex>          
           <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="episode in filteredEpisodes" :key="episode">
-            <plexthumb :content="episode" :server="episode.server" showServer fullTitle @contentSet="setContent(episode)"></plexthumb>
+            <plexthumb :content="episode" :server="episode.server" showServer  search @contentSet="setContent(episode)"></plexthumb>
           </v-flex>
         </v-layout>
       </div>
@@ -67,23 +67,20 @@
         <h4> Browse </h4>
         <v-layout row wrap>  
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server" class="pa-2">  
-            <v-card v-on:click="setServer(server)" horizontal height="130px">
-              <v-card-row img="static/plexlogo.png" height="100%" style="overflow:hidden !important"></v-card-row>
-              <v-card-column>
+            <v-card v-on:click="setServer(server)" horizontal height="10em" style="cursor: pointer" img="static/plexlogo.png">
+              <v-card-column style="background: rgba(0, 0, 0, .7)">
                 <v-card-row>
                   <v-card-text>
-                    <strong>{{server.name}}</strong>
-                    <div>Owned by {{ ownerOfServer(server) }}</div>
-                    <label> v {{server.productVersion}}</label>
+                    <h5 class="pa-1 mb-0 pb-0 white--text">{{server.name}}</h5>
+                    <div class="pl-1" style="opacity:0.5"> v{{server.productVersion}}</div>
+                  <div>Owned by {{ ownerOfServer(server) }}</div>
                   </v-card-text>
                 </v-card-row>
                 <v-divider></v-divider>                  
-                <v-card-row actions>
-                  <v-btn right flat class="white--text">
-                    Browse
-                  </v-btn>
-              </v-card-row>
-            </v-card-column> 
+                <v-card-row right actions>
+                  Browse
+                </v-card-row>
+              </v-card-column> 
             </v-card>
          </v-flex>         
         </v-layout>
@@ -123,6 +120,9 @@
       plexthumb
     },
     name: 'plexbrowser',
+    mounted () {
+      this.setBackground()
+    },
     methods: {
       setContent (content) {
         this.selectedItem = content
@@ -136,6 +136,9 @@
         this.selectedItem = false
         this.results = []
         this.searchWord = ''
+        this.searching = false
+        this.setBackground()
+        //this.$store.commit('SET_BACKGROUND',null)
       },
       ownerOfServer (server) {
         if (server.owned == '1') {
@@ -143,7 +146,21 @@
         } else {
           return server.sourceTitle
         }
-      },      
+      },        
+      setBackground () {        
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        let server = this.plex.servers[0] // Most likely to be a local server and/or have the best bandwidth
+        server.getRandomItem((result) => {
+          console.log('Random', result)
+          if (result){
+            this.$store.commit('SET_BACKGROUND',server.getUrlForLibraryLoc(result.thumb, w / 4, h / 1, 6))
+          }
+          if (!result){
+            this.setBackground()
+          }
+        })
+      },  
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));

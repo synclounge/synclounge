@@ -54,8 +54,8 @@
         <v-toolbar-item class="hidden-sm-and-down" v-for="link in links" :key="link" :href="link.href" :target="link.target">{{ link.title }}</v-toolbar-item>    
       </v-toolbar-items>
     </v-toolbar>
-    <main>
-      <v-container fluid>
+    <main v-bind:style="mainStyle">
+      <v-container v-bind:style="containerStyle"  fluid>
         <router-view></router-view>
       </v-container>
     </main>    
@@ -173,6 +173,24 @@
       },
       firstRun: function () {
         return !this.$store.getters.getSettingHOMEINIT
+      },
+
+      mainStyle: function() {
+        if (this.$store.getters.getBackground != null){
+          return {
+            'background-image': 'url('+this.$store.getters.getBackground+')',
+            'background-repeat': 'no-repeat',
+            'background-size': 'cover',
+            'background-position': 'center'
+          }
+        }
+      },      
+      containerStyle: function() {
+        if (this.$store.getters.getBackground != null){
+          return {
+            background: 'rgba(0,0,0,0.7)'
+          }
+        }
       }
     },
     components: {

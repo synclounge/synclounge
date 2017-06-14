@@ -4,8 +4,8 @@
           v-if="browsingLibrary || selectedItem"> ></span>
         </span>
         <v-layout v-if="!libraries && !browsingLibrary && !selectedItem" row align-center>
-            <v-flex xs12>
-                <v-progress-circular indeterminate class="amber--text"></v-progress-circular>
+            <v-flex xs12 style="position: relative">
+                <v-progress-circular style="left:50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
             </v-flex>
         </v-layout>
         <div v-if="!browsingLibrary && !selectedItem && libraries" class="mt-3">            
@@ -29,7 +29,7 @@
             <h4 v-if="onDeck"> On Deck </h4>
             <v-layout v-if="onDeck" row wrap>
                 <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content">                    
-                    <plexthumb :content="content" :server="server" type="art" :height="'30em'" fullTitle @contentSet="setContent(content)"></plexthumb>
+                    <plexthumb :content="content" :server="server" type="art" :height="'30em'"  @contentSet="setContent(content)"></plexthumb>
 
                 </v-flex>
             </v-layout>
@@ -37,7 +37,7 @@
             <h4 v-if="recentlyAdded"> Recently Added </h4>      
             <v-layout v-if="recentlyAdded" class="row" row wrap>
                 <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content">
-                    <plexthumb :content="content" :server="server" type="thumb" fullTitle @contentSet="setContent(content)"></plexthumb>
+                    <plexthumb :content="content" :server="server" type="thumb" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
         </div>
@@ -62,6 +62,7 @@
   import plexlibrary from './plexlibrary'
   import plexthumb from './plexthumb'
 
+  var _ = require('lodash');
   export default {
     props: ['server'],
     components: {
@@ -100,6 +101,7 @@
         console.log('Recently added result', result)
         if (result) {
           this.recentlyAdded = result
+          this.setBackground()
         }
       })
       this.server.getOnDeck(0, 10, (result) => {
@@ -127,6 +129,14 @@
       },
       setLibrary (library) {
         this.browsingLibrary = library
+      },      
+      setBackground () {        
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+
+        let randomItem = _.sample(this.recentlyAdded.MediaContainer.Metadata)
+        let url = randomItem.art 
+        this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6))
       },
       subsetOnDeck (size) {
         return this.onDeck.MediaContainer.Metadata.slice(0, size)
@@ -165,6 +175,7 @@
       reset () {
         this.browsingLibrary = false
         this.selectedItem = false
+        this.setBackground()
       }
 
     }

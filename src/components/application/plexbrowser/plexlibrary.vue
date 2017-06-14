@@ -1,6 +1,11 @@
 <template>
     <span>
-        <span v-on:click="reset()" style="cursor: pointer !important"> {{ library.title }} <span v-if="browsingContent"> > </span></span>
+        <span v-on:click="reset()" style="cursor: pointer !important"> {{ library.title }} <span v-if="browsingContent"> > </span></span>        
+        <v-layout v-if="!contents && !browsingContent" row>
+            <v-flex xs12 style="position:relative">
+                <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+            </v-flex>
+        </v-layout>
         <div v-if="!browsingContent && contents" class="mt-3">
           <v-layout class="row" row wrap>
                 <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
@@ -53,16 +58,11 @@
       }
     },
     mounted () {
-
     },
     beforeDestroy () {
 
     },
     computed: {},
-    watch: {
-      browsingContent: function () {
-      }
-    },
     methods: {
       setContent (content) {
         this.browsingContent = content
@@ -74,6 +74,17 @@
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         return this.server.getUrlForLibraryLoc(object.thumb, w / 6, h / 4)
+      },
+      setBackground () {        
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+
+        let randomItem = _.sample(this.contents.MediaContainer.Metadata)
+        let url = randomItem.thumb 
+        if (randomItem.type == 'show') {
+          url = randomItem.art
+        }
+        this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(url, w / 4, h / 4, 8))
       },
       isShown (item) {
         if (!item.active) {
@@ -130,6 +141,7 @@
                 media.active = true
               }
               that.contents = result
+              that.setBackground()
             }
             if (result.MediaContainer.size < 100) {
               that.stopNewContent = true
@@ -143,6 +155,7 @@
       },
       reset () {
         this.browsingContent = false
+        this.setBackground()
       }
 
     }

@@ -61,7 +61,8 @@ if (process.env.NODE_ENV == 'development') {
 const state = {
   count: 0,
   appTitle: 'PlexTogether',
-  appVersion: '1.1.1',
+  appVersion: '1.2',
+  background: null,
   shownChat: false,
   plex: null,
   chosenClient: null,
@@ -190,6 +191,9 @@ const mutations = {
   SET_AUTOJOIN (state, value) {
     state.autoJoin = value
   },
+  SET_BACKGROUND (state, value) {
+    state.background = value
+  },
   SET_AUTOJOINROOM (state, value) {
     state.autoJoinRoom = value
   },
@@ -270,6 +274,9 @@ const getters = {
   },
   getPlexUser: state => {
     return state.plexuser
+  },
+  getBackground: state => {
+    return state.background
   },
   getChosenClient: state => {
     return state.chosenClient

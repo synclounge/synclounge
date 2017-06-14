@@ -1,3 +1,13 @@
+/* Helpers */
+.truncate {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+
 /* Headers */
 
 h3 {
@@ -28,7 +38,7 @@ h7 {
 }
 
 main {
-	background: #272c38 !important;
+	background: #272c38;
 }
 
 .navigation-drawer {

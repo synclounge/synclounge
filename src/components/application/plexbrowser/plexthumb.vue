@@ -1,6 +1,6 @@
 <template>
   <div class="portrait">
-    <v-card v-on:click="emitContentClicked(content)" :height="height || '20em'">                       
+    <v-card v-on:click="emitContentClicked(content)" :img="getImg(content)" :height="height || '20em'">                       
         <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
             <span class="pa-2 black--text">
               <span>
@@ -8,8 +8,24 @@
               </span>
             </span>
         </div>   
-        <small v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .3)"> {{ server.name }}</small>  
-        <v-card-row :img="getImg(content)" height="100%" class="thumb">  </v-card-row>   
+        <small v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>  
+        <v-card-row :height="fakeRowHeight"  class="white--text">
+        
+        </v-card-row>
+        <v-card-column style="background: rgba(0, 0, 0, .8);">
+          <v-card-row :height="'4em'" style="position:relative">
+            <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
+            <v-layout row wrap class="text-xs-left pa-1" style="display:block; max-width:100%">
+                <v-flex xs12>
+                    <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" style="font-size:1.3em;">{{ getTitle(content) }}</div>
+                </v-flex>                  
+                <v-flex xs12>
+                    <div class="truncate" style="font-size:0.9em">{{ getUnder(content) }}</div>
+                </v-flex>
+            </v-layout> 
+          </v-card-row>
+        </v-card-column>
+        <!--   
         <div class="pt-content-title thumb-title"> 
             <v-layout row>
                 <v-flex xs12>
@@ -21,7 +37,7 @@
                     <span>{{ getTitle(content) }} </span>
                 </v-flex>
             </v-layout>
-        </div> 
+        </div> -->
     </v-card>  
   </div>
 </template>
@@ -30,7 +46,7 @@
 
   export default {
 
-    props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle'],
+    props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle', 'search'],
     components: {
     },
     created () {
@@ -62,6 +78,12 @@
           }
           return false
         }
+      },
+      fakeRowHeight (){
+        if (this.height){
+          return parseInt(this.height) - 4 + 'em' 
+        } 
+        return '16em'
       },
       showProgressBar (){
         if (this.content.type == 'movie' || this.content.type == 'episode'){
@@ -128,8 +150,10 @@
       getTitle(content){
         switch (content.type){
           case 'movie':
-            if (content.year){              
-              return content.title + ' (' + content.year + ')'
+            if (this.fullTitle != undefined){   
+              if (content.year){              
+                return content.title + ' (' + content.year + ')'
+              }
             }
             return content.title
           case 'show': 
@@ -138,12 +162,38 @@
             if (this.fullTitle != undefined){              
               return content.parentTitle + '  ' + content.title;
             }
+            return content.parentTitle;
+          case 'episode':
+            if (this.fullTitle != undefined){
+              return content.title
+            }
+            return content.grandparentTitle
+          default: 
+            return content.title; 
+        }
+      }, 
+      getUnder(content){
+        switch (content.type){
+          case 'movie':
+            if (content.year){              
+              return content.year
+            }
+            return ' '
+          case 'show': 
+            if (content.childCount == 1){
+              return content.childCount + ' season';
+            }
+            return content.childCount + ' seasons';
+          case 'season':           
+            if (this.fullTitle != undefined){              
+              return content.parentTitle + '  ' + content.title;
+            }
             return content.title;
           case 'episode':
             if (this.fullTitle != undefined){
-              return content.grandparentTitle + ' S' + content.parentIndex + 'E' + content.index + ' - ' + content.title;
+              return 'Episode ' + content.index
             }
-            return 'Episode ' + content.index
+            return ' S' + content.parentIndex + 'E' + content.index + ' - ' + content.title;
           default: 
             return content.title; 
         }
