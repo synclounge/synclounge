@@ -25,16 +25,16 @@
                   </v-card>
               </v-flex>
             </v-layout>
-            <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
-            <h4 v-if="onDeck"> On Deck </h4>
+            <v-divider v-if="subsetOnDeck(3).length > 0" class="mt-3 ma-2"></v-divider>
+            <h4 v-if="subsetOnDeck(3).length > 0"> On Deck </h4>
             <v-layout v-if="onDeck" row wrap>
                 <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content">                    
                     <plexthumb :content="content" :server="server" type="art" :height="'30em'"  @contentSet="setContent(content)"></plexthumb>
 
                 </v-flex>
             </v-layout>
-            <v-divider v-if="recentlyAdded" class="mt-3 ma-2"></v-divider>
-            <h4 v-if="recentlyAdded"> Recently Added </h4>      
+            <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>
+            <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added </h4>      
             <v-layout v-if="recentlyAdded" class="row" row wrap>
                 <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content">
                     <plexthumb :content="content" :server="server" type="thumb" @contentSet="setContent(content)"></plexthumb>
@@ -139,9 +139,15 @@
         this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6))
       },
       subsetOnDeck (size) {
+        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+            return []
+        }
         return this.onDeck.MediaContainer.Metadata.slice(0, size)
       },
-      subsetRecentlyAdded (size) {
+      subsetRecentlyAdded (size) {        
+        if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
+            return []
+        }
         return this.recentlyAdded.MediaContainer.Metadata.slice(0, size)
       },
       progress (content) {

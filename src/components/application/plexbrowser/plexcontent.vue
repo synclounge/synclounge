@@ -28,7 +28,7 @@
                     </v-flex>  
                   </v-layout>   
                   <v-divider></v-divider>             
-                  <p class="pt-3" style="font-style: italic" v-if="contents.viewCount == 0 || !contents.viewCount"> Episode summary automatically hidden for unwatched episodes </p> 
+                  <p class="pt-3" style="font-style: italic" v-if="contents.viewCount == 0 || !contents.viewCount"> Episode summary automatically hidden for unwatched episodes. </p> 
                   <p class="pt-3" style="font-style: italic" v-else> {{ content.summary }} </p>    
                 </v-card-text>                
                 <v-card-text v-if="content.type == 'movie'" >
