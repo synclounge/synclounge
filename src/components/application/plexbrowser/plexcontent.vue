@@ -145,9 +145,9 @@
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         if (this.content.type == 'movie'){          
-          return this.server.getUrlForLibraryLoc(this.contents.art, w / 3, h / 1, 10)
+          return this.server.getUrlForLibraryLoc(this.contents.art, w / 3, h / 1, 5)
         }
-        return this.server.getUrlForLibraryLoc(this.contents.thumb, w / 3, h / 1, 10)
+        return this.server.getUrlForLibraryLoc(this.contents.thumb, w / 3, h / 1, 5)
       },
       length () {
         return humanizeDuration(this.contents.duration, { 

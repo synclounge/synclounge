@@ -15,13 +15,13 @@
             <h4> Libraries </h4>
             <v-layout>
               <v-flex xs4 lg1 v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries" :key="library">
-                  <v-card v-on:click="setLibrary(library)" class="text-xs-center hoverable card">
-                      <div>
-                          <img :src="getThumb(library)" style="width:75%">
-                      </div>
-                      <div>
-                          <span>{{ library.title }}</span>
-                      </div>
+                  <v-card v-on:click="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="text-xs-center hoverable card">
+                      <v-card-row :height="'8em'" style="position:relative;width:100%;background: rgba(0,0,0,0.4);">
+                          <img style="width:auto; height: 70%;display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)"/>
+                      </v-card-row>                      
+                      <v-card-row :height="'2em'" class="" style="background: rgba(0,0,0,0.7); position:relative; max-width:100%">
+                          <div class="truncate text-xs-center" style="font-size:1.3em">{{ library.title }}</div>
+                      </v-card-row>
                   </v-card>
               </v-flex>
             </v-layout>
@@ -156,10 +156,15 @@
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1)
       },
+      getArtLibrary (object) {
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1, 15)
+      },
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 4)
+        return this.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
       },
       getTitleMovie(movie){
         if (movie.year){
