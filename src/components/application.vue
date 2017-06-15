@@ -61,45 +61,44 @@
 	},
 	mounted: function () {
 	  if (window['localStorage'].getItem('plexuser') == null) {
-		console.log('User isnt signed in  - sending to signin')
-		this.$router.push('/signin')
-		return
+			console.log('User isnt signed in  - sending to signin')
+			this.$router.push('/signin')
+			return
 	  }
 	  var that = this
 	  console.log('Logging in to Plex.Tv')
 	  let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
-	  Plex.doTokenLogin(plexstorage.authToken, function (result, response, body) {
-		if (result) {
-		  console.log('Logged in.')
-		  Plex.getDevices(function () {
+	  Plex.doTokenLogin(plexstorage.authToken, (result, response, body) => {
+			if (result) {
+				console.log('Logged in.')
+				console.log(this.$store)
+				Plex.getDevices( () => {
 
-			that.$store.commit('SET_PLEX', Plex)
-
-			if (that.$store.getters.getAutoJoin) {
-			  that.$store.dispatch('autoJoin')
-			  that.$store.commit('SET_AUTOJOIN', false)
-			}
-
-		  })
-		} else {
-		  console.log('Signin failed')
-		  window['localStorage'].removeItem('plexuser')
-		  that.$store.state.plex = null
-		  that.$store.state.signedin = 'notsignedin'
-		  that.$router.push('/signin')
-
-		}
-	  })
+					this.$store.commit('SET_PLEX', Plex)
+					if (this.$store.getters.getAutoJoin) {
+						this.$store.dispatch('autoJoin')
+						this.$store.commit('SET_AUTOJOIN', false)
+					}
+					setTimeout(() => {
+						this.$store.commit('SET_RANDOMBACKROUND')
+					},100)
+				})
+			} else {
+					console.log('Signin failed')
+					window['localStorage'].removeItem('plexuser')
+					this.$store.state.plex = null
+					this.$store.state.signedin = 'notsignedin'
+					this.$router.push('/signin')
+				}
+			})
 
 	  if (this.$store.getters.getAutoJoin) {
-		// Attempt to auto join
-		console.log('Attempting to auto join ' + that.$store.getters.getAutoJoinUrl)
-		that.$store.dispatch('socketConnect', {
-		  address: that.$store.getters.getAutoJoinUrl,
-		  callback: function (data) {
-
-		  }
-		})
+			// Attempt to auto join
+			console.log('Attempting to auto join ' + this.$store.getters.getAutoJoinUrl)
+			this.$store.dispatch('socketConnect', {
+				address: this.$store.getters.getAutoJoinUrl,
+				callback: function (data) {}
+			})
 	  }
 
 	},

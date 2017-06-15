@@ -55,7 +55,7 @@
           <img style="height:70%;width:auto" v-bind:src="logo"/>
         </v-toolbar-item>
         <v-toolbar-item class="hidden-sm-and-down" v-for="link in links" :key="link" :href="link.href" :target="link.target">{{ link.title }}</v-toolbar-item>    
-        <v-toolbar-side-icon light @click.native.stop="drawerRight = !drawerRight"></v-toolbar-side-icon>
+        <v-toolbar-side-icon v-if="showRightDrawerButton" light @click.native.stop="drawerRight = !drawerRight"></v-toolbar-side-icon>
       </v-toolbar-items>
     </v-toolbar>
     <main v-bind:style="mainStyle">
@@ -84,7 +84,8 @@
         mini: false,
         drawerRight: false,
         right: null,
-        fixed: false,        
+        fixed: false,  
+        initialized: false,      
         items: [
           {
             title: 'Preferences'
@@ -116,7 +117,6 @@
       }
     },
     mounted () {
-      console.log('route', this.$route)
       if (this.$route.query.ptserver && this.$route.query.ptroom) {
         console.log('We should auto join')
         // Looks like a valid request...
@@ -125,11 +125,22 @@
         this.$store.commit('SET_AUTOJOINROOM', this.$route.query.ptroom)
         this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.ptpassword)
         this.$store.commit('SET_AUTOJOINURL', this.$route.query.ptserver)
+      }      
+    },
+    watch: {
+      showRightDrawerButton: function () { 
+        console.log('Drawer changed')
+        if (this.showRightDrawerButton){
+          this.drawerRight = true
+        }
       }
     },
     computed: {
       plex: function () {
         return this.$store.getters.getPlex
+      },
+      showRightDrawerButton: function () {
+        return (this.ptConnected && this.chosenClient && this.ptRoom)
       },
       chosenClient: function () {
         return this.$store.getters.getChosenClient

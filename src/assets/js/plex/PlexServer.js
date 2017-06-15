@@ -163,8 +163,9 @@ module.exports = function PlexServer () {
     return this.chosenConnection.uri + '/photo/:/transcode?url=' + location + '&X-Plex-Token=' + this.accessToken + '&height=' + Math.floor(height) + '&width=' + Math.floor(width) + '&blur=' + blur
   }
   this.getRandomItem = function (callback) {
+    console.log('Getting random item')
     this.getAllLibraries((res) => {
-      if (!res) {
+      if (!res || !res.MediaContainer || !res.MediaContainer.Directory) {
         return callback(false)
       }
       let libraries = res.MediaContainer.Directory

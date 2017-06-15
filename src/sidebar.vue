@@ -22,7 +22,7 @@
 							<div style="width:100%; height:100% " class="pa-2 pt-0 mt-0">
 								<span style="float: left;font-size:70%" class="ptuser-time pl-2">{{ getCurrent(user) }}</span>
 								<span style="float: right;font-size:70%" class="ptuser-maxTime pr-2">{{ getMax(user) }}</span>
-								<v-progress-linear class="pt-content-progress pr-1 pl-1"  :height="2" :value="percent(user)"></v-progress-linear>
+								<v-progress-linear class="pt-content-progress "  :height="2" :value="percent(user)"></v-progress-linear>
 							</div>
 						</div>
 					</v-list>

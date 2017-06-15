@@ -109,8 +109,16 @@ const mutations = {
             sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name)
           }
           state.chosenClient.clientPlayingMetadata = metadata
+          var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+          var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+          state.background =  state.plex.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
         })
       } else {
+        state.plex.getRandomThumb((res) => {
+          if (res){
+            state.background = res
+          }
+        })
         state.chosenClient.clientPlayingMetadata = null
       }
     }
@@ -253,6 +261,13 @@ const mutations = {
 
     })
   },
+  SET_RANDOMBACKROUND (state) {
+    state.plex.getRandomThumb((result) => {
+      if (result){
+        state.background = result
+      }
+    })
+  },
 
   // Settings
   SET_OURCLIENTRESPONSETIME (state, value) {
@@ -335,12 +350,7 @@ const actions = {
       commit('INCREMENT')
     }, 200)
   },
-  openSettings ({commit}) {
-    $('#settingsModal').modal('open')
-  },
-  openStatistics ({commit}) {
-    $('#statisticsModal').modal('open')
-  },
+
 
 }
 const plexTogether = {

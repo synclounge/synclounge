@@ -233,6 +233,36 @@ module.exports = function () {
     }
     return null
   }
+  this.getRandomThumb = function (callback) {
+    let ticker = (failures) => {
+      setTimeout( () => {      
+        if (failures == 10){
+          return callback(false)
+        }
+        let validServers = this.servers.filter( (server) => {
+          if (server.chosenConnection){
+            return true
+          }
+          return false
+        })
+        if (validServers.length > 1){
+          let randomServer = validServers[Math.floor(Math.random()*validServers.length)]
+          randomServer.getRandomItem((result) => {
+            console.log('Random item result',result)
+            if (!result){
+              return callback(false)
+            }
+            return callback(randomServer.getUrlForLibraryLoc(result.thumb,900 ,900 ,8))
+          })
+        } else {
+          ticker(failures+1)
+        }
+      },100)
+    }
+    ticker(0)
+    
+    
+  }
   this.playContentAutomatically = function (client, hostData, blockedServers, callback) {
     // Automatically play content on the client searching all servers based on the title
     var that = this

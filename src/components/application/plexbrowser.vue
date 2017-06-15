@@ -138,7 +138,6 @@
     },
     name: 'plexbrowser',
     mounted () {
-      this.setBackground()
     },
     methods: {
       setContent (content) {
@@ -164,19 +163,8 @@
           return server.sourceTitle
         }
       },        
-      setBackground () {        
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        let server = this.plex.servers[0] // Most likely to be a local server and/or have the best bandwidth
-        server.getRandomItem((result) => {
-          console.log('Random', result)
-          if (result){
-            this.$store.commit('SET_BACKGROUND',server.getUrlForLibraryLoc(result.thumb, w / 4, h / 1, 6))
-          }
-          if (!result){
-            this.setBackground()
-          }
-        })
+      setBackground () {          
+        this.$store.commit('SET_RANDOMBACKROUND')
       },  
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
