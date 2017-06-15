@@ -277,11 +277,13 @@ module.exports = function () {
         validServers++
       }
     }
-    this.servers.forEach((server) => {
-      if (!blockedServers[server.clientIdentifier]){
-        validServers++
-      }
-    })
+    if (blockedServers){
+      this.servers.forEach((server) => {
+        if (!blockedServers[server.clientIdentifier]){
+          validServers++
+        }
+      })
+    }
     if (validServers == 0){
       return callback(false)
     }

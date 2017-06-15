@@ -1,6 +1,6 @@
 <template>
     <span>
-        <span v-on:click="reset()" style="cursor: pointer !important">{{ title }}</span>
+        <span v-if="playable" v-on:click="reset()" style="cursor: pointer !important">{{ title }}</span>
         <v-layout v-if="!contents && !browsingContent" row>
           <v-flex xs12 style="position:relative">
               <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
@@ -77,9 +77,10 @@
                 </v-card-text>
               </v-card-row>
               <v-card-row actions class="pa-4">    
-                <v-btn style="width:15%" v-on:click.native="playMedia(content)" raised large class="primary white--text">
+                <v-btn v-if="playable" style="width:15%" v-on:click.native="playMedia(content)" raised large class="primary white--text">
                   <v-icon light>play_arrow</v-icon> Play 
                 </v-btn>
+                <div v-if="!playable">Now playing on {{ chosenClient.name }} from {{ server.name }}</div>
               </v-card-row>
             </v-card-column>
           </v-card>
@@ -92,7 +93,7 @@
   var humanizeDuration = require('humanize-duration')
 
   export default {
-    props: ['library', 'server', 'content'],
+    props: ['library', 'server', 'content', 'nowPlaying'],
     components: {
       plexcontent
     },
@@ -141,6 +142,12 @@
       plex () {
         return this.$store.getters.getPlex
       }, 
+      playable () {
+        if (this.nowPlaying || this.nowPlaying == '') {
+          return false
+        }
+        return true
+      },
       getArtUrl () {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));

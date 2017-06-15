@@ -20,13 +20,13 @@
       </v-list>
       <v-list class="pt-0" dense>
         <v-divider></v-divider>
-        <v-list-item v-for="item in items" :key="item">
-          <v-list-tile>
+        <v-list-item>
+          <v-list-tile :router="true" to="/signout">
             <v-list-tile-action>
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon></v-icon>
             </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+            <v-list-tile-content>     
+              <v-list-tile-title v-if="plex != null"  v-text="'Signout'"></v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </v-list-item>
@@ -39,7 +39,7 @@
       <v-toolbar-side-icon light @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title class="white--text"></v-toolbar-title>
       <v-toolbar-items>
-        <v-menu class="hidden-sm-and-up" offset-y origin="bottom" left transition="v-slide-y-transition">
+        <v-menu class="hidden-sm-and-up" offset-y origin="bottom" left light>
           <v-btn icon light slot="activator">
             <v-icon>more_vert</v-icon>
           </v-btn>
@@ -59,7 +59,7 @@
       </v-toolbar-items>
     </v-toolbar>
     <main v-bind:style="mainStyle">
-      <v-container v-bind:style="containerStyle"  fluid>
+      <v-container style="padding:0" v-bind:style="containerStyle" fluid>
         <router-view></router-view>
       </v-container>
     </main>    

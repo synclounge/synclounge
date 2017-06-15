@@ -57,7 +57,6 @@
 
       that.source = that.src
       that.initReqSent = true
-
       this.$emit('playerMounted')
 
       // Events from the parent component

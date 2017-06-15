@@ -3,17 +3,21 @@
 		<div style="margin-bottom: 0">
 			<div style="margin-bottom: 0">
 				<!-- MAIN CONTENT -->
-				<div v-if="!validDevices" style="position: absolute; top: 50%; left: 50%">
-						<v-progress-circular indeterminate v-bind:size="50" class="amber--text"></v-progress-circular>
-				</div>
+				<v-layout v-if="!validDevices" wrap row style="position:relative" class="pt-4">
+					<v-flex xs12 md4 offset-md4>			
+						<div style="width:100%;text-align:center">				
+							<v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
+						</div>
+					</v-flex>      
+				</v-layout>
 				<div v-if="validDevices">
 					<div v-if="!ptConnected || !chosenClient || !ptRoom">
-						<walkthrough></walkthrough>
+						<walkthrough  class="pa-4"></walkthrough>
 					</div>
 					<div v-else>
-						<plexbrowser v-if="showBrowser"></plexbrowser>
-						<ptplayer v-if="isPTPlayer"></ptplayer>
-						<nowplaying v-if="showMetadata"></nowplaying>
+						<plexbrowser v-if="showBrowser"  class="pa-4"></plexbrowser>
+						<ptplayer v-if="isPTPlayer"></ptplayer>  
+						<plexcontent v-if="showMetadata"  class="pa-4" nowPlaying :content="chosenClient.clientPlayingMetadata" :server="nowPlayingServer"></plexcontent>
 					</div>
 				</div>
 			</div>
@@ -43,6 +47,7 @@
   import sidebar from './application/sidebar'
   import ptplayer from './application/ptplayer'
   import plexbrowser from './application/plexbrowser'
+  import plexcontent from './application/plexbrowser/plexcontent'
   import nowplaying from './application/nowplaying'
 
   export default {
@@ -57,7 +62,8 @@
 	  walkthrough,
 	  ptplayer,
 	  plexbrowser,
-	  nowplaying
+	  nowplaying,
+		plexcontent
 	},
 	mounted: function () {
 	  if (window['localStorage'].getItem('plexuser') == null) {
@@ -203,6 +209,12 @@
 	  stateTESTING: function () {
 		return this.$store
 	  },
+		nowPlayingServer: function () {
+			if (!this.chosenClient.clientPlayingMetadata){
+				return null
+			}
+			return this.plex.getServerById(this.chosenClient.clientPlayingMetadata.machineIdentifier)
+		}
 
 	},
 	methods: {

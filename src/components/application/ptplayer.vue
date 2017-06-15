@@ -59,7 +59,7 @@
     </v-dialog>
     <div class="row" v-if="playingMetadata && chosenServer">
       <div class="col l4 offset-l4 s12 center" style="padding-top:1%">
-        <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="openModal()">Playback settings
+        <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="stopPlayback()">Stop playback
         </v-btn>
       </div>
     </div>
@@ -81,9 +81,6 @@
       videoplayer,
     },
     created () {
-      $(document).ready(function () {
-        $('select').material_select();
-      });
     },
     mounted: function () {
       var that = this
@@ -169,8 +166,6 @@
         console.log('Unable to process the remote control command ' + data.command)
       })
 
-    },
-    created: function () {
     },
     data () {
       return {

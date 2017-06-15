@@ -1,11 +1,9 @@
 <template>
-  <div class="window">
-    <div class="window-content">
-      <h2 class="center">
-        Sign out successful!
-      </h2>
-    </div>
-  </div>
+  <v-layout wrap row>
+    <v-flex xs12 md8 offset-md2>
+      <h1 class="white--text center-text pa-4">Successfully signed out</h1>
+    </v-flex>      
+  </v-layout>
 </template>
 
 <script>

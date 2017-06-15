@@ -12,7 +12,7 @@
        href="#" v-bind:style="styleObj">
       {{ object.name }}   
     </span>
-    <span class="grey--text" style="opacity:.5">
+    <span class="grey--text" style="opacity:.8">
       {{ object.product }}
     </span>
   </div>

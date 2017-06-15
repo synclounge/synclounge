@@ -70,10 +70,10 @@
             <v-card v-on:click="setServer(server)" horizontal height="10em" style="cursor: pointer; z-index: 0">      
               <v-card-column >
                 <v-layout row wrap>  
-                  <v-flex xs4 lg2 style="position:relative; background: rgba(0,0,0,0.5);">
+                  <v-flex xs4 lg2 style="position:relative; background: rgba(0,0,0,0.6);">
                     <img style="position: absolute;right: 0; top: 0; left: -50%; z-index: -1" src="static/plexlogo.png"/>
                   </v-flex>
-                  <v-flex xs8 lg10 style="background: rgba(0,0,0,0.5); height:100%: z-index: 2">
+                  <v-flex xs8 lg10 style="background: rgba(0,0,0,0.6); height:100%: z-index: 2">
                     <v-card-row height="10em">
                       <v-card-text>
                         <h5 class="pa-1 mb-0 pb-0 white--text">{{server.name}}</h5>

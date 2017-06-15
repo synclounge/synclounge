@@ -6,17 +6,20 @@
         light
         :dark="false"
         v-bind:items="ptservers"
-        class="input-group--focused"
+        class="input-group--focused pt-input"
+        style="mt-4"
         v-model="selectedServer"
+        transition="v-scale-transition" origin="center center"
+        max-height="auto"
         label="Select a server"
-        item-value="value"
+        :append-icon="'arrow_drop_up'"
       ></v-select> 
       <v-text-field
         v-if="selectedServer == 'custom'"
         name="input-2"
         label="Custom Server"
         v-model="CUSTOMSERVER"
-        class="input-group--focused"
+        class="input-group pt-input"
         light
       ></v-text-field>
       <v-layout row wrap v-if="selectedServer == 'custom'">
@@ -39,20 +42,22 @@
       <v-layout row wrap>
         <v-flex xs12>          
          <v-text-field
+            transition="v-scale-transition" origin="center center"
             name="input-2"
             label="Room name"
-            autoFocus
-            v-on:keyup.enter="joinRoom()"
+            :autofocus="true"
+            v-on:keyup.enter.native="joinRoom()"
             v-model="room"
-            class="input-group pd-0 mb-0"
+            class="input-group"
             light
           ></v-text-field>
         </v-flex>  
         <v-flex xs12>          
          <v-text-field
+            transition="v-scale-transition" origin="center center"
             name="input-2"
             label="Room password"
-            v-on:keyup.enter="joinRoom()"
+            v-on:keyup.enter.native="joinRoom()"
             v-model="password"
             class="pt-0 mt-0 input-group orange--text"
             light

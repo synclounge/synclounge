@@ -1,6 +1,6 @@
 <template>
-  <v-layout>
-    <v-flex xs12 lg4 offset-lg4>
+  <v-layout >
+    <v-flex xs12 lg4 offset-lg4 style="background: rgba(0,0,0,0.1)" class="pa-4">
       <v-layout row wrap>
         <v-flex xs12>
           <v-flex xs12>
@@ -8,18 +8,18 @@
           </v-flex>
         </v-flex>
       </v-layout>
-      <v-stepper v-model="e1" light class="mb-4">
+      <v-stepper style="background: rgba(0,0,0,0.3)" v-model="e1" light class="mb-4">
         <v-stepper-header>
           <v-stepper-step step="1" :complete="true">Select a client</v-stepper-step>
           <v-divider></v-divider>
           <v-stepper-step step="2" :complete="false">Join a room</v-stepper-step>
           <v-divider></v-divider>
-          <v-stepper-step step="3">Relax</v-stepper-step>
+          <v-stepper-step step="3">Sync</v-stepper-step>
         </v-stepper-header>
       </v-stepper>
       
       <div v-if="!chosenClient">        
-        <v-layout class="pa-1 mt-2" row wrap>        
+        <v-layout class="mt-2" row wrap>        
           <v-flex xs12 center>
             <h3>Choose your Plex player</h3>
           </v-flex>
@@ -27,6 +27,7 @@
             Choose a client from the list below. Once you've found the client you would like to use, click the connect button. PlexTogether will test to see if it can connect with the client and will let you know if it cannot.
           </v-flex>
         </v-layout>    
+        <v-divider></v-divider>
         <v-layout row wrap>      
           <v-flex xs12 lg7>
             <v-subheader light>Plex Players {{ playercount }}</v-subheader>              
@@ -41,30 +42,32 @@
               <v-subheader light>
                 Selected Player
               </v-subheader>
-              <h6 light style="margin-top: 0; margin-bottom: 5px;opacity:1">{{ testClient.name }}</h6>
-              <div>
-                <label>Last seen</label><span>  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
-              </div>
-              <div>
-                <label>Device</label><span>  {{ testClient.device }}</span>
-              </div>
-              <div>
-                <label>Running</label><span v-tooltip="testClient.productVersion">  {{ testClient.product }} </span>
-              </div>
-              <div class="pb-2">
-                <label>Platform</label><span v-tooltip="testClient.platformVersion">  {{ testClient.platform }} </span>
-              </div>
-              <div v-if="testClientWaiting" class="center spinner-orange">
-                <v-progress-circular small active></v-progress-circular>
-              </div>
-              <div v-if="!testClientWaiting">
-                <v-btn class="pt-orange" large light style="width:100%" v-on:click.native="clientClicked()">Connect</v-btn>
-              </div>
-              <div v-if="testClient.product.indexOf('Web') > -1">
-                Note: Plex Web is currently not supported
-              </div>
-              <div v-if="testClientErrorMsg">
-                {{ testClientErrorMsg }}
+              <div class="pl-1">
+                <h6 light style="opacity:1">{{ testClient.name }}</h6>
+                <div>
+                  <label >Last seen</label><span style="opacity:0.8">  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
+                </div>
+                <div>
+                  <label>Device</label><span style="opacity:0.8">  {{ testClient.device }}</span>
+                </div>
+                <div>
+                  <label>Running</label><span style="opacity:0.8" v-tooltip="testClient.productVersion">  {{ testClient.product }} </span>
+                </div>
+                <div class="pb-2">
+                  <label>Platform</label><span style="opacity:0.8" v-tooltip="testClient.platformVersion">  {{ testClient.platform }} </span>
+                </div>
+                <div v-if="testClientWaiting" class="center spinner-orange">
+                  <v-progress-circular small active></v-progress-circular>
+                </div>
+                <div v-if="!testClientWaiting">
+                  <v-btn class="pt-orange ml-0" style="width:100%" x-large light v-on:click.native="clientClicked()">Connect</v-btn>
+                </div>
+                <div v-if="testClient.product.indexOf('Web') > -1">
+                  Note: Plex Web is currently not supported
+                </div>
+                <div v-if="testClientErrorMsg">
+                  {{ testClientErrorMsg }}
+                </div>
               </div>
             </div>
           </v-flex>
