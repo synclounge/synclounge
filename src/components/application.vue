@@ -86,7 +86,7 @@
 						this.$store.commit('SET_AUTOJOIN', false)
 					}
 					setTimeout(() => {
-						this.$store.commit('SET_RANDOMBACKROUND')
+						//this.$store.commit('SET_RANDOMBACKROUND')
 					},100)
 				})
 			} else {

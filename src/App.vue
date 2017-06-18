@@ -1,36 +1,7 @@
 <template>
   <v-app dark>
     <v-navigation-drawer temporary v-model="drawer" :mini-variant.sync="mini" dark >
-      <v-list class="pa-0">
-        <v-list-item>
-          <v-list-tile avatar tag="div" v-if="validDevices">
-            <v-list-tile-avatar>
-              <img :src="plex.user.thumb" />
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title>{{plex.user.username}}</v-list-tile-title>
-            </v-list-tile-content>
-            <v-list-tile-action>
-              <v-btn icon dark @click.native.stop="mini = !mini">
-                <v-icon>chevron_left</v-icon>
-              </v-btn>
-            </v-list-tile-action>
-          </v-list-tile>
-        </v-list-item>
-      </v-list>
-      <v-list class="pt-0" dense>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-list-tile :router="true" to="/signout">
-            <v-list-tile-action>
-              <v-icon></v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>     
-              <v-list-tile-title v-if="plex != null"  v-text="'Signout'"></v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list-item>
-      </v-list>
+      <leftsidebar></leftsidebar>
     </v-navigation-drawer>
     <v-navigation-drawer persistent v-model="drawerRight" light right light enable-resize-watcher>
       <drawerright></drawerright>
@@ -72,11 +43,13 @@
   import './assets/css/styleNew.css'
 
   import drawerright from './sidebar'
+  import leftsidebar from './leftsidebar'
 
 
   export default {
     components: {
-      drawerright
+      drawerright,
+      leftsidebar
     },
     data () {
       return {        

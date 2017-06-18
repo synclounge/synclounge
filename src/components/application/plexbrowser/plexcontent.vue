@@ -130,8 +130,8 @@
       largestRes () {
         let height = 0
         for (let i = 0; i < this.content.Media.length; i++) {
-          if (this.content.Media[i].height > height) {
-            height = this.content.Media[i].height
+          if (parseInt(this.content.Media[i].videoResolution) > height) {
+            height = parseInt(this.content.Media[i].videoResolution)
           }
         }
         return height

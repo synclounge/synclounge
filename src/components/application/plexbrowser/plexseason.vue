@@ -28,8 +28,8 @@
           <v-divider></v-divider>
           <div>          
               <v-layout class="row mt-3" row wrap>
-                <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
-                  <plexthumb :content="content" :server="server" type="thumb" :height="'10em'" fullTitle @contentSet="setContent(content)"></plexthumb>
+                <v-flex xs6 md3 xl2 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
+                  <plexthumb :content="content" :server="server" type="thumb" :height="'15em'" fullTitle @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
           </div>

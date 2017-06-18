@@ -164,7 +164,8 @@
         }
       },        
       setBackground () {          
-        this.$store.commit('SET_RANDOMBACKROUND')
+        //this.$store.commit('SET_RANDOMBACKROUND')
+        this.$store.commit('SET_BACKROUND',null)
       },  
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));

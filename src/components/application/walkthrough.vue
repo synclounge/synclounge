@@ -1,11 +1,9 @@
 <template>
   <v-layout >
-    <v-flex xs12 lg4 offset-lg4 style="background: rgba(0,0,0,0.1)" class="pa-4">
+    <v-flex xs12 lg8 offset-lg2 xl6 offset-xl3 style="background: rgba(0,0,0,0.1)" class="pa-4">
       <v-layout row wrap>
-        <v-flex xs12>
-          <v-flex xs12>
-            <img style="width:100%" v-bind:src="logo">
-          </v-flex>
+        <v-flex xs12 md8 offset-md2 lg4 offset-lg4 xl6 offset-xl3>
+          <img style="width:100%" v-bind:src="logo">
         </v-flex>
       </v-layout>
       <v-stepper style="background: rgba(0,0,0,0.3)" v-model="e1" light class="mb-4">
@@ -29,7 +27,7 @@
         </v-layout>    
         <v-divider></v-divider>
         <v-layout row wrap>      
-          <v-flex xs12 lg7>
+          <v-flex xs12 md6 lg7>
             <v-subheader light>Plex Players {{ playercount }}</v-subheader>              
             <div v-for="i in plex.clients">
               <div v-on:click="previewClient(i)">
@@ -37,7 +35,7 @@
               </div>
             </div>
           </v-flex>
-          <v-flex xs12 lg5>
+          <v-flex xs12 md6 lg5>
             <div v-if="testClient">
               <v-subheader light>
                 Selected Player

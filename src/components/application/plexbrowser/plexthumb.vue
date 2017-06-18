@@ -1,6 +1,6 @@
 <template>
   <div class="portrait">
-    <v-card v-on:click="emitContentClicked(content)" :img="getImg(content)" :height="height || '20em'">                       
+    <v-card v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="height || '20em'">                       
         <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
             <span class="pa-2 black--text">
               <span>
