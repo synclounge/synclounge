@@ -271,26 +271,29 @@ module.exports = function () {
     let playables = []
     let j = 0
 
-    let validServers = 0
-    for (let i in blockedServers){
-      if (blockedServers[i].enabled){
-        validServers++
-      }
-    }
+    let validServers = this.servers.length
     if (blockedServers){
-      this.servers.forEach((server) => {
-        if (!blockedServers[server.clientIdentifier]){
-          validServers++
+      for (let i = 0; i < blockedServers.length; i++ ){
+        if (this.getServerById(blockedServers[i])){
+          validServers--
         }
-      })
+      }
     }
     if (validServers == 0){
       return callback(false)
     }
     for (let i = 0; i < this.servers.length; i++) {
       var server = this.servers[i]
-      if (blockedServers[server.clientIdentifier] && !blockedServers[server.clientIdentifier].enabled){
-        console.log('Server: ' + server.name + ' is blocked - not searching')
+      let blocked = false
+      if (blockedServers){
+        for (let i = 0; i < blockedServers.length; i++ ){
+          if (blockedServers[i] == server.clientIdentifier){
+            console.log('Server: ' + server.name + ' is blocked - not searching')
+            blocked = true
+          }
+        }
+      }
+      if (blocked){
         continue
       }
       server.search(hostData.rawTitle, function (results, _server) {

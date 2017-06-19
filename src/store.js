@@ -633,12 +633,15 @@ const plexTogether = {
                 state.decisionBlocked = true
 
                 let blockedServers = rootState.BLOCKEDSERVERS
-                let validServers = 0
-                for (let i in blockedServers){
-                  if (blockedServers[i].enabled){
-                    validServers++
+                let validServers = rootState.plex.servers.length
+                if (blockedServers){
+                  for (let i = 0; i < blockedServers.length; i++ ){
+                    if (rootState.plex.getServerById(blockedServers[i])){
+                      validServers--
+                    }
                   }
                 }
+
                 sendNotification('Searching ' + validServers + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
                 rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, blockedServers, function (result) {
                   console.log('Auto play result: ' + result)
