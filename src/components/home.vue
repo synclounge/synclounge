@@ -74,7 +74,7 @@
     },
     computed: {
       logo: function () {
-        return 'static/logo-long-light.png'
+        return 'ptweb/logo-long-light.png'
       },
       firstRun: function () {
         return !this.$store.getters.getSettingHOMEINIT

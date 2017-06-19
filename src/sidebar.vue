@@ -1,19 +1,8 @@
 <template>
-    <div v-if="ptRoom" class="pl-1 pr-1" style="height:100%; overflow-x:hidden;">  
-			<div class="hidden-md-and-up">
-				<v-divider light></v-divider>  
-				<v-text-field
-					name="input-1"
-					prepend-icon="message"					
-					:label="'Send a message to ' + '#'+ptRoom"
-					autoGrow
-					v-on:keyup.enter.native="sendMessage()"
-					v-model="messageToBeSent"
-					light
-				></v-text-field>
-			</div>
-			<div style="height:70%">
-				<v-subheader light>Users in #{{ ptRoom }} ({{ ptUsers.length }})</v-subheader>  
+    <div v-if="ptRoom" class="pl-1 pr-1" style="height:100%; overflow-x:hidden;">   
+			<div style="height:60%">
+				<h6 style="text-align:center" class="mt-3 mb-0 pb-0"> Room {{ ptRoom }}</h6>
+				<v-subheader light>Users ({{ ptUsers.length }})</v-subheader>  
 				<v-list three-line dense>
 					<div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
 						<v-list-item style="height:4em" class="mb-0 pb-0">
@@ -22,8 +11,8 @@
 									<img v-bind:src="user.avatarUrl"/>
 								</v-list-tile-avatar>
 								<v-list-tile-content>
-									<v-list-tile-title>{{ user.username }}</v-list-tile-title>
-									<v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{getTitle(user)}}</v-list-tile-sub-title>
+									<v-list-tile-title> {{ user.username }}</v-list-tile-title>
+									<v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%"><v-icon light style="font-size:90%">{{playerState(user)}}</v-icon> - {{getTitle(user)}}</v-list-tile-sub-title>
 								</v-list-tile-content>   
 								<v-list-tile-action  v-if="isHost(user)">     
 									<v-icon v-if="isHost(user)" class="pt-orange-text">star</v-icon>
@@ -39,11 +28,11 @@
 					</div>
 				</v-list>
 			</div>
-			<div v-if="messages.length > 0" style="overflow-y: auto; max-height: 30%">
+			<div style="overflow-y: auto; height: 30%">
 				<v-divider light></v-divider>  
 				<v-subheader light>Messages</v-subheader>  
 				<div >
-					<v-list two-line class="pb-0 pt-0 mt-0 mb-0">
+					<v-list two-line class="pb-2 pt-0 mt-0 mb-2">
 						<v-list-item v-for="msg in messages" v-bind:key="msg">
 							<v-list-tile avatar tag="div">
 								<v-list-tile-avatar>
@@ -62,18 +51,19 @@
 					</v-list>
 				</div>
 			</div>
-			<v-divider light></v-divider>  
-			<v-text-field
-				class="hidden-xs-only" 
-				style="position:absolute; bottom: 0"
-				name="input-1"
-				prepend-icon="message"					
-				:label="'Send a message to ' + '#'+ptRoom"
-				autoGrow
-				v-on:keyup.enter.native="sendMessage()"
-				v-model="messageToBeSent"
-				light
-			></v-text-field>
+			<div style="max-height: 10%;">
+				<v-text-field
+					class="pa-1 ma-0 mt-1" 
+					name="input-1"
+					prepend-icon="message"					
+					:label="'Send a message to ' + '#'+ptRoom"
+					autoGrow
+					v-on:keyup.enter.native="sendMessage()"
+					v-model="messageToBeSent"
+					light
+				></v-text-field>
+				<v-btn style="width:100%" v-on:click.native="handleDisconnect()" class="ma-0 mt-1" primary>Leave room </v-btn>
+			</div>
 		</div>		
 			
 </template>
@@ -173,6 +163,9 @@
           return true
         }
         return false
+      },			
+      handleDisconnect: function () {
+        this.$store.dispatch('disconnectServer')
       },
       percent: function (user) {
         let perc = (parseInt(user.time) / parseInt(user.maxTime)) * 100
@@ -207,7 +200,7 @@
       playerState: function (user) {
         if (user.playerState) {
           if (user.playerState == 'stopped') {
-            return 'pause'
+            return 'stop'
           }
           if (user.playerState == 'paused') {
             return 'pause'
@@ -216,7 +209,7 @@
             return 'play_arrow'
           }
         }
-        return false
+        return 'stop'
       },
 			getTimeFromMs (ms) {
         var hours = ms / (1000 * 60 * 60)

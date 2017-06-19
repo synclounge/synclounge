@@ -13,7 +13,7 @@
     <div style="text-align:center" class="pt-4">
       <h6 style="text-align:initial">Sync Flexibility</h6>
       <div> {{ syncflexability }}</div>
-      <v-slider class="pa-0 ma-0" v-model="syncflexability" :min="500" :max="10000"
+      <v-slider class="pa-0 ma-0" v-model="syncflexability" :min="100" :max="10000"
             hint="Sets the acceptable distance away from the host in milliseconds. Default is 3000ms (3 seconds)." 
             light
             persistent-hint>
@@ -52,7 +52,7 @@
         return this.$store
       },
       logo: function () {
-        return 'static/logo-small-light.png'
+        return 'ptweb/logo-small-light.png'
       },
       appVersion () {
         return this.$store.state.appVersion

@@ -67,7 +67,7 @@
         
       },
       logo: function () {
-        return 'static/plexlogo.png'
+        return 'ptweb/plexlogo.png'
       },
     },
     mounted: function () {

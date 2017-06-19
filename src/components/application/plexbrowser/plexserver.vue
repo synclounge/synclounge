@@ -29,15 +29,14 @@
             <h4 v-if="subsetOnDeck(3).length > 0"> On Deck </h4>
             <v-layout v-if="onDeck" row wrap>
                 <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content">                    
-                    <plexthumb :content="content" :server="server" type="art" :height="'30em'"  @contentSet="setContent(content)"></plexthumb>
-
+                    <plexthumb :content="content" :server="server" type="art" :height="25" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>
             <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>
             <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added </h4>      
             <v-layout v-if="recentlyAdded" class="row" row wrap>
-                <v-flex xs6 md4 xl2 lg3  class="pb-3" height="15em" v-for="content in subsetRecentlyAdded(12)" :key="content">
-                    <plexthumb :content="content" :server="server" type="thumb" @contentSet="setContent(content)"></plexthumb>
+                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content">
+                    <plexthumb :content="content" :server="server" type="thumb" locked @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
         </div>

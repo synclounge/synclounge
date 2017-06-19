@@ -8,8 +8,8 @@
         </v-layout>
         <div v-if="!browsingContent && contents" class="mt-3">
           <v-layout class="row" row wrap>
-                <v-flex xs12 md4 xl2 lg3  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
-                  <plexthumb :content="content" :server="server" type="thumb" :height="'25em'" @contentSet="setContent(content)"></plexthumb>
+                <v-flex xs4 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
+                  <plexthumb :content="content" :server="server" type="thumb"  @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
             <v-layout row>

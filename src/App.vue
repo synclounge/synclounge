@@ -1,12 +1,12 @@
 <template>
   <v-app dark>
-    <v-navigation-drawer temporary v-model="drawer" dark >
+    <v-navigation-drawer temporary v-model="drawer" dark disable-route-watcher>
       <leftsidebar></leftsidebar>
     </v-navigation-drawer>
-    <v-navigation-drawer persistent v-model="drawerRight" light right light enable-resize-watcher>
+    <v-navigation-drawer  style="padding:0" persistent v-model="drawerRight" light right light disable-route-watcher>
       <drawerright></drawerright>
     </v-navigation-drawer>
-    <v-toolbar light>
+    <v-toolbar light fixed>
       <v-toolbar-side-icon light @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title class="white--text">PlexTogether</v-toolbar-title>
       <v-toolbar-items>
@@ -18,6 +18,11 @@
             <v-list-item v-for="item in items" :key="item">
               <v-list-tile>
                 <v-list-tile-title v-text="item.title"></v-list-tile-title>
+              </v-list-tile>
+            </v-list-item>            
+            <v-list-item v-if="shortUrl" v-clipboard="shortUrl">
+              <v-list-tile>
+                <v-list-tile-title primary v-text="Invite"></v-list-tile-title>
               </v-list-tile>
             </v-list-item>
           </v-list>
@@ -31,14 +36,19 @@
     </v-toolbar>
     <main v-bind:style="mainStyle">
       <v-container style="padding:0" v-bind:style="containerStyle" fluid>
-        <router-view></router-view>
+        <router-view></router-view>    
+        <v-snackbar
+          bottom
+          :timeout="4000"
+          v-model="snackbar"
+        > <div style="text-align:center;width:100%">{{snackbarMsg}}</div>
+        </v-snackbar>
       </v-container>
     </main>    
   </v-app>
 </template>
 
 <script>
-
   // Custom css
   import './assets/css/styleNew.css'
 
@@ -58,13 +68,14 @@
         drawerRight: false,
         right: null,
         fixed: false,  
-        initialized: false,      
+        initialized: false,  
+
+        snackbar: false,  
+        snackbarMsg: false,
+
         items: [
           {
             title: 'Preferences'
-          },
-          {
-            title: 'Refresh Plex Devices'
           },
           {
             title: 'Signout'
@@ -99,6 +110,10 @@
         this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.ptpassword)
         this.$store.commit('SET_AUTOJOINURL', this.$route.query.ptserver)
       }      
+      window.EventBus.$on('notification', (msg) => {
+        this.snackbarMsg = msg
+        this.snackbar = true
+      })
     },
     watch: {
       showRightDrawerButton: function () { 
@@ -125,8 +140,8 @@
         return this.$store.state.plex.user.thumb
       },
       logo: function () {
-        return 'static/logo-small-light.png'
-      },
+        return 'ptweb/logo-small-light.png'
+      },    
       isPlayer: function () {
         console.log('Router path is ' + this.$route.path)
         if (this.$route.path == '/') {

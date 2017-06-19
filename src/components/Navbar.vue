@@ -122,7 +122,7 @@
         return this.$store.state.plex.user.thumb
       },
       logo: function () {
-        return 'static/logo-small-light.png'
+        return 'ptweb/logo-small-light.png'
       },
       isPlayer: function () {
         console.log('Router path is ' + this.$route.path)

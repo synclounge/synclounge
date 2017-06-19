@@ -51,6 +51,17 @@
             </v-list-tile-content>
           </v-list-tile>
         </v-list-item>        
+        <v-subheader light>About</v-subheader>
+        <v-list-item>
+          <v-list-tile>
+            <v-list-tile-action>
+              <v-icon light>info</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>     
+              <v-list-tile-title>PlexTogether v{{appVersion}}</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list-item>        
       </v-list>
 
       <v-dialog v-model="ptsettingstoggle">
@@ -112,7 +123,10 @@
 				return false
 			}
 			return true
-			},
+      },
+      appVersion: function() {
+        return this.$store.state.appVersion
+      },
 			validDevices: function () {
 			if (!this.plex) {
 				return false

@@ -26,8 +26,8 @@
           </v-card>
           <h4 class="mt-3"> Episodes </h4>
             <v-layout class="row" row wrap>
-                <v-flex xs6 md3 xl2 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
-                  <plexthumb :content="content" :server="server" type="thumb" :height="'15em'" @contentSet="setContent(content)"></plexthumb>
+                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
+                  <plexthumb :content="content" :server="server" type="thumb" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
         </div>
@@ -77,7 +77,7 @@
       getArtUrl (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 3, h / 2, 10)
+        return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 1, h / 1, 10)
       },
       getSeasons () {
         if (this.contents.MediaContainer.size == 1){

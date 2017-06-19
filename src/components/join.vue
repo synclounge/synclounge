@@ -55,13 +55,12 @@
       return {
         server: null,
         room: null,
-        server: null,
         owner: null
       }
     },
     computed: {
       logo: function () {
-        return 'static/logo-small-light.png'
+        return 'ptweb/logo-small-light.png'
       }
     },
     methods: {

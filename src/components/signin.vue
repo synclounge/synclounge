@@ -1,5 +1,5 @@
 <template>
-    <v-layout wrap row>
+    <v-layout wrap row ckass="pt-4">
       <v-flex xs12 md8 offset-md2>
         <v-card style="background: rgba(0,0,0,0.3)">
           <h1 class="white--text center-text pa-1">Sign in to Plex.tv</h1>
@@ -23,8 +23,8 @@
               <v-flex xs12 md6 offset-md3>
                 <h1 class="center-text" style="color:white !important; background-color: rgba(128, 128, 128, 0.2); letter-spacing:1px">{{ pin }}</h1>            
                 <v-layout wrap row flex class="pt-4">
-                  <v-flex xs4 offset-xs4>
-                    <v-btn v-clipboard="pin" light class="pt-orange">
+                  <v-flex xs4 offset-xs4 >
+                    <v-btn v-clipboard="pin" v-on:click.native="sendNotification()" light class="pt-orange" style="width:100%">
                       <v-icon light class="mr-2">content_copy</v-icon>
                       Copy
                     </v-btn>
@@ -167,6 +167,9 @@
         var that = this
         var base64encoded = new Buffer(this.user + ":" + this.pass).toString('base64')
 
+      },
+      sendNotification(){
+        window.EventBus.$emit('notification', 'Copied to clipboard')
       }
     }
   }

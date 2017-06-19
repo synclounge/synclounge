@@ -1,6 +1,6 @@
 <template>
   <div class="portrait" ref="root">
-    <v-card v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="height || '20em'">                       
+    <v-card v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="calculatedHeight">                       
         <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
             <span class="pa-2 black--text">
               <span>
@@ -13,14 +13,15 @@
         
         </v-card-row>
         <v-card-column style="background: rgba(0, 0, 0, .8);">
-          <v-card-row :height="'4em'" style="position:relative">
+          <v-card-row :height="bottomCalculatedHeight" style="position:relative;" class="ma-0">
             <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
-            <v-layout row wrap class="text-xs-left pa-1" style="display:block; max-width:100%">
-                <v-flex xs12>
-                    <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" style="font-size:1.3em;">{{ getTitle(content) }}</div>
+            <v-layout row wrap class="text-xs-left ma-1" style="margin:0; display:block; max-width:100%; height:100%">
+
+                <v-flex xs12 style="height:50%" ref="topText" class="pa-0 ma-1">
+                    <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" :style="fontSizeTop">{{ getTitle(content) }}</div>
                 </v-flex>                  
-                <v-flex xs12>
-                    <div class="truncate" style="font-size:0.9em">{{ getUnder(content) }}</div>
+                <v-flex xs12 style="height:50%" ref="bottomText" class="pa-0 ma-1">
+                    <div class="truncate" style="opacity:0.75" :style="fontSizeBottom">{{ getUnder(content) }}</div>
                 </v-flex>
             </v-layout> 
           </v-card-row>
@@ -46,7 +47,7 @@
 
   export default {
 
-    props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle', 'search'],
+    props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle', 'search', 'locked'],
     components: {
     },
     created () {
@@ -54,12 +55,17 @@
     data () {
       return {
         fullheight: null,
-        fullwidth: null
+        fullwidth: null,
+        toptextheight: null,
+        bottomtextheight: null
       }
     },
     mounted () {
       this.fullheight = this.$refs.root.offsetHeight
-      this.fullwidth = this.$refs.root.offsetWidth
+      this.fullwidth = this.$refs.root.offsetWidth  
+
+      this.toptextheight = this.$refs.topText.offsetHeight
+      this.bottomtextheight = this.$refs.bottomText.offsetHeight
     },
     beforeDestroy () {
 
@@ -82,11 +88,59 @@
           return false
         }
       },
-      fakeRowHeight (){
+      fontSizeTop () {
+        return {'font-size':(this.toptextheight * 0.8) + 'px'}
+      },      
+      fontSizeBottom () {
+        return {'font-size':(this.bottomtextheight * 0.6) + 'px'}
+      },      
+      fullCalculatedHeightRaw (){
         if (this.height){
-          return parseInt(this.height) - 4 + 'em' 
-        } 
-        return '16em'
+          return this.height
+        }
+        if (this.content.type == 'movie'){
+          return Math.round(this.fullwidth * 1.77)
+        }        
+        if (this.content.type == 'episode'){
+          return Math.round(this.fullwidth * 0.7)
+        }
+        return Math.round(this.fullwidth * 1.5)
+      }, 
+      fakeRowHeight (){        
+        if (this.height){
+          return Math.round(this.height * 0.78) + 'em' 
+        }
+        if (this.content.type == 'movie'){
+          return Math.round(this.fullwidth * 1.77 * 0.78) + 'px'
+        }        
+        if (this.content.type == 'episode'){
+          return Math.round(this.fullwidth * 0.7 * 0.78) + 'px'
+        }
+        return Math.round((this.fullwidth * 1.5 * 0.78)) + 'px'
+      },
+      calculatedHeight (){
+        if (this.height){
+          return this.height + 'em'
+        }
+        if (this.content.type == 'movie'){
+          return Math.round(this.fullwidth * 1.77) + 'px'
+        }        
+        if (this.content.type == 'episode'){
+          return Math.round(this.fullwidth * 0.7) + 'px'
+        }
+        return Math.round(this.fullwidth * 1.5) + 'px'
+      },      
+      bottomCalculatedHeight (){
+        if (this.height){
+          return Math.round(this.height * 0.22) + 'em'
+        }
+        if (this.content.type == 'movie'){
+          return Math.round((this.fullwidth * 1.77) * 0.22) + 'px'
+        }        
+        if (this.content.type == 'episode'){
+          return Math.round(this.fullwidth * 0.7 * 0.22) + 'px'
+        }
+        return Math.round(this.fullwidth * 1.5 * 0.22) + 'px'
       },
       showProgressBar (){
         if (this.content.type == 'movie' || this.content.type == 'episode'){
