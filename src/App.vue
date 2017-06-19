@@ -8,7 +8,7 @@
     </v-navigation-drawer>
     <v-toolbar light fixed>
       <v-toolbar-side-icon light @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title class="white--text">PlexTogether</v-toolbar-title>
+      <v-toolbar-title class="white--text"></v-toolbar-title>
       <v-toolbar-items>
         <v-menu class="hidden-sm-and-up" offset-y origin="bottom" left light>
           <v-btn icon light slot="activator">
@@ -20,13 +20,16 @@
                 <v-list-tile-title v-text="item.title"></v-list-tile-title>
               </v-list-tile>
             </v-list-item>            
-            <v-list-item v-if="shortUrl" v-clipboard="shortUrl">
+            <v-list-item v-if="shortUrl != null" v-clipboard="shortUrl">
               <v-list-tile>
-                <v-list-tile-title primary v-text="Invite"></v-list-tile-title>
+                <v-list-tile-title primary>Invite</v-list-tile-title>
               </v-list-tile>
             </v-list-item>
           </v-list>
-        </v-menu>
+        </v-menu>        
+        <v-toolbar-item v-if="shortUrl != null" v-clipboard="shortUrl" v-on:click.native="sendNotification()">
+          <v-btn primary>Invite</v-btn>
+        </v-toolbar-item>
         <v-toolbar-item class="hidden-sm-and-down">
           <img style="height:70%;width:auto" v-bind:src="logo"/>
         </v-toolbar-item>
@@ -100,6 +103,11 @@
         ]
       }
     },
+    methods: {      
+      sendNotification() {
+        window.EventBus.$emit('notification', 'Copied to clipboard')
+      }
+    },
     mounted () {
       if (this.$route.query.ptserver && this.$route.query.ptroom) {
         console.log('We should auto join')
@@ -171,7 +179,6 @@
         return (this.ptConnected && this.ptServer && this.ptRoom && this.shortUrl)
       },
       shortUrl: function () {
-        console.log('Short url calc done below')
         console.log(this.$store.getters.getShortLink)
         return this.$store.getters.getShortLink
       },

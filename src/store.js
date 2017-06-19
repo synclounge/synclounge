@@ -525,15 +525,13 @@ const plexTogether = {
 
           }
           var that = this
-          if (process.env.NODE_ENV != 'development') {
-            console.log('Invite link data below')
-            console.log(data)
-            webapp_socket.on('shorten-result', function (shortUrl) {
-              console.log('Our short url is ' + shortUrl)
-              commit('SET_SHORTLINK', shortUrl)
-            })
-            webapp_socket.emit('shorten', data)
-          }
+          console.log('Invite link data below')
+          console.log(data)
+          webapp_socket.on('shorten-result', function (shortUrl) {
+            console.log('Our short url is ' + shortUrl)
+            commit('SET_SHORTLINK', shortUrl)
+          })
+          webapp_socket.emit('shorten', data)
 
           // Now we need to setup events for dealing with the PTServer.
           // We will regularly be recieving and sending data to and from the server.

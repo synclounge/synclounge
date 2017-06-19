@@ -10,6 +10,9 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "args-parser": "^1.1.0",
+    "cors": "^2.8.3",
+    "socket.io": "^2.0.3",
     "videojs-contrib-hls": "^5.5.3",
     "vue": "^2.2.6",
     "vue-router": "^2.3.1",

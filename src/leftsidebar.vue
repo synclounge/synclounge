@@ -40,8 +40,8 @@
             </v-list-tile-content>
           </v-list-tile>        
         </v-list-item>      
-        <v-subheader light>Account</v-subheader>
-        <v-list-item>
+        <v-subheader v-if="plex && plex.gotDevices" light>Account</v-subheader>
+        <v-list-item v-if="plex && plex.gotDevices">
           <v-list-tile :router="true" to="/signout">
             <v-list-tile-action>
               <v-icon light>cancel</v-icon>

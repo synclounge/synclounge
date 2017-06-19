@@ -71,7 +71,7 @@
               <v-card-column >
                 <v-layout row wrap>  
                   <v-flex xs4 lg2 style="position:relative; background: rgba(0,0,0,0.6);">
-                    <img style="position: absolute;right: 0; top: 0; left: -50%; z-index: -1" src="static/plexlogo.png"/>
+                    <img style="position: absolute;right: 0; top: 0; left: -50%; z-index: -1" src="ptweb/plexlogo.png"/>
                   </v-flex>
                   <v-flex xs8 lg10 style="background: rgba(0,0,0,0.6); height:100%: z-index: 2">
                     <v-card-row height="10em">
@@ -84,20 +84,6 @@
                   </v-flex>
                 </v-layout>      
               </v-card-column>          
-              <!--
-              <v-card-column style="background: rgba(0, 0, 0, .4)">
-                <v-card-row>
-                  <v-card-text>
-                    <h5 class="pa-1 mb-0 pb-0 white--text">{{server.name}}</h5>
-                    <div class="pl-1" style="opacity:0.5"> v{{server.productVersion}}</div>
-                  <div>Owned by {{ ownerOfServer(server) }}</div>
-                  </v-card-text>
-                </v-card-row>
-                <v-divider></v-divider>                  
-                <v-card-row right actions>
-                  Browse
-                </v-card-row>
-              </v-card-column> -->
             </v-card>
          </v-flex>         
         </v-layout>
