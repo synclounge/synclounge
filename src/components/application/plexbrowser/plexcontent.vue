@@ -1,5 +1,5 @@
 <template>
-    <span>
+    <span ref="root">
         <span v-if="playable" v-on:click="reset()" style="cursor: pointer !important">{{ title }}</span>
         <v-layout v-if="!contents && !browsingContent" row>
           <v-flex xs12 style="position:relative">
@@ -76,7 +76,7 @@
                   </v-layout>
                 </v-card-text>
               </v-card-row>
-              <v-card-row actions class="pa-4">    
+              <v-card-row actions class="pa-4" style="background: rgba(0,0,0,0.4)">    
                 <v-btn v-if="playable" style="width:15%" v-on:click.native="playMedia(content)" raised large class="primary white--text">
                   <v-icon light>play_arrow</v-icon> Play 
                 </v-btn>
@@ -93,7 +93,7 @@
   var humanizeDuration = require('humanize-duration')
 
   export default {
-    props: ['library', 'server', 'content', 'nowPlaying'],
+    props: ['library', 'server', 'content', 'nowPlaying', 'height'],
     components: {
       plexcontent
     },
@@ -115,6 +115,8 @@
         browsingContent: null,
 
         hidden: false,
+        fullheight: null,
+        fullwidth: null,
 
         contents: null,
         status: "loading..",
@@ -126,6 +128,8 @@
       if (this.content.viewCount == 0 || !this.content.viewCount){
         this.hidden = true
       }
+      this.fullheight = this.$refs.root.offsetHeight
+      this.fullwidth = this.$refs.root.offsetWidth  
     },
     beforeDestroy () {
 
@@ -139,6 +143,18 @@
           }
         }
         return height
+      },      
+      calculatedHeight (){
+        if (this.height){
+          return this.height + 'em'
+        }
+        if (this.content.type == 'movie'){
+          return Math.round(this.fullwidth * 2) + 'px'
+        }        
+        if (this.content.type == 'episode'){
+          return Math.round(this.fullwidth * 2) + 'px'
+        }
+        return Math.round(this.fullwidth * 2) + 'px'
       },
       chosenClient () {
         return this.$store.getters.getChosenClient
