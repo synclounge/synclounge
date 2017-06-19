@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <v-navigation-drawer temporary v-model="drawer" :mini-variant.sync="mini" dark >
+    <v-navigation-drawer temporary v-model="drawer" dark >
       <leftsidebar></leftsidebar>
     </v-navigation-drawer>
     <v-navigation-drawer persistent v-model="drawerRight" light right light enable-resize-watcher>
@@ -8,11 +8,11 @@
     </v-navigation-drawer>
     <v-toolbar light>
       <v-toolbar-side-icon light @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title class="white--text"></v-toolbar-title>
+      <v-toolbar-title class="white--text">PlexTogether</v-toolbar-title>
       <v-toolbar-items>
         <v-menu class="hidden-sm-and-up" offset-y origin="bottom" left light>
           <v-btn icon light slot="activator">
-            <v-icon>more_vert</v-icon>
+            <v-icon fa light>wrench</v-icon>
           </v-btn>
           <v-list>
             <v-list-item v-for="item in items" :key="item">

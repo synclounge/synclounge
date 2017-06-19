@@ -13,7 +13,7 @@
                 <v-progress-circular active large></v-progress-circular>
             </div>
             <h4> Libraries </h4>
-            <v-layout>
+            <v-layout row wrap>
               <v-flex xs6 md3 xl2 lg2 v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries" :key="library">
                   <v-card v-on:click="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="text-xs-center hoverable card" style="max-width:100%">
                       <v-card-row :height="'8em'" style="position:relative;width:100%;background: rgba(0,0,0,0.4);">

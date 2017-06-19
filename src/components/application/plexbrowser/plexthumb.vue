@@ -1,5 +1,5 @@
 <template>
-  <div class="portrait">
+  <div class="portrait" ref="root">
     <v-card v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="height || '20em'">                       
         <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
             <span class="pa-2 black--text">
@@ -53,10 +53,13 @@
     },
     data () {
       return {
+        fullheight: null,
+        fullwidth: null
       }
     },
     mounted () {
-
+      this.fullheight = this.$refs.root.offsetHeight
+      this.fullwidth = this.$refs.root.offsetWidth
     },
     beforeDestroy () {
 
@@ -199,12 +202,12 @@
         }
       },
       getImg (object) {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        var w = Math.round(this.fullwidth * 1.5)
+        var h = Math.round(this.fullheight * 1.5)
         if (this.type == 'art'){          
-          return this.server.getUrlForLibraryLoc(object.art, w / 3, h / 1)
+          return this.server.getUrlForLibraryLoc(object.art, w, h)
         }
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 1)
+        return this.server.getUrlForLibraryLoc(object.thumb, w, h)
       },
       reset () {
         this.browsingContent = false

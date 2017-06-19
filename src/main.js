@@ -9,7 +9,7 @@ import Vuetify from 'vuetify'
 import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visibility'
 import VueVideoPlayer from 'vue-video-player'
 import VueResource from 'vue-resource'
-import VueClipboards from 'vue-clipboards';
+import VueClipboards from 'vue-clipboards'
 
 Vue.use(VueClipboards);
 Vue.use(VueResource);
