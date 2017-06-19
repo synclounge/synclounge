@@ -93,7 +93,7 @@
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 3, h / 4)
+        return this.server.getUrlForLibraryLoc(object.thumb, w / 1, h / 1)
       },
       setBackground () {        
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
