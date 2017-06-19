@@ -99,7 +99,7 @@
           return this.height
         }
         if (this.content.type == 'movie'){
-          return Math.round(this.fullwidth * 1.77)
+          return Math.round(this.fullwidth * 1.5)
         }        
         if (this.content.type == 'episode'){
           return Math.round(this.fullwidth * 0.7)
@@ -111,7 +111,7 @@
           return Math.round(this.height * 0.78) + 'em' 
         }
         if (this.content.type == 'movie'){
-          return Math.round(this.fullwidth * 1.77 * 0.78) + 'px'
+          return Math.round(this.fullwidth * 1.5 * 0.78) + 'px'
         }        
         if (this.content.type == 'episode'){
           return Math.round(this.fullwidth * 0.7 * 0.78) + 'px'
@@ -123,7 +123,7 @@
           return this.height + 'em'
         }
         if (this.content.type == 'movie'){
-          return Math.round(this.fullwidth * 1.77) + 'px'
+          return Math.round(this.fullwidth * 1.5) + 'px'
         }        
         if (this.content.type == 'episode'){
           return Math.round(this.fullwidth * 0.7) + 'px'
@@ -135,7 +135,7 @@
           return Math.round(this.height * 0.22) + 'em'
         }
         if (this.content.type == 'movie'){
-          return Math.round((this.fullwidth * 1.77) * 0.22) + 'px'
+          return Math.round((this.fullwidth * 1.5) * 0.22) + 'px'
         }        
         if (this.content.type == 'episode'){
           return Math.round(this.fullwidth * 0.7 * 0.22) + 'px'
