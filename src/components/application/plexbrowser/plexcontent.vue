@@ -28,7 +28,7 @@
                     </v-flex>  
                   </v-layout>   
                   <v-divider></v-divider>             
-                  <p class="pt-3" style="font-style: italic" v-if="contents.viewCount == 0 || !contents.viewCount"> Episode summary automatically hidden for unwatched episodes. </p> 
+                  <p class="pt-3" style="font-style: italic" v-if="hidden" v-on:click="hidden = false"> Episode summary automatically hidden for unwatched episodes. Click to unhide.</p> 
                   <p class="pt-3" style="font-style: italic" v-else> {{ content.summary }} </p>    
                 </v-card-text>                
                 <v-card-text v-if="content.type == 'movie'" >
@@ -114,6 +114,8 @@
       return {
         browsingContent: null,
 
+        hidden: false,
+
         contents: null,
         status: "loading..",
 
@@ -121,7 +123,9 @@
       }
     },
     mounted () {
-
+      if (this.content.viewCount == 0 || !this.content.viewCount){
+        this.hidden = true
+      }
     },
     beforeDestroy () {
 
