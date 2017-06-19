@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="width:100%; height:100%">
     <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
                  @playerMounted="playerMounted()"
                  @timelineUpdate="timelineUpdate"
@@ -14,55 +14,72 @@
                  :initialOffset="offset"
                  :createdAt="playerCreatedAt"
     ></videoplayer>
-    <sweet-modal ref="playersettingsModal" modal-theme="dark" overlay-theme="dark">
-      <h2> Playback Settings </h2>
-      <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
-        <v-select name="select"
-                  id="select"
-                  v-model="chosenMediaIndex"
-                  :items="mediaIndexSelect"
-        ></v-select>
-        <label for="select">Version</label>
-      </div>
-      <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
-        <v-select name="select"
-                  id="select"
-                  v-model="chosenQuality"
-                  :items="qualitiesSelect"
-        ></v-select>
-        <label for="select">Quality</label>
-      </div>
-      <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
-        <v-select name="select"
-                  id="select"
-                  v-model="chosenAudioTrackIndex"
-                  :select-text="'Default'"
-                  :items="audioTrackSelect"
-        ></v-select>
-        <label for="select">Audio</label>
-      </div>
-      <div v-if="playingMetadata && chosenServer" class="input-field col l12 s12 testDropdown">
-        <v-select name="select"
-                  id="select"
-                  v-model="chosenSubtitleIndex"
-                  :select-text="'Default'"
-                  :items="subtitleTrackSelect"
-        ></v-select>
-        <label for="select">Subtitles</label>
-      </div>
-      <div class="row">
-        <div class="col l12 s12">
-          <v-btn class="center" style="background-color: #d32f2f" v-on:click.native="stopPlayback()">Stop playback
-          </v-btn>
-        </div>
-      </div>
-    </sweet-modal>
-    <div class="row" v-if="playingMetadata && chosenServer">
-      <div class="col l4 offset-l4 s12 center" style="padding-top:1%">
-        <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="openModal()">Playback settings
-        </v-btn>
-      </div>
-    </div>
+    <v-dialog v-model="dialog"> 
+      <v-card>
+        <v-card-row>
+          <v-card-title>Playback Settings </v-card-title>
+        </v-card-row>
+        <v-card-row>
+          <v-card-text>
+            
+           <v-select
+            v-model="chosenQuality"
+            :items="qualitiesSelect"
+            light
+            item-text="text"
+            item-value="id"
+            persistent-hint
+            label="Quality"
+            hint="Select a different quality"
+            ></v-select>
+           <v-select
+            v-model="chosenAudioTrackIndex"
+            :select-text="'Default'"
+            label="Audio track"
+            item-text="text"
+            item-value="id"
+            light
+            persistent-hint
+            hint="Select a different audio track"
+            :items="audioTrackSelect"
+            ></v-select> 
+            <v-select
+            light
+            persistent-hint
+            label="Subtitles"
+            item-text="text"
+            item-value="id"
+            hint="Select a different subtitle track"
+            v-model="chosenSubtitleIndex"
+            :select-text="'Default'"
+            :items="subtitleTrackSelect"
+            ></v-select>
+            <v-select
+            v-if="mediaIndexSelect.length > 1"
+            light
+            persistent-hint
+            item-text="text"
+            item-value="id"
+            hint="Select a different version of the content you're playing"
+            v-model="chosenMediaIndex"
+            label="Version"
+            :items="mediaIndexSelect"
+            ></v-select>
+          </v-card-text>
+        </v-card-row>
+        <v-card-row actions>
+          <v-btn class="blue--text darken-1" flat @click.native="dialog = false">Close</v-btn>
+        </v-card-row>
+      </v-card>
+    </v-dialog>
+    <v-layout v-if="playingMetadata && chosenServer" row justify-center>
+      <v-flex md2>
+        <v-btn primary light v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
+      </v-flex>
+      <v-flex md2>
+        <v-btn error light v-on:click.native="stopPlayback()">Stop playback</v-btn>
+      </v-flex>
+    </v-layout>
 
   </div>
 </template>
@@ -72,7 +89,6 @@
 
   var request = require('request')
   var parseXMLString = require('xml2js').parseString;
-  import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
   // Components
   import videoplayer from './ptplayer/videoplayer.vue'
 
@@ -80,13 +96,8 @@
     name: 'ptplayer',
     components: {
       videoplayer,
-      SweetModal,
-      SweetModalTab
     },
     created () {
-      $(document).ready(function () {
-        $('select').material_select();
-      });
     },
     mounted: function () {
       var that = this
@@ -173,8 +184,6 @@
       })
 
     },
-    created: function () {
-    },
     data () {
       return {
         eventbus: window.EventBus,
@@ -204,7 +213,8 @@
         transcodeSessionMetadata: {},
 
         // Browser
-        browser: this.getBrowser()
+        browser: this.getBrowser(),
+        dialog: false
       }
     },
     watch: {

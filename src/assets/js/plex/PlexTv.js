@@ -233,6 +233,36 @@ module.exports = function () {
     }
     return null
   }
+  this.getRandomThumb = function (callback) {
+    let ticker = (failures) => {
+      setTimeout( () => {      
+        if (failures == 10){
+          return callback(false)
+        }
+        let validServers = this.servers.filter( (server) => {
+          if (server.chosenConnection){
+            return true
+          }
+          return false
+        })
+        if (validServers.length > 1){
+          let randomServer = validServers[Math.floor(Math.random()*validServers.length)]
+          randomServer.getRandomItem((result) => {
+            console.log('Random item result',result)
+            if (!result){
+              return callback(false)
+            }
+            return callback(randomServer.getUrlForLibraryLoc(result.thumb,900 ,900 ,8))
+          })
+        } else {
+          ticker(failures+1)
+        }
+      },100)
+    }
+    ticker(0)
+    
+    
+  }
   this.playContentAutomatically = function (client, hostData, blockedServers, callback) {
     // Automatically play content on the client searching all servers based on the title
     var that = this
@@ -241,24 +271,29 @@ module.exports = function () {
     let playables = []
     let j = 0
 
-    let validServers = 0
-    for (let i in blockedServers){
-      if (blockedServers[i].enabled){
-        validServers++
+    let validServers = this.servers.length
+    if (blockedServers){
+      for (let i = 0; i < blockedServers.length; i++ ){
+        if (this.getServerById(blockedServers[i])){
+          validServers--
+        }
       }
     }
-    this.servers.forEach((server) => {
-      if (!blockedServers[server.clientIdentifier]){
-        validServers++
-      }
-    })
     if (validServers == 0){
       return callback(false)
     }
     for (let i = 0; i < this.servers.length; i++) {
       var server = this.servers[i]
-      if (blockedServers[server.clientIdentifier] && !blockedServers[server.clientIdentifier].enabled){
-        console.log('Server: ' + server.name + ' is blocked - not searching')
+      let blocked = false
+      if (blockedServers){
+        for (let i = 0; i < blockedServers.length; i++ ){
+          if (blockedServers[i] == server.clientIdentifier){
+            console.log('Server: ' + server.name + ' is blocked - not searching')
+            blocked = true
+          }
+        }
+      }
+      if (blocked){
         continue
       }
       server.search(hostData.rawTitle, function (results, _server) {

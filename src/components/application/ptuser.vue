@@ -4,7 +4,7 @@
         <span class="mdc-list-item__start-detail" style="height:3em; width: 3em">
             <img v-bind:src="object.avatarUrl" class="circle plex-gamboge-border" style="height:3em; width: 3em">
         </span>
-    <span class="mdc-list-item__text" style="width: 89%; line-height: 1.2">
+          <span class="mdc-list-item__text" style="width: 89%; line-height: 1.2">
             <span class="mdc-list-item__text__primary">
                 <div class="ptuser-username">{{ object.username }} </div>
                 <small class="ptuser-title"><i class="material-icons" v-if="playerState"

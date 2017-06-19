@@ -22,37 +22,32 @@ if (args['port']){
 var express = require('express');
 var path = require('path');
 var cors = require('cors')
-var httpProxy = require('http-proxy')
-var proxy = httpProxy.createProxyServer({ ws: true });
 var jsonfile = require('jsonfile')
 var file = 'ptinvites.json'
 
 var root = express()
 
-var combined = express()
-
-var webapp = express();
-
 // Setup our web app
-webapp.use('/',express.static(path.join(__dirname, 'dist')));
+root.use('/ptweb/',express.static(path.join(__dirname, 'dist')));
 
 
 // Merge everything together
 
-webapp.get('/invite/:id',function(req,res){
+root.get('/ptweb/invite/:id',function(req,res){
     console.log('handling an invite')
     let shortObj = shortenedLinks[req.params.id]
     if (!shortObj){
         return res.send('Invite expired')
     }
     console.log('Redirecting an invite link')
-    console.log(JSON.stringify(shortObj,null,4))
+    console.log(JSON.stringify(shortObj,null,4))    
     return res.redirect(shortObj.fullUrl)
 })
-root.use('/ptweb',webapp)
+root.use('/',express.static(path.join(__dirname, 'dist')))
+
 root.get('*',function(req,res){
-    console.log('Catch all - have you run `npm run build`?')
-    return res.redirect('/ptweb')
+    console.log('Catch all')
+    return res.redirect('/')
 })
 
 
@@ -133,7 +128,6 @@ function loadFromFile(callback){
 
 var shortenedLinks = {}
 loadFromFile((result) => {
-    console.log(result)
     shortenedLinks = result
     rootserver.listen(PORT);
 })

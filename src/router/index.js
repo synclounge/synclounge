@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 // ===================== Pages Components ======================
-import signin from './components/signin'
-import signout from './components/signout'
-import home from './components/home'
-import application from './components/application'
-import join from './components/join'
+import signin from '../components/signin'
+import signout from '../components/signout'
+import home from '../components/home'
+import application from '../components/application'
+import join from '../components/join'
 
 Vue.use(Router)
 

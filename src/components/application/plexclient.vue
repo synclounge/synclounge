@@ -1,16 +1,20 @@
 <template>
   <div>
-    <div
-      v-bind:class="{ connection_success: connection_success,
-                        connection_wait: connection_wait,
-                        connection_failed: connection_failed,
-                        connection_fresh: connection_fresh,
-                        truncate: isTrunc
-                        }"
-      class="mdc-list-item" href="#" v-bind:style="styleObj">
-      {{ object.name }}   <label v-if="!sidebar" class="truncate" style="padding-left:1%;width:30%; padding-top: 3px">
-      {{ object.product }}</label>
-    </div>
+    <span
+      ref=""
+      v-bind:class="{   
+        connection_success: connection_success,
+        connection_wait: connection_wait,
+        connection_failed: connection_failed,
+        connection_fresh: connection_fresh,
+        truncate: isTrunc
+                    }"
+       href="#" v-bind:style="styleObj">
+      {{ object.name }}   
+    </span>
+    <span class="grey--text" style="opacity:.8">
+      {{ object.product }}
+    </span>
   </div>
 </template>
 

@@ -1,96 +1,38 @@
 <template>
-	<div class="main-body mdc-typography" style="height: calc(100% - 64px);overflow-y:auto">
-
-		<div class="nav-wrapper hide-on-large-only">
-			<a id="logo-container" href="#" class="brand-logo"></a>
-		</div>
-
-		<div class="content" style="margin-bottom: 0">
-			<div class="row main-body" style="height: 100%; margin-bottom: 0">
-
+	<div>
+		<div style="margin-bottom: 0">
+			<div style="margin-bottom: 0">
 				<!-- MAIN CONTENT -->
-				<div class="col s12 l12 center" id="main-body" v-if="!validDevices" style="padding-top:5%">
-					<v-progress-circular active large></v-progress-circular>
-				</div>
-				<div class="col s12 l9 no-padding" id="main-body" v-if="validDevices" style="overflow-y: auto">
-					<div v-if="!ptConnected || !chosenClient" style="height: 100%; overflow-y: visible">
-						<walkthrough></walkthrough>
+				<v-layout v-if="!validDevices" wrap row style="position:relative" class="pt-4">
+					<v-flex xs12 md4 offset-md4>			
+						<div style="width:100%;text-align:center">				
+							<v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
+						</div>
+					</v-flex>      
+				</v-layout>
+				<div v-if="validDevices">
+					<div v-if="!ptConnected || !chosenClient || !ptRoom">
+						<walkthrough  class="pa-4"></walkthrough>
 					</div>
-					<div v-else style="height:100%">
-						<plexbrowser v-if="showBrowser"></plexbrowser>
-						<ptplayer v-if="isPTPlayer"></ptplayer>
-						<nowplaying v-if="showMetadata"></nowplaying>
+					<div v-else>
+						<plexbrowser v-if="showBrowser"  class="pa-4"></plexbrowser>
+						<ptplayer v-if="isPTPlayer"></ptplayer>  
+						<plexcontent v-if="showMetadata"  class="pa-4" nowPlaying :content="chosenClient.clientPlayingMetadata" :server="nowPlayingServer"></plexcontent>
 					</div>
 				</div>
-
-			<!-- CHAT INTERFACE -->
-
-				<div v-if="ptConnected && chosenClient" class="col s12 l3 no-padding" id="plexTogetherChat" style="height: 100%; z-index:1">
-				  
-					<div class="mdc-permanent-drawer chatInterface">				   
-						<div style="border-bottom: 1px solid rgba(0, 0, 0, 0.8)">						  
-							<div class="row" style="width: 100%;">							
-							  <div class="col l8 left-align truncate">
-                  <h5 id="plexTogetherRoomNameChat">#{{ ptRoom }}</h5>
-                  <h5> {{ ptServer }} </h5>
-							  </div>
-                <div class="col l4 right-align truncate">
-                  <h5> {{ userCount }} </h5>
-                </div>
-							</div>
-						</div>
-						<div style="height: 60%;  overflow-y: scroll; border-bottom: 1px solid rgba(0, 0, 0, 0.4)">
-							<ul class="mdc-list mdc-list--two-line mdc-list--avatar-list two-line-avatar-text-icon-demo page-userlist" v-for="user in ptUsers">
-							<ptuser :object="user"></ptuser>
-							</ul>
-						</div>
-
-						<div class="mdc-list-group hide-on-med-and-down" style="overflow-y: auto; height: 40%; border-top: 1px solid 1px solid rgba(240,245,255,0.3)">
-							<section>
-							<ul v-for="msg in messages" id="chatBox">
-								<chatmessage :object="msg"></chatmessage>
-							</ul>
-							</section>
-						</div>
-						<div class="mdc-permanent-drawer__toolbar no-padding hide-on-med-and-down" style="border: 0;">						  
-							<div class="channel-textarea" style="margin:0;padding:0">							
-                <div class="channel-textarea-inner">                  
-                  <div class="channel-textarea-upload">
-                    <textarea rows="1" v-bind:placeholder="chatBoxMessage" style="height: auto; overflow-y: auto;" v-on:keyup.enter="sendMessage()" v-model="messageToBeSent"></textarea>
-                  </div>
-                </div>						  
-							</div>						
-						</div>				  
-					</div>				
-				</div>			
 			</div>
 		</div>
-
-		<!-- MODALS -->
-		<div v-if="darkMode" id="joinRoom">
-			<sweet-modal v-on:close="joinRoomModalClosed()" ref="joinroomModal" overlay-theme="dark" modal-theme="dark">
-			<joinroom></joinroom>
-			</sweet-modal>
-		</div>
-
-		<div v-if="!darkMode">
-			<sweet-modal ref="joinroomModal" overlay-theme="dark" modal-theme="dark">
-			<joinroom></joinroom>
-			</sweet-modal>
-		</div>
-
 	</div>
 </template>
 
 <script>
   // CSS imports
-  import 'assets/css/material-components-web.css';
-  import 'assets/css/grid.css';
-  import 'assets/css/style2.css';
+  //import 'assets/css/material-components-web.css';
+  //import 'assets/css/grid.css';
+  //import 'assets/css/style2.css';
 
   // JS imports
-  import _Plex from 'assets/js/plex/PlexTv.js';
-  import PlexClient from 'assets/js/plex/PlexClient.js';
+  import _Plex from '../assets/js/plex/PlexTv.js';
 
   var Plex = new _Plex()
   let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
@@ -105,9 +47,8 @@
   import sidebar from './application/sidebar'
   import ptplayer from './application/ptplayer'
   import plexbrowser from './application/plexbrowser'
+  import plexcontent from './application/plexbrowser/plexcontent'
   import nowplaying from './application/nowplaying'
-
-  import { SweetModal, SweetModalTab } from 'sweet-modal-vue'
 
   export default {
 	name: 'application',
@@ -120,54 +61,50 @@
 	  chatmessage,
 	  walkthrough,
 	  ptplayer,
-	  SweetModal,
-	  SweetModalTab,
 	  plexbrowser,
-	  nowplaying
+	  nowplaying,
+		plexcontent
 	},
 	mounted: function () {
-	  $('.button-collapse').sideNav();
-	  $(".button-collapse").sideNav();
 	  if (window['localStorage'].getItem('plexuser') == null) {
-		console.log('User isnt signed in  - sending to signin')
-		this.$router.push('/signin')
-		return
+			console.log('User isnt signed in  - sending to signin')
+			this.$router.push('/signin')
+			return
 	  }
 	  var that = this
 	  console.log('Logging in to Plex.Tv')
 	  let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
-	  Plex.doTokenLogin(plexstorage.authToken, function (result, response, body) {
-		if (result) {
-		  console.log('Logged in.')
-		  Plex.getDevices(function () {
+	  Plex.doTokenLogin(plexstorage.authToken, (result, response, body) => {
+			if (result) {
+				console.log('Logged in.')
+				console.log(this.$store)
+				Plex.getDevices( () => {
 
-			that.$store.commit('SET_PLEX', Plex)
-
-			if (that.$store.getters.getAutoJoin) {
-			  that.$store.dispatch('autoJoin')
-			  that.$store.commit('SET_AUTOJOIN', false)
-			}
-
-		  })
-		} else {
-		  console.log('Signin failed')
-		  window['localStorage'].removeItem('plexuser')
-		  that.$store.state.plex = null
-		  that.$store.state.signedin = 'notsignedin'
-		  that.$router.push('/signin')
-
-		}
-	  })
+					this.$store.commit('SET_PLEX', Plex)
+					if (this.$store.getters.getAutoJoin) {
+						this.$store.dispatch('autoJoin')
+						this.$store.commit('SET_AUTOJOIN', false)
+					}
+					setTimeout(() => {
+						//this.$store.commit('SET_RANDOMBACKROUND')
+					},100)
+				})
+			} else {
+					console.log('Signin failed')
+					window['localStorage'].removeItem('plexuser')
+					this.$store.state.plex = null
+					this.$store.state.signedin = 'notsignedin'
+					this.$router.push('/signin')
+				}
+			})
 
 	  if (this.$store.getters.getAutoJoin) {
-		// Attempt to auto join
-		console.log('Attempting to auto join ' + that.$store.getters.getAutoJoinUrl)
-		that.$store.dispatch('socketConnect', {
-		  address: that.$store.getters.getAutoJoinUrl,
-		  callback: function (data) {
-
-		  }
-		})
+			// Attempt to auto join
+			console.log('Attempting to auto join ' + this.$store.getters.getAutoJoinUrl)
+			this.$store.dispatch('socketConnect', {
+				address: this.$store.getters.getAutoJoinUrl,
+				callback: function (data) {}
+			})
 	  }
 
 	},
@@ -272,6 +209,12 @@
 	  stateTESTING: function () {
 		return this.$store
 	  },
+		nowPlayingServer: function () {
+			if (!this.chosenClient.clientPlayingMetadata){
+				return null
+			}
+			return this.plex.getServerById(this.chosenClient.clientPlayingMetadata.machineIdentifier)
+		}
 
 	},
 	methods: {

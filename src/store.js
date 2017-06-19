@@ -61,7 +61,8 @@ if (process.env.NODE_ENV == 'development') {
 const state = {
   count: 0,
   appTitle: 'PlexTogether',
-  appVersion: '1.1.1',
+  appVersion: '1.2',
+  background: null,
   shownChat: false,
   plex: null,
   chosenClient: null,
@@ -108,14 +109,22 @@ const mutations = {
             sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name)
           }
           state.chosenClient.clientPlayingMetadata = metadata
+          var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+          var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+          state.background =  state.plex.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
         })
       } else {
+        state.plex.getRandomThumb((res) => {
+          if (res){
+            state.background = res
+          }
+        })
         state.chosenClient.clientPlayingMetadata = null
       }
     }
 
     function newTimeline (timeline) {
-      console.log('Got timeline')
+      //console.log('Got timeline')
       if (!state.plextogether.connected) {
         return
       }
@@ -190,6 +199,9 @@ const mutations = {
   SET_AUTOJOIN (state, value) {
     state.autoJoin = value
   },
+  SET_BACKGROUND (state, value) {
+    state.background = value
+  },
   SET_AUTOJOINROOM (state, value) {
     state.autoJoinRoom = value
   },
@@ -249,6 +261,13 @@ const mutations = {
 
     })
   },
+  SET_RANDOMBACKROUND (state) {
+    state.plex.getRandomThumb((result) => {
+      if (result){
+        state.background = result
+      }
+    })
+  },
 
   // Settings
   SET_OURCLIENTRESPONSETIME (state, value) {
@@ -270,6 +289,9 @@ const getters = {
   },
   getPlexUser: state => {
     return state.plexuser
+  },
+  getBackground: state => {
+    return state.background
   },
   getChosenClient: state => {
     return state.chosenClient
@@ -328,12 +350,7 @@ const actions = {
       commit('INCREMENT')
     }, 200)
   },
-  openSettings ({commit}) {
-    $('#settingsModal').modal('open')
-  },
-  openStatistics ({commit}) {
-    $('#statisticsModal').modal('open')
-  },
+
 
 }
 const plexTogether = {
@@ -463,7 +480,11 @@ const plexTogether = {
       })
       state._socket.on('connect_error', function (result) {
         // Bad connection
-        console.log('Failed to connect')
+        console.log('Failed to connect')        
+        callback({
+          result: false,
+          data: result
+        })
         commit('SET_CONNECTED', false)
         commit('SET_SERVER', null)
         return
@@ -504,15 +525,13 @@ const plexTogether = {
 
           }
           var that = this
-          if (process.env.NODE_ENV != 'development') {
-            console.log('Invite link data below')
-            console.log(data)
-            webapp_socket.on('shorten-result', function (shortUrl) {
-              console.log('Our short url is ' + shortUrl)
-              commit('SET_SHORTLINK', shortUrl)
-            })
-            webapp_socket.emit('shorten', data)
-          }
+          console.log('Invite link data below')
+          console.log(data)
+          webapp_socket.on('shorten-result', function (shortUrl) {
+            console.log('Our short url is ' + shortUrl)
+            commit('SET_SHORTLINK', shortUrl)
+          })
+          webapp_socket.emit('shorten', data)
 
           // Now we need to setup events for dealing with the PTServer.
           // We will regularly be recieving and sending data to and from the server.
@@ -612,12 +631,15 @@ const plexTogether = {
                 state.decisionBlocked = true
 
                 let blockedServers = rootState.BLOCKEDSERVERS
-                let validServers = 0
-                for (let i in blockedServers){
-                  if (blockedServers[i].enabled){
-                    validServers++
+                let validServers = rootState.plex.servers.length
+                if (blockedServers){
+                  for (let i = 0; i < blockedServers.length; i++ ){
+                    if (rootState.plex.getServerById(blockedServers[i])){
+                      validServers--
+                    }
                   }
                 }
+
                 sendNotification('Searching ' + validServers + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
                 rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, blockedServers, function (result) {
                   console.log('Auto play result: ' + result)

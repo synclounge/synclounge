@@ -28,7 +28,6 @@
 
 <script>
   var request = require('request')
-  require('videojs-settings-menu')
 
   export default {
     props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],
@@ -58,7 +57,6 @@
 
       that.source = that.src
       that.initReqSent = true
-
       this.$emit('playerMounted')
 
       // Events from the parent component
@@ -140,15 +138,15 @@
             let difference = Math.abs(current - (slidingTime))
             if (current < slidingTime) {
               // Speed up
-              playbackSpeed = playbackSpeed + 0.001
+              playbackSpeed = playbackSpeed + 0.0005
               if (that.player.playbackRate() < 1.3) {
                 that.player.playbackRate(playbackSpeed)
               }
             }
             if (current > slidingTime) {
               // Slow down
-              playbackSpeed = playbackSpeed - 0.001
-              if (that.player.playbackRate() > 0.1) {
+              playbackSpeed = playbackSpeed - 0.0005
+              if (that.player.playbackRate() > 0.95) {
                 that.player.playbackRate(playbackSpeed)
               }
             }

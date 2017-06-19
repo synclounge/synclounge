@@ -162,6 +162,25 @@ module.exports = function PlexServer () {
     }
     return this.chosenConnection.uri + '/photo/:/transcode?url=' + location + '&X-Plex-Token=' + this.accessToken + '&height=' + Math.floor(height) + '&width=' + Math.floor(width) + '&blur=' + blur
   }
+  this.getRandomItem = function (callback) {
+    console.log('Getting random item')
+    this.getAllLibraries((res) => {
+      if (!res || !res.MediaContainer || !res.MediaContainer.Directory) {
+        return callback(false)
+      }
+      let libraries = res.MediaContainer.Directory
+      let library = libraries[Math.floor(Math.random()*libraries.length)]
+
+      this.getLibraryContents(library.key, 0, 50, (result) => {
+        if (!result) {
+          return callback(false)
+        }
+        let items = result.MediaContainer.Metadata
+        let item = items[Math.floor(Math.random()*items.length)]
+        return callback(item)
+      })
+    })
+  }
   this.getAllLibraries = function (callback) {
     this.hitApi('/library/sections', {}, function (result, that) {
       callback(result)
