@@ -1,7 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
-
+require('vanilla-tilt');
 
 import Vue from 'vue'
 
@@ -10,6 +10,7 @@ import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visib
 import VueVideoPlayer from 'vue-video-player'
 import VueResource from 'vue-resource'
 import VueClipboards from 'vue-clipboards'
+
 
 Vue.use(VueClipboards);
 Vue.use(VueResource);

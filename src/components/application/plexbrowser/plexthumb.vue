@@ -1,6 +1,6 @@
 <template>
-  <div class="portrait" ref="root">
-    <v-card v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="calculatedHeight">                       
+  <div class="portrait" ref="root" style="cursor: pointer">
+    <v-card data-tilt v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="calculatedHeight">                       
         <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
             <span class="pa-2 black--text">
               <span>
@@ -15,7 +15,7 @@
         <v-card-column style="background: rgba(0, 0, 0, .8);">
           <v-card-row :height="bottomCalculatedHeight" style="position:relative;" class="ma-0">
             <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
-            <v-layout row wrap class="text-xs-left ma-1" style="margin:0; display:block; max-width:100%; height:100%">
+            <v-layout  row wrap class="text-xs-left ma-1" style="margin:0; display:block; max-width:100%; height:100%">
 
                 <v-flex xs12 style="height:50%" ref="topText" class="pa-0 ma-1">
                     <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" :style="fontSizeTop">{{ getTitle(content) }}</div>
@@ -66,6 +66,23 @@
 
       this.toptextheight = this.$refs.topText.offsetHeight
       this.bottomtextheight = this.$refs.bottomText.offsetHeight
+      if (this.type == 'thumb'){
+        VanillaTilt.init(this.$refs.root, {
+          reverse:            false,  // reverse the tilt direction
+          max:                7,     // max tilt rotation (degrees)
+          perspective:        2000,   // Transform perspective, the lower the more extreme the tilt gets.
+          scale:              1.01,      // 2 = 200%, 1.5 = 150%, etc..
+          speed:              100,    // Speed of the enter/exit transition
+          transition:         true,   // Set a transition on enter/exit.
+          axis:               null,   // What axis should be disabled. Can be X or Y.
+          reset:              true,    // If the tilt effect has to be reset on exit.
+          easing:             "cubic-bezier(.03,.98,.52,.99)",    // Easing on enter/exit.
+          glare:              false,   // if it should have a "glare" effect
+          "max-glare":        1,      // the maximum "glare" opacity (1 = 100%, 0.5 = 50%)
+          "glare-prerender":  false   // false = VanillaTilt creates the glare elements for you, otherwise
+        });
+      }
+      
     },
     beforeDestroy () {
 

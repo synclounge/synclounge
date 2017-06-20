@@ -31,25 +31,23 @@
 			<div style="overflow-y: auto; height: 30%">
 				<v-divider light></v-divider>  
 				<v-subheader light>Messages</v-subheader>  
-				<div >
-					<v-list two-line class="pb-2 pt-0 mt-0 mb-2">
-						<v-list-item v-for="msg in messages" v-bind:key="msg">
-							<v-list-tile avatar tag="div">
-								<v-list-tile-avatar>
-									<img v-bind:src="msg.user.thumb || msg.user.avatarUrl"/>
-								</v-list-tile-avatar>
-								<v-list-tile-content>
-									<v-list-tile-title style="color:white; position:relative">
-										<span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
-										<span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
-									</v-list-tile-title>
-									<v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%"> {{ msg.msg }}</v-list-tile-sub-title>
-								</v-list-tile-content>
-							</v-list-tile>
-							<v-divider light></v-divider>  
-						</v-list-item>
-					</v-list>
-				</div>
+				<v-list ref="chatbox" :style="chatboxStyle" two-line class="pb-2 pt-0 mt-0 mb-2">
+					<v-list-item v-for="msg in messages" v-bind:key="msg">
+						<v-list-tile avatar tag="div">
+							<v-list-tile-avatar>
+								<img v-bind:src="msg.user.thumb || msg.user.avatarUrl"/>
+							</v-list-tile-avatar>
+							<v-list-tile-content>
+								<v-list-tile-title style="color:white; position:relative">
+									<span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
+									<span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
+								</v-list-tile-title>
+								<v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%"> {{ msg.msg }}</v-list-tile-sub-title>
+							</v-list-tile-content>
+						</v-list-tile>
+						<v-divider light></v-divider>  
+					</v-list-item>
+				</v-list>
 			</div>
 			<div style="max-height: 10%;">
 				<v-text-field
@@ -154,8 +152,18 @@
 			return 'none'
 			},
 			messages: function () {
-			return this.$store.getters.getMessages
+				if (this.$store.getters.getMessages && this.$refs.chatbox){
+					var container = this.$refs.chatbox.$el
+					console.log(container.scrollHeight)
+					console.log(container.scrollTop)
+					if (container){
+						this.$refs.chatbox.$el.scrollTop = container.scrollHeight
+					}
+				}
+				return this.$store.getters.getMessages
 			},
+			chatboxStyle: function(){
+			}
     },
 		methods: {
 			isHost: function (user) {

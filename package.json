@@ -52,6 +52,7 @@
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
     "url-loader": "^0.5.8",
+    "vanilla-tilt": "^1.4.0",
     "vue-clipboards": "^1.0.2",
     "vue-loader": "^11.3.4",
     "vue-observe-visibility": "^0.1.3",
