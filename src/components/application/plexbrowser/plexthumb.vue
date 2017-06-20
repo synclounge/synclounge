@@ -77,8 +77,8 @@
           axis:               null,   // What axis should be disabled. Can be X or Y.
           reset:              true,    // If the tilt effect has to be reset on exit.
           easing:             "cubic-bezier(.03,.98,.52,.99)",    // Easing on enter/exit.
-          glare:              false,   // if it should have a "glare" effect
-          "max-glare":        1,      // the maximum "glare" opacity (1 = 100%, 0.5 = 50%)
+          glare:              true,   // if it should have a "glare" effect
+          "max-glare":        0.15,      // the maximum "glare" opacity (1 = 100%, 0.5 = 50%)
           "glare-prerender":  false   // false = VanillaTilt creates the glare elements for you, otherwise
         });
       }
