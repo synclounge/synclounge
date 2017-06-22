@@ -1,6 +1,6 @@
 <template>
   <div class="portrait" ref="root" style="cursor: pointer">
-    <v-card data-tilt v-on:click.native="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="calculatedHeight">                       
+    <v-card data-tilt v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="calculatedHeight">                       
         <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
             <span class="pa-2 black--text">
               <span>
