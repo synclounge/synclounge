@@ -1,21 +1,24 @@
 <template>
   <div style="position:relative">
-    <img style="position:absolute;width:100%;height:auto;z-index:0;opacity:0.1" :src="metadataArt"/>
-    <div class="row center container" style="z-index:3;margin-bottom:0">
-      <div class="col s12 m12 l12" style="margin-top:20%;opacity:0.9">
-        <div class="row">
-          <div class="col s12 l4 m4">
-            <img :src="metadataThumb" style="width:100%;height:auto">
-          </div>
-          <div class="col s12 l8 m8" style="text-align:left">
-            <h3> Now Playing </h3>
-            <h2> {{ chosenClient.name }} </h2>
-            <label>Playing {{ metadataTitle }} {{ metadataInfo }} from {{ metadataServer }}</label>
-            <p> {{ metadata.summary }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <v-layout flex wrap row style="margin-top:15%">
+      <v-flex xs12 md10 offset-md1>
+        <v-card horizontal :img="metadataArt">          
+          <v-layout flex wrap row style="background: rgba(0,0,0,0.5); " class="pl-0 pr-0">
+            <v-flex md4 xl2 class="pa-0 ma-0 hidden-xs-only" style="position:relative">
+              <img :src="metadataThumb" class="pa-4" style="width:auto;height:auto; max-width:100%;max-height:100%;position: absolute; margin:auto; left:0; right:0; bottom:0; top:0"></img>
+            </v-flex>            
+            <v-flex md8 xl10 class="pa-4">
+              <v-subheader light> Now Playing </v-subheader>
+              <h3> {{ metadataTitle }} </h3>
+              <h6> {{ metadataInfo }} </h6>
+              <label>Playing on {{ chosenClient.name }} from {{ metadataServer }}</label>
+              <v-divider></v-divider>
+              <p class="pt-3" style="font-style: italic"> {{ metadata.summary }} </p>    
+            </v-flex>
+          </v-layout>
+        </v-card>
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 
@@ -88,7 +91,7 @@
         if (!plexObj.getServerById(metadata.machineIdentifier)) {
           return ''
         }
-        return plexObj.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(content, 700, 700, 1)
+        return plexObj.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(content, 700, 700, 8)
       },
       metadataServer: function () {
         if (!this.validPlex) {
@@ -134,10 +137,10 @@
           return ''
         }
         if (metadata.type == 'movie') {
-          return '(' + metadata.year + ')'
+          return + metadata.year 
         }
         if (metadata.type == 'episode') {
-          return metadata.title + ' (S' + metadata.parentIndex + '·E' + metadata.index + ')'
+          return metadata.title + ' S' + metadata.parentIndex + '·E' + metadata.index + ''
         }
         return metadata.index
 

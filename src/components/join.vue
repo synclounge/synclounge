@@ -1,37 +1,39 @@
 <template>
-  <div style="height: calc(100% - 64px" class="row">
-    <div class="col s12 l4 offset-l4">
-      <div class="row" style="padding-top:10%">
-        <div class="col l4 s12 left">
-          <img :src="logo" style="width:100%"/>
-        </div>
-        <div class="col l8 s12 left">
-          <h2 class="center"> Welcome to Plex Together!</h2>
-          <div class="row">
-            <div class="col l12 s12 center">
-              <div style="color:white">
-                <span style="font-weight:900">{{ owner }}</span> has invited you to join the room "<span
-                style="font-weight:900">{{ room }}</span>"
-              </div>
-              <div class="row" style="margin:5%">
-                <div class="col l12 s12">
-                  <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="letsGo()">Accept Invite
-                  </v-btn>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <v-layout row wrap>
+    <v-flex xs12 md4 offset-md4>
+      <img :src="logo" style="width:100%"/>
+      <h2 class="center"> Welcome to Plex Together!</h2>
+      <div><span style="font-weight:900">{{ owner }}</span> has invited you to join the room "<span
+      style="font-weight:900">{{ room }}</span></div>
+      </v-btn>
+    </v-flex>
+  </v-layout>
 </template>
-
+<template>
+    <v-layout wrap row ckass="pt-4">
+      <v-flex xs12 md8 offset-md2>
+        <v-card style="background: rgba(0,0,0,0.3)">
+          <h4 class="white--text center-text pa-1"> Welcome to PlexTogether!</h4>
+          </div>
+          <div class="center-text">
+            <h6><span style="font-weight:900">{{ owner }}</span> has invited you to join the room <span
+              style="font-weight:900">{{ room }}</span></h6>
+          </div>
+          <v-layout wrap row class="pa-4">
+            <v-flex xs12 md8 offset-md2 class="center-text">       
+              <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="letsGo()">Accept Invite</v-btn>     
+              </v-flex>      
+            </v-layout>
+          </div>
+          <p style="opacity:0.7" class="center-text">
+            PlexTogether is a tool to sync Plex content with your family and friends. For more info click <a target="_blank" href="https://github.com/samcm/plextogether"> here </a>
+          </p>
+        </v-card>
+      </v-flex>      
+    </v-layout>
+</template>
 <script>
   // CSS imports
-  import 'assets/css/material-components-web.css';
-  import 'assets/css/grid.css';
-  import 'assets/css/style2.css';
 
   export default {
     name: 'join',
@@ -58,13 +60,12 @@
       return {
         server: null,
         room: null,
-        server: null,
         owner: null
       }
     },
     computed: {
       logo: function () {
-        return 'static/logo-small-light.png'
+        return 'ptweb/logo-small-light.png'
       }
     },
     methods: {

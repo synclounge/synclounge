@@ -1,7 +1,11 @@
 var path = require('path')
-var config = require('../config')
 var utils = require('./utils')
-var projectRoot = path.resolve(__dirname, '../')
+var config = require('../config')
+var vueLoaderConfig = require('./vue-loader.conf')
+
+function resolve (dir) {
+  return path.join(__dirname, '..', dir)
+}
 
 module.exports = {
   entry: {
@@ -9,67 +13,50 @@ module.exports = {
   },
   output: {
     path: config.build.assetsRoot,
-    publicPath: process.env.NODE_ENV === 'production' ? config.build.assetsPublicPath : config.dev.assetsPublicPath,
-    filename: '[name].js'
+    filename: '[name].js',
+    publicPath: process.env.NODE_ENV === 'production'
+      ? config.build.assetsPublicPath
+      : config.dev.assetsPublicPath
   },
   resolve: {
-    extensions: ['', '.js', '.vue'],
-    fallback: [path.join(__dirname, '../node_modules')],
+    extensions: ['.js', '.vue', '.json'],
     alias: {
-      'vue': 'vue/dist/vue.common.js',
-      'src': path.resolve(__dirname, '../src'),
-      'assets': path.resolve(__dirname, '../src/assets'),
-      'components': path.resolve(__dirname, '../src/components'),
-      'jquery': path.resolve(__dirname, '../node_modules/jquery/src/jquery')
+      'vue$': 'vue/dist/vue.esm.js',
+      '@': resolve('src')
     }
   },
-  resolveLoader: {
-    fallback: [path.join(__dirname, '../node_modules')]
-  },
   module: {
-    loaders: [
-      {
-        test: /\.scss$/,
-        loaders: [ "style", "css", "sass" ]
-      },
+    rules: [
       {
         test: /\.vue$/,
-        loader: 'vue'
+        loader: 'vue-loader',
+        options: vueLoaderConfig
       },
       {
         test: /\.js$/,
-        loader: 'babel',
-        include: projectRoot,
-        exclude: /node_modules/
+        loader: 'babel-loader',
+        include: [resolve('src'), resolve('test')]
       },
       {
-        test: /\.json$/,
-        loader: 'json-loader'
+        test: /\.styl$/,
+        loader: ['style-loader', 'css-loader', 'stylus-loader']
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        loader: 'url',
-        query: {
+        loader: 'url-loader',
+        options: {
           limit: 10000,
           name: utils.assetsPath('img/[name].[hash:7].[ext]')
         }
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        loader: 'url',
-        query: {
+        loader: 'url-loader',
+        options: {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
       }
-    ]
-  },
-  vue: {
-    loaders: utils.cssLoaders(),
-    postcss: [
-      require('autoprefixer')({
-        browsers: ['last 2 versions']
-      })
     ]
   },
   node: {

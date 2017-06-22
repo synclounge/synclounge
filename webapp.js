@@ -18,43 +18,37 @@ if (args['port']){
 } else {
   console.log('Defaulting to port 8088')
 }
-// USER CONFIG
 
-// END USER CONFIG
 var express = require('express');
 var path = require('path');
 var cors = require('cors')
-var httpProxy = require('http-proxy')
-var proxy = httpProxy.createProxyServer({ ws: true });
+var jsonfile = require('jsonfile')
+var file = 'ptinvites.json'
 
 var root = express()
 
-var combined = express()
-
-var webapp = express();
-
 // Setup our web app
-webapp.use('/',express.static(path.join(__dirname, 'dist')));
+root.use('/ptweb/',express.static(path.join(__dirname, 'dist')));
 
 
 // Merge everything together
 
-webapp.get('/invite/:id',function(req,res){
+root.get('/ptweb/invite/:id',function(req,res){
     console.log('handling an invite')
     let shortObj = shortenedLinks[req.params.id]
     if (!shortObj){
         return res.send('Invite expired')
     }
     console.log('Redirecting an invite link')
-    console.log(JSON.stringify(shortObj,null,4))
+    console.log(JSON.stringify(shortObj,null,4))    
     return res.redirect(shortObj.fullUrl)
 })
-root.use('/ptweb',webapp)
-root.get('*',function(req,res){
-    console.log('Catch all - have you run `npm run build`?')
-    return res.redirect('/ptweb')
-})
+root.use('/',express.static(path.join(__dirname, 'dist')))
 
+root.get('*',function(req,res){
+    console.log('Catch all')
+    return res.redirect('/')
+})
 
 
 
@@ -63,8 +57,6 @@ root.use(cors())
 var rootserver = require('http').createServer(root);
 
 var webapp_io = require('socket.io')(rootserver,{path: '/ptweb/socket.io'});
-
-var shortenedLinks = {}
 
 function getUniqueId(){
     while (true){
@@ -104,6 +96,7 @@ function shortenObj(data){
     returnable.fullUrl = accessIp + '/#/join?' + query
 
     shortenedLinks[returnable.id] = returnable
+    saveToFile(shortenedLinks,()=>{})
     return returnable.shortUrl
 }
 
@@ -115,9 +108,30 @@ webapp_io.on('connection', function(socket){
     })
 })
 
+function saveToFile(content,callback){
+    jsonfile.writeFile(file, content, function (err) {
+        return callback(err)
+    })
+}
+
+function loadFromFile(callback){
+    jsonfile.readFile(file, function(err, obj) {
+        if (err || !obj){
+            // File doesn't exist or an error occured
+            return callback({})
+        } else {
+            return callback(obj)
+        }
+    })
+}
 
 
-rootserver.listen(PORT);
+var shortenedLinks = {}
+loadFromFile((result) => {
+    shortenedLinks = result
+    rootserver.listen(PORT);
+})
+
 console.log('PlexTogether WebApp successfully started on port ' + PORT)
 
 

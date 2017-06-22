@@ -1,124 +1,105 @@
 <template>
   <div>
-        <span v-if="browsingServer || selectedItem">
-            <span v-on:click="reset()" class="material-icons"
-                  style="padding-left:1%; cursor: pointer; line-height: 1.5em">home</span>
-        </span>
-    <div v-if="!browsingServer && !selectedItem">
-      <div v-if="!selectedItem && !browsingServer" class="row"
-           style="height:100%; width:100%; overflow-y:auto; padding:1%">
-        <div style="padding-bottom:5%">
-          <h2> Search </h2>
-          <div v-if="!browsingContent">
-            <input v-model="searchWord" id="search" type="text">
-            <label for="search">Keyword</label>
-          </div>
-          <v-progress-circular v-if="searching && serversResponded != plex.servers.length" small
-                               active></v-progress-circular>
-        </div>
-        <div v-if="results && (results.length > 0 && !selectedItem)">
-          <div v-if="filteredMovies.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-            <h3> Movies ({{filteredMovies.length}}) </h3>
-            <v-card v-on:click.native="setContent(content)" v-for="content in filteredMovies"
-                    class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:350px">
-              <div style="height:100%">
-                <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                <div style="margin:3%; margin-left:1%; height:25%;">
-                  <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
-                  <div>
-                    <label style="display:block"> {{ content.year }}</label>
-                    <label> {{ content.server.name }} </label>
-                  </div>
-                </div>
-              </div>
-            </v-card>
-          </div>
-          <div v-if="filteredShows.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-            <h3> TV Shows ({{filteredShows.length}}) </h3>
-            <v-card v-on:click.native="setContent(content)" v-for="content in filteredShows"
-                    class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:350px">
-              <div style="height:100%;bottom:0">
-                <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                <div style="padding:3%; padding-left:1%; height:25%;">
-                  <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
-                  <div>
-                    <label style="display:block"> {{ content.childCount }} seasons </label>
-                    <label style="display:block"> {{ content.server.name }} </label>
-                  </div>
-                </div>
-              </div>
-            </v-card>
-          </div>
-          <div v-if="filteredSeasons.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-            <h3> Seasons ({{filteredSeasons.length}})</h3>
-            <v-card v-on:click.native="setContent(content)" v-for="content in filteredSeasons"
-                    class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:350px">
-              <div style="height:100%;bottom:0">
-                <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                <div style="padding:3%; padding-left:1%; height:25%;">
-                  <span style="font-size: 1vh;" class="card-title truncate">{{content.grandParentTitle
-                    }} - S{{ content.title }}</span>
-                  <div>
-                    <label style="display:block"> {{ content.childCount }} episodes </label>
-                    <label style="display:block"> {{ content.server.name }} </label>
-                  </div>
-                </div>
-              </div>
-            </v-card>
-          </div>
-          <div v-if="filteredEpisodes.length > 0" class="row" style="border-bottom:1px solid rgba(0,0,0,0.12)">
-            <h3> Episodes ({{filteredEpisodes.length}})</h3>
-            <v-card v-on:click.native="setContent(content)" v-for="content in filteredEpisodes"
-                    class="blue-grey darken-1 col l1 s12 hoverable" style="box-shadow:none;height:350px">
-              <div style="height:100%;bottom:0">
-                <img style="height:auto;width:100%;display:block" v-lazy="getThumb(content)"/>
-                <div style="padding:3%; padding-left:1%; height:25%;">
-                  <span style="font-size: 1vh;" class="card-title truncate">{{ content.title }}</span>
-                  <div>
-                    <label style="display:block"> {{ content.grandparentTitle }} </label>
-                    <label style="display:block"> S{{ content.parentIndex }}E{{ content.index}} </label>
-                    <label style="display:block"> {{ content.server.name }} </label>
-                  </div>
-                </div>
-              </div>
-            </v-card>
-          </div>
-        </div>
-        <div class="row">
-          <h2> Browse </h2>
-          <div v-if="!browsingServer" v-for="server in availableServers">
-            <v-card v-on:click.native="setServer(server)" class="blue col s12 l3 hoverable" style="box-shadow:none">
-              <div class="row">
-                <div class="col s3 l4" style="height:100%">
-                  <img src="static/plexlogo.png" style="height:100%; width:100%">
-                </div>
-              </div>
-              <div class="row">
-                <div class="col s9 l8">
-                  <div style="font-size: 2vh;">{{ server.name }}</div>
-                  <label style="font-size: 1vh">
-                    v{{ server.productVersion }}
-                  </label>
-                  <div style="font-size: 1vh;"> Owned by {{ ownerOfServer(server) }}</div>
-                </div>
-              </div>
-            </v-card>
-          </div>
-        </div>
+    <span v-if="browsingServer || selectedItem">
+      <v-icon v-on:click="reset()" light style="cursor: pointer !important">home</v-icon>
+    </span>
+    <div v-if="!browsingServer && !selectedItem && !browsingContent">
+      <h4> Search </h4>
+      <v-layout class="mb-3" v-if="!selectedItem && !browsingServer" row wrap>
+        <v-flex xs10 lg4>
+          <v-text-field
+            name="searchInput"
+            label="Search"
+            :hint="searchStatus"
+            id="testing"
+            persistent-hint
+            light
+            single-line
+            prepend-icon="search"
+            v-model="searchWord"
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs2>
+          <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''" style="cursor:pointer;" class="red--text">clear</v-icon>
+        </v-flex>  
+      </v-layout> 
+      <v-layout row wrap v-if="searching || results.length > 0">  
+         <v-chip v-for="server in plex.servers" :key="server" outline class="green darken-3 white--text">
+           <v-avatar>
+             <v-icon v-if="!heardBack(server)">clear</v-icon>
+            <v-icon v-if="heardBack(server)">check_circle</v-icon>
+          </v-avatar>
+          {{ server.name }} 
+         </v-chip>         
+      </v-layout>
+      <v-progress-circular v-if="searching" indeterminate class="amber--text"></v-progress-circular>
+      <div v-if="results.length > 0">
+        <v-layout v-if="filteredMovies && filteredMovies.length > 0" row wrap>
+          <!--Movies-->
+          <v-flex xs12 lg12 >
+            <v-subheader light> Movies ({{filteredMovies.length}})</v-subheader>
+          </v-flex>          
+          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="movie in filteredMovies" :key="movie">            
+            <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
+          </v-flex>
+        </v-layout>
+        <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
+          <!--Shows-->
+          <v-flex xs12 lg12 >
+            <v-subheader light> TV Shows ({{filteredShows.length}})</v-subheader>
+          </v-flex>          
+          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="show in filteredShows" :key="show">            
+            <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
+          </v-flex>
+        </v-layout>        
+        <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
+          <!--Episodes-->
+          <v-flex xs12 lg12 >
+            <v-subheader light> TV Episodes ({{filteredEpisodes.length}})</v-subheader>
+          </v-flex>          
+          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="episode in filteredEpisodes" :key="episode">
+            <plexthumb :content="episode" :server="episode.server" showServer  search @contentSet="setContent(episode)"></plexthumb>
+          </v-flex>
+        </v-layout>
       </div>
+      <v-divider></v-divider>
+      <div class="pt-4" v-if="results.length == 0">
+        <h4> Browse </h4>
+        <v-layout row wrap>  
+          <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server" class="pa-2">  
+            <v-card v-on:click="setServer(server)" horizontal height="10em" style="cursor: pointer; z-index: 0">      
+              <v-card-column >
+                <v-layout row wrap>  
+                  <v-flex xs4 lg2 style="position:relative; background: rgba(0,0,0,0.6);">
+                    <img style="position: absolute;right: 0; top: 0; left: -50%; z-index: -1" src="ptweb/plexlogo.png"/>
+                  </v-flex>
+                  <v-flex xs8 lg10 style="background: rgba(0,0,0,0.6); height:100%: z-index: 2">
+                    <v-card-row height="10em">
+                      <v-card-text>
+                        <h5 class="pa-1 mb-0 pb-0 white--text">{{server.name}}</h5>
+                        <div class="pl-1" style="opacity:0.8"> v{{server.productVersion}}</div>
+                        <div>Owned by {{ ownerOfServer(server) }}</div>
+                      </v-card-text>
+                    </v-card-row>
+                  </v-flex>
+                </v-layout>      
+              </v-card-column>          
+            </v-card>
+         </v-flex>         
+        </v-layout>
+      </div> 
     </div>
     <span v-if="selectedItem">
-            <plexcontent v-if="selectedItem.type == 'episode' || selectedItem.type == 'movie'"
-                         :server="selectedItem.server" :content="selectedItem">
-            </plexcontent>
-            <plexseason v-if="selectedItem.type == 'series'" :server="selectedItem.server" :content="selectedItem">
-            </plexseason>
-            <plexseries v-if="selectedItem.type == 'show'" :server="selectedItem.server" :content="selectedItem">
-            </plexseries>
-        </span>
-    <plexserver v-if="browsingServer" :server="browsingServer"
-                style="height:100%; width:100%; overflow-y:auto; padding:1%">
-    </plexserver>
+      <plexcontent v-if="selectedItem.type == 'episode' || selectedItem.type == 'movie'"
+                    :server="selectedItem.server" :content="selectedItem">
+      </plexcontent>
+      <plexseason v-if="selectedItem.type == 'series'" :server="selectedItem.server" :content="selectedItem">
+      </plexseason>
+      <plexseries v-if="selectedItem.type == 'show'" :server="selectedItem.server" :content="selectedItem">
+      </plexseries>
+    </span>
+    <plexserver v-if="browsingServer" :server="browsingServer">
+    </plexserver>   
   </div>
 </template>
 
@@ -128,19 +109,22 @@
   import plexlibrary from './plexbrowser/plexlibrary'
   import plexseason from './plexbrowser/plexseason'
   import plexseries from './plexbrowser/plexseries'
+  import plexthumb from './plexbrowser/plexthumb'
 
   var _ = require('lodash');
 
   export default {
-    props: ['plexbrowser'],
     components: {
       plexserver,
       plexcontent,
       plexlibrary,
       plexseason,
-      plexseries
+      plexseries,
+      plexthumb
     },
     name: 'plexbrowser',
+    mounted () {
+    },
     methods: {
       setContent (content) {
         this.selectedItem = content
@@ -154,6 +138,9 @@
         this.selectedItem = false
         this.results = []
         this.searchWord = ''
+        this.searching = false
+        this.setBackground()
+        //this.$store.commit('SET_BACKGROUND',null)
       },
       ownerOfServer (server) {
         if (server.owned == '1') {
@@ -161,30 +148,69 @@
         } else {
           return server.sourceTitle
         }
-      },
+      },        
+      setBackground () {          
+        //this.$store.commit('SET_RANDOMBACKROUND')
+        //this.$store.commit('SET_BACKROUND',null)
+      },  
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return object.server.getUrlForLibraryLoc(object.thumb, w / 6, h / 4)
+        return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
+      },
+      getArt (object) {
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        return object.server.getUrlForLibraryLoc(object.art, w / 4, h / 4)
+      },
+      getTitleMovie(movie){
+        if (movie.year){
+          return movie.title + ' (' + movie.year + ')'
+        }
+        return movie.title
+      },
+      heardBack (server) {
+        for (let i = 0; i < this.serversHeardBack.length; i++) {
+          let tempserver = this.serversHeardBack[i]
+          if (tempserver.clientIdentifier == server.clientIdentifier){
+            return true
+          }
+        }
+        return false
       },
       searchAllServers: _.debounce(
         function () {
+          if (this.searchWord == ''){
+            this.results = []
+            this.searchStatus = 'Search your available Plex Media Servers'
+            return
+          }
           this.searching = true
           var vm = this
           this.results = []
+          this.serversHeardBack = []
           this.serversResponded = 0
+          let storedWord = this.searchWord
           for (let i = 0; i < this.plex.servers.length; i++) {
             let server = this.plex.servers[i]
             server.search(this.searchWord, (serverSearchResults) => {
+              if (storedWord != this.searchWord){
+                // Old data
+                return
+              }
               this.serversResponded++
               console.log(serverSearchResults)
+              this.serversHeardBack.push(server)
               if (serverSearchResults) {
                 for (let j = 0; j < serverSearchResults.length; j++) {
                   serverSearchResults[j].server = server
                 }
                 this.results = this.results.concat(serverSearchResults)
               }
-              this.searchStatus = 'Found ' + this.results.length + ' results'
+              this.searchStatus = 'Found ' + this.results.length + ' results from ' + this.serversResponded + ' servers'
+              if (this.serversResponded == this.plex.servers.length){
+                this.searching = false
+              }
             })
           }
         },
@@ -195,16 +221,20 @@
       return {
         browsingServer: null,
         selectedItem: null,
+        browsingContent: null,
 
         results: [],
         searchWord: '',
-        searchStatus: '',
-        searching: false
+        searchStatus: 'Search your available Plex Media Servers',
+        searching: false,
+        serversHeardBack: []
       }
     },
     watch: {
       searchWord () {
         if (this.searchWord == '') {
+          this.results = []
+          this.searchStatus = 'Search your available Plex Media Servers'
           return
         }
         this.searchAllServers()
@@ -225,6 +255,9 @@
       },
       filteredShows () {
         return this.results.filter((item) => {
+          if (!item){
+            return false
+          }
           if (item.type == 'show') {
             return true
           }
@@ -233,6 +266,9 @@
       },
       filteredEpisodes () {
         return this.results.filter((item) => {
+          if (!item){
+            return false
+          }
           if (item.type == 'episode') {
             return true
           }
@@ -241,6 +277,9 @@
       },
       filteredMovies () {
         return this.results.filter((item) => {
+          if (!item){
+            return false
+          }
           if (item.type == 'movie') {
             return true
           }
@@ -249,6 +288,9 @@
       },
       filteredSeasons () {
         return this.results.filter((item) => {
+          if (!item){
+            return false
+          }
           if (item.type == 'series') {
             return true
           }

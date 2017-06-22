@@ -134,8 +134,8 @@ module.exports = function () {
           ptplayer.clientIdentifier = 'PTPLAYER9PLUS10'
           ptplayer.platform = 'Web'
           ptplayer.device = 'Web'
-          ptplayer.product = 'Plex Together'
-          ptplayer.name = 'Plex Together Player (BETA)'
+          ptplayer.product = 'PlexTogether'
+          ptplayer.name = 'PlexTogether Player (BETA)'
           ptplayer.lastSeenAt = Math.round((new Date).getTime() / 1000)
 
           that.clients.push(ptplayer)
@@ -233,15 +233,69 @@ module.exports = function () {
     }
     return null
   }
-  this.playContentAutomatically = function (client, hostData, callback) {
+  this.getRandomThumb = function (callback) {
+    let ticker = (failures) => {
+      setTimeout( () => {      
+        if (failures == 10){
+          return callback(false)
+        }
+        let validServers = this.servers.filter( (server) => {
+          if (server.chosenConnection){
+            return true
+          }
+          return false
+        })
+        if (validServers.length > 1){
+          let randomServer = validServers[Math.floor(Math.random()*validServers.length)]
+          randomServer.getRandomItem((result) => {
+            console.log('Random item result',result)
+            if (!result){
+              return callback(false)
+            }
+            return callback(randomServer.getUrlForLibraryLoc(result.thumb,900 ,900 ,8))
+          })
+        } else {
+          ticker(failures+1)
+        }
+      },100)
+    }
+    ticker(0)
+    
+    
+  }
+  this.playContentAutomatically = function (client, hostData, blockedServers, callback) {
     // Automatically play content on the client searching all servers based on the title
     var that = this
 
     // First lets find all of our playable items
     let playables = []
     let j = 0
+
+    let validServers = this.servers.length
+    if (blockedServers){
+      for (let i = 0; i < blockedServers.length; i++ ){
+        if (this.getServerById(blockedServers[i])){
+          validServers--
+        }
+      }
+    }
+    if (validServers == 0){
+      return callback(false)
+    }
     for (let i = 0; i < this.servers.length; i++) {
       var server = this.servers[i]
+      let blocked = false
+      if (blockedServers){
+        for (let i = 0; i < blockedServers.length; i++ ){
+          if (blockedServers[i] == server.clientIdentifier){
+            console.log('Server: ' + server.name + ' is blocked - not searching')
+            blocked = true
+          }
+        }
+      }
+      if (blocked){
+        continue
+      }
       server.search(hostData.rawTitle, function (results, _server) {
         j++
         console.log('Heard back from ' + j + ' servers')
@@ -259,7 +313,7 @@ module.exports = function () {
           }
         }
 
-        if (j == that.servers.length) {
+        if (j == validServers) {
           console.log('Found ' + playables.length + ' playable items')
           start(playables, 0)
         }
@@ -331,6 +385,11 @@ module.exports = function () {
         console.log('FOUND A PLAYABLE TV EPISODE')
         return true
 
+      }      
+      if (data.type == 'track') {
+        //We're good!
+        console.log('FOUND A PLAYABLE track')
+        return true
       }
       return false
     }

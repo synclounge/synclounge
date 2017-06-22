@@ -1,55 +1,53 @@
 <template>
-  <div class="window">
-    <div class="window-content">
-      <div class="container">
-        <div class="row">
-          <div v-if="plex == null" class="col s12 l6 offset-l3">
-            <div>
-              <h1 class="center" style="color:white !important">Sign in to Plex.tv</h1>
-            </div>
-
-
-            <div v-if="!pin" class="center spinner-orange">
-              <v-progress-circular active large></v-progress-circular>
-            </div>
-            <div v-if="token" class="center row">
-              <div class="col s12 l4 offset-l4">
-                <i style="font-size:150px; color:green" class="material-icons">done</i>
-              </div>
-              <div class="col s12 l4 offset-l4" style="color:white !important">
-                Signed in!
-              </div>
-            </div>
-            <div v-if="pin && !token">
-              <div class="row">
-                <div class="col s12 l4 offset-l4">
-                  <h1 class="center" style="color:white !important">{{ pin }}</h1>
+    <v-layout wrap row ckass="pt-4">
+      <v-flex xs12 md8 offset-md2>
+        <v-card style="background: rgba(0,0,0,0.3)">
+          <h1 class="white--text center-text pa-1">Sign in to Plex.tv</h1>
+          <div v-if="!pin">
+            <v-layout wrap row style="position:relative">
+              <v-flex xs12 md4 offset-md4>			
+                <div style="width:100%;text-align:center">				
+                  <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col s4 l4 offset-l4 offset-s4">
-                  <button style="width:100%;background-color: #E5A00D" class="waves-effect waves-light btn"
-                          v-clipboard="pin"><i class="material-icons left">content_paste</i>Copy
-                  </button>
-                </div>
-                <div class="col s12 l12">
-                  <p class="center">Enter the pin above at <a target="_blank" href="https://plex.tv/link">
-                    https://plex.tv/link </a></p>
-                </div>
-
-              </div>
-              <div class="row center">
-                <label class="col s12">
-                  Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run Plex Together yourself
-                  have a look <a target="_blank" href="https://github.com/samcm/plextogether"> here </a>
-                  for details. </label>
-              </div>
-            </div>
+              </v-flex>      
+            </v-layout>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
+          <div v-if="token" class="center-text" style="font-size:400%">
+              <v-icon x-large class="green--text text--darken-2">done</v-icon>
+            <h3 class="white--text">
+              Signed in!
+            </h3>
+          </div>
+          <div v-if="pin && !token">
+            <v-layout wrap row flex class="pt-4">
+              <v-flex xs12 md6 offset-md3>
+                <h1 class="center-text" style="color:white !important; background-color: rgba(128, 128, 128, 0.2); letter-spacing:1px">{{ pin }}</h1>            
+                <v-layout wrap row flex class="pt-4">
+                  <v-flex xs4 offset-xs4 >
+                    <v-btn v-clipboard="pin" v-on:click.native="sendNotification()" light class="pt-orange" style="width:100%">
+                      <v-icon light class="mr-2">content_copy</v-icon>
+                      Copy
+                    </v-btn>
+                  </v-flex>      
+                </v-layout>
+              </v-flex>      
+            </v-layout>
+            <p class="center-text pt-4">Enter the pin above at <a target="_blank" href="https://plex.tv/link">
+              https://plex.tv/link </a></p>
+            </div>
+            <v-layout wrap row class="pt-4">
+              <v-flex xs12 md8 offset-md2 class="center-text">              
+                <p style="opacity:0.7">
+                  Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run PlexTogether yourself
+                  have a look <a target="_blank" href="https://github.com/samcm/plextogether"> here </a>
+                  for details. 
+                </p>
+              </v-flex>      
+            </v-layout>
+          </div>
+        </v-card>
+      </v-flex>      
+    </v-layout>
 </template>
 
 <script>
@@ -96,7 +94,7 @@
             'X-Plex-Device': 'Web',
             'X-Plex-Device-Name': 'PlexTogether',
             'X-Plex-Product': 'PlexTogether',
-            'X-Plex-Version': '1.0',
+            'X-Plex-Version': '1.2',
             'X-Plex-Platform': sBrowser,
             'X-Plex-Platform-Version': '',
             'X-Plex-Client-Identifier': id
@@ -115,7 +113,7 @@
                       'X-Plex-Device': 'Web',
                       'X-Plex-Device-Name': 'PlexTogether',
                       'X-Plex-Product': 'PlexTogether',
-                      'X-Plex-Version': '1.0',
+                      'X-Plex-Version': '1.2',
                       'X-Plex-Platform': sBrowser,
                       'X-Plex-Platform-Version': '',
                       'X-Plex-Client-Identifier': id
@@ -169,6 +167,9 @@
         var that = this
         var base64encoded = new Buffer(this.user + ":" + this.pass).toString('base64')
 
+      },
+      sendNotification(){
+        window.EventBus.$emit('notification', 'Copied to clipboard')
       }
     }
   }

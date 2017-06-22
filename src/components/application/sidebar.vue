@@ -102,9 +102,9 @@
       },
       logo: function () {
         if (this.$store.getters.getSettingDARKMODE) {
-          return 'static/logo-long-light.png'
+          return 'ptweb/logo-long-light.png'
         }
-        return 'static/logo-long-dark.png'
+        return 'ptweb/logo-long-dark.png'
       },
       ptConnected: function () {
         return this.$store.getters.getConnected

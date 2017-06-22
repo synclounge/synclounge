@@ -61,7 +61,8 @@ if (process.env.NODE_ENV == 'development') {
 const state = {
   count: 0,
   appTitle: 'PlexTogether',
-  appVersion: '1.0.0',
+  appVersion: '1.2',
+  background: null,
   shownChat: false,
   plex: null,
   chosenClient: null,
@@ -80,6 +81,7 @@ const state = {
   SYNCMODE: getSetting('SYNCMODE'),
   SYNCFLEXABILITY: getSetting('SYNCFLEXABILITY'),
   CUSTOMSERVER: getSetting('CUSTOMSERVER'),
+  BLOCKEDSERVERS: JSON.parse(window['localStorage'].getItem('BLOCKEDSERVERS')),
   HOMEINIT: getSetting('HOMEINIT'),
   stats: {}
 }
@@ -107,14 +109,22 @@ const mutations = {
             sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name)
           }
           state.chosenClient.clientPlayingMetadata = metadata
+          var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+          var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+          state.background =  state.plex.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
         })
       } else {
+        state.plex.getRandomThumb((res) => {
+          if (res){
+            state.background = res
+          }
+        })
         state.chosenClient.clientPlayingMetadata = null
       }
     }
 
     function newTimeline (timeline) {
-      console.log('Got timeline')
+      //console.log('Got timeline')
       if (!state.plextogether.connected) {
         return
       }
@@ -189,6 +199,9 @@ const mutations = {
   SET_AUTOJOIN (state, value) {
     state.autoJoin = value
   },
+  SET_BACKGROUND (state, value) {
+    state.background = value
+  },
   SET_AUTOJOINROOM (state, value) {
     state.autoJoinRoom = value
   },
@@ -226,6 +239,10 @@ const mutations = {
     setSetting('DARKMODE', data)
     state.DARKMODE = data
   },
+  setSettingBLOCKEDSERVERS (state, data) {
+    window['localStorage'].setItem('BLOCKEDSERVERS', JSON.stringify(data))
+    state.BLOCKEDSERVERS = data
+  },
   setSettingHOMEINIT (state, data) {
     setSetting('HOMEINIT', data)
     state.HOMEINIT = data
@@ -242,6 +259,13 @@ const mutations = {
   REFRESH_PLEXDEVICES (state) {
     store.state.plex.getDevices(function () {
 
+    })
+  },
+  SET_RANDOMBACKROUND (state) {
+    state.plex.getRandomThumb((result) => {
+      if (result){
+        state.background = result
+      }
     })
   },
 
@@ -265,6 +289,9 @@ const getters = {
   },
   getPlexUser: state => {
     return state.plexuser
+  },
+  getBackground: state => {
+    return state.background
   },
   getChosenClient: state => {
     return state.chosenClient
@@ -310,6 +337,9 @@ const getters = {
   getSettingDARKMODE: state => {
     return state.DARKMODE
   },
+  getSettingBLOCKEDSERVERS: state => {
+    return state.BLOCKEDSERVERS
+  },
   getSettingHOMEINIT: state => {
     return state.HOMEINIT
   }
@@ -320,12 +350,7 @@ const actions = {
       commit('INCREMENT')
     }, 200)
   },
-  openSettings ({commit}) {
-    $('#settingsModal').modal('open')
-  },
-  openStatistics ({commit}) {
-    $('#statisticsModal').modal('open')
-  },
+
 
 }
 const plexTogether = {
@@ -455,7 +480,11 @@ const plexTogether = {
       })
       state._socket.on('connect_error', function (result) {
         // Bad connection
-        console.log('Failed to connect')
+        console.log('Failed to connect')        
+        callback({
+          result: false,
+          data: result
+        })
         commit('SET_CONNECTED', false)
         commit('SET_SERVER', null)
         return
@@ -496,15 +525,13 @@ const plexTogether = {
 
           }
           var that = this
-          if (process.env.NODE_ENV != 'development') {
-            console.log('Invite link data below')
-            console.log(data)
-            webapp_socket.on('shorten-result', function (shortUrl) {
-              console.log('Our short url is ' + shortUrl)
-              commit('SET_SHORTLINK', shortUrl)
-            })
-            webapp_socket.emit('shorten', data)
-          }
+          console.log('Invite link data below')
+          console.log(data)
+          webapp_socket.on('shorten-result', function (shortUrl) {
+            console.log('Our short url is ' + shortUrl)
+            commit('SET_SHORTLINK', shortUrl)
+          })
+          webapp_socket.emit('shorten', data)
 
           // Now we need to setup events for dealing with the PTServer.
           // We will regularly be recieving and sending data to and from the server.
@@ -602,8 +629,19 @@ const plexTogether = {
                 // We need to autoplay!
                 rootState.blockAutoPlay = true
                 state.decisionBlocked = true
-                sendNotification('Searching ' + rootState.plex.servers.length + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
-                rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, function (result) {
+
+                let blockedServers = rootState.BLOCKEDSERVERS
+                let validServers = rootState.plex.servers.length
+                if (blockedServers){
+                  for (let i = 0; i < blockedServers.length; i++ ){
+                    if (rootState.plex.getServerById(blockedServers[i])){
+                      validServers--
+                    }
+                  }
+                }
+
+                sendNotification('Searching ' + validServers + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
+                rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, blockedServers, function (result) {
                   console.log('Auto play result: ' + result)
                   if (!result) {
                     sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle)

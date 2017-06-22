@@ -1,37 +1,35 @@
 <template>
     <span>
         <span v-on:click="reset()" style="cursor: pointer !important"> {{ content.title }} <span v-if="browsingContent"> > </span></span>
-        <div v-if="!browsingContent">
-            <div v-if="contents && !browsingContent">
-                <v-card class="blue-grey darken-1 col l12 s12" style="box-shadow:none">
-                    <div class="white-text row">
-                        <img :src="getArt(content)" style="height:100%" class="col s12 l4"/>
-                        <div class="col l8 s12">
-                            <h2 class="card-title">{{ content.title }}</h2>
-                            <label> {{ content.leafCount }} episodes since {{ content.year }} </label>
-                            <label> {{ content.sourceTitle }}</label>
-                            <p> {{ content.summary }} </p>
-                        </div>
-                    </div>
-                </v-card>
-                <div class="divider"></div>
-                <h5> Seasons </h5>
-                <div v-for="content in contents.MediaContainer.Metadata">
-                    <v-card v-on:click.native="setContent(content)" class="blue-grey darken-1 col l1 s6 hoverable"
-                            style="box-shadow:none">
-                        <div class="white-text">
-                            <img :src="getThumb(content)" style="width:100%"/>
-                            <span style="font-size: 1.3vh;" class="card-title">{{ content.title }}</span>
-                            <div>
-                                <label style="font-size: 1vh;"> {{ content.leafCount }} episodes </label>
-                            </div>
-                        </div>
-                    </v-card>
-                </div>
-            </div>
-            <div v-if="!contents && !browsingContent" class="center">
-                <v-progress-circular active large></v-progress-circular>
-            </div>
+        <v-layout v-if="!contents && !browsingContent" row>
+          <v-flex xs12 style="position:relative">
+              <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+          </v-flex>
+        </v-layout>
+        <div v-if="contents && !browsingContent" class="mt-3">          
+          <v-card horizontal height="25em" :img="getArtUrl">
+            <v-card-row class="hidden-sm-and-down" :img="getThumb(content)" height="100%"></v-card-row>
+            <v-card-column style="background: rgba(0, 0, 0, .4)">
+              <v-card-row height="11em"  class="white--text">
+                <v-card-text>
+                  <h3> {{ content.parentTitle }}</h3>
+                  <h3>{{ content.title }}</h3>
+                  <p> {{ getSeasons }} </p>         
+                  <v-divider></v-divider>         
+                  <p style="font-style: italic" class="pt-3"> {{ content.summary }} </p>      
+                </v-card-text>
+              </v-card-row>
+              <v-card-row actions>
+                <v-chip v-if="contents.MediaContainer.parentYear" v-tooltip:top="{ html: 'Year' }" label> {{ contents.MediaContainer.parentYear }}</v-chip>
+              </v-card-row>
+            </v-card-column>
+          </v-card>
+          <h4 class="mt-3"> Episodes </h4>
+            <v-layout class="row" row wrap>
+                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
+                  <plexthumb :content="content" :server="server" type="thumb" @contentSet="setContent(content)"></plexthumb>
+                </v-flex>
+            </v-layout>  
         </div>
         <plexseason v-if="browsingContent" :content="browsingContent" :server="server" :library="library"></plexseason>
     </span>
@@ -39,20 +37,23 @@
 
 <script>
   import plexseason from './plexseason.vue'
+  import plexthumb from './plexthumb.vue'
 
   export default {
     props: ['library', 'server', 'content'],
     components: {
-      plexseason
+      plexseason,
+      plexthumb
     },
     created () {
       // Hit the PMS endpoing /library/sections
       var that = this
-      this.server.getSeriesContent(this.content.key, this.startingIndex, this.size, 1, function (result) {
+      this.server.getSeriesContent(this.content.key, this.startingIndex, this.size, 1, (result) => {
         if (result) {
-          that.contents = result
+          this.contents = result
+          this.setBackground()
         } else {
-          that.status = 'Error loading libraries!'
+          this.status = 'Error loading libraries!'
         }
       })
     },
@@ -72,7 +73,19 @@
     beforeDestroy () {
 
     },
-    computed: {},
+    computed: {
+      getArtUrl (object) {
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 1, h / 1, 10)
+      },
+      getSeasons () {
+        if (this.contents.MediaContainer.size == 1){
+          return this.contents.MediaContainer.size + ' season'
+        }
+        return this.contents.MediaContainer.size + ' seasons'
+      }
+    },
     methods: {
       setContent (content) {
         this.browsingContent = content
@@ -80,15 +93,16 @@
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 12, h / 4)
+        return this.server.getUrlForLibraryLoc(object.thumb, w / 1, h / 1)
       },
-      getArt (object) {
+      setBackground () {        
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.art, w / 3, h / 2)
+        this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(this.content.art, w / 4, h / 4, 8))
       },
       reset () {
         this.browsingContent = false
+        this.setBackground()
       }
 
     }
