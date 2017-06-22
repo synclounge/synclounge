@@ -18,8 +18,8 @@
                 </v-card-text>
               </v-card-row>
               <v-card-row actions>
-                <v-chip v-for="genre in content.Genre" v-tooltip:top="{ html: 'Genre' }" label> {{ genre.tag }}</v-chip>
-                <v-chip v-for="country in content.Country" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
+                <v-chip v-for="genre in content.Genre" :key="genre" v-tooltip:top="{ html: 'Genre' }" label> {{ genre.tag }}</v-chip>
+                <v-chip v-for="country in content.Country" :key="country" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
               </v-card-row>
             </v-card-column>
           </v-card>

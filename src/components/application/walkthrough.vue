@@ -55,7 +55,9 @@
                   <label>Platform</label><span style="opacity:0.8" v-tooltip="testClient.platformVersion">  {{ testClient.platform }} </span>
                 </div>
                 <div v-if="testClientWaiting" class="center spinner-orange">
-                  <v-progress-circular small active></v-progress-circular>
+                  <div style="width:100%;text-align:center">				
+                    <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
+                  </div>
                 </div>
                 <div v-if="!testClientWaiting">
                   <v-btn class="pt-orange ml-0" style="width:100%" x-large light v-on:click.native="clientClicked()">Connect</v-btn>

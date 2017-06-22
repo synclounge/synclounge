@@ -29,7 +29,9 @@
       </v-layout>       
       <v-layout row wrap v-if="connectionPending">
         <v-flex xs4 offset-xs4 center>          
-          <v-progress-circular indeterminate v-bind:size="50" class="amber--text text-xs-center"></v-progress-circular>      
+          <div style="width:100%;text-align:center">				
+            <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
+          </div>
         </v-flex>  
       </v-layout>       
       <v-layout class="pt-3" row wrap v-if="serverError">
@@ -43,6 +45,7 @@
         <v-flex xs12>          
          <v-text-field
             transition="v-scale-transition" origin="center center"
+            :maxlength="25"
             name="input-2"
             label="Room name"
             :autofocus="true"

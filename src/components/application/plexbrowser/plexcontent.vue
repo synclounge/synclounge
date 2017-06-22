@@ -41,14 +41,14 @@
                     </v-flex>               
                     <v-flex xs12 sm6 style="position:relative">     
                       <div style="float:right">    
-                        <v-chip v-if="contents.year" v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.year }}</v-chip>                  
-                        <v-chip v-for="copy in contents.Media" v-tooltip:top="{ html: 'Quality' }"  class="grey darken-4 white--text" small> {{ copy.audioCodec.toUpperCase() }}</v-chip>              
+                        <v-chip v-if="contents.year"  v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.year }}</v-chip>                  
+                        <v-chip v-for="copy in contents.Media" :key="copy" v-tooltip:top="{ html: 'Quality' }"  class="grey darken-4 white--text" small> {{ copy.audioCodec.toUpperCase() }}</v-chip>              
                       </div>
                     </v-flex>  
                   </v-layout>  
                   <v-divider></v-divider>     
-                  <v-chip v-for="country in contents.Country" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
-                  <v-chip v-for="genre in contents.Genre" v-tooltip:top="{ html: 'Genre' }"> {{ genre.tag }}</v-chip>
+                  <v-chip v-for="country in contents.Country" :key="country" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
+                  <v-chip v-for="genre in contents.Genre" :key="genre" v-tooltip:top="{ html: 'Genre' }"> {{ genre.tag }}</v-chip>
                 </v-card-text>                 
                 <v-card-text v-if="content.type == 'movie'" >
                   <h3>{{ content.title }}</h3>

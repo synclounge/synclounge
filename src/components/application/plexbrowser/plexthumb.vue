@@ -274,8 +274,8 @@
         }
       },
       getImg (object) {
-        var w = Math.round(this.fullwidth * 1.5)
-        var h = Math.round(this.fullheight * 1.5)
+        var w = Math.round(this.fullwidth * 2)
+        var h = Math.round(this.fullheight * 2)
         if (this.type == 'art'){          
           return this.server.getUrlForLibraryLoc(object.art, w, h)
         }
