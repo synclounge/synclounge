@@ -4,7 +4,7 @@ require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
 require('vanilla-tilt');
 
 import Vue from 'vue'
-
+import VueScrollTo from 'vue-scrollto'
 import Vuetify from 'vuetify'
 import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visibility'
 import VueVideoPlayer from 'vue-video-player'
@@ -12,6 +12,8 @@ import VueResource from 'vue-resource'
 import VueClipboards from 'vue-clipboards'
 
 
+
+Vue.use(VueScrollTo)
 Vue.use(VueClipboards);
 Vue.use(VueResource);
 Vue.directive('observe-visibility', ObserveVisibility)

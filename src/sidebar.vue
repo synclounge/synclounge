@@ -28,11 +28,11 @@
 					</div>
 				</v-list>
 			</div>
-			<div style="overflow-y: auto; height: 30%">
+			<div id="chatbox" style="overflow-y: auto; height: 30%">
 				<v-divider light></v-divider>  
 				<v-subheader light>Messages</v-subheader>  
-				<v-list ref="chatbox" :style="chatboxStyle" two-line class="pb-2 pt-0 mt-0 mb-2">
-					<v-list-item v-for="msg in messages" v-bind:key="msg">
+				<v-list  :style="chatboxStyle" two-line class="pb-2 pt-0 mt-0 mb-2">
+					<v-list-item v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg">
 						<v-list-tile avatar tag="div">
 							<v-list-tile-avatar>
 								<img v-bind:src="msg.user.thumb || msg.user.avatarUrl"/>
@@ -77,6 +77,23 @@
 				messageToBeSent: ''
       }
     },
+		watch: {
+			messages: function () {	
+				this.$nextTick(() => {
+					var options = {
+						container: '#chatbox',
+						easing: 'ease-in',
+						cancelable: true,
+						onDone: function() {
+							// scrolling is done
+							console.log('done')
+						},
+				}
+				console.log(document.getElementById('lastMessage'))
+					this.$scrollTo('#lastMessage', 700, options)
+				})
+			}
+		},
     computed: {
       plex: function () {
 				return this.$store.getters.getPlex
@@ -151,15 +168,7 @@
 			}
 			return 'none'
 			},
-			messages: function () {
-				if (this.$store.getters.getMessages && this.$refs.chatbox){
-					var container = this.$refs.chatbox.$el
-					console.log(container.scrollHeight)
-					console.log(container.scrollTop)
-					if (container){
-						this.$refs.chatbox.$el.scrollTop = container.scrollHeight
-					}
-				}
+			messages: function () {			
 				return this.$store.getters.getMessages
 			},
 			chatboxStyle: function(){
@@ -182,6 +191,11 @@
         }
         return perc
       },
+			getMsgId (msg){				
+				if (this.messages && (msg == this.messages[this.messages.length - 1])){
+					return 'lastMessage'
+				}
+			},
       getCurrent: function (user) {
         if (isNaN(user.time)) {
 						return this.getTimeFromMs(0)
