@@ -42,7 +42,7 @@
 									<span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
 									<span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
 								</v-list-tile-title>
-								<v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%"> {{ msg.msg }}</v-list-tile-sub-title>
+								<v-list-tile-sub-title v-toostyle="opacity:0.8;color:white;font-size:70%"> {{ msg.msg }}</v-list-tile-sub-title>
 							</v-list-tile-content>
 						</v-list-tile>
 						<v-divider light></v-divider>  
@@ -84,12 +84,7 @@
 						container: '#chatbox',
 						easing: 'ease-in',
 						cancelable: true,
-						onDone: function() {
-							// scrolling is done
-							console.log('done')
-						},
-				}
-				console.log(document.getElementById('lastMessage'))
+					}
 					this.$scrollTo('#lastMessage', 700, options)
 				})
 			}
