@@ -1,6 +1,6 @@
 <template>
   <div class="portrait" ref="root" style="cursor: pointer">
-    <v-card data-tilt v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="calculatedHeight">                       
+    <v-card data-tilt v-on:click.native="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="calculatedHeight">                       
         <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
             <span class="pa-2 black--text">
               <span>
@@ -77,7 +77,7 @@
           axis:               null,   // What axis should be disabled. Can be X or Y.
           reset:              true,    // If the tilt effect has to be reset on exit.
           easing:             "cubic-bezier(.03,.98,.52,.99)",    // Easing on enter/exit.
-          glare:              true,   // if it should have a "glare" effect
+          glare:              false,   // if it should have a "glare" effect
           "max-glare":        0.15,      // the maximum "glare" opacity (1 = 100%, 0.5 = 50%)
           "glare-prerender":  false   // false = VanillaTilt creates the glare elements for you, otherwise
         });
