@@ -47,7 +47,9 @@
             <plexseason v-if="selectedItem.type == 'season'" :server="server" :content="selectedItem">
             </plexseason>
             <plexseries v-if="selectedItem.type == 'show'" :server="server" :content="selectedItem">
-            </plexseries>
+            </plexseries>            
+            <plexalbum v-if="selectedItem.type == 'album'" :server="server" :content="selectedItem">
+            </plexalbum>
         </span>
         <plexlibrary v-if="browsingLibrary" :library="browsingLibrary" :server="server"></plexlibrary>
     </span>
@@ -57,6 +59,7 @@
 
   import plexcontent from './plexcontent'
   import plexseason from './plexseason'
+  import plexalbum from './plexalbum'
   import plexseries from './plexseries'
   import plexlibrary from './plexlibrary'
   import plexthumb from './plexthumb'
@@ -69,7 +72,8 @@
       plexcontent,
       plexseason,
       plexseries,
-      plexthumb
+      plexthumb,
+      plexalbum
     },
     created () {
       // Hit the PMS endpoing /library/sections

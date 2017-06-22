@@ -31,6 +31,20 @@
                   <p class="pt-3" style="font-style: italic" v-if="hidden" v-on:click="hidden = false"> Episode summary automatically hidden for unwatched episodes. Click to unhide.</p> 
                   <p class="pt-3" style="font-style: italic" v-else> {{ content.summary }} </p>    
                 </v-card-text>                
+                <v-card-text v-if="content.type == 'album'">
+                  <h6> {{ content.parentTitle }}</h6>
+                  <h3> {{ content.title }}</h3>
+                  <p> {{ content.year }} </p> 
+                  <v-layout row wrap align-end>               
+                    <v-flex xs12 sm6 style="position:relative">     
+                      <div style="float:right">                  
+                      </div>
+                    </v-flex>  
+                  </v-layout>  
+                  <v-divider></v-divider>     
+                  <v-chip v-for="country in contents.Country" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
+                  <v-chip v-for="genre in contents.Genre" v-tooltip:top="{ html: 'Genre' }"> {{ genre.tag }}</v-chip>
+                </v-card-text>                 
                 <v-card-text v-if="content.type == 'movie'" >
                   <h3>{{ content.title }}</h3>
                   <h4> {{ contents.year }} </h4>   

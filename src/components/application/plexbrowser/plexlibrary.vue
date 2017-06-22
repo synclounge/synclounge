@@ -17,18 +17,25 @@
                 Loading...
               </v-flex>  
             </v-layout>   
-        </div>
-        <plexcontent v-if="browsingContent && browsingContent.type != 'show'" :content="browsingContent"
+        </div>        
+        <plexalbum v-if="browsingContent && browsingContent.type == 'album'" :content="browsingContent" :server="server"
+                    :library="library"></plexalbum>
+        <plexartist v-if="browsingContent && browsingContent.type == 'artist'" :content="browsingContent" :server="server"
+                    :library="library"></plexartist>
+        <plexcontent v-if="browsingContent && (browsingContent.type == 'movie' || browsingContent.type == 'series') " :content="browsingContent"
                      :server="server" :library="library"></plexcontent>
         <plexseries v-if="browsingContent && browsingContent.type == 'show'" :content="browsingContent" :server="server"
-                    :library="library"></plexseries>
+                    :library="library"></plexseries>        
+
     </span>
 </template>
 
 <script>
   import plexcontent from './plexcontent'
   import plexseries from './plexseries'  
+  import plexalbum from './plexalbum'  
   import plexthumb from './plexthumb'
+  import plexartist from './plexartist'
 
   var _ = require('lodash');
   export default {
@@ -36,7 +43,9 @@
     components: {
       plexcontent,
       plexseries,
-      plexthumb
+      plexthumb,
+      plexalbum,
+      plexartist
     },
     created () {
       // Hit the PMS endpoing /library/sections

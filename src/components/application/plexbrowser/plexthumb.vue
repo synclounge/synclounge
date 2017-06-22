@@ -262,7 +262,9 @@
             if (this.fullTitle != undefined){              
               return content.parentTitle + '  ' + content.title;
             }
-            return content.title;
+            return content.title;          
+          case 'album':                     
+            return content.year;
           case 'episode':
             if (this.fullTitle != undefined){
               return 'Episode ' + content.index
