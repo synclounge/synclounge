@@ -98,7 +98,7 @@ module.exports = function PlexClient () {
         for (let key in params) {
           query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
         }
-        query = query + 'commandID=' + that.commandId + '&type=video'
+        query = query + 'commandID=' + that.commandId
         if (connection.uri.charAt(connection.uri.length - 1) == '/') {
           //Remove a trailing / that some clients broadcast
           connection.uri = connection.uri.slice(0, connection.uri.length - 1)
@@ -266,9 +266,13 @@ module.exports = function PlexClient () {
     }
     // Standard player
     let timelines = result.MediaContainer.Timeline
+    let videoTimeline = null
     for (let i = 0; i < timelines.length; i++) {
       let _timeline = timelines[i]['$']
-      if (_timeline.type == 'video') {
+      if (_timeline.type == 'video'){
+        videoTimeline = _timeline
+      }
+      if (_timeline.state || i == (timelines.length - 1)) {
         this.events.emit('new_timeline', timelines[i]['$'])
         var clonetimeline = this.lastTimelineObject
         this.lastTimelineObject = timelines[i]['$']
@@ -294,7 +298,7 @@ module.exports = function PlexClient () {
         return callback(timelines[i]['$'])
       }
     }
-    return callback(null)
+    return callback(videoTimeline)
   }
   this.pressPlay = function (callback) {
     //Press play on the client
@@ -542,7 +546,7 @@ module.exports = function PlexClient () {
       for (let key in params) {
         query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
       }
-      query = query + 'commandID=' + that.commandId + '&type=video'
+      query = query + 'commandID=' + that.commandId
       if (that.chosenConnection.uri.charAt(that.chosenConnection.uri.length - 1) == '/') {
         //Remove a trailing / that some clients broadcast
         that.chosenConnection.uri = that.chosenConnection.uri.slice(0, that.chosenConnection.uri.length - 1)
@@ -581,7 +585,7 @@ module.exports = function PlexClient () {
       for (key in params) {
         query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
       }
-      query = query + 'commandID=' + that.commandId + '&type=video'
+      query = query + 'commandID=' + that.commandId
       if (connection.uri.charAt(connection.uri.length - 1) == '/') {
         //Remove a trailing / that some clients broadcast
         connection.uri = connection.uri.slice(0, connection.uri.length - 1)

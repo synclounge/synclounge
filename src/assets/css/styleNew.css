@@ -16,6 +16,9 @@
 .softer-text {
   opacity: 0.4;
 }
+.click-cursor {
+  cursor:pointer;
+}
 
 
 /* Headers */

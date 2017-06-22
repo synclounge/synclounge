@@ -23,7 +23,7 @@
               </v-card-row>
             </v-card-column>
           </v-card>
-          <h4 class="mt-3"> Episodes </h4>
+          <h4 class="mt-3"> Albums </h4>
           <v-divider></v-divider>
           <div>          
               <v-layout class="row mt-3" row wrap>

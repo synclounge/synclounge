@@ -6,7 +6,7 @@
               <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
           </v-flex>
         </v-layout>
-        <div v-if="!browsingContent" class="mt-3">    
+        <div v-if="!browsingContent" class="mt-3 pa-4">    
           <v-card v-if="contents" horizontal height="50em" :img="getArtUrl" >
             <v-card-row class="hidden-sm-and-down" :img="getThumb(content)" height="100%"></v-card-row>
             <v-card-column style="background: rgba(0, 0, 0, .4)">
@@ -31,13 +31,18 @@
                   <p class="pt-3" style="font-style: italic" v-if="hidden" v-on:click="hidden = false"> Episode summary automatically hidden for unwatched episodes. Click to unhide.</p> 
                   <p class="pt-3" style="font-style: italic" v-else> {{ content.summary }} </p>    
                 </v-card-text>                
-                <v-card-text v-if="content.type == 'album'">
+                <v-card-text v-if="content.type == 'track'">
+                  <h3> {{ content.grandparentTitle }}</h3>
                   <h6> {{ content.parentTitle }}</h6>
                   <h3> {{ content.title }}</h3>
-                  <p> {{ content.year }} </p> 
-                  <v-layout row wrap align-end>               
+                  <v-layout row wrap align-end>                       
+                    <v-flex xs12 sm6  style="opacity:0.5">                      
+                      {{ length }}
+                    </v-flex>               
                     <v-flex xs12 sm6 style="position:relative">     
-                      <div style="float:right">                  
+                      <div style="float:right">    
+                        <v-chip v-if="contents.year" v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.year }}</v-chip>                  
+                        <v-chip v-for="copy in contents.Media" v-tooltip:top="{ html: 'Quality' }"  class="grey darken-4 white--text" small> {{ copy.audioCodec.toUpperCase() }}</v-chip>              
                       </div>
                     </v-flex>  
                   </v-layout>  
@@ -90,11 +95,14 @@
                   </v-layout>
                 </v-card-text>
               </v-card-row>
-              <v-card-row actions class="pa-4" style="background: rgba(0,0,0,0.4)">    
+              <v-card-row actions class="pa-4" style="background: rgba(0,0,0,0.4); position:relative">    
                 <v-btn v-if="playable" style="width:15%" v-on:click.native="playMedia(content)" raised large class="primary white--text">
                   <v-icon light>play_arrow</v-icon> Play 
+                </v-btn>                
+                <div v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</div>
+                <v-btn v-if="!playable" style="width:15%; background-color: #cc3f3f" v-on:click.native="pressStop()" raised large class="white--text">
+                  <v-icon light></v-icon> Stop 
                 </v-btn>
-                <div v-if="!playable">Now playing on {{ chosenClient.name }} from {{ server.name }}</div>
               </v-card-row>
             </v-card-column>
           </v-card>
@@ -187,6 +195,9 @@
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         if (this.content.type == 'movie'){          
           return this.server.getUrlForLibraryLoc(this.contents.art, w / 3, h / 1, 5)
+        }        
+        if (this.content.type == 'track'){          
+          return this.server.getUrlForLibraryLoc(this.contents.grandparentArt, w / 3, h / 1, 5)
         }
         return this.server.getUrlForLibraryLoc(this.contents.thumb, w / 3, h / 1, 5)
       },
@@ -224,6 +235,11 @@
       playMedia (content) {
         this.chosenClient.playMedia(this.contents.ratingKey, this.server, function (result) {
           console.log('Auto play result: ' + result)
+        })
+      },
+      pressStop () {
+        this.chosenClient.pressStop( function (result) {
+          console.log('Stop result: ' + result)
         })
       },
       reset () {

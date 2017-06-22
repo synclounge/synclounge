@@ -15,30 +15,16 @@
         <v-card-column style="background: rgba(0, 0, 0, .8);">
           <v-card-row :height="bottomCalculatedHeight" style="position:relative;" class="ma-0">
             <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
-            <v-layout  row wrap class="text-xs-left ma-1" style="margin:0; display:block; max-width:100%; height:100%">
-
-                <v-flex xs12 style="height:50%" ref="topText" class="pa-0 ma-1">
+            <v-layout row wrap class="text-xs-left" style="margin:0; margin-left:3px; display:block; max-width:100%; height:100%">
+                <v-flex xs12 style="height:50%" ref="topText" class="pa-0 ma-0 pt-1">
                     <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" :style="fontSizeTop">{{ getTitle(content) }}</div>
                 </v-flex>                  
-                <v-flex xs12 style="height:50%" ref="bottomText" class="pa-0 ma-1">
-                    <div class="truncate" style="opacity:0.75" :style="fontSizeBottom">{{ getUnder(content) }}</div>
+                <v-flex xs12 style="height:50%; position:relative" ref="bottomText" class="pa-0 ma-0">
+                    <div class="truncate soft-text" style=" position:absolute; top:0" :style="fontSizeBottom">{{ getUnder(content) }}</div>
                 </v-flex>
             </v-layout> 
           </v-card-row>
         </v-card-column>
-        <!--   
-        <div class="pt-content-title thumb-title"> 
-            <v-layout row>
-                <v-flex xs12>
-                <v-progress-linear class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>
-                </v-flex>  
-            </v-layout>                              
-            <v-layout row>
-                <v-flex xs12>
-                    <span>{{ getTitle(content) }} </span>
-                </v-flex>
-            </v-layout>
-        </div> -->
     </v-card>  
   </div>
 </template>
@@ -63,14 +49,17 @@
     mounted () {
       this.fullheight = this.$refs.root.offsetHeight
       this.fullwidth = this.$refs.root.offsetWidth  
-
-      this.toptextheight = this.$refs.topText.offsetHeight
-      this.bottomtextheight = this.$refs.bottomText.offsetHeight
+      if (this.$refs.topText){
+        this.toptextheight = this.$refs.topText.offsetHeight
+      }
+      if (this.$refs.bottomText){
+        this.bottomtextheight = this.$refs.bottomText.offsetHeight
+      }
       if (this.type == 'thumb'){
         VanillaTilt.init(this.$refs.root, {
-          reverse:            false,  // reverse the tilt direction
+          reverse:            true,  // reverse the tilt direction
           max:                7,     // max tilt rotation (degrees)
-          perspective:        2000,   // Transform perspective, the lower the more extreme the tilt gets.
+          perspective:        1000,   // Transform perspective, the lower the more extreme the tilt gets.
           scale:              1.01,      // 2 = 200%, 1.5 = 150%, etc..
           speed:              100,    // Speed of the enter/exit transition
           transition:         true,   // Set a transition on enter/exit.
@@ -106,10 +95,18 @@
         }
       },
       fontSizeTop () {
-        return {'font-size':(this.toptextheight * 0.8) + 'px'}
+        let size = (this.toptextheight * 0.7)
+        if (size > 22){
+          size = 22
+        }
+        return {'font-size':size + 'px'}
       },      
-      fontSizeBottom () {
-        return {'font-size':(this.bottomtextheight * 0.6) + 'px'}
+      fontSizeBottom () {       
+        let size = (this.bottomtextheight * 0.7)
+        if (size > 16){
+          size = 16
+        }
+        return {'font-size':(size * 1) + 'px'}
       },      
       fullCalculatedHeightRaw (){
         if (this.height){
@@ -232,11 +229,11 @@
             return content.title
           case 'show': 
             return content.title;
-          case 'season':           
-            if (this.fullTitle != undefined){              
-              return content.parentTitle + '  ' + content.title;
-            }
-            return content.parentTitle;
+          case 'season':              
+            if (this.fullTitle != undefined){
+              return content.parentTitle
+            }         
+            return content.title;
           case 'episode':
             if (this.fullTitle != undefined){
               return content.title
@@ -260,11 +257,13 @@
             return content.childCount + ' seasons';
           case 'season':           
             if (this.fullTitle != undefined){              
-              return content.parentTitle + '  ' + content.title;
+              return content.title;
             }
-            return content.title;          
+            return '';          
           case 'album':                     
-            return content.year;
+            return content.year;         
+          case 'artist':                
+            return '';
           case 'episode':
             if (this.fullTitle != undefined){
               return 'Episode ' + content.index

@@ -34,9 +34,9 @@
             </v-layout>
             <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>
             <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added </h4>      
-            <v-layout v-if="recentlyAdded" class="row" row wrap>
+            <v-layout v-if="recentlyAdded" class="row" row wrap align-start>
                 <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content">
-                    <plexthumb :content="content" :server="server" type="thumb" locked @contentSet="setContent(content)"></plexthumb>
+                    <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
         </div>

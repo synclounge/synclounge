@@ -31,10 +31,10 @@
           <div>          
               <v-layout class="row mt-3" v-for="content in contents.MediaContainer.Metadata" :key="content" row wrap>
                 <v-flex xs1 md1>
-                  <v-icon large light v-on:click="playMedia(content)">play_arrow</v-icon>                  
+                  <v-icon class="click-cursor" large light v-on:click="playMedia(content)">play_arrow</v-icon>                  
                 </v-flex>                
-                <v-flex xs4 md3>                  
-                  <span class="soft-text">{{ content.index }}</span>. {{ content.title }}
+                <v-flex xs4 md3 class="click-cursor" v-on:click="playMedia(content)">                  
+                  <span class="soft-text" >{{ content.index }}</span>. {{ content.title }}
                 </v-flex>                
                 <v-flex xs4 md2>
                   <span class="soft-text">{{ getDuration(content) }}</span>

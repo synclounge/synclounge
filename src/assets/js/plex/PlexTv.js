@@ -385,6 +385,11 @@ module.exports = function () {
         console.log('FOUND A PLAYABLE TV EPISODE')
         return true
 
+      }      
+      if (data.type == 'track') {
+        //We're good!
+        console.log('FOUND A PLAYABLE track')
+        return true
       }
       return false
     }
