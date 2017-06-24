@@ -1,6 +1,6 @@
 <template>
   <v-layout >
-    <v-flex xs12 lg8 offset-lg2 xl6 offset-xl3 style="background: rgba(0,0,0,0.1)" class="pa-4">
+    <v-flex xs12 lg8 offset-lg2 xl6 offset-xl3 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
       <v-layout row wrap>
         <v-flex xs12 md8 offset-md2 lg4 offset-lg4 xl6 offset-xl3>
           <img style="width:100%" v-bind:src="logo">
