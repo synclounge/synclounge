@@ -44,6 +44,7 @@ h7 {
 html {
     overflow: scroll;
     overflow-x: hidden;
+    background: #151924;
 }
 ::-webkit-scrollbar {
     width: 0px;  /* remove scrollbar space */

@@ -1,7 +1,7 @@
 <template>
     <div v-if="ptRoom" class="pl-1 pr-1" style="height:100%; overflow-x:hidden;">   
 			<div style="height:60%">
-				<h6 style="text-align:center" class="mt-3 mb-0 pb-0"> Room {{ ptRoom }}</h6>
+				<h6 style="text-align:center" class="mb-0 pb-0 pt-3"> Room {{ ptRoom }}</h6>
 				<v-subheader light>Users ({{ ptUsers.length }})</v-subheader>  
 				<v-list three-line dense>
 					<div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
