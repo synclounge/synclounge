@@ -67,7 +67,7 @@ The host has complete control over a room. Commands they send to their client wi
  	* While we would love to run the PlexTogether application over HTTPS, doing so forces modern browsers in to blocking all HTTP connections. This effectively stops all communication with Plex Clients which are all HTTP.
 ## Screenshots
 
-Head to the [website](http://plextogether.com/screenshots)
+Head to the [website](http://plextogether.com)
 
 ## Supported Plex Clients
 Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with PlexTogether may vary. If you have access to one of the untested clients please let us know so we can update our list below.
