@@ -19,11 +19,11 @@
       </v-list>
       <v-list class="pt-0" dense>
         <v-divider></v-divider> 
-        <v-subheader light>Preferences</v-subheader>
+        <v-subheader >Preferences</v-subheader>
         <v-list-item @click.stop="ptsettingstoggle = !ptsettingstoggle">
           <v-list-tile>
             <v-list-tile-action>
-              <v-icon light>settings</v-icon>
+              <v-icon >settings</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>     
               <v-list-tile-title>PlexTogether Settings</v-list-tile-title>
@@ -33,29 +33,29 @@
         <v-list-item v-if="plex && plex.gotDevices" @click.stop="plexsettingstoggle = !plexsettingstoggle">
           <v-list-tile>
             <v-list-tile-action>
-              <v-icon light>settings</v-icon>
+              <v-icon >settings</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>     
               <v-list-tile-title>Plex Settings</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>        
         </v-list-item>      
-        <v-subheader v-if="plex && plex.gotDevices" light>Account</v-subheader>
+        <v-subheader v-if="plex && plex.gotDevices" >Account</v-subheader>
         <v-list-item v-if="plex && plex.gotDevices">
           <v-list-tile :router="true" to="/signout">
             <v-list-tile-action>
-              <v-icon light>cancel</v-icon>
+              <v-icon >cancel</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>     
               <v-list-tile-title v-if="plex != null"  v-text="'Signout'"></v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </v-list-item>        
-        <v-subheader light>About</v-subheader>
+        <v-subheader >About</v-subheader>
         <v-list-item>
           <v-list-tile>
             <v-list-tile-action>
-              <v-icon light>info</v-icon>
+              <v-icon >info</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>     
               <v-list-tile-title>PlexTogether v{{appVersion}}</v-list-tile-title>

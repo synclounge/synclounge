@@ -6,7 +6,46 @@
               <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
           </v-flex>
         </v-layout>
-        <div v-if="contents && !browsingContent" class="mt-3">          
+        <div v-if="contents && !browsingContent" class="mt-3">      
+
+
+          <v-flex xs12>
+            <v-card class="darken-2 white--text" :img="getArtUrl">
+              <v-container style="background: rgba(0, 0, 0, .4); height:25em"  class="pa-0 ma-0" fluid grid-list-lg>
+                <v-layout row style="height:100%">
+                  <v-flex xs3>
+                    <v-card-media
+                      :src="getThumb(content)"
+                      class="ma-0 pa-0"
+                      height="100%"
+                      contain
+                    ></v-card-media>
+                  </v-flex>
+                  <v-flex xs9>
+                    <div>
+                      <h3> {{ content.parentTitle }}</h3>
+                      <h3>{{ content.title }}</h3>
+                      <p> {{ getSeasons }} - {{ contents.MediaContainer.parentYear }} </p>
+                      <v-divider></v-divider>         
+                      <p style="font-style: italic" class="pt-3"> {{ content.summary }} </p>      
+                    </div>                
+                  </v-flex>   
+                </v-layout>                
+              </v-container>                  
+            </v-card>
+          </v-flex>
+
+
+
+
+
+
+
+
+
+
+
+<!--
           <v-card horizontal height="25em" :img="getArtUrl">
             <v-card-row class="hidden-sm-and-down" :img="getThumb(content)" height="100%"></v-card-row>
             <v-card-column style="background: rgba(0, 0, 0, .4)">
@@ -23,10 +62,10 @@
                 <v-chip v-if="contents.MediaContainer.parentYear" v-tooltip:top="{ html: 'Year' }" label> {{ contents.MediaContainer.parentYear }}</v-chip>
               </v-card-row>
             </v-card-column>
-          </v-card>
+          </v-card>-->
           <h4 class="mt-3"> Episodes </h4>
             <v-layout class="row" row wrap>
-                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
+                <v-flex xs4 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
                   <plexthumb :content="content" :server="server" type="thumb" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  

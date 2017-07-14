@@ -1,7 +1,7 @@
 <template>
-	<div>
-		<div style="margin-bottom: 0">
-			<div style="margin-bottom: 0">
+	<div style="margin-bottom: 0; height:100%">
+		<div style="margin-bottom: 0; height:100%">
+			<div style="margin-bottom: 0; height:100%">
 				<!-- MAIN CONTENT -->
 				<v-layout v-if="!validDevices" wrap row style="position:relative" class="pt-4">
 					<v-flex xs12 md4 offset-md4>			

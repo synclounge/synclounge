@@ -11,7 +11,6 @@
           item-value="id"
           item-text="name"
           multiple
-          light
           hint="Blocked Servers"
           persistent-hint
         ></v-select>

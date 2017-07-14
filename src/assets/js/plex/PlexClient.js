@@ -429,24 +429,24 @@ module.exports = function PlexClient () {
     })
   }
 
-  this.playMedia = function (key, serverObject, callback) {
+  this.playMedia = function (data) {
     //Play a media item given a mediaId key and a server to play from
     //We need the following variables to build our paramaters:
     //MediaId Key, Offset (0 for simplicity), server MachineId,
     //Server Ip, Server Port, Server Protocol, Path
     var that = this
-
+    console.log(data)
     // First lets mirror the item so the user has an idea of what we're about to play
 
     function send () {
       let command = '/player/playback/playMedia'
-      let mediaId = '/library/metadata/' + key
-      let offset = 0
-      let serverId = serverObject.clientIdentifier
-      let address = serverObject.chosenConnection.address
-      let port = serverObject.chosenConnection.port
-      let protocol = serverObject.chosenConnection.protocol
-      let path = serverObject.chosenConnection.uri + mediaId
+      let mediaId = '/library/metadata/' + data.ratingKey
+      let offset = data.offset || 0
+      let serverId = data.server.clientIdentifier
+      let address = data.server.chosenConnection.address
+      let port = data.server.chosenConnection.port
+      let protocol = data.server.chosenConnection.protocol
+      let path = data.server.chosenConnection.uri + mediaId
 
       let params = {
 
@@ -459,17 +459,22 @@ module.exports = function PlexClient () {
         'protocol': protocol,
         'path': path,
         'wait': 0,
-        'token': serverObject.accessToken
+        'token': data.server.accessToken
       }
+
+      if (data.mediaIndex != undefined || data.mediaIndex != null){
+        params.mediaIndex = data.mediaIndex
+      }
+
       //Now that we've built our params, it's time to hit the client api
       that.hitApi(command, params, that.chosenConnection, function (result, the, code) {
         console.log('play result: ')
         console.log(code)
         if (result != null) {
-          return callback(result, code, that)
+          return data.callback(result, code, that)
         }
         else {
-          return callback(false, code, that)
+          return data.callback(false, code, that)
         }
         //console.log(that.name + ' returned ' + result)
       })
@@ -478,7 +483,7 @@ module.exports = function PlexClient () {
     if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
       send()
     } else {
-      this.mirrorContent(key, serverObject, function () {
+      this.mirrorContent(data.ratingKey, data.server, function () {
         send()
       })
     }

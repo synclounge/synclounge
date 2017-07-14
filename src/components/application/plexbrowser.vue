@@ -1,7 +1,7 @@
 <template>
   <div>
     <span v-if="browsingServer || selectedItem">
-      <v-icon v-on:click="reset()" light style="cursor: pointer !important">home</v-icon>
+      <v-icon v-on:click="reset()" style="cursor: pointer !important">home</v-icon>
     </span>
     <div v-if="!browsingServer && !selectedItem && !browsingContent">
       <h4> Search </h4>
@@ -13,7 +13,6 @@
             :hint="searchStatus"
             id="testing"
             persistent-hint
-            light
             single-line
             prepend-icon="search"
             v-model="searchWord"
@@ -24,7 +23,7 @@
         </v-flex>  
       </v-layout> 
       <v-layout row wrap v-if="searching || results.length > 0">  
-         <v-chip v-for="server in plex.servers" :key="server" outline class="green darken-3 white--text">
+         <v-chip v-for="server in plex.servers" :key="server.machineIdentifier" outline class="green darken-3 white--text">
            <v-avatar>
              <v-icon v-if="!heardBack(server)">clear</v-icon>
             <v-icon v-if="heardBack(server)">check_circle</v-icon>
@@ -37,28 +36,28 @@
         <v-layout v-if="filteredMovies && filteredMovies.length > 0" row wrap>
           <!--Movies-->
           <v-flex xs12 lg12 >
-            <v-subheader light> Movies ({{filteredMovies.length}})</v-subheader>
+            <v-subheader > Movies ({{filteredMovies.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="movie in filteredMovies" :key="movie">            
+          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="movie in filteredMovies" :key="movie.key">            
             <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
           </v-flex>
         </v-layout>
         <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
           <!--Shows-->
           <v-flex xs12 lg12 >
-            <v-subheader light> TV Shows ({{filteredShows.length}})</v-subheader>
+            <v-subheader > TV Shows ({{filteredShows.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="show in filteredShows" :key="show">            
+          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="show in filteredShows" :key="show.key">            
             <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
           </v-flex>
         </v-layout>        
         <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
           <!--Episodes-->
           <v-flex xs12 lg12 >
-            <v-subheader light> TV Episodes ({{filteredEpisodes.length}})</v-subheader>
+            <v-subheader > TV Episodes ({{filteredEpisodes.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="episode in filteredEpisodes" :key="episode">
-            <plexthumb :content="episode" :server="episode.server" showServer  search @contentSet="setContent(episode)"></plexthumb>
+          <v-flex xs6 md3 xl2 lg2 class="pb-3" v-for="episode in filteredEpisodes" :key="episode.key">
+            <plexthumb :content="episode" :server="episode.server" showServer type="art" search @contentSet="setContent(episode)"></plexthumb>
           </v-flex>
         </v-layout>
       </div>
@@ -66,24 +65,26 @@
       <div class="pt-4" v-if="results.length == 0">
         <h4> Browse </h4>
         <v-layout row wrap>  
-          <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server" class="pa-2">  
-            <v-card v-on:click="setServer(server)" horizontal height="10em" style="cursor: pointer; z-index: 0">      
-              <v-card-column >
-                <v-layout row wrap>  
-                  <v-flex xs4 lg2 style="position:relative; background: rgba(0,0,0,0.6);">
-                    <img style="position: absolute;right: 0; top: 0; left: -50%; z-index: -1" src="ptweb/plexlogo.png"/>
+          <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server.machineIdentifier" class="pa-2">  
+            <v-card class="white--text" v-on:click="setServer(server)" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4)">
+              <v-container fluid grid-list-lg>
+                <v-layout row>                  
+                  <v-flex xs4>
+                     <v-card-media
+                        src="ptweb/plexlogo.png"
+                        height="110px"
+                        contain
+                      ></v-card-media>
                   </v-flex>
-                  <v-flex xs8 lg10 style="background: rgba(0,0,0,0.6); height:100%: z-index: 2">
-                    <v-card-row height="10em">
-                      <v-card-text>
-                        <h5 class="pa-1 mb-0 pb-0 white--text">{{server.name}}</h5>
-                        <div class="pl-1" style="opacity:0.8"> v{{server.productVersion}}</div>
-                        <div>Owned by {{ ownerOfServer(server) }}</div>
-                      </v-card-text>
-                    </v-card-row>
+                  <v-flex xs8>
+                    <div>
+                      <div class="headline">{{server.name}}</div>
+                      <div style="opacity:0.8"> v{{server.productVersion}}</div>
+                      <div>Owned by {{ ownerOfServer(server) }}</div>
+                    </div>
                   </v-flex>
-                </v-layout>      
-              </v-card-column>          
+                </v-layout>
+              </v-container>
             </v-card>
          </v-flex>         
         </v-layout>

@@ -641,7 +641,7 @@ const plexTogether = {
                 }
 
                 sendNotification('Searching ' + validServers + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
-                rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, blockedServers, function (result) {
+                rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, blockedServers, hostTimeline.time, function (result) {
                   console.log('Auto play result: ' + result)
                   if (!result) {
                     sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle)

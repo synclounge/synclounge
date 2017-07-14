@@ -74,10 +74,10 @@
     </v-dialog>
     <v-layout v-if="playingMetadata && chosenServer" row justify-center>
       <v-flex md2>
-        <v-btn primary light v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
+        <v-btn primary v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
       </v-flex>
       <v-flex md2>
-        <v-btn error light v-on:click.native="stopPlayback()">Stop playback</v-btn>
+        <v-btn error v-on:click.native="stopPlayback()">Stop playback</v-btn>
       </v-flex>
     </v-layout>
 

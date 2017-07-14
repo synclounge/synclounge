@@ -14,28 +14,28 @@
             </div>
             <h4> Libraries </h4>
             <v-layout row wrap>
-              <v-flex xs6 md3 xl2 lg2 v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries" :key="library">
+              <v-flex xs6 md3 xl2 lg2 v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries" :key="library.name">
                   <v-card v-on:click="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="text-xs-center hoverable card" style="max-width:100%">
-                      <v-card-row :height="'8em'" style="position:relative;width:100%;background: rgba(0,0,0,0.4);">
+                      <div style="position:relative;width:100%;background: rgba(0,0,0,0.4); height:8em">
                           <img style="height: 70%;display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)"/>
-                      </v-card-row>                      
-                      <v-card-row :height="'2em'" class="" style="background: rgba(0,0,0,0.7); position:relative;; width:100%">
+                      </div>                      
+                      <div style="background: rgba(0,0,0,0.7); position:relative;; width:100%; height:2em">
                           <div class="truncate text-xs-center" style="font-size:1.3em">{{ library.title }}</div>
-                      </v-card-row>
+                      </div>
                   </v-card>
               </v-flex>
             </v-layout>
             <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
             <h4 v-if="subsetOnDeck(3).length > 0"> On Deck </h4>
             <v-layout v-if="onDeck" row wrap>
-                <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content">                    
+                <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
                     <plexthumb :content="content" :server="server" type="art" :height="25" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>
             <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>
             <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added </h4>      
             <v-layout v-if="recentlyAdded" class="row" row wrap align-start>
-                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content">
+                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content.key">
                     <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  

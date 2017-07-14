@@ -1,31 +1,48 @@
 <template>
   <div class="portrait" ref="root" style="cursor: pointer">
-    <v-card data-tilt v-on:click="emitContentClicked(content)" class="grey darken-4" :img="getImg(content)" :height="calculatedHeight">                       
-        <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
-            <span class="pa-2 black--text">
-              <span>
-                {{ unwatchedCount }}
-              </span>
-            </span>
-        </div>   
-        <small v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>  
-        <v-card-row :height="fakeRowHeight"  class="white--text">
-        
-        </v-card-row>
-        <v-card-column style="background: rgba(0, 0, 0, .8);">
-          <v-card-row :height="bottomCalculatedHeight" style="position:relative;" class="ma-0">
-            <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
-            <v-layout row wrap class="text-xs-left" style="margin:0; margin-left:3px; display:block; max-width:100%; height:100%">
-                <v-flex xs12 style="height:50%" ref="topText" class="pa-0 ma-0 pt-1">
-                    <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" :style="fontSizeTop">{{ getTitle(content) }}</div>
-                </v-flex>                  
-                <v-flex xs12 style="height:50%; position:relative" ref="bottomText" class="pa-0 ma-0">
-                    <div class="truncate soft-text" style=" position:absolute; top:0" :style="fontSizeBottom">{{ getUnder(content) }}</div>
-                </v-flex>
-            </v-layout> 
-          </v-card-row>
-        </v-card-column>
-    </v-card>  
+
+
+      <v-card data-tilt v-on:click="emitContentClicked(content)" class="grey darken-4">
+        <v-card-media
+          class="white--text"
+          :height="calculatedHeight"
+          :src="getImg(content)"
+        >
+          <v-container class="pa-0 ma-0" fill-height fluid style="position:relative">
+            <v-layout>
+              <v-flex xs12>
+                <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
+                  <span class="pa-2 black--text">
+                    <span>
+                      {{ unwatchedCount }}
+                    </span>
+                  </span>
+                </div>         
+                <div style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)" v-if="content.Media && content.Media.length != 1"> 
+                    <span class="pa-2 black--text">
+                      <span>
+                        {{ content.Media.length }}
+                      </span>
+                    </span>
+                </div>    
+                <div :style="{'height': bottomCalculatedHeight}" style="background: rgba(0, 0, 0, .8);position:absolute; bottom: 0; width:100%">
+                  <div class="ma-0">
+                    <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
+                    <v-layout row wrap class="text-xs-left" style="margin:0; margin-left:3px; display:block; max-width:100%; height:100%">
+                        <v-flex xs12 style="height:50%" ref="topText" class="pa-0 ma-0 ml-1 mt-1">
+                            <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
+                        </v-flex>                  
+                        <v-flex xs12 style="height:50%; font-size:0.8rem" ref="bottomText" class="pa-0 ma-0 mt-0 ml-1">
+                            <div class="truncate soft-text" style=" position:absolute; bottom:0">{{ getUnder(content) }}</div>
+                        </v-flex>
+                    </v-layout> 
+                  </div>
+                </div> 
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card-media>
+      </v-card>
   </div>
 </template>
 
@@ -37,6 +54,7 @@
     components: {
     },
     created () {
+      window.addEventListener('resize', this.handleResize)
     },
     data () {
       return {
@@ -48,6 +66,7 @@
     },
     mounted () {
       this.fullheight = this.$refs.root.offsetHeight
+      //console.log(this.$refs)
       this.fullwidth = this.$refs.root.offsetWidth  
       if (this.$refs.topText){
         this.toptextheight = this.$refs.topText.offsetHeight
@@ -60,7 +79,7 @@
           reverse:            true,  // reverse the tilt direction
           max:                7,     // max tilt rotation (degrees)
           perspective:        1000,   // Transform perspective, the lower the more extreme the tilt gets.
-          scale:              1.01,      // 2 = 200%, 1.5 = 150%, etc..
+          scale:              1.02,      // 2 = 200%, 1.5 = 150%, etc..
           speed:              100,    // Speed of the enter/exit transition
           transition:         true,   // Set a transition on enter/exit.
           axis:               null,   // What axis should be disabled. Can be X or Y.
@@ -74,7 +93,7 @@
       
     },
     beforeDestroy () {
-
+      window.removeEventListener('resize', this.handleResize)
     },
     computed: {      
       plex () {
@@ -96,15 +115,15 @@
       },
       fontSizeTop () {
         let size = (this.toptextheight * 0.7)
-        if (size > 22){
-          size = 22
+        if (size > 18){
+          size = 18
         }
         return {'font-size':size + 'px'}
       },      
       fontSizeBottom () {       
         let size = (this.bottomtextheight * 0.7)
-        if (size > 16){
-          size = 16
+        if (size > 14){
+          size = 14
         }
         return {'font-size':(size * 1) + 'px'}
       },      
@@ -135,7 +154,7 @@
       calculatedHeight (){
         if (this.height){
           return this.height + 'em'
-        }
+        }   
         if (this.content.type == 'movie'){
           return Math.round(this.fullwidth * 1.5) + 'px'
         }        
@@ -145,9 +164,12 @@
         return Math.round(this.fullwidth * 1.5) + 'px'
       },      
       bottomCalculatedHeight (){
-        if (this.height){
+        if (this.height && this.type == 'thumb'){
           return Math.round(this.height * 0.22) + 'em'
-        }
+        }             
+        if (this.height && this.type == 'art'){
+          return Math.round(this.height * 0.15) + 'em'
+        }    
         if (this.content.type == 'movie'){
           return Math.round((this.fullwidth * 1.5) * 0.22) + 'px'
         }        
@@ -218,6 +240,17 @@
       emitContentClicked (content) {
         this.$emit('contentSet',content)
       },
+      handleResize () {        
+        this.fullheight = this.$refs.root.offsetHeight
+        this.fullwidth = this.$refs.root.offsetWidth  
+        console.log(this.$refs.root.offsetHeight)
+        if (this.$refs.topText){
+          this.toptextheight = this.$refs.topText.offsetHeight
+        }
+        if (this.$refs.bottomText){
+          this.bottomtextheight = this.$refs.bottomText.offsetHeight
+        }
+      },
       getTitle(content){
         switch (content.type){
           case 'movie':
@@ -259,7 +292,7 @@
             if (this.fullTitle != undefined){              
               return content.title;
             }
-            return '';          
+            return content.leafCount + ' episodes'          
           case 'album':                     
             return content.year;         
           case 'artist':                
@@ -277,9 +310,9 @@
         var w = Math.round(this.fullwidth * 2)
         var h = Math.round(this.fullheight * 2)
         if (this.type == 'art'){          
-          return this.server.getUrlForLibraryLoc(object.art, w, h)
+          return this.server.getUrlForLibraryLoc(object.art, w, 1000)
         }
-        return this.server.getUrlForLibraryLoc(object.thumb, w, h)
+        return this.server.getUrlForLibraryLoc(object.thumb, w, 1000)
       },
       reset () {
         this.browsingContent = false

@@ -263,7 +263,7 @@ module.exports = function () {
     
     
   }
-  this.playContentAutomatically = function (client, hostData, blockedServers, callback) {
+  this.playContentAutomatically = function (client, hostData, blockedServers, offset, callback) {
     // Automatically play content on the client searching all servers based on the title
     var that = this
 
@@ -331,9 +331,12 @@ module.exports = function () {
       console.log('Attempting to play from ')
       console.log(server)
       var ratingKey = playables[index].result.ratingKey
-
-      if (client.clientIdentifier == 'PTPLAYER9PLUS10') {
-        client.playMedia(ratingKey, server, function (playResult, code) {
+      let data = {          
+        ratingKey: ratingKey,
+        mediaIndex: null,
+        server: server,
+        offset: offset || 0,
+        callback: function(playResult, code){
           console.log('Play result: ' + code)
           if (code == 200) {
             return callback(true)
@@ -341,19 +344,14 @@ module.exports = function () {
 
             return start(playables, parseInt(parseInt(index) + 1))
           }
-        })
+        }
+      }
+      if (client.clientIdentifier == 'PTPLAYER9PLUS10') {        
+        client.playMedia(data)
       } else {
         // Standard Plex Player
-        client.subscribe(function (result) {
-          client.playMedia(ratingKey, server, function (playResult, code) {
-            console.log('Play result: ' + code)
-            if (code == 200) {
-              return callback(true)
-            } else {
-
-              return start(playables, parseInt(parseInt(index) + 1))
-            }
-          })
+        client.subscribe(function (result) {          
+          client.playMedia(data)
         })
 
       }

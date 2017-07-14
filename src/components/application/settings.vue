@@ -5,7 +5,6 @@
       <div> {{ clientpollinterval }}</div>
       <v-slider class="pa-0 ma-0" v-model="clientpollinterval" :min="100" :max="10000"
             hint="Sets how frequently Plex Together will poll the client for new information in milliseconds. Default is 5000ms (5 seconds)" 
-            light
             persistent-hint>
       </v-slider>
     </div>    
@@ -15,19 +14,16 @@
       <div> {{ syncflexability }}</div>
       <v-slider class="pa-0 ma-0" v-model="syncflexability" :min="100" :max="10000"
             hint="Sets the acceptable distance away from the host in milliseconds. Default is 3000ms (3 seconds)." 
-            light
             persistent-hint>
       </v-slider>
     </div>
     <v-divider></v-divider>
     <div style="text-align:center" class="pt-4">
       <h6 style="text-align:initial">Syncing Method</h6>
-      <v-radio label="Clean Seek" class="pa-0 ma-0" v-model="syncmode" value="cleanseek" light></v-radio>
+      <v-radio label="Clean Seek" class="pa-0 ma-0" v-model="syncmode" value="cleanseek"></v-radio>
       <v-radio label="Skip Ahead" class="pa-0 ma-0"  v-model="syncmode" value="skipahead" 
       persistent-hint
-      hint="Sets the syncing method used when we need to get back in line with the host."
-      
-      light></v-radio>
+      hint="Sets the syncing method used when we need to get back in line with the host."></v-radio>
     </div>
   </div>
 </template>

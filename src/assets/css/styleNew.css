@@ -74,6 +74,13 @@ main {
 	background: #151924 !important;	
 }
 
+.application--dark {
+  background: #151924;
+}
+.application--dark .navigation-drawer .list {  
+  background: #151924;
+}
+
 .menu__content {
 	background: #272c38;
 }
@@ -166,7 +173,14 @@ span {
 }
 
 
+/* FIX Chat text not wrapping */
 
+.list__tile__sub-title, .list__tile__title {
+  overflow-wrap: break-word;
+  overflow-x: visible;
+  white-space:initial;
+  text-overflow: initial;
+}
 /* PlexBrowser */
 
 .pt-content-title {

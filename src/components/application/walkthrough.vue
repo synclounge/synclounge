@@ -29,7 +29,7 @@
         <v-layout row wrap>      
           <v-flex xs12 md6 lg7>
             <v-subheader light>Plex Players {{ playercount }}</v-subheader>              
-            <div v-for="i in plex.clients">
+            <div v-for="i in plex.clients" :key="i.clientIdentifier">
               <div v-on:click="previewClient(i)">
                 <plexclient :startup="testClient" :sidebar="false" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
               </div>
@@ -60,7 +60,7 @@
                   </div>
                 </div>
                 <div v-if="!testClientWaiting">
-                  <v-btn class="pt-orange ml-0" style="width:100%" x-large light v-on:click.native="clientClicked()">Connect</v-btn>
+                  <v-btn class="pt-orange ml-0" style="width:100%" x-large primary v-on:click.native="clientClicked()">Connect</v-btn>
                 </div>
                 <div v-if="testClient.product.indexOf('Web') > -1">
                   Note: Plex Web is currently not supported

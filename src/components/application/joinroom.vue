@@ -52,7 +52,7 @@
             v-on:keyup.enter.native="joinRoom()"
             v-model="room"
             class="input-group"
-            light
+            
           ></v-text-field>
         </v-flex>  
         <v-flex xs12>          
@@ -63,11 +63,11 @@
             v-on:keyup.enter.native="joinRoom()"
             v-model="password"
             class="pt-0 mt-0 input-group orange--text"
-            light
+            
           ></v-text-field>
         </v-flex>        
         <v-flex xs4 offset-xs4>
-          <v-btn class="pt-orange white--text pa-0 ma-0" style="width:100%" v-on:click.native="joinRoom()">Join</v-btn>
+          <v-btn class="pt-orange white--text pa-0 ma-0" primary style="width:100%" v-on:click.native="joinRoom()">Join</v-btn>
         </v-flex>  
         <v-layout class="pt-3" row wrap v-if="roomError">
           <v-flex xs12 class="red--text">          
