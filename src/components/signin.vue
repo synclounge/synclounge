@@ -24,8 +24,8 @@
                 <h1 class="center-text" style="color:white !important; background-color: rgba(128, 128, 128, 0.2); letter-spacing:1px">{{ pin }}</h1>            
                 <v-layout wrap row flex class="pt-4">
                   <v-flex xs4 offset-xs4 >
-                    <v-btn v-clipboard="pin" v-on:click.native="sendNotification()" light class="pt-orange" style="width:100%">
-                      <v-icon light class="mr-2">content_copy</v-icon>
+                    <v-btn v-clipboard="pin" v-on:click.native="sendNotification()" primary class="pt-orange" style="width:100%">
+                      <v-icon  class="mr-2">content_copy</v-icon>
                       Copy
                     </v-btn>
                   </v-flex>      
