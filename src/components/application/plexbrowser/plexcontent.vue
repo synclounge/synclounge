@@ -108,13 +108,13 @@
                     <v-chip v-for="country in contents.Country" :key="country.tag" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
                     <v-chip v-for="genre in contents.Genre" :key="genre.tag" v-tooltip:top="{ html: 'Genre' }"> {{ genre.tag }}</v-chip>      
                   </v-flex>  
-                  <div class="pa-4" style="position:absolute; bottom: 0; right: 0">    
-                    <v-btn v-if="playable && content.Media.length != 1" @click.native.stop="dialog = true"  class="primary white--text">
-                     <v-icon>play_arrow</v-icon> Play Version   
-                    </v-btn>                 
+                  <div class="pa-4" style="position:absolute; bottom: 0; right: 0">
                     <v-btn v-if="playable && content.Media.length == 1 && (content.viewOffset == 0 || !content.viewOffset)"  v-on:click.native="playMedia(content)" class="primary white--text">
                       <v-icon>play_arrow</v-icon> Play
-                    </v-btn>             
+                    </v-btn>                                 
+                    <v-btn v-else @click.native.stop="dialog = true"  class="primary white--text">
+                     <v-icon>play_arrow</v-icon> Play Version   
+                    </v-btn> 
                     <span v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
                     <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
                       <v-icon></v-icon> Stop 
@@ -128,7 +128,7 @@
         <v-dialog v-if="contents" v-model="dialog" class="pa-0 ma-0" width="500px">
           <v-card style="background:rgba(0,0,0,0.4)">
             <v-card-title class="headline">Select Version</v-card-title>
-            <v-checkbox v-bind:label="'Resume from ' + getDuration(contents.viewOffset) " color="orange lighten-2" class="pa-0 ma-0 ml-3" v-model="resumeFrom"></v-checkbox>
+            <v-checkbox v-if="contents.viewOffset && contents.viewOffset > 0" v-bind:label="'Resume from ' + getDuration(contents.viewOffset) " color="orange lighten-2" class="pa-0 ma-0 ml-3" v-model="resumeFrom"></v-checkbox>
             <div v-for="(media,index) in contents.Media" :key="media.Part[0].key">
               <v-layout row wrap>
                 <v-flex xs8>    
