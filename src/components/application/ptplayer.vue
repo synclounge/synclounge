@@ -25,7 +25,6 @@
            <v-select
             v-model="chosenQuality"
             :items="qualitiesSelect"
-            light
             item-text="text"
             item-value="id"
             persistent-hint
@@ -38,13 +37,11 @@
             label="Audio track"
             item-text="text"
             item-value="id"
-            light
             persistent-hint
             hint="Select a different audio track"
             :items="audioTrackSelect"
             ></v-select> 
             <v-select
-            light
             persistent-hint
             label="Subtitles"
             item-text="text"
@@ -56,7 +53,6 @@
             ></v-select>
             <v-select
             v-if="mediaIndexSelect.length > 1"
-            light
             persistent-hint
             item-text="text"
             item-value="id"
