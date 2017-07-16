@@ -66,7 +66,7 @@
         <h4> Browse </h4>
         <v-layout row wrap>  
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server.machineIdentifier" class="pa-2">  
-            <v-card class="white--text" v-on:click="setServer(server)" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4)">
+            <v-card class="white--text" v-on:click="setServer(server)" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);">
               <v-container fluid grid-list-lg>
                 <v-layout row>                  
                   <v-flex xs4>
@@ -81,6 +81,30 @@
                       <div class="headline">{{server.name}}</div>
                       <div style="opacity:0.8"> v{{server.productVersion}}</div>
                       <div>Owned by {{ ownerOfServer(server) }}</div>
+                      <div v-if="!isConnectable(server)" class="red--text">Unable to connect</div>
+                    </div>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card>
+         </v-flex>         
+         <v-flex xs12 lg4 md6 xl3 v-for="device in plex.all_devices" v-if="!isConnectable(device) && device.provides.indexOf('server') != -1" :key="device.machineIdentifier" class="pa-2">  
+            <v-card class="white--text" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);">
+              <v-container fluid grid-list-lg>
+                <v-layout row>                  
+                  <v-flex xs4>
+                     <v-card-media
+                        src="ptweb/plexlogo.png"
+                        height="110px"
+                        contain
+                      ></v-card-media>
+                  </v-flex>
+                  <v-flex xs8>
+                    <div>
+                      <div class="headline">{{device.name}}</div>
+                      <div style="opacity:0.8"> v{{device.productVersion}}</div>
+                      <div>Owned by {{ ownerOfServer(device) }}</div>
+                      <div v-if="!isConnectable(device)" class="red--text">Unable to connect</div>
                     </div>
                   </v-flex>
                 </v-layout>
@@ -132,6 +156,12 @@
       },
       setServer (server) {
         this.browsingServer = server
+      },
+      isConnectable (server){
+        if (this.plex.getServerById(server.clientIdentifier)){
+          return true
+        } 
+        return false
       },
       reset () {
         console.log('resetting')
