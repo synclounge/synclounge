@@ -3,7 +3,6 @@
     <v-flex xs12 v-if="!context.getters.getConnected"
         style="color:white !important">
       <v-select
-        dark="false"
         v-bind:items="ptservers"
         class="input-group--focused pt-input"
         style="mt-4"

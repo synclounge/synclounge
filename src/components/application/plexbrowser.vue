@@ -81,7 +81,6 @@
                       <div class="headline">{{server.name}}</div>
                       <div style="opacity:0.8"> v{{server.productVersion}}</div>
                       <div>Owned by {{ ownerOfServer(server) }}</div>
-                      <div v-if="!isConnectable(server)" class="red--text">Unable to connect</div>
                     </div>
                   </v-flex>
                 </v-layout>

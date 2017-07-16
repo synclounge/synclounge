@@ -26,14 +26,22 @@
               </v-flex>
             </v-layout>
             <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
-            <h4 v-if="subsetOnDeck(3).length > 0"> On Deck </h4>
+            <h4 v-if="subsetOnDeck(3).length > 0"> On Deck 
+              <span style="float:right; font-size:5rem; user-select: none;">
+                <v-icon fa @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon fa @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
+              </span>
+            </h4>
             <v-layout v-if="onDeck" row wrap>
                 <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
                     <plexthumb :content="content" :server="server" type="art" :height="25" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>
             <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>
-            <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added </h4>      
+            <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added 
+              <span style="float:right; font-size:5rem; user-select: none; ">
+                <v-icon fa @click="recentlyAddedDown" style="margin-right: 15px;cursor: pointer;" :style="recentlyAddedDownStyle">angle-left</v-icon><v-icon fa :style="recentlyAddedUpStyle"  @click="recentlyAddedUp" style="cursor: pointer" >angle-right</v-icon>
+              </span>
+            </h4>      
             <v-layout v-if="recentlyAdded" class="row" row wrap align-start>
                 <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content.key">
                     <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
@@ -89,7 +97,10 @@
         status: "loading..",
 
         recentlyAdded: null,
-        onDeck: null
+        onDeck: null,
+
+        onDeckOffset: 0,
+        recentlyAddedOffset: 0
       }
     },
     mounted () {
@@ -124,6 +135,34 @@
         }
         return []
       },
+      onDeckUpStyle () {
+        if ((this.onDeckOffset + 3) > this.onDeck.MediaContainer.Metadata.length){
+          return {
+            opacity: 0.5
+          }
+        }
+      },
+      onDeckDownStyle () {
+        if (this.onDeckOffset == 0){
+          return {
+            opacity: 0.5
+          }
+        }
+      },
+      recentlyAddedDownStyle () {
+        if (this.recentlyAddedOffset == 0){
+          return {
+            opacity: 0.5
+          }
+        }
+      },     
+      recentlyAddedUpStyle () {
+        if ((this.recentlyAddedOffset + 12) > this.recentlyAdded.MediaContainer.Metadata.length){
+          return {
+            opacity: 0.5
+          }
+        }
+      },
 
     },
     methods: {
@@ -132,7 +171,49 @@
       },
       setLibrary (library) {
         this.browsingLibrary = library
-      },      
+      },   
+      onDeckDown (){        
+        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+            return false
+        }
+        if (this.onDeckOffset - 3 < 0){
+          this.onDeckOffset = 0
+        } else {
+          this.onDeckOffset = this.onDeckOffset - 3
+        }
+
+      },
+      onDeckUp () {        
+        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+            return false
+        }
+        if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length){
+          // This would overflow!
+        } else {
+          this.onDeckOffset = this.onDeckOffset + 3
+        }
+
+      },
+      recentlyAddedUp () {        
+        if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
+            return false
+        }
+        if (this.recentlyAddedOffset + 12 >= this.recentlyAdded.MediaContainer.Metadata.length ){
+          // This would overflow!
+        } else {
+          this.recentlyAddedOffset = this.recentlyAddedOffset + 12
+        }
+      },
+      recentlyAddedDown () {
+        if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
+            return false
+        }
+        if (this.recentlyAddedOffset - 12 < 0){
+          this.recentlyAddedOffset = 0
+        } else {
+          this.recentlyAddedOffset = this.recentlyAddedOffset - 12
+        }
+      },  
       setBackground () {        
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
@@ -145,13 +226,13 @@
         if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
             return []
         }
-        return this.onDeck.MediaContainer.Metadata.slice(0, size)
+        return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + size)
       },
       subsetRecentlyAdded (size) {        
         if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
             return []
         }
-        return this.recentlyAdded.MediaContainer.Metadata.slice(0, size)
+        return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset, this.recentlyAddedOffset + size)
       },
       progress (content) {
         let perc = (parseInt(content.viewOffset) / parseInt(content.duration)) * 100
