@@ -155,6 +155,8 @@
         }
         if (data.command == '/player/playback/playMedia') {
           this.chosenKey = data.params.key.replace('/library/metadata/', '')
+          this.chosenMediaIndex = data.params.mediaIndex
+          console.log('Media index: ' + this.chosenMediaIndex)
           this.chosenServer = this.plex.getServerById(data.params.machineIdentifier)
           this.playertime = data.params.offset
           let oldtime = this.playertime
@@ -567,7 +569,6 @@
         return url
       },
       getBaseParams (overrideparams) {
-        console.log('Recreating Base ')
         let location = 'wan'
         if (this.plex.getServerById(this.playingMetadata.machineIdentifier).publicAddressMatches == '1') {
           location = 'lan'
