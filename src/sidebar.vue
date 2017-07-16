@@ -95,7 +95,7 @@
 				return this.$store.getters.getPlex
 			},
 			chosenClient: function () {
-			return this.$store.getters.getChosenClient
+				return this.$store.getters.getChosenClient
 			},
 			validPlex: function () {
 			if (!this.$store.state.plex) {
@@ -107,62 +107,62 @@
 			if (!this.plex) {
 				return false
 			}
-			return this.plex.gotDevices
+				return this.plex.gotDevices
 			},
 			showBrowser () {
-			return (this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom)
+				return (this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom)
 			},
 			isPTPlayer () {
-			return (this.chosenClient && this.chosenClient.clientIdentifier == 'PTPLAYER9PLUS10')
+				return (this.chosenClient && this.chosenClient.clientIdentifier == 'PTPLAYER9PLUS10')
 			},
 			showMetadata () {
-			return (!this.isPTPlayer && !this.showBrowser && this.chosenClient && this.chosenClient.clientPlayingMetadata)
+				return (!this.isPTPlayer && !this.showBrowser && this.chosenClient && this.chosenClient.clientPlayingMetadata)
 			},
 			darkMode: function () {
-			return this.$store.getters.getSettingDARKMODE
+				return this.$store.getters.getSettingDARKMODE
 			},
 			ptConnected: function () {
-			return this.$store.getters.getConnected
+				return this.$store.getters.getConnected
 			},
 			ptServer: function () {
-			return this.$store.getters.getServer
+				return this.$store.getters.getServer
 			},
 			ptRoom: function () {
-			return this.$store.getters.getRoom
+				return this.$store.getters.getRoom
 			},
 			ptPassword: function () {
-			return this.$store.getters.getPassword
+				return this.$store.getters.getPassword
 			},
 			ptUsers: function () {
-			return this.$store.getters.getUsers
+				return this.$store.getters.getUsers
 			},
 			userCount: function () {
 			let count = this.$store.getters.getUsers.length
-			if (count == 1) {
-				return count + ' user'
-			}
-			return count + ' users'
+				if (count == 1) {
+					return count + ' user'
+				}
+				return count + ' users'
 			},
 			chatBoxMessage: function () {
-			return "Message " + this.$store.getters.getRoom
+				return "Message " + this.$store.getters.getRoom
 			},
 			playercount: function () {
-			if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-				return '(' + this.$store.state.plex.clients.length + ')'
-			}
-			return ''
+				if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
+					return '(' + this.$store.state.plex.clients.length + ')'
+				}
+				return ''
 			},
 			servercount: function () {
-			if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-				return '(' + this.$store.state.plex.servers.length + ')'
-			}
-			return ''
+				if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
+					return '(' + this.$store.state.plex.servers.length + ')'
+				}
+				return ''
 			},
 			showChatValue: function () {
-			if (this.$store.getters.getShownChat) {
-				return 'block'
-			}
-			return 'none'
+				if (this.$store.getters.getShownChat) {
+					return 'block'
+				}
+				return 'none'
 			},
 			messages: function () {			
 				return this.$store.getters.getMessages

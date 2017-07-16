@@ -143,7 +143,6 @@
           return data.callback(true)
         }
         if (data.command == '/player/playback/seekTo') {
-          console.log('Recieved a seek')
           this.eventbus.$emit('player-seek', {
             time: data.params.offset,
             callback: function (res) {
@@ -160,9 +159,10 @@
           let oldtime = this.playertime
           let oldkey = this.chosenKey
           let checkers = 0
+
           let tick = setInterval(() => {
             console.log('Checking..')
-            if (Math.abs(parseInt(this.playertime) - parseInt(oldtime) > 1000)) {
+            if (Math.abs(parseInt(this.playertime) - parseInt(oldtime) ) > 1000) {
               console.log('STARTED PLAYING!')
               clearInterval(tick)
               return data.callback(true)
