@@ -190,6 +190,55 @@
       this.eventbus.$off('player-press-pause')
       this.eventbus.$off('player-press-play')
       this.eventbus.$off('player-seek')
+
+      var query = '';
+      let params = {
+        hasMDE: 1,
+        ratingKey: this.metadata.ratingKey,
+        key: this.metadata.key,
+        state: 'stopped',
+        time: this.lastTime,
+        duration: Math.round(this.player.duration() * 1000),
+        'X-Plex-Product': this.params['X-Plex-Product'],
+        'X-Plex-Version': this.params['X-Plex-Version'],
+        'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
+        'X-Plex-Platform': this.params['X-Plex-Platform'],
+        'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
+        'X-Plex-Device': this.params['X-Plex-Device'],
+        'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
+        'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
+        'X-Plex-Token': this.params['X-Plex-Token'],
+        'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier']
+      }
+      for (let key in params) {
+        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
+      }
+      let url = this.server.chosenConnection.uri + '/:/timeline?' + query
+      let options = {
+        timeout: 2000,
+        url: url
+      }
+      console.log('Sending timeline stop')
+      request(url, function (error, response, body) {
+        if (!error) {
+          // console.log('Succesfully sent Player status to PMS')
+        }
+      })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     },
     computed: {
       player () {
@@ -319,6 +368,7 @@
           // Tell the PMS instance of our status
           send()
         }, 10000)
+        send()
       },
       onPlayerPlaying (player) {
       },

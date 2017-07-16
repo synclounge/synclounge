@@ -170,6 +170,7 @@
             }
             checkers++
             if (checkers > 300 || oldkey != this.chosenKey) {
+              console.log('Timeout reached on playMedia')
               // It has been 30 seconds since - fail
               clearInterval(tick)
               return data.callback(false)
@@ -188,6 +189,7 @@
         chosenKey: null, // The item we are going to be playing from the chosen server eg. 12345
         chosenServer: null, // The Plex Media Server we are going to play from
         sessionId: this.generateGuid(),
+        xplexsession: this.generateGuid(),
 
         // Content can have multiple copies
         // Below are options chosen for each copy
@@ -385,9 +387,6 @@
           })
         }
         return sourcesDone
-      },
-      xplexsession () {
-        return this.generateGuid()
       }
     },
     methods: {
@@ -454,9 +453,12 @@
         return qualities
       },
       stopPlayback () {
-        this.$store.commit('SET_DECISIONBLOCKED', false)
+        console.log('Stopped Playback')
+        this.$store.commit('SET_DECISIONBLOCKED', false) 
+        request(this.getSourceByLabel(this.chosenQuality).stopUrl, function (error, response, body) {})
         this.playerstatus = 'stopped'
         this.sessionId = this.generateGuid()
+        this.xplexsession = this.generateGuid()
         this.chosenClient.pressStop(function () {
 
         })
@@ -565,6 +567,7 @@
         return url
       },
       getBaseParams (overrideparams) {
+        console.log('Recreating Base ')
         let location = 'wan'
         if (this.plex.getServerById(this.playingMetadata.machineIdentifier).publicAddressMatches == '1') {
           location = 'lan'
