@@ -126,11 +126,11 @@
           </v-flex>
         </div>
         <v-dialog v-if="contents" v-model="dialog" class="pa-0 ma-0" width="500px">
-          <v-card style="background:rgba(0,0,0,0.4)">
+          <v-card  style="background:rgba(0,0,0,0.4); box-shadow: none;">
             <v-card-title class="headline">Select Version</v-card-title>
             <v-checkbox v-if="contents.viewOffset && contents.viewOffset > 0" v-bind:label="'Resume from ' + getDuration(contents.viewOffset) " color="orange lighten-2" class="pa-0 ma-0 ml-3" v-model="resumeFrom"></v-checkbox>
             <div v-for="(media,index) in contents.Media" :key="media.Part[0].key">
-              <v-layout row wrap>
+              <v-layout row wrap class="pa-2">
                 <v-flex xs8>    
                   <div class="pl-2">{{ media.videoResolution }}p {{ getDuration(media.duration)}}</div>
                   <div class="pl-4 soft-text" > 
