@@ -83,7 +83,8 @@ const state = {
   CUSTOMSERVER: getSetting('CUSTOMSERVER'),
   BLOCKEDSERVERS: JSON.parse(window['localStorage'].getItem('BLOCKEDSERVERS')),
   HOMEINIT: getSetting('HOMEINIT'),
-  PTPLAYER: getSetting('PTPLAYERQUALITY'),
+  PTPLAYERQUALITY: getSetting('PTPLAYERQUALITY'),
+  PTPLAYERVOLUME: getSetting('PTPLAYERVOLUME'),
   stats: {}
 }
 
@@ -247,6 +248,10 @@ const mutations = {
   setSettingPTPLAYERQUALITY (state, data){
     window['localStorage'].setItem('PTPLAYERQUALITY',JSON.stringify(data))
     state.PTPLAYERQUALITY = data
+  },  
+  setSettingPTPLAYERVOLUME (state, data){
+    window['localStorage'].setItem('PTPLAYERVOLUME',JSON.stringify(data))
+    state.PTPLAYERVOLUME = data
   },
   setSettingHOMEINIT (state, data) {
     setSetting('HOMEINIT', data)
@@ -350,6 +355,9 @@ const getters = {
   },
   getSettingPTPLAYERQUALITY: state => {
     return state.PTPLAYERQUALITY
+  },  
+  getSettingPTPLAYERVOLUME: state => {
+    return state.PTPLAYERVOLUME
   }
 }
 const actions = {

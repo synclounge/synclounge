@@ -212,6 +212,7 @@
           autoplay: true,
           width: '100%',
           language: 'en',
+
           sources: [
             this.source
           ],
@@ -325,6 +326,7 @@
         console.log(player)
       },
       playerStateChanged (playerCurrentState) {
+        this.$store.commit('setSettingPTPLAYERVOLUME', this.player.volume() || 0)
         this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000)
         this.duration = Math.round(this.player.duration() * 1000)
         if (this.player.error_) {
@@ -347,7 +349,8 @@
         })
       },
       playerReadied (player) {
-
+        console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
+        this.player.volume(this.$store.getters.getSettingPTPLAYERVOLUME || 0)
       },
 
     }
