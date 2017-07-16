@@ -3,8 +3,7 @@
     <v-flex xs12 v-if="!context.getters.getConnected"
         style="color:white !important">
       <v-select
-        light
-        :dark="false"
+        dark="false"
         v-bind:items="ptservers"
         class="input-group--focused pt-input"
         style="mt-4"
@@ -12,7 +11,7 @@
         transition="v-scale-transition" origin="center center"
         max-height="auto"
         label="Select a server"
-        :append-icon="'arrow_drop_up'"
+        append-icon="arrow_drop_up"
       ></v-select> 
       <v-text-field
         v-if="selectedServer == 'custom'"
@@ -20,11 +19,10 @@
         label="Custom Server"
         v-model="CUSTOMSERVER"
         class="input-group pt-input"
-        light
       ></v-text-field>
       <v-layout row wrap v-if="selectedServer == 'custom'">
         <v-flex xs4 offset-xs4>
-          <v-btn class="pt-orange white--text pa-0 ma-0" style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
+          <v-btn class="pt-orange white--text pa-0 ma-0" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
         </v-flex>  
       </v-layout>       
       <v-layout row wrap v-if="connectionPending">

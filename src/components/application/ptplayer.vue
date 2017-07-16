@@ -3,7 +3,6 @@
     <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
                  @playerMounted="playerMounted()"
                  @timelineUpdate="timelineUpdate"
-                 @playerError="changedPlaying(false)"
 
 
                  :metadata="playingMetadata"
