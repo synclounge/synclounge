@@ -147,7 +147,7 @@
           this.eventbus.$emit('player-seek', {
             time: data.params.offset,
             callback: function (res) {
-              console.log('Player reported a seek result of ' + res)
+              //console.log('Player reported a seek result of ' + res)
               data.callback(res)
             }
           })
@@ -223,7 +223,7 @@
       },
       chosenQuality: function () {
         this.changedPlaying(false)
-        console.log('Our new preferred quality is now ' + this.chosenQuality )
+        //console.log('Our new preferred quality is now ' + this.chosenQuality )
         this.$store.commit('setSettingPTPLAYERQUALITY',this.chosenQuality)
       },
       chosenMediaIndex: function () {
@@ -232,7 +232,7 @@
         this.changedPlaying(false)
       },
       chosenAudioTrackIndex: function () {
-        console.log('Audio track change')
+        //console.log('Audio track change')
         var that = this
         let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id
         let baseparams = this.getSourceByLabel(this.chosenQuality).params
@@ -263,12 +263,12 @@
             that.changedPlaying(false)
             return
           }
-          console.log(error)
+          //console.log(error)
         })
 
       },
       chosenSubtitleIndex: function () {
-        console.log('Subtitle track change')
+        //console.log('Subtitle track change')
         var that = this
         let subtitleStreamID = 0
         if (this.chosenSubtitleIndex > -1) {
@@ -302,7 +302,7 @@
             that.changedPlaying(false)
             return
           }
-          console.log(error)
+          //console.log(error)
         })
       }
     },
@@ -393,7 +393,7 @@
     methods: {
       playerMounted: function () {
         var that = this
-        console.log('Child player said it is mounted')
+        //console.log('Child player said it is mounted')
       },
       getSourceByLabel: function (label) {
         for (let i = 0; i < this.sources.length; i++) {
@@ -466,7 +466,7 @@
         var that = this
         this.ready = false
         this.$store.commit('SET_DECISIONBLOCKED', false)
-        console.log('Changed what we are meant to be playing!')
+        //console.log('Changed what we are meant to be playing!')
         if (!this.chosenKey || !this.chosenServer) {
           this.playerstatus = 'stopped'
           this.playerMetadata = null
@@ -476,8 +476,6 @@
         function req () {
           that.sources = that.generateSources()
           request(that.getSourceByLabel(that.chosenQuality).initUrl, function (error, response, body) {
-            console.log('Got response')
-            console.log(body)
             parseXMLString(body, function (err, result) {
               if (err) {
                 that.ready = false
@@ -493,7 +491,6 @@
         }
 
         if (this.playingMetadata) {
-          console.log('We should fire our closing event')
           request(this.getSourceByLabel(this.chosenQuality).stopUrl, function (error, response, body) {
             // We dont need to know what this resulted in
           })
@@ -501,7 +498,7 @@
         if (changeItem) {
           this.playingMetadata = null
           this.chosenServer.getMediaByRatingKey(this.chosenKey, function (result) {
-            console.log(result)
+            //console.log(result)
             that.playingMetadata = result
             req()
           })
@@ -529,7 +526,6 @@
         return url
       },
       generateTranscodeStopUrl (overrideparams) {
-        console.log('Session id: ' + this.sessionId)
         let params = {
           session: this.sessionId,
           'X-Plex-Product': 'PlexTogether',
@@ -617,7 +613,6 @@
         var that = this
 
         function send () {
-          console.log('Sending PMS our details')
           let params = {
             'deviceClass': 'pc',
             'protocolCapabilities': 'playback',
@@ -648,7 +643,6 @@
             headers: headers
           }
           request(url, function (error, response, body) {
-            console.log('Poll result: ' + error)
           })
         }
 
@@ -668,7 +662,6 @@
       },
       getBrowser () {
         var sBrowser, sUsrAg = navigator.userAgent;
-        console.log(navigator.userAgent)
         if (sUsrAg.indexOf("Chrome") > -1) {
           sBrowser = "Chrome";
         } else if (sUsrAg.indexOf("Safari") > -1) {
@@ -680,7 +673,6 @@
         } else if (sUsrAg.indexOf("MSIE") > -1) {
           sBrowser = "Microsoft Internet Explorer";
         }
-        console.log('Browser: ' + sBrowser)
         return sBrowser
       }
 
