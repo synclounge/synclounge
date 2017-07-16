@@ -12,7 +12,7 @@
             <v-card v-if="contents" horizontal :img="getArtUrl" class="darken-2 white--text">
               <v-container style="background: rgba(0, 0, 0, .4);"  class="pa-0 ma-0" fluid grid-list-lg>
                 <v-layout row style="height:100%">
-                  <v-flex md3 class="hidden-sm-and-down">
+                  <v-flex md4 class="hidden-sm-and-down pa-4" style="margin-top:0">
                     <v-card-media
                       :src="getThumb()"
                       height="50em"
@@ -21,7 +21,7 @@
                   </v-flex>
 
 
-                  <v-flex md9 sm12 style="position:relative" v-if="content.type == 'episode'">
+                  <v-flex md8 sm12 style="position:relative" v-if="content.type == 'episode'">
                     <h3> {{ content.grandparentTitle }}</h3>
                     <p> Season {{ contents.parentIndex }} Episode {{ contents.index }} </p> 
                     <h6>{{ content.title }}</h6>   
