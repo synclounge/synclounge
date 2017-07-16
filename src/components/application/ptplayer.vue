@@ -155,8 +155,7 @@
         }
         if (data.command == '/player/playback/playMedia') {
           this.chosenKey = data.params.key.replace('/library/metadata/', '')
-          this.chosenMediaIndex = data.params.mediaIndex
-          console.log('Media index: ' + this.chosenMediaIndex)
+          this.chosenMediaIndex = data.params.mediaIndex || 0
           this.chosenServer = this.plex.getServerById(data.params.machineIdentifier)
           this.playertime = data.params.offset
           let oldtime = this.playertime
