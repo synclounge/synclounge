@@ -3,6 +3,7 @@
     <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
                  @playerMounted="playerMounted()"
                  @timelineUpdate="timelineUpdate"
+                 @playbackEnded="stopPlayback()"
 
 
                  :metadata="playingMetadata"
@@ -186,6 +187,7 @@
         offset: 0,
         chosenKey: null, // The item we are going to be playing from the chosen server eg. 12345
         chosenServer: null, // The Plex Media Server we are going to play from
+        sessionId: this.generateGuid(),
 
         // Content can have multiple copies
         // Below are options chosen for each copy
@@ -454,6 +456,7 @@
       stopPlayback () {
         this.$store.commit('SET_DECISIONBLOCKED', false)
         this.playerstatus = 'stopped'
+        this.sessionId = this.generateGuid()
         this.chosenClient.pressStop(function () {
 
         })
@@ -526,6 +529,7 @@
         return url
       },
       generateTranscodeStopUrl (overrideparams) {
+        console.log('Session id: ' + this.sessionId)
         let params = {
           session: this.sessionId,
           'X-Plex-Product': 'PlexTogether',

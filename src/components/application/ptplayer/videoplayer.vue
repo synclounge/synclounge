@@ -7,6 +7,7 @@
       @play="onPlayerPlay($event)"
       @pause="onPlayerPause($event)"
       @loadeddata="onPlayerLoadeddata($event)"
+      @ended="onPlayerEnded($event)"
       @waiting="onPlayerWaiting($event)"
       @playing="onPlayerPlaying($event)"
       @timeupdate="onPlayerTimeupdate($event)"
@@ -251,6 +252,9 @@
       onPlayerPause (player) {
       },
       onPlayerLoaded (player) {
+      },      
+      onPlayerEnded (player) {        
+        this.$emit('playbackEnded')
       },
       onPlayerCanplay (player) {
       },
