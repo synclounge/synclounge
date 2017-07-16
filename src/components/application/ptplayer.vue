@@ -190,7 +190,7 @@
         // Content can have multiple copies
         // Below are options chosen for each copy
         chosenMediaIndex: 0, // The index of the item we want to play
-        chosenQuality: 'Original', // The quality profile
+        chosenQuality: JSON.parse(window['localStorage'].getItem('PTPLAYERQUALITY')) || 'Original', // The quality profile
         chosenSubtitleIndex: 0, // Subtitle track index
         chosenAudioTrackIndex: 0, // Audio track index
         sources: [],
@@ -221,6 +221,8 @@
       },
       chosenQuality: function () {
         this.changedPlaying(false)
+        console.log('Our new preferred quality is now ' + this.chosenQuality )
+        this.$store.commit('setSettingPTPLAYERQUALITY',this.chosenQuality)
       },
       chosenMediaIndex: function () {
         this.chosenSubtitleIndex = 0
