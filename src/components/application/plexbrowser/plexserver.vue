@@ -136,7 +136,7 @@
         return []
       },
       onDeckUpStyle () {
-        if ((this.onDeckOffset + 3) > this.onDeck.MediaContainer.Metadata.length){
+        if ((this.onDeckOffset + 3) >= this.onDeck.MediaContainer.Metadata.length){
           return {
             opacity: 0.5
           }
@@ -157,7 +157,7 @@
         }
       },     
       recentlyAddedUpStyle () {
-        if ((this.recentlyAddedOffset + 12) > this.recentlyAdded.MediaContainer.Metadata.length){
+        if ((this.recentlyAddedOffset + 12) >= this.recentlyAdded.MediaContainer.Metadata.length){
           return {
             opacity: 0.5
           }
