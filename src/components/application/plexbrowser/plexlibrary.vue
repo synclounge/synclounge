@@ -11,8 +11,8 @@
         </span>
         <div v-if="!browsingContent && contents" class="mt-3" style="height:90vh; overflow-y:scroll ">
           <v-layout class="row" row wrap>
-                <v-flex xs4 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
-                  <plexthumb :content="content" :server="server" type="thumb"  @contentSet="setContent(content)"></plexthumb>
+                <v-flex xs4 md3 xl1 lg2  class="pb-3"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
+                  <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
             <v-layout row>

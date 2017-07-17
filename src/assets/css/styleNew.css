@@ -61,6 +61,10 @@ html {
 	background: #151924 !important;
 }
 
+.highlightBorder {
+  border: solid 2px #f3b32b;
+}
+
 main {
 	/*background: #272c38;*/
 	background: #2b5876;  /* fallback for old browsers */

@@ -61,7 +61,7 @@
           <div>          
               <v-layout class="row mt-3" row wrap>
                 <v-flex xs6 md3 xl2 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
-                  <plexthumb :content="content" :server="server" type="thumb" fullTitle @contentSet="setContent(content)"></plexthumb>
+                  <plexthumb :content="content" :server="server" type="thumb" style="margin:2%" fullTitle @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
           </div>

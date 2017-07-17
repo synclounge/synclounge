@@ -42,8 +42,8 @@
                 <v-icon fa @click="recentlyAddedDown" style="margin-right: 15px;cursor: pointer;" :style="recentlyAddedDownStyle">angle-left</v-icon><v-icon fa :style="recentlyAddedUpStyle"  @click="recentlyAddedUp" style="cursor: pointer" >angle-right</v-icon>
               </span>
             </h4>      
-            <v-layout v-if="recentlyAdded" class="row" row wrap align-start>
-                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in subsetRecentlyAdded(12)" :key="content.key">
+            <v-layout v-if="recentlyAdded" class="row" row wrap justify-space-between>
+                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in subsetRecentlyAdded(10)" :key="content.key">
                     <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
@@ -157,7 +157,7 @@
         }
       },     
       recentlyAddedUpStyle () {
-        if ((this.recentlyAddedOffset + 12) >= this.recentlyAdded.MediaContainer.Metadata.length){
+        if ((this.recentlyAddedOffset + 10) >= this.recentlyAdded.MediaContainer.Metadata.length){
           return {
             opacity: 0.5
           }
@@ -198,20 +198,20 @@
         if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
             return false
         }
-        if (this.recentlyAddedOffset + 12 >= this.recentlyAdded.MediaContainer.Metadata.length ){
+        if (this.recentlyAddedOffset + 10 >= this.recentlyAdded.MediaContainer.Metadata.length ){
           // This would overflow!
         } else {
-          this.recentlyAddedOffset = this.recentlyAddedOffset + 12
+          this.recentlyAddedOffset = this.recentlyAddedOffset + 10
         }
       },
       recentlyAddedDown () {
         if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
             return false
         }
-        if (this.recentlyAddedOffset - 12 < 0){
+        if (this.recentlyAddedOffset - 10 < 0){
           this.recentlyAddedOffset = 0
         } else {
-          this.recentlyAddedOffset = this.recentlyAddedOffset - 12
+          this.recentlyAddedOffset = this.recentlyAddedOffset - 10
         }
       },  
       setBackground () {        

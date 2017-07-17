@@ -34,39 +34,10 @@
               </v-container>                  
             </v-card>
           </v-flex>
-
-
-
-
-
-
-
-
-
-
-
-<!--
-          <v-card horizontal height="25em" :img="getArtUrl">
-            <v-card-row class="hidden-sm-and-down" :img="getThumb(content)" height="100%"></v-card-row>
-            <v-card-column style="background: rgba(0, 0, 0, .4)">
-              <v-card-row height="11em"  class="white--text">
-                <v-card-text>
-                  <h3> {{ content.parentTitle }}</h3>
-                  <h3>{{ content.title }}</h3>
-                  <p> {{ getSeasons }} </p>         
-                  <v-divider></v-divider>         
-                  <p style="font-style: italic" class="pt-3"> {{ content.summary }} </p>      
-                </v-card-text>
-              </v-card-row>
-              <v-card-row actions>
-                <v-chip v-if="contents.MediaContainer.parentYear" v-tooltip:top="{ html: 'Year' }" label> {{ contents.MediaContainer.parentYear }}</v-chip>
-              </v-card-row>
-            </v-card-column>
-          </v-card>-->
           <h4 class="mt-3"> Episodes </h4>
             <v-layout class="row" row wrap>
                 <v-flex xs4 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
-                  <plexthumb :content="content" :server="server" type="thumb" @contentSet="setContent(content)"></plexthumb>
+                  <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
         </div>

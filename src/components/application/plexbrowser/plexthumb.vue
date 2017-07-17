@@ -1,24 +1,27 @@
 <template>
-  <div class="portrait" ref="root" style="cursor: pointer">
+  <div class="portrait" ref="root" style="cursor: pointer" @mouseover="hovering = true" @mouseout="hovering = false">
 
 
-      <v-card data-tilt v-on:click="emitContentClicked(content)" class="grey darken-4">
+      <v-card data-tilt v-on:click="emitContentClicked(content)" class="grey darken-4" style="border:solid">
         <v-card-media
           class="white--text"
+          style="position:relative"
           :height="calculatedHeight"
           :src="getImg(content)"
         >
+          <small v-if="showServer !== undefined" style="position:absolute; bottom:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>  
           <v-container class="pa-0 ma-0" fill-height fluid style="position:relative">
             <v-layout>
               <v-flex xs12>
-                <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag"> 
+                <small v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>  
+                <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag && showServer == undefined"> 
                   <span class="pa-2 black--text">
                     <span>
                       {{ unwatchedCount }}
                     </span>
                   </span>
                 </div>         
-                <div style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)" v-if="content.Media && content.Media.length != 1"> 
+                <div style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)" v-if="content.Media && content.Media.length != 1 && showServer == undefined"> 
                     <span class="pa-2 black--text">
                       <span>
                         {{ content.Media.length }}
@@ -29,10 +32,10 @@
                   <div class="ma-0">
                     <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
                     <v-layout row wrap class="text-xs-left" style="margin:0; margin-left:3px; display:block; max-width:100%; height:100%">
-                        <v-flex xs12 style="height:50%" ref="topText" class="pa-0 ma-0 ml-1 mt-1">
+                        <v-flex v-if="!onlyBottom" xs12 style="height:50%" :style="topTextStyle" ref="topText" class="pa-0 ma-0 ml-1 mt-1">
                             <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
                         </v-flex>                  
-                        <v-flex xs12 style="height:50%; font-size:0.8rem" ref="bottomText" class="pa-0 ma-0 mt-0 ml-1">
+                        <v-flex xs12 style="height:50%; font-size:0.8rem"  :style="bottomTextStyle" ref="bottomText" class="pa-0 ma-0 mt-0 ml-1">
                             <div class="truncate soft-text" style=" position:absolute; bottom:0">{{ getUnder(content) }}</div>
                         </v-flex>
                     </v-layout> 
@@ -50,7 +53,7 @@
 
   export default {
 
-    props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle', 'search', 'locked'],
+    props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle', 'search', 'locked', 'img', 'bottomOnly', 'spoilerFilter'],
     components: {
     },
     created () {
@@ -61,7 +64,9 @@
         fullheight: null,
         fullwidth: null,
         toptextheight: null,
-        bottomtextheight: null
+        bottomtextheight: null,
+
+        hovering:false
       }
     },
     mounted () {
@@ -126,7 +131,19 @@
           size = 14
         }
         return {'font-size':(size * 1) + 'px'}
-      },      
+      },     
+      onlyBottom () {
+        if (this.bottomOnly != undefined || this.bottomOnly != null){
+          return true
+        }
+        return false
+      },       
+      hideThumb () {
+        if (this.spoilerFilter != undefined || this.spoilerFilter != null){
+          return true
+        }
+        return false
+      }, 
       fullCalculatedHeightRaw (){
         if (this.height){
           return this.height
@@ -190,6 +207,27 @@
             return true
           }
           return false
+        }
+      },      
+      topTextStyle (){
+        if (this.onlyBottom){
+          return {
+            height:'0%'
+          }
+        }
+        return {
+          height:'50%'
+        }
+      },
+      bottomTextStyle (){
+        if (this.onlyBottom){
+          return {
+            height:'100%',
+            'font-size':'1rem'
+          }
+        }
+        return {
+          height:'50%'
         }
       },
       unwatched (){
@@ -308,7 +346,13 @@
       },
       getImg (object) {
         var w = Math.round(this.fullwidth * 2)
-        var h = Math.round(this.fullheight * 2)
+        var h = Math.round(this.fullheight * 2)        
+        if (!this.hovering && this.hideThumb && (!this.content.viewCount || this.content.viewCount == 0)){          
+          return this.server.getUrlForLibraryLoc(object.art, w, 1000)
+        }
+        if (this.img){
+          return this.img
+        }
         if (this.type == 'art'){          
           return this.server.getUrlForLibraryLoc(object.art, w, 1000)
         }
