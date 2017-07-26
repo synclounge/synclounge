@@ -28,11 +28,11 @@
                       <p> {{ getSeasons }} - {{ contents.MediaContainer.parentYear }} </p>
                       <v-divider></v-divider>         
                       <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ content.summary }} </p>  
-                        <div class="pa-4">                
-                          <v-chip v-for="genre in genres" :key="genre.tag" label> 
-                            {{genre.tag}}
-                          </v-chip>
-                        </div>
+                      <div>                
+                        <v-chip v-for="genre in genres" :key="genre.tag" label> 
+                          {{genre.tag}}
+                        </v-chip>
+                      </div>
                       <v-subheader class="white--text"> Featuring </v-subheader>
                       <v-layout row wrap v-if="seriesData">
                         <v-flex v-for="role in roles" :key="role.tag" xs12 md6 lg4>        
