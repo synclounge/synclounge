@@ -10,8 +10,8 @@
 
 
           <v-flex xs12  style="background: rgba(0, 0, 0, .4);">
-            <v-card class="darken-2 white--text" :img="getArtUrl">
-              <v-container   class="pa-0 ma-0" fluid grid-list-lg>
+            <v-card class="darken-2 white--text"  :img="getArtUrl">
+              <v-container style="background:rgba(0,0,0,0.6)" class="pa-3 ma-0" fluid grid-list-lg>
                 <v-layout row style="height:100%">
                   <v-flex xs12 md3 class="hidden-sm-and-down">
                     <v-card-media
@@ -23,8 +23,8 @@
                   </v-flex>
                   <v-flex xs12 md9 class="ma-2">
                     <div>
-                      <h3 style="font-weight:bold"> {{ content.parentTitle }}</h3>
-                      <h3>{{ content.title }}</h3>
+                      <h3 > {{ content.parentTitle }}</h3>
+                      <h3 style="font-weight:bold">{{ content.title }}</h3>
                       <p> {{ getSeasons }} - {{ contents.MediaContainer.parentYear }} </p>
                       <v-divider></v-divider>         
                       <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ content.summary }} </p>  

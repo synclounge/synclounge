@@ -12,7 +12,7 @@
 
           <v-flex xs12>
             <v-card class="darken-2 white--text" :img="getArtUrl">
-              <v-container style="background: rgba(0, 0, 0, .4);"  class="pa-0 ma-0" fluid grid-list-lg>
+              <v-container style="background: rgba(0, 0, 0, .6);"  class="pa-0 ma-0" fluid grid-list-lg>
                 <v-layout row style="height:100%">
                   <v-flex xs12 md3 class="hidden-sm-and-down">
                     <v-card-media
@@ -24,8 +24,8 @@
                   </v-flex>
                   <v-flex xs12 md9 style="position:relative" class="ma-2">
                     <div>
-                      <h3 style="font-weight:bold"> {{ content.parentTitle }}</h3>
-                      <h6>{{ content.title }}</h6>
+                      <h3 style="font-weight:bold"> {{ content.title }}</h3>
+                      <h6>{{ content.parentTitle }}</h6>
                       <p> {{ contents.MediaContainer.size }} episodes </p>
                       <v-divider></v-divider>         
                       <p style="font-style: italic" class="pt-3"> {{ content.summary }} </p>              

@@ -8,10 +8,10 @@
         </v-layout>
         <div v-if="contents">  
 
-          <v-flex xs12 class="mt-3">
-            <v-card v-if="contents" horizontal :img="getArtUrl" class="darken-2 white--text" style="background: rgba(0,0,0,0.4)">
+          <v-flex xs12 class="mt-3" >
+            <v-card v-if="contents" horizontal :img="getArtUrl" class="darken-2 white--text">
               <div style="background: rgba(0,0,0,0.7)">
-                <v-container class="pa-0 ma-0" fluid grid-list-lg>
+                <v-container class="pa-4 ma-0" fluid grid-list-lg>
                   <v-layout row wrap>
                     <v-flex md4 lg3 class="hidden-sm-and-down pa-4" style="margin-top:0">
                       <v-card-media
