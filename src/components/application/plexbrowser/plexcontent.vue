@@ -12,7 +12,7 @@
             <v-card v-if="contents" horizontal :img="getArtUrl" class="darken-2 white--text" style="background: rgba(0,0,0,0.4)">
               <div style="background: rgba(0,0,0,0.7)">
                 <v-container class="pa-0 ma-0" fluid grid-list-lg>
-                  <v-layout row style="height:100%">
+                  <v-layout row wrap>
                     <v-flex md4 lg3 class="hidden-sm-and-down pa-4" style="margin-top:0">
                       <v-card-media
                         :src="getThumb()"
@@ -22,7 +22,7 @@
                     </v-flex>
 
 
-                    <v-flex md8 sm12 lg9 style="position:relative;height 100%" v-if="content.type == 'episode'" class="mt-4 pa-0">
+                    <v-flex md8 sm12 lg9 style="position:relative;height 100%" v-if="content.type == 'episode'" class="mt-4 pa-4">
                       <h3 style="font-weight:bold"> {{ content.grandparentTitle }}</h3>
                       <p> Season {{ contents.parentIndex }} Episode {{ contents.index }} </p> 
                       <h6>{{ content.title }}</h6>   
@@ -126,10 +126,10 @@
                   </v-btn>
                 </v-card-actions>    
                 <v-divider></v-divider>
-                <div v-if="subsetParentData(6).length >= 0 && content.type == 'episode'" style="background: rgba(0,0,0,0.8)">
+                <div v-if="subsetParentData(6).length >= 0 && content.type == 'episode'" style="background: rgba(0,0,0,0.3)">
                   <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>            
                   <v-layout v-if="parentData" row wrap justify-start>
-                      <v-flex xs3 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)"  :key="ep.key" >            
+                      <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)"  :key="ep.key" >            
                           <plexthumb bottomOnly :content="ep" :img="getLittleThumb(ep)" :class="{highlightBorder: ep.index == contents.index}" style="margin:15%" :server="server" type="thumb" spoilerFilter  @contentSet="setContent(ep)"></plexthumb>
                       </v-flex>
                   </v-layout>
