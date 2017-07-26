@@ -123,7 +123,7 @@
       getThumb () {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.thumb, w / 1, h / 2)
+        return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.thumb || this.contents.MediaContainer.grandparentThumb || this.contents.MediaContainer.parentThumb, w / 1, h / 2)
       },
     },
     methods: {

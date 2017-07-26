@@ -324,7 +324,7 @@
         if (this.contents.type == 'movie'){          
           return this.server.getUrlForLibraryLoc(this.contents.thumb, w / 1, h / 1)
         }
-        return this.server.getUrlForLibraryLoc(this.contents.parentThumb, w / 1, h / 1)
+        return this.server.getUrlForLibraryLoc(this.contents.parentThumb || this.contents.grandparentThumb, w / 1, h / 1)
       },    
       subsetParentData (size) {
         if (!this.parentData || !this.parentData.MediaContainer || !this.parentData.MediaContainer.Metadata){
