@@ -86,7 +86,7 @@
 						easing: 'ease-in',
 						cancelable: true,
 					}
-					this.$scrollTo('#lastMessage', 5, options)
+					this.$scrollTo('#lastMessage', 200, options)
 				})
 			}
 		},

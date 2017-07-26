@@ -35,7 +35,6 @@
 
 <script>
   import plexcontent from './plexcontent'
-  console.log(plexcontent)
   import plexseries from './plexseries'  
   import plexalbum from './plexalbum'  
   import plexthumb from './plexthumb'

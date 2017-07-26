@@ -1,13 +1,12 @@
 <template>
     <span ref="root">
-        <span v-if="playable" v-on:click="reset()" style="cursor: pointer !important">{{ title }} <span
-          v-if="selectedItem"> > </span></span>
-        <v-layout v-if="!contents && !selectedItem" row >
+        <span v-if="playable" v-on:click="reset()" style="cursor: pointer !important">{{ title }}</span>
+        <v-layout v-if="!contents && !browsingContent" row >
           <v-flex xs12 style="position:relative">
               <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
           </v-flex>
         </v-layout>
-        <div v-if="contents && !selectedItem">  
+        <div v-if="contents">  
 
           <v-flex xs12 class="mt-3">
             <v-card v-if="contents" horizontal :img="getArtUrl" class="darken-2 white--text" style="background: rgba(0,0,0,0.4)">
@@ -24,8 +23,8 @@
 
 
                     <v-flex md8 sm12 lg9 style="position:relative;height 100%" v-if="content.type == 'episode'" class="mt-4 pa-0">
-                      <h3 style="font-weight:bold" v-on:click="navigateTo(contents.grandparentRatingKey)" class="clickable"> {{ content.grandparentTitle }}</h3>
-                      <p> <span v-on:click="navigateTo(contents.parentRatingKey)" class="clickable"> Season {{ contents.parentIndex }}</span> Episode {{ contents.index }} </p> 
+                      <h3 style="font-weight:bold"> {{ content.grandparentTitle }}</h3>
+                      <p> Season {{ contents.parentIndex }} Episode {{ contents.index }} </p> 
                       <h6>{{ content.title }}</h6>   
                       <v-layout row wrap align-end>
                         <v-flex xs12 sm6 style="opacity:0.8">                      
@@ -139,7 +138,7 @@
             </v-card>
           </v-flex>
         </div>
-        <v-dialog v-if="contents && !selectedItem" v-model="dialog" class="pa-0 ma-0" width="500px">
+        <v-dialog v-if="contents" v-model="dialog" class="pa-0 ma-0" width="500px">
           <v-card  style="background:rgba(0,0,0,0.4); box-shadow: none;">
             <v-card-title class="headline">Select Version</v-card-title>
             <v-checkbox v-if="contents.viewOffset && contents.viewOffset > 0" v-bind:label="'Resume from ' + getDuration(contents.viewOffset) " color="orange lighten-2" class="pa-0 ma-0 ml-3" v-model="resumeFrom"></v-checkbox>
@@ -166,38 +165,16 @@
             </div>  
           </v-card>
         </v-dialog>
-        <span v-if="selectedItem">
-          <plexcontent v-if="selectedItem.type == 'episode' || selectedItem.type == 'movie'"
-                        :server="selectedItemServer" :content="selectedItem">
-          </plexcontent>
-          <plexseason v-if="selectedItem.type == 'season'" :server="selectedItemServer" :content="selectedItem">
-          </plexseason>
-          <plexseries v-if="selectedItem.type == 'show'" :server="selectedItemServer" :content="selectedItem">
-          </plexseries>
-        </span>
-        <plexserver v-if="browsingServer" :server="browsingServer">
-        </plexserver>
     </span>
 </template>
 
 <script>
-  import plexserver from './plexserver'
-  import plexcontent from './plexcontent'
-  import plexlibrary from './plexlibrary'
-  import plexseason from './plexseason'
-  import plexseries from './plexseries'
-  import plexthumb from './plexthumb'
-
+  import plexthumb from './plexthumb.vue'
   var humanizeDuration = require('humanize-duration')
 
   export default {
     props: ['library', 'server', 'content', 'nowPlaying', 'height'],
     components: {
-      plexserver,
-      plexcontent,
-      plexlibrary,
-      plexseason,
-      plexseries,
       plexthumb
     },
     created () {
@@ -229,9 +206,6 @@
         fullwidth: null,
         resumeFrom: true,
 
-        selectedItem: null,
-        browsingServer: false,
-
         contents: null,
         status: "loading..",
         dialog:false,
@@ -260,13 +234,7 @@
           }
         }
         return height
-      },    
-      selectedItemServer () {
-        if (!this.selectedItem){
-          return false
-        }
-        return this.plex.getServerById(this.selectedItem.machineIdentifier)
-      },  
+      },      
       calculatedHeight (){
         if (this.height){
           return this.height + 'em'
@@ -337,13 +305,6 @@
             this.setBackground()
           } else {
             this.status = 'Error loading libraries!'
-          }
-        })
-      },
-      navigateTo (key){
-        this.server.getMediaByRatingKey(key, (result) => {
-          if (result) {
-            this.selectedItem = result
           }
         })
       },
@@ -436,7 +397,7 @@
         return result
       },
       reset () {
-        this.selectedItem = false
+        this.browsingContent = false
       }
 
     }

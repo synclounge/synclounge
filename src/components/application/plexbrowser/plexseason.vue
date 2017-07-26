@@ -12,7 +12,7 @@
 
           <v-flex xs12>
             <v-card class="darken-2 white--text" :img="getArtUrl">
-              <v-container style="background: rgba(0, 0, 0, .8);"  class="pa-0 ma-0" fluid grid-list-lg>
+              <v-container style="background: rgba(0, 0, 0, .4);"  class="pa-0 ma-0" fluid grid-list-lg>
                 <v-layout row style="height:100%">
                   <v-flex xs12 md3 class="hidden-sm-and-down">
                     <v-card-media
@@ -24,8 +24,8 @@
                   </v-flex>
                   <v-flex xs12 md9 style="position:relative" class="ma-2">
                     <div>
-                      <h3 style="font-weight:bold"> {{ content.title }}</h3>
-                      <h6 class="clickable" v-on:click="navigateTo(contents.MediaContainer.grandparentRatingKey)" >{{ content.parentTitle }}</h6>
+                      <h3 style="font-weight:bold"> {{ content.parentTitle }}</h3>
+                      <h6>{{ content.title }}</h6>
                       <p> {{ contents.MediaContainer.size }} episodes </p>
                       <v-divider></v-divider>         
                       <p style="font-style: italic" class="pt-3"> {{ content.summary }} </p>              
@@ -68,22 +68,18 @@
         </div>
         <plexcontent v-if="browsingContent && browsingContent.type != 'show'" :content="browsingContent"
                      :server="server" :library="library"></plexcontent>
-        <plexseries v-if="browsingContent && browsingContent.type == 'show'" :server="browsingContentServer" :content="browsingContent">
-        </plexseries>
     </span>
 </template>
 
 <script>
   import plexcontent from './plexcontent'
   import plexthumb from './plexthumb.vue'
-  import plexseries from './plexseries'
 
   export default {
     props: ['library', 'server', 'content'],
     components: {
       plexcontent,
-      plexthumb,
-      plexseries
+      plexthumb
     },
     created () {
       // Hit the PMS endpoing /library/sections
@@ -119,9 +115,6 @@
 
     },
     computed: {
-      plex () {
-        return this.$store.getters.getPlex
-      }, 
       getArtUrl () {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
@@ -132,24 +125,11 @@
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.thumb, w / 1, h / 2)
       },
-      browsingContentServer () {
-        if (!this.browsingContent){
-          return false
-        }
-        return this.plex.getServerById(this.browsingContent.machineIdentifier)
-      },
     },
     methods: {
       setContent (content) {
         this.browsingContent = content
       },
-      navigateTo (key){
-        this.server.getMediaByRatingKey(key, (result) => {
-          if (result) {
-            this.browsingContent = result
-          }
-        })
-      }, 
       setBackground () {        
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
