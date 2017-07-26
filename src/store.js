@@ -635,7 +635,7 @@ const plexTogether = {
               if (ourTimeline.playerState == 'buffering') {
                 return
               }
-              if (hostTimeline.playerState == 'stopped' && ourTimeline.state != 'stopped') {
+              if ((hostTimeline.playerState == 'stopped' || !hostTimeline.playerState) && ourTimeline.state != 'stopped') {
                 console.log('Pressing stop because the host did')
                 sendNotification('The host pressed stop')
                 rootState.chosenClient.pressStop(() => {
