@@ -125,6 +125,28 @@ function loadFromFile(callback){
     })
 }
 
+function killOldInvites(){
+    let now = (new Date).getTime()
+    loadFromFile(function(data){
+        if (!data){
+            return
+        }
+        console.log('Deleting invites over 1 month old..')
+        let oldSize = Object.keys(data).length
+        for (let key in data){
+            let invite = data[key]
+            if (Math.abs(invite.starttime - now) > 2629746000){
+                delete data[key]
+            }
+        }
+        console.log('Deleted ' + Math.abs(oldSize - Object.keys(data).length) + ' old invites')
+        saveToFile(data,()=>{})
+    })
+}
+killOldInvites()
+setInterval(function() {
+    killOldInvites()
+},3600000)
 
 var shortenedLinks = {}
 loadFromFile((result) => {
