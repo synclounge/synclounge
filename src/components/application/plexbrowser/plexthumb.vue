@@ -9,7 +9,6 @@
           :height="calculatedHeight"
           :src="getImg(content)"
         >
-          <small v-if="showServer !== undefined" style="position:absolute; bottom:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>  
           <v-container class="pa-0 ma-0" fill-height fluid style="position:relative">
             <v-layout>
               <v-flex xs12>

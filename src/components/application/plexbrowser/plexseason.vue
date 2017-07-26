@@ -24,7 +24,7 @@
                   </v-flex>
                   <v-flex xs12 md9 style="position:relative" class="ma-2">
                     <div>
-                      <h3> {{ content.parentTitle }}</h3>
+                      <h3 style="font-weight:bold"> {{ content.parentTitle }}</h3>
                       <h6>{{ content.title }}</h6>
                       <p> {{ contents.MediaContainer.size }} episodes </p>
                       <v-divider></v-divider>         

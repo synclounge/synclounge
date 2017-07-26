@@ -23,12 +23,12 @@
                   </v-flex>
                   <v-flex xs12 md9 class="ma-2">
                     <div>
-                      <h3> {{ content.parentTitle }}</h3>
+                      <h3 style="font-weight:bold"> {{ content.parentTitle }}</h3>
                       <h3>{{ content.title }}</h3>
                       <p> {{ getSeasons }} - {{ contents.MediaContainer.parentYear }} </p>
                       <v-divider></v-divider>         
                       <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ content.summary }} </p>  
-                        <div style="float:right" class="pa-4">                
+                        <div class="pa-4">                
                           <v-chip v-for="genre in genres" :key="genre.tag" label> 
                             {{genre.tag}}
                           </v-chip>
