@@ -114,12 +114,14 @@
                 </v-container>     
                 <v-card-actions class="pa-4" >
                   <v-spacer></v-spacer>
-                  <v-btn v-if="playable && content.Media.length == 1 && (content.viewOffset == 0 || !content.viewOffset)"  v-on:click.native="playMedia(content)" class="primary white--text">
-                    <v-icon>play_arrow</v-icon> Play
-                  </v-btn>                                 
-                  <v-btn v-else @click.native.stop="dialog = true"  class="primary white--text">
-                    <v-icon>play_arrow</v-icon> Play   
-                  </v-btn> 
+                  <div v-if="playable">
+                    <v-btn v-if="playable && content.Media.length == 1 && (content.viewOffset == 0 || !content.viewOffset)"  v-on:click.native="playMedia(content)" class="primary white--text">
+                      <v-icon>play_arrow</v-icon> Play
+                    </v-btn>                                 
+                    <v-btn v-else @click.native.stop="dialog = true"  class="primary white--text">
+                      <v-icon>play_arrow</v-icon> Play   
+                    </v-btn> 
+                  </div>
                   <span v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
                   <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
                     <v-icon></v-icon> Stop 
