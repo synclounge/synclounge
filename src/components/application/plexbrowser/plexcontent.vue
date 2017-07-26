@@ -10,7 +10,7 @@
 
           <v-flex xs12 class="mt-3">
             <v-card v-if="contents" horizontal :img="getArtUrl" class="darken-2 white--text" style="background: rgba(0,0,0,0.4)">
-              <div style="background: rgba(0,0,0,0.4)">
+              <div style="background: rgba(0,0,0,0.7)">
                 <v-container class="pa-0 ma-0" fluid grid-list-lg>
                   <v-layout row style="height:100%">
                     <v-flex md4 lg3 class="hidden-sm-and-down pa-4" style="margin-top:0">
