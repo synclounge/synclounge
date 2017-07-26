@@ -339,7 +339,6 @@
         return (this.$store.getters.getSettingLASTSERVER && this.plex.getServerById(this.$store.getters.getSettingLASTSERVER))
       },
       lastServer () {
-        console.log(this.$store.getters.getSettingLASTSERVER)
         return this.plex.getServerById(this.$store.getters.getSettingLASTSERVER)
       },      
       onDeckUpStyle () {

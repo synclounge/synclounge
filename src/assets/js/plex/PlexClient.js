@@ -228,7 +228,6 @@ module.exports = function PlexClient () {
   }
 
   this.updateTimelineObject = function (result, responseTime, callback) {
-
     if (responseTime == -1) {
       // PTPLAYER
       this.events.emit('new_timeline', result)
@@ -258,6 +257,7 @@ module.exports = function PlexClient () {
 
     if (!result.MediaContainer.Timeline) {
       // Not a valid timeline object
+      console.log('Invalid timeline object')
       return
     }
     // Valid timeline data
@@ -272,7 +272,7 @@ module.exports = function PlexClient () {
       if (_timeline.type == 'video'){
         videoTimeline = _timeline
       }
-      if (_timeline.state || i == (timelines.length - 1)) {
+      if ((_timeline.state && _timeline.state != 'stopped')|| i == (timelines.length - 1)) {
         this.events.emit('new_timeline', timelines[i]['$'])
         var clonetimeline = this.lastTimelineObject
         this.lastTimelineObject = timelines[i]['$']
