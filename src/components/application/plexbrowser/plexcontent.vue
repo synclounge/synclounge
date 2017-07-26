@@ -128,7 +128,7 @@
                   </v-btn>
                 </v-card-actions>    
                 <v-divider></v-divider>
-                <div v-if="subsetParentData(6).length >= 0 && content.type == 'episode'" style="background: rgba(0,0,0,0.3)">
+                <div v-if="subsetParentData(6).length >= 0 && content.type == 'episode' && playable" style="background: rgba(0,0,0,0.3)">
                   <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>            
                   <v-layout v-if="parentData" row wrap justify-start>
                       <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)"  :key="ep.key" >            
