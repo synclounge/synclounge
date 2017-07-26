@@ -272,7 +272,7 @@ module.exports = function PlexClient () {
       if (_timeline.type == 'video'){
         videoTimeline = _timeline
       }
-      if (_timeline.state || i == (timelines.length - 1)) {
+      if ((_timeline.state && _timeline.state != 'stopped')|| i == (timelines.length - 1)) {
         this.events.emit('new_timeline', timelines[i]['$'])
         var clonetimeline = this.lastTimelineObject
         this.lastTimelineObject = timelines[i]['$']
