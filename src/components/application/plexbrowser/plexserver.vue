@@ -32,7 +32,7 @@
               </span>
             </h4>
             <v-layout v-if="onDeck" row wrap>
-                <v-flex xs12 md4 xl4 lg4 class="pb-3 pa-4" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
+                <v-flex xs12 md3 xl3 lg3 class="pb-3 pa-4" v-for="content in subsetOnDeck(4)" :key="content.key" >                    
                     <plexthumb :content="content" :server="server" type="art" :height="20" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>
@@ -136,7 +136,7 @@
         return []
       },
       onDeckUpStyle () {
-        if ((this.onDeckOffset + 3) >= this.onDeck.MediaContainer.Metadata.length){
+        if ((this.onDeckOffset + 4) >= this.onDeck.MediaContainer.Metadata.length){
           return {
             opacity: 0.5
           }
@@ -176,10 +176,10 @@
         if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
             return false
         }
-        if (this.onDeckOffset - 3 < 0){
+        if (this.onDeckOffset - 4 < 0){
           this.onDeckOffset = 0
         } else {
-          this.onDeckOffset = this.onDeckOffset - 3
+          this.onDeckOffset = this.onDeckOffset - 4
         }
 
       },
@@ -187,10 +187,10 @@
         if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
             return false
         }
-        if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length){
+        if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length){
           // This would overflow!
         } else {
-          this.onDeckOffset = this.onDeckOffset + 3
+          this.onDeckOffset = this.onDeckOffset + 4
         }
 
       },
