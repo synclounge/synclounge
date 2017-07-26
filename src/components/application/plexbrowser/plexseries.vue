@@ -7,11 +7,11 @@
           </v-flex>
         </v-layout>
         <div v-if="contents && !browsingContent" class="mt-3">      
+          
 
-
-          <v-flex xs12  style="background: rgba(0, 0, 0, .4);">
+          <v-flex xs12>
             <v-card class="darken-2 white--text" :img="getArtUrl">
-              <v-container   class="pa-0 ma-0" fluid grid-list-lg>
+              <v-container style="background: rgba(0, 0, 0, .8);"  class="pa-0 ma-0" fluid grid-list-lg>
                 <v-layout row style="height:100%">
                   <v-flex xs12 md3 class="hidden-sm-and-down">
                     <v-card-media
@@ -23,8 +23,7 @@
                   </v-flex>
                   <v-flex xs12 md9 class="ma-2">
                     <div>
-                      <h3 style="font-weight:bold"> {{ content.parentTitle }}</h3>
-                      <h3>{{ content.title }}</h3>
+                      <h3 style="font-weight:bold">{{ content.title }}</h3>
                       <p> {{ getSeasons }} - {{ contents.MediaContainer.parentYear }} </p>
                       <v-divider></v-divider>         
                       <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ content.summary }} </p>  
@@ -145,6 +144,13 @@
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
         this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(this.content.art, w / 4, h / 4, 8))
+      },      
+      navigateTo (key){
+        this.server.getMediaByRatingKey(key, (result) => {
+          if (result) {
+            this.browsingContent = result
+          }
+        })
       },
       reset () {
         this.browsingContent = false
