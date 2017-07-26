@@ -12,25 +12,25 @@
 
           <v-flex xs12>
             <v-card class="darken-2 white--text" :img="getArtUrl">
-              <v-container style="background: rgba(0, 0, 0, .4); height:25em"  class="pa-0 ma-0" fluid grid-list-lg>
+              <v-container style="background: rgba(0, 0, 0, .4);"  class="pa-0 ma-0" fluid grid-list-lg>
                 <v-layout row style="height:100%">
-                  <v-flex xs3>
+                  <v-flex xs12 md3 class="hidden-sm-and-down">
                     <v-card-media
                       :src="getThumb"
                       class="ma-0 pa-0"
-                      height="100%"
+                      height="25em"
                       contain
                     ></v-card-media>
                   </v-flex>
-                  <v-flex xs9 style="position:relative">
+                  <v-flex xs12 md9 style="position:relative" class="ma-2">
                     <div>
                       <h3> {{ content.parentTitle }}</h3>
                       <h6>{{ content.title }}</h6>
                       <p> {{ contents.MediaContainer.size }} episodes </p>
                       <v-divider></v-divider>         
                       <p style="font-style: italic" class="pt-3"> {{ content.summary }} </p>              
-                      <div >
-                        <div style="position:absolute; right: 0; bottom:0" class="pa-4">
+                      <div>
+                        <div style="float:right" class="pa-4">
                           <v-chip v-if="contents.MediaContainer.grandparentContentRating" v-tooltip:top="{ html: 'Content Rating' }" label> {{ contents.MediaContainer.grandparentContentRating }}</v-chip>
                           <v-chip v-if="contents.MediaContainer.grandparentStudio" v-tooltip:top="{ html: 'Studio' }" secondary> {{ contents.MediaContainer.grandparentStudio }}</v-chip>
                         </div>
@@ -84,7 +84,7 @@
     created () {
       // Hit the PMS endpoing /library/sections
       var that = this
-      this.server.getSeriesContent(this.content.key, 0, 500, 1,  (result) => {
+      this.server.getSeriesChildren(this.content.key, 0, 500, 1,  (result) => {
         if (result) {
           this.contents = result
           this.setBackground()

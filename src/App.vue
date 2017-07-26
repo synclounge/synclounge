@@ -3,7 +3,7 @@
     <v-navigation-drawer temporary v-model="drawer" disable-route-watcher>
       <leftsidebar></leftsidebar>
     </v-navigation-drawer>
-    <v-navigation-drawer  style="padding:0" persistent v-model="drawerRight" right disable-route-watcher>
+    <v-navigation-drawer  style="padding:0" persistent v-model="drawerRight" right disable-route-watcher enable-resize-watcher>
       <drawerright></drawerright>
     </v-navigation-drawer>
     <v-toolbar>

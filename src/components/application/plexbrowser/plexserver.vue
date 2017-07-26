@@ -32,8 +32,8 @@
               </span>
             </h4>
             <v-layout v-if="onDeck" row wrap>
-                <v-flex xs12 md4 xl4 lg4 class="pb-3" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
-                    <plexthumb :content="content" :server="server" type="art" :height="25" @contentSet="setContent(content)"></plexthumb>
+                <v-flex xs12 md4 xl4 lg4 class="pb-3 pa-4" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
+                    <plexthumb :content="content" :server="server" type="art" :height="20" @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>
             <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>

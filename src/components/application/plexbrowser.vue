@@ -3,7 +3,7 @@
     <span v-if="browsingServer || selectedItem">
       <v-icon v-on:click="reset()" style="cursor: pointer !important">home</v-icon>
     </span>
-    <div v-if="!browsingServer && !selectedItem && !browsingContent">
+    <div v-if="!browsingServer && !selectedItem && !browsingContent">      
       <h4> Search </h4>
       <v-layout class="mb-3" v-if="!selectedItem && !browsingServer" row wrap>
         <v-flex xs10 lg4>
@@ -62,6 +62,19 @@
         </v-layout>
       </div>
       <v-divider></v-divider>
+      <div class="pt-4" v-if="validLastServer && results.length == 0">            
+        <h4 v-if="subsetOnDeck(3).length > 0">  Continue watching from {{ lastServer.name }} 
+          <span style="float:right; font-size:5rem; user-select: none;">
+            <v-icon fa @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon fa @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
+          </span>
+        </h4>
+        <v-layout v-if="onDeck" row wrap>
+            <v-flex xs12 md4 xl4 lg4 class="pb-3 pa-4" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
+                <plexthumb :content="content" :server="lastServer" type="art" :height="20" @contentSet="setContent(content)"></plexthumb>
+            </v-flex>
+        </v-layout>
+      </div>
+      <v-divider></v-divider>
       <div class="pt-4" v-if="results.length == 0">
         <h4> Browse </h4>
         <v-layout row wrap>  
@@ -115,11 +128,11 @@
     </div>
     <span v-if="selectedItem">
       <plexcontent v-if="selectedItem.type == 'episode' || selectedItem.type == 'movie'"
-                    :server="selectedItem.server" :content="selectedItem">
+                    :server="selectedItem.server || lastServer" :content="selectedItem">
       </plexcontent>
-      <plexseason v-if="selectedItem.type == 'series'" :server="selectedItem.server" :content="selectedItem">
+      <plexseason v-if="selectedItem.type == 'series'" :server="selectedItem.server  || lastServer" :content="selectedItem">
       </plexseason>
-      <plexseries v-if="selectedItem.type == 'show'" :server="selectedItem.server" :content="selectedItem">
+      <plexseries v-if="selectedItem.type == 'show'" :server="selectedItem.server || lastServer" :content="selectedItem">
       </plexseries>
     </span>
     <plexserver v-if="browsingServer" :server="browsingServer">
@@ -148,6 +161,15 @@
     },
     name: 'plexbrowser',
     mounted () {
+
+      if (this.lastServer){
+        this.lastServer.getOnDeck(0, 10, (result) => {
+          if (result) {
+            this.onDeck = result
+          }
+        })
+      }
+
     },
     methods: {
       setContent (content) {
@@ -161,6 +183,12 @@
           return true
         } 
         return false
+      },      
+      subsetOnDeck (size) {
+        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+            return []
+        }
+        return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + size)
       },
       reset () {
         console.log('resetting')
@@ -171,6 +199,28 @@
         this.searching = false
         this.setBackground()
         //this.$store.commit('SET_BACKGROUND',null)
+      },      
+      onDeckDown (){        
+        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+            return false
+        }
+        if (this.onDeckOffset - 3 < 0){
+          this.onDeckOffset = 0
+        } else {
+          this.onDeckOffset = this.onDeckOffset - 3
+        }
+
+      },
+      onDeckUp () {        
+        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+            return false
+        }
+        if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length){
+          // This would overflow!
+        } else {
+          this.onDeckOffset = this.onDeckOffset + 3
+        }
+
       },
       ownerOfServer (server) {
         if (server.owned == '1') {
@@ -254,6 +304,8 @@
         browsingContent: null,
 
         results: [],
+        onDeckOffset: 0,
+        onDeck: null,
         searchWord: '',
         searchStatus: 'Search your available Plex Media Servers',
         searching: false,
@@ -282,6 +334,27 @@
           return false
         })
         return servers
+      },
+      validLastServer () {
+        return (this.$store.getters.getSettingLASTSERVER && this.plex.getServerById(this.$store.getters.getSettingLASTSERVER))
+      },
+      lastServer () {
+        console.log(this.$store.getters.getSettingLASTSERVER)
+        return this.plex.getServerById(this.$store.getters.getSettingLASTSERVER)
+      },      
+      onDeckUpStyle () {
+        if ((this.onDeckOffset + 3) >= this.onDeck.MediaContainer.Metadata.length){
+          return {
+            opacity: 0.5
+          }
+        }
+      },
+      onDeckDownStyle () {
+        if (this.onDeckOffset == 0){
+          return {
+            opacity: 0.5
+          }
+        }
       },
       filteredShows () {
         return this.results.filter((item) => {

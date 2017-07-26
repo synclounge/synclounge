@@ -118,7 +118,7 @@
                     <v-icon>play_arrow</v-icon> Play
                   </v-btn>                                 
                   <v-btn v-else @click.native.stop="dialog = true"  class="primary white--text">
-                    <v-icon>play_arrow</v-icon> Play Version   
+                    <v-icon>play_arrow</v-icon> Play   
                   </v-btn> 
                   <span v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
                   <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
@@ -126,7 +126,7 @@
                   </v-btn>
                 </v-card-actions>    
                 <v-divider></v-divider>
-                <div v-if="subsetParentData(6).length >= 0 && content.type == 'episode'">
+                <div v-if="subsetParentData(6).length >= 0 && content.type == 'episode'" style="background: rgba(0,0,0,0.8)">
                   <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>            
                   <v-layout v-if="parentData" row wrap justify-start>
                       <v-flex xs3 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)"  :key="ep.key" >            
@@ -185,7 +185,7 @@
         if (result) {
           this.contents = result
           if (result.type == 'episode'){
-            this.server.getSeriesContent(result.parentKey + '/children', 0, 500, 1,  (res) => {
+            this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1,  (res) => {
               if (res){
                 this.parentData = res
               }
@@ -296,7 +296,7 @@
           if (result) {
             this.contents = result
             if (result.type == 'episode'){
-              this.server.getSeriesContent(result.parentKey + '/children', 0, 500, 1,  (res) => {
+              this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1,  (res) => {
                 if (res){
                   this.parentData = res
                 }

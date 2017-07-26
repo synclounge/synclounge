@@ -9,37 +9,55 @@
         <div v-if="contents && !browsingContent" class="mt-3">      
 
 
-          <v-flex xs12>
+          <v-flex xs12  style="background: rgba(0, 0, 0, .4);">
             <v-card class="darken-2 white--text" :img="getArtUrl">
-              <v-container style="background: rgba(0, 0, 0, .4); height:25em"  class="pa-0 ma-0" fluid grid-list-lg>
+              <v-container   class="pa-0 ma-0" fluid grid-list-lg>
                 <v-layout row style="height:100%">
-                  <v-flex xs3>
+                  <v-flex xs12 md3 class="hidden-sm-and-down">
                     <v-card-media
                       :src="getThumb(content)"
-                      class="ma-0 pa-0"
-                      height="100%"
+                      class="ma-0 pa-0 hidden-sm-and-down"
+                      height="25em"
                       contain
                     ></v-card-media>
                   </v-flex>
-                  <v-flex xs9>
+                  <v-flex xs12 md9 class="ma-2">
                     <div>
                       <h3> {{ content.parentTitle }}</h3>
                       <h3>{{ content.title }}</h3>
                       <p> {{ getSeasons }} - {{ contents.MediaContainer.parentYear }} </p>
                       <v-divider></v-divider>         
-                      <p style="font-style: italic" class="pt-3"> {{ content.summary }} </p>      
+                      <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ content.summary }} </p>  
+                        <div style="float:right" class="pa-4">                
+                          <v-chip v-for="genre in genres" :key="genre.tag" label> 
+                            {{genre.tag}}
+                          </v-chip>
+                        </div>
+                      <v-subheader class="white--text"> Featuring </v-subheader>
+                      <v-layout row wrap v-if="seriesData">
+                        <v-flex v-for="role in roles" :key="role.tag" xs12 md6 lg4>        
+                          <v-chip style="border: none; background: none; color: white"> 
+                            <v-avatar>
+                              <img :src="role.thumb">
+                            </v-avatar>
+                            {{role.tag}} 
+                          <div style="opacity:0.7;font-size:80% " class="pa-2"> {{role.role}} </div>
+                          </v-chip>
+                        </v-flex>         
+                      </v-layout>      
                     </div>                
                   </v-flex>   
                 </v-layout>                
-              </v-container>                  
+              </v-container>           
             </v-card>
           </v-flex>
-          <h4 class="mt-3"> Episodes </h4>
-            <v-layout class="row" row wrap>
-                <v-flex xs4 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
-                  <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
-                </v-flex>
-            </v-layout>  
+          <h4 class="mt-3"> Seasons </h4>
+          <v-layout class="row" row wrap>
+              <v-flex xs4 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
+                <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
+              </v-flex>
+          </v-layout>            
+         
         </div>
         <plexseason v-if="browsingContent" :content="browsingContent" :server="server" :library="library"></plexseason>
     </span>
@@ -58,12 +76,17 @@
     created () {
       // Hit the PMS endpoing /library/sections
       var that = this
-      this.server.getSeriesContent(this.content.key, this.startingIndex, this.size, 1, (result) => {
+      this.server.getSeriesChildren(this.content.key, this.startingIndex, this.size, 1, (result) => {
         if (result) {
           this.contents = result
           this.setBackground()
         } else {
           this.status = 'Error loading libraries!'
+        }
+      })
+      this.server.getSeriesData('/library/metadata/'+ this.content.ratingKey,(res) => {
+        if (res){
+          this.seriesData = res
         }
       })
     },
@@ -74,6 +97,7 @@
         size: 150,
 
         contents: null,
+        seriesData: null,
         status: "loading..",
       }
     },
@@ -94,6 +118,18 @@
           return this.contents.MediaContainer.size + ' season'
         }
         return this.contents.MediaContainer.size + ' seasons'
+      },
+      roles () {
+        if (!this.seriesData){
+          return []
+        }
+        return this.seriesData.MediaContainer.Metadata[0].Role.slice(0,6)
+      },
+      genres () {
+        if (!this.seriesData){
+          return []
+        }
+        return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0,5)
       }
     },
     methods: {

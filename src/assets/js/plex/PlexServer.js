@@ -208,11 +208,34 @@ module.exports = function PlexServer () {
       return callback(result)
     })
   }
-  this.getSeriesContent = function (key, start, size, excludeAllLeaves, callback) {
+  this.getRelated = function (ratingKey, size, callback) {
+    ratingKey = ratingKey.replace('/library/metadata/','')
+    this.hitApi('/hubs/metadata/'+ratingKey+'/related', {
+      excludeFields: 'summary',
+      count: 12
+    }, function (result, that) {
+      return callback(result)
+    })
+  }
+  this.getSeriesData = function (key, callback) {
+    this.hitApi(key, {
+      includeConcerts:1,
+      includeExtras:1,
+      includeOnDeck:1,
+      includePopularLeaves:1,
+      asyncCheckFiles:1,
+      asyncRefreshAnalysis:1,
+      asyncRefreshLocalMediaAgent:1
+    }, function (result, that) {
+      callback(result)
+    })
+  }
+  
+  this.getSeriesChildren = function (key, start, size, excludeAllLeaves, callback) {
     this.hitApi(key, {
       'X-Plex-Container-Start': start,
       'X-Plex-Container-Size': size,
-      'excludeAllLeaves': excludeAllLeaves
+      excludeAllLeaves: excludeAllLeaves
     }, function (result, that) {
       callback(result)
     })

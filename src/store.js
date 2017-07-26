@@ -85,6 +85,7 @@ const state = {
   HOMEINIT: getSetting('HOMEINIT'),
   PTPLAYERQUALITY: getSetting('PTPLAYERQUALITY'),
   PTPLAYERVOLUME: getSetting('PTPLAYERVOLUME'),
+  LASTSERVER: getSetting('LASTSERVER'),
   stats: {}
 }
 
@@ -95,6 +96,8 @@ const mutations = {
       if (ratingKey != null) {
         // Playing something different!
         let server = state.plex.getServerById(state.chosenClient.lastTimelineObject.machineIdentifier)
+        state.LASTSERVER = state.chosenClient.lastTimelineObject.machineIdentifier        
+        window['localStorage'].setItem('LASTSERVER',state.chosenClient.lastTimelineObject.machineIdentifier)
         if (!server) {
           return
         }
@@ -252,6 +255,10 @@ const mutations = {
   setSettingPTPLAYERVOLUME (state, data){
     window['localStorage'].setItem('PTPLAYERVOLUME',JSON.stringify(data))
     state.PTPLAYERVOLUME = data
+  },  
+  setSettingLASTSERVER (state, data){
+    window['localStorage'].setItem('LASTSERVER',data)
+    state.LASTSERVER = data
   },
   setSettingHOMEINIT (state, data) {
     setSetting('HOMEINIT', data)
@@ -358,6 +365,9 @@ const getters = {
   },  
   getSettingPTPLAYERVOLUME: state => {
     return state.PTPLAYERVOLUME
+  },
+  getSettingLASTSERVER: state => {
+    return state.LASTSERVER
   }
 }
 const actions = {
