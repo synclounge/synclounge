@@ -41,21 +41,6 @@
               </v-container>                  
             </v-card>
           </v-flex>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           <h4 class="mt-3"> Episodes </h4>
           <v-divider></v-divider>
           <div>          

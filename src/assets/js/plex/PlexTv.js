@@ -369,7 +369,7 @@ module.exports = function () {
         return false
       }
       //Check if length is close enough
-      if (Math.abs(data.duration - hostData.maxTime) > 5000) {
+      if (Math.abs(parseInt(data.duration) - parseInt(hostData.maxTime)) > 5000 || !data.duration) {
         //global.renderLog.info('wrong time')
         return false
       }
