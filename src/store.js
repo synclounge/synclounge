@@ -61,7 +61,7 @@ if (process.env.NODE_ENV == 'development') {
 const state = {
   count: 0,
   appTitle: 'PlexTogether',
-  appVersion: '1.2.8',
+  appVersion: '1.3.0',
   background: null,
   shownChat: false,
   plex: null,
