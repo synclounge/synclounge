@@ -98,11 +98,15 @@
           {
             text: 'PlexTogether US1',
             value: 'https://us1.plextogether.com'
+          },        
+          {
+            text: 'PlexTogether US2',
+            value: 'https://us2.plextogether.com'
           },
           {
             text: 'PlexTogether EU1',
             value: 'https://eu1.plextogether.com'
-          },
+          },  
           {
             text: 'Custom Server',
             value: 'custom'
