@@ -103,6 +103,16 @@
         console.log('Player checks passed')
         let lastPlayerSpeed = that.player.currentTime()
         let lastPlayerTime = that.player.currentTime() * 1000
+
+
+        
+        if (seekTo < that.bufferedEnd && seekTo > that.bufferStart){      
+          console.log('Seeking to a buffered time')    
+          that.player.currentTime(seekTo)
+          return data.callback(true)
+        }
+
+
         if (Math.abs(seekTo - that.lastTime) < 7000 && !that.blockedSpeedChanges) {
           console.log('Seeking via the speed up method')
           let oldSources = that.player.options_.sources
@@ -140,7 +150,7 @@
             if (current < slidingTime) {
               // Speed up
               playbackSpeed = playbackSpeed + 0.0005
-              if (that.player.playbackRate() < 1.3) {
+              if (that.player.playbackRate() < 1.1) {
                 that.player.playbackRate(playbackSpeed)
               }
             }
@@ -163,6 +173,7 @@
             lastPlayerSpeed = that.player.currentTime()
           }, 25)
         } else {
+          console.log('Directly seeking to a time')
           if (!that.player || !that.player.currentTime()) {
             data.callback(false)
           }
@@ -177,7 +188,7 @@
               return data.callback(true)
             }
             ticks++
-            if (ticks > 300) {
+            if (ticks > 150) {
               clearInterval(ticker)
               return data.callback(false)
             }
@@ -245,6 +256,12 @@
         if (this.$refs && this.$refs.videoPlayer) {
           return this.$refs.videoPlayer.player
         }
+      },
+      bufferStart: function () {        
+        return Math.round(this.player.buffered().start(0) * 1000)
+      },
+      bufferEnd: function () {
+        return Math.round(this.player.buffered().end(0) * 1000)
       },
       playerOptions () {
 
