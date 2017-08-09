@@ -196,8 +196,8 @@
         // Below are options chosen for each copy
         chosenMediaIndex: 0, // The index of the item we want to play
         chosenQuality: JSON.parse(window['localStorage'].getItem('PTPLAYERQUALITY')) || 'Original', // The quality profile
-        chosenSubtitleIndex: null, // Subtitle track index
-        chosenAudioTrackIndex: null, // Audio track index
+        chosenSubtitleIndex: -100, // Subtitle track index
+        chosenAudioTrackIndex: -100, // Audio track index
         sources: [],
 
         // Player status
@@ -236,8 +236,7 @@
         this.changedPlaying(false)
       },
       chosenAudioTrackIndex: function () {
-
-        if (!this.chosenAudioTrackIndex){
+        if (this.chosenAudioTrackIndex == -100){
           return
         }
         console.log('Audio track change')
@@ -250,44 +249,13 @@
           this.savePrefence('audio',seriesKey,languageCode)
           
         }
-        var that = this
-        let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id
-        let baseparams = this.getSourceByLabel(this.chosenQuality).params
-        let params = {
-          'audioStreamID': audioStreamID,
-          'X-Plex-Product': baseparams['X-Plex-Product'],
-          'X-Plex-Version': baseparams['X-Plex-Version'],
-          'X-Plex-Client-Identifier': baseparams['X-Plex-Client-Identifier'],
-          'X-Plex-Platform': baseparams['X-Plex-Platform'],
-          'X-Plex-Platform-Version': baseparams['X-Plex-Platform-Version'],
-          'X-Plex-Device': baseparams['X-Plex-Device'],
-          'X-Plex-Device-Name': baseparams['X-Plex-Device-Name'],
-          'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
-          'X-Plex-Token': baseparams['X-Plex-Token']
-        }
-        var query = '';
-        for (let key in params) {
-          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
-        }
-        let url = this.chosenServer.chosenConnection.uri + '/library/parts/' + this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id + '?' + query
-        this.ready = false
-        let options = {
-          method: 'PUT',
-          url: url
-        }
-        request(options, function (error, response, body) {
-          if (!error) {
-            that.changedPlaying(false)
-            return
-          }
-          //console.log(error)
-        })
+        this.changeAudioTrack(() => {})
 
       },
-      chosenSubtitleIndex: function () {        
-        if (!this.chosenSubtitleIndex){
+      chosenSubtitleIndex: function () {      
+        if (this.chosenSubtitleIndex == -100){
           return
-        }
+        } 
         console.log('Audio track change')
         if (this.playingMetadata && this.playingMetadata.type == 'episode') {
           // We should save this preference for this series in our localStorage
@@ -298,42 +266,7 @@
           this.savePrefence('subs',seriesKey,languageCode)
           
         }
-        //console.log('Subtitle track change')
-        var that = this
-        let subtitleStreamID = 0
-        if (this.chosenSubtitleIndex > -1) {
-          subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].id
-        }
-        let baseparams = this.getSourceByLabel(this.chosenQuality).params
-        let params = {
-          'subtitleStreamID': subtitleStreamID,
-          'X-Plex-Product': baseparams['X-Plex-Product'],
-          'X-Plex-Version': baseparams['X-Plex-Version'],
-          'X-Plex-Client-Identifier': baseparams['X-Plex-Client-Identifier'],
-          'X-Plex-Platform': baseparams['X-Plex-Platform'],
-          'X-Plex-Platform-Version': baseparams['X-Plex-Platform-Version'],
-          'X-Plex-Device': baseparams['X-Plex-Device'],
-          'X-Plex-Device-Name': baseparams['X-Plex-Device-Name'],
-          'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
-          'X-Plex-Token': baseparams['X-Plex-Token']
-        }
-        var query = '';
-        for (let key in params) {
-          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
-        }
-        let url = this.chosenServer.chosenConnection.uri + '/library/parts/' + this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id + '?' + query
-        this.ready = false
-        let options = {
-          method: 'PUT',
-          url: url
-        }
-        request(options, function (error, response, body) {
-          if (!error) {
-            that.changedPlaying(false)
-            return
-          }
-          //console.log(error)
-        })
+        this.changeSubtitleTrack((res) => {})
       }
     },
     computed: {
@@ -462,6 +395,80 @@
         }
         return null
       },
+      changeSubtitleTrack (callback) {
+        //console.log('Subtitle track change')
+        var that = this
+        let subtitleStreamID = 0
+        if (this.chosenSubtitleIndex > -1) {
+          subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].id
+        }
+        let baseparams = this.getSourceByLabel(this.chosenQuality).params
+        let params = {
+          'subtitleStreamID': subtitleStreamID,
+          'X-Plex-Product': baseparams['X-Plex-Product'],
+          'X-Plex-Version': baseparams['X-Plex-Version'],
+          'X-Plex-Client-Identifier': baseparams['X-Plex-Client-Identifier'],
+          'X-Plex-Platform': baseparams['X-Plex-Platform'],
+          'X-Plex-Platform-Version': baseparams['X-Plex-Platform-Version'],
+          'X-Plex-Device': baseparams['X-Plex-Device'],
+          'X-Plex-Device-Name': baseparams['X-Plex-Device-Name'],
+          'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
+          'X-Plex-Token': baseparams['X-Plex-Token']
+        }
+        var query = '';
+        for (let key in params) {
+          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
+        }
+        let url = this.chosenServer.chosenConnection.uri + '/library/parts/' + this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id + '?' + query
+        this.ready = false
+        let options = {
+          method: 'PUT',
+          url: url
+        }
+        request(options, function (error, response, body) {
+          if (!error) {
+            that.changedPlaying(false)
+            return callback(true)
+          }
+          return callback(false)
+          //console.log(error)
+        })
+      },
+      changeAudioTrack (callback){
+        var that = this
+        let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id
+        let baseparams = this.getSourceByLabel(this.chosenQuality).params
+        let params = {
+          'audioStreamID': audioStreamID,
+          'X-Plex-Product': baseparams['X-Plex-Product'],
+          'X-Plex-Version': baseparams['X-Plex-Version'],
+          'X-Plex-Client-Identifier': baseparams['X-Plex-Client-Identifier'],
+          'X-Plex-Platform': baseparams['X-Plex-Platform'],
+          'X-Plex-Platform-Version': baseparams['X-Plex-Platform-Version'],
+          'X-Plex-Device': baseparams['X-Plex-Device'],
+          'X-Plex-Device-Name': baseparams['X-Plex-Device-Name'],
+          'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
+          'X-Plex-Token': baseparams['X-Plex-Token']
+        }
+        var query = '';
+        for (let key in params) {
+          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
+        }
+        let url = this.chosenServer.chosenConnection.uri + '/library/parts/' + this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id + '?' + query
+        this.ready = false
+        let options = {
+          method: 'PUT',
+          url: url
+        }
+        request(options, function (error, response, body) {
+          if (!error) {
+            that.changedPlaying(false)
+            return callback(true)
+          }
+          return callback(false)
+          //console.log(error)
+        })
+      },
       getInitAudioTrackIndex: function (){
         console.log('Fetching audio track')
         // Load preferences from file
@@ -585,7 +592,6 @@
         }
 
         function req () {
-          that.sources = that.generateSources()
           var options = {
             headers: {
               accept: 'application/json'
@@ -620,11 +626,17 @@
           this.chosenServer.getMediaByRatingKey(this.chosenKey, (result) => {
             //console.log(result)
             this.playingMetadata = result
+            this.sources = that.generateSources()
             this.chosenAudioTrackIndex = this.getInitAudioTrackIndex()
             this.chosenSubtitleIndex = this.getInitSubtitleTrackIndex()
+            if (this.chosenAudioTrackIndex != 0 || this.chosenSubtitleIndex != 0){
+              this.changeSubtitleTrack(() => {
+                this.changeAudioTrack(() => {
+                  req()
+                })
+              })
+            }
 
-
-            req()
           })
         } else {
           req()
