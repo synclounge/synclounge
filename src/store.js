@@ -271,6 +271,7 @@ const mutations = {
     state.blockAutoPlay = value
   },
   SET_DECISIONBLOCKED (state, value) {
+    console.log('Setting decisionBlocked to ' + value)
     state.decisionBlocked = value
   },
   REFRESH_PLEXDEVICES (state) {
