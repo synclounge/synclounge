@@ -141,6 +141,8 @@
           this.playertime = 0
           this.bufferedTile = null
           this.playingMetadata = null
+          this.initDoneAudio = false
+          this.initDoneSubs = false
           return data.callback(true)
         }
         if (data.command == '/player/playback/seekTo') {
@@ -198,6 +200,8 @@
         chosenQuality: JSON.parse(window['localStorage'].getItem('PTPLAYERQUALITY')) || 'Original', // The quality profile
         chosenSubtitleIndex: -100, // Subtitle track index
         chosenAudioTrackIndex: -100, // Audio track index
+        initDoneAudio: false,
+        initDoneSubs: false,
         sources: [],
 
         // Player status
@@ -219,12 +223,15 @@
     },
     watch: {
       chosenKey: function () {
+        //console.log('Chosen key changed')
         this.changedPlaying(true)
       },
       chosenServer: function () {
-        this.changedPlaying(true)
+        //console.log('Chosen server changed')
+        //this.changedPlaying(true)
       },
       chosenQuality: function () {
+        //console.log('Chosen quality changed')
         this.changedPlaying(false)
         //console.log('Our new preferred quality is now ' + this.chosenQuality )
         this.$store.commit('setSettingPTPLAYERQUALITY',this.chosenQuality)
@@ -233,13 +240,15 @@
 
         this.chosenSubtitleIndex = 0
         this.chosenAudioTrackIndex = 0
+        //console.log('Chosen mediaindex changed')
         this.changedPlaying(false)
       },
       chosenAudioTrackIndex: function () {
-        if (this.chosenAudioTrackIndex == -100){
+        if (this.chosenAudioTrackIndex == -100 || !this.initDoneAudio){
+          //console.log('Audio track changed but not going to do any work')
           return
         }
-        console.log('Audio track change')
+        //console.log('Audio track change')
         if (this.playingMetadata && this.playingMetadata.type == 'episode') {
           // We should save this preference for this series in our localStorage
 
@@ -249,14 +258,17 @@
           this.savePrefence('audio',seriesKey,languageCode)
           
         }
-        this.changeAudioTrack(() => {})
+        this.changeAudioTrack(() => {          
+          this.changedPlaying(false)
+        })
 
       },
       chosenSubtitleIndex: function () {      
-        if (this.chosenSubtitleIndex == -100){
+        if (this.chosenSubtitleIndex == -100 || !this.initDoneSubs){
+          //console.log('Sub track changed but not going to do any work')
           return
         } 
-        console.log('Audio track change')
+        //console.log('Subtitle track change')
         if (this.playingMetadata && this.playingMetadata.type == 'episode') {
           // We should save this preference for this series in our localStorage
 
@@ -266,7 +278,9 @@
           this.savePrefence('subs',seriesKey,languageCode)
           
         }
-        this.changeSubtitleTrack((res) => {})
+        this.changeSubtitleTrack((res) => {
+          this.changedPlaying(false)
+        })
       }
     },
     computed: {
@@ -396,7 +410,7 @@
         return null
       },
       changeSubtitleTrack (callback) {
-        //console.log('Subtitle track change')
+        console.log('Changing the subtitle track')
         var that = this
         let subtitleStreamID = 0
         if (this.chosenSubtitleIndex > -1) {
@@ -427,7 +441,6 @@
         }
         request(options, function (error, response, body) {
           if (!error) {
-            that.changedPlaying(false)
             return callback(true)
           }
           return callback(false)
@@ -435,6 +448,7 @@
         })
       },
       changeAudioTrack (callback){
+        console.log('Changing the audio track')
         var that = this
         let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id
         let baseparams = this.getSourceByLabel(this.chosenQuality).params
@@ -462,7 +476,6 @@
         }
         request(options, function (error, response, body) {
           if (!error) {
-            that.changedPlaying(false)
             return callback(true)
           }
           return callback(false)
@@ -580,10 +593,10 @@
         })
       },
       changedPlaying: function (changeItem) {
-
+        console.log('CHANGED PLAYING')
         var that = this
         this.ready = false
-        this.$store.commit('SET_DECISIONBLOCKED', false)
+        //this.$store.commit('SET_DECISIONBLOCKED', false)
         //console.log('Changed what we are meant to be playing!')
         if (!this.chosenKey || !this.chosenServer) {
           this.playerstatus = 'stopped'
@@ -598,6 +611,7 @@
             },
             url: that.getSourceByLabel(that.chosenQuality).initUrl
           }
+          console.log('Firing final transcode decision command')
           request(options, function (error, response, body) {
             if (error){
               return false
@@ -631,7 +645,9 @@
             this.chosenSubtitleIndex = this.getInitSubtitleTrackIndex()
             if (this.chosenAudioTrackIndex != 0 || this.chosenSubtitleIndex != 0){
               this.changeSubtitleTrack(() => {
+                this.initDoneSubs = true
                 this.changeAudioTrack(() => {
+                  this.initDoneAudio = true
                   req()
                 })
               })
