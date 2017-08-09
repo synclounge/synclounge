@@ -268,15 +268,19 @@
           //console.log('Sub track changed but not going to do any work')
           return
         } 
-        //console.log('Subtitle track change')
+        console.log('Subtitle track change')
         if (this.playingMetadata && this.playingMetadata.type == 'episode') {
           // We should save this preference for this series in our localStorage
 
           let seriesKey = this.playingMetadata.grandparentKey
-          let languageCode = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].languageCode
-          console.log('Our prefered subtitle track for ' + seriesKey + ' is now ' + languageCode)
-          this.savePrefence('subs',seriesKey,languageCode)
-          
+
+          if (this.chosenSubtitleIndex == -1){
+            this.savePrefence('subs',seriesKey,'')
+          } else {
+            let languageCode = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].languageCode
+            console.log('Our prefered subtitle track for ' + seriesKey + ' is now ' + languageCode)
+            this.savePrefence('subs',seriesKey,languageCode)
+          }          
         }
         this.changeSubtitleTrack((res) => {
           this.changedPlaying(false)
