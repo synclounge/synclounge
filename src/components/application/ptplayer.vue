@@ -245,10 +245,10 @@
       },
       chosenAudioTrackIndex: function () {
         if (this.chosenAudioTrackIndex == -100 || !this.initDoneAudio){
-          //console.log('Audio track changed but not going to do any work')
+          console.log('Audio track changed but not going to do any work')
           return
         }
-        //console.log('Audio track change')
+        console.log('Audio track change')
         if (this.playingMetadata && this.playingMetadata.type == 'episode') {
           // We should save this preference for this series in our localStorage
 
@@ -265,7 +265,7 @@
       },
       chosenSubtitleIndex: function () {      
         if (this.chosenSubtitleIndex == -100 || !this.initDoneSubs){
-          //console.log('Sub track changed but not going to do any work')
+          console.log('Sub track changed but not going to do any work')
           return
         } 
         console.log('Subtitle track change')
@@ -453,6 +453,9 @@
       },
       changeAudioTrack (callback){
         console.log('Changing the audio track')
+        if (this.chosenAudioTrackIndex < 0){
+          return
+        }
         var that = this
         let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id
         let baseparams = this.getSourceByLabel(this.chosenQuality).params
@@ -503,6 +506,7 @@
           }
         }
         console.log('No preference for ' + this.playingMetadata.grandparentKey)
+        return false
       },      
       getInitSubtitleTrackIndex: function (){
         console.log('Fetching subtitle track')
@@ -520,6 +524,7 @@
           }
         }
         console.log('No preference for ' + this.playingMetadata.grandparentKey)
+        return false
       },  
       openModal () {
         return this.$refs.playersettingsModal.open()
@@ -600,15 +605,17 @@
         console.log('CHANGED PLAYING')
         var that = this
         this.ready = false
-        //this.$store.commit('SET_DECISIONBLOCKED', false)
+        this.$store.commit('SET_DECISIONBLOCKED', false)
         //console.log('Changed what we are meant to be playing!')
         if (!this.chosenKey || !this.chosenServer) {
           this.playerstatus = 'stopped'
           this.playerMetadata = null
           return
         }
-
+        
         function req () {
+          that.initDoneAudio = true      
+          that.initDoneSubs = true
           var options = {
             headers: {
               accept: 'application/json'
@@ -645,18 +652,35 @@
             //console.log(result)
             this.playingMetadata = result
             this.sources = that.generateSources()
-            this.chosenAudioTrackIndex = this.getInitAudioTrackIndex()
-            this.chosenSubtitleIndex = this.getInitSubtitleTrackIndex()
-            if (this.chosenAudioTrackIndex != 0 || this.chosenSubtitleIndex != 0){
-              this.changeSubtitleTrack(() => {
-                this.initDoneSubs = true
-                this.changeAudioTrack(() => {
-                  this.initDoneAudio = true
+            this.chosenAudioTrackIndex = this.getInitAudioTrackIndex() || -1000
+            this.chosenSubtitleIndex = this.getInitSubtitleTrackIndex() || -1000
+
+            let count = 0
+            let done = 0
+            if (this.chosenAudioTrackIndex != -1000){
+
+              count++
+              this.changeAudioTrack(() => {          
+                done++
+                if (done == count){
                   req()
-                })
+                }
+              })
+            }            
+            if (this.chosenSubtitleIndex != -1000){
+
+              count++
+              this.changeSubtitleTrack(() => {
+                done++
+                if (done == count){
+                  req()
+                }
               })
             }
 
+            if (count == 0){      
+              req()
+            }
           })
         } else {
           req()
