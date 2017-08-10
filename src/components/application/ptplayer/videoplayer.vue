@@ -35,9 +35,6 @@
     created () {
 
     },
-    beforeDestroy: function(){      
-        this.$store.commit('SET_DECISIONBLOCKED', false) 
-    },
     data () {
       return {
         eventbus: window.EventBus,
@@ -400,6 +397,7 @@
         console.log(player)
       },
       playerStateChanged (playerCurrentState) {
+        console.log("Setting volume to " + this.player.volume() || 0)
         this.$store.commit('setSettingPTPLAYERVOLUME', this.player.volume() || 0)
         this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000)
         this.duration = Math.round(this.player.duration() * 1000)
