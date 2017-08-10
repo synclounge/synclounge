@@ -61,7 +61,7 @@ if (process.env.NODE_ENV == 'development') {
 const state = {
   count: 0,
   appTitle: 'PlexTogether',
-  appVersion: '1.3.1',
+  appVersion: '1.3.2',
   background: null,
   shownChat: false,
   plex: null,
@@ -271,7 +271,6 @@ const mutations = {
     state.blockAutoPlay = value
   },
   SET_DECISIONBLOCKED (state, value) {
-    console.log('Setting decisionBlocked to ' + value)
     state.decisionBlocked = value
   },
   REFRESH_PLEXDEVICES (state) {
