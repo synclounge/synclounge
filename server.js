@@ -2,6 +2,8 @@
 // Runs the Plex Together Server software - handles rooms 
 // Defaults to 8089
 
+// V1.1
+
 // USER CONFIG
 var PORT = 8089
 
@@ -49,6 +51,9 @@ ptserver_io.on('connection', function(socket){
         if (data == null){
             return
         }    
+        if (!data || !data.username || !data.room){
+           return socket.emit('join-result',false,{},'wrong password',[])
+        }
         var tempUser = new user()
         var result = true
         var _data = {}
