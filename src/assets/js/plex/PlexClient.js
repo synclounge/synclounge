@@ -30,6 +30,8 @@ module.exports = function PlexClient () {
   this.tempId = null
   this.events = new EventEmitter()
 
+  this.userData = null
+
   // Latest objects for reference in the future
   this.lastRatingKey = null
   this.lastTimelineObject = null
@@ -94,7 +96,7 @@ module.exports = function PlexClient () {
           }
           connection = that.chosenConnection
         }
-        var query = ''
+        var query = 'type=video&'
         for (let key in params) {
           query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
         }

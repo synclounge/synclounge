@@ -750,7 +750,7 @@ const plexTogether = {
                   function cleanSeek () {
                     state.decisionBlocked = true
                     rootState.chosenClient.seekTo(parseInt(hostTimeline.time), function (result) {
-                      console.log('Result from within store for seek was ' + result)
+                      console.log('Result from within store for seek was ', result)
                       console.log('Setting decision blocked to false ')
                       state.decisionBlocked = false
                     })

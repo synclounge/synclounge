@@ -29,15 +29,37 @@ module.exports = function PlexAuth () {
    * @param timeout
    * @returns {{url: *, time: boolean, headers: {X-Plex-Device-Name: string, X-Plex-Client-Identifier: string, X-Plex-Provides: string, X-Plex-Target-Client-Identifier: *}, timeout: *, method: string}}
    */
-  this.getClientApiOptions = function (url, clientIdentifier, uuid, timeout) {
+  this.getClientApiOptions = function (url, clientIdentifier, uuid, timeout) {    
+    var sBrowser, sUsrAg = navigator.userAgent;
+    if (sUsrAg.indexOf("Chrome") > -1) {
+      sBrowser = "Chrome";
+    } else if (sUsrAg.indexOf("Safari") > -1) {
+      sBrowser = "Safari";
+    } else if (sUsrAg.indexOf("Opera") > -1) {
+      sBrowser = "Opera";
+    } else if (sUsrAg.indexOf("Firefox") > -1) {
+      sBrowser = "Firefox";
+    } else if (sUsrAg.indexOf("MSIE") > -1) {
+      sBrowser = "Microsoft Internet Explorer";
+    }
     return {
       url: url,
       time: true,
       headers: {
-        'X-Plex-Device-Name': 'PlexTogether',
+        'X-Plex-Device-Name': sBrowser ,
         'X-Plex-Client-Identifier': 'PlexTogether',
         'X-Plex-Provides': 'controller',
-        'X-Plex-Target-Client-Identifier': clientIdentifier
+        'X-Plex-Target-Client-Identifier': clientIdentifier,
+        'X-Plex-Device': 'Web (' + sBrowser + ')',
+        'X-Plex-Platform': 'PlexTogether',
+        'X-Plex-Version': '4.18',
+        'X-Plex-Client-Platform': 'Web',
+        'X-Plex-Client-Product': 'PlexTogether for Web',
+        'X-Plex-Product': 'PlexTogether',
+        'X-Plex-Device-Vendor': sBrowser,
+        'X-Plex-Platform-Version': '11.0',
+        'Accept': 'application/json',
+        'X-Plex-Http-Pipeline': 'infinite'
       },
       timeout: timeout,
       method: 'GET'

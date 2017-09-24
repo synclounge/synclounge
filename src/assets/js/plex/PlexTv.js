@@ -102,6 +102,7 @@ module.exports = function () {
               }
               tempClient.plexConnections = tempConnectionsArray
               tempClient.subscribePort = that.httpServerPort
+              tempClient.userData = that.user
               that.clients.push(tempClient)
               /*
               tempClient.checkConnectability(function(result,me){
