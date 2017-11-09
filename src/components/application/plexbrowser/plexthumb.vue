@@ -267,7 +267,7 @@
       },
       unwatchedPercent (){
         if (this.content.type == 'movie' || this.content.type == 'episode'){
-          return this.content.duration / this.content.viewOffset
+          return this.content.viewOffset / this.content.duration * 100
         } else {
           return this.content.viewedLeafCount / this.content.leafCount * 100
         }
