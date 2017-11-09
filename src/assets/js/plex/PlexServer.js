@@ -157,6 +157,13 @@ module.exports = function PlexServer () {
       return handleMetadata(result, that, callback)
     })
   }
+  this.markWatchedByRatingKey = function (ratingKey, callback) {
+    console.log('Marking ' + ratingKey + ' as watched')
+    this.hitApi('/:/scrobble', {
+      identifier: 'com.plexapp.plugins.library',
+      key: ratingKey
+    }, callback)
+  }
   this.getUrlForLibraryLoc = function (location, width, height, blur) {
     if (!(blur > 0)) {
       blur = 0
