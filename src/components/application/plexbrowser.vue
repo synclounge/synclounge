@@ -161,15 +161,7 @@
     },
     name: 'plexbrowser',
     mounted () {
-
-      if (this.lastServer){
-        this.lastServer.getOnDeck(0, 10, (result) => {
-          if (result) {
-            this.onDeck = result
-          }
-        })
-      }
-
+      this.updateOnDeck()
     },
     methods: {
       setContent (content) {
@@ -183,7 +175,16 @@
           return true
         } 
         return false
-      },      
+      },
+      updateOnDeck () {
+        if (this.lastServer){
+          this.lastServer.getOnDeck(0, 10, (result) => {
+            if (result) {
+              this.onDeck = result
+            }
+          })
+        }
+      },
       subsetOnDeck (size) {
         if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
             return []
@@ -191,6 +192,7 @@
         return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + size)
       },
       reset () {
+        this.updateOnDeck()
         this.browsingServer = false
         this.selectedItem = false
         this.results = []
