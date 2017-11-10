@@ -814,6 +814,13 @@ const plexTogether = {
         })
       }
     },
+    transferHost ({state, commit, rootState}, username) {
+      if (state._socket.connected) {
+        state._socket.emit('transfer_host', {
+          username: username
+        })
+      }
+    },
     getServerList () {
     },
   }
