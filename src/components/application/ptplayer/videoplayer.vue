@@ -330,6 +330,9 @@
       },
       onPlayerLoadeddata (player) {
         var that = this
+
+        this.player.currentTime(this.initialOffset / 1000)
+
         player.on(['waiting', 'pause'], function () {
           that.isPlaying = 'paused';
         });

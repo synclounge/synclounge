@@ -157,6 +157,7 @@
           this.chosenKey = data.params.key.replace('/library/metadata/', '')
           this.chosenMediaIndex = data.params.mediaIndex || 0
           this.chosenServer = this.plex.getServerById(data.params.machineIdentifier)
+          this.offset = data.params.offset
           this.playertime = data.params.offset
           let oldtime = this.playertime
           let oldkey = this.chosenKey
