@@ -5,13 +5,12 @@
                  @timelineUpdate="timelineUpdate"
                  @playbackEnded="stopPlayback()"
 
-
                  :metadata="playingMetadata"
                  :server="chosenServer"
                  :src="getSourceByLabel(chosenQuality)"
                  :initUrl="getSourceByLabel(chosenQuality).initUrl"
                  :params="getSourceByLabel(chosenQuality).params"
-                 :initialOffset="offset"
+                 :initialOffset="playertime"
                  :createdAt="playerCreatedAt"
     ></videoplayer>
     <v-dialog v-model="dialog"> 
@@ -157,7 +156,6 @@
           this.chosenKey = data.params.key.replace('/library/metadata/', '')
           this.chosenMediaIndex = data.params.mediaIndex || 0
           this.chosenServer = this.plex.getServerById(data.params.machineIdentifier)
-          this.offset = data.params.offset
           this.playertime = data.params.offset
           let oldtime = this.playertime
           let oldkey = this.chosenKey
@@ -187,7 +185,6 @@
       return {
         eventbus: window.EventBus,
 
-        offset: 0,
         chosenKey: null, // The item we are going to be playing from the chosen server eg. 12345
         chosenServer: null, // The Plex Media Server we are going to play from
         sessionId: this.generateGuid(),
@@ -466,7 +463,6 @@
         })
       },
       changedPlaying: function (changeItem) {
-
         var that = this
         this.ready = false
         this.$store.commit('SET_DECISIONBLOCKED', false)
