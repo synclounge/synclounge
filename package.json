@@ -15,9 +15,9 @@
     "cors": "^2.8.3",
     "socket.io": "^2.0.3",
     "videojs-contrib-hls": "^5.5.2",
-    "vue": "^2.4.2",
+    "vue": "^2.5.2",
     "vue-router": "^2.3.1",
-    "vuetify": "^0.13.1"
+    "vuetify": "^0.16.9"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",

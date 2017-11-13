@@ -10,13 +10,13 @@
             <h1 style="color:white">G'day</h1>
           </v-flex>
         </v-layout>
-        <v-layout row wrap>
-          <v-flex xs12 md6 offset-md3>
+        <v-layout row wrap justify-center>
+          <v-flex xs12 md6>
             <p> PlexTogether is a tool to sync Plex playback with friends and family anywhere in the world.
               We started off with a Python script which we distributed amongst our friends. With a command line based UI we quickly realised this was too difficult for our friends to use reliably.
               After playing around with the concept we decided to make a version that we could release that all Plex users could enjoy.
             </p>  
-            <h2> How it works </h2>
+            <h4> How it works </h4>
             <p>
               PlexTogether aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this PlexTogether utilizes a middle-man server to communicate between each of PlexTogether clients.
               Users choose their Plex client, decide on a PlexTogether Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.

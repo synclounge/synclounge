@@ -1,32 +1,39 @@
 <template>
-  <v-app dark style="height:100%" toolbar>
-    <v-navigation-drawer temporary v-model="drawer" disable-route-watcher>
+  <v-app dark style="height:100%">
+    <v-navigation-drawer app temporary v-model="drawer" disable-route-watcher>
       <leftsidebar></leftsidebar>
     </v-navigation-drawer>
-    <v-navigation-drawer  style="padding:0" persistent v-model="drawerRight" right disable-route-watcher enable-resize-watcher>
+    <v-navigation-drawer
+      v-if="showRightDrawerButton"
+      style="padding: 0"
+      app      
+      persistent
+      v-model="drawerRight" right enable-resize-watcher>
       <drawerright></drawerright>
     </v-navigation-drawer>
-    <v-toolbar>
-      <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
+    <v-toolbar app fixed>
+      <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title class="white--text">PlexTogether</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>        
-        <img class="ma-2 mr-3" style="height:70%;width:auto" v-bind:src="logo"/>
+        <img class="ma-2 mr-3" style="height:48px; width: 52px" v-bind:src="logo"/>
         <v-btn primary dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
-        <v-toolbar-side-icon v-if="showRightDrawerButton" @click.native.stop="drawerRight = !drawerRight"></v-toolbar-side-icon>
+        <v-toolbar-side-icon v-if="showRightDrawerButton" @click="toggleDrawerRight"></v-toolbar-side-icon>
       </v-toolbar-items>
     </v-toolbar>
     <main v-bind:style="mainStyle">
-      <v-container style="padding:0; height:100%; max-width:100%" v-bind:style="containerStyle">
-        <router-view></router-view>    
-        <v-snackbar
-          bottom
-          :timeout="4000"
-          v-model="snackbar"
-        > <div style="text-align:center;width:100%">{{snackbarMsg}}</div>
-        </v-snackbar>
-      </v-container>
+      <v-content v-bind:style="containerStyle">
+        <v-container class="ma-0 pa-0" fluid>
+          <router-view></router-view>    
+          <v-snackbar
+            bottom
+            :timeout="4000"
+            v-model="snackbar"
+          > <div style="text-align:center;width:100%">{{ snackbarMsg }}</div>
+          </v-snackbar>
+        </v-container>
+      </v-content>
     </main>    
   </v-app>
 </template>
@@ -86,6 +93,10 @@
     methods: {      
       sendNotification() {
         window.EventBus.$emit('notification', 'Copied to clipboard')
+      },
+      toggleDrawerRight() {
+        console.log('Opening right drawer', !this.drawerRight)
+        this.drawerRight = !this.drawerRight
       }
     },
     mounted () {

@@ -81,8 +81,13 @@ main {
 .application--dark {
   background: #151924;
 }
+
 .application--dark .navigation-drawer .list {  
   background: #151924;
+}
+
+.application--dark .a {
+  color: white !important;
 }
 
 .menu__content {
@@ -230,6 +235,29 @@ span {
 
 
 /* PTPlayer */
+
+.video-js.vjs-fluid,
+.video-js.vjs-16-9,
+.video-js.vjs-4-3,
+video.video-js,
+video.vjs-tech, {
+  max-height: calc(100vh - 64px);
+  position: relative !important;
+  width: 100%;
+  height: auto !important;
+  max-width: 100% !important;
+  padding-top: 0 !important;
+  line-height: 0;
+}
+
+/* Fix the control bar due to us resetting the line-height on the video-js */
+.vjs-control-bar {
+  line-height: 1;
+}
+
+.ptplayer .video-js {
+  max-height: calc(100vh - 64px) !important;
+}
 
 .ptplayer .video-js .vjs-menu-button-inline.vjs-slider-active, .video-js .vjs-menu-button-inline:focus, .video-js .vjs-menu-button-inline:hover, .video-js.vjs-no-flex .vjs-menu-button-inline {
   width: 10em

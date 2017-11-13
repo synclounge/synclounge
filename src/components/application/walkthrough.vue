@@ -1,8 +1,8 @@
 <template>
-  <v-layout >
-    <v-flex xs12 lg8 offset-lg2 xl6 offset-xl3 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
-      <v-layout row wrap>
-        <v-flex xs12 md8 offset-md2 lg4 offset-lg4 xl6 offset-xl3>
+  <v-layout row wrap justify-center>
+    <v-flex xs12 lg8 xl6  style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
+      <v-layout row wrap justify-center>
+        <v-flex xs12 md8 lg4 xl6>
           <img style="width:100%" v-bind:src="logo">
         </v-flex>
       </v-layout>
@@ -28,7 +28,7 @@
         <v-divider></v-divider>
         <v-layout row wrap>      
           <v-flex xs12 md6 lg7>
-            <v-subheader light>Plex Players {{ playercount }}</v-subheader>              
+            <v-subheader>Plex Players {{ playercount }}</v-subheader>              
             <div v-for="i in plex.clients" :key="i.clientIdentifier">
               <div v-on:click="previewClient(i)">
                 <plexclient :startup="testClient" :sidebar="false" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
@@ -37,11 +37,11 @@
           </v-flex>
           <v-flex xs12 md6 lg5>
             <div v-if="testClient">
-              <v-subheader light>
+              <v-subheader>
                 Selected Player
               </v-subheader>
               <div class="pl-1">
-                <h6 light style="opacity:1">{{ testClient.name }}</h6>
+                <h6 style="opacity:1">{{ testClient.name }}</h6>
                 <div>
                   <label >Last seen</label><span style="opacity:0.8">  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
                 </div>
@@ -49,10 +49,10 @@
                   <label>Device</label><span style="opacity:0.8">  {{ testClient.device }}</span>
                 </div>
                 <div>
-                  <label>Running</label><span style="opacity:0.8" v-tooltip="testClient.productVersion">  {{ testClient.product }} </span>
+                  <label>Running</label><span style="opacity:0.8">  {{ testClient.product }} </span>
                 </div>
                 <div class="pb-2">
-                  <label>Platform</label><span style="opacity:0.8" v-tooltip="testClient.platformVersion">  {{ testClient.platform }} </span>
+                  <label>Platform</label><span style="opacity:0.8">  {{ testClient.platform }} </span>
                 </div>
                 <div v-if="testClientWaiting" class="center spinner-orange">
                   <div style="width:100%;text-align:center">				
@@ -98,7 +98,6 @@
 <script>
 
   import plexclient from './plexclient'
-  import plexserver from './plexserver'
   import joinroom from './joinroom'
 
   import moment from '../../../node_modules/moment/moment.js'
@@ -115,7 +114,6 @@
     },
     components: {
       plexclient,
-      plexserver,
       joinroom
     },
     computed: {

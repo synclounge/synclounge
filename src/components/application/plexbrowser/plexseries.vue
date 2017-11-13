@@ -53,7 +53,7 @@
           </v-flex>
           <h4 class="mt-3"> Seasons </h4>
           <v-layout class="row" row wrap>
-              <v-flex xs4 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
+              <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
                 <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
               </v-flex>
           </v-layout>            

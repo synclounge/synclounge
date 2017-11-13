@@ -1,5 +1,5 @@
 <template>
-  <div style="width:100%; height:100%">
+  <div style="width:100%; max-height: calc(100vh - 64px)">
     <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
                  @playerMounted="playerMounted()"
                  @timelineUpdate="timelineUpdate"
@@ -15,56 +15,52 @@
     ></videoplayer>
     <v-dialog v-model="dialog"> 
       <v-card>
-        <v-card-row>
-          <v-card-title>Playback Settings </v-card-title>
-        </v-card-row>
-        <v-card-row>
-          <v-card-text>
-            
-           <v-select
-            v-model="chosenQuality"
-            :items="qualitiesSelect"
-            item-text="text"
-            item-value="id"
-            persistent-hint
-            label="Quality"
-            hint="Select a different quality"
-            ></v-select>
-           <v-select
-            v-model="chosenAudioTrackIndex"
-            :select-text="'Default'"
-            label="Audio track"
-            item-text="text"
-            item-value="id"
-            persistent-hint
-            hint="Select a different audio track"
-            :items="audioTrackSelect"
-            ></v-select> 
-            <v-select
-            persistent-hint
-            label="Subtitles"
-            item-text="text"
-            item-value="id"
-            hint="Select a different subtitle track"
-            v-model="chosenSubtitleIndex"
-            :select-text="'Default'"
-            :items="subtitleTrackSelect"
-            ></v-select>
-            <v-select
-            v-if="mediaIndexSelect.length > 1"
-            persistent-hint
-            item-text="text"
-            item-value="id"
-            hint="Select a different version of the content you're playing"
-            v-model="chosenMediaIndex"
-            label="Version"
-            :items="mediaIndexSelect"
-            ></v-select>
-          </v-card-text>
-        </v-card-row>
-        <v-card-row actions>
+        <v-card-title>Playback Settings </v-card-title>
+        <v-card-text>
+          
+          <v-select
+          v-model="chosenQuality"
+          :items="qualitiesSelect"
+          item-text="text"
+          item-value="id"
+          persistent-hint
+          label="Quality"
+          hint="Select a different quality"
+          ></v-select>
+          <v-select
+          v-model="chosenAudioTrackIndex"
+          :select-text="'Default'"
+          label="Audio track"
+          item-text="text"
+          item-value="id"
+          persistent-hint
+          hint="Select a different audio track"
+          :items="audioTrackSelect"
+          ></v-select> 
+          <v-select
+          persistent-hint
+          label="Subtitles"
+          item-text="text"
+          item-value="id"
+          hint="Select a different subtitle track"
+          v-model="chosenSubtitleIndex"
+          :select-text="'Default'"
+          :items="subtitleTrackSelect"
+          ></v-select>
+          <v-select
+          v-if="mediaIndexSelect.length > 1"
+          persistent-hint
+          item-text="text"
+          item-value="id"
+          hint="Select a different version of the content you're playing"
+          v-model="chosenMediaIndex"
+          label="Version"
+          :items="mediaIndexSelect"
+          ></v-select>
+        </v-card-text>
+        <v-card-actions>
           <v-btn class="blue--text darken-1" flat @click.native="dialog = false">Close</v-btn>
-        </v-card-row>
+        </v-card-actions>
       </v-card>
     </v-dialog>
     <v-layout v-if="playingMetadata && chosenServer" row justify-center>

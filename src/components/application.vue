@@ -1,26 +1,28 @@
 <template>
 	<div style="margin-bottom: 0; height:100%">
 		<div style="margin-bottom: 0; height:100%">
-			<div style="margin-bottom: 0; height:100%">
+			<v-layout row wrap style="overflow-y: scroll">
 				<!-- MAIN CONTENT -->
-				<v-layout v-if="!validDevices" wrap row style="position:relative" class="pt-4">
-					<v-flex xs12 md4 offset-md4>			
-						<div style="width:100%;text-align:center">				
-							<v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
-						</div>
-					</v-flex>      
-				</v-layout>
-				<div v-if="validDevices">
+				<v-flex xs12 v-if="!validDevices">
+					<v-layout fill-height wrap row style="position:relative" class="pt-4">
+						<v-flex xs12 md4 offset-md4>			
+							<div style="width:100%;text-align:center">				
+								<v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
+							</div>
+						</v-flex>      
+					</v-layout>
+				</v-flex>
+				<v-flex xs12 v-if="validDevices">
 					<div v-if="!ptConnected || !chosenClient || !ptRoom">
 						<walkthrough  class="pa-4"></walkthrough>
 					</div>
 					<div v-else>
-						<plexbrowser v-if="showBrowser"  class="pa-4"></plexbrowser>
+						<plexbrowser v-if="showBrowser" class="pa-4"></plexbrowser>
 						<ptplayer v-if="isPTPlayer"></ptplayer>  
 						<plexcontent v-if="showMetadata"  class="pa-4" nowPlaying :content="chosenClient.clientPlayingMetadata" :server="nowPlayingServer"></plexcontent>
 					</div>
-				</div>
-			</div>
+				</v-flex>
+			</v-layout>
 		</div>
 	</div>
 </template>
@@ -39,12 +41,10 @@
 
   // Components
   import plexclient from './application/plexclient'
-  import plexserver from './application/plexserver'
   import ptuser from './application/ptuser'
   import joinroom from './application/joinroom'
   import chatmessage from './application/chatmessage'
   import walkthrough from './application/walkthrough'
-  import sidebar from './application/sidebar'
   import ptplayer from './application/ptplayer'
   import plexbrowser from './application/plexbrowser'
   import plexcontent from './application/plexbrowser/plexcontent'
@@ -54,9 +54,7 @@
 	name: 'application',
 	components: {
 	  plexclient,
-	  plexserver,
 	  joinroom,
-	  sidebar,
 	  ptuser,
 	  chatmessage,
 	  walkthrough,
