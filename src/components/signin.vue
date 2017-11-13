@@ -1,7 +1,7 @@
 <template>
-    <v-layout wrap row ckass="pt-4">
-      <v-flex xs12 md8 offset-md2>
-        <v-card style="background: rgba(0,0,0,0.3)">
+    <v-layout wrap row ckass="pt-2 pa-4" justify-center>
+      <v-flex xs12 md8>
+        <v-card style="background: rgba(0,0,0,0.3)" class="pa-4">
           <h1 class="white--text center-text pa-4">Sign in to Plex.tv</h1>
           <div v-if="!pin">
             <v-layout wrap row style="position:relative">
@@ -13,7 +13,7 @@
             </v-layout>
           </div>
           <div v-if="token" class="center-text" style="font-size:400%">
-              <v-icon x-large class="green--text text--darken-2">done</v-icon>
+              <v-icon class="green--text text--darken-2" style="font-size: 64px">done</v-icon>
             <h3 class="white--text">
               Signed in!
             </h3>
@@ -35,7 +35,7 @@
             <p class="center-text pt-4">Enter the pin above at <a target="_blank" href="https://plex.tv/link">
               https://plex.tv/link </a></p>
             </div>
-            <v-layout wrap row class="pt-4">
+            <v-layout wrap row class="pt-4 pa-2">
               <v-flex xs12 md8 offset-md2 class="center-text">              
                 <p style="opacity:0.7">
                   Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run PlexTogether yourself
