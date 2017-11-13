@@ -240,6 +240,10 @@ ptserver_io.on('connection', function(socket){
             return
         }
         var room = ptserver_io.sockets.adapter.rooms[user.room]
+        if (!room) {
+            console.log('Not transfering the host in the room', user.room, 'because the room was already destroyed')
+            return
+        }
         var newHost = room.users.find(newHostPredicate)
         if (!newHost) {
             console.log('Not transfering host in room', user.room, 'from', user.username, 'because suitable user found')
