@@ -48,7 +48,6 @@
             :autofocus="true"
             v-on:keyup.enter.native="joinRoom()"
             v-model="room"
-            class="input-group"
             
           ></v-text-field>
         </v-flex>  
@@ -59,7 +58,6 @@
             label="Room password"
             v-on:keyup.enter.native="joinRoom()"
             v-model="password"
-            class="pt-0 mt-0 input-group orange--text"
             
           ></v-text-field>
         </v-flex>        

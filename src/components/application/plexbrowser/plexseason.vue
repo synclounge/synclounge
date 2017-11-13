@@ -31,8 +31,8 @@
                       <p style="font-style: italic" class="pt-3"> {{ content.summary }} </p>              
                       <div>
                         <div style="float:right" class="pa-4">
-                          <v-chip v-if="contents.MediaContainer.grandparentContentRating" v-tooltip:top="{ html: 'Content Rating' }" label> {{ contents.MediaContainer.grandparentContentRating }}</v-chip>
-                          <v-chip v-if="contents.MediaContainer.grandparentStudio" v-tooltip:top="{ html: 'Studio' }" secondary> {{ contents.MediaContainer.grandparentStudio }}</v-chip>
+                          <v-chip v-if="contents.MediaContainer.grandparentContentRating" label> {{ contents.MediaContainer.grandparentContentRating }}</v-chip>
+                          <v-chip v-if="contents.MediaContainer.grandparentStudio"  secondary> {{ contents.MediaContainer.grandparentStudio }}</v-chip>
                         </div>
                       </div>     
                     </div>                
@@ -45,7 +45,7 @@
           <v-divider></v-divider>
           <div>          
               <v-layout class="row mt-3" row wrap>
-                <v-flex xs6 md3 xl2 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
+                <v-flex xs6 md3 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
                   <plexthumb :content="content" :server="server" type="thumb" style="margin:2%" fullTitle @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  

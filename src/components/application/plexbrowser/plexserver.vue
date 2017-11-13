@@ -13,9 +13,9 @@
                 <v-progress-circular active large></v-progress-circular>
             </div>
             <h4> Libraries </h4>
-            <v-layout row wrap>
-              <v-flex xs6 md3 xl2 lg2 v-if="libraries && !browsingLibrary" v-for="library in filteredLibraries" :key="library.name">
-                  <v-card v-on:click="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="text-xs-center hoverable card" style="max-width:100%">
+            <v-layout row wrap v-if="libraries && !browsingLibrary">
+              <v-flex xs6 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-3 clickable" :key="library.name">
+                  <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="text-xs-center hoverable card" style="max-width:100%">
                       <div style="position:relative;width:100%;background: rgba(0,0,0,0.4); height:8em">
                           <img style="height: 70%;display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)"/>
                       </div>                      

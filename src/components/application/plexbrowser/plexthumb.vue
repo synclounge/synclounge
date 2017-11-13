@@ -1,8 +1,6 @@
 <template>
   <div class="portrait" ref="root" style="cursor: pointer" @mouseover="hovering = true" @mouseout="hovering = false">
-
-
-      <v-card data-tilt v-on:click="emitContentClicked(content)" class="grey darken-4" style="border:solid">
+      <v-card data-tilt v-on:click.native="emitContentClicked(content)" class="grey darken-4" style="border:solid">
         <v-card-media
           class="white--text"
           style="position:relative"
@@ -32,7 +30,7 @@
                     <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
                     <v-layout row wrap class="text-xs-left" style="margin:0; margin-left:3px; display:block; max-width:100%; height:100%">
                         <v-flex v-if="!onlyBottom" xs12 style="height:50%" :style="topTextStyle" ref="topText" class="pa-0 ma-0 ml-1 mt-1">
-                            <div v-tooltip:top="{ html: getTitle(content) }" class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
+                            <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
                         </v-flex>                  
                         <v-flex xs12 style="height:50%; font-size:0.8rem"  :style="bottomTextStyle" ref="bottomText" class="pa-0 ma-0 mt-0 ml-1">
                             <div class="truncate soft-text" style=" position:absolute; bottom:0">{{ getUnder(content) }}</div>

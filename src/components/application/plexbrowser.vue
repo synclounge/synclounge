@@ -38,7 +38,7 @@
           <v-flex xs12 lg12 >
             <v-subheader > Movies ({{filteredMovies.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="movie in filteredMovies" :key="movie.key">            
+          <v-flex xs6 md3 xl1 lg1 class="pb-3" v-for="movie in filteredMovies" :key="movie.key">            
             <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
           </v-flex>
         </v-layout>
@@ -47,7 +47,7 @@
           <v-flex xs12 lg12 >
             <v-subheader > TV Shows ({{filteredShows.length}})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg2 class="pb-3" v-for="show in filteredShows" :key="show.key">            
+          <v-flex xs6 md3 xl1 lg1 class="pb-3" v-for="show in filteredShows" :key="show.key">            
             <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
           </v-flex>
         </v-layout>        
@@ -79,7 +79,7 @@
         <h4> Browse </h4>
         <v-layout row wrap>  
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server.machineIdentifier" class="pa-2">  
-            <v-card class="white--text" v-on:click="setServer(server)" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);">
+            <v-card class="white--text" v-on:click.native="setServer(server)" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);">
               <v-container fluid grid-list-lg>
                 <v-layout row>                  
                   <v-flex xs4>

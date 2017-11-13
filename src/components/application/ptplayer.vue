@@ -1,5 +1,5 @@
 <template>
-  <div style="width:100%; height:100%">
+  <div style="width:100%; max-height: calc(100vh - 64px)">
     <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
                  @playerMounted="playerMounted()"
                  @timelineUpdate="timelineUpdate"

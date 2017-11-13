@@ -235,21 +235,6 @@
           // console.log('Succesfully sent Player status to PMS')
         }
       })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     },
     computed: {
       player () {
@@ -272,7 +257,7 @@
           // videojs options
           plugins: {},
 
-          fluid: true,
+          fluid: false,
           preload: 'auto',
           volume: 0.5,
           aspectRatio: '16:9',
@@ -397,7 +382,7 @@
         console.log(player)
       },
       playerStateChanged (playerCurrentState) {
-        console.log("Setting volume to " + this.player.volume() || 0)
+        // console.log("Setting volume to " + this.player.volume() || 0)
         this.$store.commit('setSettingPTPLAYERVOLUME', this.player.volume() || 0)
         this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000)
         this.duration = Math.round(this.player.duration() * 1000)
@@ -421,7 +406,7 @@
         })
       },
       playerReadied (player) {
-        console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
+        // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
         this.player.volume(this.$store.getters.getSettingPTPLAYERVOLUME || 0)
       },
 

@@ -32,9 +32,9 @@
                         </v-flex>                      
                         <v-flex xs12 sm6 style="position:relative">     
                           <div style="float:right">                 
-                            <v-chip bottom v-tooltip:top="{ html: 'Resolution' }" class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip> 
-                            <v-chip bottom v-tooltip:top="{ html: 'Year' }" class="grey darken-4 white--text" outline left> {{ contents.year }}</v-chip>   
-                            <v-chip v-if="contents.contentRating" v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>     
+                            <v-chip bottom class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip> 
+                            <v-chip bottom class="grey darken-4 white--text" outline left> {{ contents.year }}</v-chip>   
+                            <v-chip v-if="contents.contentRating" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>     
                           </div>
                         </v-flex>  
                       </v-layout>   
@@ -54,9 +54,9 @@
                         </v-flex>                      
                         <v-flex xs12 sm6 style="position:relative">     
                           <div style="float:right">                 
-                            <v-chip bottom v-tooltip:top="{ html: 'Resolution' }" class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip>    
-                            <v-chip v-if="contents.contentRating" v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>                  
-                            <v-chip v-if="contents.studio" v-tooltip:top="{ html: 'Studio' }"  class="grey darken-4 white--text" small label> {{ contents.studio }}</v-chip>
+                            <v-chip bottom class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip>    
+                            <v-chip v-if="contents.contentRating"  class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>                  
+                            <v-chip v-if="contents.studio" class="grey darken-4 white--text" small label> {{ contents.studio }}</v-chip>
                           </div>
                         </v-flex>  
                       </v-layout>   
@@ -100,14 +100,14 @@
                         </v-flex>               
                         <v-flex xs12 sm6 style="position:relative">     
                           <div style="float:right">    
-                            <v-chip v-if="contents.year"  v-tooltip:top="{ html: 'Content Rating' }" class="grey darken-4 white--text" small label> {{ contents.year }}</v-chip>                  
-                            <v-chip v-for="copy in contents.Media" :key="copy.key" v-tooltip:top="{ html: 'Quality' }"  class="grey darken-4 white--text" small> {{ copy.audioCodec.toUpperCase() }}</v-chip>              
+                            <v-chip v-if="contents.year" class="grey darken-4 white--text" small label> {{ contents.year }}</v-chip>                  
+                            <v-chip v-for="copy in contents.Media" :key="copy.key" class="grey darken-4 white--text" small> {{ copy.audioCodec.toUpperCase() }}</v-chip>              
                           </div>
                         </v-flex>  
                       </v-layout>  
                       <v-divider></v-divider>     
-                      <v-chip v-for="country in contents.Country" :key="country.tag" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
-                      <v-chip v-for="genre in contents.Genre" :key="genre.tag" v-tooltip:top="{ html: 'Genre' }"> {{ genre.tag }}</v-chip>      
+                      <v-chip v-for="country in contents.Country" :key="country.tag"> {{ country.tag }}</v-chip>
+                      <v-chip v-for="genre in contents.Genre" :key="genre.tag"> {{ genre.tag }}</v-chip>      
                     </v-flex>  
                     
                   </v-layout>                
