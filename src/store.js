@@ -61,7 +61,7 @@ if (process.env.NODE_ENV == 'development') {
 const state = {
   count: 0,
   appTitle: 'PlexTogether',
-  appVersion: '1.3.2',
+  appVersion: '1.3.3',
   background: null,
   shownChat: false,
   plex: null,
@@ -811,6 +811,13 @@ const plexTogether = {
         state._socket.emit('send_message', {
           msg: msg,
           type: 'message'
+        })
+      }
+    },
+    transferHost ({state, commit, rootState}, username) {
+      if (state._socket.connected) {
+        state._socket.emit('transfer_host', {
+          username: username
         })
       }
     },

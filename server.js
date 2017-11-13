@@ -187,6 +187,16 @@ ptserver_io.on('connection', function(socket){
             type: msg.type
         })
     })
+    socket.on('transfer_host',function(data){
+        if (socket.ourRoom == null){
+            //console.log('This user should join a room first')
+            socket.emit('flowerror','You aren\' connected to a room! Use join')
+            socket.emit('rejoin')
+            return
+        }
+        console.log("Hi there", data)
+        transferHost(socket.selfUser, function (user){ return user.username == data.username })
+    })
     socket.on('connect_timeout',function(){
         //console.log('timeout')
         handleDisconnect(true)
@@ -198,14 +208,8 @@ ptserver_io.on('connection', function(socket){
         if (socket.selfUser === undefined || socket.selfUser === null){
             return
         }
-        //console.log('User left: ' + socket.selfUser.username)     
-        if (socket.selfUser.role == 'host'){
-            //Our Host has left, lets give the next Guest the Host role
-            var newHost = transferHost(socket.selfUser.room)
-            //console.log('The new host is ' + newHost)
-            //console.log(JSON.stringify(newHost,null,4))
-            socket.broadcast.to(socket.selfUser.room).emit('host-swap',newHost)
-        }
+        //console.log('User left: ' + socket.selfUser.username)
+        transferHost(socket.selfUser, function (user){ return user != socket.selfUser })
         removeUser(socket.selfUser.room,socket.selfUser.username)
         if (ptserver_io.sockets.adapter.rooms[socket.selfUser.room]){
             socket.broadcast.to(socket.selfUser.room).emit('user-left',ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users,socket.selfUser)
@@ -230,39 +234,27 @@ ptserver_io.on('connection', function(socket){
             }
         }
     }
-    function transferHost(roomName){
-        console.log('Transfering the host in the room ' + roomName)
-        var room = ptserver_io.sockets.adapter.rooms[roomName]
-        if (room === undefined){
-            //Room has already been destroyed!
+    function transferHost(user, newHostPredicate){
+        if (user.role != 'host') {
+            console.log('Not transfering host in room', user.room, 'from', user.username, 'because its role is', user.role)
             return
         }
-        var oldHost = removeHost(room) 
-        if (oldHost === null || oldHost === undefined) {
+        var room = ptserver_io.sockets.adapter.rooms[user.room]
+        if (!room) {
+            console.log('Not transfering the host in the room', user.room, 'because the room was already destroyed')
             return
         }
-        for (var i in room.users){
-            if (room.users[i].username != oldHost.username){
-                //This is a valid user
-                //console.log('Transferred host to ' + room.users[i].username)            
-                room.users[i].role = 'host'
-                room.hostUser = room.users[i]
-                room.hostUsername = room.users[i].username
-                return (room.users[i])        
-            } 
-        }
-    }
-    function removeHost(room){
-        if (room === undefined){
-            //Room has already been destroyed!
+        var newHost = room.users.find(newHostPredicate)
+        if (!newHost) {
+            console.log('Not transfering host in room', user.room, 'from', user.username, 'because suitable user found')
             return
         }
-        for (var i in room.users){
-            if (room.users[i].role == 'host'){
-                room.users[i].role = 'guest'
-                return(room.users[i])                       
-            } 
-        }
+        console.log('Transfering host in room', user.room, 'from', user.username, 'to', newHost.username)
+        user.role = 'guest'
+        newHost.role = 'host'
+        room.hostUser = newHost
+        room.hostUsername = newHost.username
+        socket.broadcast.to(user.room).emit('host-swap', newHost)
     }
     function removeUser(roomname,username){
         var room = ptserver_io.sockets.adapter.rooms[roomname]

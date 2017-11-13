@@ -118,12 +118,7 @@
           this.setBackground()
         }
       })
-      this.server.getOnDeck(0, 10, (result) => {
-        if (result) {
-          this.onDeck = result
-        }
-      })
-
+      this.updateOnDeck()
     },
     beforeDestroy () {
 
@@ -171,7 +166,14 @@
       },
       setLibrary (library) {
         this.browsingLibrary = library
-      },   
+      },
+      updateOnDeck() {
+        this.server.getOnDeck(0, 10, (result) => {
+          if (result) {
+            this.onDeck = result
+          }
+        })
+      },
       onDeckDown (){        
         if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
             return false
@@ -268,6 +270,7 @@
         return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 4)
       },
       reset () {
+        this.updateOnDeck()
         this.browsingLibrary = false
         this.selectedItem = false
         this.setBackground()

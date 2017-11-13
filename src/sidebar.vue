@@ -10,7 +10,7 @@
 								<div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
 										<v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
 											<v-list-tile-avatar>
-												<img v-bind:src="user.avatarUrl"/>
+												<img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)"/>
 											</v-list-tile-avatar>
 											<v-list-tile-content>
 												<v-list-tile-title> {{ user.username }}</v-list-tile-title>
@@ -73,7 +73,6 @@
 					</v-layout>		
 				</v-flex>
 			</v-layout>
-			
 		</v-container>
 </template>
 
@@ -186,7 +185,15 @@
           return true
         }
         return false
-      },			
+      },
+			transferHost: function (username) {
+				window.x = {
+					username: username,
+					this: this
+				}
+				console.log("transfering host", window.x)
+				this.$store.dispatch('transferHost', username)
+			},		
       handleDisconnect: function () {
         this.$store.dispatch('disconnectServer')
       },

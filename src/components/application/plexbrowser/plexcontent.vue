@@ -115,6 +115,9 @@
                 <v-card-actions class="pa-4" >
                   <v-spacer></v-spacer>
                   <div v-if="playable">
+                    <v-btn v-on:click.native="markWatched(content)">
+                      Mark Watched
+                    </v-btn>
                     <v-btn v-if="playable && content.Media.length == 1 && (content.viewOffset == 0 || !content.viewOffset)"  v-on:click.native="playMedia(content)" class="primary white--text">
                       <v-icon>play_arrow</v-icon> Play
                     </v-btn>                                 
@@ -334,6 +337,12 @@
         }
         return this.parentData.MediaContainer.Metadata.slice(this.contents.index - 1,this.contents.index + size -1)
       },
+      markWatched (content, mediaIndex) {
+        var that = this;
+        this.server.markWatchedByRatingKey(content.ratingKey, function () {
+          that.$parent.reset()
+        })
+      },
       playMedia (content, mediaIndex) {
         var callback = function(result){
           console.log(result)
@@ -351,9 +360,6 @@
             callback: callback
           }
         )
-        
-
-
       },
       getDuration (dur){
         return humanizeDuration(dur, { 
