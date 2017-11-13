@@ -81,8 +81,13 @@ main {
 .application--dark {
   background: #151924;
 }
+
 .application--dark .navigation-drawer .list {  
   background: #151924;
+}
+
+.application--dark .a {
+  color: white !important;
 }
 
 .menu__content {

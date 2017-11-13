@@ -19,11 +19,13 @@
     </div>
     <v-divider></v-divider>
     <div style="text-align:center" class="pt-4">
-      <h6 style="text-align:initial">Syncing Method</h6>
-      <v-radio label="Clean Seek" class="pa-0 ma-0" v-model="syncmode" value="cleanseek"></v-radio>
-      <v-radio label="Skip Ahead" class="pa-0 ma-0"  v-model="syncmode" value="skipahead" 
-      persistent-hint
-      hint="Sets the syncing method used when we need to get back in line with the host."></v-radio>
+      <h6 style="text-align:initial">Syncing Method</h6>            
+      <v-radio-group v-model="syncmode">
+          <v-radio label="Clean Seek" class="pa-0 ma-0" value="cleanseek"></v-radio>
+          <v-radio label="Skip Ahead" class="pa-0 ma-0"  value="skipahead" 
+          persistent-hint
+          hint="Sets the syncing method used when we need to get back in line with the host."></v-radio>
+            </v-radio-group>
     </div>
   </div>
 </template>

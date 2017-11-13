@@ -2,7 +2,7 @@
     <v-layout wrap row ckass="pt-4">
       <v-flex xs12 md8 offset-md2>
         <v-card style="background: rgba(0,0,0,0.3)">
-          <h1 class="white--text center-text pa-1">Sign in to Plex.tv</h1>
+          <h1 class="white--text center-text pa-4">Sign in to Plex.tv</h1>
           <div v-if="!pin">
             <v-layout wrap row style="position:relative">
               <v-flex xs12 md4 offset-md4>			

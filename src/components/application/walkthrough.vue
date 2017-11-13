@@ -49,10 +49,10 @@
                   <label>Device</label><span style="opacity:0.8">  {{ testClient.device }}</span>
                 </div>
                 <div>
-                  <label>Running</label><span style="opacity:0.8" v-tooltip="testClient.productVersion">  {{ testClient.product }} </span>
+                  <label>Running</label><span style="opacity:0.8">  {{ testClient.product }} </span>
                 </div>
                 <div class="pb-2">
-                  <label>Platform</label><span style="opacity:0.8" v-tooltip="testClient.platformVersion">  {{ testClient.platform }} </span>
+                  <label>Platform</label><span style="opacity:0.8">  {{ testClient.platform }} </span>
                 </div>
                 <div v-if="testClientWaiting" class="center spinner-orange">
                   <div style="width:100%;text-align:center">				

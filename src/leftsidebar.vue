@@ -1,100 +1,69 @@
 <template>
     <div>  
-			<v-list class="pa-0">
-        <v-list-item>
-          <v-list-tile avatar tag="div" v-if="validDevices">
-            <v-list-tile-avatar>
-              <img :src="plex.user.thumb" />
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title>{{ plex.user.username }}</v-list-tile-title>
-            </v-list-tile-content>
-            <v-list-tile-action>
-              <v-btn icon dark>
-                <v-icon>chevron_left</v-icon>
-              </v-btn>
-            </v-list-tile-action>
-          </v-list-tile>
-        </v-list-item>
-      </v-list>
-      <v-list class="pt-0" dense>
-        <v-divider></v-divider> 
-        <v-subheader >Preferences</v-subheader>
-        <v-list-item @click.stop="ptsettingstoggle = !ptsettingstoggle">
-          <v-list-tile>
-            <v-list-tile-action>
-              <v-icon >settings</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>     
-              <v-list-tile-title>PlexTogether Settings</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>        
-        </v-list-item>         
-        <v-list-item v-if="plex && plex.gotDevices" @click.stop="plexsettingstoggle = !plexsettingstoggle">
-          <v-list-tile>
-            <v-list-tile-action>
-              <v-icon >settings</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>     
-              <v-list-tile-title>Plex Settings</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>        
-        </v-list-item>      
-        <v-subheader v-if="plex && plex.gotDevices" >Account</v-subheader>
-        <v-list-item v-if="plex && plex.gotDevices">
-          <v-list-tile :router="true" to="/signout">
-            <v-list-tile-action>
-              <v-icon >cancel</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>     
-              <v-list-tile-title v-if="plex != null"  v-text="'Signout'"></v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list-item>        
-        <v-subheader >About</v-subheader>
-        <v-list-item>
-          <v-list-tile>
-            <v-list-tile-action>
-              <v-icon >info</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>     
-              <v-list-tile-title>PlexTogether v{{appVersion}}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list-item>        
-      </v-list>
+        <v-list class="pa-1" dense>
+          <template>           
+            <v-list-tile v-if="plex && plex.user">
+              <v-list-tile-avatar>
+                 <img class="pa-1" :src="plex.user.thumb" />
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-list-tile-title style="font-weight: bold">{{ plex.user.username }}</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-divider></v-divider>
+            <v-subheader>Preferences</v-subheader>
+            <v-list-tile @click.stop="ptsettingstoggle = !ptsettingstoggle">
+              <v-list-tile-action>
+                <v-icon color="white">settings</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>PlexTogether Settings</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-if="plex && plex.gotDevices" @click.stop="plexsettingstoggle = !plexsettingstoggle">
+              <v-list-tile-action>
+                <v-icon color="white">settings</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Plex Settings</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-subheader v-if="plex && plex.gotDevices" >Account</v-subheader>       
+            <v-list-tile :router="true" to="/signout">
+              <v-list-tile-action>
+                <v-icon color="white">cancel</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Sign out</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-subheader >About</v-subheader>
+            <v-list-tile>
+              <v-list-tile-action>
+                <v-icon color="white">info</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>PlexTogether v{{appVersion}}</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </template>
+        </v-list>
 
       <v-dialog v-model="ptsettingstoggle">
-        <v-card class="grey darken-4">        
-          <v-card-row>
-            <v-card-title>PlexTogether Settings</v-card-title>
-          </v-card-row>
+        <v-card class="grey darken-4 pa-3">        
+          <h6 class="soft-text">PlexTogether Settings</h6>
           <v-divider></v-divider>
-          <v-card-row>
-            <v-card-text>
-              <ptsettings></ptsettings>
-            </v-card-text>
-          </v-card-row>
+          <ptsettings></ptsettings>
         </v-card>
       </v-dialog>
       <v-dialog  v-model="plexsettingstoggle">
-        <v-card class="grey darken-4">        
-          <v-card-row>
-            <v-card-title>Plex Settings</v-card-title>
-          </v-card-row>
+        <v-card class="grey darken-4 pa-3">        
+          <h6 class="soft-text">Plex Settings</h6>
           <v-divider></v-divider>
-          <v-card-row>
-            <v-card-text>
-              <plexsettings v-if="validPlex && plex.gotDevices"></plexsettings>
-            </v-card-text>
-          </v-card-row>
+          <plexsettings v-if="validPlex && plex.gotDevices"></plexsettings>
         </v-card>
       </v-dialog>
-
-
 		</div>		
-
-			
 </template>
 
 <script>

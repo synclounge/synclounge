@@ -35,7 +35,9 @@
 .label {
   color: rgba(240, 245, 255, 0.55);
 }
-
+.application--dark .a {
+  color: white !important;
+}
 .select {
   color: rgba(240, 245, 255, 0.55)
 }

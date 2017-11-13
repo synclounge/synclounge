@@ -43,7 +43,7 @@
               </span>
             </h4>      
             <v-layout v-if="recentlyAdded" class="row" row wrap justify-space-between>
-                <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in subsetRecentlyAdded(10)" :key="content.key">
+                <v-flex xs4 md3 xl1 lg1  class="pb-3 pa-1" v-for="content in subsetRecentlyAdded(10)" :key="content.key">
                     <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
                 </v-flex>
             </v-layout>  
