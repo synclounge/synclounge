@@ -60,28 +60,32 @@ module.exports = function PlexServer () {
       }
     })
   }
-  this.hitApiTestConnections = function (command, connection, callback) {
+  this.hitApiTestConnections = async function (command, connection) {
     //For use with #findConnection
-    if (connection == null) {
-      if (this.chosenConnection == null) {
-        console.log('You need to specify a connection!')
-        return (callback(false, connection))
+
+    return new Promise(async (resolve, reject) => {
+      if (connection == null) {
+        if (this.chosenConnection == null) {
+          console.log('You need to specify a connection!')
+          return reject('You need to specify a connection!')
+        }
       }
-    }
-    var _url = connection.uri + command
-    var options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET')
-    request(options, function (error, response, body) {
-      if (!error) {
-        safeParse(body, function (err, json) {
-          if (err) {
-            return callback(null, connection)
-          }
-          return callback(json, connection, response.elapsedTime)
-        })
-      } else {
-        return callback(null, connection)
-      }
-    })
+      var _url = connection.uri + command
+      var options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET')
+      request(options, function (error, response, body) {
+        if (!error) {
+          safeParse(body, function (err, json) {
+            if (err) {
+              return reject(err)
+            }
+            return resolve(json)
+            //return callback(json, connection, response.elapsedTime)
+          })
+        } else {
+          return reject(null)
+        }
+      })
+    })   
   }
   this.setChosenConnection = function (con) {
     //console.log('Setting the used connection for ' + this.name + ' to ' + con.uri)
@@ -92,38 +96,71 @@ module.exports = function PlexServer () {
     //This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
-    var that = this
-    var j = 0
-    var returned = false
-    for (var i in this.plexConnections) {
-      var connection = this.plexConnections[i]
-      this.hitApiTestConnections('', connection, function (result, connectionUsed, responseTime) {
-        j++
-        //console.log('Connection attempt result below for ' + that.name)
-        //console.log(connectionUsed)
-        if (result == null || result == undefined) {
-          //console.log('Connection failed: ' + connectionUsed.uri)
-          //console.log(result)
-        } else {
-          if (that.chosenConnection != null) {
-            //Looks like we've already found a good connection
-            // lets disregard this connection
-            //console.log('Already have a working connection for ' + that.name + ' which is ' + that.chosenConnection.uri)
-          }
-          if ((result.MediaContainer != undefined || result._elementType != undefined) && that.chosenConnection == null) {
-            //console.log('Found the first working connection for ' + that.name + ' which is ' + connectionUsed.uri)
-            connectionUsed.responseTime = responseTime
-            that.setChosenConnection(connectionUsed)
-            returned = true
-            return callback(true, that)
-          }
+    let resolved = false
 
-          if (j == that.plexConnections.length && !returned) {
-            return callback(that.chosenConnection ? true : false, that)
+    return new Promise(async (resolve, reject) => {
+      await Promise.all(this.plexConnections.map(async (connection, index) => {
+        return new Promise(async (_resolve, _reject) => {
+          try {
+            let result = await this.hitApiTestConnections('', connection)
+            if (result) {
+              resolved = true
+              console.log('Succesfully connected to', this, 'via', connection)
+              this.chosenConnection = connection
+              return resolve()
+            }
+            _resolve(false)
+          } catch (e) {
+            _reject()
           }
-        }
-      })
-    }
+        })
+      }))
+      if (!resolved) {
+        reject()
+      }
+    })
+
+
+
+
+
+
+
+
+
+
+    // var that = this
+    // var j = 0
+    // var returned = false
+    // for (var i in this.plexConnections) {
+    //   var connection = this.plexConnections[i]
+    //   this.hitApiTestConnections('', connection, function (result, connectionUsed, responseTime) {
+    //     j++
+    //     //console.log('Connection attempt result below for ' + that.name)
+    //     //console.log(connectionUsed)
+    //     if (result == null || result == undefined) {
+    //       //console.log('Connection failed: ' + connectionUsed.uri)
+    //       //console.log(result)
+    //     } else {
+    //       if (that.chosenConnection != null) {
+    //         //Looks like we've already found a good connection
+    //         // lets disregard this connection
+    //         //console.log('Already have a working connection for ' + that.name + ' which is ' + that.chosenConnection.uri)
+    //       }
+    //       if ((result.MediaContainer != undefined || result._elementType != undefined) && that.chosenConnection == null) {
+    //         //console.log('Found the first working connection for ' + that.name + ' which is ' + connectionUsed.uri)
+    //         connectionUsed.responseTime = responseTime
+    //         that.setChosenConnection(connectionUsed)
+    //         returned = true
+    //         return callback(true, that)
+    //       }
+
+    //       if (j == that.plexConnections.length && !returned) {
+    //         return callback(that.chosenConnection ? true : false, that)
+    //       }
+    //     }
+    //   })
+    // }
   }
 
   //Functions for dealing with media

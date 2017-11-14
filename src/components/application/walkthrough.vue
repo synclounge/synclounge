@@ -29,13 +29,13 @@
         <v-layout row wrap>      
           <v-flex xs12 md6 lg7>
             <v-subheader>Plex Players {{ playercount }}</v-subheader>              
-            <div v-for="i in plex.clients" :key="i.clientIdentifier">
+            <div v-for="i in clients" :key="i.clientIdentifier">
               <div v-on:click="previewClient(i)">
                 <plexclient :startup="testClient" :sidebar="false" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
               </div>
             </div>
           </v-flex>
-          <v-flex xs12 md6 lg5>
+          <v-flex  xs12 md6 lg5>
             <div v-if="testClient">
               <v-subheader>
                 Selected Player
@@ -81,7 +81,7 @@
         </v-layout>
         <v-layout row wrap>
           <v-flex xs12>
-            It's time to connect to PlexTogether. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join.
+            It's time to connect to PlexTogether. From the list select a server which is closest to your location. Once you've chosen one that works for you can create or join a room.
           </v-flex>
         </v-layout>
         <v-layout row wrap> 
@@ -99,6 +99,8 @@
 
   import plexclient from './plexclient'
   import joinroom from './joinroom'
+
+  import { mapState } from 'vuex'
 
   import moment from '../../../node_modules/moment/moment.js'
 
@@ -120,9 +122,10 @@
       chosenClient: function () {
         return this.$store.getters.getChosenClient
       },
-      plex: function () {
-        return this.$store.getters.getPlex
+      clients: function () {
+        return this.plex.clients
       },
+      ...mapState(['plex']),
       context: function () {
         return this.$store
       },
@@ -131,7 +134,7 @@
       },
       playercount: function () {
         if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-          return '(' + this.$store.state.plex.clients.length + ')'
+          return '(' + Object.keys(this.plex.clients).length + ')'
         }
         return ''
       },
@@ -152,7 +155,7 @@
       previewClient: function (client) {
         this.testClient = client
       },
-      clientClicked: function () {
+      clientClicked: async function () {
         let client = this.testClient
         let clients = this.$store.getters.getPlex.clients
         for (let i = 0; i < clients.length; i++) {
@@ -167,18 +170,24 @@
         }
         //this.$store.state.plex.chosenClient = null
         client.connectedstatus = 'waiting'
-        let that = this
-        client.findConnection(function (res) {
-          let plexObj = that.$store.state.plex
-          if (res) {
-            client.connectedstatus = 'connected'
-            that.e1 = '2'
-            that.$store.commit('SET_CHOSENCLIENT', client)
+        try {
+          let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client)
+          this.$store.commit('SET_CHOSENCLIENT', client)
+          this.$store.commit('SET_PLEX_CLIENT_VALUE', [client, 'connectedstatus', 'connected'])
+        } catch (e) {
+          this.$store.commit('SET_PLEX_CLIENT_VALUE', [client, 'connectedstatus', 'failed'])
+        }
+        // client.findConnection(function (res) {
+        //   let plexObj = that.$store.state.plex
+        //   if (res) {
+        //     client.connectedstatus = 'connected'
+        //     that.e1 = '2'
+        //     that.$store.commit('SET_CHOSENCLIENT', client)
 
-          } else {
-            client.connectedstatus = 'failed'
-          }
-        })
+        //   } else {
+        //     client.connectedstatus = 'failed'
+        //   }
+        // })
       },
       openJoinRoomModal: function () {
         return this.$parent.$refs.joinroomModal.open()

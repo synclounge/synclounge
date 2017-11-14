@@ -1,5 +1,3 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
 require('vanilla-tilt');
 
@@ -39,3 +37,9 @@ new Vue({
   template: '<App/>',
   components: { App }
 })
+
+global.waitFor = async (ms) => {
+  return new Promise(async (resolve, reject) => {
+    setTimeout(() => resolve, ms)
+  })
+}

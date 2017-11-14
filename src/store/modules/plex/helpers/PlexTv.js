@@ -57,105 +57,99 @@ module.exports = function () {
 
   this.getDevices = function (callback) {
     //Retrieve all clients from the plex.tv/api/resources endpoint
-    var that = this
-    if (this.user == null) {
-      console.log('Must be logged in to retrieve devices!')
-      return (callback(false))
-    }
-    that.gotDevices = false
-    that.servers = []
-    that.clients = []
-    console.log('Retrieving devices for ' + this.user.username)
-    var options = PlexAuth.getApiOptions('https://plex.tv/api/resources?includeHttps=1', this.user.authToken, 5000, 'GET')
-    request(options, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        //Valid response
-        parseXMLString(body, function (err, result) {
-          that.servers = []
-          that.clients = []
-          for (var index in result.MediaContainer.Device) {
-            //Handle the individual device
-            let device = result.MediaContainer.Device[index]['$']
-            //Each device can have multiple network connections
-            //Any of them can be viable routes to interacting with the device
-            let connections = result.MediaContainer.Device[index]['Connection']
-            let tempConnectionsArray = []
-            //Create a temporary array of object:PlexConnection
-            for (var i in connections) {
-              let connection = connections[i]['$']
-              //Exclude local IPs starting with 169.254
-              if (!connection.address.startsWith('169.254')) {
-                let tempConnection = new PlexConnection()
-                for (var key in connection) {
-                  tempConnection[key] = connection[key]
-                }
-                tempConnectionsArray.push(tempConnection)
-              }
-            }
-            that.all_devices.push(device)
-            if (device.provides.indexOf('player') != -1) {
-              //This is a Client
-              //Create a new PlexClient object
-              var tempClient = new PlexClient()
-              for (var key in device) {
-                tempClient[key] = device[key]
-              }
-              tempClient.plexConnections = tempConnectionsArray
-              tempClient.subscribePort = that.httpServerPort
-              tempClient.userData = that.user
-              that.clients.push(tempClient)
-              /*
-              tempClient.checkConnectability(function(result,me){
-                  if (result){
-                      that.checkedClients.push(me)
-                  }
-              })
-              */
-            } else {
-              //This is a Server
-              //Create a new PlexServer object
-              var tempServer = new PlexServer()
-              for (var key in device) {
-                tempServer[key] = device[key]
-              }
-              tempServer.plexConnections = tempConnectionsArray
-              if (tempServer['accessToken'] == null) {
-                tempServer['accessToken'] = that.user.authToken
-              }
-              //that.servers.push(tempServer)
-              tempServer.findConnection(function (res, server) {
-                if (res) {
-                  that.servers.push(server)
-                }
-              })
-            }
-          }
-          let ptplayer = new PlexClient()
-          ptplayer.provides = 'player'
-          ptplayer.clientIdentifier = 'PTPLAYER9PLUS10'
-          ptplayer.platform = 'Web'
-          ptplayer.device = 'Web'
-          ptplayer.product = 'PlexTogether'
-          ptplayer.name = 'PlexTogether Player (BETA)'
-          ptplayer.lastSeenAt = Math.round((new Date).getTime() / 1000)
-
-          that.clients.push(ptplayer)
-          that.clients.sort(function (a, b) {
-            return parseInt(b.lastSeenAt) - parseInt(a.lastSeenAt)
-          })
-
-          // Setup our PTPlayer
-
-          console.log('Succesfully retrieved all Plex Devices')
-          that.gotDevices = true
-          return (callback(true))
-        })
-      } else {
-        //Invalid response
-        that.gotDevices = true
+    
+    return new Promise((resolve, reject) => {
+      if (this.user == null) {
+        console.log('Must be logged in to retrieve devices!')
         return (callback(false))
       }
-    })
+      this.gotDevices = false
+      this.servers = []
+      this.clients = []
+      console.log('Retrieving devices for ' + this.user.username)
+      var options = PlexAuth.getApiOptions('https://plex.tv/api/resources?includeHttps=1', this.user.authToken, 5000, 'GET')
+      request(options, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          //Valid response
+          parseXMLString(body, async (err, result) => {
+            this.servers = []
+            this.clients = []
+            for (var index in result.MediaContainer.Device) {
+              //Handle the individual device
+              let device = result.MediaContainer.Device[index]['$']
+              //Each device can have multiple network connections
+              //Any of them can be viable routes to interacting with the device
+              let connections = result.MediaContainer.Device[index]['Connection']
+              let tempConnectionsArray = []
+              //Create a temporary array of object:PlexConnection
+              for (var i in connections) {
+                let connection = connections[i]['$']
+                //Exclude local IPs starting with 169.254
+                if (!connection.address.startsWith('169.254')) {
+                  let tempConnection = new PlexConnection()
+                  for (var key in connection) {
+                    tempConnection[key] = connection[key]
+                  }
+                  tempConnectionsArray.push(tempConnection)
+                }
+              }
+              this.all_devices.push(device)
+              if (device.provides.indexOf('player') != -1) {
+                //This is a Client
+                //Create a new PlexClient object
+                var tempClient = new PlexClient()
+                for (var key in device) {
+                  tempClient[key] = device[key]
+                }
+                tempClient.plexConnections = tempConnectionsArray
+                tempClient.subscribePort = this.httpServerPort
+                tempClient.userData = this.user
+                this.clients.push(tempClient)
+              } else {
+                //This is a Server
+                //Create a new PlexServer object
+                let tempServer = new PlexServer()
+                for (var key in device) {
+                  tempServer[key] = device[key]
+                }
+                tempServer.plexConnections = tempConnectionsArray
+                if (tempServer['accessToken'] == null) {
+                  tempServer['accessToken'] = this.user.authToken
+                }
+                //that.servers.push(tempServer)
+                tempServer.findConnection().then((result) => {
+                  if (result) {
+                    this.servers.push(tempServer)
+                  }
+                })
+              }
+            }
+            let ptplayer = new PlexClient()
+            ptplayer.provides = 'player'
+            ptplayer.clientIdentifier = 'PTPLAYER9PLUS10'
+            ptplayer.platform = 'Web'
+            ptplayer.device = 'Web'
+            ptplayer.product = 'PlexTogether'
+            ptplayer.name = 'PlexTogether Player (BETA)'
+            ptplayer.lastSeenAt = Math.round((new Date).getTime() / 1000)
+  
+            this.clients.push(ptplayer)
+            this.clients.sort(function (a, b) {
+              return parseInt(b.lastSeenAt) - parseInt(a.lastSeenAt)
+            })
+  
+            // Setup our PTPlayer  
+            console.log('Succesfully retrieved all Plex Devices')
+            this.gotDevices = true
+            return resolve(true)
+          })
+        } else {
+          //Invalid response
+          this.gotDevices = true
+          return reject(false)
+        }
+      })
+    })    
   }
   this.doTokenLogin = function (token, callback) {
     var that = this
@@ -260,8 +254,7 @@ module.exports = function () {
         }
       },100)
     }
-    ticker(0)
-    
+    ticker(0)   
     
   }
   this.playContentAutomatically = function (client, hostData, blockedServers, offset, callback) {

@@ -54,75 +54,79 @@ module.exports = function PlexClient () {
   }
   this.uuid = this.generateGuid()
 
-  this.hitApi = function (command, params, connection, callback) {
-    var that = this
+  this.hitApi = function (command, params, connection, commit) {
+
+    return new Promise(async (resolve, reject) => {
+      if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
+        // We are using the PT Player
+  
+        let data = {
+          command: command,
+          params: params,
+          callback: function (resultData) {
+            resolve(resultData, 0, 200, 'PTPLAYER')
+          }
+        }
+        this.eventbus.$emit('command', data)
+  
+      } else {
+        const doRequest = () => {
+          if (connection == null) {
+            if (this.chosenConnection == null) {
+              console.log('You should find a working connection via #findConnection first!')
+            }
+            connection = this.chosenConnection
+          }
+          var query = 'type=video&'
+          for (let key in params) {
+            query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+          }
+          query = query + 'commandID=' + this.commandId
+          if (connection.uri.charAt(connection.uri.length - 1) == '/') {
+            //Remove a trailing / that some clients broadcast
+            connection.uri = connection.uri.slice(0, connection.uri.length - 1)
+          }
+          var _url = connection.uri + command + '?' + query
+          commit('PLEX_CLIENT_SET_VALUE', [this, 'commandId', this.commandId + 1])
+          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000)
+          request(options, function (error, response, body) {
+            //console.log(response)
+            if (!error) {
+              parseXMLString(body, function (err, result) {
+                if (err) {
+                  return reject(err)
+                }
+                return resolve(result, response.elapsedTime, response.statusCode, connection)
+              })
+            } else {
+              return reject(error)
+            }
+          })
+        }
+        if ((new Date().getTime() - this.lastSubscribe) > 29000) {
+            // We need to subscribe first!
+            let result = await this.subscribe(function (result) {
+              
+            if (result) {
+              commit('PLEX_CLIENT_SET_VALUE', [this, 'lastSubscribe', new Date().getTime()])
+              //lastSubscribe = new Date().getTime()
+            }
+            //console.log('subscription result: ' + result)
+            doRequest()
+            return
+            })
+        } else {
+          doRequest()
+          return
+        } 
+      }
+    })
     //console.log('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
 
     // Check if our client is the inline PTPlayer
     // PTPlayer will have a client identifier of PTPLAYER9PLUS10
 
-    if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
-      // We are using the PT Player
-
-      let data = {
-        command: command,
-        params: params,
-        callback: function (resultData) {
-          callback(resultData, 0, 200, 'PTPLAYER')
-        }
-      }
-      that.eventbus.$emit('command', data)
-
-    } else {
-      if ((new Date().getTime() - this.lastSubscribe) > 29000) {
-        // We need to subscribe first!
-        this.subscribe(function (result) {
-          //console.log('subscription result: ' + result)
-          if (result) {
-            that.lastSubscribe = new Date().getTime()
-          }
-          doRequest()
-          return
-        })
-      } else {
-        doRequest()
-        return
-      }
-
-      function doRequest () {
-        if (connection == null) {
-          if (that.chosenConnection == null) {
-            console.log('You should find a working connection via #findConnection first!')
-          }
-          connection = that.chosenConnection
-        }
-        var query = 'type=video&'
-        for (let key in params) {
-          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-        }
-        query = query + 'commandID=' + that.commandId
-        if (connection.uri.charAt(connection.uri.length - 1) == '/') {
-          //Remove a trailing / that some clients broadcast
-          connection.uri = connection.uri.slice(0, connection.uri.length - 1)
-        }
-        var _url = connection.uri + command + '?' + query
-        that.commandId = that.commandId + 1
-        var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, null, 5000)
-        request(options, function (error, response, body) {
-          //console.log(response)
-          if (!error) {
-            parseXMLString(body, function (err, result) {
-              if (err) {
-                return callback(null, response.elapsedTime, response.statusCode, connection)
-              }
-              return callback(result, response.elapsedTime, response.statusCode, connection)
-            })
-          } else {
-            return callback(null, null, response, connection)
-          }
-        })
-      }
-    }
+    
 
   }
 
@@ -531,47 +535,49 @@ module.exports = function PlexClient () {
     })
   }
   this.subscribe = function (callback) {
-    var that = this
-    doRequest()
-
-    function doRequest () {
-      // Already have a valid http server running, lets send the request
-      if (that.chosenConnection == null) {
-        // It is possible to try to subscribe before we've found a working connection
-        return (callback(false))
-      }
-      let tempId = 'PlexTogetherWeb'
-      var command = '/player/timeline/subscribe'
-      var params = {
-        'port': that.subscribePort,
-        'protocol': 'http',
-        'X-Plex-Device-Name': 'PlexTogether'
-      }
-      //Now that we've built our params, it's time to hit the client api
-
-      var query = ''
-      for (let key in params) {
-        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-      }
-      query = query + 'commandID=' + that.commandId
-      if (that.chosenConnection.uri.charAt(that.chosenConnection.uri.length - 1) == '/') {
-        //Remove a trailing / that some clients broadcast
-        that.chosenConnection.uri = that.chosenConnection.uri.slice(0, that.chosenConnection.uri.length - 1)
-      }
-
-      var _url = that.chosenConnection.uri + command + '?' + query
-      //console.log('subscription url: ' + _url)
-      that.commandId = that.commandId + 1
-      var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000)
-      request(options, function (error, response, body) {
-        //console.log('subscription result below')
-        if (!error) {
-          return callback(true, that)
-        } else {
-          return callback(false, that)
+    return new Promise((resolve, reject) => {
+      const doRequest = () => {
+        // Already have a valid http server running, lets send the request
+        if (this.chosenConnection == null) {
+          // It is possible to try to subscribe before we've found a working connection
+          return (callback(false))
         }
-      })
-    }
+        let tempId = 'PlexTogetherWeb'
+        var command = '/player/timeline/subscribe'
+        var params = {
+          'port': this.subscribePort,
+          'protocol': 'http',
+          'X-Plex-Device-Name': 'PlexTogether'
+        }
+        //Now that we've built our params, it's time to hit the client api
+  
+        var query = ''
+        for (let key in params) {
+          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+        }
+        query = query + 'commandID=' + this.commandId
+        if (this.chosenConnection.uri.charAt(this.chosenConnection.uri.length - 1) == '/') {
+          //Remove a trailing / that some clients broadcast
+          this.chosenConnection.uri = this.chosenConnection.uri.slice(0, this.chosenConnection.uri.length - 1)
+        }
+  
+        var _url = this.chosenConnection.uri + command + '?' + query
+        //console.log('subscription url: ' + _url)
+        this.commandId = this.commandId + 1
+        var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
+        request(options, function (error, response, body) {
+          //console.log('subscription result below')
+          if (!error) {
+            return resolve()
+          } else {
+            return reject(error)
+          }
+        })
+      }
+      doRequest()
+    
+    })
+    
   }
   this.unsubscribe = function (callback) {
     var that = this
