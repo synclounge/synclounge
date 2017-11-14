@@ -1,7 +1,18 @@
 
 const EventEmitter = require('events')
 
-
+function sendNotification (message) {
+  return window.EventBus.$emit('notification', message)
+}
+function getHandshakeUser (user, room, password) {
+  var tempUser = {
+    'username': user.username,
+    'room': room,
+    'password': password,
+    'avatarUrl': user.thumb
+  }
+  return tempUser
+}
 export default {
     state: {
       _io: require('socket.io-client'),
@@ -283,7 +294,7 @@ export default {
                   let validServers = rootState.plex.servers.length
                   if (blockedServers){
                     for (let i = 0; i < blockedServers.length; i++ ){
-                      if (rootState.plex.getServerById(blockedServers[i])){
+                      if (rootState.plex.servers[blockedServers[i]]){
                         validServers--
                       }
                     }
@@ -338,7 +349,7 @@ export default {
                     return
   
                     function skipAhead () {
-                      let server = rootState.plex.getServerById(ourTimeline.machineIdentifier)
+                      let server = rootState.plex.servers[ourTimeline.machineIdentifier]
                       let extra = 500
                       if (parseInt(hostTimeline.time) < parseInt(ourTimeline.time) && difference < 15000) {
                         state.decisionBlocked = true

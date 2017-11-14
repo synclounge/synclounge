@@ -3,7 +3,7 @@
 		<div style="margin-bottom: 0; height:100%">
 			<v-layout row wrap style="overflow-y: scroll">
 				<!-- MAIN CONTENT -->
-				<v-flex xs12 v-if="!plex && !plex.gotDevices">
+				<v-flex xs12 v-if="!plex || !plex.gotDevices">
 					<v-layout fill-height wrap row style="position:relative" class="pt-4">
 						<v-flex xs12 md4 offset-md4>			
 							<div style="width:100%;text-align:center">				
@@ -199,7 +199,7 @@
 				if (!this.chosenClient.clientPlayingMetadata){
 					return null
 				}
-				return this.plex.getServerById(this.chosenClient.clientPlayingMetadata.machineIdentifier)
+				return this.plex.servers[this.chosenClient.clientPlayingMetadata.machineIdentifier]
 			}
 
 		},

@@ -44,9 +44,8 @@ module.exports = function PlexAuth () {
     }
     return {
       url: url,
-      time: true,
       headers: {
-        'X-Plex-Device-Name': sBrowser ,
+        'X-Plex-Device-Name': 'PlexTogether' ,
         'X-Plex-Client-Identifier': 'PlexTogether',
         'X-Plex-Provides': 'controller',
         'X-Plex-Target-Client-Identifier': clientIdentifier,

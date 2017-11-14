@@ -30,7 +30,7 @@
           <v-flex xs12 md6 lg7>
             <v-subheader>Plex Players {{ playercount }}</v-subheader>              
             <div v-for="i in clients" :key="i.clientIdentifier">
-              <div v-on:click="previewClient(i)">
+              <div v-on:click="previewClient(i); ; gotResponse = true">
                 <plexclient :startup="testClient" :sidebar="false" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
               </div>
             </div>
@@ -38,7 +38,7 @@
           <v-flex  xs12 md6 lg5>
             <div v-if="testClient">
               <v-subheader>
-                Selected Player
+                Selected Player 
               </v-subheader>
               <div class="pl-1">
                 <h6 style="opacity:1">{{ testClient.name }}</h6>
@@ -54,12 +54,12 @@
                 <div class="pb-2">
                   <label>Platform</label><span style="opacity:0.8">  {{ testClient.platform }} </span>
                 </div>
-                <div v-if="testClientWaiting" class="center spinner-orange">
+                <div v-if="!gotResponse" class="center spinner-orange">
                   <div style="width:100%;text-align:center">				
                     <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
                   </div>
                 </div>
-                <div v-if="!testClientWaiting">
+                <div v-if="gotResponse">
                   <v-btn class="pt-orange ml-0" style="width:100%" x-large primary v-on:click.native="clientClicked()">Connect</v-btn>
                 </div>
                 <div v-if="testClient.product.indexOf('Web') > -1">
@@ -110,6 +110,8 @@
     data () {
       return {
         testClient: null,
+        testClientErrorMsg: null,
+        gotResponse: true,
         e1: '1',
         joinRoomModal: false
       }
@@ -137,18 +139,6 @@
           return '(' + Object.keys(this.plex.clients).length + ')'
         }
         return ''
-      },
-      testClientWaiting: function () {
-        if (this.testClient.connectedstatus == 'waiting') {
-          return true
-        }
-        return false
-      },
-      testClientErrorMsg: function () {
-        if (this.testClient.connectedstatus == 'failed') {
-          return 'Error connecting to client'
-        }
-        return false
       }
     },
     methods: {
@@ -157,25 +147,18 @@
       },
       clientClicked: async function () {
         let client = this.testClient
-        let clients = this.$store.getters.getPlex.clients
-        for (let i = 0; i < clients.length; i++) {
-          let _client = clients[i]
-          if (_client.connectedstatus == 'waiting') {
-            return
-          }
-        }
-        for (let i = 0; i < clients.length; i++) {
-          let _client = clients[i]
-          _client.connectedstatus = 'fresh'
-        }
-        //this.$store.state.plex.chosenClient = null
-        client.connectedstatus = 'waiting'
+        this.gotResponse = false
         try {
-          let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client)
+          let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client).catch(() => {
+            this.gotResponse = true
+            console.log('Unable to connect to client')
+            this.$store.commit('PLEX_CLIENT_SET_VALUE', [client, 'connectedstatus', 'failed'])
+          })
+          console.log('Got connection result', result)
           this.$store.commit('SET_CHOSENCLIENT', client)
-          this.$store.commit('SET_PLEX_CLIENT_VALUE', [client, 'connectedstatus', 'connected'])
+          this.$store.commit('PLEX_CLIENT_SET_VALUE', [client, 'connectedstatus', 'connected'])
+          this.gotResponse = true
         } catch (e) {
-          this.$store.commit('SET_PLEX_CLIENT_VALUE', [client, 'connectedstatus', 'failed'])
         }
         // client.findConnection(function (res) {
         //   let plexObj = that.$store.state.plex

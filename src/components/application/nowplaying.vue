@@ -69,10 +69,10 @@
         if (metadata.parentThumb) {
           content = metadata.parentThumb
         }
-        if (!plexObj.getServerById(metadata.machineIdentifier)) {
+        if (!plexObj.servers[metadata.machineIdentifier]) {
           return ''
         }
-        return plexObj.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(content, 700, 700)
+        return plexObj.servers[metadata.machineIdentifier].getUrlForLibraryLoc(content, 700, 700)
       },
       metadataArt: function () {
         if (!this.validPlex) {
@@ -88,10 +88,10 @@
         }
         let server;
         let content = metadata.art;
-        if (!plexObj.getServerById(metadata.machineIdentifier)) {
+        if (!plexObj.servers[metadata.machineIdentifier]) {
           return ''
         }
-        return plexObj.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(content, 700, 700, 8)
+        return plexObj.servers[metadata.machineIdentifier].getUrlForLibraryLoc(content, 700, 700, 8)
       },
       metadataServer: function () {
         if (!this.validPlex) {
@@ -104,7 +104,7 @@
         if (!metadata) {
           return ''
         }
-        return (this.plex.getServerById(this.chosenClient.clientPlayingMetadata.machineIdentifier).name)
+        return (this.plex.server[this.chosenClient.clientPlayingMetadata.machineIdentifier].name)
       },
       metadataTitle: function () {
         if (!this.validPlex) {

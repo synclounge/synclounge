@@ -171,7 +171,7 @@
         this.browsingServer = server
       },
       isConnectable (server){
-        if (this.plex.getServerById(server.clientIdentifier)){
+        if (this.plex.servers[server.clientIdentifier]){
           return true
         } 
         return false
@@ -336,10 +336,10 @@
         return servers
       },
       validLastServer () {
-        return (this.$store.getters.getSettingLASTSERVER && this.plex.getServerById(this.$store.getters.getSettingLASTSERVER))
+        return (this.$store.getters.getSettingLASTSERVER && this.plex.servers[this.$store.getters.getSettingLASTSERVER])
       },
       lastServer () {
-        return this.plex.getServerById(this.$store.getters.getSettingLASTSERVER)
+        return this.plex.servers[this.$store.getters.getSettingLASTSERVER]
       },      
       onDeckUpStyle () {
         if ((this.onDeckOffset + 3) >= this.onDeck.MediaContainer.Metadata.length){

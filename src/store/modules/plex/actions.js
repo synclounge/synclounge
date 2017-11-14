@@ -159,6 +159,9 @@ export default {
         })
     },
 
+    PLEX_GET_SERVERBYID: ({ state }, id) => {
+    },
+
     PLEX_GET_RANDOMTHUMB: ({ state }) => {
         return new Promise((resolve, reject) => {
             let validServers = state.servers.filter((server) => {
@@ -185,7 +188,7 @@ export default {
     PLEX_REFRESH_SERVER_CONNECTIONS: ({ state, dispatch, commit }) => {
         for (let id in state.servers) {
             let server = state.servers[id]
-            dispatch('PLEX_SERVER_FINDCONNECTION', server)
+            dispatch('PLEX_SERVER_FINDCONNECTION', server).catch(() => {})
         }
     },
 
@@ -210,7 +213,6 @@ export default {
                         }
                         _resolve(false)
                     } catch (e) {
-                        _reject(e)
                     }
                 })
             }))
@@ -220,35 +222,41 @@ export default {
         })
     },
 
-    PLEX_CLIENT_FINDCONNECTION: ({ state, commit }, client) => {
+    PLEX_CLIENT_FINDCONNECTION: async ({ state, commit }, client) => {
         //This function iterates through all available connections and
         // if any of them return a valid response we'll set that connection
         // as the chosen connection for future use.
         let resolved = false
-        
-        return new Promise(async (resolve, reject) => {
+        console.log('Finding connection for client', client)
+        try {
             await Promise.all(client.plexConnections.map(async (connection, index) => {
-                return new Promise(async (_resolve, _reject) => {
-                    try {
-                        let result = await client.hitApi('/player/timeline/poll', { wait: 0 }, connection, commit)
-                        if (result) {
-                            resolved = true
-                            //console.log('Succesfully connected to', server, 'via', connection)
-                            commit('PLEX_CLIENT_SET_CONNECTION', {
-                                client, connection
-                            })
-                            return resolve()
-                        }
-                        _resolve(false)
-                    } catch (e) {
-                        _reject(e)
-                    }
-                })
+                let result = await client.hitApi('/player/timeline/poll', { wait: 0 }, connection, commit)
+                // console.log('Got result data', result)
+                if (result) {
+                    resolved = true
+                    //nsole.log('Succesfully connected to', server, 'via', connection)
+                    commit('PLEX_CLIENT_SET_CONNECTION', {
+                        client, connection
+                    })
+                    return result
+                } else {                        
+                    return false
+                }
+                
+                // return new Promise(async (_resolve, _reject) => {
+                //     try {
+                        
+                //     } catch (e) {
+                //         _reject(e)
+                //     }
+                // })
             }))
             if (!resolved) {
                 reject('Unable to find a connection')
             }
-        })
+        } catch (e) {
+            console.log('CATCH ALL', e)
+        }            
     }
 
 };

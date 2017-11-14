@@ -42,6 +42,9 @@ module.exports = function PlexClient () {
 
   this.eventbus = window.EventBus // Assigned early on - we will use this to communicate with the PT Player
 
+  this.setValue = function (key, value) {
+    this[key] = value
+  }
   // Functions
   this.generateGuid = function () {
     function s4 () {
@@ -71,8 +74,8 @@ module.exports = function PlexClient () {
   
       } else {
         const doRequest = () => {
-          if (connection == null) {
-            if (this.chosenConnection == null) {
+          if (!connection) {
+            if (!this.chosenConnection) {
               console.log('You should find a working connection via #findConnection first!')
             }
             connection = this.chosenConnection
@@ -88,33 +91,35 @@ module.exports = function PlexClient () {
           }
           var _url = connection.uri + command + '?' + query
           commit('PLEX_CLIENT_SET_VALUE', [this, 'commandId', this.commandId + 1])
-          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000)
-          request(options, function (error, response, body) {
-            //console.log(response)
-            if (!error) {
+          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
+          // console.log('sending api request', options)
+          request(options, (error, response, body) => {
+            // console.log('response data', response)
+            if (error) {
+              return reject(error)
+              
+            } else {
               parseXMLString(body, function (err, result) {
-                if (err) {
-                  return reject(err)
+                if (err || (response.statusCode != 200 && response.statusCode != 201)) {
+                  return reject(err || response.statusCode)
                 }
                 return resolve(result, response.elapsedTime, response.statusCode, connection)
-              })
-            } else {
-              return reject(error)
+            })
             }
           })
         }
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
             // We need to subscribe first!
-            let result = await this.subscribe(function (result) {
-              
-            if (result) {
-              commit('PLEX_CLIENT_SET_VALUE', [this, 'lastSubscribe', new Date().getTime()])
+            let result = await this.subscribe(connection, commit)
+            // console.log('Got subscription result', result)
+            // if (result) {
+              // commit('PLEX_CLIENT_SET_VALUE', [this, 'lastSubscribe', new Date().getTime()])
               //lastSubscribe = new Date().getTime()
-            }
+            // }
             //console.log('subscription result: ' + result)
             doRequest()
             return
-            })
+          
         } else {
           doRequest()
           return
@@ -534,18 +539,18 @@ module.exports = function PlexClient () {
       }
     })
   }
-  this.subscribe = function (callback) {
+  this.subscribe = function (connection, commit) {
     return new Promise((resolve, reject) => {
       const doRequest = () => {
         // Already have a valid http server running, lets send the request
-        if (this.chosenConnection == null) {
+        if (!connection) {
           // It is possible to try to subscribe before we've found a working connection
-          return (callback(false))
+          connection = this.chosenConnection
         }
         let tempId = 'PlexTogetherWeb'
         var command = '/player/timeline/subscribe'
         var params = {
-          'port': this.subscribePort,
+          'port': '8090',
           'protocol': 'http',
           'X-Plex-Device-Name': 'PlexTogether'
         }
@@ -556,21 +561,23 @@ module.exports = function PlexClient () {
           query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
         }
         query = query + 'commandID=' + this.commandId
-        if (this.chosenConnection.uri.charAt(this.chosenConnection.uri.length - 1) == '/') {
+        if (connection.uri.charAt(connection.uri.length - 1) == '/') {
           //Remove a trailing / that some clients broadcast
-          this.chosenConnection.uri = this.chosenConnection.uri.slice(0, this.chosenConnection.uri.length - 1)
+          connection.uri = connection.uri.slice(0, connection.uri.length - 1)
         }
   
-        var _url = this.chosenConnection.uri + command + '?' + query
-        //console.log('subscription url: ' + _url)
+        var _url = connection.uri + command + '?' + query
+        // console.log('subscription url: ' + _url)
         this.commandId = this.commandId + 1
+        commit('PLEX_CLIENT_SET_VALUE', [this, 'commandId', this.commandId + 1])
         var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
-        request(options, function (error, response, body) {
-          //console.log('subscription result below')
-          if (!error) {
-            return resolve()
-          } else {
+        request(options, (error, response, body) => {
+          // console.log('subscription result', response)
+          commit('PLEX_CLIENT_SET_VALUE', [this, 'lastSubscribe', new Date().getTime()])
+          if (error) {
             return reject(error)
+          } else {
+            return resolve(true)
           }
         })
       }
@@ -588,7 +595,7 @@ module.exports = function PlexClient () {
       let tempId = 'PlexTogether'
       var command = '/player/timeline/unsubscribe'
       var params = {
-        'port': that.subscribePort,
+        'port': '8090',
         'protocol': 'http',
         'X-Plex-Device-Name': 'PlexTogether'
       }

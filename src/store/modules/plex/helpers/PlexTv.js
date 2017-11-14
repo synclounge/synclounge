@@ -268,7 +268,7 @@ module.exports = function () {
     let validServers = this.servers.length
     if (blockedServers){
       for (let i = 0; i < blockedServers.length; i++ ){
-        if (this.getServerById(blockedServers[i])){
+        if (this.servers[blockedServers[i]]){
           validServers--
         }
       }

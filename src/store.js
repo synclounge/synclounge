@@ -96,7 +96,7 @@ const mutations = {
       console.log('Playback change!')
       if (ratingKey != null) {
         // Playing something different!
-        let server = state.plex.getServerById(state.chosenClient.lastTimelineObject.machineIdentifier)
+        let server = state.plex.servers[state.chosenClient.lastTimelineObject.machineIdentifier]
         state.LASTSERVER = state.chosenClient.lastTimelineObject.machineIdentifier        
         window['localStorage'].setItem('LASTSERVER',state.chosenClient.lastTimelineObject.machineIdentifier)
         if (!server) {
@@ -109,15 +109,15 @@ const mutations = {
             return
           }
           if (metadata.type == 'movie') {
-            sendNotification('Now Playing: ' + metadata.title + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name)
+            sendNotification('Now Playing: ' + metadata.title + ' from ' + state.plex.servers[metadata.machineIdentifier].name)
           }
           if (metadata.type == 'episode') {
-            sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.getServerById(metadata.machineIdentifier).name)
+            sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.servers[metadata.machineIdentifier].name)
           }
           state.chosenClient.clientPlayingMetadata = metadata
           var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
           var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-          state.background =  state.plex.getServerById(metadata.machineIdentifier).getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
+          state.background =  state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
         })
       } else {
         state.plex.getRandomThumb((res) => {
@@ -382,15 +382,6 @@ const actions = {
 }
 
 
-function getHandshakeUser (user, room, password) {
-  var tempUser = {
-    'username': user.username,
-    'room': room,
-    'password': password,
-    'avatarUrl': user.thumb
-  }
-  return tempUser
-}
 
 const store = new Vuex.Store({
   state,
