@@ -1,5 +1,5 @@
 <template>
-    <span>
+    <span v-if="server">
         <span v-on:click="reset()" style="cursor: pointer !important">{{ server.name }}<span
           v-if="browsingLibrary || selectedItem"> ></span>
         </span>
@@ -48,40 +48,16 @@
                 </v-flex>
             </v-layout>  
         </div>
-        <span v-if="selectedItem">
-            <plexcontent v-if="selectedItem.type == 'episode' || selectedItem.type == 'movie'" :server="server"
-                         :content="selectedItem">
-            </plexcontent>
-            <plexseason v-if="selectedItem.type == 'season'" :server="server" :content="selectedItem">
-            </plexseason>
-            <plexseries v-if="selectedItem.type == 'show'" :server="server" :content="selectedItem">
-            </plexseries>            
-            <plexalbum v-if="selectedItem.type == 'album'" :server="server" :content="selectedItem">
-            </plexalbum>
-        </span>
-        <plexlibrary v-if="browsingLibrary" :library="browsingLibrary" :server="server"></plexlibrary>
     </span>
 </template>
 
 <script>
-
-  import plexcontent from './plexcontent'
-  import plexseason from './plexseason'
-  import plexalbum from './plexalbum'
-  import plexseries from './plexseries'
-  import plexlibrary from './plexlibrary'
-  import plexthumb from './plexthumb'
+  let plexthumb = require('./plexthumb.vue')
 
   var _ = require('lodash');
   export default {
-    props: ['server'],
     components: {
-      plexlibrary,
-      plexcontent,
-      plexseason,
-      plexseries,
-      plexthumb,
-      plexalbum
+      plexthumb
     },
     created () {
       // Hit the PMS endpoing /library/sections
@@ -125,6 +101,15 @@
 
     },
     computed: {
+      clientIdentifier () {
+        return this.$route.params.machineIdentifier
+      },
+      server () {
+        return this.plex.servers[this.clientIdentifier]
+      },
+      plex () {
+        return this.$store.getters.getPlex
+      },
       filteredLibraries () {
         if (this.libraries) {
           return this.libraries.MediaContainer.Directory

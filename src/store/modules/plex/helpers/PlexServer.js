@@ -31,16 +31,27 @@ module.exports = function PlexServer () {
   this.plexConnections
   this.chosenConnection = null
 
+  this.commit
+
+  this.setValue = function (key, value) {
+    console.log('Server setting ', key, 'to', value, this)
+    this[key] = value
+    this.commit('PLEX_SERVER_SET_VALUE', [this, key, value])
+  }
+
   //Functions
   this.hitApi = function (command, params) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       var query = ''
       //console.log('Query params: ' + JSON.stringify(params))
       for (let key in params) {
         query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
       }
       if (!this.chosenConnection) {
-        return callback(null, this, null)
+        let result = await this.findConnection()
+        if (!result) {
+          reject('Failed to find a connection')
+        }
       }
       console.log('Hitting server ' + this.name + ' via ' + this.chosenConnection.uri)
       var _url = this.chosenConnection.uri + command + '?' + query
@@ -61,16 +72,10 @@ module.exports = function PlexServer () {
       })
     })    
   }
-  this.hitApiTestConnections = async function (command, connection) {
+  this.hitApiTestConnection = async function (command, connection) {
     //For use with #findConnection
 
     return new Promise(async (resolve, reject) => {
-      if (connection == null) {
-        if (this.chosenConnection == null) {
-          console.log('You need to specify a connection!')
-          return reject('You need to specify a connection!')
-        }
-      }
       var _url = connection.uri + command
       var options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET')
       request(options, function (error, response, body) {
@@ -93,7 +98,7 @@ module.exports = function PlexServer () {
     this.chosenConnection = con
     return
   }
-  this.findConnection = function (callback) {
+  this.findConnection = function () {
     //This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
@@ -102,25 +107,24 @@ module.exports = function PlexServer () {
     return new Promise(async (resolve, reject) => {
       await Promise.all(this.plexConnections.map(async (connection, index) => {
         return new Promise(async (_resolve, _reject) => {
-          try {
-            let result = await this.hitApiTestConnections('', connection)
-            if (result) {
-              resolved = true
-              console.log('Succesfully connected to', this, 'via', connection)
-              this.chosenConnection = connection
-              return resolve()
+            try {
+                let result = await this.hitApiTestConnection('', connection)
+                if (result) {
+                    resolved = true
+                    //console.log('Succesfully connected to', server, 'via', connection)
+                    this.setValue('chosenConnection', connection)
+                    resolve(true)
+                }
+                _resolve(false)
+            } catch (e) {
+              _resolve(false)
             }
-            _resolve(false)
-          } catch (e) {
-            _reject()
-          }
         })
-      }))
-      if (!resolved) {
-        reject()
-      }
-    })
-
+    }))
+    if (!resolved) {
+        reject('Unable to find a connection')
+    }
+  })
 
 
 
@@ -182,13 +186,10 @@ module.exports = function PlexServer () {
 
   this.getMediaByRatingKey = async function (ratingKey) {
     //This function hits the PMS and returns the item at the ratingKey
-    console.log('Getting data for ' + ratingKey)
     let data = await this.hitApi('/library/metadata/' + ratingKey, {})
-    console.log('Response back from metadata request')
     return this.handleMetadata(data)
   }
   this.markWatchedByRatingKey = function (ratingKey) {
-    console.log('Marking ' + ratingKey + ' as watched')
     return this.hitApi('/:/scrobble', {
       identifier: 'com.plexapp.plugins.library',
       key: ratingKey
@@ -201,10 +202,8 @@ module.exports = function PlexServer () {
     return this.chosenConnection.uri + '/photo/:/transcode?url=' + location + '&X-Plex-Token=' + this.accessToken + '&height=' + Math.floor(height) + '&width=' + Math.floor(width) + '&blur=' + blur
   }
   this.getRandomItem = async function () {
-    console.log('Getting random item')
     try {
       let data = await this.getAllLibraries() 
-      console.log('GetAllLibraries result', data)
       if (!data || !data.MediaContainer || !data.MediaContainer.Directory) {
         return false
       }
@@ -256,13 +255,13 @@ module.exports = function PlexServer () {
   }
   this.getSeriesData = function (key, callback) {
     return this.hitApi(key, {
-      includeConcerts:1,
-      includeExtras:1,
-      includeOnDeck:1,
-      includePopularLeaves:1,
-      asyncCheckFiles:1,
-      asyncRefreshAnalysis:1,
-      asyncRefreshLocalMediaAgent:1
+      includeConcerts: 1,
+      includeExtras: 1,
+      includeOnDeck: 1,
+      includePopularLeaves: 1,
+      asyncCheckFiles: 1,
+      asyncRefreshAnalysis: 1,
+      asyncRefreshLocalMediaAgent: 1
     })
   }
   

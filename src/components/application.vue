@@ -2,17 +2,7 @@
 	<div style="margin-bottom: 0; height:100%">
 		<div style="margin-bottom: 0; height:100%">
 			<v-layout row wrap style="overflow-y: scroll">
-				<!-- MAIN CONTENT -->
-				<v-flex xs12 v-if="!plex || !plex.gotDevices">
-					<v-layout fill-height wrap row style="position:relative" class="pt-4">
-						<v-flex xs12 md4 offset-md4>			
-							<div style="width:100%;text-align:center">				
-								<v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
-							</div>
-						</v-flex>      
-					</v-layout>
-				</v-flex>
-				<v-flex xs12 v-else>
+				<v-flex xs12>
 					<div v-if="!ptConnected || !chosenClient || !ptRoom">
 						<walkthrough class="pa-4"></walkthrough>
 					</div>
@@ -57,46 +47,37 @@
 			plexcontent
 		},
 		mounted: function () {
-		if (window['localStorage'].getItem('plexuser') == null) {
-			console.log('User isnt signed in  - sending to signin')
-			this.$router.push('/signin')
-			return
-		}
-		var that = this
-		console.log('Logging in to Plex.Tv')
-		let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
-		this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken)
-		//   Plex.doTokenLogin(plexstorage.authToken, async (result, response, body) => {
-		// 		if (result) {
-		// 			console.log('Logged in.')
-		// 			console.log(this.$store)
-		// 			await Plex.getDevices()
-		// 			console.log('Setting PLEX', Plex)
-		// 			this.$store.commit('SET_PLEX', Plex)
-		// 			if (this.$store.getters.getAutoJoin) {
-		// 				this.$store.dispatch('autoJoin')
-		// 				this.$store.commit('SET_AUTOJOIN', false)
-		// 			}
-		// 			setTimeout(() => {
-		// 				//this.$store.commit('SET_RANDOMBACKROUND')
-		// 			},100)
-		// 		} else {
-		// 				console.log('Signin failed')
-		// 				window['localStorage'].removeItem('plexuser')
-		// 				this.$store.state.plex = null
-		// 				this.$store.state.signedin = 'notsignedin'
-		// 				this.$router.push('/signin')
-		// 			}
-		// 		})
+			//   Plex.doTokenLogin(plexstorage.authToken, async (result, response, body) => {
+			// 		if (result) {
+			// 			console.log('Logged in.')
+			// 			console.log(this.$store)
+			// 			await Plex.getDevices()
+			// 			console.log('Setting PLEX', Plex)
+			// 			this.$store.commit('SET_PLEX', Plex)
+			// 			if (this.$store.getters.getAutoJoin) {
+			// 				this.$store.dispatch('autoJoin')
+			// 				this.$store.commit('SET_AUTOJOIN', false)
+			// 			}
+			// 			setTimeout(() => {
+			// 				//this.$store.commit('SET_RANDOMBACKROUND')
+			// 			},100)
+			// 		} else {
+			// 				console.log('Signin failed')
+			// 				window['localStorage'].removeItem('plexuser')
+			// 				this.$store.state.plex = null
+			// 				this.$store.state.signedin = 'notsignedin'
+			// 				this.$router.push('/signin')
+			// 			}
+			// 		})
 
-		if (this.$store.getters.getAutoJoin) {
-			// Attempt to auto join
-			console.log('Attempting to auto join ' + this.$store.getters.getAutoJoinUrl)
-			this.$store.dispatch('socketConnect', {
-				address: this.$store.getters.getAutoJoinUrl,
-				callback: function (data) {}
-			})
-		}
+			if (this.$store.getters.getAutoJoin) {
+				// Attempt to auto join
+				console.log('Attempting to auto join ' + this.$store.getters.getAutoJoinUrl)
+				this.$store.dispatch('socketConnect', {
+					address: this.$store.getters.getAutoJoinUrl,
+					callback: function (data) {}
+				})
+			}
 
 		},
 		created: function () {
@@ -222,12 +203,6 @@
 				console.log('We should send this message: ' + this.messageToBeSent)
 				this.$store.dispatch('sendNewMessage', this.messageToBeSent)
 				this.messageToBeSent = ''
-			}
-		},
-		beforeDestroy: function () {
-			console.log('About to destroy')
-			if (this.$store.getters.getSocket) {
-					this.$store.getters.getSocket.disconnect()
 			}
 		}
 

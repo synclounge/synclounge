@@ -42,7 +42,7 @@
     name: 'home',
     created: function () {
       if (this.$store.getters.getSettingHOMEINIT) {
-        this.$router.push('/sync')
+        this.$router.push('/browse')
       }
     },
     mounted: function () {

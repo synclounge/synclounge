@@ -24,8 +24,17 @@
     </v-toolbar>
     <main v-bind:style="mainStyle">
       <v-content v-bind:style="containerStyle">
-        <v-container class="ma-0 pa-0" fluid>
-          <router-view></router-view>    
+        <v-container class="ma-0 pa-3" fluid>
+          <v-flex xs12 v-if="loading || !plex.gotDevices">
+            <v-container fill-height>
+              <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
+                <v-flex xs8 md4>				
+                  <v-progress-circular indeterminate v-bind:size="60" class="amber--text"></v-progress-circular>
+                </v-flex>      
+              </v-layout>
+            </v-container>
+          </v-flex>
+          <router-view v-else></router-view>    
           <v-snackbar
             bottom
             :timeout="4000"
@@ -58,7 +67,9 @@
         drawerRight: false,
         right: null,
         fixed: false,  
-        initialized: false,  
+        initialized: false, 
+        
+        loading: true,
 
         snackbar: false,  
         snackbarMsg: false,
@@ -99,7 +110,7 @@
         this.drawerRight = !this.drawerRight
       }
     },
-    mounted () {
+    mounted: async function () {
       if (this.$route.query.ptserver && this.$route.query.ptroom) {
         console.log('We should auto join')
         // Looks like a valid request...
@@ -113,6 +124,17 @@
         this.snackbarMsg = msg
         this.snackbar = true
       })
+      if (window['localStorage'].getItem('plexuser') == null) {
+        console.log('User isnt signed in  - sending to signin')
+        this.$router.push('/signin')
+        this.loading = false
+        return
+      }
+      console.log('Logging in to Plex.Tv')
+      let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
+      await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken)
+      this.loading = false
+
     },
     watch: {
       showRightDrawerButton: function () { 
@@ -197,6 +219,18 @@
     },
   }
 </script>
+
+<style>
+  .a {
+    color: white; 
+    text-decoration: none !important;
+  }
+  a:-webkit-any-link {
+    color: unset !important; 
+    text-decoration: none !important;
+  }
+</style>
+
 
 <style lang="stylus">
   @import './stylus/main'

@@ -169,46 +169,20 @@ export default {
         }
     },
 
-    PLEX_SERVER_FINDCONNECTION: ({ state, commit }, server) => {
-        //This function iterates through all available connections and
-        // if any of them return a valid response we'll set that connection
-        // as the chosen connection for future use.
-        let resolved = false
-        
-        return new Promise(async (resolve, reject) => {
-            await Promise.all(server.plexConnections.map(async (connection, index) => {
-                return new Promise(async (_resolve, _reject) => {
-                    try {
-                        let result = await server.hitApiTestConnections('', connection)
-                        if (result) {
-                            resolved = true
-                            //console.log('Succesfully connected to', server, 'via', connection)
-                            commit('PLEX_SERVER_SET_CONNECTION', {
-                                server, connection
-                            })
-                            return resolve()
-                        }
-                        _resolve(false)
-                    } catch (e) {
-                    }
-                })
-            }))
-            if (!resolved) {
-                reject('Unable to find a connection')
-            }
-        })
+    PLEX_SERVER_FINDCONNECTION: async ({ state, commit }, server) => {
+        return await server.findConnection()
     },
 
     PLEX_CLIENT_ADD_COMMIT: ({ state, dispatch, commit}, client) => {
     },
 
     PLEX_ADD_CLIENT: ({ state, commit, dispatch }, client) => {
-        console.log('Adding client', client)
         commit('PLEX_CLIENT_SET', client)
         commit('PLEX_CLIENT_SET_VALUE', [client, 'commit', commit])
     },
     PLEX_ADD_SERVER: ({ state, commit, dispatch }, server) => {
         commit('PLEX_SERVER_SET', server)
+        commit('PLEX_SERVER_SET_VALUE', [server, 'commit', commit])
     },
 
     PLEX_CLIENT_FINDCONNECTION: async ({ state, commit }, client) => {
