@@ -32,33 +32,34 @@ module.exports = function PlexServer () {
   this.chosenConnection = null
 
   //Functions
-  this.hitApi = function (command, params, callback) {
-    var that = this
-    var query = ''
-    //console.log('Query params: ' + JSON.stringify(params))
-    for (let key in params) {
-      query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-    }
-    if (!this.chosenConnection) {
-      return callback(null, this, null)
-    }
-    console.log('Hitting server ' + this.name + ' via ' + this.chosenConnection.uri)
-    var _url = this.chosenConnection.uri + command + '?' + query
-    var options = PlexAuth.getApiOptions(_url, this.accessToken, 15000, 'GET')
-    //console.log('Hitting server ' + this.name + ' with command ' + command)
-    //console.log(options)
-    request(options, function (error, response, body) {
-      if (!error) {
-        safeParse(body, function (err, json) {
-          if (err) {
-            return callback(null, that)
-          }
-          return callback(json, that, response.elapsedTime)
-        })
-      } else {
-        return callback(null, that)
+  this.hitApi = function (command, params) {
+    return new Promise((resolve, reject) => {
+      var query = ''
+      //console.log('Query params: ' + JSON.stringify(params))
+      for (let key in params) {
+        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
       }
-    })
+      if (!this.chosenConnection) {
+        return callback(null, this, null)
+      }
+      console.log('Hitting server ' + this.name + ' via ' + this.chosenConnection.uri)
+      var _url = this.chosenConnection.uri + command + '?' + query
+      var options = PlexAuth.getApiOptions(_url, this.accessToken, 15000, 'GET')
+      //console.log('Hitting server ' + this.name + ' with command ' + command)
+      //console.log(options)
+      request(options, function (error, response, body) {
+        if (!error) {
+          safeParse(body, function (err, json) {
+            if (err) {
+              return reject(false)
+            }
+            return resolve(json)
+          })
+        } else {
+          return reject(false)
+        }
+      })
+    })    
   }
   this.hitApiTestConnections = async function (command, connection) {
     //For use with #findConnection
@@ -164,42 +165,34 @@ module.exports = function PlexServer () {
   }
 
   //Functions for dealing with media
-  this.search = function (searchTerm, callback) {
+  this.search = async function (searchTerm) {
     //This function hits the PMS using the /search endpoint and returns what the server returns if valid
-    var that = this
-    //console.log('Searching ' + this.name + ' for ' + searchTerm)
-    this.hitApi('/search', {query: searchTerm}, function (result) {
-      let validResults = []
-      console.log(this.name,result)
-      if (result && result.MediaContainer) {
-        if (result.MediaContainer.Metadata) {
-          for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
-            validResults.push(result.MediaContainer.Metadata[i])
-          }
-          console.log(that.name + ' found ' + validResults.length + ' results')
+    let result = await this.hitApi('/search', { query: searchTerm })
+    let validResults = []
+    if (result && result.MediaContainer) {
+      if (result.MediaContainer.Metadata) {
+        for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
+          validResults.push(result.MediaContainer.Metadata[i])
         }
-        return callback(validResults, that)
       }
-      return callback(null, that)
-    })
+      return validResults
+    }
+    return null
   }
 
-  this.getMediaByRatingKey = function (ratingKey, callback) {
+  this.getMediaByRatingKey = async function (ratingKey) {
     //This function hits the PMS and returns the item at the ratingKey
-    var that = this
     console.log('Getting data for ' + ratingKey)
-    this.hitApi('/library/metadata/' + ratingKey, {}, function (result, that) {
-      let validResults = []
-      console.log('Response back from metadata request')
-      return handleMetadata(result, that, callback)
-    })
+    let data = await this.hitApi('/library/metadata/' + ratingKey, {})
+    console.log('Response back from metadata request')
+    return this.handleMetadata(data)
   }
-  this.markWatchedByRatingKey = function (ratingKey, callback) {
+  this.markWatchedByRatingKey = function (ratingKey) {
     console.log('Marking ' + ratingKey + ' as watched')
-    this.hitApi('/:/scrobble', {
+    return this.hitApi('/:/scrobble', {
       identifier: 'com.plexapp.plugins.library',
       key: ratingKey
-    }, callback)
+    })
   }
   this.getUrlForLibraryLoc = function (location, width, height, blur) {
     if (!(blur > 0)) {
@@ -207,62 +200,62 @@ module.exports = function PlexServer () {
     }
     return this.chosenConnection.uri + '/photo/:/transcode?url=' + location + '&X-Plex-Token=' + this.accessToken + '&height=' + Math.floor(height) + '&width=' + Math.floor(width) + '&blur=' + blur
   }
-  this.getRandomItem = function (callback) {
+  this.getRandomItem = async function () {
     console.log('Getting random item')
-    this.getAllLibraries((res) => {
-      if (!res || !res.MediaContainer || !res.MediaContainer.Directory) {
-        return callback(false)
+    try {
+      let data = await this.getAllLibraries() 
+      console.log('GetAllLibraries result', data)
+      if (!data || !data.MediaContainer || !data.MediaContainer.Directory) {
+        return false
       }
-      let libraries = res.MediaContainer.Directory
-      let library = libraries[Math.floor(Math.random()*libraries.length)]
+      let libraries = data.MediaContainer.Directory
+      let library = libraries[Math.floor(Math.random() * libraries.length)]
 
-      this.getLibraryContents(library.key, 0, 50, (result) => {
-        if (!result) {
-          return callback(false)
-        }
-        let items = result.MediaContainer.Metadata
-        let item = items[Math.floor(Math.random()*items.length)]
-        return callback(item)
-      })
+      let result = await this.getLibraryContents(library.key, 0, 50)
+      if (!result) {
+        return false
+      }
+      let items = result.MediaContainer.Metadata
+      let item = items[Math.floor(Math.random()*items.length)]
+      return item
+      
+    } catch (e) {
+      console.log(e) 
+      throw new Error(e)
+    }
+    
+
+    this.getAllLibraries((res) => {
+     
     })
   }
-  this.getAllLibraries = function (callback) {
-    this.hitApi('/library/sections', {}, function (result, that) {
-      callback(result)
-    })
+  this.getAllLibraries = function () {
+    return this.hitApi('/library/sections', {})
   }
-  this.getLibraryContents = function (key, start, size, callback) {
-    this.hitApi('/library/sections/' + key + '/all', {
+  this.getLibraryContents = function (key, start, size) {
+    return this.hitApi('/library/sections/' + key + '/all', {
       'X-Plex-Container-Start': start,
       'X-Plex-Container-Size': size
-    }, function (result, that) {
-      callback(result)
     })
   }
   this.getRecentlyAddedAll = function (start, size, callback) {
-    this.hitApi('/library/recentlyAdded', {}, function (result, that) {
-      return callback(result)
-    })
+    return this.hitApi('/library/recentlyAdded', {})
   }
   this.getOnDeck = function (start, size, callback) {
-    this.hitApi('/library/onDeck', {
+    return this.hitApi('/library/onDeck', {
       'X-Plex-Container-Start': start,
       'X-Plex-Container-Size': size,
-    }, function (result, that) {
-      return callback(result)
     })
   }
   this.getRelated = function (ratingKey, size, callback) {
     ratingKey = ratingKey.replace('/library/metadata/','')
-    this.hitApi('/hubs/metadata/'+ratingKey+'/related', {
+    return this.hitApi('/hubs/metadata/'+ratingKey+'/related', {
       excludeFields: 'summary',
       count: 12
-    }, function (result, that) {
-      return callback(result)
     })
   }
   this.getSeriesData = function (key, callback) {
-    this.hitApi(key, {
+    return this.hitApi(key, {
       includeConcerts:1,
       includeExtras:1,
       includeOnDeck:1,
@@ -270,41 +263,37 @@ module.exports = function PlexServer () {
       asyncCheckFiles:1,
       asyncRefreshAnalysis:1,
       asyncRefreshLocalMediaAgent:1
-    }, function (result, that) {
-      callback(result)
     })
   }
   
   this.getSeriesChildren = function (key, start, size, excludeAllLeaves, callback) {
-    this.hitApi(key, {
+    return this.hitApi(key, {
       'X-Plex-Container-Start': start,
       'X-Plex-Container-Size': size,
       excludeAllLeaves: excludeAllLeaves
-    }, function (result, that) {
-      callback(result)
     })
   }
 
-  function handleMetadata (result, that, callback) {
+  this.handleMetadata = function (result) {
     if (result != null) {
       if (result._children) {
         // Old Server version compatibility
         for (var i in result._children) {
           var res = result._children[i]
           if (res._elementType == 'Directory' || res._elementType == 'Media' || res._elementType == 'Video') {
-            res.machineIdentifier = that.clientIdentifier
-            return callback(res, that)
+            res.machineIdentifier = this.clientIdentifier
+            return res
           }
         }
       } else {
         // New Server compatibility
-        result.MediaContainer.Metadata[0].machineIdentifier = that.clientIdentifier
-        return callback(result.MediaContainer.Metadata[0], that)
+        result.MediaContainer.Metadata[0].machineIdentifier = this.clientIdentifier
+        return result.MediaContainer.Metadata[0]
       }
 
       console.log('Didnt find a compatible PMS Metadata object. Result from the server is below')
       console.log(result)
-      return callback(null, that)
+      return null
     }
   }
 }

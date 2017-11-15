@@ -4,7 +4,7 @@ export default {
     PLEX_SET_VALUE: (state, data) => {
         let key = data[0]
         let value = data[1]
-        console.log('Setting PLEX Key', key, 'to', value)
+        // console.log('Setting PLEX Key', key, 'to', value)
         Vue.set(state, key, value)
         state[key] = value
     },
@@ -12,19 +12,19 @@ export default {
         let client = data[0]
         let key = data[1]
         let value = data[2]
-        console.log('Setting CLIENT VALUE Key', key, 'to', value, client)
-        state.clients[client.clientIdentifier].setValue(key, value)
+        // console.log('Setting CLIENT VALUE Key', key, 'to', value, client)
         Vue.set(state.clients[client.clientIdentifier], key, value)
         //state.clients[client.clientIdentifier][key] = value
     },
-    PLEX_ADD_CLIENT: (state, client) => {
+
+    PLEX_CLIENT_SET: (state, client) => {
         state.clients[client.clientIdentifier] = client
-    },
-    PLEX_ADD_SERVER: (state, server) => {
+        //Vue.set(state.clients, client.clientIdentifier, client)
+    },   
+    PLEX_SERVER_SET: (state, server) => {
         state.servers[server.clientIdentifier] = server
+        // Vue.set(state.servers, server.clientIdentifier, server)
     },
-
-
 
     PLEX_SERVER_SET_CONNECTION: (state, data) => {
         let { server, connection } = data

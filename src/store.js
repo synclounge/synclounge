@@ -92,13 +92,13 @@ const state = {
 
 const mutations = {
   SET_CHOSENCLIENT (state, client) {
-    function playbackChange (ratingKey) {
-      console.log('Playback change!')
+    async function playbackChange (ratingKey) {
+      console.log('Playback change!', ratingKey)
       if (ratingKey != null) {
         // Playing something different!
         let server = state.plex.servers[state.chosenClient.lastTimelineObject.machineIdentifier]
         state.LASTSERVER = state.chosenClient.lastTimelineObject.machineIdentifier        
-        window['localStorage'].setItem('LASTSERVER',state.chosenClient.lastTimelineObject.machineIdentifier)
+        window['localStorage'].setItem('LASTSERVER', state.chosenClient.lastTimelineObject.machineIdentifier)
         if (!server) {
           return
         }
@@ -120,20 +120,16 @@ const mutations = {
           state.background =  state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
         })
       } else {
-        state.plex.getRandomThumb((res) => {
-          if (res){
-            state.background = res
-          }
-        })
+        let thumb = await state.plex.getRandomThumb(state.plex)
+        if (thumb) {
+          state.background = thumb
+        }
         state.chosenClient.clientPlayingMetadata = null
       }
     }
 
     function newTimeline (timeline) {
-      //console.log('Got timeline')
-      if (!state.plextogether.connected) {
-        return
-      }
+      console.log('Got timeline')
       // Lets send this to our PTServer
       state.ourClientResponseTime = timeline.lastResponseTime
       let title = null
@@ -160,13 +156,15 @@ const mutations = {
       let playerState = null
       let showName = null
 
-      state.plextogether._socket.pollStartTime = (new Date).getTime()
-      state.plextogether._socket.emit('poll', end_obj)
+      if (state.plextogether._socket) {
+        state.plextogether._socket.pollStartTime = (new Date).getTime()
+        state.plextogether._socket.emit('poll', end_obj)
+      }
     }
 
     // Set up our client poller
     function clientPoller (time) {
-      if (state.chosenClient == null) {
+      if (!state.chosenClient) {
         return
       }
       if (state.chosenClientTimeSet != time) {

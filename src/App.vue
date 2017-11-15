@@ -40,7 +40,7 @@
 
 <script>
   // Custom css
-  import './assets/css/styleNew.css'
+  import './assets/css/style.css'
 
   import drawerright from './sidebar'
   import leftsidebar from './leftsidebar'

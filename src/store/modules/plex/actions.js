@@ -108,7 +108,7 @@ export default {
                                     tempClient[key] = device[key]
                                 }
                                 tempClient.plexConnections = tempConnectionsArray
-                                commit('PLEX_ADD_CLIENT', tempClient)
+                                dispatch('PLEX_ADD_CLIENT', tempClient)
                             } else {
                                 //This is a Server
                                 //Create a new PlexServer object
@@ -121,7 +121,7 @@ export default {
                                     tempServer['accessToken'] = state.user.authToken
                                 }
 
-                                commit('PLEX_ADD_SERVER', tempServer)
+                                dispatch('PLEX_ADD_SERVER', tempServer)
                                 //that.servers.push(tempServer)
                                 // tempServer.findConnection().then((result) => {
                                 //     if (result) {
@@ -139,7 +139,7 @@ export default {
                         ptplayer.name = 'PlexTogether Player (BETA)'
                         ptplayer.lastSeenAt = Math.round((new Date).getTime() / 1000)
                 
-                        commit('PLEX_ADD_CLIENT', ptplayer)
+                        dispatch('PLEX_ADD_CLIENT', ptplayer)
                         // this.clients.sort(function (a, b) {
                         //     return parseInt(b.lastSeenAt) - parseInt(a.lastSeenAt)
                         // })
@@ -160,29 +160,6 @@ export default {
     },
 
     PLEX_GET_SERVERBYID: ({ state }, id) => {
-    },
-
-    PLEX_GET_RANDOMTHUMB: ({ state }) => {
-        return new Promise((resolve, reject) => {
-            let validServers = state.servers.filter((server) => {
-                if (server.chosenConnection){
-                  return true
-                }
-                return false
-            })
-            if (validServers.length > 1){
-                let randomServer = validServers[Math.floor(Math.random() * validServers.length)]
-                randomServer.getRandomItem((result) => {
-                    console.log('Random item result', result)
-                    if (!result){
-                        return reject(false)
-                    }
-                    return resolve(randomServer.getUrlForLibraryLoc(result.thumb, 900, 900, 8))
-                })
-            } else {
-                reject()
-            }
-        })
     },
 
     PLEX_REFRESH_SERVER_CONNECTIONS: ({ state, dispatch, commit }) => {
@@ -222,6 +199,18 @@ export default {
         })
     },
 
+    PLEX_CLIENT_ADD_COMMIT: ({ state, dispatch, commit}, client) => {
+    },
+
+    PLEX_ADD_CLIENT: ({ state, commit, dispatch }, client) => {
+        console.log('Adding client', client)
+        commit('PLEX_CLIENT_SET', client)
+        commit('PLEX_CLIENT_SET_VALUE', [client, 'commit', commit])
+    },
+    PLEX_ADD_SERVER: ({ state, commit, dispatch }, server) => {
+        commit('PLEX_SERVER_SET', server)
+    },
+
     PLEX_CLIENT_FINDCONNECTION: async ({ state, commit }, client) => {
         //This function iterates through all available connections and
         // if any of them return a valid response we'll set that connection
@@ -257,6 +246,11 @@ export default {
         } catch (e) {
             console.log('CATCH ALL', e)
         }            
+    },
+
+    PLEX_CLIENT_UPDATETIMELINE: ({ state, commit, dispatch }, data) => {
+        let [client, timeline] = data
+        console.log('Updating timeline for', client, 'with', timeline )
     }
 
 };

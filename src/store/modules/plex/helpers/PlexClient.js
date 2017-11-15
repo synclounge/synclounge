@@ -36,14 +36,18 @@ module.exports = function PlexClient () {
   this.lastRatingKey = null
   this.lastTimelineObject = null
   this.oldTimelineObject = null
+  this.lastTimeline = null
+  this.oldTimeline = null
   this.clientPlayingMetadata = null
   this.lastSubscribe = 0
   this.connectedstatus = 'fresh'
 
   this.eventbus = window.EventBus // Assigned early on - we will use this to communicate with the PT Player
+  this.commit = null
 
   this.setValue = function (key, value) {
     this[key] = value
+    this.commit('PLEX_CLIENT_SET_VALUE', [this, key, value])
   }
   // Functions
   this.generateGuid = function () {
@@ -90,7 +94,7 @@ module.exports = function PlexClient () {
             connection.uri = connection.uri.slice(0, connection.uri.length - 1)
           }
           var _url = connection.uri + command + '?' + query
-          commit('PLEX_CLIENT_SET_VALUE', [this, 'commandId', this.commandId + 1])
+          this.setValue('commandId', this.commandId + 1)
           var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
           // console.log('sending api request', options)
           request(options, (error, response, body) => {
@@ -126,137 +130,77 @@ module.exports = function PlexClient () {
         } 
       }
     })
-    //console.log('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
-
-    // Check if our client is the inline PTPlayer
-    // PTPlayer will have a client identifier of PTPLAYER9PLUS10
-
-    
-
   }
 
-  this.findConnection = function (callback) {
-    //This function iterates through all available connections and
-    // if any of them return a valid response we'll set that connection
-    // as the chosen connection for future use.
-    var that = this
-    var attempts = 0
-    that.chosenConnection = null
-    let returned = false
-    if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
-      console.log('Found connection for ptplayer')
-      this.chosenConnection = true
-      return callback(true)
-    }
-    for (var i in this.plexConnections) {
-      var connection = this.plexConnections[i]
-      this.hitApi('/player/timeline/poll', {'wait': 0}, connection, function (result, elapsedTime, statusCode, connectionUsed) {
-        attempts++
-        console.log('Connection result for ' + connectionUsed.address)
-        console.log(result)
-        if (result != null) {
-          if (result.MediaContainer != null) {
-            if (that.chosenConnection == null) {
-              that.chosenConnection = connectionUsed
-              returned = true
-              return (callback(true))
-            }
-          }
-        }
-        if (attempts == that.plexConnections.length) {
-          if (that.chosenConnection != null) {
-            if (!returned) {
-              return (callback(true))
-            }
-          } else {
-            if (!returned) {
-              return (callback(false))
-            }
-          }
-        }
-      })
-    }
-  }
-  this.checkConnectability = function (callback) {
-    var that = this
-    // Hit the /resources endpoint to see if the client is compatible
-    if (!this.chosenConnection) {
-      // Get a valid connection first
-      this.findConnection(function (result) {
-        if (!result) {
-          return callback(false, that)
-        }
-        getResources()
-        return
-      })
-      return
-    }
-    getResources()
-    return
-
-    function getResources () {
-      that.hitApi('/resources/', {'wait': 0}, that.chosenConnection, function (result, responseTime) {
-        if (result) {
-          //Valid response back from the client
-          if (result.MediaContainer != null) {
-            return callback(true, that)
-          } else {
-            return callback(false, that)
-          }
-        } else {
-          return callback(false, that)
-        }
-      })
-    }
-  }
-
-  this.getTimeline = function (callback) {
-    var that = this
+  this.getTimeline = async function (callback) {
     //Get the timeline object from the client
-    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result, responseTime) {
 
-      if (result) {
-        if (that.clientIdentifier == 'PTPLAYER9PLUS10') {
-          that.updateTimelineObject(result, -1, function () {
-            return callback(result, 0)
-          })
-          return
-        }
-        //console.log(JSON.stringify(result,null,4))
-        //Valid response back from the client
-        if (result.MediaContainer != null) {
-          that.updateTimelineObject(result, responseTime, function () {
-            return callback(result, responseTime)
-          })
-          //return (callback(result.MediaContainer.Timeline,responseTime))
-        } else {
-          return callback(null, responseTime)
-        }
+    let data
+    try {
+      data = await this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection)    
+      // console.log('Timeline result', data)
+      if (data) {
+        return this.updateTimelineObject(data)
       } else {
-        return callback(false, responseTime)
+        return false
       }
-    })
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+
+    // this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, (result, responseTime) => {
+
+    //   if (result) {
+    //     if (that.clientIdentifier == 'PTPLAYER9PLUS10') {
+    //       that.updateTimelineObject(result, -1, function () {
+    //         return callback(result, 0)
+    //       })
+    //       return
+    //     }
+    //     //console.log(JSON.stringify(result,null,4))
+    //     //Valid response back from the client
+    //     if (result.MediaContainer != null) {
+    //       that.updateTimelineObject(result, responseTime, function () {
+    //         return callback(result, responseTime)
+    //       })
+    //       //return (callback(result.MediaContainer.Timeline,responseTime))
+    //     } else {
+    //       return callback(null, responseTime)
+    //     }
+    //   } else {
+    //     return callback(false, responseTime)
+    //   }
+    // })
   }
 
-  this.updateTimelineObject = function (result, responseTime, callback) {
+  this.updateTimelineObject = function (result) {
 
-    if (responseTime == -1) {
+
+
+    this.setValue('lastTimelineObject', result)
+    this.lastTimelineObject = result    
+    this.events.emit('new_timeline', result)
+
+    // Check if we are the PTPlayer
+    if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // PTPLAYER
       this.events.emit('new_timeline', result)
       //console.log(result)
       var clonetimeline = this.lastTimelineObject
-      this.lastTimelineObject = result
-      this.lastTimelineObject.recievedAt = new Date().getTime()
+
       if (!this.oldTimelineObject) {
         if (!this.lastTimelineObject.ratingKey) {
           this.events.emit('playback_change', null)
         } else {
           this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
         }
-        this.oldTimelineObject = result
+        this.setValue('oldTimelineObject', result)
+        // this.oldTimelineObject = result
         return callback(result)
       }
-      this.oldTimelineObject = clonetimeline
+      this.setValue('oldTimelineObject', clonetimeline)
+      // this.oldTimelineObject = clonetimeline
       if (this.oldTimelineObject.ratingKey != this.lastTimelineObject.ratingKey) {
         if (!this.lastTimelineObject.ratingKey) {
           this.events.emit('playback_change', null)
@@ -264,17 +208,15 @@ module.exports = function PlexClient () {
           this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
         }
       }
-      return callback(result)
-    }
+      return true
+    }    
 
     if (!result.MediaContainer.Timeline) {
       // Not a valid timeline object
-      return
+      return false
     }
     // Valid timeline data
-    if (responseTime != null) {
-      this.lastResponseTime = responseTime
-    }
+
     // Standard player
     let timelines = result.MediaContainer.Timeline
     let videoTimeline = null
@@ -283,11 +225,11 @@ module.exports = function PlexClient () {
       if (_timeline.type == 'video'){
         videoTimeline = _timeline
       }
-      if ((_timeline.state && _timeline.state != 'stopped')|| i == (timelines.length - 1)) {
+      if ((_timeline.state && _timeline.state != 'stopped') || i == (timelines.length - 1)) {
         this.events.emit('new_timeline', timelines[i]['$'])
         var clonetimeline = this.lastTimelineObject
-        this.lastTimelineObject = timelines[i]['$']
-        this.lastTimelineObject.recievedAt = new Date().getTime()
+        this.lastTimelineObject = timelines[i]['$'] 
+        this.setValue('lastTimelineObject', timelines[i]['$'])
         if (!this.oldTimelineObject) {
           // First time we've got data!
           if (!this.lastTimelineObject.ratingKey) {
@@ -295,21 +237,23 @@ module.exports = function PlexClient () {
           } else {
             this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
           }
-          this.oldTimelineObject = timelines[i]['$']
-          return callback(timelines[i]['$'])
+          this.setValue('oldTimelineObject', timelines[i]['$'])
+          // this.oldTimelineObject = timelines[i]['$']
+          return timelines[i]['$']
         }
+        this.setValue('oldTimelineObject', clonetimeline)
         this.oldTimelineObject = clonetimeline
-        if (this.oldTimelineObject.ratingKey != this.lastTimelineObject.ratingKey) {
+        if (this.oldTimelineObject.ratingKey != result.ratingKey) {
           if (!this.lastTimelineObject.ratingKey) {
             this.events.emit('playback_change', null)
           } else {
-            this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
+            this.events.emit('playback_change', result.ratingKey)
           }
         }
-        return callback(timelines[i]['$'])
+        return timelines[i]['$']
       }
     }
-    return callback(videoTimeline)
+    return videoTimeline
   }
   this.pressPlay = function (callback) {
     //Press play on the client
@@ -569,11 +513,12 @@ module.exports = function PlexClient () {
         var _url = connection.uri + command + '?' + query
         // console.log('subscription url: ' + _url)
         this.commandId = this.commandId + 1
-        commit('PLEX_CLIENT_SET_VALUE', [this, 'commandId', this.commandId + 1])
+        this.setValue('commandId', this.commandId + 1)
         var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
         request(options, (error, response, body) => {
           // console.log('subscription result', response)
-          commit('PLEX_CLIENT_SET_VALUE', [this, 'lastSubscribe', new Date().getTime()])
+          
+          this.setValue('lastSubscribe', new Date().getTime())
           if (error) {
             return reject(error)
           } else {

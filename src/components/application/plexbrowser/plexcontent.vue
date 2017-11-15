@@ -186,11 +186,11 @@
       // Hit the PMS endpoing /library/sections
       var that = this
       console.log('Loading content metadata: ' + this.content.ratingKey)
-      this.server.getMediaByRatingKey(this.content.ratingKey, (result) => {
+      this.server.getMediaByRatingKey(this.content.ratingKey).then((result) => {
         if (result) {
           this.contents = result
           if (result.type == 'episode'){
-            this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1,  (res) => {
+            this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1).then((res) => {
               if (res){
                 this.parentData = res
               }

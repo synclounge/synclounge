@@ -14,8 +14,8 @@
             </div>
             <h4> Libraries </h4>
             <v-layout row wrap v-if="libraries && !browsingLibrary">
-              <v-flex xs6 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-3 clickable" :key="library.name">
-                  <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="text-xs-center hoverable card" style="max-width:100%">
+              <v-flex xs6 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-3 " :key="library.name">
+                  <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="clickable text-xs-center hoverable card" style="max-width:100%">
                       <div style="position:relative;width:100%;background: rgba(0,0,0,0.4); height:8em">
                           <img style="height: 70%;display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)"/>
                       </div>                      
@@ -103,15 +103,16 @@
         recentlyAddedOffset: 0
       }
     },
-    mounted () {
-      this.server.getAllLibraries((result) => {
-        if (result) {
-          this.libraries = result
+    mounted: async function () {
+      this.server.getAllLibraries().then((data) => {
+        console.log('All libraries result', data)
+        if (data) {
+          this.libraries = data
         } else {
           this.status = 'Error loading libraries!'
         }
       })
-      this.server.getRecentlyAddedAll(0, 12, (result) => {
+      this.server.getRecentlyAddedAll(0, 12).then((result) => {
         console.log('Recently added result', result)
         if (result) {
           this.recentlyAdded = result
@@ -168,7 +169,7 @@
         this.browsingLibrary = library
       },
       updateOnDeck() {
-        this.server.getOnDeck(0, 10, (result) => {
+        this.server.getOnDeck(0, 10).then((result) => {
           if (result) {
             this.onDeck = result
           }

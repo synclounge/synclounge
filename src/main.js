@@ -43,3 +43,10 @@ global.waitFor = async (ms) => {
     setTimeout(() => resolve, ms)
   })
 }
+
+global.to = (promise) => {  
+  return promise.then(data => {
+     return [null, data];
+  })
+  .catch(err => [err]);
+}
