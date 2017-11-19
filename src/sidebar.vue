@@ -6,7 +6,7 @@
 						<v-flex xs12 style="height: 50vh">
 							<h6 style="text-align:center" class="mb-0 pb-0 pt-3"> Room {{ ptRoom }}</h6>
 							<v-subheader>Users ({{ ptUsers.length }})</v-subheader>  
-							<v-list dense style="overflow-y:scroll">
+							<v-list dense style="overflow-y:scroll; max-height: 40vh">
 								<div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
 										<v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
 											<v-list-tile-avatar>
