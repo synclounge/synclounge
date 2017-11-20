@@ -14,19 +14,26 @@ export default new Router({
   mode: 'hash',
   base: '/ptweb/',
   routes: [
-    { path: '/', component: home },
+    { path: '/', component: application },
     { path: '/signin', component: signin },
     { path: '/signout', component: signout },
     { path: '/join', component: join },
 
     
-    { path: '/browse', component: application },    
-    { path: '/browse/:machineIdentifier', component: require('../components/application/plexbrowser/plexserver.vue') },
-    { path: '/browse/:machineIdentifier/library/:sectionid', component: require('../components/application/plexbrowser/plexlibrary.vue') },
-    { path: '/browse/:machineIdentifier/:ratingKey', component: require('../components/application/plexbrowser/plexcontent.vue') },
+    { path: '/browse', name: 'browse', component: application,
+      children: [
+          { 
+            path: ':machineIdentifier', name: 'server', component: require('../components/application/plexbrowser/plexserver.vue'),
+            children: [
+              { path: 'library/:sectionid', name: 'library', component: require('../components/application/plexbrowser/plexlibrary.vue') },
+              { path: ':ratingKey', name: 'content', component: require('../components/application/plexbrowser/plexcontent.vue') },
+            ] 
+          },
+      ] 
+    },    
 
 
 
-    { path: '*', component: home },
+    { path: '*', component: application },
   ]
 })

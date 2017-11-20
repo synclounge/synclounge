@@ -34,7 +34,9 @@
               </v-layout>
             </v-container>
           </v-flex>
-          <router-view v-else></router-view>    
+          <div v-else>             
+            <router-view ></router-view>   
+          </div> 
           <v-snackbar
             bottom
             :timeout="4000"

@@ -3,6 +3,15 @@
 		<div style="margin-bottom: 0; height:100%">
 			<v-layout row wrap style="overflow-y: scroll">
 				<v-flex xs12>
+					<v-breadcrumbs class="text-xs-left" style="justify-content: left">
+						<v-icon slot="divider">chevron_right</v-icon>
+						<v-breadcrumbs-item 
+							v-for="item in items" :key="item.text" :to="item.to"
+							:disabled="item.disabled"
+						>
+							{{ item.text }}
+						</v-breadcrumbs-item>
+					</v-breadcrumbs>
 					<div v-if="!ptConnected || !chosenClient || !ptRoom">
 						<walkthrough class="pa-4"></walkthrough>
 					</div>
@@ -94,8 +103,41 @@
 			chosenClient: function () {
 				return this.$store.getters.getChosenClient
 			},
+			router: function () {
+				return this.$route.matched
+			},
 			validPlex: function () {
 				return (this.plex)
+			},
+			items: function () {
+				let data = []
+				let map = {
+					browse: () => {
+						return {
+							text: 'Home',
+							to: '/browse'
+						}
+					},
+					server: () => {
+						return {
+							text: this.plex.servers[this.$route.params.machineIdentifier].name,
+							to: '/browse/' + this.$route.params.machineIdentifier
+						}
+					},
+					content: () => {
+						return {
+							text: 'Loading...',
+							to: '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.ratingKey
+						}
+					}
+				}
+				this.$route.matched.forEach((route) => {
+					data.push(
+						map[route.name]()
+					)
+				})
+
+				return data
 			},
 			validDevices: function () {
 				if (!this.plex) {

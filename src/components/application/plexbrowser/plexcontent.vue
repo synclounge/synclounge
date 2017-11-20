@@ -6,45 +6,82 @@
           </v-flex>
         </v-layout>
         <div v-if="contents">  
-          <v-container fill-height fluid class="pa-0 ma-0">
-            <v-layout justify-center>
+          <v-container fluid fill-height class="pa-0 ma-0">
+            <v-layout row justify-center align-center>
 
-              <v-flex xs12 md9>
+              <v-flex xs12>
                 <v-card v-if="contents" horizontal :img="getArtUrl" class="darken-2 white--text">
                   <div style="background: rgba(0,0,0,0.7)">
-                    <v-container class="pa-4 ma-0" fill-height>
-                      <v-layout row wrap justify-left>
-                        <v-flex md4 class="hidden-sm-and-down pa-4" style="margin-top:0">
-                          <v-card-media
-                            :src="getThumb()"
-                            height="40vh"
-                            contain
-                          ></v-card-media>
+                    <v-container>
+                      <v-layout row justify-center align-center>
+                        <v-flex md3 class="hidden-sm-and-down pa-4" style="margin-top:0">
+                          <v-layout align-start justify-start>
+                            <v-flex xs12>
+                              
+                              <v-card-media
+                                :src="getThumb()"
+                                height="20vh"
+                                contain
+                              ></v-card-media>  
+                            </v-flex>
+                          </v-layout>
                         </v-flex>
 
 
-                        <v-flex md12 sm12 style="position:relative;height 100%" v-if="contents.type == 'episode'" class="mt-4 pa-4 pl-0">
+                        <v-flex md9 sm12 style="height 100%" v-if="contents.type == 'episode'" class="mt-4 pa-1 pl-0">
                           <h3 style="font-weight:bold"> {{ contents.grandparentTitle }}</h3>
                           <p> Season {{ contents.parentIndex }} Episode {{ contents.index }} </p> 
-                          <h6>{{ contents.title }}</h6>   
-                          <v-layout row wrap>
-                            <v-flex xs12 sm12 style="opacity:0.8">                      
-                              {{ length }}
-                              <div style="float:right">                 
+                          <!-- <h6>{{ contents.title }}  <span style="opacity: 0.7; font-size: 14px"> | {{ length }} </span></h6>  -->
+                          <v-layout row wrap justify-space-between>
+                            <v-flex xs12 md4>  
+                              
+                              <h6>{{ contents.title }}  <span style="opacity: 0.7; font-size: 14px"> | {{ length }} </span></h6> 
+                            </v-flex>
+                            <v-flex xs12 md4>  
+                              <div style="float: right">                 
                                 <v-chip bottom class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip> 
                                 <v-chip bottom class="grey darken-4 white--text" outline left> {{ contents.year }}</v-chip>   
                                 <v-chip v-if="contents.contentRating" class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>     
-                              </div>
-                            </v-flex>                          
-                               
-                          </v-layout>   
-                          <v-divider></v-divider>             
-                          <p class="pt-3" style="font-style: italic" v-if="hidden" v-on:click="hidden = false"> Episode summary automatically hidden for unwatched episodes. Click to unhide.</p> 
-                          <p class="pt-3" style="font-style: italic" v-else> {{ contents.summary }} </p>                  
+                              </div>  
+                              
+                            </v-flex>    
+                                  
+                          </v-layout>  
+                          <v-divider class="mt-3"></v-divider>    
+                          <v-flex xs12>    
+                            <p class="pt-3" style="font-style: italic" v-if="hidden" v-on:click="hidden = false"> Episode summary automatically hidden for unwatched episodes. Click to unhide.</p> 
+                            <p class="pt-3" style="font-style: italic" v-else> {{ contents.summary }} </p>                                     
+                          </v-flex>               
                         </v-flex>   
+                      </v-layout>
+                      <v-layout></v-layout>
+                      <v-layout row wrap justify-center class="text-xs-center"> 
+                        
+                      </v-layout>
+                      <v-container fluid fill-height>
+                        <v-layout row wrap justify-end align-end>
+                          <v-flex xs6 md3>
+                            <div v-if="playable">
+                                <v-btn v-on:click.native="markWatched(content)">
+                                  Mark Watched
+                                </v-btn>
+                                <v-btn v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(content)" class="primary white--text">
+                                  <v-icon>play_arrow</v-icon> Play
+                                </v-btn>                                 
+                                <v-btn v-else @click.native.stop="dialog = true"  class="primary white--text">
+                                  <v-icon>play_arrow</v-icon> Play   
+                                </v-btn> 
+                              </div>
+                              <span v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
+                              <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
+                                <v-icon></v-icon> Stop 
+                              </v-btn>
+                          </v-flex>
+                        </v-layout>
+                      </v-container>
 
 
-
+                      <v-layout row wrap>
                         <v-flex md9 sm12 style="position:relative" v-if="contents.type == 'movie'">
                           <h3>{{ contents.title }}</h3>
                           <h4> {{ contents.year }} </h4>   
@@ -110,9 +147,9 @@
                           <v-chip v-for="genre in contents.Genre" :key="genre.tag"> {{ genre.tag }}</v-chip>      
                         </v-flex>  
                         
-                      </v-layout>                
-                    </v-container>     
-                    <v-card-actions class="pa-4" >
+                      </v-layout>     
+                    </v-container>  
+                    <!-- <v-card-actions class="pa-4" >
                       <v-spacer></v-spacer>
                       <div v-if="playable">
                         <v-btn v-on:click.native="markWatched(content)">
@@ -129,7 +166,7 @@
                       <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
                         <v-icon></v-icon> Stop 
                       </v-btn>
-                    </v-card-actions>    
+                    </v-card-actions>     -->
                     <v-divider></v-divider>
                     <div v-if="subsetParentData(6).length >= 0 && contents.type == 'episode' && playable" style="background: rgba(0,0,0,0.3)">
                       <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>            
@@ -146,7 +183,7 @@
           </v-container>
         </div>
         <v-dialog v-if="contents" v-model="dialog" class="pa-0 ma-0" width="500px">
-          <v-card  style="background:rgba(0,0,0,0.4); box-shadow: none;">
+          <v-card style="background:rgba(0,0,0,0.4); box-shadow: none;">
             <v-card-title class="headline">Select Version</v-card-title>
             <v-checkbox v-if="contents.viewOffset && contents.viewOffset > 0" v-bind:label="'Resume from ' + getDuration(contents.viewOffset) " color="orange lighten-2" class="pa-0 ma-0 ml-3" v-model="resumeFrom"></v-checkbox>
             <div v-for="(media,index) in contents.Media" :key="media.Part[0].key">
@@ -216,6 +253,8 @@
         dialog:false,
 
         parentData: false,
+
+        hidden: false,
 
         eventbus: window.eventbus
       }

@@ -1,8 +1,5 @@
 <template>
   <div>
-    <span v-if="browsingServer || selectedItem">
-      <v-icon v-on:click="reset()" style="cursor: pointer !important">home</v-icon>
-    </span>
     <div v-if="!browsingServer && !selectedItem && !browsingContent">      
       <h4> Search </h4>
       <v-layout class="mb-3" v-if="!selectedItem && !browsingServer" row wrap>
