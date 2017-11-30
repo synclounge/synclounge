@@ -146,7 +146,7 @@ function killOldInvites(){
 killOldInvites()
 setInterval(function() {
     killOldInvites()
-},3600000)
+}, 3600000)
 
 var shortenedLinks = {}
 loadFromFile((result) => {
