@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "args-parser": "^1.1.0",
+    "body-parser": "^1.18.2",
     "cors": "^2.8.3",
     "jsonfile": "^4.0.0",
     "socket.io": "^2.0.3",
