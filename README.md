@@ -21,13 +21,13 @@ Utilising [Vue.js](https://vuejs.org/) and Webpack, PlexTogether has been rewrit
 
 
 ## How it works
-PlexTogether aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this PlexTogether utilizes a middle-man server to communicate between each of PlexTogether clients. Users choose their Plex client, decide on a PlexTogether Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
+PlexTogether aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this PlexTogether utilizes a middle-man server to communicate between each of the PlexTogether clients. Users choose their Plex client, decide on a PlexTogether Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
 
 The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, PlexTogether will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.
 
 ## Features
 * Syncing between Plex Clients over the Internet
-* (NEW) PlexTogether Player
+* PlexTogether Player
 	* Plays content directly within PlexTogether.
 	* Built specifically for syncing. 
 * Settings to tune PlexTogether to your environment
@@ -39,7 +39,7 @@ The host has complete control over a room. Commands they send to their client wi
 	* Plex Media Server blocking - allows you to restrict the servers PlexTogether searches for content. 
 * Autoplay content
 	* PlexTogether will automatically search all of your available Plex Media Servers for content that is similar to the Host.
-* (NEW) Plex Media Server Browsing - find, search and fling content to Plex Clients from within PlexTogether. 
+* Plex Media Server Browsing - find, search and fling content to Plex Clients from within PlexTogether. 
 * Metadata fetching from Plex Media Server
 * Chat to others in your room
 * Password locked rooms
@@ -59,7 +59,7 @@ The host has complete control over a room. Commands they send to their client wi
 		* Maximum timestamp (Eg. 03:48:18)
 		* Playerstate (Eg. paused, stopped, playing)
 		* Client response time (Ping time between you and your Plex Client)
-	* NEW v1.01 - PT Server address, PT Server Room and PT Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
+	* PT Server address, PT Server Room and PT Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
 * _What about the public server provided by PlexTogether? Is my data safe?_
 	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
