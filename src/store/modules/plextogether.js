@@ -156,8 +156,6 @@ export default {
           return data.callback(false)
         }
         commit('SET_PASSWORD', data.password)
-        console.log('Attempting to join')
-        console.log(data)
         state._socket.emit('join', new getHandshakeUser(data.user, data.roomName, data.password))
         state._socket.on('join-result', function (result, _data, details, currentUsers) {
           commit('CLEAR_MESSAGES')

@@ -1,6 +1,6 @@
 <template>
   <v-layout row wrap justify-center>
-    <v-flex xs12 lg8 xl6  style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
+    <v-flex xs12 lg8 xl6 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
       <v-layout row wrap justify-center>
         <v-flex xs12 md8 lg4 xl6>
           <img style="width:100%" v-bind:src="logo">
@@ -35,13 +35,13 @@
               </div>
             </div>
           </v-flex>
-          <v-flex  xs12 md6 lg5>
+          <v-flex xs12 md6 lg5>
             <div v-if="testClient">
               <v-subheader>
                 Selected Player 
               </v-subheader>
               <div class="pl-1">
-                <h6 style="opacity:1">{{ testClient.name }}</h6>
+                <h3>{{ testClient.name }}</h3>
                 <div>
                   <label >Last seen</label><span style="opacity:0.8">  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
                 </div>
@@ -60,7 +60,7 @@
                   </div>
                 </div>
                 <div v-if="gotResponse">
-                  <v-btn class="pt-orange ml-0" style="width:100%" x-large primary v-on:click.native="clientClicked()">Connect</v-btn>
+                  <v-btn block color="primary" v-on:click.native="clientClicked()">Connect</v-btn>
                 </div>
                 <div v-if="testClient.product.indexOf('Web') > -1">
                   Note: Plex Web is currently not supported

@@ -22,30 +22,36 @@
         <v-toolbar-side-icon v-if="showRightDrawerButton" @click="toggleDrawerRight"></v-toolbar-side-icon>
       </v-toolbar-items>
     </v-toolbar>
-    <main v-bind:style="mainStyle">
-      <v-content v-bind:style="containerStyle">
-        <v-container class="ma-0 pa-3" fluid>
-          <v-flex xs12 v-if="loading || !plex.gotDevices">
-            <v-container fill-height>
-              <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
-                <v-flex xs8 md4>				
-                  <v-progress-circular indeterminate v-bind:size="60" class="amber--text"></v-progress-circular>
-                </v-flex>      
-              </v-layout>
-            </v-container>
-          </v-flex>
-          <div v-else>             
-            <router-view ></router-view>   
-          </div> 
-          <v-snackbar
-            bottom
-            :timeout="4000"
-            v-model="snackbar"
-          > <div style="text-align:center;width:100%">{{ snackbarMsg }}</div>
-          </v-snackbar>
-        </v-container>
-      </v-content>
-    </main>    
+    <v-content v-bind:style="mainStyle">
+      <v-container class="ma-0 pa-3" align-start v-bind:style="containerStyle" style="height: 100%" fluid>
+        <v-flex xs12 v-if="loading || !plex.gotDevices">
+          <v-container fill-height>
+            <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
+              <v-flex xs8 md4>				
+                <v-progress-circular indeterminate v-bind:size="60" class="amber--text"></v-progress-circular>
+              </v-flex>      
+            </v-layout>
+          </v-container>
+        </v-flex>
+        <div v-else>      
+          <v-breadcrumbs class="text-xs-left" style="justify-content: left">
+          <v-icon slot="divider">chevron_right</v-icon>
+            <v-breadcrumbs-item 
+              v-for="item in crumbs" :key="item.text" :to="item.to" :exact="true"
+            >
+              {{ item.text }}
+            </v-breadcrumbs-item>
+					</v-breadcrumbs>       
+          <router-view ></router-view>   
+        </div> 
+        <v-snackbar
+          bottom
+          :timeout="4000"
+          v-model="snackbar"
+        > <div style="text-align:center; width:100%">{{ snackbarMsg }}</div>
+        </v-snackbar>
+      </v-container>
+    </v-content> 
   </v-app>
 </template>
 
@@ -149,7 +155,43 @@
     computed: {
       plex: function () {
         return this.$store.getters.getPlex
-      },
+      },			
+      crumbs: function () {
+				let data = []
+				let map = {
+					browse: () => {
+						return {
+							text: 'Home',
+							to: '/browse'
+						}
+          },					
+          '': () => {
+						return {
+							text: 'Home',
+							to: '/browse'
+						}
+					},
+					server: () => {
+						return {
+							text: this.plex.servers[this.$route.params.machineIdentifier].name,
+							to: '/browse/' + this.$route.params.machineIdentifier
+						}
+					},
+					content: () => {
+						return {
+							text: 'Loading...',
+							to: '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.ratingKey
+						}
+					}
+				}
+				this.$route.matched.forEach((route) => {
+					if (!route || route.path === '') return 
+					data.push(
+						map[route.name || route.path]()
+					)
+				})
+				return data
+			},
       showRightDrawerButton: function () {
         return (this.ptConnected && this.chosenClient && this.ptRoom)
       },

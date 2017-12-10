@@ -3,22 +3,14 @@
 		<div style="margin-bottom: 0; height:100%">
 			<v-layout row wrap style="overflow-y: scroll">
 				<v-flex xs12>
-					<v-breadcrumbs class="text-xs-left" style="justify-content: left">
-						<v-icon slot="divider">chevron_right</v-icon>
-						<v-breadcrumbs-item 
-							v-for="item in items" :key="item.text" :to="item.to"
-							:disabled="item.disabled"
-						>
-							{{ item.text }}
-						</v-breadcrumbs-item>
-					</v-breadcrumbs>
+					
 					<div v-if="!ptConnected || !chosenClient || !ptRoom">
 						<walkthrough class="pa-4"></walkthrough>
 					</div>
 					<div v-else>
 						<plexbrowser v-if="showBrowser" class="pa-4"></plexbrowser>
 						<ptplayer v-if="isPTPlayer"></ptplayer>  
-						<plexcontent v-if="showMetadata"  class="pa-4" nowPlaying :content="chosenClient.clientPlayingMetadata" :server="nowPlayingServer"></plexcontent>
+						<plexcontent v-if="showMetadata" class="pa-4" nowPlaying :content="chosenClient.clientPlayingMetadata" :server="nowPlayingServer"></plexcontent>
 					</div>
 				</v-flex>
 			</v-layout>
@@ -33,7 +25,6 @@
 	import plexclient from './application/plexclient'
 	import ptuser from './application/ptuser'
 	import joinroom from './application/joinroom'
-	import chatmessage from './application/chatmessage'
 	import walkthrough from './application/walkthrough'
 	import ptplayer from './application/ptplayer'
 	import plexbrowser from './application/plexbrowser'
@@ -48,7 +39,6 @@
 			plexclient,
 			joinroom,
 			ptuser,
-			chatmessage,
 			walkthrough,
 			ptplayer,
 			plexbrowser,
@@ -132,11 +122,11 @@
 					}
 				}
 				this.$route.matched.forEach((route) => {
+					if (!route || route.path === '') return 
 					data.push(
 						map[route.name]()
 					)
 				})
-
 				return data
 			},
 			validDevices: function () {

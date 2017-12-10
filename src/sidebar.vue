@@ -4,7 +4,7 @@
 				<v-flex xs12>
 					<v-layout v-if="ptRoom" column>   
 						<v-flex xs12 style="height: 50vh">
-							<h6 style="text-align:center" class="mb-0 pb-0 pt-3"> Room {{ ptRoom }}</h6>
+							<h3 style="text-align:center" class="mb-0 pb-0 pt-3"> Room {{ ptRoom }}</h3>
 							<v-subheader>Users ({{ ptUsers.length }})</v-subheader>  
 							<v-list dense style="overflow-y:scroll">
 								<div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
@@ -14,7 +14,7 @@
 											</v-list-tile-avatar>
 											<v-list-tile-content>
 												<v-list-tile-title> {{ user.username }}</v-list-tile-title>
-												<v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%"><v-icon style="font-size:90%">{{playerState(user)}}</v-icon> - {{getTitle(user)}}</v-list-tile-sub-title>
+												<v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%"><v-icon small>{{ playerState(user) }}</v-icon> - {{ getTitle(user) }}</v-list-tile-sub-title>
 											</v-list-tile-content>   
 											<v-list-tile-action  v-if="isHost(user)">     
 												<v-icon v-if="isHost(user)" style="color: #E5A00D">star</v-icon>
@@ -57,14 +57,13 @@
 												:label="'Send a message to ' + '#'+ptRoom"
 												autoGrow
 												v-on:keyup.enter.native="sendMessage()"
-												v-model="messageToBeSent"
-												
+												v-model="messageToBeSent"												
 											></v-text-field>
 										</div>
 									</v-flex>
 									<v-flex xs12 class="pt-2">
 										<div style="position: absolute; bottom:0; width: 100%" class="ma-0 pa-0">
-											<v-btn  block v-on:click.native="handleDisconnect()" class="ma-0 mt-1" primary>Leave room </v-btn>
+											<v-btn block v-on:click.native="handleDisconnect()" class="ma-0 mt-1" color="primary">Leave room </v-btn>
 										</div>
 									</v-flex>
 								</v-layout>

@@ -33,7 +33,7 @@
         <v-layout v-if="filteredMovies && filteredMovies.length > 0" row wrap>
           <!--Movies-->
           <v-flex xs12 lg12 >
-            <v-subheader > Movies ({{filteredMovies.length}})</v-subheader>
+            <v-subheader > Movies ({{ filteredMovies.length }})</v-subheader>
           </v-flex>          
           <v-flex xs6 md3 xl1 lg1 class="pb-3" v-for="movie in filteredMovies" :key="movie.key">            
             <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
@@ -42,7 +42,7 @@
         <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
           <!--Shows-->
           <v-flex xs12 lg12 >
-            <v-subheader > TV Shows ({{filteredShows.length}})</v-subheader>
+            <v-subheader > TV Shows ({{ filteredShows.length }})</v-subheader>
           </v-flex>          
           <v-flex xs6 md3 xl1 lg1 class="pb-3" v-for="show in filteredShows" :key="show.key">            
             <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
@@ -51,7 +51,7 @@
         <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
           <!--Episodes-->
           <v-flex xs12 lg12 >
-            <v-subheader > TV Episodes ({{filteredEpisodes.length}})</v-subheader>
+            <v-subheader > TV Episodes ({{ filteredEpisodes.length }})</v-subheader>
           </v-flex>          
           <v-flex xs6 md3 xl2 lg2 class="pb-3" v-for="episode in filteredEpisodes" :key="episode.key">
             <plexthumb :content="episode" :server="episode.server" showServer type="art" search @contentSet="setContent(episode)"></plexthumb>
@@ -60,7 +60,7 @@
       </div>
       <v-divider></v-divider>
       <div class="pt-4" v-if="validLastServer && results.length == 0">            
-        <h4 v-if="subsetOnDeck(3).length > 0">  Continue watching from {{ lastServer.name }} 
+        <h4 v-if="subsetOnDeck(3).length > 0"> Continue watching from {{ lastServer.name }} 
           <span style="float:right; font-size:5rem; user-select: none;">
             <v-icon fa @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon fa @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
           </span>

@@ -15,8 +15,16 @@ Vue.use(VueScrollTo)
 Vue.use(VueClipboards);
 Vue.use(VueResource);
 Vue.directive('observe-visibility', ObserveVisibility)
-Vue.use(Vuetify)
 Vue.use(VueVideoPlayer)
+
+Vue.use(Vuetify, {
+  theme: {
+    primary: '#E5A00D',
+    secondary: '#b0bec5',
+    accent: '#8c9eff',
+    error: '#b71c1c'
+  }
+})
 
 
 import App from './App'
@@ -43,6 +51,8 @@ global.waitFor = async (ms) => {
     setTimeout(() => resolve, ms)
   })
 }
+
+
 
 global.to = (promise) => {  
   return promise.then(data => {

@@ -63,7 +63,7 @@ if (process.env.NODE_ENV == 'development') {
 
 const state = {
   appTitle: 'PlexTogether',
-  appVersion: '1.4.0',
+  appVersion: '2.0.0',
   background: null,
   shownChat: false,
   chosenClient: null,
