@@ -1,4 +1,4 @@
-<p align="center"><img src="http://plextogether.com/img/logo-long-dark.png" /></p>
+<p align="center"><img src="http://synclounge.tv/img/logo-long-dark.png" /></p>
 
 
  
