@@ -1,5 +1,5 @@
 // ABOUT
-// Runs the Plex Together Web App - handles serving the static web content and link shortening services
+// Runs the SyncLounge Web App - handles serving the static web content and link shortening services
 // Port defaults to 8088
 // REQUIRED: --url argument
 
@@ -189,7 +189,7 @@ loadFromFile((result) => {
     rootserver.listen(PORT);
 })
 
-console.log('PlexTogether WebApp successfully started on port ' + PORT)
+console.log('SyncLounge WebApp successfully started on port ' + PORT)
 
 
 

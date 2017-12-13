@@ -54,7 +54,7 @@
                         </v-flex>                      
                         <v-flex xs12 sm6 style="position:relative">     
                           <div style="float:right">                 
-                            <v-chip bottom class="grey darken-1 white--text" outline left> {{ largestRes }}p</v-chip>    
+                            <v-chip v-if="content.Media && content.Media.length > 0" bottom class="grey darken-1 white--text" outline left> {{ content.Media[0].videoResolution }}</v-chip>    
                             <v-chip v-if="contents.contentRating"  class="grey darken-4 white--text" small label> {{ contents.contentRating }}</v-chip>                  
                             <v-chip v-if="contents.studio" class="grey darken-4 white--text" small label> {{ contents.studio }}</v-chip>
                           </div>
@@ -386,8 +386,8 @@
         let result = ''
         for (let i = 0; i < media.length; i++){
           let stream = media[i]
-          if (stream.streamType == 2){
-            result = result + ' ' + stream.languageCode + ','
+          if (stream.streamType == 2  && stream.languageCode){
+            result = result + ' ' + (stream.languageCode || 'Unknown Lanugage') + ','
           }
         }
         result = result.substring(0, result.length-1);
@@ -397,8 +397,8 @@
         let result = ''
         for (let i = 0; i < media.length; i++){
           let stream = media[i]
-          if (stream.streamType == 3){
-            result = result + ' ' + stream.languageCode + ','
+          if (stream.streamType == 3 && stream.languageCode){
+            result = result + ' ' + (stream.languageCode || 'Unknown Lanugage') + ',' 
           }
         }
         result = result.substring(0, result.length-1);

@@ -452,7 +452,7 @@ module.exports = function PlexClient () {
 
       let params = {
 
-        'X-Plex-Client-Identifier': 'PlexTogether',
+        'X-Plex-Client-Identifier': 'SyncLounge',
         'key': mediaId,
         'offset': offset,
         'machineIdentifier': serverId,
@@ -510,7 +510,7 @@ module.exports = function PlexClient () {
 
     let params = {
 
-      'X-Plex-Client-Identifier': 'PlexTogether',
+      'X-Plex-Client-Identifier': 'SyncLounge',
       'key': mediaId,
       'machineIdentifier': serverId,
       'address': address,
@@ -540,12 +540,12 @@ module.exports = function PlexClient () {
         // It is possible to try to subscribe before we've found a working connection
         return (callback(false))
       }
-      let tempId = 'PlexTogetherWeb'
+      let tempId = 'SyncLoungeWeb'
       var command = '/player/timeline/subscribe'
       var params = {
         'port': that.subscribePort,
         'protocol': 'http',
-        'X-Plex-Device-Name': 'PlexTogether'
+        'X-Plex-Device-Name': 'SyncLounge'
       }
       //Now that we've built our params, it's time to hit the client api
 
@@ -579,12 +579,12 @@ module.exports = function PlexClient () {
 
     function doRequest () {
       // Already have a valid http server running, lets send the request
-      let tempId = 'PlexTogether'
+      let tempId = 'SyncLoungeWeb'
       var command = '/player/timeline/unsubscribe'
       var params = {
         'port': that.subscribePort,
         'protocol': 'http',
-        'X-Plex-Device-Name': 'PlexTogether'
+        'X-Plex-Device-Name': 'SyncLounge'
       }
       //Now that we've built our params, it's time to hit the client api
 

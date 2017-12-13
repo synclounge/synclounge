@@ -22,7 +22,7 @@
             <h3>Choose your Plex player</h3>
           </v-flex>
           <v-flex xs12>
-            Choose a client from the list below. Once you've found the client you would like to use, click the connect button. PlexTogether will test to see if it can connect with the client and will let you know if it cannot.
+            Choose a client from the list below. Once you've found the client you would like to use, click the connect button. SyncLounge will test to see if it can connect with the client and will let you know if it cannot.
           </v-flex>
         </v-layout>    
         <v-divider></v-divider>
@@ -76,12 +76,12 @@
       <div v-if="chosenClient">
         <v-layout row wrap>
           <v-flex xs12>
-            <h5 class="text-xs-center">Connect to a PlexTogether room</h5>
+            <h5 class="text-xs-center">Connect to a SyncLounge room</h5>
           </v-flex>
         </v-layout>
         <v-layout row wrap>
           <v-flex xs12>
-            It's time to connect to PlexTogether. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join.
+            It's time to connect to SyncLounge. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join.
           </v-flex>
         </v-layout>
         <v-layout row wrap> 

@@ -60,8 +60,8 @@ if (process.env.NODE_ENV == 'development') {
 
 const state = {
   count: 0,
-  appTitle: 'PlexTogether',
-  appVersion: '1.4.1',
+  appTitle: 'SyncLounge',
+  appVersion: '1.5.0',
   background: null,
   shownChat: false,
   plex: null,
@@ -760,7 +760,7 @@ const plexTogether = {
             }
           })
           state._socket.on('disconnect', function (data) {
-            sendNotification('Disconnected from the PlexTogether server')
+            sendNotification('Disconnected from the SyncLounge server')
             if (data == 'io client disconnect') {
               console.log('We disconnected from the server')
               commit('SET_ROOM', null)

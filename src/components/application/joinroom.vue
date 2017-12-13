@@ -90,20 +90,20 @@
 
         ptservers: [
           {
-            text: 'PlexTogether AU1',
-            value: 'https://au1.plextogether.com'
+            text: 'SyncLounge AU1',
+            value: 'https://au1.synclounge.tv'
           },
           {
-            text: 'PlexTogether US1',
-            value: 'https://us1.plextogether.com'
+            text: 'SyncLounge US1',
+            value: 'https://us1.synclounge.tv'
           },        
           {
-            text: 'PlexTogether US2',
-            value: 'https://us2.plextogether.com'
+            text: 'SyncLounge US2',
+            value: 'https://us2.synclounge.tv'
           },
           {
-            text: 'PlexTogether EU1',
-            value: 'https://eu1.plextogether.com'
+            text: 'SyncLounge EU1',
+            value: 'https://eu1.synclounge.tv'
           },  
           {
             text: 'Custom Server',

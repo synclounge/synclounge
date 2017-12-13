@@ -12,7 +12,7 @@ module.exports = function PlexAuth () {
       url: url,
       time: true,
       headers: {
-        'X-Plex-Client-Identifier': 'PlexTogether',
+        'X-Plex-Client-Identifier': 'SyncLounge',
         'Accept': 'application/json',
         'X-Plex-Token': accessToken
       },
@@ -47,15 +47,15 @@ module.exports = function PlexAuth () {
       time: true,
       headers: {
         'X-Plex-Device-Name': sBrowser ,
-        'X-Plex-Client-Identifier': 'PlexTogether',
+        'X-Plex-Client-Identifier': 'SyncLounge',
         'X-Plex-Provides': 'controller',
         'X-Plex-Target-Client-Identifier': clientIdentifier,
         'X-Plex-Device': 'Web (' + sBrowser + ')',
-        'X-Plex-Platform': 'PlexTogether',
+        'X-Plex-Platform': 'SyncLounge',
         'X-Plex-Version': '4.18',
         'X-Plex-Client-Platform': 'Web',
-        'X-Plex-Client-Product': 'PlexTogether for Web',
-        'X-Plex-Product': 'PlexTogether',
+        'X-Plex-Client-Product': 'SyncLounge for Web',
+        'X-Plex-Product': 'SyncLounge',
         'X-Plex-Device-Vendor': sBrowser,
         'X-Plex-Platform-Version': '11.0',
         'Accept': 'application/json',

@@ -1,9 +1,9 @@
 {
-  "name": "plextogether2",
+  "name": "SyncLounge",
   "version": "1.0.0",
-  "description": "Synced playback of Plex",
+  "description": "Synced playback of Plex content",
   "author": "samcm",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
