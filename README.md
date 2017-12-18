@@ -1,4 +1,4 @@
-<p align="center"><img src="http://plextogether.com/img/logo-long-dark.png" /></p>
+<p align="center"><img src="http://synclounge.tv/img/logo-long-dark.png" /></p>
 
 
  
@@ -13,7 +13,7 @@
 
 SyncLounge (Previously PlexTogether) is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
 
-Utilising [Vue.js](https://vuejs.org/) and Webpack, SyncLounge has been rewritten and brought to the browser. While we run a live version available at [synclounge.tv](http://app.synclounge.tv), the project can be built and deployed completely seperate from plextogether.com. We also provide a handful of public SyncLounge Server instances that everyone is free to use.
+Utilising [Vue.js](https://vuejs.org/) and Webpack, SyncLounge has been rewritten and brought to the browser. While we run a live version available at [synclounge.tv](http://app.synclounge.tv), the project can be built and deployed completely seperate from synclounge.tv. We also provide a handful of public SyncLounge Server instances that everyone is free to use.
 <p align="center">
   <a href="http://app.synclounge.tv">Live Version</a>
   <br>
@@ -21,9 +21,9 @@ Utilising [Vue.js](https://vuejs.org/) and Webpack, SyncLounge has been rewritte
 
 
 ## How it works
-SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of the PlexTogether clients. Users choose their Plex client, decide on a SyncLounge Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
+SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of the SyncLounge clients. Users choose their Plex client, decide on a SyncLounge Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
 
-The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, PlexTogether will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.
+The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, SyncLounge will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.
 
 ## Features
 * Syncing between Plex Clients over the Internet
