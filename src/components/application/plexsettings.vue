@@ -48,7 +48,8 @@
         if (!this.plex || !this.plex.servers){
           return servers
         }
-        this.plex.servers.forEach((server) => {
+        for (let id in this.plex.servers) {
+          let server = this.plex.servers[id] 
           if (this.$store.getters.getSettingBLOCKEDSERVERS && this.$store.getters.getSettingBLOCKEDSERVERS[server.clientIdentifier]){            
             servers.push({
               name: server.name,
@@ -60,10 +61,8 @@
             name: server.name,
             id: server.clientIdentifier,
           })
-        })
-        return servers
-        
-        
+          return servers
+        }               
       },
       logo: function () {
         return 'ptweb/plexlogo.png'

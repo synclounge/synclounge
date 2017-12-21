@@ -44,7 +44,6 @@ module.exports = function PlexAuth () {
     }
     return {
       url: url,
-      time: true,
       headers: {
         'X-Plex-Device-Name': sBrowser ,
         'X-Plex-Client-Identifier': 'SyncLounge',

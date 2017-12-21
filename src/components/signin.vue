@@ -67,93 +67,89 @@
         status: 'startup'
       }
     },
+    computed: {
+      store: function () {
+        return this
+      }
+    },
     mounted () {
       var that = this
       let storage = window['localStorage']
       storage.removeItem('plexuser')
       let id = (Math.random() * 1e32).toString(36)
+      var sBrowser, sUsrAg = navigator.userAgent;
 
-      function getPin () {
-        var sBrowser, sUsrAg = navigator.userAgent;
-
-        if (sUsrAg.indexOf("Chrome") > -1) {
-          sBrowser = "Google Chrome";
-        } else if (sUsrAg.indexOf("Safari") > -1) {
-          sBrowser = "Apple Safari";
-        } else if (sUsrAg.indexOf("Opera") > -1) {
-          sBrowser = "Opera";
-        } else if (sUsrAg.indexOf("Firefox") > -1) {
-          sBrowser = "Mozilla Firefox";
-        } else if (sUsrAg.indexOf("MSIE") > -1) {
-          sBrowser = "Microsoft Internet Explorer";
-        }
-        console.log('Browser: ' + sBrowser)
-
-        that.$http.post('https://plex.tv/pins.xml', null, {
-          headers: {
-            'X-Plex-Device': 'Web',
-            'X-Plex-Device-Name': 'SyncLounge',
-            'X-Plex-Product': 'SyncLounge',
-            'X-Plex-Version': '1.2',
-            'X-Plex-Platform': sBrowser,
-            'X-Plex-Platform-Version': '',
-            'X-Plex-Client-Identifier': id
-          }
-        })
-          .then((response) => {
-
-            parseString(response.body, function (err, result) {
-              if (!err) {
-                that.pin = result.pin.code[0]
-                that.ID = result.pin.id[0]._
-                let checker = setInterval(function () {
-                  var options = {
-                    url: 'https://plex.tv/pins/' + that.ID + '.xml',
-                    headers: {
-                      'X-Plex-Device': 'Web',
-                      'X-Plex-Device-Name': 'SyncLounge',
-                      'X-Plex-Product': 'SyncLounge',
-                      'X-Plex-Version': '1.2',
-                      'X-Plex-Platform': sBrowser,
-                      'X-Plex-Platform-Version': '',
-                      'X-Plex-Client-Identifier': id
-                    }
-                  };
-
-                  function callback (error, response, body) {
-                    if (!error && response.statusCode == 404) {
-                      clearInterval(checker)
-                      return
-                    }
-                    if (!error && response.statusCode == 200) {
-                      parseString(body, function (err, result) {
-                        if (!err) {
-                          if (result.pin.auth_token[0] != null && result.pin.auth_token[0].length > 1) {
-                            console.log('GOT TOKEN!')
-                            that.token = result.pin.auth_token[0]
-                            let jsonObj = {
-                              authToken: that.token
-                            }
-                            storage.setItem('plexuser', JSON.stringify(jsonObj))
-                            setTimeout(function () {
-                              that.$router.push('/sync')
-                            }, 2500)
-                            clearInterval(checker)
-                          }
-                        }
-                      })
-                    }
-                  }
-
-                  request(options, callback);
-                }, 2000)
-              }
-            })
-            return
-          })
+      if (sUsrAg.indexOf("Chrome") > -1) {
+        sBrowser = "Google Chrome";
+      } else if (sUsrAg.indexOf("Safari") > -1) {
+        sBrowser = "Apple Safari";
+      } else if (sUsrAg.indexOf("Opera") > -1) {
+        sBrowser = "Opera";
+      } else if (sUsrAg.indexOf("Firefox") > -1) {
+        sBrowser = "Mozilla Firefox";
+      } else if (sUsrAg.indexOf("MSIE") > -1) {
+        sBrowser = "Microsoft Internet Explorer";
       }
+      console.log('Browser: ' + sBrowser)
 
-      getPin()
+      this.$http.post('https://plex.tv/pins.xml', null, {
+        headers: {
+          'X-Plex-Device': 'Web',
+          'X-Plex-Device-Name': 'PlexTogether',
+          'X-Plex-Product': 'PlexTogether',
+          'X-Plex-Version': '1.2',
+          'X-Plex-Platform': sBrowser,
+          'X-Plex-Platform-Version': '',
+          'X-Plex-Client-Identifier': id
+        }
+      }).then((response) => {
+          parseString(response.body, (err, result) => {
+            if (!err) {
+              this.pin = result.pin.code[0]
+              this.ID = result.pin.id[0]._
+              let checker = setInterval(function () {
+                var options = {
+                  url: 'https://plex.tv/pins/' + result.pin.id[0]._ + '.xml',
+                  headers: {
+                    'X-Plex-Device': 'Web',
+                    'X-Plex-Device-Name': 'SyncLounge',
+                    'X-Plex-Product': 'SyncLounge',
+                    'X-Plex-Version': '1.5',
+                    'X-Plex-Platform': sBrowser,
+                    'X-Plex-Platform-Version': '',
+                    'X-Plex-Client-Identifier': id
+                  }
+                };
+                request(options, (error, response, body) => {
+                  if (!error && response.statusCode == 404) {
+                    clearInterval(checker)
+                    return
+                  }
+                  if (!error && response.statusCode == 200) {
+                    parseString(body, async (err, result) => {
+                      if (!err) {
+                        if (result.pin.auth_token[0] != null && result.pin.auth_token[0].length > 1) {
+                          console.log('GOT TOKEN!', this)
+                          that.token = result.pin.auth_token[0]
+                          let jsonObj = {
+                            authToken: this.token
+                          }
+                          storage.setItem('plexuser', JSON.stringify(jsonObj))
+                          await that.$store.dispatch('PLEX_LOGIN_TOKEN', token)
+                          setTimeout(function () {
+                            that.$router.push('/sync')
+                          }, 2500)
+                          clearInterval(checker)
+                        }
+                      }
+                    })
+                  }
+                });
+              }, 2000)
+            }
+          })
+          return
+        })
 
     },
     methods: {
@@ -164,7 +160,6 @@
       hitAPI: function () {
         this.signinProgress = 'sent'
         this.errormsg = null
-        var that = this
         var base64encoded = new Buffer(this.user + ":" + this.pass).toString('base64')
 
       },

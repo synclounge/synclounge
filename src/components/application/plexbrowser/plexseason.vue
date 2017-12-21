@@ -69,7 +69,7 @@
     created () {
       // Hit the PMS endpoing /library/sections
       var that = this
-      this.server.getSeriesChildren(this.content.key, 0, 500, 1,  (result) => {
+      this.server.getSeriesChildren(this.content.key, 0, 500, 1).then((result) => {
         if (result) {
           this.contents = result
           this.setBackground()

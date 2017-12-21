@@ -76,7 +76,7 @@
     created () {
       // Hit the PMS endpoing /library/sections
       var that = this
-      this.server.getSeriesChildren(this.content.key, this.startingIndex, this.size, 1, (result) => {
+      this.server.getSeriesChildren(this.content.key, this.startingIndex, this.size, 1).then((result) => {
         if (result) {
           this.contents = result
           this.setBackground()
@@ -84,7 +84,7 @@
           this.status = 'Error loading libraries!'
         }
       })
-      this.server.getSeriesData('/library/metadata/'+ this.content.ratingKey,(res) => {
+      this.server.getSeriesData('/library/metadata/'+ this.content.ratingKey).then((res) => {
         if (res){
           this.seriesData = res
         }

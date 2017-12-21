@@ -29,7 +29,7 @@
               SyncLounge is licensed under the terms of the MIT license and is in no way affiliated with Plex Inc. </p>
             <div class="center-text">
               <p> We hope you enjoy. </p>
-              <router-link to="/sync" class="center nav-item nav-link center-text" style="font-size:250%"> Let's get started </router-link>
+              <router-link to="/browse" class="center nav-item nav-link center-text" style="font-size:250%"> <v-btn :to="'/browse'" color="blue">Let's get started</v-btn> </router-link>
             </div>
           </v-flex>
         </v-layout>
@@ -42,7 +42,7 @@
     name: 'home',
     created: function () {
       if (this.$store.getters.getSettingHOMEINIT) {
-        this.$router.push('/sync')
+        this.$router.push('/browse')
       }
     },
     mounted: function () {

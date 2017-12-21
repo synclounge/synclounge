@@ -47,8 +47,7 @@
             label="Room name"
             :autofocus="true"
             v-on:keyup.enter.native="joinRoom()"
-            v-model="room"
-            
+            v-model="room"            
           ></v-text-field>
         </v-flex>  
         <v-flex xs12>          
@@ -57,12 +56,11 @@
             name="input-2"
             label="Room password"
             v-on:keyup.enter.native="joinRoom()"
-            v-model="password"
-            
+            v-model="password"            
           ></v-text-field>
         </v-flex>        
         <v-flex xs4 offset-xs4>
-          <v-btn class="pt-orange white--text pa-0 ma-0" primary style="width:100%" v-on:click.native="joinRoom()">Join</v-btn>
+          <v-btn block color="primary" v-on:click.native="joinRoom()">Join</v-btn>
         </v-flex>  
         <v-layout class="pt-3" row wrap v-if="roomError">
           <v-flex xs12 class="red--text">          

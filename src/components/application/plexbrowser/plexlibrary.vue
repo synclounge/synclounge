@@ -134,35 +134,34 @@
           return
         }
         console.log('We need to get more content!')
-        var that = this
         this.busy = true
-        this.server.getLibraryContents(this.library.key, this.startingIndex, this.size, function (result) {
+        this.server.getLibraryContents(this.library.key, this.startingIndex, this.size).then((result) => {
           console.log('Metadata result', result)
           if (result && result.MediaContainer && result.MediaContainer.Metadata) {
-            that.libraryTotalSize = result.MediaContainer.totalSize
-            that.startingIndex = that.startingIndex + 100
-            if (that.contents) {
+            this.libraryTotalSize = result.MediaContainer.totalSize
+            this.startingIndex = this.startingIndex + 100
+            if (this.contents) {
               for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
                 let media = result.MediaContainer.Metadata[i]
                 media.active = true
-                that.contents.MediaContainer.Metadata.push(media)
+                this.contents.MediaContainer.Metadata.push(media)
               }
             } else {
               for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
                 let media = result.MediaContainer.Metadata[i]
                 media.active = true
               }
-              that.contents = result
-              that.setBackground()
+              this.contents = result
+              this.setBackground()
             }
             if (result.MediaContainer.size < 100) {
-              that.stopNewContent = true
+              this.stopNewContent = true
             }
 
           } else {
-            that.status = 'Error loading libraries!'
+            this.status = 'Error loading libraries!'
           }
-          that.busy = false
+          this.busy = false
         })
       },
       reset () {

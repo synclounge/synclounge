@@ -36,12 +36,19 @@ module.exports = function PlexClient () {
   this.lastRatingKey = null
   this.lastTimelineObject = null
   this.oldTimelineObject = null
+  this.lastTimeline = null
+  this.oldTimeline = null
   this.clientPlayingMetadata = null
   this.lastSubscribe = 0
   this.connectedstatus = 'fresh'
 
   this.eventbus = window.EventBus // Assigned early on - we will use this to communicate with the PT Player
+  this.commit = null
 
+  this.setValue = function (key, value) {
+    this[key] = value
+    this.commit('PLEX_CLIENT_SET_VALUE', [this, key, value])
+  }
   // Functions
   this.generateGuid = function () {
     function s4 () {
@@ -54,200 +61,146 @@ module.exports = function PlexClient () {
   }
   this.uuid = this.generateGuid()
 
-  this.hitApi = function (command, params, connection, callback) {
-    var that = this
-    //console.log('Time since last subscription command: ' + (new Date().getTime() - this.lastSubscribe))
+  this.hitApi = function (command, params, connection, commit) {
 
-    // Check if our client is the inline PTPlayer
-    // PTPlayer will have a client identifier of PTPLAYER9PLUS10
-
-    if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
-      // We are using the PT Player
-
-      let data = {
-        command: command,
-        params: params,
-        callback: function (resultData) {
-          callback(resultData, 0, 200, 'PTPLAYER')
-        }
-      }
-      that.eventbus.$emit('command', data)
-
-    } else {
-      if ((new Date().getTime() - this.lastSubscribe) > 29000) {
-        // We need to subscribe first!
-        this.subscribe(function (result) {
-          //console.log('subscription result: ' + result)
-          if (result) {
-            that.lastSubscribe = new Date().getTime()
+    return new Promise(async (resolve, reject) => {
+      if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
+        // We are using the PT Player
+  
+        let data = {
+          command: command,
+          params: params,
+          callback: function (resultData) {
+            resolve(resultData, 0, 200, 'PTPLAYER')
           }
+        }
+        this.eventbus.$emit('command', data)
+  
+      } else {
+        const doRequest = () => {
+          if (!connection) {
+            if (!this.chosenConnection) {
+              console.log('You should find a working connection via #findConnection first!')
+            }
+            connection = this.chosenConnection
+          }
+          var query = 'type=video&'
+          for (let key in params) {
+            query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+          }
+          query = query + 'commandID=' + this.commandId
+          if (connection.uri.charAt(connection.uri.length - 1) == '/') {
+            //Remove a trailing / that some clients broadcast
+            connection.uri = connection.uri.slice(0, connection.uri.length - 1)
+          }
+          var _url = connection.uri + command + '?' + query
+          this.setValue('commandId', this.commandId + 1)
+          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
+          // console.log('sending api request', options)
+          request(options, (error, response, body) => {
+            // console.log('response data', response)
+            if (error) {
+              return reject(error)
+              
+            } else {
+              parseXMLString(body, function (err, result) {
+                if (err || (response.statusCode != 200 && response.statusCode != 201)) {
+                  return reject(err || response.statusCode)
+                }
+                return resolve(result, response.elapsedTime, response.statusCode, connection)
+            })
+            }
+          })
+        }
+        if ((new Date().getTime() - this.lastSubscribe) > 29000) {
+            // We need to subscribe first!
+            let result = await this.subscribe(connection, commit)
+            // console.log('Got subscription result', result)
+            // if (result) {
+              // commit('PLEX_CLIENT_SET_VALUE', [this, 'lastSubscribe', new Date().getTime()])
+              //lastSubscribe = new Date().getTime()
+            // }
+            //console.log('subscription result: ' + result)
+            doRequest()
+            return
+          
+        } else {
           doRequest()
           return
-        })
-      } else {
-        doRequest()
-        return
-      }
-
-      function doRequest () {
-        if (connection == null) {
-          if (that.chosenConnection == null) {
-            console.log('You should find a working connection via #findConnection first!')
-          }
-          connection = that.chosenConnection
-        }
-        var query = 'type=video&'
-        for (let key in params) {
-          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-        }
-        query = query + 'commandID=' + that.commandId
-        if (connection.uri.charAt(connection.uri.length - 1) == '/') {
-          //Remove a trailing / that some clients broadcast
-          connection.uri = connection.uri.slice(0, connection.uri.length - 1)
-        }
-        var _url = connection.uri + command + '?' + query
-        that.commandId = that.commandId + 1
-        var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, null, 5000)
-        request(options, function (error, response, body) {
-          //console.log(response)
-          if (!error) {
-            parseXMLString(body, function (err, result) {
-              if (err) {
-                return callback(null, response.elapsedTime, response.statusCode, connection)
-              }
-              return callback(result, response.elapsedTime, response.statusCode, connection)
-            })
-          } else {
-            return callback(null, null, response, connection)
-          }
-        })
-      }
-    }
-
-  }
-
-  this.findConnection = function (callback) {
-    //This function iterates through all available connections and
-    // if any of them return a valid response we'll set that connection
-    // as the chosen connection for future use.
-    var that = this
-    var attempts = 0
-    that.chosenConnection = null
-    let returned = false
-    if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
-      console.log('Found connection for ptplayer')
-      this.chosenConnection = true
-      return callback(true)
-    }
-    for (var i in this.plexConnections) {
-      var connection = this.plexConnections[i]
-      this.hitApi('/player/timeline/poll', {'wait': 0}, connection, function (result, elapsedTime, statusCode, connectionUsed) {
-        attempts++
-        console.log('Connection result for ' + connectionUsed.address)
-        console.log(result)
-        if (result != null) {
-          if (result.MediaContainer != null) {
-            if (that.chosenConnection == null) {
-              that.chosenConnection = connectionUsed
-              returned = true
-              return (callback(true))
-            }
-          }
-        }
-        if (attempts == that.plexConnections.length) {
-          if (that.chosenConnection != null) {
-            if (!returned) {
-              return (callback(true))
-            }
-          } else {
-            if (!returned) {
-              return (callback(false))
-            }
-          }
-        }
-      })
-    }
-  }
-  this.checkConnectability = function (callback) {
-    var that = this
-    // Hit the /resources endpoint to see if the client is compatible
-    if (!this.chosenConnection) {
-      // Get a valid connection first
-      this.findConnection(function (result) {
-        if (!result) {
-          return callback(false, that)
-        }
-        getResources()
-        return
-      })
-      return
-    }
-    getResources()
-    return
-
-    function getResources () {
-      that.hitApi('/resources/', {'wait': 0}, that.chosenConnection, function (result, responseTime) {
-        if (result) {
-          //Valid response back from the client
-          if (result.MediaContainer != null) {
-            return callback(true, that)
-          } else {
-            return callback(false, that)
-          }
-        } else {
-          return callback(false, that)
-        }
-      })
-    }
-  }
-
-  this.getTimeline = function (callback) {
-    var that = this
-    //Get the timeline object from the client
-    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result, responseTime) {
-
-      if (result) {
-        if (that.clientIdentifier == 'PTPLAYER9PLUS10') {
-          that.updateTimelineObject(result, -1, function () {
-            return callback(result, 0)
-          })
-          return
-        }
-        //console.log(JSON.stringify(result,null,4))
-        //Valid response back from the client
-        if (result.MediaContainer != null) {
-          that.updateTimelineObject(result, responseTime, function () {
-            return callback(result, responseTime)
-          })
-          //return (callback(result.MediaContainer.Timeline,responseTime))
-        } else {
-          return callback(null, responseTime)
-        }
-      } else {
-        return callback(false, responseTime)
+        } 
       }
     })
   }
 
-  this.updateTimelineObject = function (result, responseTime, callback) {
+  this.getTimeline = async function (callback) {
+    //Get the timeline object from the client
 
-    if (responseTime == -1) {
+    let data
+    try {
+      data = await this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection)    
+      // console.log('Timeline result', data)
+      if (data) {
+        return this.updateTimelineObject(data)
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+
+    // this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, (result, responseTime) => {
+
+    //   if (result) {
+    //     if (that.clientIdentifier == 'PTPLAYER9PLUS10') {
+    //       that.updateTimelineObject(result, -1, function () {
+    //         return callback(result, 0)
+    //       })
+    //       return
+    //     }
+    //     //console.log(JSON.stringify(result,null,4))
+    //     //Valid response back from the client
+    //     if (result.MediaContainer != null) {
+    //       that.updateTimelineObject(result, responseTime, function () {
+    //         return callback(result, responseTime)
+    //       })
+    //       //return (callback(result.MediaContainer.Timeline,responseTime))
+    //     } else {
+    //       return callback(null, responseTime)
+    //     }
+    //   } else {
+    //     return callback(false, responseTime)
+    //   }
+    // })
+  }
+
+  this.updateTimelineObject = function (result) {
+
+
+
+    this.setValue('lastTimelineObject', result)
+    this.lastTimelineObject = result    
+    this.events.emit('new_timeline', result)
+
+    // Check if we are the PTPlayer
+    if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // PTPLAYER
       this.events.emit('new_timeline', result)
       //console.log(result)
       var clonetimeline = this.lastTimelineObject
-      this.lastTimelineObject = result
-      this.lastTimelineObject.recievedAt = new Date().getTime()
+
       if (!this.oldTimelineObject) {
         if (!this.lastTimelineObject.ratingKey) {
           this.events.emit('playback_change', null)
         } else {
           this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
         }
-        this.oldTimelineObject = result
+        this.setValue('oldTimelineObject', result)
+        // this.oldTimelineObject = result
         return callback(result)
       }
-      this.oldTimelineObject = clonetimeline
+      this.setValue('oldTimelineObject', clonetimeline)
+      // this.oldTimelineObject = clonetimeline
       if (this.oldTimelineObject.ratingKey != this.lastTimelineObject.ratingKey) {
         if (!this.lastTimelineObject.ratingKey) {
           this.events.emit('playback_change', null)
@@ -255,17 +208,15 @@ module.exports = function PlexClient () {
           this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
         }
       }
-      return callback(result)
-    }
+      return true
+    }    
 
     if (!result.MediaContainer.Timeline) {
       // Not a valid timeline object
-      return
+      return false
     }
     // Valid timeline data
-    if (responseTime != null) {
-      this.lastResponseTime = responseTime
-    }
+
     // Standard player
     let timelines = result.MediaContainer.Timeline
     let videoTimeline = null
@@ -274,11 +225,11 @@ module.exports = function PlexClient () {
       if (_timeline.type == 'video'){
         videoTimeline = _timeline
       }
-      if ((_timeline.state && _timeline.state != 'stopped')|| i == (timelines.length - 1)) {
+      if ((_timeline.state && _timeline.state != 'stopped') || i == (timelines.length - 1)) {
         this.events.emit('new_timeline', timelines[i]['$'])
         var clonetimeline = this.lastTimelineObject
-        this.lastTimelineObject = timelines[i]['$']
-        this.lastTimelineObject.recievedAt = new Date().getTime()
+        this.lastTimelineObject = timelines[i]['$'] 
+        this.setValue('lastTimelineObject', timelines[i]['$'])
         if (!this.oldTimelineObject) {
           // First time we've got data!
           if (!this.lastTimelineObject.ratingKey) {
@@ -286,21 +237,23 @@ module.exports = function PlexClient () {
           } else {
             this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
           }
-          this.oldTimelineObject = timelines[i]['$']
-          return callback(timelines[i]['$'])
+          this.setValue('oldTimelineObject', timelines[i]['$'])
+          // this.oldTimelineObject = timelines[i]['$']
+          return timelines[i]['$']
         }
+        this.setValue('oldTimelineObject', clonetimeline)
         this.oldTimelineObject = clonetimeline
-        if (this.oldTimelineObject.ratingKey != this.lastTimelineObject.ratingKey) {
+        if (this.oldTimelineObject.ratingKey != result.ratingKey) {
           if (!this.lastTimelineObject.ratingKey) {
             this.events.emit('playback_change', null)
           } else {
-            this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
+            this.events.emit('playback_change', result.ratingKey)
           }
         }
-        return callback(timelines[i]['$'])
+        return timelines[i]['$']
       }
     }
-    return callback(videoTimeline)
+    return videoTimeline
   }
   this.pressPlay = function (callback) {
     //Press play on the client
@@ -530,48 +483,53 @@ module.exports = function PlexClient () {
       }
     })
   }
-  this.subscribe = function (callback) {
-    var that = this
-    doRequest()
-
-    function doRequest () {
-      // Already have a valid http server running, lets send the request
-      if (that.chosenConnection == null) {
-        // It is possible to try to subscribe before we've found a working connection
-        return (callback(false))
-      }
-      let tempId = 'SyncLoungeWeb'
-      var command = '/player/timeline/subscribe'
-      var params = {
-        'port': that.subscribePort,
-        'protocol': 'http',
-        'X-Plex-Device-Name': 'SyncLounge'
-      }
-      //Now that we've built our params, it's time to hit the client api
-
-      var query = ''
-      for (let key in params) {
-        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-      }
-      query = query + 'commandID=' + that.commandId
-      if (that.chosenConnection.uri.charAt(that.chosenConnection.uri.length - 1) == '/') {
-        //Remove a trailing / that some clients broadcast
-        that.chosenConnection.uri = that.chosenConnection.uri.slice(0, that.chosenConnection.uri.length - 1)
-      }
-
-      var _url = that.chosenConnection.uri + command + '?' + query
-      //console.log('subscription url: ' + _url)
-      that.commandId = that.commandId + 1
-      var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000)
-      request(options, function (error, response, body) {
-        //console.log('subscription result below')
-        if (!error) {
-          return callback(true, that)
-        } else {
-          return callback(false, that)
+  this.subscribe = function (connection, commit) {
+    return new Promise((resolve, reject) => {
+      const doRequest = () => {
+        // Already have a valid http server running, lets send the request
+        if (!connection) {
+          // It is possible to try to subscribe before we've found a working connection
+          connection = this.chosenConnection
         }
-      })
-    }
+        let tempId = 'SyncLoungeWeb'
+        var command = '/player/timeline/subscribe'
+        var params = {
+          'port': '8090',
+          'protocol': 'http',
+          'X-Plex-Device-Name': 'SyncLounge'
+        }
+        //Now that we've built our params, it's time to hit the client api
+  
+        var query = ''
+        for (let key in params) {
+          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+        }
+        query = query + 'commandID=' + this.commandId
+        if (connection.uri.charAt(connection.uri.length - 1) == '/') {
+          //Remove a trailing / that some clients broadcast
+          connection.uri = connection.uri.slice(0, connection.uri.length - 1)
+        }
+  
+        var _url = connection.uri + command + '?' + query
+        // console.log('subscription url: ' + _url)
+        this.commandId = this.commandId + 1
+        this.setValue('commandId', this.commandId + 1)
+        var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
+        request(options, (error, response, body) => {
+          // console.log('subscription result', response)
+          
+          this.setValue('lastSubscribe', new Date().getTime())
+          if (error) {
+            return reject(error)
+          } else {
+            return resolve(true)
+          }
+        })
+      }
+      doRequest()
+    
+    })
+    
   }
   this.unsubscribe = function (callback) {
     var that = this
@@ -582,7 +540,7 @@ module.exports = function PlexClient () {
       let tempId = 'SyncLoungeWeb'
       var command = '/player/timeline/unsubscribe'
       var params = {
-        'port': that.subscribePort,
+        'port': '8090',
         'protocol': 'http',
         'X-Plex-Device-Name': 'SyncLounge'
       }
