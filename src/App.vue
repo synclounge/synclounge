@@ -119,6 +119,8 @@
       }
     },
     mounted: async function () {
+      // Verify route changes 
+      
       if (this.$route.query.ptserver && this.$route.query.ptroom) {
         console.log('We should auto join')
         // Looks like a valid request...
@@ -138,6 +140,9 @@
         this.loading = false
         return
       }
+      if (this.$route.path === '/') {
+        this.$router.push('/clientselect')
+      }
       console.log('Logging in to Plex.Tv')
       let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
       await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken)
@@ -146,7 +151,6 @@
     },
     watch: {
       showRightDrawerButton: function () { 
-        console.log('Drawer changed')
         if (this.showRightDrawerButton){
           this.drawerRight = true
         }
@@ -157,6 +161,9 @@
         return this.$store.getters.getPlex
       },			
       crumbs: function () {
+        if (this.$route.path.indexOf('browse') === -1) {
+          return []
+        }
 				let data = []
 				let map = {
 					browse: () => {
@@ -183,9 +190,10 @@
 							to: '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.ratingKey
 						}
 					}
-				}
+        }
 				this.$route.matched.forEach((route) => {
-					if (!route || route.path === '') return 
+          console.log(route)
+					if (!route || route.path === '' || !route.matchAs) return 
 					data.push(
 						map[route.name || route.path]()
 					)
@@ -208,7 +216,6 @@
         return 'ptweb/logo-small-light.png'
       },    
       isPlayer: function () {
-        console.log('Router path is ' + this.$route.path)
         if (this.$route.path == '/') {
           return true
         }

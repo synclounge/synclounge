@@ -65,7 +65,7 @@ module.exports = function PlexClient () {
 
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
-        // We are using the PT Player
+        // We are using the SyncLounge Player
   
         let data = {
           command: command,

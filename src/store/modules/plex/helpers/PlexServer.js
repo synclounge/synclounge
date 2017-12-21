@@ -237,6 +237,11 @@ module.exports = function PlexServer () {
       'X-Plex-Container-Size': size
     })
   }
+  this.getRelated = function (key, count) {
+    return this.hitApi('/hubs/metadata/' + key + '/related', {
+      'count': count || 10
+    })
+  }
   this.getRecentlyAddedAll = function (start, size, callback) {
     return this.hitApi('/library/recentlyAdded', {})
   }

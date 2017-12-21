@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 import moment from '../node_modules/moment/moment.js'
 
 var plex = require('./store/modules/plex/').default
-var plexTogether = require('./store/modules/plextogether.js').default
+var syncLounge = require('./store/modules/synclounge.js').default
 
 const EventEmitter = require('events')
 var request = require('request')
@@ -62,7 +62,7 @@ if (process.env.NODE_ENV == 'development') {
 }
 
 const state = {
-  appTitle: 'PlexTogether',
+  appTitle: 'SyncLounge',
   appVersion: '2.0.0',
   background: null,
   shownChat: false,
@@ -374,9 +374,7 @@ const actions = {
     setTimeout(() => {
       commit('INCREMENT')
     }, 200)
-  },
-
-
+  }
 }
 
 
@@ -387,7 +385,7 @@ const store = new Vuex.Store({
   actions,
   getters,
   modules: {
-    plextogether: plexTogether,
+    synclounge: syncLounge,
     plex: plex
   }
 })

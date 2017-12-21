@@ -73,7 +73,7 @@
           </v-flex>
         </v-layout>
       </div>
-      <div v-if="chosenClient">
+      <!-- <div v-if="chosenClient">
         <v-layout row wrap>
           <v-flex xs12>
             <h5 class="text-xs-center">Connect to a SyncLounge room</h5>
@@ -89,7 +89,7 @@
             <joinroom></joinroom>
           </v-flex>
         </v-layout>
-      </div>
+      </div> -->
     </v-flex>
 
   </v-layout>
@@ -139,6 +139,13 @@
           return '(' + Object.keys(this.plex.clients).length + ')'
         }
         return ''
+      }
+    },
+    watch: {
+      chosenClient: function () {
+        if (this.chosenClient) {
+          this.$router.push('/joinroom')
+        }
       }
     },
     methods: {

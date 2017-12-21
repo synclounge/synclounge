@@ -59,7 +59,7 @@ The host has complete control over a room. Commands they send to their client wi
 		* Maximum timestamp (Eg. 03:48:18)
 		* Playerstate (Eg. paused, stopped, playing)
 		* Client response time (Ping time between you and your Plex Client)
-	* PT Server address, PT Server Room and PT Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
+	* SL Server address, SL Server Room and SL Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
 * _What about the public server provided by SyncLounge? Is my data safe?_
 	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
@@ -133,7 +133,7 @@ docker run \
 	*  ``npm install``
 	*  ``npm run build``
 	*  ``node webapp.js --url=http://example.com/ptweb``
-* The PT web app will be running at http://ip:8088/ptweb.
+* The SL web app will be running at http://ip:8088/ptweb.
 
 
 ### Running the server:
@@ -144,7 +144,7 @@ docker run \
 	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run server``
-* The PT server will be running at http://ip:8089/ptserver.
+* The SL server will be running at http://ip:8089/ptserver.
 
 ### Deploying:
 * To run both the SyncLounge webapp and the SyncLounge server through a web server like nginx you will need to make sure you proxy websockets. Example nginx.conf:
