@@ -1,7 +1,7 @@
 <template>
   <div>          
     <h6>Blocked Plex Servers</h6>
-    <small>Used for autoplay functionality. Use this list to block PlexTogether from searching certain servers when attempting to autoplay content.</small>    
+    <small>Used for autoplay functionality. Use this list to block SyncLounge from searching certain servers when attempting to autoplay content.</small>    
     <v-layout row wrap>
       <v-flex xs12>
         <v-select

@@ -17,7 +17,7 @@
                 <v-icon color="white">settings</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
-                <v-list-tile-title>PlexTogether Settings</v-list-tile-title>
+                <v-list-tile-title>SyncLounge Settings</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
             <v-list-tile v-if="plex && plex.gotDevices" @click.stop="plexsettingstoggle = !plexsettingstoggle">
@@ -43,7 +43,7 @@
                 <v-icon color="white">info</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
-                <v-list-tile-title>PlexTogether v{{appVersion}}</v-list-tile-title>
+                <v-list-tile-title>SyncLounge v{{appVersion}}</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </template>
@@ -51,7 +51,7 @@
 
       <v-dialog v-model="ptsettingstoggle">
         <v-card class="grey darken-4 pa-3">        
-          <h6 class="soft-text">PlexTogether Settings</h6>
+          <h6 class="soft-text">SyncLounge Settings</h6>
           <v-divider></v-divider>
           <ptsettings></ptsettings>
         </v-card>

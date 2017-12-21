@@ -22,42 +22,6 @@
       <v-toolbar-item class="hidden-sm-and-down" v-for="link in links" :href="link.href" :target="link.target">{{ link.title }}</v-toolbar-item>    
     </v-toolbar-items>
   </v-toolbar>
-  
-  <!--<div v-if="!isPlayer" class="mdc-permanent-drawer__toolbar-spacer windowDrag" style="padding: 0">
-    <div class="row" style="width: 100%">
-      <div class="col s4" style="height: 63px">
-
-      </div>
-      <div class="col s4">
-        <ul class="nav navbar-nav center">
-          <li style="padding:1%;">
-            <a href="http://plextogether.com" target="_blank">
-            <img class="hide-on-med-and-down" style="height: 50px; width: 54px; vertical-align: middle; margin-top: -7px" v-bind:src="logo"></img></a>
-          </li>
-          <li style="padding:1%;">
-            <a class="navbar-brand" href="/" style="vertical-align"> Home </a>
-          </li>
-          <li v-if="firstRun" style="padding:1%;">
-            <router-link to="/sync" class="nav-item nav-link"> Launch </router-link>
-          </li>          
-          <li v-if="showLinkShortener && chosenClient">
-            <v-btn style="background-color: #E5A00D" class="waves-effect waves-light btn"
-                   v-on:click.native="$dialog('Copied link')" v-clipboard="shortUrl">Invite
-            </v-btn>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <sweet-modal class="prefsModal" ref="settingsModal" overlay-theme="dark" modal-theme="dark">
-      <sweet-modal-tab title="PlexTogether Settings" id="pt">
-        <settings></settings>
-      </sweet-modal-tab>
-      <sweet-modal-tab title="Plex Settings" id="plex">
-        <plexsettings></plexsettings>
-      </sweet-modal-tab>
-    </sweet-modal>
-
-  </div>-->
 </template>
 
 <script>
@@ -89,7 +53,7 @@
         links: [          
           {
             title: 'Github',
-            href: 'https://github.com/samcm/PlexTogether',
+            href: 'https://github.com/samcm/SyncLounge',
             target: '_blank'
           },
           {

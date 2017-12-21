@@ -417,8 +417,8 @@
         let result = ''
         for (let i = 0; i < media.length; i++){
           let stream = media[i]
-          if (stream.streamType == 2){
-            result = result + ' ' + stream.languageCode + ','
+          if (stream.streamType == 2  && stream.languageCode){
+            result = result + ' ' + (stream.languageCode || 'Unknown Lanugage') + ','
           }
         }
         result = result.substring(0, result.length-1);
@@ -428,8 +428,8 @@
         let result = ''
         for (let i = 0; i < media.length; i++){
           let stream = media[i]
-          if (stream.streamType == 3){
-            result = result + ' ' + stream.languageCode + ','
+          if (stream.streamType == 3 && stream.languageCode){
+            result = result + ' ' + (stream.languageCode || 'Unknown Lanugage') + ',' 
           }
         }
         result = result.substring(0, result.length-1);

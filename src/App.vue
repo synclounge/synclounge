@@ -13,10 +13,10 @@
     </v-navigation-drawer>
     <v-toolbar app fixed>
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title class="white--text">PlexTogether</v-toolbar-title>
+      <v-toolbar-title class="white--text">SyncLounge</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>        
-        <img class="ma-2 mr-3" style="height:48px; width: 52px" v-bind:src="logo"/>
+        <img class="ma-2" style="height:48px; width: 48px" v-bind:src="logo"/>
         <v-btn primary dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
         <v-toolbar-side-icon v-if="showRightDrawerButton" @click="toggleDrawerRight"></v-toolbar-side-icon>
@@ -93,7 +93,7 @@
         links: [          
           {
             title: 'Github',
-            href: 'https://github.com/samcm/PlexTogether',
+            href: 'https://github.com/samcm/SyncLounge',
             target: '_blank'
           },
           {

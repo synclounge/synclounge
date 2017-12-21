@@ -1,5 +1,5 @@
 // ABOUT
-// Runs the Plex Together Web App - handles serving the static web content and link shortening services
+// Runs the SyncLounge Web App - handles serving the static web content and link shortening services
 // Port defaults to 8088
 // REQUIRED: --url argument
 
@@ -23,29 +23,64 @@ var express = require('express');
 var path = require('path');
 var cors = require('cors')
 var jsonfile = require('jsonfile')
-var file = 'ptinvites.json'
+var bodyParser = require('body-parser')
+var file = 'ptinvites.json' 
+
 
 var root = express()
+root.use( bodyParser() )
+// root.use(bodyParser.urlencoded({ extended: true }))
 
 // Setup our web app
-root.use('/ptweb/',express.static(path.join(__dirname, 'dist')));
+root.use('/ptweb/', express.static(path.join(__dirname, 'dist')));
 
 
 // Merge everything together
 
-root.get('/ptweb/invite/:id',function(req,res){
+root.get('/ptweb/invite/:id', (req,res) => {
     console.log('handling an invite')
     let shortObj = shortenedLinks[req.params.id]
     if (!shortObj){
         return res.send('Invite expired')
     }
     console.log('Redirecting an invite link')
-    console.log(JSON.stringify(shortObj,null,4))    
+    console.log(JSON.stringify(shortObj, null, 4))    
     return res.redirect(shortObj.fullUrl)
+})
+root.post('/ptweb/invite', (req, res) => {
+    res.setHeader('Content-Type', 'application/json')
+    if (!req.body) {
+        return res.send({
+            success: false,
+            msg: 'ERR: You did not send any POST data'
+        }).end()
+    }
+    console.log('Generating Invite URL via the API.')
+    let data = {}
+    let fields = ['ptserver', 'ptroom', 'ptpassword', 'owner']
+    for (let i = 0; i < fields.length; i++) {
+        if (!req.body[fields[i]]) {
+            return res.send({
+                success: false,
+                msg: 'ERR: You did not specify ' + fields[i],
+                field: fields[i]
+            }).end()
+        }
+        data[fields[i]] = req.body[fields[i]]
+    }
+    return res.send({
+        url: shortenObj(data),
+        success: true,
+        generatedAt: new Date().getTime(),
+        details: data
+    }).end()
+
+
+
 })
 root.use('/',express.static(path.join(__dirname, 'dist')))
 
-root.get('*',function(req,res){
+root.get('*',(req,res) => {
     console.log('Catch all')
     return res.redirect('/')
 })
@@ -56,7 +91,7 @@ root.use(cors())
 
 var rootserver = require('http').createServer(root);
 
-var webapp_io = require('socket.io')(rootserver,{path: '/ptweb/socket.io'});
+var webapp_io = require('socket.io')(rootserver, { path: '/ptweb/socket.io'} )
 
 function getUniqueId(){
     while (true){
@@ -91,31 +126,31 @@ function shortenObj(data){
     }
     let query = ''
     for (let key in params) {
-        query += encodeURIComponent(key)+'='+encodeURIComponent(params[key])+'&';
+        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
     }
     returnable.fullUrl = accessIp + '/#/join?' + query
 
     shortenedLinks[returnable.id] = returnable
-    saveToFile(shortenedLinks,()=>{})
+    saveToFile(shortenedLinks, () => {})
     return returnable.shortUrl
 }
 
-webapp_io.on('connection', function(socket){
+webapp_io.on('connection', (socket) => {
     console.log('New connection to the webapp socket')
-    socket.on('shorten',function(data){
+    socket.on('shorten',(data) => {
         console.log('Creating a shortened link')
-        socket.emit('shorten-result',shortenObj(data))
+        socket.emit('shorten-result', shortenObj(data))
     })
 })
 
 function saveToFile(content,callback){
-    jsonfile.writeFile(file, content, function (err) {
+    jsonfile.writeFile(file, content, (err) => {
         return callback(err)
     })
 }
 
 function loadFromFile(callback){
-    jsonfile.readFile(file, function(err, obj) {
+    jsonfile.readFile(file, (err, obj) => {
         if (err || !obj){
             // File doesn't exist or an error occured
             return callback({})
@@ -127,7 +162,7 @@ function loadFromFile(callback){
 
 function killOldInvites(){
     let now = (new Date).getTime()
-    loadFromFile(function(data){
+    loadFromFile((data) => {
         if (!data){
             return
         }
@@ -144,9 +179,9 @@ function killOldInvites(){
     })
 }
 killOldInvites()
-setInterval(function() {
+setInterval(() => {
     killOldInvites()
-},3600000)
+}, 3600000)
 
 var shortenedLinks = {}
 loadFromFile((result) => {
@@ -154,7 +189,7 @@ loadFromFile((result) => {
     rootserver.listen(PORT);
 })
 
-console.log('PlexTogether WebApp successfully started on port ' + PORT)
+console.log('SyncLounge WebApp successfully started on port ' + PORT)
 
 
 

@@ -62,8 +62,14 @@ if (process.env.NODE_ENV == 'development') {
 }
 
 const state = {
+<<<<<<< HEAD
+  count: 0,
+  appTitle: 'SyncLounge',
+  appVersion: '1.5.0',
+=======
   appTitle: 'PlexTogether',
   appVersion: '2.0.0',
+>>>>>>> v2
   background: null,
   shownChat: false,
   chosenClient: null,

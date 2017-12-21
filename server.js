@@ -1,5 +1,5 @@
 // ABOUT
-// Runs the Plex Together Server software - handles rooms 
+// Runs the SyncLounge Server software - handles rooms 
 // Defaults to 8089
 
 // V1.1
@@ -309,7 +309,7 @@ ptserver_io.on('connection', function(socket){
     }
 });
 rootserver.listen(PORT);
-console.log('PlexTogether Server successfully started on port ' + PORT)
+console.log('SyncLounge Server successfully started on port ' + PORT)
 
 
 

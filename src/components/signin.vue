@@ -38,8 +38,8 @@
             <v-layout wrap row class="pt-4 pa-2">
               <v-flex xs12 md8 offset-md2 class="center-text">              
                 <p style="opacity:0.7">
-                  Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run PlexTogether yourself
-                  have a look <a target="_blank" href="https://github.com/samcm/plextogether"> here </a>
+                  Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run SyncLounge yourself
+                  have a look <a target="_blank" href="https://github.com/samcm/SyncLounge"> here </a>
                   for details. 
                 </p>
               </v-flex>      
@@ -112,9 +112,9 @@
                   url: 'https://plex.tv/pins/' + result.pin.id[0]._ + '.xml',
                   headers: {
                     'X-Plex-Device': 'Web',
-                    'X-Plex-Device-Name': 'PlexTogether',
-                    'X-Plex-Product': 'PlexTogether',
-                    'X-Plex-Version': '1.2',
+                    'X-Plex-Device-Name': 'SyncLounge',
+                    'X-Plex-Product': 'SyncLounge',
+                    'X-Plex-Version': '1.5',
                     'X-Plex-Platform': sBrowser,
                     'X-Plex-Platform-Version': '',
                     'X-Plex-Client-Identifier': id

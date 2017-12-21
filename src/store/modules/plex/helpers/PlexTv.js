@@ -129,8 +129,8 @@ module.exports = function () {
             ptplayer.clientIdentifier = 'PTPLAYER9PLUS10'
             ptplayer.platform = 'Web'
             ptplayer.device = 'Web'
-            ptplayer.product = 'PlexTogether'
-            ptplayer.name = 'PlexTogether Player (BETA)'
+            ptplayer.product = 'SyncLounge'
+            ptplayer.name = 'SyncLounge Player (BETA)'
             ptplayer.lastSeenAt = Math.round((new Date).getTime() / 1000)
   
             this.clients.push(ptplayer)

@@ -21,18 +21,18 @@
         </tr>
         <tr>
           <td style="text-align: right;">Your Plex Client Response Time</td>
-          <td>{{chosenClientResponseTime}}</td>
+          <td>{{ chosenClientResponseTime }}</td>
         </tr>
         <tr>
-          <td style="text-align: right;">Your Plex Together Server Respone Time </td>
-          <td>{{yourPlexTogetherResponseTime}}</td>
+          <td style="text-align: right;">Your SyncLounge Server Respone Time </td>
+          <td>{{ yourPlexTogetherResponseTime }}</td>
         </tr>
         <tr>
           <td style="text-align: right;">Host response time to their Plex Client</td>
           <td>50ms</td>
         </tr>
         <tr>
-          <td style="text-align: right;">Host response time to the Plex Together Server</td>
+          <td style="text-align: right;">Host response time to the SyncLounge Server</td>
           <td>50ms</td>
         </tr>
 

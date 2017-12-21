@@ -1,4 +1,4 @@
-<p align="center"><img src="http://plextogether.com/img/logo-long-dark.png" /></p>
+<p align="center"><img src="http://synclounge.tv/img/logo-long-dark.png" /></p>
 
 
  
@@ -11,35 +11,35 @@
   <br>
 </p>
 
-PlexTogether is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
+SyncLounge (Previously PlexTogether) is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
 
-Utilising [Vue.js](https://vuejs.org/) and Webpack, PlexTogether has been rewritten and brought to the browser. While we run a live version available at [plextogether.com](http://app.plextogether.com), the project can be built and deployed completely seperate from plextogether.com. We also provide a handful of public PlexTogether Server instances that everyone is free to use.
+Utilising [Vue.js](https://vuejs.org/) and Webpack, SyncLounge has been rewritten and brought to the browser. While we run a live version available at [synclounge.tv](http://app.synclounge.tv), the project can be built and deployed completely seperate from synclounge.tv. We also provide a handful of public SyncLounge Server instances that everyone is free to use.
 <p align="center">
-  <a href="http://app.plextogether.com">Live Version</a>
+  <a href="http://app.synclounge.tv">Live Version</a>
   <br>
 </p>
 
 
 ## How it works
-PlexTogether aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this PlexTogether utilizes a middle-man server to communicate between each of PlexTogether clients. Users choose their Plex client, decide on a PlexTogether Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
+SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of the SyncLounge clients. Users choose their Plex client, decide on a SyncLounge Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
 
-The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, PlexTogether will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.
+The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, SyncLounge will search all of your available Plex Media Servers for an equiavalent copy, even if it is not from the same Plex Media Server as the Host.
 
 ## Features
 * Syncing between Plex Clients over the Internet
-* (NEW) PlexTogether Player
-	* Plays content directly within PlexTogether.
+* SyncLounge Player
+	* Plays content directly within SyncLounge.
 	* Built specifically for syncing. 
-* Settings to tune PlexTogether to your environment
-	* Client Polling Interval - Sets how frequently PlexTogether will poll the client for new information.
+* Settings to tune SyncLounge to your environment
+	* Client Polling Interval - Sets how frequently SyncLounge will poll the client for new information.
 	* Sync Flexability - Sets the acceptable distance away from the host in milliseconds.
 	* Sync method:
 		* Clean seek - Seeks straight to where the host is.
 		* Skip ahead - Seeks 10 seconds ahead, pauses and then resumes 10 seconds later.
-	* Plex Media Server blocking - allows you to restrict the servers PlexTogether searches for content. 
+	* Plex Media Server blocking - allows you to restrict the servers SyncLounge searches for content. 
 * Autoplay content
-	* PlexTogether will automatically search all of your available Plex Media Servers for content that is similar to the Host.
-* (NEW) Plex Media Server Browsing - find, search and fling content to Plex Clients from within PlexTogether. 
+	* SyncLounge will automatically search all of your available Plex Media Servers for content that is similar to the Host.
+* Plex Media Server Browsing - find, search and fling content to Plex Clients from within SyncLounge. 
 * Metadata fetching from Plex Media Server
 * Chat to others in your room
 * Password locked rooms
@@ -47,11 +47,11 @@ The host has complete control over a room. Commands they send to their client wi
 * Movies and TV Shows (Music not supported)
 ## FAQ
 * _I have to login to Plex.tv on the site, how come?_
-	* PlexTogether uses your Plex account to fetch details about your Plex Clients and Media Servers to use within the app. 
+	* SyncLounge uses your Plex account to fetch details about your Plex Clients and Media Servers to use within the app. 
 * _Won't you have access to my username, password and Plex account?_
-	* All of your details are stored client side (in your browser). Absolutely none of your **confidential** data is sent to our server. You can verify this by inspecting the Network tab within Chrome developer tools or if you would like you can deploy PlexTogether yourself - read the 'Building and deploying' section below.
+	* All of your details are stored client side (in your browser). Absolutely none of your **confidential** data is sent to our server. You can verify this by inspecting the Network tab within Chrome developer tools or if you would like you can deploy SyncLounge yourself - read the 'Building and deploying' section below.
 * _What is sent then?_
-	* When you've connected to a PlexTogether room, a few details are sent back and forth to the PlexTogether Server to enable syncing. The data sent contains the following:
+	* When you've connected to a SyncLounge room, a few details are sent back and forth to the SyncLounge Server to enable syncing. The data sent contains the following:
 		* Plex Username
 		* Plex User Thumbnail URL
 		* Content playing title (Eg. Lord of the Rings: The Fellowship of the Ring)
@@ -59,18 +59,18 @@ The host has complete control over a room. Commands they send to their client wi
 		* Maximum timestamp (Eg. 03:48:18)
 		* Playerstate (Eg. paused, stopped, playing)
 		* Client response time (Ping time between you and your Plex Client)
-	* NEW v1.01 - PT Server address, PT Server Room and PT Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
-* _What about the public server provided by PlexTogether? Is my data safe?_
+	* PT Server address, PT Server Room and PT Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
+* _What about the public server provided by SyncLounge? Is my data safe?_
 	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
 * _Speaking of SSL, why isn't the site served over HTTPS?_
- 	* While we would love to run the PlexTogether application over HTTPS, doing so forces modern browsers in to blocking all HTTP connections. This effectively stops all communication with Plex Clients which are all HTTP.
+ 	* While we would love to run the SyncLounge application over HTTPS, doing so forces modern browsers in to blocking all HTTP connections. This effectively stops all communication with Plex Clients which are all HTTP.
 ## Screenshots
 
-Head to the [website](http://plextogether.com)
+Head to the [website](http://synclounge.tv)
 
 ## Supported Plex Clients
-Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with PlexTogether may vary. If you have access to one of the untested clients please let us know so we can update our list below.
+Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with SyncLounge may vary. If you have access to one of the untested clients please let us know so we can update our list below.
 
 Some low powered clients may be hard to achieve a perfect sync with (for example: Raspberry Pi clients).
 ### Unsupported
@@ -101,7 +101,7 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 ## Building and deploying
 
 ### Docker
-This is the official Docker container for PlexTogether: https://hub.docker.com/r/starbix/plextogether
+This is the official Docker container for SyncLounge: https://hub.docker.com/r/starbix/plextogether
 
 The following tags are available:
 * latest / alpine: webapp and server based on alpine
@@ -128,8 +128,8 @@ docker run \
 
 * Make sure you have Node v6+ installed
 
-	*  ``git clone https://github.com/samcm/plextogether``
-	*  ``cd plextogether``
+	*  ``git clone https://github.com/samcm/synclounge``
+	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run build``
 	*  ``node webapp.js --url=http://example.com/ptweb``
@@ -140,19 +140,19 @@ docker run \
 
 * Make sure you have Node v6+ installed
 
-	*  ``git clone https://github.com/samcm/plextogether``
-	*  ``cd plextogether``
+	*  ``git clone https://github.com/samcm/synclounge``
+	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run server``
 * The PT server will be running at http://ip:8089/ptserver.
 
 ### Deploying:
-* To run both the PlexTogether webapp and the PlexTogether server through a web server like nginx you will need to make sure you proxy websockets. Example nginx.conf:
+* To run both the SyncLounge webapp and the SyncLounge server through a web server like nginx you will need to make sure you proxy websockets. Example nginx.conf:
 	```
     server {
         listen 80;
     	server_name example.com;
-    	root /location/of/plextogether/;
+    	root /location/of/synclounge/;
     	location /ptweb {
     		proxy_pass http://localhost:8088/ptweb;
 		    proxy_http_version 1.1;
@@ -179,7 +179,7 @@ You need:
 
 * Node v6+
 
-	*  ``git clone https://github.com/samcm/plextogether``
+	*  ``git clone https://github.com/samcm/SyncLounge``
 	*  ``cd plextogether``
 	*  ``npm install``
 	*  ``npm run dev``
@@ -223,9 +223,9 @@ kg6jay - Tester
 [Discord Server](https://discord.gg/Cp9RPSJ)
 
 Twitter:
-[PlexTogether](https://twitter.com/plextogether)
+[SyncLounge](https://twitter.com/syncloungetv)
 
 ## License
 
-PlexTogether is licensed under MIT License. See the ``LICENSE.txt`` file.
-PlexTogether is in no way affiliated with Plex Inc.
+SyncLounge is licensed under MIT License. See the ``LICENSE.txt`` file.
+SyncLounge is in no way affiliated with Plex Inc.
