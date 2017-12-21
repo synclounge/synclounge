@@ -13,7 +13,7 @@
 
 SyncLounge (Previously PlexTogether) is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
 
-Utilising [Vue.js](https://vuejs.org/) and Webpack, SyncLounge has been rewritten and brought to the browser. While we run a live version available at [synclounge.tv](http://app.synclounge.tv), the project can be built and deployed completely seperate from synclounge.tv. We also provide a handful of public SyncLounge Server instances that everyone is free to use.
+A live version is available at [synclounge.tv](http://app.synclounge.tv). We provide a handful of public SyncLounge Server instances that everyone is free to use. The project can also be built and deployed completely seperate from synclounge.tv.
 <p align="center">
   <a href="http://app.synclounge.tv">Live Version</a>
   <br>
@@ -59,7 +59,7 @@ The host has complete control over a room. Commands they send to their client wi
 		* Maximum timestamp (Eg. 03:48:18)
 		* Playerstate (Eg. paused, stopped, playing)
 		* Client response time (Ping time between you and your Plex Client)
-	* PT Server address, PT Server Room and PT Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
+	* PT Server address, SL Server Room and SL Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
 * _What about the public server provided by SyncLounge? Is my data safe?_
 	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
