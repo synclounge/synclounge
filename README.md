@@ -32,6 +32,7 @@ The host has complete control over a room. Commands they send to their client wi
 	* Built specifically for syncing. 
 * Settings to tune SyncLounge to your environment
 	* Client Polling Interval - Sets how frequently SyncLounge will poll the client for new information.
+  * Sync Flexibility - Sets the acceptable distance away from the host in milliseconds.
 	* Sync method:
 		* Clean seek - Seeks straight to where the host is.
 		* Skip ahead - Seeks 10 seconds ahead, pauses and then resumes 10 seconds later.
