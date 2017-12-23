@@ -1,54 +1,51 @@
 <template>
-    <span v-if="server">
-        <span v-on:click="reset()" style="cursor: pointer !important">{{ server.name }}<span
-          v-if="browsingLibrary || selectedItem"> ></span>
-        </span>
-        <v-layout v-if="!libraries && !browsingLibrary && !selectedItem" row align-center>
-            <v-flex xs12 style="position: relative">
-                <v-progress-circular style="left:50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+  <span v-if="server">
+    <v-layout v-if="!libraries && !browsingLibrary && !selectedItem" row align-center>
+        <v-flex xs12 style="position: relative">
+            <v-progress-circular style="left:50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+        </v-flex>
+    </v-layout>
+    <div v-if="!browsingLibrary && !selectedItem && libraries" class="mt-3">            
+        <div v-if="!libraries && !browsingLibrary">
+            <v-progress-circular active large></v-progress-circular>
+        </div>
+        <h4> Libraries </h4>
+        <v-layout row wrap v-if="libraries && !browsingLibrary">
+          <v-flex xs6 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-3 " :key="library.name">
+              <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="clickable text-xs-center hoverable card" style="max-width:100%">
+                  <div style="position:relative;width:100%;background: rgba(0,0,0,0.4); height:8em">
+                      <img style="height: 70%;display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)"/>
+                  </div>                      
+                  <div style="background: rgba(0,0,0,0.7); position:relative;; width:100%; height:2em">
+                      <div class="truncate text-xs-center" style="font-size:1.3em">{{ library.title }}</div>
+                  </div>
+              </v-card>
+          </v-flex>
+        </v-layout>
+        <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
+        <h4 v-if="subsetOnDeck(3).length > 0"> On Deck 
+          <span style="float:right; font-size:5rem; user-select: none;">
+            <v-icon fa @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon fa @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
+          </span>
+        </h4>
+        <v-layout v-if="onDeck" row wrap>
+            <v-flex xs12 md3 xl3 lg3 class="pb-3 pa-4" v-for="content in subsetOnDeck(4)" :key="content.key" >                    
+                <plexthumb :content="content" :server="server" type="art" :height="20" @contentSet="setContent(content)"></plexthumb>
             </v-flex>
         </v-layout>
-        <div v-if="!browsingLibrary && !selectedItem && libraries" class="mt-3">            
-            <div v-if="!libraries && !browsingLibrary">
-                <v-progress-circular active large></v-progress-circular>
-            </div>
-            <h4> Libraries </h4>
-            <v-layout row wrap v-if="libraries && !browsingLibrary">
-              <v-flex xs6 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-3 " :key="library.name">
-                  <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="clickable text-xs-center hoverable card" style="max-width:100%">
-                      <div style="position:relative;width:100%;background: rgba(0,0,0,0.4); height:8em">
-                          <img style="height: 70%;display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)"/>
-                      </div>                      
-                      <div style="background: rgba(0,0,0,0.7); position:relative;; width:100%; height:2em">
-                          <div class="truncate text-xs-center" style="font-size:1.3em">{{ library.title }}</div>
-                      </div>
-                  </v-card>
-              </v-flex>
-            </v-layout>
-            <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
-            <h4 v-if="subsetOnDeck(3).length > 0"> On Deck 
-              <span style="float:right; font-size:5rem; user-select: none;">
-                <v-icon fa @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon fa @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
-              </span>
-            </h4>
-            <v-layout v-if="onDeck" row wrap>
-                <v-flex xs12 md3 xl3 lg3 class="pb-3 pa-4" v-for="content in subsetOnDeck(4)" :key="content.key" >                    
-                    <plexthumb :content="content" :server="server" type="art" :height="20" @contentSet="setContent(content)"></plexthumb>
-                </v-flex>
-            </v-layout>
-            <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>
-            <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added 
-              <span style="float:right; font-size:5rem; user-select: none; ">
-                <v-icon fa @click="recentlyAddedDown" style="margin-right: 15px;cursor: pointer;" :style="recentlyAddedDownStyle">angle-left</v-icon><v-icon fa :style="recentlyAddedUpStyle"  @click="recentlyAddedUp" style="cursor: pointer" >angle-right</v-icon>
-              </span>
-            </h4>      
-            <v-layout v-if="recentlyAdded" class="row" row wrap justify-space-between>
-                <v-flex xs4 md3 xl1 lg1  class="pb-3 pa-1" v-for="content in subsetRecentlyAdded(10)" :key="content.key">
-                    <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
-                </v-flex>
-            </v-layout>  
-        </div>
-    </span>
+        <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>
+        <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added 
+          <span style="float:right; font-size:5rem; user-select: none; ">
+            <v-icon fa @click="recentlyAddedDown" style="margin-right: 15px;cursor: pointer;" :style="recentlyAddedDownStyle">angle-left</v-icon><v-icon fa :style="recentlyAddedUpStyle"  @click="recentlyAddedUp" style="cursor: pointer" >angle-right</v-icon>
+          </span>
+        </h4>      
+        <v-layout v-if="recentlyAdded" class="row" row wrap justify-space-between>
+            <v-flex xs4 md3 xl1 lg1  class="pb-3 pa-1" v-for="content in subsetRecentlyAdded(10)" :key="content.key">
+                <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
+            </v-flex>
+        </v-layout>  
+    </div>
+  </span>
 </template>
 
 <script>
@@ -81,7 +78,6 @@
     },
     mounted: async function () {
       this.server.getAllLibraries().then((data) => {
-        console.log('All libraries result', data)
         if (data) {
           this.libraries = data
         } else {
@@ -89,7 +85,6 @@
         }
       })
       this.server.getRecentlyAddedAll(0, 12).then((result) => {
-        console.log('Recently added result', result)
         if (result) {
           this.recentlyAdded = result
           this.setBackground()
@@ -151,7 +146,9 @@
         this.selectedItem = content
       },
       setLibrary (library) {
-        this.browsingLibrary = library
+        console.log('Setting library', library)
+        this.$router.push('/browse/' + this.server.clientIdentifier + '/' + library.key)
+        // this.browsingLibrary = library
       },
       updateOnDeck() {
         this.server.getOnDeck(0, 10).then((result) => {

@@ -115,12 +115,6 @@ module.exports = function PlexClient () {
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
             // We need to subscribe first!
             let result = await this.subscribe(connection, commit)
-            // console.log('Got subscription result', result)
-            // if (result) {
-              // commit('PLEX_CLIENT_SET_VALUE', [this, 'lastSubscribe', new Date().getTime()])
-              //lastSubscribe = new Date().getTime()
-            // }
-            //console.log('subscription result: ' + result)
             doRequest()
             return
           
@@ -134,11 +128,9 @@ module.exports = function PlexClient () {
 
   this.getTimeline = async function (callback) {
     //Get the timeline object from the client
-
     let data
     try {
-      data = await this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection)    
-      // console.log('Timeline result', data)
+      data = await this.hitApi('/player/timeline/poll', { 'wait': 0 }, this.chosenConnection)    
       if (data) {
         return this.updateTimelineObject(data)
       } else {
@@ -148,30 +140,6 @@ module.exports = function PlexClient () {
       console.log(e)
       return false
     }
-
-    // this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, (result, responseTime) => {
-
-    //   if (result) {
-    //     if (that.clientIdentifier == 'PTPLAYER9PLUS10') {
-    //       that.updateTimelineObject(result, -1, function () {
-    //         return callback(result, 0)
-    //       })
-    //       return
-    //     }
-    //     //console.log(JSON.stringify(result,null,4))
-    //     //Valid response back from the client
-    //     if (result.MediaContainer != null) {
-    //       that.updateTimelineObject(result, responseTime, function () {
-    //         return callback(result, responseTime)
-    //       })
-    //       //return (callback(result.MediaContainer.Timeline,responseTime))
-    //     } else {
-    //       return callback(null, responseTime)
-    //     }
-    //   } else {
-    //     return callback(false, responseTime)
-    //   }
-    // })
   }
 
   this.updateTimelineObject = function (result) {
@@ -182,11 +150,10 @@ module.exports = function PlexClient () {
     this.lastTimelineObject = result    
     this.events.emit('new_timeline', result)
 
-    // Check if we are the PTPlayer
+    // Check if we are the SLPlayer
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
-      // PTPLAYER
+      // SLPLAYER
       this.events.emit('new_timeline', result)
-      //console.log(result)
       var clonetimeline = this.lastTimelineObject
 
       if (!this.oldTimelineObject) {
@@ -200,7 +167,6 @@ module.exports = function PlexClient () {
         return callback(result)
       }
       this.setValue('oldTimelineObject', clonetimeline)
-      // this.oldTimelineObject = clonetimeline
       if (this.oldTimelineObject.ratingKey != this.lastTimelineObject.ratingKey) {
         if (!this.lastTimelineObject.ratingKey) {
           this.events.emit('playback_change', null)
@@ -216,7 +182,6 @@ module.exports = function PlexClient () {
       return false
     }
     // Valid timeline data
-
     // Standard player
     let timelines = result.MediaContainer.Timeline
     let videoTimeline = null

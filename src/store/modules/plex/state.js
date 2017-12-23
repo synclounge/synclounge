@@ -6,10 +6,11 @@ export default {
     clients: {},
     servers: {},
 
+    itemCache: {},
+
     chosenClient: null,
 
     getRandomThumb: (state) => {
-        console.log('Getting random thumb', state)
         return new Promise(async (resolve, reject) => {
             let validServers = {}
             for (let id in state.servers) {
@@ -18,12 +19,9 @@ export default {
                     validServers[id] = server
                 }
             }
-            console.log('Valid servers', validServers)
-            if (Object.keys(validServers).length > 1){
-                
+            if (Object.keys(validServers).length > 1){                
                 let keys = Object.keys(validServers)
                 let randomServer = validServers[keys[ keys.length * Math.random() << 0]]
-                console.log('Getting random thumb from', randomServer)
                 try {
                     let result = await randomServer.getRandomItem()
                     if (!result){

@@ -24,21 +24,12 @@ export default new Router({
     { path: '/player', component: require('../components/application/ptplayer.vue') },
 
     
-    { path: '/browse/', 
-      meta: { protected: true }, 
-      name: 'browse', 
-      children: [
-        {
-          path: '', component: require('../components/application/plexbrowser.vue')
-        },
-        { 
-          path: ':machineIdentifier', name: 'server', component: require('../components/application/plexbrowser/plexserver.vue'),
-          children: [
-            { path: 'library/:sectionid', name: 'library', component: require('../components/application/plexbrowser/plexlibrary.vue') },
-            { path: ':ratingKey', name: 'content', component: require('../components/application/plexbrowser/plexcontent.vue') },
-          ] 
-        }
-      ] 
-    }
+    { path: '/browse', meta: { protected: true }, name: 'browse', component: require('../components/application/plexbrowser.vue') },
+    { path: '/browse/:machineIdentifier', meta: { protected: true }, name: 'server', component: require('../components/application/plexbrowser/plexserver.vue'), },
+    { path: '/browse/:machineIdentifier/:sectionId', meta: { protected: true }, name: 'library', component: require('../components/application/plexbrowser/plexlibrary.vue') },
+    { path: '/browse/:machineIdentifier/:sectionId/:ratingKey', meta: { protected: true }, name: 'content', component: require('../components/application/plexbrowser/plexcontent.vue') },    
+    { path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey', meta: { protected: true }, name: 'series', component: require('../components/application/plexbrowser/plexseries.vue') },    
+    { path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey', meta: { protected: true }, name: 'season', component: require('../components/application/plexbrowser/plexseason.vue') },
+    { path: '/browse/:machineIdentifier/:sectionId/tv/:grandparentKey/:parentKey/:ratingKey', meta: { protected: true }, name: 'content', component: require('../components/application/plexbrowser/plexcontent.vue') }
   ]
 })

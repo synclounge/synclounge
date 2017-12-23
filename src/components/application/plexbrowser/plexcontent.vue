@@ -278,7 +278,7 @@
 
         parentData: false,
 
-        hidden: false,
+        hiddenOverride: false,
 
         eventbus: window.eventbus
       }
@@ -305,7 +305,7 @@
         return this.plex.servers[this.serverId]
       },
       hidden () {
-        if (this.contents && this.contents.viewCount == 0 || !this.contents.viewCount){
+        if (!this.hiddenOverride && this.contents && this.contents.viewCount == 0 || !this.contents.viewCount){
           return true
         }
       },

@@ -164,40 +164,46 @@
         if (this.$route.path.indexOf('browse') === -1) {
           return []
         }
-				let data = []
+        const getTitle = () => {
+          try {
+            return this.itemCache[this.$route.params.machineIdentifier][this.$route.params.ratingKey].title
+          } catch (e) {
+            return 'Loading..'
+          }
+        }
+				let data = [{
+          text: 'Home',
+          to: '/browse'
+        }]
 				let map = {
-					browse: () => {
-						return {
-							text: 'Home',
-							to: '/browse'
-						}
-          },					
-          '': () => {
-						return {
-							text: 'Home',
-							to: '/browse'
-						}
-					},
-					server: () => {
+					machineIdentifier: () => {
 						return {
 							text: this.plex.servers[this.$route.params.machineIdentifier].name,
 							to: '/browse/' + this.$route.params.machineIdentifier
 						}
-					},
-					content: () => {
+          },					
+          sectionId: () => {
 						return {
-							text: 'Loading...',
-							to: '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.ratingKey
+							text: this.$route.params.sectionId,
+							to: '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId
+						}
+					},
+					ratingKey: () => {
+						return {
+							text: getTitle(),
+              to: '/browse/' + this.$route.params.machineIdentifier +
+                  '/' + this.$route.params.sectionId + '/' + this.$route.params.ratingKey
 						}
 					}
         }
-				this.$route.matched.forEach((route) => {
-          console.log(route)
-					if (!route || route.path === '' || !route.matchAs) return 
-					data.push(
-						map[route.name || route.path]()
-					)
-				})
+        for (let param in this.$route.params) {
+          data.push(map[param]())
+        }
+				// this.$route.params.forEach((route) => {
+        //   console.log(route)
+				// 	// if (!route || route.path === '') return 
+					
+				// })
 				return data
 			},
       showRightDrawerButton: function () {

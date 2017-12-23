@@ -54,6 +54,12 @@ Vue.mixin({
     },
     plex: function () {
       return this.$store.getters.getPlex
+    },
+    plexserver: function () {
+      return this.plex.servers[this.$route.params.machineIdentifier]
+    },
+    itemCache: function () {
+      return this.$store.getters.getItemCache
     }
   }
 })
@@ -85,6 +91,7 @@ router.beforeEach((to, from, next) => {
     next()
   } else {
     next() // make sure to always call next()!
+    router.push('/browse')
   }
 })
 
@@ -98,7 +105,7 @@ new Vue({
 })
 
 global.waitFor = async (ms) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     setTimeout(() => resolve, ms)
   })
 }

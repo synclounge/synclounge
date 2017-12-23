@@ -39,5 +39,12 @@ export default {
     PLEX_CLIENT_SET_CONNECTION: (state, data) => {
         let { client, connection } = data
         state.clients[client.clientIdentifier].chosenConnection = connection
-    } 
+    },
+    SET_ITEMCACHE: (state, data) => {
+        let [ratingKey, newData] = data
+        if (!state.itemCache[newData.machineIdentifier]) {
+            state.itemCache[newData.machineIdentifier] = {}
+        }        
+        state.itemCache[newData.machineIdentifier][ratingKey] = newData
+    }
 };

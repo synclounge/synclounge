@@ -1,36 +1,23 @@
 <template>
-    <span style="height:100%">
-        <span>
-          <span v-on:click="reset()" style="cursor: pointer !important"> {{ library.title }} <span v-if="browsingContent"> > </span></span>        
-          <v-layout v-if="!contents && !browsingContent" row>
-              <v-flex xs12 style="position:relative">
-                  <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
-              </v-flex>
-          </v-layout>
-
-        </span>
-        <div v-if="!browsingContent && contents" class="mt-3" style="height:90vh; overflow-y:scroll ">
-          <v-layout class="row" row wrap>
-                <v-flex xs4 md3 lg1  class="pb-3"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
-                  <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
-                </v-flex>
-            </v-layout>  
-            <v-layout row>
-              <v-flex xs12 v-if="contents && !browsingContent && !stopNewContent" v-observe-visibility="getMoreContent" justify-center>
-                Loading...
-              </v-flex>  
-            </v-layout>   
-        </div>        
-        <plexalbum v-if="browsingContent && browsingContent.type == 'album'" :content="browsingContent" :server="server"
-                    :library="library"></plexalbum>
-        <plexartist v-if="browsingContent && browsingContent.type == 'artist'" :content="browsingContent" :server="server"
-                    :library="library"></plexartist>
-        <plexcontent v-if="browsingContent && (browsingContent.type == 'movie' || browsingContent.type == 'series') " :content="browsingContent"
-                     :server="server" :library="library"></plexcontent>
-        <plexseries v-if="browsingContent && browsingContent.type == 'show'" :content="browsingContent" :server="server"
-                    :library="library"></plexseries>        
-
-    </span>
+  <span style="height:100%">
+    <v-layout v-if="!contents && !browsingContent" row>
+        <v-flex xs12 style="position:relative">
+            <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+        </v-flex>
+    </v-layout>
+    <div v-if="!browsingContent && contents" class="mt-3" style="height:90vh; overflow-y:scroll ">
+      <v-layout class="row" row wrap>
+            <v-flex xs4 md3 lg1  class="pb-3"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
+              <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
+            </v-flex>
+      </v-layout>  
+      <v-layout row>
+        <v-flex xs12 v-if="contents && !browsingContent && !stopNewContent" v-observe-visibility="getMoreContent" justify-center>
+          Loading...
+        </v-flex>  
+      </v-layout>   
+    </div>
+  </span>
 </template>
 
 <script>
@@ -42,7 +29,7 @@
 
   var _ = require('lodash');
   export default {
-    props: ['library', 'server'],
+    props: ['library'],
     components: {
       plexcontent,
       plexseries,
@@ -74,13 +61,16 @@
     beforeDestroy () {
 
     },
-    computed: {},
+    computed: {
+      server: function () {
+        return this.plex.servers[this.$route.params.machineIdentifier]
+      }
+    },
     methods: {
       setContent (content) {
         this.browsingContent = content
       },
       handler (component) {
-        console.log(component)
       },
       getThumb (object) {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
@@ -133,10 +123,8 @@
         if (this.stopNewContent || this.busy) {
           return
         }
-        console.log('We need to get more content!')
         this.busy = true
-        this.server.getLibraryContents(this.library.key, this.startingIndex, this.size).then((result) => {
-          console.log('Metadata result', result)
+        this.server.getLibraryContents(this.$route.params.sectionId, this.startingIndex, this.size).then((result) => {
           if (result && result.MediaContainer && result.MediaContainer.Metadata) {
             this.libraryTotalSize = result.MediaContainer.totalSize
             this.startingIndex = this.startingIndex + 100
@@ -157,7 +145,6 @@
             if (result.MediaContainer.size < 100) {
               this.stopNewContent = true
             }
-
           } else {
             this.status = 'Error loading libraries!'
           }

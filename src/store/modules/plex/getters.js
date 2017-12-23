@@ -1,1 +1,5 @@
-export default {};
+export default {
+    getItemCache: (state) => {
+        return state.itemCache
+    }
+};

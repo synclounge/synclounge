@@ -34,47 +34,42 @@ module.exports = function PlexServer () {
   this.commit
 
   this.setValue = function (key, value) {
-    console.log('Server setting ', key, 'to', value, this)
     this[key] = value
     this.commit('PLEX_SERVER_SET_VALUE', [this, key, value])
   }
 
-  //Functions
+  // Functions
   this.hitApi = function (command, params) {
     return new Promise(async (resolve, reject) => {
-      var query = ''
-      //console.log('Query params: ' + JSON.stringify(params))
-      for (let key in params) {
-        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-      }
-      if (!this.chosenConnection) {
-        let result = await this.findConnection()
-        if (!result) {
-          reject('Failed to find a connection')
+      try {
+        let query = ''
+        //console.log('Query params: ' + JSON.stringify(params))
+        for (let key in params) {
+          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
         }
-      }
-      console.log('Hitting server ' + this.name + ' via ' + this.chosenConnection.uri)
-      var _url = this.chosenConnection.uri + command + '?' + query
-      var options = PlexAuth.getApiOptions(_url, this.accessToken, 15000, 'GET')
-      //console.log('Hitting server ' + this.name + ' with command ' + command)
-      //console.log(options)
-      request(options, function (error, response, body) {
-        if (!error) {
-          safeParse(body, function (err, json) {
-            if (err) {
-              return reject(false)
-            }
-            return resolve(json)
-          })
-        } else {
-          return reject(false)
+        if (!this.chosenConnection) {
+          let result = await this.findConnection()
+          if (!result) {
+            return reject('Failed to find a connection')
+          }
         }
-      })
+        var _url = this.chosenConnection.uri + command + '?' + query
+        var options = PlexAuth.getApiOptions(_url, this.accessToken, 15000, 'GET')
+        request(options, (error, response, body) => {
+          if (!error) {
+            let parsed = JSON.parse(body)
+            this.handleMetadata(parsed)
+            return resolve(parsed)
+          }
+          else return reject(false, error)
+        })
+      } catch (e) {
+        console.log(e)
+        reject(e)
+      }      
     })    
   }
   this.hitApiTestConnection = async function (command, connection) {
-    //For use with #findConnection
-
     return new Promise(async (resolve, reject) => {
       var _url = connection.uri + command
       var options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET')
@@ -85,7 +80,6 @@ module.exports = function PlexServer () {
               return reject(err)
             }
             return resolve(json)
-            //return callback(json, connection, response.elapsedTime)
           })
         } else {
           return reject(null)
@@ -94,12 +88,11 @@ module.exports = function PlexServer () {
     })   
   }
   this.setChosenConnection = function (con) {
-    //console.log('Setting the used connection for ' + this.name + ' to ' + con.uri)
     this.chosenConnection = con
     return
   }
   this.findConnection = function () {
-    //This function iterates through all available connections and
+    // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
     let resolved = false
@@ -120,52 +113,11 @@ module.exports = function PlexServer () {
               _resolve(false)
             }
         })
-    }))
-    if (!resolved) {
+      }))
+      if (!resolved) {
         reject('Unable to find a connection')
-    }
-  })
-
-
-
-
-
-
-
-
-
-    // var that = this
-    // var j = 0
-    // var returned = false
-    // for (var i in this.plexConnections) {
-    //   var connection = this.plexConnections[i]
-    //   this.hitApiTestConnections('', connection, function (result, connectionUsed, responseTime) {
-    //     j++
-    //     //console.log('Connection attempt result below for ' + that.name)
-    //     //console.log(connectionUsed)
-    //     if (result == null || result == undefined) {
-    //       //console.log('Connection failed: ' + connectionUsed.uri)
-    //       //console.log(result)
-    //     } else {
-    //       if (that.chosenConnection != null) {
-    //         //Looks like we've already found a good connection
-    //         // lets disregard this connection
-    //         //console.log('Already have a working connection for ' + that.name + ' which is ' + that.chosenConnection.uri)
-    //       }
-    //       if ((result.MediaContainer != undefined || result._elementType != undefined) && that.chosenConnection == null) {
-    //         //console.log('Found the first working connection for ' + that.name + ' which is ' + connectionUsed.uri)
-    //         connectionUsed.responseTime = responseTime
-    //         that.setChosenConnection(connectionUsed)
-    //         returned = true
-    //         return callback(true, that)
-    //       }
-
-    //       if (j == that.plexConnections.length && !returned) {
-    //         return callback(that.chosenConnection ? true : false, that)
-    //       }
-    //     }
-    //   })
-    // }
+      }
+    })
   }
 
   //Functions for dealing with media
@@ -222,44 +174,50 @@ module.exports = function PlexServer () {
       console.log(e) 
       throw new Error(e)
     }
-    
-
-    this.getAllLibraries((res) => {
-     
-    })
   }
   this.getAllLibraries = function () {
     return this.hitApi('/library/sections', {})
   }
-  this.getLibraryContents = function (key, start, size) {
-    return this.hitApi('/library/sections/' + key + '/all', {
-      'X-Plex-Container-Start': start,
-      'X-Plex-Container-Size': size
-    })
+  this.getLibraryContents = async function (key, start, size) {
+    try {
+      let data = await this.hitApi('/library/sections/' + key + '/all', {
+        'X-Plex-Container-Start': start,
+        'X-Plex-Container-Size': size
+      })
+      for (let i = 0; i < data.MediaContainer.Metadata.length; i++) {
+        data.MediaContainer.Metadata[i].librarySectionID = key
+        this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey, 
+        data.MediaContainer.Metadata[i]])        
+      }
+      return data
+    } catch (e) {
+      console.log(e)
+      return false
+    }
   }
   this.getRelated = function (key, count) {
     return this.hitApi('/hubs/metadata/' + key + '/related', {
       'count': count || 10
     })
   }
-  this.getRecentlyAddedAll = function (start, size, callback) {
+  this.getRecentlyAddedAll = function (start, size) {
     return this.hitApi('/library/recentlyAdded', {})
   }
-  this.getOnDeck = function (start, size, callback) {
+  this.getOnDeck = function (start, size) {
     return this.hitApi('/library/onDeck', {
       'X-Plex-Container-Start': start,
       'X-Plex-Container-Size': size,
     })
   }
-  this.getRelated = function (ratingKey, size, callback) {
+  this.getRelated = function (ratingKey, size) {
     ratingKey = ratingKey.replace('/library/metadata/','')
-    return this.hitApi('/hubs/metadata/'+ratingKey+'/related', {
+    return this.hitApi('/hubs/metadata/' + ratingKey + '/related', {
       excludeFields: 'summary',
       count: 12
     })
   }
-  this.getSeriesData = function (key, callback) {
-    return this.hitApi(key, {
+  this.getSeriesData = function (ratingKey) {
+    return this.hitApi('/library/metadata/' + ratingKey, {
       includeConcerts: 1,
       includeExtras: 1,
       includeOnDeck: 1,
@@ -270,12 +228,25 @@ module.exports = function PlexServer () {
     })
   }
   
-  this.getSeriesChildren = function (key, start, size, excludeAllLeaves, callback) {
-    return this.hitApi(key, {
-      'X-Plex-Container-Start': start,
-      'X-Plex-Container-Size': size,
-      excludeAllLeaves: excludeAllLeaves
-    })
+  this.getSeriesChildren = async function (ratingKey, start, size, excludeAllLeaves, library) {
+    try {
+      let data = await this.hitApi('/library/metadata/' + ratingKey + '/children', {
+        'X-Plex-Container-Start': start,
+        'X-Plex-Container-Size': size,
+        excludeAllLeaves: excludeAllLeaves
+      })
+      if (library) {
+        for (let i = 0; i < data.MediaContainer.Metadata.length; i++) {
+          data.MediaContainer.Metadata[i].librarySectionID = library
+          // this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey, 
+          // data.MediaContainer.Metadata[i]])        
+        }
+      } 
+      return data
+    } catch (e) {
+      console.log(e)
+      return false
+    }
   }
 
   this.handleMetadata = function (result) {
@@ -291,12 +262,23 @@ module.exports = function PlexServer () {
         }
       } else {
         // New Server compatibility
-        result.MediaContainer.Metadata[0].machineIdentifier = this.clientIdentifier
+        if (result.MediaContainer && result.MediaContainer.Metadata && result.MediaContainer.Metadata.length > 0) {
+          for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
+            result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier
+            if (result.MediaContainer.Metadata[i].ratingKey) {
+              this.commit('SET_ITEMCACHE', [result.MediaContainer.Metadata[i].ratingKey, 
+              result.MediaContainer.Metadata[i]])    
+            }
+          }
+          return
+        } else {
+          if (result.MediaContainer.ratingKey) {
+            this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer])
+          }
+          return
+        }
         return result.MediaContainer.Metadata[0]
       }
-
-      console.log('Didnt find a compatible PMS Metadata object. Result from the server is below')
-      console.log(result)
       return null
     }
   }
