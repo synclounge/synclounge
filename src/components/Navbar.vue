@@ -19,7 +19,7 @@
       <v-toolbar-item class="hidden-sm-and-down">
         <img style="height:70%;width:auto" v-bind:src="logo"/>
       </v-toolbar-item>
-      <v-toolbar-item class="hidden-sm-and-down" v-for="link in links" :href="link.href" :target="link.target">{{ link.title }}</v-toolbar-item>    
+      <v-toolbar-item class="hidden-sm-and-down" v-for="link in links" :href="link.href" :key="link.href" :target="link.target">{{ link.title }}</v-toolbar-item>    
     </v-toolbar-items>
   </v-toolbar>
 </template>

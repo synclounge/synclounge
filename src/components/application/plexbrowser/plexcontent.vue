@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div ref="root">
       <v-layout v-if="!contents" row >
         <v-flex xs12 style="position:relative">
           <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
@@ -8,7 +8,7 @@
       <div v-if="contents">  
         <v-card v-if="contents" horizontal :img="getArtUrl" style="height: 80vh" class="darken-2 white--text">
           <div style="background-color: rgba(0, 0, 0, 0.4); height: 100%">
-            <v-container style="background-color: rgba(0, 0, 0, 0.8)" fill-height>
+            <v-container style="background-color: rgba(0, 0, 0, 0.8); height: 100%" fluid>
               <v-layout row wrap v-if="contents.type == 'episode'">                        
                 <v-flex md9 sm12 style="height 100%"  class="mt-4 pa-1 pl-0">
                   <h3 style="font-weight:bold"> {{ contents.grandparentTitle }}</h3>
@@ -33,17 +33,17 @@
                   </v-flex>               
                 </v-flex>   
               </v-layout>
-              <v-layout justify-center align-start row wrap v-if="contents.type == 'movie'"> 
-                <v-flex md3 class="hidden-sm-and-down pa-4">
+              <v-layout justify-center align-center row wrap v-if="contents.type == 'movie'"> 
+                <v-flex md3 class="pa-4">
                   <v-layout row wrap>
-                    <v-flex xs12>                              
+                    <v-flex xs12 md12>                              
                       <v-card-media 
                         :src="thumb"
                         height="30vh"
                         contain
                       ></v-card-media>  
                     </v-flex>
-                    <v-flex xs12 class="text-xs-center">
+                    <v-flex xs8 md12 class="text-xs-center hidden-sm-and-down ">
                       <div v-if="playable">
                         <v-btn block v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
                           <v-icon> play_arrow </v-icon>
@@ -59,11 +59,11 @@
                     </v-flex>
                   </v-layout>
                 </v-flex>
-                <v-flex md9 sm12>                          
-                  <h1 style="font-size: 72px">{{ contents.title }}</h1>
+                <v-flex md9 sm12>              
+                  <h1 :style="fontSizes.largest">{{ contents.title }}</h1>
                   <h2>{{ contents.year }}</h2> 
                   <v-layout row wrap>
-                    <v-flex xs12 sm6 style="opacity:0.5"> 
+                    <v-flex xs12 md6 style="opacity:0.5"> 
                       {{ length }}
                     </v-flex> 
                     <v-flex xs12 sm6>
@@ -73,12 +73,26 @@
                         <v-chip v-if="contents.studio" color="grey darken-2" small label> {{ contents.studio }}</v-chip>
                       </div>
                     </v-flex>
+                    <v-flex xs12 class="text-xs-center hidden-md-and-up ">
+                      <div v-if="playable">
+                        <v-btn block v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
+                          <v-icon> play_arrow </v-icon>
+                        </v-btn>                                 
+                        <v-btn block v-else @click.native.stop="dialog = true" class="primary white--text">
+                          <v-icon> play_arrow </v-icon>  
+                        </v-btn> 
+                      </div>
+                      <span v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
+                      <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
+                        <v-icon></v-icon> Stop 
+                      </v-btn>
+                    </v-flex>
                     <p class="pt-3" style="font-style: italic"> {{ contents.summary }} </p>
                     <v-layout row wrap class="hidden-sm-and-down" justify-start align-start v-if="contents.type === 'movie'">
                       <v-flex lg3 xl2 v-if="contents.Role && contents.Role.length > 0">                      
                         <v-subheader class="white--text"> Featuring </v-subheader>
                         <div v-for="actor in contents.Role.slice(0, 6)" :key="actor.tag">
-                          {{ actor.tag }} <span style="opacity:0.7;font-size:80%"> {{actor.role}} </span>
+                          {{ actor.tag }} <span style="opacity:0.7;font-size:80%"> {{ actor.role }} </span>
                         </div>
                       </v-flex>                      
                       <v-flex lg3 xl2 v-if="contents.Director && contents.Director.length > 0">                      
@@ -159,6 +173,23 @@
                   </div>
                 </v-flex>      
               </v-layout>    -->
+              <v-divider></v-divider>
+              <div v-if="subsetParentData(6).length >= 0 && contents.type == 'episode' && playable" style="background: rgba(0,0,0,0.3)">
+                <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>            
+                <v-layout v-if="parentData" row wrap justify-start>
+                    <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)" :key="ep.key">            
+                        <plexthumb bottomOnly :content="ep" :img="getLittleThumb(ep)" :class="{highlightBorder: ep.index == contents.index}" style="margin:15%" :server="server" type="thumb" spoilerFilter></plexthumb>
+                    </v-flex>
+                </v-layout>
+              </div>      
+              <div v-if="relatedItems.length > 0" style="background: rgba(0,0,0,0.3)">
+                <v-subheader>Related Movies</v-subheader>            
+                <v-layout row wrap justify-start>
+                    <v-flex xs4 md2 class="ma-1" v-for="movie in relatedItems" :key="movie.key">            
+                        <plexthumb :content="movie" :img="getLittleThumb(movie)" style="margin:15%" :server="server" type="thumb"></plexthumb>
+                    </v-flex>
+                </v-layout>
+              </div>      
             </v-container>  
             <!-- <v-card-actions class="pa-4" >
               <v-spacer></v-spacer>
@@ -178,23 +209,7 @@
                 <v-icon></v-icon> Stop 
               </v-btn>
             </v-card-actions>     -->
-            <v-divider></v-divider>
-            <div v-if="subsetParentData(6).length >= 0 && contents.type == 'episode' && playable" style="background: rgba(0,0,0,0.3)">
-              <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>            
-              <v-layout v-if="parentData" row wrap justify-start>
-                  <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)" :key="ep.key">            
-                      <plexthumb bottomOnly :content="ep" :img="getLittleThumb(ep)" :class="{highlightBorder: ep.index == contents.index}" style="margin:15%" :server="server" type="thumb" spoilerFilter  @contentSet="setContent(ep)"></plexthumb>
-                  </v-flex>
-              </v-layout>
-            </div>      
-            <div v-if="relatedItems.length > 0 && contents.type == 'movies'" style="background: rgba(0,0,0,0.3)">
-              <v-subheader>Related Movies</v-subheader>            
-              <v-layout row wrap justify-start>
-                  <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in relatedItems" :key="ep.key">            
-                      <plexthumb bottomOnly :content="ep" :img="getLittleThumb(ep)" :class="{highlightBorder: ep.index == contents.index}" style="margin:15%" :server="server" type="thumb" @contentSet="setContent(ep)"></plexthumb>
-                  </v-flex>
-              </v-layout>
-            </div>        
+              
           </div> 
         </v-card>
       </div>
@@ -217,7 +232,7 @@
                 </div>
               </v-flex>                
               <v-flex xs4>                  
-                <v-btn class="primary white--text" @click.native.stop="playMedia(content,index)">
+                <v-btn class="primary white--text" @click.native.stop="playMedia(contents, index)">
                   Play
                 </v-btn>
               </v-flex>
@@ -239,29 +254,7 @@
     created () {
       // Hit the PMS endpoing /library/sections
       var that = this
-      console.log('Loading content metadata: ' + this.ratingKey)
-      this.server.getMediaByRatingKey(this.ratingKey).then(async (result) => {
-        if (result) {
-          this.contents = result
-          if (result.type == 'episode'){
-            this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1).then((res) => {
-              if (res){
-                this.parentData = res
-              }
-            })
-          }          
-          if (result.type == 'movie'){
-            try {
-              this.related = await this.server.getRelated(this.ratingKey, 12)
-            } catch (e) {
-              console.log('Unable to fetch related content for', this.ratingKey, 'Error:', e )
-            }
-          }
-          this.setBackground()
-        } else {
-          this.status = 'Error loading libraries!'
-        }
-      })
+      
     },
     data () {
       return {
@@ -284,12 +277,17 @@
       }
     },
     mounted () {
-      
+      this.getNewData()
       this.fullheight = this.$refs.root.offsetHeight
       this.fullwidth = this.$refs.root.offsetWidth  
     },
     beforeDestroy () {
 
+    },
+    watch: {
+      ratingKey: function () {
+        this.getNewData()
+      }
     },
     computed: {
       plex () {
@@ -347,7 +345,7 @@
         this.related.MediaContainer.Hub[0].Metadata.forEach((item) => {
           items.push(item)
         }) 
-        return items
+        return items.slice(0, 4)
       },
       getArtUrl () {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
@@ -383,6 +381,32 @@
       }, 
     },
     methods: {
+      getNewData () {
+        console.log('Loading content metadata: ' + this.ratingKey)
+        this.server.getMediaByRatingKey(this.ratingKey).then(async (result) => {
+          if (result) {
+            this.contents = result.MediaContainer.Metadata[0]
+            if (this.contents.type == 'episode'){
+              this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1).then((res) => {
+                if (res){
+                  this.parentData = res
+                }
+              })
+            }          
+            if (this.contents.type == 'movie'){
+              try {
+                console.log('Fetching related')
+                this.related = await this.server.getRelated(this.ratingKey, 12)
+              } catch (e) {
+                console.log('Unable to fetch related content for', this.ratingKey, 'Error:', e )
+              }
+            }
+            this.setBackground()
+          } else {
+            this.status = 'Error loading libraries!'
+          }
+        })
+      },
       setContent (content) {
         this.$router.push('/browse/' + this.serverId + '/' + content.ratingKey)
       },

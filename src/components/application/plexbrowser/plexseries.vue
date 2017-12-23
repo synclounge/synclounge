@@ -6,7 +6,7 @@
       </v-flex>
     </v-layout>
     <div v-if="contents" class="mt-3">    
-      <v-flex xs12  style="background: rgba(0, 0, 0, .4);">
+      <v-flex xs12 style="background: rgba(0, 0, 0, .4);">
         <v-card class="darken-2 white--text"  :img="getArtUrl">
           <v-container style="background:rgba(0,0,0,0.6)" class="pa-3 ma-0" fluid grid-list-lg>
             <v-layout row style="height:100%">
@@ -20,13 +20,13 @@
               </v-flex>
               <v-flex xs12 md9 class="ma-2">
                 <div>
-                  <h3 > {{ contents.parentTitle }}</h3>
+                  <h1 style="font-size: 72px"> {{ contents.parentTitle }}</h1>
                   <h3 style="font-weight:bold">{{ contents.title }}</h3>
                   <p> {{ getSeasons }} - {{ contents.parentYear }} </p>
                   <v-divider></v-divider>         
                   <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ contents.summary }} </p>  
                   <div>                
-                    <v-chip v-for="genre in genres" :key="genre.tag" label> 
+                    <v-chip v-for="genre in genres" :key="genre.tag" label color="grey"> 
                       {{ genre.tag }}
                     </v-chip>
                   </div>

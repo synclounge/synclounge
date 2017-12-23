@@ -25,10 +25,25 @@
                           {{ content.Media.length }}
                         </span>
                       </span>
-                  </div>    
-                  <div :style="{ 'height': bottomCalculatedHeight }" style="background: rgba(0, 0, 0, .8);position:absolute; bottom: 0; width:100%">
+                  </div>
+                  <v-container fill-height fluid class="pa-0" style="background: linear-gradient(to top, rgba(0, 0, 0, 5), rgba(0, 0, 0, 00)); background-position-y:bottom; background-repeat:no-repeat; background-size:100% 60%; max-width:100%">
+                    <v-layout row wrap justify-end align-end>
+                      <v-flex xs12>
+                        <v-progress-linear style="width:100%" class="pa-0 mb-1 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear> 
+                        <v-layout align-end row wrap class="text-xs-left pa-1" style="max-width: 100%">
+                          <v-flex xs12 v-if="!onlyBottom" style="max-width: 100%">
+                              <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
+                          </v-flex> 
+                          <v-flex xs12 style="font-size:0.8rem" ref="bottomText">
+                              <div class="truncate soft-text">{{ getUnder(content) }}</div>
+                          </v-flex>
+                        </v-layout> 
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                  <!-- <div :style="{ 'height': bottomCalculatedHeight }" style="background: rgba(0, 0, 0, .8);position:absolute; bottom: 0; width:100%">
                     <div class="ma-0">
-                      <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>                           
+                      <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>   
                       <v-layout row wrap class="text-xs-left" style="margin:0; margin-left:3px; display:block; max-width:100%; height:100%">
                           <v-flex v-if="!onlyBottom" xs12 style="height:50%" :style="topTextStyle" ref="topText" class="pa-0 ma-0 ml-1 mt-1">
                               <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
@@ -38,7 +53,7 @@
                           </v-flex>
                       </v-layout> 
                     </div>
-                  </div> 
+                  </div>  -->
                 </v-flex>
               </v-layout>
             </v-container>

@@ -5,9 +5,9 @@
             <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
         </v-flex>
     </v-layout>
-    <div v-if="!browsingContent && contents" class="mt-3" style="height:90vh; overflow-y:scroll ">
-      <v-layout class="row" row wrap>
-            <v-flex xs4 md3 lg1  class="pb-3"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
+    <div v-if="!browsingContent && contents" class="mt-3 mx-auto" style="height:90vh; overflow-y:scroll ">
+      <v-layout class="row" row wrap justify-start>
+            <v-flex xs4 md3 lg1  class="ma-3"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
               <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
             </v-flex>
       </v-layout>  

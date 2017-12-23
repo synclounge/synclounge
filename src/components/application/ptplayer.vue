@@ -1,23 +1,22 @@
 <template>
   <div style="width:100%; max-height: calc(100vh - 64px)">
     <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
-                 @playerMounted="playerMounted()"
-                 @timelineUpdate="timelineUpdate"
-                 @playbackEnded="stopPlayback()"
+      @playerMounted="playerMounted()"
+      @timelineUpdate="timelineUpdate"
+      @playbackEnded="stopPlayback()"
 
-                 :metadata="playingMetadata"
-                 :server="chosenServer"
-                 :src="getSourceByLabel(chosenQuality)"
-                 :initUrl="getSourceByLabel(chosenQuality).initUrl"
-                 :params="getSourceByLabel(chosenQuality).params"
-                 :initialOffset="playertime"
-                 :createdAt="playerCreatedAt"
+      :metadata="playingMetadata"
+      :server="chosenServer"
+      :src="getSourceByLabel(chosenQuality)"
+      :initUrl="getSourceByLabel(chosenQuality).initUrl"
+      :params="getSourceByLabel(chosenQuality).params"
+      :initialOffset="playertime"
+      :createdAt="playerCreatedAt"
     ></videoplayer>
     <v-dialog v-model="dialog"> 
       <v-card>
         <v-card-title>Playback Settings </v-card-title>
-        <v-card-text>
-          
+        <v-card-text>          
           <v-select
           v-model="chosenQuality"
           :items="qualitiesSelect"
@@ -68,10 +67,11 @@
         <v-btn primary v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
       </v-flex>
       <v-flex md2>
-        <v-btn error v-on:click.native="stopPlayback()">Stop playback</v-btn>
+        <router-link to="/browse">
+          <v-btn error v-on:click.native="stopPlayback()">Stop playback</v-btn>
+        </router-link>
       </v-flex>
     </v-layout>
-
   </div>
 </template>
 
@@ -79,7 +79,7 @@
   // CSS imports
 
   var request = require('request')
-  var parseXMLString = require('xml2js').parseString;
+  var parseXMLString = require('xml2js').parseString
   // Components
   import videoplayer from './ptplayer/videoplayer.vue'
 
@@ -91,7 +91,19 @@
     created () {
     },
     mounted: function () {
-      var that = this
+
+      // Check if we have params
+      if (this.$route.query.start) {
+        // We need to auto play
+        let query = this.$route.query
+        this.chosenKey = query.key.replace('/library/metadata/', '')
+        this.chosenMediaIndex = query.mediaIndex || 0
+        this.chosenServer = this.plex.servers[query.chosenServer]
+        this.playertime = query.offset
+        let oldtime = this.playertime
+        let oldkey = this.chosenKey
+        let checkers = 0
+      }
 
       // Similuate a real plex client
       this.eventbus.$on('command', (data) => {
@@ -148,31 +160,6 @@
           })
           return
         }
-        if (data.command == '/player/playback/playMedia') {
-          this.chosenKey = data.params.key.replace('/library/metadata/', '')
-          this.chosenMediaIndex = data.params.mediaIndex || 0
-          this.chosenServer = this.plex.servers[data.params.machineIdentifier]
-          this.playertime = data.params.offset
-          let oldtime = this.playertime
-          let oldkey = this.chosenKey
-          let checkers = 0
-
-          let tick = setInterval(() => {
-            console.log('Checking..')
-            if (Math.abs(parseInt(this.playertime) - parseInt(oldtime) ) > 1000) {
-              console.log('STARTED PLAYING!')
-              clearInterval(tick)
-              return data.callback(true)
-            }
-            checkers++
-            if (checkers > 300 || oldkey != this.chosenKey) {
-              console.log('Timeout reached on playMedia')
-              // It has been 30 seconds since - fail
-              clearInterval(tick)
-              return data.callback(false)
-            }
-          }, 100)
-        }
         console.log('Unable to process the remote control command ' + data.command)
       })
 
@@ -221,7 +208,7 @@
       chosenQuality: function () {
         this.changedPlaying(false)
         //console.log('Our new preferred quality is now ' + this.chosenQuality )
-        this.$store.commit('setSettingPTPLAYERQUALITY',this.chosenQuality)
+        this.$store.commit('setSettingPTPLAYERQUALITY', this.chosenQuality)
       },
       chosenMediaIndex: function () {
         this.chosenSubtitleIndex = 0
@@ -450,7 +437,7 @@
       stopPlayback () {
         console.log('Stopped Playback')
         this.$store.commit('SET_DECISIONBLOCKED', false) 
-        request(this.getSourceByLabel(this.chosenQuality).stopUrl, function (error, response, body) {})
+        request(this.getSourceByLabel(this.chosenQuality).stopUrl, (error, response, body) => {})
         this.playerstatus = 'stopped'
         this.sessionId = this.generateGuid()
         this.xplexsession = this.generateGuid()
@@ -462,23 +449,22 @@
         var that = this
         this.ready = false
         this.$store.commit('SET_DECISIONBLOCKED', false)
-        //console.log('Changed what we are meant to be playing!')
+        console.log('Changed what we are meant to be playing!', changeItem)
         if (!this.chosenKey || !this.chosenServer) {
           this.playerstatus = 'stopped'
           this.playerMetadata = null
           return
         }
 
-        function req () {
-          that.sources = that.generateSources()
-          request(that.getSourceByLabel(that.chosenQuality).initUrl, function (error, response, body) {
-            parseXMLString(body, function (err, result) {
+        const req = () => {
+          this.sources = this.generateSources()
+          request(this.getSourceByLabel(this.chosenQuality).initUrl, (error, response, body) => {
+            parseXMLString(body, (err, result) => {
               if (err) {
-                that.ready = false
+                this.ready = false
               }
-              that.ready = true
-              that.transcodeSessionMetadata = result
-
+              this.ready = true
+              this.transcodeSessionMetadata = result
             })
             if (!error) {
 
@@ -487,15 +473,15 @@
         }
 
         if (this.playingMetadata) {
-          request(this.getSourceByLabel(this.chosenQuality).stopUrl, function (error, response, body) {
+          request(this.getSourceByLabel(this.chosenQuality).stopUrl, (error, response, body) => {
             // We dont need to know what this resulted in
           })
         }
-        if (changeItem) {
+        if (changeItem || !this.playingMetadata) {
           this.playingMetadata = null
-          this.chosenServer.getMediaByRatingKey(this.chosenKey, function (result) {
-            //console.log(result)
-            that.playingMetadata = result
+          this.chosenServer.getMediaByRatingKey(this.chosenKey).then((result) => {
+            console.log(result)
+            this.playingMetadata = result.MediaContainer.Metadata[0]
             req()
           })
         } else {
@@ -526,7 +512,7 @@
           session: this.sessionId,
           'X-Plex-Product': 'SyncLounge',
           'X-Plex-Version': '3.4.1',
-          'X-Plex-Client-Identifier': 'SyncLoungeWeb',
+          'X-Plex-Client-Identifier': 'SyncLounge',
           'X-Plex-Platform': this.browser,
           'X-Plex-Platform-Version': '57.0',
           'X-Plex-Device': 'Windows',
@@ -587,7 +573,7 @@
           'X-Plex-Chunked': 1,
           'X-Plex-Product': 'SyncLounge',
           'X-Plex-Version': '3.4.1',
-          'X-Plex-Client-Identifier': 'SyncLoungePlayer',
+          'X-Plex-Client-Identifier': 'SyncLounge',
           'X-Plex-Platform': 'SyncLounge',
           'X-Plex-Platform-Version': '57.0',
           'X-Plex-Device': 'HTML TV App',
@@ -616,7 +602,7 @@
             'timeout': 1,
             'X-Plex-Product': 'SyncLounge',
             'X-Plex-Version': '3.4.1',
-            'X-Plex-Client-Identifier': 'SyncLoungePlayer',
+            'X-Plex-Client-Identifier': 'SyncLounge',
             'X-Plex-Platform': that.browser,
             'X-Plex-Platform-Version': '57.0',
             'X-Plex-Device': 'Windows',
@@ -653,7 +639,6 @@
             .toString(16)
             .substring(1);
         }
-
         return s4() + s4() + s4() + s4();
       },
       getBrowser () {

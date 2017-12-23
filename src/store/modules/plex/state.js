@@ -7,6 +7,7 @@ export default {
     servers: {},
 
     itemCache: {},
+    libraryCache: {},
 
     chosenClient: null,
 

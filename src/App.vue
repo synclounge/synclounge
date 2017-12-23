@@ -13,7 +13,7 @@
     </v-navigation-drawer>
     <v-toolbar app fixed>
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title class="white--text">SyncLounge</v-toolbar-title>
+      <v-toolbar-title class="white--text"> SyncLounge </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>        
         <img class="ma-2" style="height:48px; width: 48px" v-bind:src="logo"/>
@@ -162,7 +162,10 @@
       },
       itemCache: function () {
         return this.$store.getters.getItemCache
-      },	
+      },     
+      libraryCache: function () {
+        return this.$store.getters.getLibraryCache
+      },		
       crumbs: function () {
         if (this.$route.path.indexOf('browse') === -1) {
           return []
@@ -170,6 +173,13 @@
         const getTitle = (id) => {
           try {
             return this.itemCache[this.$route.params.machineIdentifier][id].title
+          } catch (e) {
+            return 'Loading..'
+          }
+        }        
+        const getLibrary = (id) => {
+          try {
+            return this.libraryCache[this.$route.params.machineIdentifier][id]
           } catch (e) {
             return 'Loading..'
           }
@@ -187,7 +197,7 @@
           },					
           sectionId: () => {
 						return {
-							text: this.$route.params.sectionId,
+							text: getLibrary(this.$route.params.sectionId),
 							to: '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId
 						}
           },          
@@ -197,7 +207,7 @@
               to = '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId 
               + '/tv/' + this.$route.params.grandparentKey + '/' + this.$route.params.parentKey
             } else {
-              '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId 
+              to = '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId 
               + '/tv/' + this.$route.params.parentKey
             }
 						return {
@@ -283,7 +293,7 @@
       mainStyle: function() {
         if (this.$store.getters.getBackground != null){
           return {
-            'background-image': 'url('+this.$store.getters.getBackground+')',
+            'background-image': 'url(' + this.$store.getters.getBackground + ')',
             'background-repeat': 'no-repeat',
             'background-size': 'cover',
             'background-position': 'center'

@@ -318,13 +318,13 @@
 
         this.player.currentTime(this.initialOffset / 1000)
 
-        player.on(['waiting', 'pause'], function () {
-          that.isPlaying = 'paused';
-        });
+        player.on(['waiting', 'pause'], () => {
+          this.isPlaying = 'paused';
+        })
 
-        player.on('playing', function () {
-          that.isPlaying = 'playing';
-        });
+        player.on('playing', () => {
+          this.isPlaying = 'playing';
+        })
 
         // Setup our intervals for pinging the transcoder and timelines
         function send () {
@@ -335,7 +335,7 @@
           if (!that.player || !that.metadata) {
             return
           }
-          var query = '';
+          var query = ''
           let params = {
             hasMDE: 1,
             ratingKey: that.metadata.ratingKey,
@@ -362,14 +362,14 @@
             timeout: 2000,
             url: url
           }
-          request(url, function (error, response, body) {
+          request(url, (error, response, body) => {
             if (!error) {
               // console.log('Succesfully sent Player status to PMS')
             }
           })
         }
 
-        this.ticker = setInterval(function () {
+        this.ticker = setInterval(() => {
           // Tell the PMS instance of our status
           send()
         }, 10000)

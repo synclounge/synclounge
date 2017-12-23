@@ -93,7 +93,7 @@ const state = {
 const mutations = {
   SET_CHOSENCLIENT (state, client) {
     async function playbackChange (ratingKey) {
-      console.log('Playback change!', ratingKey)
+      // console.log('Playback change!', ratingKey)
       if (ratingKey != null) {
         // Playing something different!
         let server = state.plex.servers[state.chosenClient.lastTimelineObject.machineIdentifier]
@@ -103,8 +103,9 @@ const mutations = {
           return
         }
         // Fetch our metadata from this server
-        console.log('Loading content metadata from store ' + ratingKey)
-        server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', ''), function (metadata) {
+        // console.log('Loading content metadata from store ' + ratingKey)
+        server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {
+          let metadata = data.MediaContainer.Metadata[0]
           if (!metadata) {
             return
           }
@@ -129,7 +130,7 @@ const mutations = {
     }
 
     function newTimeline (timeline) {
-      console.log('Got timeline')
+      // console.log('Got timeline')
       // Lets send this to our PTServer
       state.ourClientResponseTime = timeline.lastResponseTime
       let title = null
@@ -156,9 +157,9 @@ const mutations = {
       let playerState = null
       let showName = null
 
-      if (state.plextogether._socket) {
-        state.plextogether._socket.pollStartTime = (new Date).getTime()
-        state.plextogether._socket.emit('poll', end_obj)
+      if (state.synclounge._socket) {
+        state.synclounge._socket.pollStartTime = (new Date).getTime()
+        state.synclounge._socket.emit('poll', end_obj)
       }
     }
 

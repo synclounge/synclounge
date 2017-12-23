@@ -34,6 +34,22 @@ Vue.config.productionTip = false
 
 // Our Event bus
 window.EventBus = new Vue()
+window.EventBus.$on('command', (data) => {
+  if (data.command === '/player/playback/playMedia') {
+    router.push( 
+      { 
+        path: '/player', 
+        query: {
+          start: true,
+          key: data.params.key.replace('/library/metadata/', ''),
+          mediaIndex: data.params.mediaIndex || 0,
+          chosenServer: data.params.machineIdentifier,
+          playertime: data.params.offset
+        } 
+      }
+    )
+  }
+})
 
 Vue.mixin({
   computed: {
@@ -57,6 +73,15 @@ Vue.mixin({
     },
     plexserver: function () {
       return this.plex.servers[this.$route.params.machineIdentifier]
+    },
+    fontSizes: function () {
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+      let maxPx = 94
+      let maxRes = 3000
+      return {
+        largest: { 'font-size': ((w / maxRes) * maxPx) + 'px' }
+      }
     }
   }
 })

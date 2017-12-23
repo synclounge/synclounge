@@ -21,7 +21,7 @@ export default new Router({
     { path: '/clientselect', component: require('../components/application/walkthrough.vue') },
     { path: '/joinroom', component: require('../components/application/joinroom.vue') },
 
-    { path: '/player', component: require('../components/application/ptplayer.vue') },
+    { path: '/player', meta: { protected: true }, component: require('../components/application/ptplayer.vue') },
 
     
     { path: '/browse', meta: { protected: true }, name: 'browse', component: require('../components/application/plexbrowser.vue') },

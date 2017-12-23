@@ -58,6 +58,7 @@ module.exports = function PlexServer () {
         request(options, (error, response, body) => {
           if (!error) {
             let parsed = JSON.parse(body)
+            console.log('Metadata request result', parsed)
             this.handleMetadata(parsed)
             return resolve(parsed)
           }
@@ -138,8 +139,17 @@ module.exports = function PlexServer () {
 
   this.getMediaByRatingKey = async function (ratingKey) {
     //This function hits the PMS and returns the item at the ratingKey
-    let data = await this.hitApi('/library/metadata/' + ratingKey, {})
-    return this.handleMetadata(data)
+    try {
+      let data = await this.hitApi('/library/metadata/' + ratingKey, {})
+      if (data && data.MediaContainer.librarySectionID) {
+        this.commit('SET_LIBRARYCACHE', [data.MediaContainer.librarySectionID, this.clientIdentifier, data.MediaContainer.librarySectionTitle])
+      }
+      return data
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+    // return this.handleMetadata(data)
   }
   this.markWatchedByRatingKey = function (ratingKey) {
     return this.hitApi('/:/scrobble', {
@@ -175,19 +185,31 @@ module.exports = function PlexServer () {
       throw new Error(e)
     }
   }
-  this.getAllLibraries = function () {
-    return this.hitApi('/library/sections', {})
+  this.getAllLibraries = async function () {
+    try {
+      let data = await this.hitApi('/library/sections', {})
+      console.log('Library data', data)
+      if (data && data.MediaContainer) {
+        data.MediaContainer.Directory.forEach((library) => {
+          this.commit('SET_LIBRARYCACHE', [library.key, this.clientIdentifier, library.title ])
+        })
+      }
+      return data
+    } catch (e) {
+      return false
+    }
   }
   this.getLibraryContents = async function (key, start, size) {
     try {
       let data = await this.hitApi('/library/sections/' + key + '/all', {
         'X-Plex-Container-Start': start,
-        'X-Plex-Container-Size': size
+        'X-Plex-Container-Size': size,
+        'excludeAllLeaves': 1
       })
       for (let i = 0; i < data.MediaContainer.Metadata.length; i++) {
         data.MediaContainer.Metadata[i].librarySectionID = key
-        this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey, 
-        data.MediaContainer.Metadata[i]])        
+        // this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey, 
+        // data.MediaContainer.Metadata[i]])        
       }
       return data
     } catch (e) {
@@ -250,36 +272,21 @@ module.exports = function PlexServer () {
   }
 
   this.handleMetadata = function (result) {
-    if (result != null) {
-      if (result._children) {
-        // Old Server version compatibility
-        for (var i in result._children) {
-          var res = result._children[i]
-          if (res._elementType == 'Directory' || res._elementType == 'Media' || res._elementType == 'Video') {
-            res.machineIdentifier = this.clientIdentifier
-            return res
+    if (result) {
+      if (result.MediaContainer && result.MediaContainer.Metadata && result.MediaContainer.Metadata.length > 0) {
+        for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
+          result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier
+          if (result.MediaContainer.Metadata[i].ratingKey) {
+            this.commit('SET_ITEMCACHE', [result.MediaContainer.Metadata[i].ratingKey, 
+            result.MediaContainer.Metadata[i]])    
           }
         }
       } else {
-        // New Server compatibility
-        if (result.MediaContainer && result.MediaContainer.Metadata && result.MediaContainer.Metadata.length > 0) {
-          for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
-            result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier
-            if (result.MediaContainer.Metadata[i].ratingKey) {
-              this.commit('SET_ITEMCACHE', [result.MediaContainer.Metadata[i].ratingKey, 
-              result.MediaContainer.Metadata[i]])    
-            }
-          }
-          return
-        } else {
-          if (result.MediaContainer.ratingKey) {
-            this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer])
-          }
-          return
+        if (result.MediaContainer.ratingKey) {
+          this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer])
         }
-        return result.MediaContainer.Metadata[0]
       }
-      return null
+      return result.MediaContainer.Metadata
     }
   }
 }
