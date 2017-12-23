@@ -5,7 +5,7 @@
           <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
       </v-flex>
     </v-layout>
-    <div v-else class="mt-3">    
+    <div v-if="contents" class="mt-3">    
       <v-flex xs12  style="background: rgba(0, 0, 0, .4);">
         <v-card class="darken-2 white--text"  :img="getArtUrl">
           <v-container style="background:rgba(0,0,0,0.6)" class="pa-3 ma-0" fluid grid-list-lg>
@@ -27,7 +27,7 @@
                   <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ contents.summary }} </p>  
                   <div>                
                     <v-chip v-for="genre in genres" :key="genre.tag" label> 
-                      {{genre.tag}}
+                      {{ genre.tag }}
                     </v-chip>
                   </div>
                   <v-subheader class="white--text"> Featuring </v-subheader>
@@ -70,7 +70,7 @@
     },
     created () {
       // Hit the PMS endpoing /library/sections
-      this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex, this.size, 1).then((result) => {
+      this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex, this.size, 1, this.$route.params.sectionId).then((result) => {
         if (result) {
           this.contents = result.MediaContainer
           this.setBackground()
@@ -121,13 +121,13 @@
         if (!this.seriesData){
           return []
         }
-        return this.seriesData.Metadata[0].Role.slice(0,6)
+        return this.seriesData.MediaContainer.Metadata[0].Role.slice(0,6)
       },
       genres () {
         if (!this.seriesData){
           return []
         }
-        return this.seriesData.Metadata[0].Genre.slice(0,5)
+        return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0,5)
       },
       thumb () {
         var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));

@@ -45,7 +45,7 @@
                     </v-flex>
                     <v-flex xs12 class="text-xs-center">
                       <div v-if="playable">
-                        <v-btn block v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(content)" class="primary white--text">
+                        <v-btn block v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
                           <v-icon> play_arrow </v-icon>
                         </v-btn>                                 
                         <v-btn block v-else @click.native.stop="dialog = true" class="primary white--text">

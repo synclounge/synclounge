@@ -159,14 +159,17 @@
     computed: {
       plex: function () {
         return this.$store.getters.getPlex
-      },			
+      },
+      itemCache: function () {
+        return this.$store.getters.getItemCache
+      },	
       crumbs: function () {
         if (this.$route.path.indexOf('browse') === -1) {
           return []
         }
-        const getTitle = () => {
+        const getTitle = (id) => {
           try {
-            return this.itemCache[this.$route.params.machineIdentifier][this.$route.params.ratingKey].title
+            return this.itemCache[this.$route.params.machineIdentifier][id].title
           } catch (e) {
             return 'Loading..'
           }
@@ -187,10 +190,31 @@
 							text: this.$route.params.sectionId,
 							to: '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId
 						}
+          },          
+          parentKey: () => {
+            let to
+            if (this.$route.params.grandparentKey) {
+              to = '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId 
+              + '/tv/' + this.$route.params.grandparentKey + '/' + this.$route.params.parentKey
+            } else {
+              '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId 
+              + '/tv/' + this.$route.params.parentKey
+            }
+						return {
+							text: getTitle(this.$route.params.parentKey),
+              to: to
+						}
+          },          
+          grandparentKey: () => {
+						return {
+							text: getTitle(this.$route.params.grandparentKey),
+              to: '/browse/' + this.$route.params.machineIdentifier + '/' + this.$route.params.sectionId 
+              + '/tv/' + this.$route.params.grandparentKey + '/'
+						}
 					},
 					ratingKey: () => {
 						return {
-							text: getTitle(),
+							text: getTitle(this.$route.params.ratingKey),
               to: '/browse/' + this.$route.params.machineIdentifier +
                   '/' + this.$route.params.sectionId + '/' + this.$route.params.ratingKey
 						}

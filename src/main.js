@@ -57,9 +57,6 @@ Vue.mixin({
     },
     plexserver: function () {
       return this.plex.servers[this.$route.params.machineIdentifier]
-    },
-    itemCache: function () {
-      return this.$store.getters.getItemCache
     }
   }
 })

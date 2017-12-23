@@ -52,7 +52,7 @@
 
   export default {
 
-    props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle', 'search', 'locked', 'img', 'bottomOnly', 'spoilerFilter'],
+    props: ['library', 'showServer', 'content', 'type', 'server', 'height', 'fullTitle', 'server', 'search', 'locked', 'img', 'bottomOnly', 'spoilerFilter'],
     components: {
     },
     created () {
@@ -104,7 +104,7 @@
         return this.$store.getters.getPlex
       },
       serverId () {
-        return this.$route.params.clientIdentifier || this.server.clientIdentifier
+        return this.$route.params.machineIdentifier || this.server.clientIdentifier || this.$route.params.clientIdentifier
       },
       link () {
         if (this.content.type === 'episode') {          
