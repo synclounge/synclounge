@@ -17,7 +17,7 @@
       <v-spacer></v-spacer>
       <v-toolbar-items>        
         <img class="ma-2" style="height:48px; width: 48px" v-bind:src="logo"/>
-        <v-btn primary dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
+        <v-btn color="primary" dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
         <v-toolbar-side-icon v-if="showRightDrawerButton" @click="toggleDrawerRight"></v-toolbar-side-icon>
       </v-toolbar-items>
@@ -37,8 +37,7 @@
           <v-breadcrumbs class="text-xs-left" style="justify-content: left">
           <v-icon slot="divider">chevron_right</v-icon>
             <v-breadcrumbs-item 
-              v-for="item in crumbs" :key="item.text" :to="item.to" :exact="true"
-            >
+              v-for="item in crumbs" :key="item.text" :to="item.to" :exact="true">
               {{ item.text }}
             </v-breadcrumbs-item>
 					</v-breadcrumbs>       
