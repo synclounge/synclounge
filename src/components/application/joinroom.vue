@@ -19,19 +19,19 @@
       </v-flex>
     </v-layout> 
     <v-layout row wrap justify-center>
-      <v-flex xs10>
+      <v-flex xs10 lg8 xl6>
         <h3 class="text-xs-center">Connect to a SyncLounge room</h3>
       </v-flex>
     </v-layout>
     <v-layout row wrap justify-center>
-      <v-flex xs10 lg6>
+      <v-flex xs10 lg8 xl6>
         <p class="pa-2">
           It's time to connect to SyncLounge. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join.
         </p>
       </v-flex>
     </v-layout>
     <v-layout row wrap justify-center>
-      <v-flex xs10 lg6 v-if="!context.getters.getConnected" style="color:white !important">
+      <v-flex xs10 lg8 xl6 v-if="!context.getters.getConnected" style="color:white !important">
         <v-select
           v-bind:items="ptservers"
           class="input-group--focused pt-input"
@@ -69,7 +69,7 @@
       </v-flex>     
     </v-layout>
     <v-layout row wrap justify-center>
-      <v-flex xs10 lg6 v-if="context.getters.getConnected">
+      <v-flex xs10 lg8 xl6 v-if="context.getters.getConnected">
         <v-layout row wrap>
           <v-flex xs12>          
             <v-text-field

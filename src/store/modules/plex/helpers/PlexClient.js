@@ -143,9 +143,6 @@ module.exports = function PlexClient () {
   }
 
   this.updateTimelineObject = function (result) {
-
-
-
     this.setValue('lastTimelineObject', result)
     this.lastTimelineObject = result    
     this.events.emit('new_timeline', result)
@@ -349,60 +346,58 @@ module.exports = function PlexClient () {
     })
   }
 
-  this.playMedia = function (data) {
+  this.playMedia = async function (data) {
     // Play a media item given a mediaId key and a server to play from
     // We need the following variables to build our paramaters:
     // MediaId Key, Offset, server MachineId,
     // Server Ip, Server Port, Server Protocol, Path
-    var that = this
-    // First lets mirror the item so the user has an idea of what we're about to play
 
-    const send = () => {
-      let command = '/player/playback/playMedia'
-      let mediaId = '/library/metadata/' + data.ratingKey
-      let offset = data.offset || 0
-      let serverId = data.server.clientIdentifier
-      let address = data.server.chosenConnection.address
-      let port = data.server.chosenConnection.port
-      let protocol = data.server.chosenConnection.protocol
-      let path = data.server.chosenConnection.uri + mediaId
+    // First we will mirror the item so the user has an idea of what we're about to play
 
-      let params = {
-        'X-Plex-Client-Identifier': 'SyncLounge',
-        'key': mediaId,
-        'offset': offset,
-        'machineIdentifier': serverId,
-        'address': address,
-        'port': port,
-        'protocol': protocol,
-        'path': path,
-        'wait': 0,
-        'token': data.server.accessToken
+      const send = async () => {
+        let command = '/player/playback/playMedia'
+        let mediaId = '/library/metadata/' + data.ratingKey
+        let offset = data.offset || 0
+        let serverId = data.server.clientIdentifier
+        let address = data.server.chosenConnection.address
+        let port = data.server.chosenConnection.port
+        let protocol = data.server.chosenConnection.protocol
+        let path = data.server.chosenConnection.uri + mediaId
+  
+        let params = {
+          'X-Plex-Client-Identifier': 'SyncLounge',
+          'key': mediaId,
+          'offset': offset,
+          'machineIdentifier': serverId,
+          'address': address,
+          'port': port,
+          'protocol': protocol,
+          'path': path,
+          'wait': 0,
+          'token': data.server.accessToken
+        }
+  
+        if (data.mediaIndex != undefined || data.mediaIndex != null){
+          params.mediaIndex = data.mediaIndex
+        }
+  
+        // Now that we've built our params, it's time to hit the client api
+        await this.hitApi(command, params, that.chosenConnection)
+        return true
       }
-
-      if (data.mediaIndex != undefined || data.mediaIndex != null){
-        params.mediaIndex = data.mediaIndex
+  
+      if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
+        return send()
+      } else {
+        await this.mirrorContent(data.ratingKey, data.server)
+        return send()
       }
-
-      // Now that we've built our params, it's time to hit the client api
-      return this.hitApi(command, params, that.chosenConnection)
-    }
-
-    if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
-      send()
-    } else {
-      this.mirrorContent(data.ratingKey, data.server, function () {
-        send()
-      })
-    }
-
   }
   this.mirrorContent = function (key, serverObject, callback) {
     // Mirror a media item given a mediaId key and a server to play from
     // We need the following variables to build our paramaters:
     // MediaId Key, Offset (0 for simplicity), server MachineId,
     // Server Ip, Server Port, Server Protocol, Path
-    console.log('Trying to mirror content')
 
     let command = '/player/mirror/details'
     let mediaId = '/library/metadata/' + key
@@ -468,8 +463,7 @@ module.exports = function PlexClient () {
           }
         })
       }
-      doRequest()
-    
+      doRequest()    
     })
     
   }
