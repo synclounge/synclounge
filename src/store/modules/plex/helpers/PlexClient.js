@@ -90,7 +90,7 @@ module.exports = function PlexClient () {
           }
           query = query + 'commandID=' + this.commandId
           if (connection.uri.charAt(connection.uri.length - 1) == '/') {
-            //Remove a trailing / that some clients broadcast
+            // Remove a trailing / that some clients broadcast
             connection.uri = connection.uri.slice(0, connection.uri.length - 1)
           }
           var _url = connection.uri + command + '?' + query
@@ -127,7 +127,7 @@ module.exports = function PlexClient () {
   }
 
   this.getTimeline = async function (callback) {
-    //Get the timeline object from the client
+    // Get the timeline object from the client
     let data
     try {
       data = await this.hitApi('/player/timeline/poll', { 'wait': 0 }, this.chosenConnection)    
@@ -221,7 +221,7 @@ module.exports = function PlexClient () {
     return videoTimeline
   }
   this.pressPlay = function (callback) {
-    //Press play on the client
+    // Press play on the client
     this.hitApi('/player/playback/play', {'wait': 0}, this.chosenConnection, function (result, responseTime) {
       if (result) {
         //Valid response back from the client
@@ -233,7 +233,7 @@ module.exports = function PlexClient () {
   }
 
   this.pressPause = function (callback) {
-    //Press pause on the client
+    // Press pause on the client
     this.hitApi('/player/playback/pause', {'wait': 0}, this.chosenConnection, function (result, responseTime) {
       if (result) {
         //Valid response back from the client
@@ -244,7 +244,7 @@ module.exports = function PlexClient () {
     })
   }
   this.pressStop = function (callback) {
-    //Press pause on the client
+    // Press pause on the client
     this.hitApi('/player/playback/stop', {'wait': 0}, this.chosenConnection, function (result, responseTime) {
       if (result) {
         //Valid response back from the client
@@ -255,7 +255,7 @@ module.exports = function PlexClient () {
     })
   }
   this.seekTo = function (time, callback) {
-    //Seek to a time (in ms)
+    // Seek to a time (in ms)
     this.hitApi('/player/playback/seekTo', {
       'wait': 0,
       'offset': time
@@ -270,7 +270,7 @@ module.exports = function PlexClient () {
   }
 
   this.getRatingKey = function (callback) {
-    //Get the ratingKey, aka the mediaId, of the item playing
+    // Get the ratingKey, aka the mediaId, of the item playing
     this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result) {
       if (result) {
         //Valid response back from the client
@@ -290,7 +290,7 @@ module.exports = function PlexClient () {
   }
 
   this.getServerId = function (callback) {
-    //Get the machineId of the server we're playing from'
+    // Get the machineId of the server we're playing from'
     this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result) {
       if (result) {
         //Valid response back from the client
@@ -310,7 +310,7 @@ module.exports = function PlexClient () {
   }
 
   this.getPlayerState = function (callback) {
-    //Get the Player State (playing, paused or stopped)
+    // Get the Player State (playing, paused or stopped)
     this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result) {
       if (result) {
         //Valid response back from the client
@@ -330,7 +330,7 @@ module.exports = function PlexClient () {
   }
 
   this.getPlayerTime = function (callback) {
-    //Get the current playback time in ms
+    // Get the current playback time in ms
     this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result, responseTime, code) {
       if (result) {
         //Valid response back from the client
@@ -350,12 +350,11 @@ module.exports = function PlexClient () {
   }
 
   this.playMedia = function (data) {
-    //Play a media item given a mediaId key and a server to play from
-    //We need the following variables to build our paramaters:
-    //MediaId Key, Offset (0 for simplicity), server MachineId,
-    //Server Ip, Server Port, Server Protocol, Path
+    // Play a media item given a mediaId key and a server to play from
+    // We need the following variables to build our paramaters:
+    // MediaId Key, Offset, server MachineId,
+    // Server Ip, Server Port, Server Protocol, Path
     var that = this
-    console.log(data)
     // First lets mirror the item so the user has an idea of what we're about to play
 
     function send () {
@@ -369,7 +368,6 @@ module.exports = function PlexClient () {
       let path = data.server.chosenConnection.uri + mediaId
 
       let params = {
-
         'X-Plex-Client-Identifier': 'SyncLounge',
         'key': mediaId,
         'offset': offset,
@@ -386,18 +384,8 @@ module.exports = function PlexClient () {
         params.mediaIndex = data.mediaIndex
       }
 
-      //Now that we've built our params, it's time to hit the client api
-      that.hitApi(command, params, that.chosenConnection, function (result, the, code) {
-        console.log('play result: ')
-        console.log(code)
-        if (result != null) {
-          return data.callback(result, code, that)
-        }
-        else {
-          return data.callback(false, code, that)
-        }
-        //console.log(that.name + ' returned ' + result)
-      })
+      // Now that we've built our params, it's time to hit the client api
+      return this.hitApi(command, params, that.chosenConnection)
     }
 
     if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
@@ -410,11 +398,10 @@ module.exports = function PlexClient () {
 
   }
   this.mirrorContent = function (key, serverObject, callback) {
-    //Mirror a media item given a mediaId key and a server to play from
-    //We need the following variables to build our paramaters:
-    //MediaId Key, Offset (0 for simplicity), server MachineId,
-    //Server Ip, Server Port, Server Protocol, Path
-    var that = this
+    // Mirror a media item given a mediaId key and a server to play from
+    // We need the following variables to build our paramaters:
+    // MediaId Key, Offset (0 for simplicity), server MachineId,
+    // Server Ip, Server Port, Server Protocol, Path
     console.log('Trying to mirror content')
 
     let command = '/player/mirror/details'
@@ -427,7 +414,6 @@ module.exports = function PlexClient () {
     let path = serverObject.chosenConnection.uri + mediaId
 
     let params = {
-
       'X-Plex-Client-Identifier': 'SyncLounge',
       'key': mediaId,
       'machineIdentifier': serverId,
@@ -438,15 +424,8 @@ module.exports = function PlexClient () {
       'wait': 0,
       'token': serverObject.accessToken
     }
-    //Now that we've built our params, it's time to hit the client api
-    this.hitApi(command, params, this.chosenConnection, function (result, that, code) {
-      if (result != null) {
-        return callback(result, code, that)
-      }
-      else {
-        return callback(false, code, that)
-      }
-    })
+    // Now that we've built our params, it's time to hit the client api
+    return this.hitApi(command, params, this.chosenConnection)
   }
   this.subscribe = function (connection, commit) {
     return new Promise((resolve, reject) => {
@@ -463,8 +442,7 @@ module.exports = function PlexClient () {
           'protocol': 'http',
           'X-Plex-Device-Name': 'SyncLounge'
         }
-        //Now that we've built our params, it's time to hit the client api
-  
+        //Now that we've built our params, it's time to hit the client api  
         var query = ''
         for (let key in params) {
           query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
@@ -481,8 +459,7 @@ module.exports = function PlexClient () {
         this.setValue('commandId', this.commandId + 1)
         var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
         request(options, (error, response, body) => {
-          // console.log('subscription result', response)
-          
+          // console.log('subscription result', response)          
           this.setValue('lastSubscribe', new Date().getTime())
           if (error) {
             return reject(error)
@@ -526,7 +503,7 @@ module.exports = function PlexClient () {
         return (callback(false))
       }
       var _url = that.chosenConnection.uri + command + '?' + query
-      console.log('subscription url: ' + _url)
+      // console.log('subscription url: ' + _url)
       that.commandId = that.commandId + 1
       var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000)
       request(options, function (error, response, body) {
