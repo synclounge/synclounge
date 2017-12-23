@@ -382,7 +382,7 @@ module.exports = function PlexClient () {
         }
   
         // Now that we've built our params, it's time to hit the client api
-        await this.hitApi(command, params, that.chosenConnection)
+        await this.hitApi(command, params, this.chosenConnection)
         return true
       }
   

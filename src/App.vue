@@ -46,8 +46,8 @@
         <v-snackbar
           bottom
           :timeout="4000"
-          v-model="snackbar"
-        > <div style="text-align:center; width:100%">{{ snackbarMsg }}</div>
+          v-model="snackbar"> 
+          <div style="text-align:center; width:100%">{{ snackbarMsg }}</div>
         </v-snackbar>
       </v-container>
     </v-content> 
