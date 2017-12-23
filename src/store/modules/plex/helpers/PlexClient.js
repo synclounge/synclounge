@@ -357,7 +357,7 @@ module.exports = function PlexClient () {
     var that = this
     // First lets mirror the item so the user has an idea of what we're about to play
 
-    function send () {
+    const send = () => {
       let command = '/player/playback/playMedia'
       let mediaId = '/library/metadata/' + data.ratingKey
       let offset = data.offset || 0

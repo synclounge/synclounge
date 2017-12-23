@@ -29,7 +29,7 @@
         <v-layout row wrap>      
           <v-flex xs12 md6 lg7>
             <v-subheader>Plex Players {{ playercount }}</v-subheader>              
-            <div v-for="i in clients" :key="i.clientIdentifier">
+            <div v-for="i in recentClients" :key="i.clientIdentifier">
               <div v-on:click="previewClient(i); ; gotResponse = true">
                 <plexclient :startup="testClient" :sidebar="false" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
               </div>
@@ -139,6 +139,9 @@
           return '(' + Object.keys(this.plex.clients).length + ')'
         }
         return ''
+      },
+      recentClients: function () {
+        return this.$store.getters.recentClients
       }
     },
     watch: {
