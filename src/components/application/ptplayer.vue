@@ -577,7 +577,7 @@
           'X-Plex-Platform': 'SyncLounge',
           'X-Plex-Platform-Version': '57.0',
           'X-Plex-Device': 'HTML TV App',
-          'X-Plex-Device-Name': 'SyncLounge Player',
+          'X-Plex-Device-Name': 'SyncLounge',
           'X-Plex-Device-Screen-Resolution': window.screen.availWidth + 'x' + window.screen.availHeight,
           'X-Plex-Token': this.chosenServer.accessToken,
         }
@@ -606,7 +606,7 @@
             'X-Plex-Platform': that.browser,
             'X-Plex-Platform-Version': '57.0',
             'X-Plex-Device': 'Windows',
-            'X-Plex-Device-Name': 'SyncLoungePlayer',
+            'X-Plex-Device-Name': 'SyncLounge',
             'X-Plex-Device-Screen-Resolution': window.screen.availWidth + 'x' + window.screen.availHeight,
             'X-Plex-Token': that.chosenServer.accessToken,
 

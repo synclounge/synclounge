@@ -181,39 +181,33 @@ export default {
     },
 
     PLEX_CLIENT_FINDCONNECTION: async ({ state, commit }, client) => {
-        //This function iterates through all available connections and
+        // This function iterates through all available connections and
         // if any of them return a valid response we'll set that connection
         // as the chosen connection for future use.
         let resolved = false
         console.log('Finding connection for client', client)
         try {
             await Promise.all(client.plexConnections.map(async (connection, index) => {
-                let result = await client.hitApi('/player/timeline/poll', { wait: 0 }, connection, commit)
-                // console.log('Got result data', result)
-                if (result) {
-                    resolved = true
-                    //nsole.log('Succesfully connected to', server, 'via', connection)
-                    commit('PLEX_CLIENT_SET_CONNECTION', {
-                        client, connection
-                    })
-                    return result
-                } else {                        
-                    return false
+                let result
+                try {
+                    result = await client.hitApi('/player/timeline/poll', { wait: 0 }, connection)
+                    if (!resolved) {
+                        resolved = true    
+                        commit('PLEX_CLIENT_SET_CONNECTION', {
+                            client, connection
+                        })
+                        resolve()
+                    }                
+
+                } catch (e) {
+                    throw new Error(e)
                 }
-                
-                // return new Promise(async (_resolve, _reject) => {
-                //     try {
-                        
-                //     } catch (e) {
-                //         _reject(e)
-                //     }
-                // })
             }))
             if (!resolved) {
-                reject('Unable to find a connection')
+                return false
             }
         } catch (e) {
-            console.log('CATCH ALL', e)
+            throw new Error(e)
         }            
     },
 

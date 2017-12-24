@@ -65,7 +65,7 @@
                 <div v-if="testClient.product.indexOf('Web') > -1">
                   Note: Plex Web is currently not supported
                 </div>
-                <div v-if="testClientErrorMsg">
+                <div class="red--text lighten-3 text-xs-center" v-if="testClientErrorMsg">
                   {{ testClientErrorMsg }}
                 </div>
               </div>
@@ -154,21 +154,24 @@
     methods: {
       previewClient: function (client) {
         this.testClient = client
+        this.testClientErrorMsg = null
       },
       clientClicked: async function () {
         let client = this.testClient
         this.gotResponse = false
+        this.testClientErrorMsg = null
         try {
           let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client).catch(() => {
             this.gotResponse = true
-            console.log('Unable to connect to client')
-            this.$store.commit('PLEX_CLIENT_SET_VALUE', [client, 'connectedstatus', 'failed'])
+            this.testClientErrorMsg = 'Unable to connect to client'
           })
-          console.log('Got connection result', result)
-          this.$store.commit('SET_CHOSENCLIENT', client)
-          this.$store.commit('PLEX_CLIENT_SET_VALUE', [client, 'connectedstatus', 'connected'])
-          this.gotResponse = true
+          if (result) {
+            console.log('Got connection result', result)
+            this.$store.commit('SET_CHOSENCLIENT', client)
+            this.gotResponse = true
+          }
         } catch (e) {
+          this.gotResponse = true
         }
         // client.findConnection(function (res) {
         //   let plexObj = that.$store.state.plex

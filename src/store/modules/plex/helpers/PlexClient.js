@@ -61,7 +61,7 @@ module.exports = function PlexClient () {
   }
   this.uuid = this.generateGuid()
 
-  this.hitApi = function (command, params, connection, commit) {
+  this.hitApi = function (command, params, connection) {
 
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
@@ -77,12 +77,16 @@ module.exports = function PlexClient () {
         this.eventbus.$emit('command', data)
   
       } else {
+        console.log(command)
         const doRequest = () => {
           if (!connection) {
             if (!this.chosenConnection) {
               console.log('You should find a working connection via #findConnection first!')
             }
             connection = this.chosenConnection
+          }
+          if (!connection) {
+            return reject('No connection specified')
           }
           var query = 'type=video&'
           for (let key in params) {
@@ -105,16 +109,16 @@ module.exports = function PlexClient () {
             } else {
               parseXMLString(body, function (err, result) {
                 if (err || (response.statusCode != 200 && response.statusCode != 201)) {
-                  return reject(err || response.statusCode)
+                  return reject(err)
                 }
-                return resolve(result, response.elapsedTime, response.statusCode, connection)
+                return resolve(result)
             })
             }
           })
         }
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
             // We need to subscribe first!
-            let result = await this.subscribe(connection, commit)
+            // let result = await this.subscribe(connection, commit)
             doRequest()
             return
           
@@ -219,7 +223,7 @@ module.exports = function PlexClient () {
   }
   this.pressPlay = function (callback) {
     // Press play on the client
-    this.hitApi('/player/playback/play', {'wait': 0}, this.chosenConnection, function (result, responseTime) {
+    this.hitApi('/player/playback/play', {'wait': 0 }, this.chosenConnection).then((result, responseTime) => {
       if (result) {
         //Valid response back from the client
         return callback(result, responseTime)
@@ -231,7 +235,7 @@ module.exports = function PlexClient () {
 
   this.pressPause = function (callback) {
     // Press pause on the client
-    this.hitApi('/player/playback/pause', {'wait': 0}, this.chosenConnection, function (result, responseTime) {
+    this.hitApi('/player/playback/pause', {'wait': 0 }, this.chosenConnection).then((result, responseTime) => {
       if (result) {
         //Valid response back from the client
         return callback(result, responseTime)
@@ -242,7 +246,7 @@ module.exports = function PlexClient () {
   }
   this.pressStop = function (callback) {
     // Press pause on the client
-    this.hitApi('/player/playback/stop', {'wait': 0}, this.chosenConnection, function (result, responseTime) {
+    this.hitApi('/player/playback/stop', {'wait': 0 }, this.chosenConnection).then((result, responseTime) => {
       if (result) {
         //Valid response back from the client
         return callback(result, responseTime)
@@ -268,7 +272,7 @@ module.exports = function PlexClient () {
 
   this.getRatingKey = function (callback) {
     // Get the ratingKey, aka the mediaId, of the item playing
-    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result) {
+    this.hitApi('/player/timeline/poll', {'wait': 0 }, this.chosenConnection).then((result) => {
       if (result) {
         //Valid response back from the client
         var allTimelines = result.MediaContainer.Timeline
@@ -288,7 +292,7 @@ module.exports = function PlexClient () {
 
   this.getServerId = function (callback) {
     // Get the machineId of the server we're playing from'
-    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result) {
+    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection).then((result) => {
       if (result) {
         //Valid response back from the client
         var allTimelines = result.MediaContainer.Timeline
@@ -308,7 +312,7 @@ module.exports = function PlexClient () {
 
   this.getPlayerState = function (callback) {
     // Get the Player State (playing, paused or stopped)
-    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result) {
+    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection).then((result) => {
       if (result) {
         //Valid response back from the client
         var allTimelines = result.MediaContainer.Timeline
@@ -328,7 +332,7 @@ module.exports = function PlexClient () {
 
   this.getPlayerTime = function (callback) {
     // Get the current playback time in ms
-    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection, function (result, responseTime, code) {
+    this.hitApi('/player/timeline/poll', {'wait': 0}, this.chosenConnection).then((result, responseTime, code) => {
       if (result) {
         //Valid response back from the client
         var allTimelines = result.MediaContainer.Timeline
@@ -382,8 +386,8 @@ module.exports = function PlexClient () {
         }
   
         // Now that we've built our params, it's time to hit the client api
-        await this.hitApi(command, params, this.chosenConnection)
-        return true
+        return this.hitApi(command, params, this.chosenConnection)
+        
       }
   
       if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
@@ -433,7 +437,7 @@ module.exports = function PlexClient () {
         let tempId = 'SyncLoungeWeb'
         var command = '/player/timeline/subscribe'
         var params = {
-          'port': '8090',
+          'port': '8555',
           'protocol': 'http',
           'X-Plex-Device-Name': 'SyncLounge'
         }
@@ -476,7 +480,7 @@ module.exports = function PlexClient () {
       let tempId = 'SyncLoungeWeb'
       var command = '/player/timeline/unsubscribe'
       var params = {
-        'port': '8090',
+        'port': '8555',
         'protocol': 'http',
         'X-Plex-Device-Name': 'SyncLounge'
       }
