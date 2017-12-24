@@ -2,7 +2,7 @@
     <v-layout wrap row ckass="pt-2 pa-4" justify-center>
       <v-flex xs12 md8>
         <v-card style="background: rgba(0,0,0,0.3)" class="pa-4">
-          <h1 class="white--text center-text pa-4">Sign in to Plex.tv</h1>
+          <h1 :style="fontSizes.largest" class="center-text pa-4">Sign in to Plex.tv</h1>
           <div v-if="!pin">
             <v-layout wrap row style="position:relative">
               <v-flex xs12 md4 offset-md4>			
@@ -13,7 +13,7 @@
             </v-layout>
           </div>
           <div v-if="token" class="center-text" style="font-size:400%">
-              <v-icon class="green--text text--darken-2" style="font-size: 64px">done</v-icon>
+            <v-icon x-large class="green--text text--darken-2" style="font-size: 64px">done</v-icon>
             <h3 class="white--text">
               Signed in!
             </h3>
@@ -21,11 +21,11 @@
           <div v-if="pin && !token">
             <v-layout wrap row flex class="pt-4">
               <v-flex xs12 md6 offset-md3>
-                <h1 class="center-text" style="color:white !important; background-color: rgba(128, 128, 128, 0.2); letter-spacing:1px">{{ pin }}</h1>            
+                <h1 :style="fontSizes.largest" class="center-text" color="primary" style="color:white !important; background-color: rgba(128, 128, 128, 0.2); letter-spacing:1px">{{ pin }}</h1>            
                 <v-layout wrap row flex class="pt-4">
                   <v-flex xs4 offset-xs4 >
-                    <v-btn v-clipboard="pin" v-on:click.native="sendNotification()" primary class="pt-orange" style="width:100%">
-                      <v-icon  class="mr-2">content_copy</v-icon>
+                    <v-btn v-clipboard="pin" v-on:click.native="sendNotification()" primary class="primary" style="width:100%">
+                      <v-icon class="mr-2">content_copy</v-icon>
                       Copy
                     </v-btn>
                   </v-flex>      
@@ -95,8 +95,8 @@
       this.$http.post('https://plex.tv/pins.xml', null, {
         headers: {
           'X-Plex-Device': 'Web',
-          'X-Plex-Device-Name': 'PlexTogether',
-          'X-Plex-Product': 'PlexTogether',
+          'X-Plex-Device-Name': 'SyncLounge',
+          'X-Plex-Product': 'SyncLounge',
           'X-Plex-Version': '1.2',
           'X-Plex-Platform': sBrowser,
           'X-Plex-Platform-Version': '',
@@ -107,7 +107,7 @@
             if (!err) {
               this.pin = result.pin.code[0]
               this.ID = result.pin.id[0]._
-              let checker = setInterval(function () {
+              let checker = setInterval(() => {
                 var options = {
                   url: 'https://plex.tv/pins/' + result.pin.id[0]._ + '.xml',
                   headers: {
@@ -130,14 +130,14 @@
                       if (!err) {
                         if (result.pin.auth_token[0] != null && result.pin.auth_token[0].length > 1) {
                           console.log('GOT TOKEN!', this)
-                          that.token = result.pin.auth_token[0]
+                          this.token = result.pin.auth_token[0]
                           let jsonObj = {
                             authToken: this.token
                           }
                           storage.setItem('plexuser', JSON.stringify(jsonObj))
-                          await that.$store.dispatch('PLEX_LOGIN_TOKEN', token)
-                          setTimeout(function () {
-                            that.$router.push('/sync')
+                          await this.$store.dispatch('PLEX_LOGIN_TOKEN', this.token)
+                          setTimeout(() => {
+                            this.$router.push('/browse')
                           }, 2500)
                           clearInterval(checker)
                         }

@@ -24,7 +24,7 @@
     </v-toolbar>
     <v-content v-bind:style="mainStyle">
       <v-container class="ma-0 pa-3" align-start v-bind:style="containerStyle" style="height: 100%" fluid>
-        <v-flex xs12 v-if="loading || !plex.gotDevices">
+        <v-flex xs12 v-if="(loading || !plex.gotDevices) && route.meta.protected">
           <v-container fill-height>
             <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
               <v-flex xs8 md4>				
@@ -119,7 +119,12 @@
     },
     mounted: async function () {
       // Verify route changes 
-      
+      chrome.runtime.sendMessage('mlmjjfdcbemagmnjahllphjnohbmhcnf', { command: 'heartbeat' }, (response) => {
+        console.log(response)
+        if (response) {
+          this.$store.commit('SET_EXTAVAILABLE', true)
+        }    
+      })
       if (this.$route.query.ptserver && this.$route.query.ptroom) {
         console.log('We should auto join')
         // Looks like a valid request...
@@ -133,6 +138,12 @@
         this.snackbarMsg = msg
         this.snackbar = true
       })
+      window.EventBus.$on('PLAYBACK_CHANGE', (ratingKey) => {
+        // this.$store.dispatch('PLAYBACK_CHANGE', ratingKey)
+      })      
+      window.EventBus.$on('NEW_TIMELINE', (timeline) => {
+        this.$store.dispatch('NEW_TIMELINE', timeline)
+      })
       if (window['localStorage'].getItem('plexuser') == null) {
         console.log('User isnt signed in  - sending to signin')
         this.$router.push('/signin')
@@ -144,7 +155,11 @@
       }
       console.log('Logging in to Plex.Tv')
       let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken)
+      try {
+        await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken)
+      } catch (e) {
+        this.$router.push('/signin')
+      }
       this.loading = false
 
     },
@@ -164,7 +179,10 @@
       },     
       libraryCache: function () {
         return this.$store.getters.getLibraryCache
-      },		
+      },
+      extAvailable: function () {
+        return this.$store.getters.getExtAvailable
+      },
       crumbs: function () {
         if (this.$route.path.indexOf('browse') === -1) {
           return []

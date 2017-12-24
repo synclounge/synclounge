@@ -44,6 +44,9 @@ module.exports = function PlexClient () {
 
   this.eventbus = window.EventBus // Assigned early on - we will use this to communicate with the PT Player
   this.commit = null
+  this.dispatch = null
+
+  let previousTimeline = {}
 
   this.setValue = function (key, value) {
     this[key] = value
@@ -88,7 +91,9 @@ module.exports = function PlexClient () {
           if (!connection) {
             return reject('No connection specified')
           }
-          var query = 'type=video&X-Plex-Device-Name=SyncLounge&'
+          var query = ''
+          Object.assign(params, { type: 'video', 'X-Plex-Device-Name': 'SyncLounge'})
+          // console.log(params)
           for (let key in params) {
             query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
           }
@@ -100,21 +105,49 @@ module.exports = function PlexClient () {
           var _url = connection.uri + command + '?' + query
           this.setValue('commandId', this.commandId + 1)
           var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
-          console.log('sending api request', options)
-          request(options, (error, response, body) => {
-            // console.log('response data', response)
-            if (error) {
-              return reject(error)
-              
-            } else {
-              parseXMLString(body, function (err, result) {
-                if (err || (response.statusCode != 200 && response.statusCode != 201)) {
-                  return reject(err)
+          // console.log('sending api request', options)
+
+          chrome.runtime.sendMessage('mlmjjfdcbemagmnjahllphjnohbmhcnf', { 
+            command: 'client',
+            data: {
+              url: _url,
+              query: params,
+              options: options
+            },
+            client_command: command, 
+            query: query 
+          }, (response) => {
+            // console.log('SyncLoungePlus response', response)
+            if (response) {
+              parseXMLString(response, (err, result) => {
+                resolve(result)
+                if (command === '/player/timeline/poll') {
+                  this.updateTimelineObject(result)
                 }
-                return resolve(result)
-            })
-            }
+                return 
+              })
+            } else {
+              // request(options, (error, response, body) => {
+              //   // console.log('response data', response)
+              //   if (error) {
+              //     return reject(error)
+                  
+              //   } else {
+              //     parseXMLString(body, function (err, result) {
+              //       if (err || (response.statusCode != 200 && response.statusCode != 201)) {
+              //         return reject(err)
+              //       }
+              //       return resolve(result)
+              //     })
+              //   }
+              // })
+            }  
           })
+
+
+
+
+          
         }
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
             // We need to subscribe first!
@@ -152,10 +185,9 @@ module.exports = function PlexClient () {
   }
 
   this.updateTimelineObject = function (result) {
-    this.setValue('lastTimelineObject', result)
-    this.lastTimelineObject = result    
-    this.events.emit('new_timeline', result)
-
+    
+    // this.events.emit('new_timeline', result)
+    // console.log('New timeline', result)
     // Check if we are the SLPlayer
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // SLPLAYER
@@ -190,40 +222,47 @@ module.exports = function PlexClient () {
     // Valid timeline data
     // Standard player
     let timelines = result.MediaContainer.Timeline
-    let videoTimeline = null
+    let videoTimeline = {}
     for (let i = 0; i < timelines.length; i++) {
       let _timeline = timelines[i]['$']
       if (_timeline.type == 'video'){
         videoTimeline = _timeline
-      }
-      if ((_timeline.state && _timeline.state != 'stopped') || i == (timelines.length - 1)) {
-        this.events.emit('new_timeline', timelines[i]['$'])
-        var clonetimeline = this.lastTimelineObject
-        this.lastTimelineObject = timelines[i]['$'] 
-        this.setValue('lastTimelineObject', timelines[i]['$'])
-        if (!this.oldTimelineObject) {
-          // First time we've got data!
-          if (!this.lastTimelineObject.ratingKey) {
-            this.events.emit('playback_change', null)
-          } else {
-            this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
-          }
-          this.setValue('oldTimelineObject', timelines[i]['$'])
-          // this.oldTimelineObject = timelines[i]['$']
-          return timelines[i]['$']
+        console.log('Does', videoTimeline.ratingKey + ' equal ' + previousTimeline.ratingKey)
+        if (videoTimeline.ratingKey !== previousTimeline.ratingKey) {
+          window.EventBus.$emit('PLAYBACK_CHANGE', [this, videoTimeline.ratingKey, result.MediaContainer])
         }
-        this.setValue('oldTimelineObject', clonetimeline)
-        this.oldTimelineObject = clonetimeline
-        if (this.oldTimelineObject.ratingKey != result.ratingKey) {
-          if (!this.lastTimelineObject.ratingKey) {
-            this.events.emit('playback_change', null)
-          } else {
-            this.events.emit('playback_change', result.ratingKey)
-          }
-        }
-        return timelines[i]['$']
       }
+      // if ((_timeline.state && _timeline.state != 'stopped') || i == (timelines.length - 1)) {
+      //   this.events.emit('new_timeline', timelines[i]['$'])
+      //   var clonetimeline = this.lastTimelineObject
+      //   this.lastTimelineObject = timelines[i]['$'] 
+      //   this.setValue('lastTimelineObject', timelines[i]['$'])
+      //   if (!this.oldTimelineObject) {
+      //     // First time we've got data!
+      //     if (!this.lastTimelineObject.ratingKey) {
+      //       this.events.emit('playback_change', null)
+      //     } else {
+      //       this.events.emit('playback_change', this.lastTimelineObject.ratingKey)
+      //     }
+      //     this.setValue('oldTimelineObject', timelines[i]['$'])
+      //     // this.oldTimelineObject = timelines[i]['$']
+      //     return timelines[i]['$']
+      //   }
+      //   this.setValue('oldTimelineObject', clonetimeline)
+      //   this.oldTimelineObject = clonetimeline
+      //   if (this.oldTimelineObject.ratingKey != result.ratingKey) {
+      //     if (!this.lastTimelineObject.ratingKey) {
+      //       this.events.emit('playback_change', null)
+      //     } else {
+      //       this.events.emit('playback_change', result.ratingKey)
+      //     }
+      //   }
+      //   return timelines[i]['$']
+      // }
     }
+    window.EventBus.$emit('NEW_TIMELINE', [this, videoTimeline, result.MediaContainer])
+    previousTimeline = videoTimeline
+    // this.setValue('lastTimelineObject', videoTimeline)
     return videoTimeline
   }
   this.pressPlay = function (callback) {

@@ -76,6 +76,8 @@ const state = {
   autoJoinPassword: null,
   shortLink: null,
   webapp_socket: _webapp_socket,
+  extAvailable: false,
+  lastRatingKey: null,
   // SETTINGS
   DARKMODE: JSON.parse(getSetting('DARKMODE')),
   CLIENTPOLLINTERVAL: getSetting('CLIENTPOLLINTERVAL'),
@@ -91,77 +93,9 @@ const state = {
 }
 
 const mutations = {
+  
   SET_CHOSENCLIENT (state, client) {
-    async function playbackChange (ratingKey) {
-      // console.log('Playback change!', ratingKey)
-      if (ratingKey != null) {
-        // Playing something different!
-        let server = state.plex.servers[state.chosenClient.lastTimelineObject.machineIdentifier]
-        state.LASTSERVER = state.chosenClient.lastTimelineObject.machineIdentifier        
-        window['localStorage'].setItem('LASTSERVER', state.chosenClient.lastTimelineObject.machineIdentifier)
-        if (!server) {
-          return
-        }
-        // Fetch our metadata from this server
-        // console.log('Loading content metadata from store ' + ratingKey)
-        server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {
-          let metadata = data.MediaContainer.Metadata[0]
-          if (!metadata) {
-            return
-          }
-          if (metadata.type == 'movie') {
-            sendNotification('Now Playing: ' + metadata.title + ' from ' + state.plex.servers[metadata.machineIdentifier].name)
-          }
-          if (metadata.type == 'episode') {
-            sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.servers[metadata.machineIdentifier].name)
-          }
-          state.chosenClient.clientPlayingMetadata = metadata
-          var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-          var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-          state.background =  state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
-        })
-      } else {
-        let thumb = await state.plex.getRandomThumb(state.plex)
-        if (thumb) {
-          state.background = thumb
-        }
-        state.chosenClient.clientPlayingMetadata = null
-      }
-    }
-
-    function newTimeline (timeline) {
-      // console.log('Got timeline')
-      // Lets send this to our PTServer
-      state.ourClientResponseTime = timeline.lastResponseTime
-      let title = null
-      let rawTitle = null
-      if (state.chosenClient.clientPlayingMetadata) {
-        let metadata = state.chosenClient.clientPlayingMetadata
-        rawTitle = metadata.title
-        if (metadata.type == 'episode') {
-          title = metadata.grandparentTitle + ' - ' + metadata.title + ' S' + metadata.parentIndex + '-' + 'E' + metadata.index
-        } else {
-          title = metadata.title
-        }
-      }
-      let end_obj = {
-        time: timeline.time,
-        maxTime: timeline.duration,
-        title: title,
-        rawTitle: rawTitle,
-        playerState: timeline.state,
-        clientResponseTime: state.chosenClient.lastResponseTime
-      }
-      let time = -1
-      let maxTime = -1
-      let playerState = null
-      let showName = null
-
-      if (state.synclounge._socket) {
-        state.synclounge._socket.pollStartTime = (new Date).getTime()
-        state.synclounge._socket.emit('poll', end_obj)
-      }
-    }
+    
 
     // Set up our client poller
     function clientPoller (time) {
@@ -191,8 +125,6 @@ const mutations = {
     if (state.chosenClient == null) {
       return
     }
-    state.chosenClient.events.on('new_timeline', newTimeline)
-    state.chosenClient.events.on('playback_change', playbackChange)
     state.chosenClientTimeSet = (new Date).getTime()
     clientPoller(state.chosenClientTimeSet)
     state.chosenClient.getTimeline(function (timeline) {})
@@ -298,6 +230,14 @@ const mutations = {
   },
   SET_HOSTPTSERVERRESPONSETIME (state, value) {
     state.stats.hostPTServerResponseTime = value
+  },
+  SET_EXTAVAILABLE (state, value) {
+    state.extAvailable = value
+  },
+  SET_VALUE (state, data) {
+    let [ key, value ] = data
+    console.log('Setting state', key, 'to', value)
+    state[key] = value
   }
 }
 const getters = {
@@ -368,6 +308,9 @@ const getters = {
   },
   getSettingLASTSERVER: state => {
     return state.LASTSERVER
+  },
+  getExtAvailable: state => {
+    return state.extAvailable
   }
 }
 const actions = {
@@ -375,7 +318,89 @@ const actions = {
     setTimeout(() => {
       commit('INCREMENT')
     }, 200)
-  }
+  },
+  async PLAYBACK_CHANGE ({ commit, state, dispatch }, data) {
+    console.log('Playback change!', state.chosenClient)
+    let [ client, ratingKey, mediaContainer ] = data
+    if (ratingKey) {
+      // Playing something different!
+      console.log(mediaContainer)
+      let server = state.plex.servers[mediaContainer.machineIdentifier]
+      state.LASTSERVER = mediaContainer.machineIdentifier        
+      window['localStorage'].setItem('LASTSERVER', mediaContainer.machineIdentifier)
+      if (!server) {
+        console.log('Playing off a server we do not have access to')
+        return
+      }
+      // Fetch our metadata from this server
+      // console.log('Loading content metadata from store ' + ratingKey)
+      server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {
+        console.log('Metadata:', data)
+        let metadata = data.MediaContainer.Metadata[0]
+        if (!metadata) {
+          return
+        }
+        if (metadata.type == 'movie') {
+          sendNotification('Now Playing: ' + metadata.title + ' from ' + state.plex.servers[metadata.machineIdentifier].name)
+        }
+        if (metadata.type == 'episode') {
+          sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.servers[metadata.machineIdentifier].name)
+        }
+        state.chosenClient.clientPlayingMetadata = metadata
+        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        state.background =  state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
+      })
+    } else {
+      let thumb = await state.plex.getRandomThumb(state.plex)
+      if (thumb) {
+        state.background = thumb
+      }
+      state.chosenClient.clientPlayingMetadata = null
+    }
+  },
+  NEW_TIMELINE ({ commit, state, dispatch }, data) {
+    // return true
+    let [ client, timeline, mediaContainer ] = data
+    // console.log(state)
+    if (!state.chosenClient || (client.clientIdentifier !== state.chosenClient.clientIdentifier)) {
+      console.log('Invalid client')
+      return false
+    }
+    if (state.lastRatingKey !== timeline.ratingKey) {
+      commit('SET_VALUE', ['lastRatingKey', timeline.ratingKey])
+      dispatch('PLAYBACK_CHANGE', [ client, timeline.ratingKey, timeline])
+    }
+    // state.ourClientResponseTime = timeline.lastResponseTime
+    let title = null
+    let rawTitle = null
+    if (state.chosenClient.clientPlayingMetadata) {
+      let metadata = state.chosenClient.clientPlayingMetadata
+      rawTitle = metadata.title
+      if (metadata.type == 'episode') {
+        title = metadata.grandparentTitle + ' - ' + metadata.title + ' S' + metadata.parentIndex + '-' + 'E' + metadata.index
+      } else {
+        title = metadata.title
+      }
+    }
+    let end_obj = {
+      time: timeline.time,
+      maxTime: timeline.duration,
+      title: title,
+      rawTitle: rawTitle,
+      playerState: timeline.state,
+      clientResponseTime: state.chosenClient.lastResponseTime
+    }
+    let time = -1
+    let maxTime = -1
+    let playerState = null
+    let showName = null
+
+    if (state.synclounge._socket) {
+      state.synclounge._socket.pollStartTime = (new Date).getTime()
+      state.synclounge._socket.emit('poll', end_obj)
+    }
+  },
 }
 
 

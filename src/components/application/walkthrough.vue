@@ -145,8 +145,8 @@
       }
     },
     watch: {
-      chosenClient: function () {
-        if (this.chosenClient) {
+      chosenClient: function (to, from) {
+        if (this.chosenClient && !from) {
           this.$router.push('/joinroom')
         }
       }

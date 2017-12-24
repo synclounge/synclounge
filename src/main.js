@@ -74,17 +74,28 @@ Vue.mixin({
     plexserver: function () {
       return this.plex.servers[this.$route.params.machineIdentifier]
     },
+    route: function () {
+      return this.$route
+    },
     fontSizes: function () {
       var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
       var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
       let maxPx = 94
       let maxRes = 3000
       return {
-        largest: { 'font-size': ((w / maxRes) * maxPx) + 'px' }
+        largest: { 'font-size': ((w / maxRes) * maxPx) + 'px' },        
+        medium: { 'font-size': ((w / maxRes) * maxPx) * 0.6 + 'px' }
       }
     }
   }
 })
+
+
+
+// var data = { type: "FROM_PAGE", text: "Hello from the webpage!", callback: (res) => {
+//   console.log('Result callback!', res)
+// }};
+// window.postMessage(data, "*");
 
 router.beforeEach((to, from, next) => {
   console.log('Route change', to, this, store)
@@ -112,7 +123,9 @@ router.beforeEach((to, from, next) => {
     console.log('Valid route change!')
     next()
   } else {
-    next() // make sure to always call next()!
+    if (!to.meta.protected) {
+      return next() // make sure to always call next()!
+    }
     router.push('/browse')
   }
 })

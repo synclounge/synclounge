@@ -15,14 +15,13 @@ export default new Router({
   base: '/ptweb/',
   routes: [
     { path: '/', meta: { protected: true } },
-    { path: '/signin', component: signin },
-    { path: '/signout', component: signout },
-    { path: '/join', component: join },
-    { path: '/clientselect', component: require('../components/application/walkthrough.vue') },
-    { path: '/joinroom', component: require('../components/application/joinroom.vue') },
+    { path: '/signin', meta: { noload: true }, component: signin },
+    { path: '/signout', meta: { noload: true }, component: signout },
+    { path: '/join', meta: { noload: true }, component: join },
+    { path: '/clientselect', meta: { noload: false }, component: require('../components/application/walkthrough.vue') },
+    { path: '/joinroom', meta: { noload: false }, component: require('../components/application/joinroom.vue') },
 
     { path: '/player', meta: { protected: true }, component: require('../components/application/ptplayer.vue') },
-
     
     { path: '/browse', meta: { protected: true }, name: 'browse', component: require('../components/application/plexbrowser.vue') },
     { path: '/browse/:machineIdentifier', meta: { protected: true }, name: 'server', component: require('../components/application/plexbrowser/plexserver.vue'), },

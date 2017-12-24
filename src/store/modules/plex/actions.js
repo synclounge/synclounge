@@ -173,7 +173,8 @@ export default {
 
     PLEX_ADD_CLIENT: ({ state, commit, dispatch }, client) => {
         commit('PLEX_CLIENT_SET', client)
-        commit('PLEX_CLIENT_SET_VALUE', [client, 'commit', commit])
+        commit('PLEX_CLIENT_SET_VALUE', [client, 'commit', commit])        
+        commit('PLEX_CLIENT_SET_VALUE', [client, 'dispatch', dispatch])
     },
     PLEX_ADD_SERVER: ({ state, commit, dispatch }, server) => {
         commit('PLEX_SERVER_SET', server)
