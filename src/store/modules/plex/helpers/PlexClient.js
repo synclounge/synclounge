@@ -88,7 +88,7 @@ module.exports = function PlexClient () {
           if (!connection) {
             return reject('No connection specified')
           }
-          var query = 'type=video&'
+          var query = 'type=video&X-Plex-Device-Name=SyncLounge&'
           for (let key in params) {
             query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
           }
@@ -100,7 +100,7 @@ module.exports = function PlexClient () {
           var _url = connection.uri + command + '?' + query
           this.setValue('commandId', this.commandId + 1)
           var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
-          // console.log('sending api request', options)
+          console.log('sending api request', options)
           request(options, (error, response, body) => {
             // console.log('response data', response)
             if (error) {
@@ -118,8 +118,13 @@ module.exports = function PlexClient () {
         }
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
             // We need to subscribe first!
-            // let result = await this.subscribe(connection, commit)
-            doRequest()
+
+            try {
+              // await this.subscribe(connection)
+              doRequest()
+            } catch (e) {
+              reject(e)
+            }
             return
           
         } else {
@@ -434,14 +439,13 @@ module.exports = function PlexClient () {
           // It is possible to try to subscribe before we've found a working connection
           connection = this.chosenConnection
         }
-        let tempId = 'SyncLoungeWeb'
         var command = '/player/timeline/subscribe'
         var params = {
           'port': '8555',
           'protocol': 'http',
           'X-Plex-Device-Name': 'SyncLounge'
         }
-        //Now that we've built our params, it's time to hit the client api  
+        // Now that we've built our params, it's time to hit the client api  
         var query = ''
         for (let key in params) {
           query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
@@ -457,6 +461,7 @@ module.exports = function PlexClient () {
         this.commandId = this.commandId + 1
         this.setValue('commandId', this.commandId + 1)
         var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
+        console.log(options)
         request(options, (error, response, body) => {
           // console.log('subscription result', response)          
           this.setValue('lastSubscribe', new Date().getTime())
