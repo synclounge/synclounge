@@ -180,35 +180,49 @@ export default {
         commit('PLEX_SERVER_SET_VALUE', [server, 'commit', commit])
     },
 
-    PLEX_CLIENT_FINDCONNECTION: async ({ state, commit }, client) => {
+    PLEX_CLIENT_FINDCONNECTION: ({ state, commit }, client) => {
         // This function iterates through all available connections and
         // if any of them return a valid response we'll set that connection
         // as the chosen connection for future use.
-        let resolved = false
-        console.log('Finding connection for client', client)
-        try {
-            await Promise.all(client.plexConnections.map(async (connection, index) => {
-                let result
-                try {
-                    result = await client.hitApi('/player/timeline/poll', { wait: 0 }, connection)
+        return new Promise((resolve, reject) => {
+            let resolved = false
+            console.log('Finding connection for client', client)
+            try {
+                Promise.all(client.plexConnections.map((connection, index) => {
+                    return new Promise((_resolve, _reject) => {
+                        let result
+                        try {
+                            result = client.hitApi('/player/timeline/poll', { wait: 0 }, connection)
+                                .then((result) => {
+                                    console.log('Connection result', result)
+                                    if (!resolved) {
+                                        resolved = true    
+                                        commit('PLEX_CLIENT_SET_CONNECTION', {
+                                            client, connection
+                                        })
+                                        _resolve(true)
+                                        resolve(true)                                        
+                                    }   
+                                })
+                                .catch((e) => {
+                                    return _reject(e)
+                                })     
+                        } catch (e) {
+                            return _reject(e)
+                        }
+                    })               
+                })).then((res) => {
                     if (!resolved) {
-                        resolved = true    
-                        commit('PLEX_CLIENT_SET_CONNECTION', {
-                            client, connection
-                        })
-                        resolve()
-                    }                
-
-                } catch (e) {
-                    throw new Error(e)
-                }
-            }))
-            if (!resolved) {
-                return false
-            }
-        } catch (e) {
-            throw new Error(e)
-        }            
+                        return reject()
+                    }
+                }).catch((e) => {
+                    return reject(e)
+                })
+            } catch (e) {
+                throw new Error(e)
+            }        
+        })
+    
     },
 
     PLEX_CLIENT_UPDATETIMELINE: ({ state, commit, dispatch }, data) => {

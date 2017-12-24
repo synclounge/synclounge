@@ -171,6 +171,7 @@
             this.gotResponse = true
           }
         } catch (e) {
+          console.log(e)
           this.gotResponse = true
         }
         // client.findConnection(function (res) {

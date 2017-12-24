@@ -41,20 +41,17 @@ export default {
         state.clients[client.clientIdentifier].chosenConnection = connection
     },
     SET_ITEMCACHE: (state, data) => {
-        // return
         let [ratingKey, newData] = data
         if (!state.itemCache[newData.machineIdentifier]) {
             state.itemCache[newData.machineIdentifier] = {}
         }        
-        state.itemCache[newData.machineIdentifier][ratingKey] = newData
+        Vue.set(state.itemCache[newData.machineIdentifier], ratingKey, newData) 
     },
     SET_LIBRARYCACHE: (state, data) => {
-        // return
-        console.log('Setting library cache', data)
         let [id, machineIdentifier, newData] = data
         if (!state.libraryCache[machineIdentifier]) {
             state.libraryCache[machineIdentifier] = {}
-        }        
-        state.libraryCache[machineIdentifier][id] = newData
+        } 
+        Vue.set(state.libraryCache[machineIdentifier], id, newData)   
     }
 };
