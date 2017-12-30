@@ -1,8 +1,8 @@
 <template>
-    <v-layout wrap row ckass="pt-4">
+    <v-layout wrap row ckass="pa-4">
       <v-flex xs12 md8 offset-md2>
-        <v-card style="background: rgba(0,0,0,0.3)">
-          <h4 class="white--text center-text pa-1"> Welcome to SyncLounge!</h4>
+        <v-card style="background: rgba(0,0,0,0.3)" class="pa-2">
+          <h4 class="white--text center-text pa-1"> Welcome to SyncLounge</h4>
           </div>
           <div class="center-text">
             <h6><span style="font-weight:900">{{ owner }}</span> has invited you to join the room <span
