@@ -3,10 +3,10 @@
 
  
 <p align="center">
-  <a href="https://hub.docker.com/r/starbix/plextogether/builds/"><img src="https://img.shields.io/docker/build/starbix/plextogether.svg" alt="Build Status"></a>
-  <a href="https://microbadger.com/images/starbix/plextogether:latest"><img src="https://images.microbadger.com/badges/version/starbix/plextogether:latest.svg" alt="Version"></a>
-  <a href="https://microbadger.com/images/starbix/plextogether:latest"><img src="https://images.microbadger.com/badges/image/starbix/plextogether:latest.svg" alt="Size"></a>
-  <a href="https://hub.docker.com/r/starbix/plextogether/"><img src="https://img.shields.io/docker/pulls/starbix/plextogether.svg" alt="Pulls"></a>
+  <a href="https://hub.docker.com/r/starbix/synclounge/builds/"><img src="https://img.shields.io/docker/build/starbix/synclounge.svg" alt="Build Status"></a>
+  <a href="https://microbadger.com/images/starbix/synclounge:latest"><img src="https://images.microbadger.com/badges/version/starbix/synclounge:latest.svg" alt="Version"></a>
+  <a href="https://microbadger.com/images/starbix/synclounge:latest"><img src="https://images.microbadger.com/badges/image/starbix/synclounge:latest.svg" alt="Size"></a>
+  <a href="https://hub.docker.com/r/starbix/synclounge/"><img src="https://img.shields.io/docker/pulls/starbix/plextogether.svg" alt="Pulls"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
   <br>
 </p>
@@ -32,7 +32,7 @@ The host has complete control over a room. Commands they send to their client wi
 	* Built specifically for syncing. 
 * Settings to tune SyncLounge to your environment
 	* Client Polling Interval - Sets how frequently SyncLounge will poll the client for new information.
-	* Sync Flexability - Sets the acceptable distance away from the host in milliseconds.
+  * Sync Flexibility - Sets the acceptable distance away from the host in milliseconds.
 	* Sync method:
 		* Clean seek - Seeks straight to where the host is.
 		* Skip ahead - Seeks 10 seconds ahead, pauses and then resumes 10 seconds later.
@@ -59,7 +59,7 @@ The host has complete control over a room. Commands they send to their client wi
 		* Maximum timestamp (Eg. 03:48:18)
 		* Playerstate (Eg. paused, stopped, playing)
 		* Client response time (Ping time between you and your Plex Client)
-	* PT Server address, SL Server Room and SL Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
+	* SL Server address, SL Server Room and SL Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
 * _What about the public server provided by SyncLounge? Is my data safe?_
 	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
@@ -101,28 +101,28 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 ## Building and deploying
 
 ### Docker
-This is the official Docker container for SyncLounge: https://hub.docker.com/r/starbix/plextogether
+This is the official Docker container for SyncLounge: https://hub.docker.com/r/starbix/synclounge
 
 The following tags are available:
-* latest / alpine: webapp and server based on alpine
+* latest: webapp and server based on alpine
 * server: only server based on alpine
 * dev: development version of webapp and server based on alpine
 * nginx: latest + nginx reverse proxy
 ```
 docker run \
-  --name=plextogether \
+  --name=synclounge \
 	-p 8088:8088 \
 	-p 8089:8089 \
 	-e DOMAIN=example.com \
-  starbix/plextogether
+  starbix/synclounge
 ```
 Use this for the nginx tag:
 ```
 docker run \
-  --name=plextogether_nginx \
+  --name=synclounge_nginx \
 	-p 80:80 \
 	-e DOMAIN=example.com \
-  starbix/plextogether:nginx
+  starbix/synclounge:nginx
 ```
 ### Building and running the webapp:
 
@@ -132,8 +132,8 @@ docker run \
 	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run build``
-	*  ``node webapp.js --url=http://example.com/ptweb``
-* The PT web app will be running at http://ip:8088/ptweb.
+	*  ``node webapp.js --url=http://example.com/slweb``
+* The SL web app will be running at http://ip:8088/slweb.
 
 
 ### Running the server:
@@ -144,7 +144,7 @@ docker run \
 	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run server``
-* The PT server will be running at http://ip:8089/ptserver.
+* The SL server will be running at http://ip:8089/slserver.
 
 ### Deploying:
 * To run both the SyncLounge webapp and the SyncLounge server through a web server like nginx you will need to make sure you proxy websockets. Example nginx.conf:
@@ -153,14 +153,14 @@ docker run \
         listen 80;
     	server_name example.com;
     	root /location/of/synclounge/;
-    	location /ptweb {
-    		proxy_pass http://localhost:8088/ptweb;
+    	location /slweb {
+    		proxy_pass http://localhost:8088/slweb;
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
     	}
-    	location /ptserver {
-    		proxy_pass http://localhost:8089/ptserver;
+    	location /slserver {
+    		proxy_pass http://localhost:8089/slserver;
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
@@ -169,7 +169,7 @@ docker run \
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
-    		proxy_pass http://localhost:8088/ptweb;
+    		proxy_pass http://localhost:8088/slweb;
     	}
     }
     ```
@@ -179,8 +179,8 @@ You need:
 
 * Node v6+
 
-	*  ``git clone https://github.com/samcm/SyncLounge``
-	*  ``cd plextogether``
+	*  ``git clone https://github.com/samcm/synclounge``
+	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run dev``
 * Once Webpack has finished compiling, navigate to http://localhost:8080 in your web browser.
