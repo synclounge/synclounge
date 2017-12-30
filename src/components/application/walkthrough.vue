@@ -127,7 +127,7 @@
         return this.$store
       },
       logo: function () {
-        return 'ptweb/logo-long-light.png'
+        return 'slweb/logo-long-light.png'
       },
       playercount: function () {
         if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
