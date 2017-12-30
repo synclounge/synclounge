@@ -50,7 +50,7 @@
         return this.$store
       },
       logo: function () {
-        return 'ptweb/logo-small-light.png'
+        return 'slweb/logo-small-light.png'
       },
       appVersion () {
         return this.$store.state.appVersion

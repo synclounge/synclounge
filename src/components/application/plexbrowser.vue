@@ -84,7 +84,7 @@
                 <v-layout row>                  
                   <v-flex xs4>
                      <v-card-media
-                        src="ptweb/plexlogo.png"
+                        src="slweb/plexlogo.png"
                         height="110px"
                         contain
                       ></v-card-media>
@@ -106,7 +106,7 @@
                 <v-layout row>                  
                   <v-flex xs4>
                      <v-card-media
-                        src="ptweb/plexlogo.png"
+                        src="slweb/plexlogo.png"
                         height="110px"
                         contain
                       ></v-card-media>
