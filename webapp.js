@@ -32,7 +32,7 @@ root.use( bodyParser() )
 // root.use(bodyParser.urlencoded({ extended: true }))
 
 // Setup our web app
-root.use('/ptweb/', express.static(path.join(__dirname, 'dist')));
+root.use('/slweb/', express.static(path.join(__dirname, 'dist')));
 
 
 // Merge everything together
