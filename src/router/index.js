@@ -12,7 +12,7 @@ Vue.use(Router)
 // ==================== Router registration ====================
 export default new Router({
   mode: 'hash',
-  base: '/ptweb/',
+  base: '/slweb/',
   routes: [
     {path: '/', component: home},
     {path: '/sync', component: application},

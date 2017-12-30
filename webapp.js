@@ -5,11 +5,11 @@
 
 const args = require("args-parser")(process.argv)
 if (!args['url']){
-  console.log('Missing required argument -url. EG. "node webapp.js --url=http://example.com/ptweb". This URL is used for redirecting invite links.')
+  console.log('Missing required argument -url. EG. "node webapp.js --url=http://example.com/slweb". This URL is used for redirecting invite links.')
   return
 }
 var accessIp = args['url'] // EG 'http://95.231.444.12:8088/ptweb' or 'http://example.com/ptweb'
-if (accessIp.indexOf('/ptweb') == -1){
+if (accessIp.indexOf('/slweb') == -1){
   console.log('WARNING: /ptweb was not found in your url. Unless you have changed the URL Base make sure to include this.')
 }
 var PORT = 8088
@@ -37,7 +37,7 @@ root.use('/ptweb/', express.static(path.join(__dirname, 'dist')));
 
 // Merge everything together
 
-root.get('/ptweb/invite/:id', (req,res) => {
+root.get('/slweb/invite/:id', (req,res) => {
     console.log('handling an invite')
     let shortObj = shortenedLinks[req.params.id]
     if (!shortObj){
@@ -47,7 +47,7 @@ root.get('/ptweb/invite/:id', (req,res) => {
     console.log(JSON.stringify(shortObj, null, 4))    
     return res.redirect(shortObj.fullUrl)
 })
-root.post('/ptweb/invite', (req, res) => {
+root.post('/slweb/invite', (req, res) => {
     res.setHeader('Content-Type', 'application/json')
     if (!req.body) {
         return res.send({
@@ -57,7 +57,7 @@ root.post('/ptweb/invite', (req, res) => {
     }
     console.log('Generating Invite URL via the API.')
     let data = {}
-    let fields = ['ptserver', 'ptroom', 'ptpassword', 'owner']
+    let fields = ['slserver', 'slroom', 'slpassword', 'owner']
     for (let i = 0; i < fields.length; i++) {
         if (!req.body[fields[i]]) {
             return res.send({
@@ -91,7 +91,7 @@ root.use(cors())
 
 var rootserver = require('http').createServer(root);
 
-var webapp_io = require('socket.io')(rootserver, { path: '/ptweb/socket.io'} )
+var webapp_io = require('socket.io')(rootserver, { path: '/slweb/socket.io'} )
 
 function getUniqueId(){
     while (true){
@@ -108,21 +108,21 @@ function shortenObj(data){
     returnable.urlOrigin = accessIp
     returnable.owner = data.owner
 
-    returnable.ptserver = data.ptserver
-    returnable.ptroom = data.ptroom
-    returnable.ptpassword = data.ptpassword
+    returnable.slserver = data.slserver
+    returnable.slroom = data.slroom
+    returnable.slpassword = data.slpassword
 
     returnable.starttime = (new Date).getTime()
     returnable.id = getUniqueId()
     returnable.shortUrl = accessIp + '/invite/' + returnable.id
 
     let params = {
-        ptserver: data.ptserver,
-        ptroom: data.ptroom,
+        slserver: data.slserver,
+        slroom: data.slroom,
         owner: data.owner
     }
-    if (data.ptpassword){
-        params.ptpassword = data.ptpassword
+    if (data.slpassword){
+        params.slpassword = data.slpassword
     }
     let query = ''
     for (let key in params) {

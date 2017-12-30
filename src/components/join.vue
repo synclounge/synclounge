@@ -29,9 +29,9 @@
     mounted: function () {
       var that = this
       console.log('Hello from join...')
-      this.password = this.$route.query.ptpassword
-      this.room = this.$route.query.ptroom
-      this.server = this.$route.query.ptserver
+      this.password = this.$route.query.sltpassword
+      this.room = this.$route.query.slroom
+      this.server = this.$route.query.slserver
       this.owner = this.$route.query.owner
 
       if (this.room && this.server) {
@@ -54,7 +54,7 @@
     },
     computed: {
       logo: function () {
-        return 'ptweb/logo-small-light.png'
+        return 'slweb/logo-small-light.png'
       }
     },
     methods: {

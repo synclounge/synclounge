@@ -25,14 +25,14 @@ var ptserver = express();
 
 // Setup our PTServer
 ptserver.get('/',function(req,res){
-    return res.send("You've connected to the PTServer, you're probably looking for the webapp.")
+    return res.send("You've connected to the SLServer, you're probably looking for the webapp.")
 })
 
 // Merge everything together
 
-root.use('/ptserver',ptserver)
+root.use('/slserver',ptserver)
 root.get('*',function(req,res){
-    return res.send('You\'ve connected to the PTServer, you\'re probably looking for the webapp.')
+    return res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.')
 })
 
 
@@ -40,7 +40,7 @@ root.get('*',function(req,res){
 
 
 var rootserver = require('http').createServer(root);
-var ptserver_io = require('socket.io')(rootserver,{path: '/ptserver/socket.io'});
+var ptserver_io = require('socket.io')(rootserver,{path: '/slserver/socket.io'});
 
 
 ptserver_io.on('connection', function(socket){

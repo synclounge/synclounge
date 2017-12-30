@@ -40,7 +40,7 @@ if (process.env.NODE_ENV == 'development') {
   _webapp_socket = socketio.connect('' + window.location.hostname + ':8088', {
     'forceNew': true,
     'connect timeout': 1000,
-    path: '/ptweb/socket.io'
+    path: '/slweb/socket.io'
   })
   _webapp_socket.on('connection', function () {
   })
@@ -50,7 +50,7 @@ if (process.env.NODE_ENV == 'development') {
 } else {
   _webapp_socket = socketio.connect({
     'forceNew': true,
-    'connect timeout': 1000, path: '/ptweb/socket.io'
+    'connect timeout': 1000, path: '/slweb/socket.io'
   })
   _webapp_socket.on('connection', function () {
   })
@@ -384,7 +384,7 @@ const plexTogether = {
     _io: require('socket.io-client'),
     _socket: null,
     ptevents: new EventEmitter(),
-    ptservers: [],
+    slservers: [],
     connected: false,
     server: false,
     room: false,
@@ -486,7 +486,7 @@ const plexTogether = {
       console.log('Socket attempt connect on ' + address)
       state._socket = state._io.connect(address, {
         'forceNew': true,
-        'connect timeout': 7000, path: '/ptserver/socket.io'
+        'connect timeout': 7000, path: '/slserver/socket.io'
       })
       state._socket.on('connect', function (result) {
         // Good connection
@@ -545,11 +545,12 @@ const plexTogether = {
           let data = {
             urlOrigin: urlOrigin,
             owner: rootState.plex.user.username,
-            ptserver: state.server,
-            ptroom: state.room,
-            ptpassword: state.password
+            slserver: state.server,
+            slroom: state.room,
+            slpassword: state.password
 
           }
+          console.log('invite data', data)
           var that = this
           console.log('Invite link data below')
           console.log(data)
@@ -559,7 +560,7 @@ const plexTogether = {
           })
           webapp_socket.emit('shorten', data)
 
-          // Now we need to setup events for dealing with the PTServer.
+          // Now we need to setup events for dealing with the SLServer.
           // We will regularly be recieving and sending data to and from the server.
           // We want to make sure we are listening for all the server events
           state._socket.on('poll-result', function (users) {
