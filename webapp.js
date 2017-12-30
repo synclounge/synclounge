@@ -87,7 +87,7 @@ root.get('/ptweb',(req,res) => {
 
 root.get('*',(req, res) => {
     console.log('Catch all', req.url)
-    return res.redirect('/')
+    return res.redirect('/slweb')
 })
 
 
