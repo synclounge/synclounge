@@ -80,6 +80,11 @@ root.post('/slweb/invite', (req, res) => {
 })
 root.use('/',express.static(path.join(__dirname, 'dist')))
 
+root.get('/ptweb',(req,res) => {
+    console.log('ptweb redirect')
+    return res.redirect('/slweb')
+})
+
 root.get('*',(req,res) => {
     console.log('Catch all')
     return res.redirect('/')
