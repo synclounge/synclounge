@@ -8,9 +8,9 @@ if (!args['url']){
   console.log('Missing required argument -url. EG. "node webapp.js --url=http://example.com/slweb". This URL is used for redirecting invite links.')
   return
 }
-var accessIp = args['url'] // EG 'http://95.231.444.12:8088/ptweb' or 'http://example.com/ptweb'
+var accessIp = args['url'] // EG 'http://95.231.444.12:8088/slweb' or 'http://example.com/slweb'
 if (accessIp.indexOf('/slweb') == -1){
-  console.log('WARNING: /ptweb was not found in your url. Unless you have changed the URL Base make sure to include this.')
+  console.log('WARNING: /slweb was not found in your url. Unless you have changed the URL Base make sure to include this.')
 }
 var PORT = 8088
 if (args['port']){
