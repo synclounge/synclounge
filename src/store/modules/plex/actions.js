@@ -11,6 +11,7 @@ var PlexAuth = new _PlexAuth()
 export default {
     PLEX_LOGIN_TOKEN: ({ state, commit, dispatch }, token) => {
         return new Promise((resolve, reject) => {
+            console.log('Signing in with token', token)
             var options = PlexAuth.getApiOptions('https://plex.tv/users/sign_in.json', token, 5000, 'POST')
             request(options, (error, response, body) => {
                 if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
@@ -38,12 +39,12 @@ export default {
             let { username, password } = data
             var base64encoded = new Buffer(username + ':' + password).toString('base64')
             var options = {
-              url: 'https://plex.tv/users/sign_in.json',
-              headers: {
-                'Authorization': 'Basic ' + base64encoded,
-                'X-Plex-Client-Identifier': 'PlexTogether'
-              },
-              method: 'POST'
+                url: 'https://plex.tv/users/sign_in.json',
+                headers: {
+                    'Authorization': 'Basic ' + base64encoded,
+                    'X-Plex-Client-Identifier': 'PlexTogether'
+                },
+                method: 'POST'
             }
             request(options, function (error, response, body) {
                 if (!error && (response.statusCode == 200 || response.statusCode == 201)) {
@@ -67,8 +68,8 @@ export default {
     PLEX_GET_DEVICES: ({ state, commit, rootState, dispatch }) => {
         return new Promise((resolve, reject) => {
             if (!state.user) {
-              console.log('Must be logged in to retrieve devices!')
-              return reject('Sign in before getting devices')
+                console.log('Must be logged in to retrieve devices!')
+                return reject('Sign in before getting devices')
             }
 
             commit('PLEX_SET_VALUE', ['gotDevices', false])
@@ -103,7 +104,7 @@ export default {
                                 // This is a Client
                                 // Create a new PlexClient object
                                 var tempClient = new PlexClient()
-                                for (var key in device) {
+                                for (let key in device) {
                                     tempClient[key] = device[key]
                                 }
                                 tempClient.plexConnections = tempConnectionsArray
@@ -112,7 +113,7 @@ export default {
                                 // This is a Server
                                 // Create a new PlexServer object
                                 let tempServer = new PlexServer()
-                                for (var key in device) {
+                                for (let key in device) {
                                     tempServer[key] = device[key]
                                 }
                                 tempServer.plexConnections = tempConnectionsArray
@@ -231,4 +232,4 @@ export default {
         console.log('Updating timeline for', client, 'with', timeline )
     }
 
-};
+}

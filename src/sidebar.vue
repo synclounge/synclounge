@@ -76,187 +76,187 @@
 </template>
 
 <script>
-	import ptuser from './components/application/ptuser.vue'
-  export default {
-		components: {
-			ptuser
-		},
+import ptuser from './components/application/ptuser.vue'
+export default {
+    components: {
+        ptuser
+    },
     data () {
-      return {
-				messageToBeSent: ''
-      }
+        return {
+            messageToBeSent: ''
+        }
     },
-		watch: {
-			messages: function () {	
-				this.$nextTick(() => {
-					var options = {
-						container: '#chatbox',
-						easing: 'ease-in',
-						cancelable: true,
-					}
-					this.$scrollTo('#lastMessage', 200, options)
-				})
-			}
-		},
+    watch: {
+        messages: function () {	
+            this.$nextTick(() => {
+                var options = {
+                    container: '#chatbox',
+                    easing: 'ease-in',
+                    cancelable: true,
+                }
+                this.$scrollTo('#lastMessage', 200, options)
+            })
+        }
+    },
     computed: {
-      plex: function () {
-				return this.$store.getters.getPlex
-			},
-			chosenClient: function () {
-				return this.$store.getters.getChosenClient
-			},
-			validPlex: function () {
-			if (!this.$store.state.plex) {
-				return false
-			}
-			return true
-			},
-			validDevices: function () {
-			if (!this.plex) {
-				return false
-			}
-				return this.plex.gotDevices
-			},
-			showBrowser () {
-				return (this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom)
-			},
-			isPTPlayer () {
-				return (this.chosenClient && this.chosenClient.clientIdentifier == 'PTPLAYER9PLUS10')
-			},
-			showMetadata () {
-				return (!this.isPTPlayer && !this.showBrowser && this.chosenClient && this.chosenClient.clientPlayingMetadata)
-			},
-			darkMode: function () {
-				return this.$store.getters.getSettingDARKMODE
-			},
-			ptConnected: function () {
-				return this.$store.getters.getConnected
-			},
-			ptServer: function () {
-				return this.$store.getters.getServer
-			},
-			ptRoom: function () {
-				return this.$store.getters.getRoom
-			},
-			ptPassword: function () {
-				return this.$store.getters.getPassword
-			},
-			ptUsers: function () {
-				return this.$store.getters.getUsers
-			},
-			userCount: function () {
-			let count = this.$store.getters.getUsers.length
-				if (count == 1) {
-					return count + ' user'
-				}
-				return count + ' users'
-			},
-			chatBoxMessage: function () {
-				return "Message " + this.$store.getters.getRoom
-			},
-			playercount: function () {
-				if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-					return '(' + this.$store.state.plex.clients.length + ')'
-				}
-				return ''
-			},
-			servercount: function () {
-				if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-					return '(' + this.$store.state.plex.servers.length + ')'
-				}
-				return ''
-			},
-			showChatValue: function () {
-				if (this.$store.getters.getShownChat) {
-					return 'block'
-				}
-				return 'none'
-			},
-			messages: function () {			
-				return this.$store.getters.getMessages
-			},
-			chatboxStyle: function(){
-			}
+        plex: function () {
+            return this.$store.getters.getPlex
+        },
+        chosenClient: function () {
+            return this.$store.getters.getChosenClient
+        },
+        validPlex: function () {
+            if (!this.$store.state.plex) {
+                return false
+            }
+            return true
+        },
+        validDevices: function () {
+            if (!this.plex) {
+                return false
+            }
+            return this.plex.gotDevices
+        },
+        showBrowser () {
+            return (this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom)
+        },
+        isPTPlayer () {
+            return (this.chosenClient && this.chosenClient.clientIdentifier == 'PTPLAYER9PLUS10')
+        },
+        showMetadata () {
+            return (!this.isPTPlayer && !this.showBrowser && this.chosenClient && this.chosenClient.clientPlayingMetadata)
+        },
+        darkMode: function () {
+            return this.$store.getters.getSettingDARKMODE
+        },
+        ptConnected: function () {
+            return this.$store.getters.getConnected
+        },
+        ptServer: function () {
+            return this.$store.getters.getServer
+        },
+        ptRoom: function () {
+            return this.$store.getters.getRoom
+        },
+        ptPassword: function () {
+            return this.$store.getters.getPassword
+        },
+        ptUsers: function () {
+            return this.$store.getters.getUsers
+        },
+        userCount: function () {
+            let count = this.$store.getters.getUsers.length
+            if (count == 1) {
+                return count + ' user'
+            }
+            return count + ' users'
+        },
+        chatBoxMessage: function () {
+            return 'Message ' + this.$store.getters.getRoom
+        },
+        playercount: function () {
+            if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
+                return '(' + this.$store.state.plex.clients.length + ')'
+            }
+            return ''
+        },
+        servercount: function () {
+            if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
+                return '(' + this.$store.state.plex.servers.length + ')'
+            }
+            return ''
+        },
+        showChatValue: function () {
+            if (this.$store.getters.getShownChat) {
+                return 'block'
+            }
+            return 'none'
+        },
+        messages: function () {			
+            return this.$store.getters.getMessages
+        },
+        chatboxStyle: function(){
+        }
     },
-		methods: {
-			isHost: function (user) {
-        if (user.role == 'host') {
-          return true
-        }
-        return false
-      },
-			transferHost: function (username) {
-				window.x = {
-					username: username,
-					this: this
-				}
-				console.log("transfering host", window.x)
-				this.$store.dispatch('transferHost', username)
-			},		
-      handleDisconnect: function () {
-        this.$store.dispatch('disconnectServer')
-      },
-      percent: function (user) {
-        let perc = (parseInt(user.time) / parseInt(user.maxTime)) * 100
-        if (isNaN(perc)) {
-          perc = 0
-        }
-        return perc
-      },
-			getMsgId (msg){				
-				if (this.messages && (msg == this.messages[this.messages.length - 1])){
-					return 'lastMessage'
-				}
-			},
-      getCurrent: function (user) {
-        if (isNaN(user.time)) {
-						return this.getTimeFromMs(0)
-        }
-        return this.getTimeFromMs(user.time)
-      },
-      getMax: function (user) {
-        if (isNaN(user.maxTime)) {
-          return this.getTimeFromMs(0)
-        }
-        return this.getTimeFromMs(user.maxTime)
-      },
-      getTitle: function (user) {
-        if (user.title && user.title.length > 0) {
-          return user.title
-        }
-        return 'Nothing'
-      },
+    methods: {
+        isHost: function (user) {
+            if (user.role == 'host') {
+                return true
+            }
+            return false
+        },
+        transferHost: function (username) {
+            window.x = {
+                username: username,
+                this: this
+            }
+            console.log('transfering host', window.x)
+            this.$store.dispatch('transferHost', username)
+        },		
+        handleDisconnect: function () {
+            this.$store.dispatch('disconnectServer')
+        },
+        percent: function (user) {
+            let perc = (parseInt(user.time) / parseInt(user.maxTime)) * 100
+            if (isNaN(perc)) {
+                perc = 0
+            }
+            return perc
+        },
+        getMsgId (msg){				
+            if (this.messages && (msg == this.messages[this.messages.length - 1])){
+                return 'lastMessage'
+            }
+        },
+        getCurrent: function (user) {
+            if (isNaN(user.time)) {
+                return this.getTimeFromMs(0)
+            }
+            return this.getTimeFromMs(user.time)
+        },
+        getMax: function (user) {
+            if (isNaN(user.maxTime)) {
+                return this.getTimeFromMs(0)
+            }
+            return this.getTimeFromMs(user.maxTime)
+        },
+        getTitle: function (user) {
+            if (user.title && user.title.length > 0) {
+                return user.title
+            }
+            return 'Nothing'
+        },
 	  	sendMessage: function () {
-				console.log('We should send this message: ' + this.messageToBeSent)
-				this.$store.dispatch('sendNewMessage', this.messageToBeSent)
-				this.messageToBeSent = ''
-			},
-      playerState: function (user) {
-        if (user.playerState) {
-          if (user.playerState == 'stopped') {
+            console.log('We should send this message: ' + this.messageToBeSent)
+            this.$store.dispatch('sendNewMessage', this.messageToBeSent)
+            this.messageToBeSent = ''
+        },
+        playerState: function (user) {
+            if (user.playerState) {
+                if (user.playerState == 'stopped') {
+                    return 'stop'
+                }
+                if (user.playerState == 'paused') {
+                    return 'pause'
+                }
+                if (user.playerState == 'playing') {
+                    return 'play_arrow'
+                }
+            }
             return 'stop'
-          }
-          if (user.playerState == 'paused') {
-            return 'pause'
-          }
-          if (user.playerState == 'playing') {
-            return 'play_arrow'
-          }
+        },
+        getTimeFromMs (ms) {
+            var hours = ms / (1000 * 60 * 60)
+            var absoluteHours = Math.floor(hours)
+            var h = absoluteHours > 9 ? absoluteHours : '0' + absoluteHours
+            var minutes = (hours - absoluteHours) * 60
+            var absoluteMinutes = Math.floor(minutes)
+            var m = absoluteMinutes > 9 ? absoluteMinutes : '0' + absoluteMinutes
+            var seconds = (minutes - absoluteMinutes) * 60
+            var absoluteSeconds = Math.floor(seconds)
+            var s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds
+            return (h + ':' + m + ':' + s)
         }
-        return 'stop'
-      },
-			getTimeFromMs (ms) {
-        var hours = ms / (1000 * 60 * 60)
-        var absoluteHours = Math.floor(hours)
-        var h = absoluteHours > 9 ? absoluteHours : '0' + absoluteHours
-        var minutes = (hours - absoluteHours) * 60
-        var absoluteMinutes = Math.floor(minutes)
-        var m = absoluteMinutes > 9 ? absoluteMinutes : '0' + absoluteMinutes
-        var seconds = (minutes - absoluteMinutes) * 60
-        var absoluteSeconds = Math.floor(seconds)
-        var s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds
-        return (h + ':' + m + ':' + s)
-      }
-		}
-  }
+    }
+}
 </script>

@@ -49,216 +49,216 @@
 </template>
 
 <script>
-  let plexthumb = require('./plexthumb.vue')
+let plexthumb = require('./plexthumb.vue')
 
-  var _ = require('lodash');
-  export default {
+var _ = require('lodash')
+export default {
     components: {
-      plexthumb
+        plexthumb
     },
     created () {
-      // Hit the PMS endpoing /library/sections
-      var that = this
+        // Hit the PMS endpoing /library/sections
+        var that = this
 
     },
     data () {
-      return {
-        browsingLibrary: null,
-        selectedItem: null,
+        return {
+            browsingLibrary: null,
+            selectedItem: null,
 
-        libraries: null,
-        status: "loading..",
+            libraries: null,
+            status: 'loading..',
 
-        recentlyAdded: null,
-        onDeck: null,
+            recentlyAdded: null,
+            onDeck: null,
 
-        onDeckOffset: 0,
-        recentlyAddedOffset: 0
-      }
+            onDeckOffset: 0,
+            recentlyAddedOffset: 0
+        }
     },
     mounted: async function () {
-      this.server.getAllLibraries().then((data) => {
-        if (data) {
-          this.libraries = data
-        } else {
-          this.status = 'Error loading libraries!'
-        }
-      })
-      this.server.getRecentlyAddedAll(0, 12).then((result) => {
-        if (result) {
-          this.recentlyAdded = result
-          this.setBackground()
-        }
-      })
-      this.updateOnDeck()
+        this.server.getAllLibraries().then((data) => {
+            if (data) {
+                this.libraries = data
+            } else {
+                this.status = 'Error loading libraries!'
+            }
+        })
+        this.server.getRecentlyAddedAll(0, 12).then((result) => {
+            if (result) {
+                this.recentlyAdded = result
+                this.setBackground()
+            }
+        })
+        this.updateOnDeck()
     },
     beforeDestroy () {
 
     },
     computed: {
-      clientIdentifier () {
-        return this.$route.params.machineIdentifier
-      },
-      server () {
-        return this.plex.servers[this.clientIdentifier]
-      },
-      plex () {
-        return this.$store.getters.getPlex
-      },
-      filteredLibraries () {
-        if (this.libraries) {
-          return this.libraries.MediaContainer.Directory
-        }
-        return []
-      },
-      onDeckUpStyle () {
-        if ((this.onDeckOffset + 4) >= this.onDeck.MediaContainer.Metadata.length){
-          return {
-            opacity: 0.5
-          }
-        }
-      },
-      onDeckDownStyle () {
-        if (this.onDeckOffset == 0){
-          return {
-            opacity: 0.5
-          }
-        }
-      },
-      recentlyAddedDownStyle () {
-        if (this.recentlyAddedOffset == 0){
-          return {
-            opacity: 0.5
-          }
-        }
-      },     
-      recentlyAddedUpStyle () {
-        if ((this.recentlyAddedOffset + 10) >= this.recentlyAdded.MediaContainer.Metadata.length){
-          return {
-            opacity: 0.5
-          }
-        }
-      },
+        clientIdentifier () {
+            return this.$route.params.machineIdentifier
+        },
+        server () {
+            return this.plex.servers[this.clientIdentifier]
+        },
+        plex () {
+            return this.$store.getters.getPlex
+        },
+        filteredLibraries () {
+            if (this.libraries) {
+                return this.libraries.MediaContainer.Directory
+            }
+            return []
+        },
+        onDeckUpStyle () {
+            if ((this.onDeckOffset + 4) >= this.onDeck.MediaContainer.Metadata.length){
+                return {
+                    opacity: 0.5
+                }
+            }
+        },
+        onDeckDownStyle () {
+            if (this.onDeckOffset == 0){
+                return {
+                    opacity: 0.5
+                }
+            }
+        },
+        recentlyAddedDownStyle () {
+            if (this.recentlyAddedOffset == 0){
+                return {
+                    opacity: 0.5
+                }
+            }
+        },     
+        recentlyAddedUpStyle () {
+            if ((this.recentlyAddedOffset + 10) >= this.recentlyAdded.MediaContainer.Metadata.length){
+                return {
+                    opacity: 0.5
+                }
+            }
+        },
 
     },
     methods: {
-      setContent (content) {
-        this.selectedItem = content
-      },
-      setLibrary (library) {
-        console.log('Setting library', library)
-        this.$router.push('/browse/' + this.server.clientIdentifier + '/' + library.key)
+        setContent (content) {
+            this.selectedItem = content
+        },
+        setLibrary (library) {
+            console.log('Setting library', library)
+            this.$router.push('/browse/' + this.server.clientIdentifier + '/' + library.key)
         // this.browsingLibrary = library
-      },
-      updateOnDeck() {
-        this.server.getOnDeck(0, 10).then((result) => {
-          if (result) {
-            this.onDeck = result
-          }
-        })
-      },
-      onDeckDown (){        
-        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
-            return false
-        }
-        if (this.onDeckOffset - 4 < 0){
-          this.onDeckOffset = 0
-        } else {
-          this.onDeckOffset = this.onDeckOffset - 4
-        }
+        },
+        updateOnDeck() {
+            this.server.getOnDeck(0, 10).then((result) => {
+                if (result) {
+                    this.onDeck = result
+                }
+            })
+        },
+        onDeckDown (){        
+            if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+                return false
+            }
+            if (this.onDeckOffset - 4 < 0){
+                this.onDeckOffset = 0
+            } else {
+                this.onDeckOffset = this.onDeckOffset - 4
+            }
 
-      },
-      onDeckUp () {        
-        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
-            return false
-        }
-        if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length){
-          // This would overflow!
-        } else {
-          this.onDeckOffset = this.onDeckOffset + 4
-        }
+        },
+        onDeckUp () {        
+            if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+                return false
+            }
+            if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length){
+                // This would overflow!
+            } else {
+                this.onDeckOffset = this.onDeckOffset + 4
+            }
 
-      },
-      recentlyAddedUp () {        
-        if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
-            return false
-        }
-        if (this.recentlyAddedOffset + 10 >= this.recentlyAdded.MediaContainer.Metadata.length ){
-          // This would overflow!
-        } else {
-          this.recentlyAddedOffset = this.recentlyAddedOffset + 10
-        }
-      },
-      recentlyAddedDown () {
-        if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
-            return false
-        }
-        if (this.recentlyAddedOffset - 10 < 0){
-          this.recentlyAddedOffset = 0
-        } else {
-          this.recentlyAddedOffset = this.recentlyAddedOffset - 10
-        }
-      },  
-      setBackground () {        
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        },
+        recentlyAddedUp () {        
+            if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
+                return false
+            }
+            if (this.recentlyAddedOffset + 10 >= this.recentlyAdded.MediaContainer.Metadata.length ){
+                // This would overflow!
+            } else {
+                this.recentlyAddedOffset = this.recentlyAddedOffset + 10
+            }
+        },
+        recentlyAddedDown () {
+            if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
+                return false
+            }
+            if (this.recentlyAddedOffset - 10 < 0){
+                this.recentlyAddedOffset = 0
+            } else {
+                this.recentlyAddedOffset = this.recentlyAddedOffset - 10
+            }
+        },  
+        setBackground () {        
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
 
-        let randomItem = _.sample(this.recentlyAdded.MediaContainer.Metadata)
-        let url = randomItem.art 
-        this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6))
-      },
-      subsetOnDeck (size) {
-        if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
-            return []
+            let randomItem = _.sample(this.recentlyAdded.MediaContainer.Metadata)
+            let url = randomItem.art 
+            this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6))
+        },
+        subsetOnDeck (size) {
+            if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata){
+                return []
+            }
+            return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + size)
+        },
+        subsetRecentlyAdded (size) {        
+            if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
+                return []
+            }
+            return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset, this.recentlyAddedOffset + size)
+        },
+        progress (content) {
+            let perc = (parseInt(content.viewOffset) / parseInt(content.duration)) * 100
+            if (isNaN(perc)) {
+                perc = 0
+            }
+            return perc + '%'
+        },
+        getArt (object) {
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1)
+        },
+        getArtLibrary (object) {
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1, 15)
+        },
+        getThumb (object) {
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            return this.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
+        },
+        getTitleMovie(movie){
+            if (movie.year){
+                return movie.title + ' (' + movie.year + ')'
+            }
+            return movie.title
+        },
+        getGrandparentThumb (object) {
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 4)
+        },
+        reset () {
+            this.updateOnDeck()
+            this.browsingLibrary = false
+            this.selectedItem = false
+            this.setBackground()
         }
-        return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + size)
-      },
-      subsetRecentlyAdded (size) {        
-        if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata){
-            return []
-        }
-        return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset, this.recentlyAddedOffset + size)
-      },
-      progress (content) {
-        let perc = (parseInt(content.viewOffset) / parseInt(content.duration)) * 100
-        if (isNaN(perc)) {
-          perc = 0
-        }
-        return perc + '%'
-      },
-      getArt (object) {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1)
-      },
-      getArtLibrary (object) {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1, 15)
-      },
-      getThumb (object) {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
-      },
-      getTitleMovie(movie){
-        if (movie.year){
-          return movie.title + ' (' + movie.year + ')'
-        }
-        return movie.title
-      },
-      getGrandparentThumb (object) {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 4)
-      },
-      reset () {
-        this.updateOnDeck()
-        this.browsingLibrary = false
-        this.selectedItem = false
-        this.setBackground()
-      }
 
     }
-  }
+}
 </script>

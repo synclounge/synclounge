@@ -54,4 +54,4 @@ export default {
         } 
         Vue.set(state.libraryCache[machineIdentifier], id, newData)   
     }
-};
+}

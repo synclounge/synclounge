@@ -106,153 +106,151 @@
 </template>
 
 <script>
-  export default {
+export default {
     props: ['object'],
     name: 'joinroom',
     data () {
-      return {
-        selectedServer: '',
-        serverError: null,
-        roomError: null,
-        room: '',
-        e1: 2,
-        password: '',
-        connectionPending: false,
-        thisServer: window.location.origin,
+        return {
+            selectedServer: '',
+            serverError: null,
+            roomError: null,
+            room: '',
+            e1: 2,
+            password: '',
+            connectionPending: false,
+            thisServer: window.location.origin,
 
-        ptservers: [
-          {
-            text: 'SyncLounge AU1',
-            value: 'https://au1.synclounge.tv'
-          },
-          {
-            text: 'SyncLounge US1',
-            value: 'https://us1.synclounge.tv'
-          },        
-          {
-            text: 'SyncLounge US2',
-            value: 'https://us2.synclounge.tv'
-          },
-          {
-            text: 'SyncLounge EU1',
-            value: 'https://eu1.synclounge.tv'
-          },  
-          {
-            text: 'Custom Server',
-            value: 'custom'
-          }
-        ]
-      }
+            ptservers: [
+                {
+                    text: 'SyncLounge AU1',
+                    value: 'https://au1.synclounge.tv'
+                },
+                {
+                    text: 'SyncLounge US1',
+                    value: 'https://us1.synclounge.tv'
+                },        
+                {
+                    text: 'SyncLounge US2',
+                    value: 'https://us2.synclounge.tv'
+                },
+                {
+                    text: 'SyncLounge EU1',
+                    value: 'https://eu1.synclounge.tv'
+                },  
+                {
+                    text: 'Custom Server',
+                    value: 'custom'
+                }
+            ]
+        }
     },
     created: function () {
-      if (this.slRoom && this.slConnected && this.slServer) {
-        this.$router.push('/browse')
-      }
+        if (this.slRoom && this.slConnected && this.slServer) {
+            this.$router.push('/browse')
+        }
     },
     methods: {
-      attemptConnect: function () {
+        attemptConnect: function () {
         // Attempt the connection
-        this.serverError = null
-        if (this.selectedServer != 'custom') {        
-          this.$store.dispatch('socketConnect', { address: this.selectedServer })
-          .then((result, data) => {
-            this.connectionPending = false
-            if (result) {
-              this.serverError = "Failed to connect to " + this.selectedServer
-            } else {
-              this.serverError = null
+            this.serverError = null
+            if (this.selectedServer != 'custom') {        
+                this.$store.dispatch('socketConnect', { address: this.selectedServer })
+                    .then((result) => {
+                        this.connectionPending = false
+                        if (result) {
+                            this.serverError = 'Failed to connect to ' + this.selectedServer
+                        } else {
+                            this.serverError = null
+                        }
+                    })
+                    .catch(() => {
+                        this.serverError = 'Failed to connect to ' + this.selectedServer
+                    })             
             }
-          })
-          .catch((e) => {
-            this.serverError = "Failed to connect to " + this.selectedServer
-          })             
-        }
-        return
-      },
-      attemptConnectCustom: function () {
-        var that = this
-        this.connectionPending = true
-        this.serverError = null
-        this.$store.dispatch('socketConnect', { address: this.CUSTOMSERVER })
-          .then((result, data) => {
-            this.connectionPending = false
-            if (result) {
-              this.serverError = "Failed to connect to " + this.CUSTOMSERVER
-            } else {
-              this.serverError = null
+            return
+        },
+        attemptConnectCustom: function () {
+            this.connectionPending = true
+            this.serverError = null
+            this.$store.dispatch('socketConnect', { address: this.CUSTOMSERVER })
+                .then((result) => {
+                    this.connectionPending = false
+                    if (result) {
+                        this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
+                    } else {
+                        this.serverError = null
+                    }
+                })
+                .catch(() => {
+                    this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
+                })        
+        },
+        joinRoom: function () {
+            if (!this.context.getters.getConnected) {
+                return
             }
-          })
-          .catch((e) => {
-            this.serverError = "Failed to connect to " + this.CUSTOMSERVER
-          })        
-      },
-      joinRoom: function () {
-        var that = this
-        if (!this.context.getters.getConnected) {
-          return
+            if (this.room == '' || this.room == null) {
+                this.roomError = 'You must enter a room name!'
+                return
+            }
+            let temporaryObj = {
+                user: this.plex.user,
+                roomName: this.room.toLowerCase(),
+                password: this.password
+            }
+            this.$store.dispatch('joinRoom', temporaryObj)
+                .then(() => {
+                })
+                .catch((e) => {
+                    this.roomError = e
+                })
         }
-        if (this.room == '' || this.room == null) {
-          this.roomError = 'You must enter a room name!'
-          return
-        }
-        let temporaryObj = {
-          user: this.plex.user,
-          roomName: this.room.toLowerCase(),
-          password: this.password
-        }
-        this.$store.dispatch('joinRoom', temporaryObj)
-          .then((result) => {
-          })
-          .catch((e) => {
-            this.roomError = e
-          })
-      }
     },
     watch: {
-      selectedServer: function() {
-        this.attemptConnect()
-        this.serverError = null
-      },
-      slRoom: function () {
-        if (this.slServer && this.slRoom) {
-          this.$router.push('/browse')
+        selectedServer: function() {
+            this.attemptConnect()
+            this.serverError = null
+        },
+        slRoom: function () {
+            if (this.slServer && this.slRoom) {
+                this.$router.push('/browse')
+            }
         }
-      }
     },
     computed: {
-      plex: function () {
-        return this.$store.state.plex
-      },      
-      logo: function () {
-        return 'ptweb/logo-long-light.png'
-      },
-      context: function () {
-        return this.$store
-      },
-      darkModeBackground: function () {
-        if (this.$store.getters.getSettingDARKMODE) {
-          return {
-            'background-color': '#282A2D'
-          }
-        }
-        return {}
-
-      },
-      CUSTOMSERVER: {
-        get () {
-          if (!this.$store.getters.getSettingCUSTOMSERVER) {
-            return 'http://'
-          }
-          return this.$store.getters.getSettingCUSTOMSERVER
+        plex: function () {
+            return this.$store.state.plex
+        },      
+        logo: function () {
+            return 'slweb/logo-long-light.png'
         },
-        set (value) {
-          this.$store.commit('setSettingCUSTOMSERVER', value)
-        }
-      },
+        context: function () {
+            return this.$store
+        },
+        darkModeBackground: function () {
+            if (this.$store.getters.getSettingDARKMODE) {
+                return {
+                    'background-color': '#282A2D'
+                }
+            }
+            return {}
+
+        },
+        CUSTOMSERVER: {
+            get () {
+                if (!this.$store.getters.getSettingCUSTOMSERVER) {
+                    return 'http://'
+                }
+                return this.$store.getters.getSettingCUSTOMSERVER
+            },
+            set (value) {
+                this.$store.commit('setSettingCUSTOMSERVER', value)
+            }
+        },
     },
     mounted: function () {
-      // Create event listeners
+        // Create event listeners
     }
-  }
+}
 </script>
 

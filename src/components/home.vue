@@ -38,29 +38,29 @@
 </template>
 
 <script>
-  export default {
+export default {
     name: 'home',
     created: function () {
-      if (this.$store.getters.getSettingHOMEINIT) {
-        this.$router.push('/browse')
-      }
+        if (this.$store.getters.getSettingHOMEINIT) {
+            this.$router.push('/browse')
+        }
     },
     mounted: function () {
-      this.$store.commit('setSettingHOMEINIT', true)
+        this.$store.commit('setSettingHOMEINIT', true)
     },
     methods: {
-      letsStart: function () {
-        this.$router.push('/')
-      }
+        letsStart: function () {
+            this.$router.push('/')
+        }
     },
     computed: {
-      logo: function () {
-        return 'ptweb/logo-long-light.png'
-      },
-      firstRun: function () {
-        return !this.$store.getters.getSettingHOMEINIT
-      }
+        logo: function () {
+            return 'slweb/logo-long-light.png'
+        },
+        firstRun: function () {
+            return !this.$store.getters.getSettingHOMEINIT
+        }
     }
-  }
+}
 </script>
 

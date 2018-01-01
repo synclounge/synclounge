@@ -59,45 +59,45 @@
 </template>
 
 <script>
-  import plexseason from './plexseason.vue'
-  import plexthumb from './plexthumb.vue'
+import plexseason from './plexseason.vue'
+import plexthumb from './plexthumb.vue'
 
-  export default {
+export default {
     props: [],
     components: {
-      plexseason,
-      plexthumb
+        plexseason,
+        plexthumb
     },
     created () {
-      // Hit the PMS endpoing /library/sections
-      this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex, this.size, 1, this.$route.params.sectionId).then((result) => {
-        if (result) {
-          this.contents = result.MediaContainer
-          this.setBackground()
-        } else {
-          this.status = 'Error loading libraries!'
-        }
-      }).catch((e, data) => {
-        console.log(e, data)
-      })
-      this.plexserver.getSeriesData(this.$route.params.ratingKey).then((res) => {
-        if (res){
-          this.seriesData = res
-        }
-      }).catch((e, data) => {
-        console.log(data)
-      })
+        // Hit the PMS endpoing /library/sections
+        this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex, this.size, 1, this.$route.params.sectionId).then((result) => {
+            if (result) {
+                this.contents = result.MediaContainer
+                this.setBackground()
+            } else {
+                this.status = 'Error loading libraries!'
+            }
+        }).catch((e, data) => {
+            console.log(e, data)
+        })
+        this.plexserver.getSeriesData(this.$route.params.ratingKey).then((res) => {
+            if (res){
+                this.seriesData = res
+            }
+        }).catch((e, data) => {
+            console.log(data)
+        })
     },
     data () {
-      return {
-        browsingContent: null,
-        startingIndex: 0,
-        size: 150,
+        return {
+            browsingContent: null,
+            startingIndex: 0,
+            size: 150,
 
-        contents: null,
-        seriesData: null,
-        status: "loading..",
-      }
+            contents: null,
+            seriesData: null,
+            status: 'loading..',
+        }
     },
     mounted () {
 
@@ -106,46 +106,46 @@
 
     },
     computed: {
-      getArtUrl (object) {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 10)
-      },
-      getSeasons () {
-        if (this.contents.size == 1){
-          return this.contents.size + ' season'
-        }
-        return this.contents.size + ' seasons'
-      },
-      roles () {
-        if (!this.seriesData){
-          return []
-        }
-        return this.seriesData.MediaContainer.Metadata[0].Role.slice(0,6)
-      },
-      genres () {
-        if (!this.seriesData){
-          return []
-        }
-        return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0,5)
-      },
-      thumb () {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.plexserver.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb || this.contents.grandparentThumb, w / 1, h / 1)
-      },
+        getArtUrl (object) {
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 10)
+        },
+        getSeasons () {
+            if (this.contents.size == 1){
+                return this.contents.size + ' season'
+            }
+            return this.contents.size + ' seasons'
+        },
+        roles () {
+            if (!this.seriesData){
+                return []
+            }
+            return this.seriesData.MediaContainer.Metadata[0].Role.slice(0,6)
+        },
+        genres () {
+            if (!this.seriesData){
+                return []
+            }
+            return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0,5)
+        },
+        thumb () {
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            return this.plexserver.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb || this.contents.grandparentThumb, w / 1, h / 1)
+        },
     },
     methods: {
-      setBackground () {        
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8))
-      },
-      reset () {
-        this.browsingContent = false
-        this.setBackground()
-      }
+        setBackground () {        
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8))
+        },
+        reset () {
+            this.browsingContent = false
+            this.setBackground()
+        }
 
     }
-  }
+}
 </script>

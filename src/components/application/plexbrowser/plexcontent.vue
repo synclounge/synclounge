@@ -244,260 +244,260 @@
 </template>
 
 <script>
-  import plexthumb from './plexthumb.vue'
-  var humanizeDuration = require('humanize-duration')
+import plexthumb from './plexthumb.vue'
+var humanizeDuration = require('humanize-duration')
 
-  export default {
+export default {
     components: {
-      plexthumb
+        plexthumb
     },
     created () {
-      // Hit the PMS endpoing /library/sections
-      var that = this
+        // Hit the PMS endpoing /library/sections
+        var that = this
       
     },
     data () {
-      return {
-        browsingContent: null,
+        return {
+            browsingContent: null,
 
-        fullheight: null,
-        fullwidth: null,
-        resumeFrom: true,
+            fullheight: null,
+            fullwidth: null,
+            resumeFrom: true,
 
-        contents: null,
-        status: "loading..",
-        dialog:false,
-        related: null,
+            contents: null,
+            status: 'loading..',
+            dialog:false,
+            related: null,
 
-        parentData: false,
+            parentData: false,
 
-        hiddenOverride: false,
+            hiddenOverride: false,
 
-        eventbus: window.eventbus
-      }
+            eventbus: window.eventbus
+        }
     },
     mounted () {
-      this.getNewData()
-      this.fullheight = this.$refs.root.offsetHeight
-      this.fullwidth = this.$refs.root.offsetWidth  
+        this.getNewData()
+        this.fullheight = this.$refs.root.offsetHeight
+        this.fullwidth = this.$refs.root.offsetWidth  
     },
     beforeDestroy () {
 
     },
     watch: {
-      ratingKey: function () {
-        this.getNewData()
-      }
+        ratingKey: function () {
+            this.getNewData()
+        }
     },
     computed: {
-      plex () {
-        return this.$store.getters.getPlex
-      },
-      ratingKey () {
-        return this.$route.params.ratingKey
-      },
-      serverId () {
-        return this.$route.params.machineIdentifier
-      },
-      server () {
-        return this.plex.servers[this.serverId]
-      },
-      hidden () {
-        if (!this.hiddenOverride && this.contents && this.contents.viewCount == 0 || !this.contents.viewCount){
-          return true
-        }
-      },
-      largestRes () {
-        let height = 0
-        for (let i = 0; i < this.contents.Media.length; i++) {
-          if (parseInt(this.contents.Media[i].videoResolution) > height) {
-            height = parseInt(this.contents.Media[i].videoResolution)
-          }
-        }
-        return height
-      },      
-      calculatedHeight (){
-        if (this.height){
-          return this.height + 'em'
-        }
-        if (this.contents.type == 'movie'){
-          return Math.round(this.fullwidth * 2) + 'px'
-        }        
-        if (this.contents.type == 'episode'){
-          return Math.round(this.fullwidth * 2) + 'px'
-        }
-        return Math.round(this.fullwidth * 2) + 'px'
-      },  
-      chosenClient () {
-        return this.$store.getters.getChosenClient
-      },
-      playable () {
-        if (this.nowPlaying || this.nowPlaying == '') {
-          return false
-        }
-        return true
-      },
-      relatedItems () {
-        if (!this.related) {
-          return []
-        }
-        let items = []
-        this.related.MediaContainer.Hub[0].Metadata.forEach((item) => {
-          items.push(item)
-        }) 
-        return items.slice(0, 4)
-      },
-      getArtUrl () {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        if (this.contents.type == 'movie'){          
-          return this.server.getUrlForLibraryLoc(this.contents.art, w * 1.5, h * 1.5, 0)
-        }        
-        if (this.contents.type == 'track'){          
-          return this.server.getUrlForLibraryLoc(this.contents.grandparentArt, w * 1.5, h * 1.5, 0)
-        }
-        return this.server.getUrlForLibraryLoc(this.contents.grandparentArt, w * 1.5, h * 1.5, 0)
-      },
-      length () {
-        return humanizeDuration(this.contents.duration, { 
-          delimiter: ' ', 
-          units: ['h', 'm'],
-          round: true 
-        })
-      },
-      title () {
-        if (this.contents.type == 'episode') {
-          return 'Episode ' + this.contents.index
-        }
-        return this.contents.title
-      },    
-      thumb () {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        if (this.contents.type == 'movie'){          
-          return this.server.getUrlForLibraryLoc(this.contents.thumb, w / 1, h / 1)
-        }
-        return this.server.getUrlForLibraryLoc(this.contents.parentThumb || this.contents.grandparentThumb, w / 1, h / 1)
-      }, 
+        plex () {
+            return this.$store.getters.getPlex
+        },
+        ratingKey () {
+            return this.$route.params.ratingKey
+        },
+        serverId () {
+            return this.$route.params.machineIdentifier
+        },
+        server () {
+            return this.plex.servers[this.serverId]
+        },
+        hidden () {
+            if (!this.hiddenOverride && this.contents && this.contents.viewCount == 0 || !this.contents.viewCount){
+                return true
+            }
+        },
+        largestRes () {
+            let height = 0
+            for (let i = 0; i < this.contents.Media.length; i++) {
+                if (parseInt(this.contents.Media[i].videoResolution) > height) {
+                    height = parseInt(this.contents.Media[i].videoResolution)
+                }
+            }
+            return height
+        },      
+        calculatedHeight (){
+            if (this.height){
+                return this.height + 'em'
+            }
+            if (this.contents.type == 'movie'){
+                return Math.round(this.fullwidth * 2) + 'px'
+            }        
+            if (this.contents.type == 'episode'){
+                return Math.round(this.fullwidth * 2) + 'px'
+            }
+            return Math.round(this.fullwidth * 2) + 'px'
+        },  
+        chosenClient () {
+            return this.$store.getters.getChosenClient
+        },
+        playable () {
+            if (this.nowPlaying || this.nowPlaying == '') {
+                return false
+            }
+            return true
+        },
+        relatedItems () {
+            if (!this.related) {
+                return []
+            }
+            let items = []
+            this.related.MediaContainer.Hub[0].Metadata.forEach((item) => {
+                items.push(item)
+            }) 
+            return items.slice(0, 4)
+        },
+        getArtUrl () {
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            if (this.contents.type == 'movie'){          
+                return this.server.getUrlForLibraryLoc(this.contents.art, w * 1.5, h * 1.5, 0)
+            }        
+            if (this.contents.type == 'track'){          
+                return this.server.getUrlForLibraryLoc(this.contents.grandparentArt, w * 1.5, h * 1.5, 0)
+            }
+            return this.server.getUrlForLibraryLoc(this.contents.grandparentArt, w * 1.5, h * 1.5, 0)
+        },
+        length () {
+            return humanizeDuration(this.contents.duration, { 
+                delimiter: ' ', 
+                units: ['h', 'm'],
+                round: true 
+            })
+        },
+        title () {
+            if (this.contents.type == 'episode') {
+                return 'Episode ' + this.contents.index
+            }
+            return this.contents.title
+        },    
+        thumb () {
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            if (this.contents.type == 'movie'){          
+                return this.server.getUrlForLibraryLoc(this.contents.thumb, w / 1, h / 1)
+            }
+            return this.server.getUrlForLibraryLoc(this.contents.parentThumb || this.contents.grandparentThumb, w / 1, h / 1)
+        }, 
     },
     methods: {
-      getNewData () {
-        console.log('Loading content metadata: ' + this.ratingKey)
-        this.server.getMediaByRatingKey(this.ratingKey).then(async (result) => {
-          if (result) {
-            this.contents = result.MediaContainer.Metadata[0]
-            if (this.contents.type == 'episode'){
-              this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1).then((res) => {
-                if (res){
-                  this.parentData = res
+        getNewData () {
+            console.log('Loading content metadata: ' + this.ratingKey)
+            this.server.getMediaByRatingKey(this.ratingKey).then(async (result) => {
+                if (result) {
+                    this.contents = result.MediaContainer.Metadata[0]
+                    if (this.contents.type == 'episode'){
+                        this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1).then((res) => {
+                            if (res){
+                                this.parentData = res
+                            }
+                        })
+                    }          
+                    if (this.contents.type == 'movie'){
+                        try {
+                            console.log('Fetching related')
+                            this.related = await this.server.getRelated(this.ratingKey, 12)
+                        } catch (e) {
+                            console.log('Unable to fetch related content for', this.ratingKey, 'Error:', e )
+                        }
+                    }
+                    this.setBackground()
+                } else {
+                    this.status = 'Error loading libraries!'
                 }
-              })
-            }          
-            if (this.contents.type == 'movie'){
-              try {
-                console.log('Fetching related')
-                this.related = await this.server.getRelated(this.ratingKey, 12)
-              } catch (e) {
-                console.log('Unable to fetch related content for', this.ratingKey, 'Error:', e )
-              }
-            }
-            this.setBackground()
-          } else {
-            this.status = 'Error loading libraries!'
-          }
-        })
-      },
-      setContent (content) {
-        this.$router.push('/browse/' + this.serverId + '/' + content.ratingKey)
-      },
-      getLittleThumb (content){
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(content.thumb, w / 2, h / 2, 0)
-      },
-      setBackground () {        
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8))
-      },
+            })
+        },
+        setContent (content) {
+            this.$router.push('/browse/' + this.serverId + '/' + content.ratingKey)
+        },
+        getLittleThumb (content){
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            return this.server.getUrlForLibraryLoc(content.thumb, w / 2, h / 2, 0)
+        },
+        setBackground () {        
+            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+            this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8))
+        },
    
-      subsetParentData (size) {
-        if (!this.parentData || !this.parentData.MediaContainer || !this.parentData.MediaContainer.Metadata){
-            return []
-        }
-        return this.parentData.MediaContainer.Metadata.slice(this.contents.index - 1,this.contents.index + size -1)
-      },
-      markWatched (content, mediaIndex) {
-        var that = this;
-        this.server.markWatchedByRatingKey(content.ratingKey, function () {
-          that.$parent.reset()
-        })
-      },
-      playMedia (content, mediaIndex) {
-        var callback = function(result){
-          console.log(result)
-        }
-        let offset = 0
-        if (this.resumeFrom){
-          offset = this.contents.viewOffset
-        }
+        subsetParentData (size) {
+            if (!this.parentData || !this.parentData.MediaContainer || !this.parentData.MediaContainer.Metadata){
+                return []
+            }
+            return this.parentData.MediaContainer.Metadata.slice(this.contents.index - 1,this.contents.index + size -1)
+        },
+        markWatched (content, mediaIndex) {
+            var that = this
+            this.server.markWatchedByRatingKey(content.ratingKey, function () {
+                that.$parent.reset()
+            })
+        },
+        playMedia (content, mediaIndex) {
+            var callback = function(result){
+                console.log(result)
+            }
+            let offset = 0
+            if (this.resumeFrom){
+                offset = this.contents.viewOffset
+            }
 
-        this.chosenClient.playMedia({
-            ratingKey: this.contents.ratingKey,
-            mediaIndex: mediaIndex,
-            server: this.server,
-            offset: offset,
-            callback: callback
-          }
-        )
-      },
-      getDuration (dur){
-        return humanizeDuration(dur, { 
-          delimiter: ' ', 
-          units: ['h', 'm', 's'],
-          round: true 
-        })
-      },
-      pressStop () {
-        this.chosenClient.pressStop( function (result) {
-          console.log('Stop result: ' + result)
-        })
-      },
-      getStreamCount (streams, type) {
-        let count = 0
-        streams.forEach((stream) => {
-          if (stream.streamType == type){
-            count++
-          }
-        })
-        return count
-      },
-      audioStreams (media) {        
-        let result = ''
-        for (let i = 0; i < media.length; i++){
-          let stream = media[i]
-          if (stream.streamType == 2  && stream.languageCode){
-            result = result + ' ' + (stream.languageCode || 'Unknown Lanugage') + ','
-          }
+            this.chosenClient.playMedia({
+                ratingKey: this.contents.ratingKey,
+                mediaIndex: mediaIndex,
+                server: this.server,
+                offset: offset,
+                callback: callback
+            }
+            )
+        },
+        getDuration (dur){
+            return humanizeDuration(dur, { 
+                delimiter: ' ', 
+                units: ['h', 'm', 's'],
+                round: true 
+            })
+        },
+        pressStop () {
+            this.chosenClient.pressStop( function (result) {
+                console.log('Stop result: ' + result)
+            })
+        },
+        getStreamCount (streams, type) {
+            let count = 0
+            streams.forEach((stream) => {
+                if (stream.streamType == type){
+                    count++
+                }
+            })
+            return count
+        },
+        audioStreams (media) {        
+            let result = ''
+            for (let i = 0; i < media.length; i++){
+                let stream = media[i]
+                if (stream.streamType == 2  && stream.languageCode){
+                    result = result + ' ' + (stream.languageCode || 'Unknown Lanugage') + ','
+                }
+            }
+            result = result.substring(0, result.length-1)
+            return result
+        },
+        subtitleStreams (media) {
+            let result = ''
+            for (let i = 0; i < media.length; i++){
+                let stream = media[i]
+                if (stream.streamType == 3 && stream.languageCode){
+                    result = result + ' ' + (stream.languageCode || 'Unknown Lanugage') + ',' 
+                }
+            }
+            result = result.substring(0, result.length-1)
+            return result
+        },
+        reset () {
+            this.browsingContent = false
         }
-        result = result.substring(0, result.length-1);
-        return result
-      },
-      subtitleStreams (media) {
-        let result = ''
-        for (let i = 0; i < media.length; i++){
-          let stream = media[i]
-          if (stream.streamType == 3 && stream.languageCode){
-            result = result + ' ' + (stream.languageCode || 'Unknown Lanugage') + ',' 
-          }
-        }
-        result = result.substring(0, result.length-1);
-        return result
-      },
-      reset () {
-        this.browsingContent = false
-      }
 
     }
-  }
+}
 </script>

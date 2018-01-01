@@ -3,7 +3,7 @@
     <v-flex xs12 lg8 xl6 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
       <v-layout row wrap justify-center>
         <v-flex xs12 md8 lg4 xl6>
-          <img style="width:100%" v-bind:src="logo">
+          <img style="width:100%" :src="logo">
         </v-flex>
       </v-layout>
       <v-stepper style="background: rgba(0,0,0,0.3)" v-model="e1" light class="mb-4">
@@ -14,8 +14,7 @@
           <v-divider></v-divider>
           <v-stepper-step step="3">Sync</v-stepper-step>
         </v-stepper-header>
-      </v-stepper>
-      
+      </v-stepper>      
       <div v-if="!chosenClient">        
         <v-layout class="mt-2" row wrap>        
           <v-flex xs12 center>
@@ -73,107 +72,87 @@
           </v-flex>
         </v-layout>
       </div>
-      <!-- <div v-if="chosenClient">
-        <v-layout row wrap>
-          <v-flex xs12>
-            <h5 class="text-xs-center">Connect to a SyncLounge room</h5>
-          </v-flex>
-        </v-layout>
-        <v-layout row wrap>
-          <v-flex xs12>
-            It's time to connect to SyncLounge. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join.
-          </v-flex>
-        </v-layout>
-        <v-layout row wrap> 
-          <v-flex xs12 lg12>    
-            <joinroom></joinroom>
-          </v-flex>
-        </v-layout>
-      </div> -->
     </v-flex>
-
   </v-layout>
 </template>
 
 <script>
 
-  import plexclient from './plexclient'
-  import joinroom from './joinroom'
+import plexclient from './plexclient'
+import joinroom from './joinroom'
 
-  import { mapState } from 'vuex'
+import { mapState } from 'vuex'
 
-  import moment from '../../../node_modules/moment/moment.js'
+var moment = require('moment')
 
-  export default {
+export default {
     props: ['object'],
     name: 'walkthrough',
     data () {
-      return {
-        testClient: null,
-        testClientErrorMsg: null,
-        gotResponse: true,
-        e1: '1',
-        joinRoomModal: false
-      }
+        return {
+            testClient: null,
+            testClientErrorMsg: null,
+            gotResponse: true,
+            e1: '1',
+            joinRoomModal: false
+        }
     },
     components: {
-      plexclient,
-      joinroom
+        plexclient,
+        joinroom
     },
     computed: {
-      chosenClient: function () {
-        return this.$store.getters.getChosenClient
-      },
-      clients: function () {
-        return this.plex.clients
-      },
-      ...mapState(['plex']),
-      context: function () {
-        return this.$store
-      },
-      logo: function () {
-        return 'ptweb/logo-long-light.png'
-      },
-      playercount: function () {
-        if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-          return '(' + Object.keys(this.plex.clients).length + ')'
+        chosenClient: function () {
+            return this.$store.getters.getChosenClient
+        },
+        clients: function () {
+            return this.plex.clients
+        },
+        ...mapState(['plex']),
+        context: function () {
+            return this.$store
+        },
+        playercount: function () {
+            if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
+                return '(' + Object.keys(this.plex.clients).length + ')'
+            }
+            return ''
+        },
+        logo: function () {
+            return this.logos.light.long
+        },
+        recentClients: function () {
+            return this.$store.getters.recentClients
         }
-        return ''
-      },
-      recentClients: function () {
-        return this.$store.getters.recentClients
-      }
     },
     watch: {
-      chosenClient: function (to, from) {
-        if (this.chosenClient && !from) {
-          this.$router.push('/joinroom')
+        chosenClient: function (to, from) {
+            if (this.chosenClient && !from) {
+                this.$router.push('/joinroom')
+            }
         }
-      }
     },
     methods: {
-      previewClient: function (client) {
-        this.testClient = client
-        this.testClientErrorMsg = null
-      },
-      clientClicked: async function () {
-        let client = this.testClient
-        this.gotResponse = false
-        this.testClientErrorMsg = null
-        try {
-          let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client).catch(() => {
-            this.gotResponse = true
-            this.testClientErrorMsg = 'Unable to connect to client'
-          })
-          if (result) {
-            console.log('Got connection result', result)
-            this.$store.commit('SET_CHOSENCLIENT', client)
-            this.gotResponse = true
-          }
-        } catch (e) {
-          console.log(e)
-          this.gotResponse = true
-        }
+        previewClient: function (client) {
+            this.testClient = client
+            this.testClientErrorMsg = null
+        },
+        clientClicked: async function () {
+            let client = this.testClient
+            this.gotResponse = false
+            this.testClientErrorMsg = null
+            try {
+                let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client).catch(() => {
+                    this.gotResponse = true
+                    this.testClientErrorMsg = 'Unable to connect to client'
+                })
+                if (result) {
+                    this.$store.commit('SET_CHOSENCLIENT', client)
+                    this.gotResponse = true
+                }
+            } catch (e) {
+                this.gotResponse = true
+            }
         // client.findConnection(function (res) {
         //   let plexObj = that.$store.state.plex
         //   if (res) {
@@ -185,28 +164,27 @@
         //     client.connectedstatus = 'failed'
         //   }
         // })
-      },
-      openJoinRoomModal: function () {
-        return this.$parent.$refs.joinroomModal.open()
-      },
-      isClientSelected: function (client) {
-        if (client == this.testClient) {
-          return true
+        },
+        openJoinRoomModal: function () {
+            return this.$parent.$refs.joinroomModal.open()
+        },
+        isClientSelected: function (client) {
+            if (client == this.testClient) {
+                return true
+            }
+            return false
+        },
+        lastSeenAgo: function (clientTime) {
+            let now = moment(new Date().getTime())
+            let end = moment.unix(parseInt(clientTime))
+            let difference = moment.duration(now.diff(end))
+            return difference.humanize() + ' ago'
+        },
+        refreshPlexDevices: function () {
+            this.$store.commit('SET_CHOSENCLIENT', null)
+            this.$store.commit('REFRESH_PLEXDEVICES')
         }
-        return false
-      },
-      lastSeenAgo: function (clientTime) {
-        let now = moment(new Date().getTime())
-        let end = moment.unix(parseInt(clientTime))
-        let difference = moment.duration(now.diff(end))
-        return difference.humanize() + ' ago'
-      },
-      refreshPlexDevices: function () {
-        let oldClient = this.$store.getters.getChosenClient
-        this.$store.commit('SET_CHOSENCLIENT', null)
-        this.$store.commit('REFRESH_PLEXDEVICES')
-      }
     }
-  }
+}
 </script>
 

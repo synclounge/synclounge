@@ -7,17 +7,17 @@
 </template>
 
 <script>
-  export default {
+export default {
     name: 'signout',
     mounted () {
-      window['localStorage'].removeItem('plexuser')
-      this.$store.state.plex = null
-      this.$store.state.signedin = 'notsignedin'
-      var that = this
-      setTimeout(function () {
-        that.$router.push('/')
-      }, 2500)
+        window['localStorage'].removeItem('plexuser')
+        this.$store.state.plex = null
+        this.$store.state.signedin = 'notsignedin'
+        var that = this
+        setTimeout(function () {
+            that.$router.push('/')
+        }, 2500)
     }
-  }
+}
 </script>
 

@@ -12,8 +12,8 @@ var PORT = 8089
 
 
 // END USER CONFIG
-var express = require('express');
-var path = require('path');
+var express = require('express')
+var path = require('path')
 var cors = require('cors')
 
 var root = express()
@@ -21,11 +21,11 @@ root.use(cors())
 
 var combined = express()
 
-var ptserver = express();
+var ptserver = express()
 
 // Setup our PTServer
 ptserver.get('/',function(req,res){
-    return res.send("You've connected to the PTServer, you're probably looking for the webapp.")
+    return res.send('You\'ve connected to the PTServer, you\'re probably looking for the webapp.')
 })
 
 // Merge everything together
@@ -39,8 +39,8 @@ root.get('*',function(req,res){
 
 
 
-var rootserver = require('http').createServer(root);
-var ptserver_io = require('socket.io')(rootserver,{path: '/ptserver/socket.io'});
+var rootserver = require('http').createServer(root)
+var ptserver_io = require('socket.io')(rootserver,{path: '/ptserver/socket.io'})
 
 
 ptserver_io.on('connection', function(socket){
@@ -52,12 +52,12 @@ ptserver_io.on('connection', function(socket){
             return
         }    
         if (!data || !data.username || !data.room){
-           return socket.emit('join-result',false,{},'wrong password',[])
+            return socket.emit('join-result',false,{},'wrong password',[])
         }
         var tempUser = new user()
         var result = true
         var _data = {}
-        var details = "Successfully connected to " + data.room 
+        var details = 'Successfully connected to ' + data.room 
 
         if (socket.selfUser != null || socket.selfUser != undefined){
             //Already in a room! Leave the room we're in
@@ -133,7 +133,7 @@ ptserver_io.on('connection', function(socket){
         _data = tempUser
         socket.emit('join-result',result,_data,details,currentUsers)
     })
-	socket.on('poll', function(data){
+    socket.on('poll', function(data){
         if (socket.ourRoom == null){
             //console.log('This user should join a room first')
             socket.emit('flowerror','You aren\' connected to a room! Use join')
@@ -168,7 +168,7 @@ ptserver_io.on('connection', function(socket){
             temp.showName = data.showName
             socket.broadcast.to(socket.selfUser.room).emit('host-update',temp)
         }
-    });
+    })
     socket.on('send_message',function(msg){
         //console.log(msg)
         if (socket.ourRoom == null){
@@ -194,16 +194,16 @@ ptserver_io.on('connection', function(socket){
             socket.emit('rejoin')
             return
         }
-        console.log("Hi there", data)
+        console.log('Hi there', data)
         transferHost(socket.selfUser, function (user){ return user.username == data.username })
     })
     socket.on('connect_timeout',function(){
         //console.log('timeout')
         handleDisconnect(true)
     })
-	socket.on('disconnect', function(){        
-       handleDisconnect(true)
-	});
+    socket.on('disconnect', function(){        
+        handleDisconnect(true)
+    })
     function handleDisconnect(disconnect){
         if (socket.selfUser === undefined || socket.selfUser === null){
             return
@@ -272,11 +272,11 @@ ptserver_io.on('connection', function(socket){
         var tempname = wantedname
         while (true){
             //We need to loop through the users list until we create a valid name
-            var found = false;
+            var found = false
             for (var i in usersarray){
                 if (usersarray[i].username == tempname){
                     //console.log(usersarray[i].username + ' == ' + tempname)
-                    found = true;
+                    found = true
                 }
             }
             if (found){
@@ -300,22 +300,22 @@ ptserver_io.on('connection', function(socket){
     }
 
     var user = function(){
-        this.username = null;
-        this.role = null;
-        this.room = null;
-        this.title = null;
-        this.time = null;
-        this.avatarUrl = null;
+        this.username = null
+        this.role = null
+        this.room = null
+        this.title = null
+        this.time = null
+        this.avatarUrl = null
     }
-});
-rootserver.listen(PORT);
+})
+rootserver.listen(PORT)
 console.log('SyncLounge Server successfully started on port ' + PORT)
 
 
 
 
 setInterval(function(){
-   console.log('Connected users: ' + Object.keys(ptserver_io.sockets.connected).length)
+    console.log('Connected users: ' + Object.keys(ptserver_io.sockets.connected).length)
 },5000)
 
 

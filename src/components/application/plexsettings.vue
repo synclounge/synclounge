@@ -20,56 +20,56 @@
 </template>
 
 <script>
-  export default {
+export default {
     props: ['object'],
     name: 'plexsettings',
     data () {
-      return {
-        blockedServers: this.$store.getters.getSettingBLOCKEDSERVERS || []
-      }
+        return {
+            blockedServers: this.$store.getters.getSettingBLOCKEDSERVERS || []
+        }
     },
     methods: {
     },
 
     watch: {
-      blockedServers: function() {
-        this.$store.commit('setSettingBLOCKEDSERVERS', this.blockedServers)
-      }
+        blockedServers: function() {
+            this.$store.commit('setSettingBLOCKEDSERVERS', this.blockedServers)
+        }
     },
     computed: {
-      plex: function () {
-        return this.$store.state.plex
-      },
-      context: function () {
-        return this.$store
-      },
-      localServersList: function() {
-        let servers = []
-        if (!this.plex || !this.plex.servers){
-          return servers
-        }
-        for (let id in this.plex.servers) {
-          let server = this.plex.servers[id] 
-          if (this.$store.getters.getSettingBLOCKEDSERVERS && this.$store.getters.getSettingBLOCKEDSERVERS[server.clientIdentifier]){            
-            servers.push({
-              name: server.name,
-              id: server.clientIdentifier,
-            })
-            return
-          }
-          servers.push({
-            name: server.name,
-            id: server.clientIdentifier,
-          })
-          return servers
-        }               
-      },
-      logo: function () {
-        return 'ptweb/plexlogo.png'
-      },
+        plex: function () {
+            return this.$store.state.plex
+        },
+        context: function () {
+            return this.$store
+        },
+        localServersList: function() {
+            let servers = []
+            if (!this.plex || !this.plex.servers){
+                return servers
+            }
+            for (let id in this.plex.servers) {
+                let server = this.plex.servers[id] 
+                if (this.$store.getters.getSettingBLOCKEDSERVERS && this.$store.getters.getSettingBLOCKEDSERVERS[server.clientIdentifier]){            
+                    servers.push({
+                        name: server.name,
+                        id: server.clientIdentifier,
+                    })
+                    return
+                }
+                servers.push({
+                    name: server.name,
+                    id: server.clientIdentifier,
+                })
+                return servers
+            }               
+        },
+        logo: function () {
+            return 'ptweb/plexlogo.png'
+        },
     },
     mounted: function () {
-      // Create event listeners
+        // Create event listeners
     }
-  }
+}
 </script>

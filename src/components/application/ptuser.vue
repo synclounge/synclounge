@@ -27,70 +27,70 @@
 </template>
 
 <script>
-  export default {
+export default {
     props: ['object'],
     name: 'ptuser',
     methods: {
-      getTimeFromMs (ms) {
-        var hours = ms / (1000 * 60 * 60)
-        var absoluteHours = Math.floor(hours)
-        var h = absoluteHours > 9 ? absoluteHours : '0' + absoluteHours
-        var minutes = (hours - absoluteHours) * 60
-        var absoluteMinutes = Math.floor(minutes)
-        var m = absoluteMinutes > 9 ? absoluteMinutes : '0' + absoluteMinutes
-        var seconds = (minutes - absoluteMinutes) * 60
-        var absoluteSeconds = Math.floor(seconds)
-        var s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds
-        return (h + ':' + m + ':' + s)
-      }
+        getTimeFromMs (ms) {
+            var hours = ms / (1000 * 60 * 60)
+            var absoluteHours = Math.floor(hours)
+            var h = absoluteHours > 9 ? absoluteHours : '0' + absoluteHours
+            var minutes = (hours - absoluteHours) * 60
+            var absoluteMinutes = Math.floor(minutes)
+            var m = absoluteMinutes > 9 ? absoluteMinutes : '0' + absoluteMinutes
+            var seconds = (minutes - absoluteMinutes) * 60
+            var absoluteSeconds = Math.floor(seconds)
+            var s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds
+            return (h + ':' + m + ':' + s)
+        }
     },
     computed: {
-      isHost: function () {
-        if (this.object.role == 'host') {
-          return 'block'
+        isHost: function () {
+            if (this.object.role == 'host') {
+                return 'block'
+            }
+            return 'none'
+        },
+        percent: function () {
+            let perc = (parseInt(this.object.time) / parseInt(this.object.maxTime)) * 100
+            if (isNaN(perc)) {
+                perc = 0
+            }
+            return perc + '%'
+        },
+        getCurrent: function () {
+            if (isNaN(this.object.time)) {
+                return ''
+            }
+            return this.getTimeFromMs(this.object.time)
+        },
+        getMax: function () {
+            if (isNaN(this.object.maxTime)) {
+                return ''
+            }
+            return this.getTimeFromMs(this.object.maxTime)
+        },
+        getTitle: function () {
+            if (this.object.title && this.object.title.length > 0) {
+                return this.object.title
+            }
+            return 'Nothing'
+        },
+        playerState: function () {
+            if (this.object.playerState) {
+                if (this.object.playerState == 'stopped') {
+                    return 'pause'
+                }
+                if (this.object.playerState == 'paused') {
+                    return 'pause'
+                }
+                if (this.object.playerState == 'playing') {
+                    return 'play_arrow'
+                }
+            }
+            return false
         }
-        return 'none'
-      },
-      percent: function () {
-        let perc = (parseInt(this.object.time) / parseInt(this.object.maxTime)) * 100
-        if (isNaN(perc)) {
-          perc = 0
-        }
-        return perc + '%'
-      },
-      getCurrent: function () {
-        if (isNaN(this.object.time)) {
-          return ''
-        }
-        return this.getTimeFromMs(this.object.time)
-      },
-      getMax: function () {
-        if (isNaN(this.object.maxTime)) {
-          return ''
-        }
-        return this.getTimeFromMs(this.object.maxTime)
-      },
-      getTitle: function () {
-        if (this.object.title && this.object.title.length > 0) {
-          return this.object.title
-        }
-        return 'Nothing'
-      },
-      playerState: function () {
-        if (this.object.playerState) {
-          if (this.object.playerState == 'stopped') {
-            return 'pause'
-          }
-          if (this.object.playerState == 'paused') {
-            return 'pause'
-          }
-          if (this.object.playerState == 'playing') {
-            return 'play_arrow'
-          }
-        }
-        return false
-      }
     }
-  }
+}
 </script>
 
