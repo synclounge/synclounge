@@ -222,19 +222,10 @@ export default {
             return this.$store.state.plex
         },      
         logo: function () {
-            return 'slweb/logo-long-light.png'
+            return this.$store.getters.logos.light.long
         },
         context: function () {
             return this.$store
-        },
-        darkModeBackground: function () {
-            if (this.$store.getters.getSettingDARKMODE) {
-                return {
-                    'background-color': '#282A2D'
-                }
-            }
-            return {}
-
         },
         CUSTOMSERVER: {
             get () {
@@ -247,9 +238,6 @@ export default {
                 this.$store.commit('setSettingCUSTOMSERVER', value)
             }
         },
-    },
-    mounted: function () {
-        // Create event listeners
     }
 }
 </script>
