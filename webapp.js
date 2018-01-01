@@ -3,6 +3,8 @@
 // Port defaults to 8088
 // REQUIRED: --url argument
 
+const settings = require('./settings.json')
+
 const args = require('args-parser')(process.argv)
 if (!args['url']) {
     console.log('Missing required argument -url. EG. "node webapp.js --url=http://example.com/ptweb". This URL is used for redirecting invite links.')
@@ -32,12 +34,12 @@ root.use(bodyParser())
 // root.use(bodyParser.urlencoded({ extended: true }))
 
 // Setup our web app
-root.use('/ptweb/', express.static(path.join(__dirname, 'dist')))
+root.use('/' + settings.webroot + '/', express.static(path.join(__dirname, 'dist')))
 
 
 // Merge everything together
 
-root.get('/ptweb/invite/:id', (req, res) => {
+root.get('/' + settings.webroot + '/invite/:id', (req, res) => {
     console.log('handling an invite')
     let shortObj = shortenedLinks[req.params.id]
     if (!shortObj) {
@@ -47,7 +49,7 @@ root.get('/ptweb/invite/:id', (req, res) => {
     console.log(JSON.stringify(shortObj, null, 4))
     return res.redirect(shortObj.fullUrl)
 })
-root.post('/ptweb/invite', (req, res) => {
+root.post('/' + settings.webroot + '/invite', (req, res) => {
     res.setHeader('Content-Type', 'application/json')
     if (!req.body) {
         return res.send({
@@ -57,7 +59,7 @@ root.post('/ptweb/invite', (req, res) => {
     }
     console.log('Generating Invite URL via the API.')
     let data = {}
-    let fields = ['ptserver', 'ptroom', 'ptpassword', 'owner']
+    let fields = ['server', 'room', 'password', 'owner']
     for (let i = 0; i < fields.length; i++) {
         if (!req.body[fields[i]]) {
             return res.send({
@@ -92,7 +94,7 @@ root.use(cors())
 var rootserver = require('http').createServer(root)
 
 var webapp_io = require('socket.io')(rootserver, {
-    path: '/ptweb/socket.io'
+    path: '/' + settings.webroot + '/socket.io'
 })
 
 function getUniqueId() {
