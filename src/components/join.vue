@@ -3,7 +3,6 @@
       <v-flex xs12 md8 offset-md2>
         <v-card style="background: rgba(0,0,0,0.3)">
           <h4 class="white--text center-text pa-1"> Welcome to SyncLounge!</h4>
-          </div>
           <div class="center-text">
             <h6><span style="font-weight:900">{{ owner }}</span> has invited you to join the room <span
               style="font-weight:900">{{ room }}</span></h6>
@@ -13,7 +12,6 @@
               <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="letsGo()">Accept Invite</v-btn>     
               </v-flex>      
             </v-layout>
-          </div>
           <p style="opacity:0.7" class="center-text">
             SyncLounge is a tool to sync Plex content with your family and friends. For more info click <a target="_blank" href="https://github.com/samcm/synclounge"> here </a>
           </p>
@@ -29,9 +27,9 @@ export default {
     mounted: function () {
         var that = this
         console.log('Hello from join...')
-        this.password = this.$route.query.ptpassword
-        this.room = this.$route.query.ptroom
-        this.server = this.$route.query.ptserver
+        this.password = this.$route.query.password
+        this.room = this.$route.query.room
+        this.server = this.$route.query.server
         this.owner = this.$route.query.owner
 
         if (this.room && this.server) {
@@ -54,7 +52,7 @@ export default {
     },
     computed: {
         logo: function () {
-            return 'ptweb/logo-small-light.png'
+            return this.$store.getters.logos.light.short
         }
     },
     methods: {

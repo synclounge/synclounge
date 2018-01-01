@@ -113,7 +113,6 @@ export default {
         socketConnect ({state, commit, rootState}, data) {
             return new Promise((resolve, reject) => {
                 let address = data.address
-                let callback = data.callback
                 if (state._socket) {
                     state._socket.disconnect()
                 }
@@ -164,15 +163,14 @@ export default {
                         console.log('generating our invite link')
                         console.log(state)
                         let webapp_socket = rootState.webapp_socket
-                        let url = window.location.origin
     
                         let urlOrigin = window.location.origin
                         let data = {
                             urlOrigin: urlOrigin,
                             owner: rootState.plex.user.username,
-                            ptserver: state.server,
-                            ptroom: state.room,
-                            ptpassword: state.password
+                            server: state.server,
+                            room: state.room,
+                            password: state.password
     
                         }
                         var that = this
@@ -441,7 +439,7 @@ export default {
                 })
             }
         },
-        transferHost ({state, commit, rootState}, username) {
+        transferHost ({state}, username) {
             if (state._socket.connected) {
                 state._socket.emit('transfer_host', {
                     username: username
