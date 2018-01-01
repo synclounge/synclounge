@@ -9,7 +9,7 @@
           </div>
           <v-layout wrap row class="pa-4">
             <v-flex xs12 md8 offset-md2 class="center-text">       
-              <v-btn class="center" style="background-color: #E5A00D" v-on:click.native="letsGo()">Accept Invite</v-btn>     
+              <v-btn class="center" style="background-color: #E5A00D" @click.native="letsGo()">Accept Invite</v-btn>     
               </v-flex>      
             </v-layout>
           <p style="opacity:0.7" class="center-text">
@@ -25,23 +25,19 @@
 export default {
     name: 'join',
     mounted: function () {
-        var that = this
-        console.log('Hello from join...')
         this.password = this.$route.query.password
         this.room = this.$route.query.room
         this.server = this.$route.query.server
         this.owner = this.$route.query.owner
 
         if (this.room && this.server) {
-        // Looks like a valid request...
-        // Lets setup an auto join and then move the user to /sync
+            // Looks like a valid request...
+            // Lets setup an auto join and then move the user to /sync
             this.$store.commit('SET_AUTOJOIN', true)
             this.$store.commit('SET_AUTOJOINROOM', this.room)
             this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
             this.$store.commit('SET_AUTOJOINURL', this.server)
         }
-    },
-    created: function () {
     },
     data () {
         return {

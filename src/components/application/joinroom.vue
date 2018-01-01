@@ -109,7 +109,7 @@
 export default {
     props: ['object'],
     name: 'joinroom',
-    data () {
+    data () {   
         return {
             selectedServer: '',
             serverError: null,

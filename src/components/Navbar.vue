@@ -89,7 +89,6 @@ export default {
             return this.logos.light.small
         },
         isPlayer: function () {
-            console.log('Router path is ' + this.$route.path)
             if (this.$route.path == '/') {
                 return true
             }
@@ -111,8 +110,6 @@ export default {
             return (this.ptConnected && this.ptServer && this.ptRoom && this.shortUrl)
         },
         shortUrl: function () {
-            console.log('Short url calc done below')
-            console.log(this.$store.getters.getShortLink)
             return this.$store.getters.getShortLink
         },
         firstRun: function () {
@@ -127,14 +124,9 @@ export default {
             return this.$refs.statisticsModal.open()
         },
         generateShortLink: function () {
-            console.log('Generating a shortened link')
             return this.sendShortLinkRequest(false)
         },
-        sendShortLinkRequest: function (overrideHost) {
-
-        },
         refreshPlexDevices: function () {
-            let oldClient = this.$store.getters.getChosenClient
             if (this.$store.getters.getSocket) {
                 this.$store.getters.getSocket.disconnect()
             }

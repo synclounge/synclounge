@@ -43,13 +43,7 @@ export default {
         plexcontent
     },
     mounted: function () {
-        if (this.$store.getters.getAutoJoin) {
-            // Attempt to auto join
-            this.$store.dispatch('socketConnect', {
-                address: this.$store.getters.getAutoJoinUrl,
-                callback: function () {}
-            })
-        }
+        
     },
     created: function () {
     },
