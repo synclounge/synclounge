@@ -62,11 +62,11 @@
       <div class="pt-4" v-if="validLastServer && results.length == 0">            
         <h4 v-if="subsetOnDeck(3).length > 0"> Continue watching from {{ lastServer.name }} 
           <span style="float:right; font-size:5rem; user-select: none;">
-            <v-icon fa @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon fa @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
+            <v-icon @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
           </span>
         </h4>
-        <v-layout v-if="onDeck" row wrap>
-            <v-flex xs12 md3 xl3 lg3 class="pb-3 pa-4" v-for="content in subsetOnDeck(4)" :key="content.key" >                    
+        <v-layout v-if="onDeck" row>
+            <v-flex xs12 md4 xl3 class="pb-3 pa-4" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
                 <plexthumb :content="content" :server="lastServer" height="20" type="art" @contentSet="setContent(content)"></plexthumb>
             </v-flex>
         </v-layout>

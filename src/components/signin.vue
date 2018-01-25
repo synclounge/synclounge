@@ -50,107 +50,113 @@
 </template>
 
 <script>
-
-
-var parseString = require('xml2js').parseString
-var request = require('request')
+var parseString = require("xml2js").parseString;
+var request = require("request");
 
 export default {
-    name: 'signin',
-    data () {
-        return {
-            pin: null,
-            ID: null,
-            token: null,
-            status: 'startup'
-        }
-    },
-    computed: {
-        store: function () {
-            return this
-        }
-    },
-    mounted () {
-        let storage = window['localStorage']
-        let id = (Math.random() * 1e32).toString(36)
-        var sBrowser, sUsrAg = navigator.userAgent
-
-        if (sUsrAg.indexOf('Chrome') > -1) {
-            sBrowser = 'Google Chrome'
-        } else if (sUsrAg.indexOf('Safari') > -1) {
-            sBrowser = 'Apple Safari'
-        } else if (sUsrAg.indexOf('Opera') > -1) {
-            sBrowser = 'Opera'
-        } else if (sUsrAg.indexOf('Firefox') > -1) {
-            sBrowser = 'Mozilla Firefox'
-        } else if (sUsrAg.indexOf('MSIE') > -1) {
-            sBrowser = 'Microsoft Internet Explorer'
-        }
-
-        this.$http.post('https://plex.tv/pins.xml', null, {
-            headers: {
-                'X-Plex-Device': 'Web',
-                'X-Plex-Device-Name': 'SyncLounge',
-                'X-Plex-Product': 'SyncLounge',
-                'X-Plex-Version': this.appVersion,
-                'X-Plex-Platform': sBrowser,
-                'X-Plex-Platform-Version': '',
-                'X-Plex-Client-Identifier': id
-            }
-        }).then((response) => {
-            parseString(response.body, (err, result) => {
-                if (!err) {
-                    this.pin = result.pin.code[0]
-                    this.ID = result.pin.id[0]._
-                    let checker = setInterval(() => {
-                        var options = {
-                            url: 'https://plex.tv/pins/' + result.pin.id[0]._ + '.xml',
-                            headers: {
-                                'X-Plex-Device': 'Web',
-                                'X-Plex-Device-Name': 'SyncLounge',
-                                'X-Plex-Product': 'SyncLounge',
-                                'X-Plex-Version': this.appVersion,
-                                'X-Plex-Platform': sBrowser,
-                                'X-Plex-Platform-Version': '',
-                                'X-Plex-Client-Identifier': id
-                            }
-                        }
-                        request(options, (error, response, body) => {
-                            if (!error && response.statusCode == 404) {
-                                clearInterval(checker)
-                                return
-                            }
-                            if (!error && response.statusCode == 200) {
-                                parseString(body, async (err, result) => {
-                                    if (!err) {
-                                        if (result.pin.auth_token[0] != null && result.pin.auth_token[0].length > 1) {
-                                            this.token = result.pin.auth_token[0]
-                                            let jsonObj = {
-                                                authToken: this.token
-                                            }
-                                            storage.setItem('plexuser', JSON.stringify(jsonObj))
-                                            await this.$store.dispatch('PLEX_LOGIN_TOKEN', this.token)
-                                            setTimeout(() => {
-                                                this.$router.push('/browse')
-                                            }, 2500)
-                                            clearInterval(checker)
-                                        }
-                                    }
-                                })
-                            }
-                        })
-                    }, 2000)
-                }
-            })
-            return
-        })
-
-    },
-    methods: {
-        sendNotification(){
-            window.EventBus.$emit('notification', 'Copied to clipboard')
-        }
+  name: "signin",
+  data() {
+    return {
+      pin: null,
+      ID: null,
+      token: null,
+      status: "startup"
+    };
+  },
+  computed: {
+    store: function() {
+      return this;
     }
-}
+  },
+  mounted() {
+    let storage = window["localStorage"];
+    let id = (Math.random() * 1e32).toString(36);
+    var sBrowser,
+      sUsrAg = navigator.userAgent;
+
+    if (sUsrAg.indexOf("Chrome") > -1) {
+      sBrowser = "Google Chrome";
+    } else if (sUsrAg.indexOf("Safari") > -1) {
+      sBrowser = "Apple Safari";
+    } else if (sUsrAg.indexOf("Opera") > -1) {
+      sBrowser = "Opera";
+    } else if (sUsrAg.indexOf("Firefox") > -1) {
+      sBrowser = "Mozilla Firefox";
+    } else if (sUsrAg.indexOf("MSIE") > -1) {
+      sBrowser = "Microsoft Internet Explorer";
+    }
+
+    this.$http
+      .post("https://plex.tv/pins.xml", null, {
+        headers: {
+          "X-Plex-Device": "Web",
+          "X-Plex-Device-Name": "SyncLounge",
+          "X-Plex-Product": "SyncLounge",
+          "X-Plex-Version": this.appVersion,
+          "X-Plex-Platform": sBrowser,
+          "X-Plex-Platform-Version": "",
+          "X-Plex-Client-Identifier": id
+        }
+      })
+      .then(response => {
+        parseString(response.body, (err, result) => {
+          if (!err) {
+            this.pin = result.pin.code[0];
+            this.ID = result.pin.id[0]._;
+            let checker = setInterval(() => {
+              var options = {
+                url: "https://plex.tv/pins/" + result.pin.id[0]._ + ".xml",
+                headers: {
+                  "X-Plex-Device": "Web",
+                  "X-Plex-Device-Name": "SyncLounge",
+                  "X-Plex-Product": "SyncLounge",
+                  "X-Plex-Version": this.appVersion,
+                  "X-Plex-Platform": sBrowser,
+                  "X-Plex-Platform-Version": "",
+                  "X-Plex-Client-Identifier": id
+                }
+              };
+              request(options, (error, response, body) => {
+                if (!error && response.statusCode == 404) {
+                  clearInterval(checker);
+                  return;
+                }
+                if (!error && response.statusCode == 200) {
+                  parseString(body, async (err, result) => {
+                    if (!err) {
+                      if (
+                        result.pin.auth_token[0] != null &&
+                        result.pin.auth_token[0].length > 1
+                      ) {
+                        this.token = result.pin.auth_token[0];
+                        let jsonObj = {
+                          authToken: this.token
+                        };
+                        storage.setItem("plexuser", JSON.stringify(jsonObj));
+                        await this.$store.dispatch(
+                          "PLEX_LOGIN_TOKEN",
+                          this.token
+                        );
+                        setTimeout(() => {
+                          this.$router.push("/browse");
+                        }, 2500);
+                        clearInterval(checker);
+                      }
+                    }
+                  });
+                }
+              });
+            }, 2000);
+          }
+        });
+        return;
+      });
+  },
+  methods: {
+    sendNotification() {
+      window.EventBus.$emit("notification", "Copied to clipboard");
+    }
+  }
+};
 </script>
 

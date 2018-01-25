@@ -11,6 +11,46 @@
       v-model="drawerRight" right enable-resize-watcher>
       <drawerright></drawerright>
     </v-navigation-drawer>
+    <v-dialog v-model="donateDialog" max-width="650px">
+      <v-card class="grey darken-4">
+        <v-card-title class="title">
+          Donate
+          <v-spacer></v-spacer>
+          <img :src="logos.light.small" style="height: 50px"/>
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text>
+          <p class="pa-2"> All donations to SyncLounge go directly towards running the SyncLounge public servers and the continued development of the application. </p>
+          <v-subheader> How to donate </v-subheader>
+          <v-layout row justify-center align-center class="pa-0 ma-1">
+              <v-flex xs4 class="text-xs-center">
+                <v-btn block color="primary" class="white--text" target="_blank" href="https://www.paypal.com/donate/?token=6DxQYVqxfpwVBp95l6ZcS1-HqEO7V4b1rG_lFcqgwQvjQjI2aGDcyEs5VEcfZAce95Hbsm&country.x=AU&locale.x=AU">
+                  Paypal
+                </v-btn>
+              </v-flex>     
+            </v-layout>
+          <div class="text-xs-center pa-2">
+            <v-layout row justify-center align-center v-for="(address, coin) in addresses" :key="coin" class="pa-0 ma-1">
+              <v-flex xs2 style="font-weight: 600">
+                {{ coin }}
+              </v-flex>
+              <v-flex xs8>
+                {{ address }}
+              </v-flex>              
+              <v-flex xs2 class="text-xs-center">                    
+                <v-icon v-clipboard="address" v-on:click.native="sendNotification()" class="mr-2 primary--text click-cursor">content_copy</v-icon>
+              </v-flex>
+            </v-layout>
+          </div>
+          <v-divider></v-divider>
+          <p class="pa-2 soft-text mb-0 pb-0" >If you make a donation, stop by the Discord and message samcm#2715 to get your Donator role. Thankyou!</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" flat @click.stop="donateDialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-toolbar app fixed>
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title class="white--text"> SyncLounge </v-toolbar-title>
@@ -19,6 +59,7 @@
         <img class="ma-2" style="height:48px; width: 48px" v-bind:src="logo"/>
         <v-btn color="primary" dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
+        <v-btn small tag="a" class="hidden-sm-and-down" flat @click="donateDialog = true">Donate ♥</v-btn>
         <v-toolbar-side-icon v-if="showRightDrawerButton" @click="toggleDrawerRight"></v-toolbar-side-icon>
       </v-toolbar-items>
     </v-toolbar>
@@ -76,6 +117,8 @@ export default {
       fixed: false,
       initialized: false,
 
+      donateDialog: false,
+
       loading: true,
 
       snackbar: false,
@@ -99,14 +142,14 @@ export default {
           title: "Discord",
           target: "_blank",
           href: "https://discord.gg/fKQB3yt"
-        },
-        {
-          title: "Donate ♥",
-          target: "_blank",
-          href:
-            "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TKAR59DZ4HPWC&lc=AU&item_name=Plex%20Together&currency_code=AUD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted"
         }
-      ]
+      ],
+      addresses: {
+        ETH: "0xC886a3b94867AC12901220BBcbFD407e60E009A5",
+        LTC: "LQkfMbcFGQgMZWw13hbzbYkRkSM6n1fZjE",
+        BTC: "15xc7Sn7zJCYwmpwLCuxq5yk2mEPYmipyh",
+        BCH: "1K3ULWzW9dLyGbtpnNqUysHuj1suZFXtx4"
+      }
     };
   },
   methods: {
@@ -376,7 +419,7 @@ export default {
 
 <style>
 .a {
-  color: white;
+  color: unset !important;
   text-decoration: none !important;
 }
 </style>
