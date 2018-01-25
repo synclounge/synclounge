@@ -36,7 +36,7 @@ export default {
             this.$store.commit('SET_AUTOJOIN', true)
             this.$store.commit('SET_AUTOJOINROOM', this.room)
             this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
-            this.$store.commit('SET_AUTOJOINURL', this.server)
+            this.$store.commit('SET_AUTOJOINURL', this.server) 
         }
     },
     data () {

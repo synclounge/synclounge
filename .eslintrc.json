@@ -1,33 +1,29 @@
-{  
-    "parserOptions": {
-        "ecmaVersion": 2017,
-        "sourceType": "module"
-    },
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "node": true
-    },
-    "extends": [
-        "eslint:recommended",
-        "plugin:vue/essential"
+{
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/essential"
+  ],
+  "rules": {
+    "indent": [
+      "error",
+      2
     ],
-    "rules": {
-        "indent": [
-            "error",
-            4
-        ],
-        "linebreak-style": [
-            "error",
-            "windows"
-        ],
-        "quotes": [
-            "error",
-            "single"
-        ],
-        "semi": [
-            "error",
-            "never"
-        ]
-    }
+    "quotes": [
+      "warn",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ]
+  }
 }

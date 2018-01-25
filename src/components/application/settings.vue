@@ -31,58 +31,53 @@
 </template>
 
 <script>
-
 export default {
-    props: ['object'],
-    name: 'settings',
-    data () {
-        return {}
+  props: ["object"],
+  name: "settings",
+  data() {
+    return {};
+  },
+  methods: {
+    //this.$store.dispatch('function',params)
+  },
+  computed: {
+    plex: function() {
+      return this.$store.state.plex;
     },
-    methods: {
-        //this.$store.dispatch('function',params)
-
+    context: function() {
+      return this.$store;
     },
-    computed: {
-        plex: function () {
-            return this.$store.state.plex
-        },
-        context: function () {
-            return this.$store
-        },
-        logo: function () {
-            return 'ptweb/logo-small-light.png'
-        },
-        appVersion () {
-            return this.$store.state.appVersion
-        },
-        syncmode: {
-            get () {
-                return this.$store.getters.getSettingSYNCMODE
-            },
-            set (value) {
-                this.$store.commit('setSettingSYNCMODE', value)
-            }
-        },
-        syncflexability: {
-            get () {
-                return this.$store.getters.getSettingSYNCFLEXABILITY
-            },
-            set (value) {
-                this.$store.commit('setSettingSYNCFLEXABILITY', value)
-            }
-        },
-        clientpollinterval: {
-            get () {
-                return this.$store.getters.getSettingCLIENTPOLLINTERVAL
-            },
-            set (value) {
-                this.$store.commit('setSettingCLIENTPOLLINTERVAL', value)
-            }
-        }
+    appVersion() {
+      return this.$store.state.appVersion;
     },
-    mounted: function () {
-        // Create event listeners
+    syncmode: {
+      get() {
+        return this.$store.getters.getSettingSYNCMODE;
+      },
+      set(value) {
+        this.$store.commit("setSettingSYNCMODE", value);
+      }
+    },
+    syncflexability: {
+      get() {
+        return this.$store.getters.getSettingSYNCFLEXABILITY;
+      },
+      set(value) {
+        this.$store.commit("setSettingSYNCFLEXABILITY", value);
+      }
+    },
+    clientpollinterval: {
+      get() {
+        return this.$store.getters.getSettingCLIENTPOLLINTERVAL;
+      },
+      set(value) {
+        this.$store.commit("setSettingCLIENTPOLLINTERVAL", value);
+      }
     }
-}
+  },
+  mounted: function() {
+    // Create event listeners
+  }
+};
 </script>
 

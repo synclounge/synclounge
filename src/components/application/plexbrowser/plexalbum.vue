@@ -53,103 +53,133 @@
 </template>
 
 <script>
-import plexcontent from './plexcontent'
-import plexthumb from './plexthumb.vue'
+import plexcontent from "./plexcontent";
+import plexthumb from "./plexthumb.vue";
 
-var humanizeDuration = require('humanize-duration')
+var humanizeDuration = require("humanize-duration");
 humanizeDuration.languages.shortEn = {
-    s: function(c) { return c + '' },  
-    m: function(c) { return c + '' },
-}
+  s: function(c) {
+    return c + "";
+  },
+  m: function(c) {
+    return c + "";
+  }
+};
 
 export default {
-    props: ['library', 'server', 'content'],
-    components: {
-        plexcontent,
-        plexthumb
-    },
-    created () {
-        // Hit the PMS endpoing /library/sections
-        var that = this
-        this.server.getSeriesContent(this.content.key, 0, 500, 1,  (result) => {
-            if (result) {
-                this.contents = result
-                this.setBackground()
-            } else {
-                this.status = 'Error loading content!'
-            }
-        })
-    },
-    data () {
-        return {
-            browsingContent: null,
+  props: ["library", "server", "content"],
+  components: {
+    plexcontent,
+    plexthumb
+  },
+  created() {
+    // Hit the PMS endpoing /library/sections
+    var that = this;
+    this.server.getSeriesContent(this.content.key, 0, 500, 1, result => {
+      if (result) {
+        this.contents = result;
+        this.setBackground();
+      } else {
+        this.status = "Error loading content!";
+      }
+    });
+  },
+  data() {
+    return {
+      browsingContent: null,
 
-            contents: null,
-            status: 'loading..',
-        }
-    },
-    watch: {
-        browsingContent: function (){
-            if (!this.browsingContent) {
-                this.$store.commit('SET_BACKGROUND',null)
-            }
-        }
-    },
-    mounted () {
-
-    },
-    beforeDestroy () {
-
-    },
-    computed: {
-        getArtUrl () {
-            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-            return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 2, h / 1, 5)
-        },      
-        chosenClient () {
-            return this.$store.getters.getChosenClient
-        },      
-        playable () {
-            if (this.nowPlaying || this.nowPlaying == '') {
-                return false
-            }
-            return true
-        },
-        getThumb () {
-            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-            return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.grandparentThumb, w / 1, h / 2)
-        },
-    },
-    methods: {
-        setContent (content) {
-            this.browsingContent = content
-        },
-        setBackground () {        
-            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-
-            this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(this.contents.MediaContainer.art, w / 4, h / 4, 8))
-        },
-        reset () {
-            this.browsingContent = false
-            this.setBackground()
-        },
-        getDuration (item){
-            return humanizeDuration(item.duration, { 
-                delimiter: ' ', 
-                units: ['m','s'],
-                round: true 
-            })
-        },    
-        playMedia (content) {
-            console.log('Playing this: ', content)
-            this.chosenClient.playMedia(content.ratingKey, this.server, function (result) {
-                console.log('Auto play result: ', result)
-            })
-        }
-
+      contents: null,
+      status: "loading.."
+    };
+  },
+  watch: {
+    browsingContent: function() {
+      if (!this.browsingContent) {
+        this.$store.commit("SET_BACKGROUND", null);
+      }
     }
-}
+  },
+  mounted() {},
+  beforeDestroy() {},
+  computed: {
+    getArtUrl() {
+      var w = Math.round(
+        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+      );
+      var h = Math.round(
+        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      );
+      return this.server.getUrlForLibraryLoc(
+        this.contents.MediaContainer.banner,
+        w / 2,
+        h / 1,
+        5
+      );
+    },
+    chosenClient() {
+      return this.$store.getters.getChosenClient;
+    },
+    playable() {
+      if (this.nowPlaying || this.nowPlaying == "") {
+        return false;
+      }
+      return true;
+    },
+    getThumb() {
+      var w = Math.round(
+        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+      );
+      var h = Math.round(
+        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      );
+      return this.server.getUrlForLibraryLoc(
+        this.contents.MediaContainer.grandparentThumb,
+        w / 1,
+        h / 2
+      );
+    }
+  },
+  methods: {
+    setContent(content) {
+      this.browsingContent = content;
+    },
+    setBackground() {
+      var w = Math.round(
+        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+      );
+      var h = Math.round(
+        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      );
+
+      this.$store.commit(
+        "SET_BACKGROUND",
+        this.server.getUrlForLibraryLoc(
+          this.contents.MediaContainer.art,
+          w / 4,
+          h / 4,
+          8
+        )
+      );
+    },
+    reset() {
+      this.browsingContent = false;
+      this.setBackground();
+    },
+    getDuration(item) {
+      return humanizeDuration(item.duration, {
+        delimiter: " ",
+        units: ["m", "s"],
+        round: true
+      });
+    },
+    playMedia(content) {
+      console.log("Playing this: ", content);
+      this.chosenClient.playMedia(content.ratingKey, this.server, function(
+        result
+      ) {
+        console.log("Auto play result: ", result);
+      });
+    }
+  }
+};
 </script>
