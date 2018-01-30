@@ -61,14 +61,18 @@ module.exports = function PlexClient() {
 
   this.hitApi = function (command, params, connection) {
 
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier == 'PTPLAYER9PLUS10') {
         // We are using the SyncLounge Player
 
         let data = {
           command: command,
           params: params,
-          callback: function (resultData) {
+          callback: (resultData) => {
+            console.log('Result from player', resultData);
+            if (command === '/player/timeline/poll') {
+              this.updateTimelineObject(resultData);
+            }
             resolve(resultData, 0, 200, 'PTPLAYER');
           }
         };
@@ -204,28 +208,34 @@ module.exports = function PlexClient() {
     // Check if we are the SLPlayer
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // SLPLAYER
-      this.events.emit('new_timeline', result);
-      var clonetimeline = this.lastTimelineObject;
+      let tempObj = {
+        MediaContainer: {
+          timelines: [result]
+        }
+      };
+      result = tempObj;
+      // this.events.emit('new_timeline', result);
+      // var clonetimeline = this.lastTimelineObject;
 
-      if (!this.oldTimelineObject) {
-        if (!this.lastTimelineObject.ratingKey) {
-          this.events.emit('playback_change', null);
-        } else {
-          this.events.emit('playback_change', this.lastTimelineObject.ratingKey);
-        }
-        this.setValue('oldTimelineObject', result);
-        // this.oldTimelineObject = result
-        return callback(result);
-      }
-      this.setValue('oldTimelineObject', clonetimeline);
-      if (this.oldTimelineObject.ratingKey != this.lastTimelineObject.ratingKey) {
-        if (!this.lastTimelineObject.ratingKey) {
-          this.events.emit('playback_change', null);
-        } else {
-          this.events.emit('playback_change', this.lastTimelineObject.ratingKey);
-        }
-      }
-      return true;
+      // if (!this.oldTimelineObject) {
+      //   if (!this.lastTimelineObject.ratingKey) {
+      //     this.events.emit('playback_change', null);
+      //   } else {
+      //     this.events.emit('playback_change', this.lastTimelineObject.ratingKey);
+      //   }
+      //   this.setValue('oldTimelineObject', result);
+      //   // this.oldTimelineObject = result
+      //   return callback(result);
+      // }
+      // this.setValue('oldTimelineObject', clonetimeline);
+      // if (this.oldTimelineObject.ratingKey != this.lastTimelineObject.ratingKey) {
+      //   if (!this.lastTimelineObject.ratingKey) {
+      //     this.events.emit('playback_change', null);
+      //   } else {
+      //     this.events.emit('playback_change', this.lastTimelineObject.ratingKey);
+      //   }
+      // }
+      // return true;
     }
 
     if (!result.MediaContainer.Timeline) {
@@ -429,7 +439,7 @@ module.exports = function PlexClient() {
 
     // First we will mirror the item so the user has an idea of what we're about to play
 
-    const send = async() => {
+    const send = async () => {
       let command = '/player/playback/playMedia';
       let mediaId = '/library/metadata/' + data.ratingKey;
       let offset = data.offset || 0;

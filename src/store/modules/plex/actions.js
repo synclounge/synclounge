@@ -89,7 +89,7 @@ export default {
       request(options, (error, response, body) => {
         if (!error && response.statusCode == 200) {
           // Valid response
-          parseXMLString(body, async(err, result) => {
+          parseXMLString(body, async (err, result) => {
             for (var index in result.MediaContainer.Device) {
               // Handle the individual device
               let device = result.MediaContainer.Device[index]['$'];
@@ -167,7 +167,7 @@ export default {
     }
   },
 
-  PLEX_SERVER_FINDCONNECTION: async({
+  PLEX_SERVER_FINDCONNECTION: async ({
     state
   }, server) => {
     return server.findConnection();
@@ -195,6 +195,10 @@ export default {
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
     return new Promise((resolve, reject) => {
+      if (client.clientIdentifier === 'PTPLAYER9PLUS10') {
+        return resolve(true);
+      }
+
       let resolved = false;
       try {
         Promise.all(client.plexConnections.map((connection) => {

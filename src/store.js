@@ -319,13 +319,6 @@ const getters = {
   }
 };
 const actions = {
-  incrementAsync({
-    commit
-  }) {
-    setTimeout(() => {
-      commit('INCREMENT');
-    }, 200);
-  },
   async PLAYBACK_CHANGE({
     commit,
     state,

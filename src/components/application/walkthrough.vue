@@ -77,114 +77,116 @@
 </template>
 
 <script>
+import plexclient from "./plexclient";
+import joinroom from "./joinroom";
 
-import plexclient from './plexclient'
-import joinroom from './joinroom'
+import { mapState } from "vuex";
 
-import { mapState } from 'vuex'
-
-var moment = require('moment')
+var moment = require("moment");
 
 export default {
-    props: ['object'],
-    name: 'walkthrough',
-    data () {
-        return {
-            testClient: null,
-            testClientErrorMsg: null,
-            gotResponse: true,
-            e1: '1',
-            joinRoomModal: false
-        }
+  props: ["object"],
+  name: "walkthrough",
+  data() {
+    return {
+      testClient: null,
+      testClientErrorMsg: null,
+      gotResponse: true,
+      e1: "1",
+      joinRoomModal: false
+    };
+  },
+  components: {
+    plexclient,
+    joinroom
+  },
+  computed: {
+    chosenClient: function() {
+      return this.$store.getters.getChosenClient;
     },
-    components: {
-        plexclient,
-        joinroom
+    clients: function() {
+      return this.plex.clients;
     },
-    computed: {
-        chosenClient: function () {
-            return this.$store.getters.getChosenClient
-        },
-        clients: function () {
-            return this.plex.clients
-        },
-        ...mapState(['plex']),
-        context: function () {
-            return this.$store
-        },
-        playercount: function () {
-            if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-                return '(' + Object.keys(this.plex.clients).length + ')'
-            }
-            return ''
-        },
-        logo: function () {
-            return this.logos.light.long
-        },
-        recentClients: function () {
-            return this.$store.getters.recentClients
-        }
+    ...mapState(["plex"]),
+    context: function() {
+      return this.$store;
     },
-    watch: {
-        chosenClient: function (to, from) {
-            if (this.chosenClient && !from) {
-                this.$router.push('/joinroom')
-            }
-        }
+    playercount: function() {
+      if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
+        return "(" + Object.keys(this.plex.clients).length + ")";
+      }
+      return "";
     },
-    methods: {
-        previewClient: function (client) {
-            this.testClient = client
-            this.testClientErrorMsg = null
-        },
-        clientClicked: async function () {
-            let client = this.testClient
-            this.gotResponse = false
-            this.testClientErrorMsg = null
-            try {
-                let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client).catch(() => {
-                    this.gotResponse = true
-                    this.testClientErrorMsg = 'Unable to connect to client'
-                })
-                if (result) {
-                    this.$store.commit('SET_CHOSENCLIENT', client)
-                    this.gotResponse = true
-                }
-            } catch (e) {
-                this.gotResponse = true
-            }
-        // client.findConnection(function (res) {
-        //   let plexObj = that.$store.state.plex
-        //   if (res) {
-        //     client.connectedstatus = 'connected'
-        //     that.e1 = '2'
-        //     that.$store.commit('SET_CHOSENCLIENT', client)
-
-        //   } else {
-        //     client.connectedstatus = 'failed'
-        //   }
-        // })
-        },
-        openJoinRoomModal: function () {
-            return this.$parent.$refs.joinroomModal.open()
-        },
-        isClientSelected: function (client) {
-            if (client == this.testClient) {
-                return true
-            }
-            return false
-        },
-        lastSeenAgo: function (clientTime) {
-            let now = moment(new Date().getTime())
-            let end = moment.unix(parseInt(clientTime))
-            let difference = moment.duration(now.diff(end))
-            return difference.humanize() + ' ago'
-        },
-        refreshPlexDevices: function () {
-            this.$store.commit('SET_CHOSENCLIENT', null)
-            this.$store.commit('REFRESH_PLEXDEVICES')
-        }
+    logo: function() {
+      return this.logos.light.long;
+    },
+    recentClients: function() {
+      return this.$store.getters.recentClients;
     }
-}
+  },
+  watch: {
+    chosenClient: function(to, from) {
+      if (this.chosenClient && !from) {
+        this.$router.push("/joinroom");
+      }
+    }
+  },
+  methods: {
+    previewClient: function(client) {
+      this.testClient = client;
+      this.testClientErrorMsg = null;
+    },
+    clientClicked: async function() {
+      let client = this.testClient;
+      this.gotResponse = false;
+      this.testClientErrorMsg = null;
+      try {
+        let result = await this.$store
+          .dispatch("PLEX_CLIENT_FINDCONNECTION", client)
+          .catch(e => {
+            console.log(e);
+            this.gotResponse = true;
+            this.testClientErrorMsg = "Unable to connect to client";
+          });
+        if (result) {
+          this.$store.commit("SET_CHOSENCLIENT", client);
+          this.gotResponse = true;
+        }
+      } catch (e) {
+        this.gotResponse = true;
+      }
+      // client.findConnection(function (res) {
+      //   let plexObj = that.$store.state.plex
+      //   if (res) {
+      //     client.connectedstatus = 'connected'
+      //     that.e1 = '2'
+      //     that.$store.commit('SET_CHOSENCLIENT', client)
+
+      //   } else {
+      //     client.connectedstatus = 'failed'
+      //   }
+      // })
+    },
+    openJoinRoomModal: function() {
+      return this.$parent.$refs.joinroomModal.open();
+    },
+    isClientSelected: function(client) {
+      if (client == this.testClient) {
+        return true;
+      }
+      return false;
+    },
+    lastSeenAgo: function(clientTime) {
+      let now = moment(new Date().getTime());
+      let end = moment.unix(parseInt(clientTime));
+      let difference = moment.duration(now.diff(end));
+      return difference.humanize() + " ago";
+    },
+    refreshPlexDevices: function() {
+      this.$store.commit("SET_CHOSENCLIENT", null);
+      this.$store.commit("REFRESH_PLEXDEVICES");
+    }
+  }
+};
 </script>
 
