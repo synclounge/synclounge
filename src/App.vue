@@ -53,7 +53,9 @@
     </v-dialog>
     <v-toolbar app fixed>
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title class="white--text"> SyncLounge </v-toolbar-title>
+      <router-link :to="'/browse'">
+        <v-toolbar-title class="white--text"> SyncLounge </v-toolbar-title>
+      </router-link>
       <v-spacer></v-spacer>
       <v-toolbar-items>        
         <img class="ma-2" style="height:48px; width: 48px" v-bind:src="logo"/>
@@ -147,7 +149,7 @@ export default {
       addresses: {
         ETH: "0xC886a3b94867AC12901220BBcbFD407e60E009A5",
         LTC: "LQkfMbcFGQgMZWw13hbzbYkRkSM6n1fZjE",
-        BTC: "15xc7Sn7zJCYwmpwLCuxq5yk2mEPYmipyh",
+        BTC: "3Q7wZnUdJMQi53eH3dErms9Tno7VGmTHZL",
         BCH: "1K3ULWzW9dLyGbtpnNqUysHuj1suZFXtx4"
       }
     };
@@ -338,7 +340,10 @@ export default {
         }
       };
       for (let param in this.$route.params) {
-        data.push(map[param]());
+        let link = map[param]();
+        if (link) {
+          data.push(link);
+        }
       }
       // this.$route.params.forEach((route) => {
       //   console.log(route)

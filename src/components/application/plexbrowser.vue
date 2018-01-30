@@ -35,7 +35,7 @@
           <v-flex xs12 lg12 >
             <v-subheader > Movies ({{ filteredMovies.length }})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg1 class="pb-3" v-for="movie in filteredMovies" :key="movie.key">            
+          <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="movie in filteredMovies" :key="movie.key">            
             <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
           </v-flex>
         </v-layout>
@@ -44,7 +44,7 @@
           <v-flex xs12 lg12 >
             <v-subheader > TV Shows ({{ filteredShows.length }})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl1 lg1 class="pb-3" v-for="show in filteredShows" :key="show.key">            
+          <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="show in filteredShows" :key="show.key">            
             <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
           </v-flex>
         </v-layout>        
@@ -53,7 +53,7 @@
           <v-flex xs12 lg12 >
             <v-subheader > TV Episodes ({{ filteredEpisodes.length }})</v-subheader>
           </v-flex>          
-          <v-flex xs6 md3 xl2 lg2 class="pb-3" v-for="episode in filteredEpisodes" :key="episode.key">
+          <v-flex xs6 md3 xl2 lg2 class="pb-3 ma-2" v-for="episode in filteredEpisodes" :key="episode.key">
             <plexthumb :content="episode" :server="episode.server" showServer type="art" search @contentSet="setContent(episode)"></plexthumb>
           </v-flex>
         </v-layout>
@@ -66,9 +66,9 @@
           </span>
         </h4>
         <v-layout v-if="onDeck" row>
-            <v-flex xs12 md4 xl3 class="pb-3 pa-4" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
-                <plexthumb :content="content" :server="lastServer" height="20" type="art" @contentSet="setContent(content)"></plexthumb>
-            </v-flex>
+          <v-flex xs12 md4 xl3 class="pb-3 pa-4" v-for="content in subsetOnDeck(3)" :key="content.key" >                    
+            <plexthumb :content="content" :server="lastServer" height="20" type="art" @contentSet="setContent(content)"></plexthumb>
+          </v-flex>
         </v-layout>
       </div>
       <v-divider></v-divider>
@@ -124,38 +124,17 @@
          </v-flex>         
         </v-layout>
       </div> 
-    </div>
-    <span v-if="selectedItem">
-      <plexcontent v-if="selectedItem.type == 'episode' || selectedItem.type == 'movie'"
-                    :server="selectedItem.server || lastServer" :content="selectedItem">
-      </plexcontent>
-      <plexseason v-if="selectedItem.type == 'series'" :server="selectedItem.server  || lastServer" :content="selectedItem">
-      </plexseason>
-      <plexseries v-if="selectedItem.type == 'show'" :server="selectedItem.server || lastServer" :content="selectedItem">
-      </plexseries>
-    </span>
-    <plexserver v-if="browsingServer" :server="browsingServer">
-    </plexserver>   
+    </div>    
   </div>
 </template>
 
 <script>
-import plexserver from "./plexbrowser/plexserver";
-import plexcontent from "./plexbrowser/plexcontent";
-import plexlibrary from "./plexbrowser/plexlibrary";
-import plexseason from "./plexbrowser/plexseason";
-import plexseries from "./plexbrowser/plexseries";
 import plexthumb from "./plexbrowser/plexthumb";
 
 var _ = require("lodash");
 
 export default {
   components: {
-    plexserver,
-    plexcontent,
-    plexlibrary,
-    plexseason,
-    plexseries,
     plexthumb
   },
   name: "plexbrowser",

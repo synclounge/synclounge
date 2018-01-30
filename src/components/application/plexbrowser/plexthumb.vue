@@ -41,19 +41,6 @@
                       </v-flex>
                     </v-layout>
                   </v-container>
-                  <!-- <div :style="{ 'height': bottomCalculatedHeight }" style="background: rgba(0, 0, 0, .8);position:absolute; bottom: 0; width:100%">
-                    <div class="ma-0">
-                      <v-progress-linear style="position:absolute; top:0; width:100%" class="pa-0 ma-0 pt-content-progress" v-if="showProgressBar" height="2" :value="unwatchedPercent"></v-progress-linear>   
-                      <v-layout row wrap class="text-xs-left" style="margin:0; margin-left:3px; display:block; max-width:100%; height:100%">
-                          <v-flex v-if="!onlyBottom" xs12 style="height:50%" :style="topTextStyle" ref="topText" class="pa-0 ma-0 ml-1 mt-1">
-                              <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
-                          </v-flex>                  
-                          <v-flex xs12 style="height:50%; font-size:0.8rem"  :style="bottomTextStyle" ref="bottomText" class="pa-0 ma-0 mt-0 ml-1">
-                              <div class="truncate soft-text" style=" position:absolute; bottom:0">{{ getUnder(content) }}</div>
-                          </v-flex>
-                      </v-layout> 
-                    </div>
-                  </div>  -->
                 </v-flex>
               </v-layout>
             </v-container>
@@ -136,18 +123,20 @@ export default {
     },
     link() {
       if (this.content.type === "episode") {
-        return (
-          "/browse/" +
-          this.serverId +
-          "/" +
-          this.content.librarySectionID +
+        let final = "/browse/" + this.serverId;
+        let exists = this.content.librarySectionID;
+        if (exists) {
+          final = final + "/" + this.content.librarySectionID;
+        }
+        final =
+          final +
           "/tv/" +
           this.content.grandparentRatingKey +
           "/" +
           this.content.parentRatingKey +
           "/" +
-          this.content.ratingKey
-        );
+          this.content.ratingKey;
+        return final;
       }
       if (this.content.type === "season") {
         return (

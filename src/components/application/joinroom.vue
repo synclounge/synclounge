@@ -153,7 +153,7 @@ export default {
     attemptConnect: function() {
       // Attempt the connection
       this.serverError = null;
-      if (this.selectedServer != "custom") {
+      if (this.selectedServer !== "custom") {
         this.$store
           .dispatch("socketConnect", { address: this.selectedServer })
           .then(result => {
