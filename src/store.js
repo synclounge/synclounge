@@ -61,7 +61,7 @@ if (process.env.NODE_ENV == 'development') {
 const state = {
   count: 0,
   appTitle: 'SyncLounge',
-  appVersion: '1.5.0',
+  appVersion: '1.5.0.1',
   background: null,
   shownChat: false,
   plex: null,
@@ -526,6 +526,7 @@ const plexTogether = {
       console.log(data)
       state._socket.emit('join', new getHandshakeUser(data.user, data.roomName, data.password))
       state._socket.on('join-result', function (result, _data, details, currentUsers) {
+        console.log('Join result:', result, details)
         commit('CLEAR_MESSAGES')
         if (result) {
           commit('SET_ROOM', _data.room)
