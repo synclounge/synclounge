@@ -189,27 +189,28 @@ killOldInvites()
 var shortenedLinks = {}
 loadFromFile((result) => {
     shortenedLinks = result
-    const cluster = require('cluster');
-    const http = require('http');
-    const numCPUs = require('os').cpus().length;
+    // const cluster = require('cluster');
+    // const http = require('http');
+    // const numCPUs = require('os').cpus().length;
         
-    if (cluster.isMaster) {
-      // Fork workers.
-        setInterval(() => {
-            if (cluster.isMaster) {
-                killOldInvites()
-            }
-        }, 3600000)
-      for (let i = 0; i < numCPUs; i++) {
-        cluster.fork();
-      }
+    // if (cluster.isMaster) {
+    //   // Fork workers.
+    //     setInterval(() => {
+    //         if (cluster.isMaster) {
+    //             killOldInvites()
+    //         }
+    //     }, 3600000)
+    //   for (let i = 0; i < numCPUs; i++) {
+    //     cluster.fork();
+    //   }
     
-      cluster.on('exit', (thread, code, signal) => {
-        console.log(`thread ${thread.process.pid} died`, code, signal)
-      });
-    } else {
-        rootserver.listen(PORT)
-    }     
+    //   cluster.on('exit', (thread, code, signal) => {
+    //     console.log(`thread ${thread.process.pid} died`, code, signal)
+    //   });
+    // } else {
+    //     rootserver.listen(PORT)
+    // }     
+    rootserver.listen(PORT)
 })
 
 console.log('SyncLounge WebApp successfully started on port ' + PORT)
