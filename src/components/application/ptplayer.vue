@@ -146,9 +146,12 @@ export default {
       if (data.command === '/player/playback/seekTo') {
         this.eventbus.$emit('player-seek', {
           time: data.params.offset,
-          callback: function (res) {
+          callback: async (promise) => {
             // console.log('Player reported a seek result of ' + res)
-            data.callback(res)
+            await promise.catch((e) => {
+              data.callback(false)
+            })
+            data.callback(true)
           }
         })
         return

@@ -54,141 +54,142 @@ export default {
     }
   },
   mounted () {
-    var that = this
-
-    that.source = that.src
-    that.initReqSent = true
+    this.source = this.src
+    this.initReqSent = true
     this.$emit('playerMounted')
 
     // Events from the parent component
-    this.eventbus.$on('player-press-pause', function (callback) {
-      if (that.isPlaying === 'paused') {
+    this.eventbus.$on('player-press-pause', (callback) => {
+      if (this.isPlaying === 'paused') {
         return callback(true)
       }
-      if (that.player) {
-        that.player.pause()
+      if (this.player) {
+        this.player.pause()
         return callback(true)
       }
       return callback(false)
     })
 
-    this.eventbus.$on('player-press-play', function (callback) {
-      if (that.isPlaying == 'playing') {
+    this.eventbus.$on('player-press-play', (callback) => {
+      if (this.isPlaying === 'playing') {
         return callback(true)
       }
-      if (that.player) {
-        that.player.play()
+      if (this.player) {
+        this.player.play()
         return callback(true)
       }
       return callback(false)
     })
 
     this.eventbus.$on('player-seek', (data) => {
-      let seekTo = data.time
-      console.log('We have been told we need to seek to position ' + seekTo)
-      // The parent will only ever send us this command if we are within 10s, lets change our playback speed to 3x to catch up
-      let playbackSpeed = 1.0
-      let iterations = 0
-      if (!that.player.isReady_) {
-        return data.callback(false)
-      }
-      try {
-        if (!that.player || !that.player.currentTime()) {
-          return data.callback(false)
+      // Return a promise through the callback
+      data.callback(new Promise((resolve, reject) => {
+        let seekTo = data.time
+        console.log('We have been told we need to seek to position ' + seekTo)
+        // The parent will only ever send us this command if we are within 10s, lets change our playback speed to 3x to catch up
+        let playbackSpeed = 1.0
+        let iterations = 0
+        if (!this.player.isReady_) {
+          return reject(new Error('Player is not ready'))
         }
-      } catch (e) {
-        return data.callback(false)
-      }
-      console.log('Player checks passed')
-      let lastPlayerSpeed = that.player.currentTime()
-      let lastPlayerTime = that.player.currentTime() * 1000
-
-      if (seekTo < that.bufferedEnd && seekTo > that.bufferStart) {
-        console.log('Seeking to a buffered time')
-        that.player.currentTime(seekTo)
-        return data.callback(true)
-      }
-
-      if (Math.abs(seekTo - that.lastTime) < 7000 && !that.blockedSpeedChanges) {
-        console.log('Seeking via the speed up method')
-        let oldSources = that.player.options_.sources
-        let clicker = setInterval(function () {
-          if (that.isPlaying === 'paused' || that.isPlaying === 'buffering' || oldSources !== that.player.options_.sources) {
-            clearInterval(clicker)
-            return data.callback(false)
+        try {
+          if (!this.player || !this.player.currentTime()) {
+            return reject(new Error('Player is not ready'))
           }
-          iterations++
-          try {
-            if (!that.player || !that.player.currentTime() || !that.player.playbackRate()) {
+        } catch (e) {
+          return reject(new Error(e))
+        }
+        console.log('Player checks passed')
+        let lastPlayerSpeed = this.player.currentTime()
+        let lastPlayerTime = this.player.currentTime() * 1000
+
+        if (seekTo < this.bufferedEnd && seekTo > this.bufferStart) {
+          console.log('Seeking to a buffered time')
+          this.player.currentTime(seekTo)
+          return resolve(true)
+        }
+
+        if (Math.abs(seekTo - this.lastTime) < 7000 && !this.blockedSpeedChanges) {
+          console.log('Seeking via the speed up method')
+          let oldSources = this.player.options_.sources
+          let clicker = setInterval(function () {
+            if (this.isPlaying === 'paused' || this.isPlaying === 'buffering' || oldSources !== this.player.options_.sources) {
+              clearInterval(clicker)
+              return reject(new Error('Slow seek was stop due to buffering or pausing'))
+            }
+            iterations++
+            try {
+              if (!this.player || !this.player.currentTime() || !this.player.playbackRate()) {
+                return
+              }
+            } catch (e) {
+              clearInterval(clicker)
+              return data.callback(false)
+            }
+            console.log('Playback rate: ' + this.player.playbackRate())
+            if (lastPlayerSpeed === this.player.playbackRate()) {
+            // Our played doesnt want to change it speed, lets swap to clean seek
+              console.log('Failed seek attempt - swapping to clean seek')
+              this.blockedSpeedChanges = true
+              reject(new Error('Failed to slow seek as the playback rate did not want to change'))
+              return clearInterval(clicker)
+            }
+            if (this.isPlaying === 'paused' || (lastPlayerTime === this.player.currentTime() * 1000)) {
+              console.log('Skipping this iteration because our player state is ' + this.isPlaying + ' or lastPlayerTime is equal to the current player time')
               return
             }
-          } catch (e) {
-            clearInterval(clicker)
-            return data.callback(false)
-          }
-          console.log('Playback rate: ' + that.player.playbackRate())
-          if (lastPlayerSpeed === that.player.playbackRate()) {
-            // Our played doesnt want to change it speed, lets swap to clean seek
-            console.log('Failed seek attempt - swapping to clean seek')
-            that.blockedSpeedChanges = true
-            data.callback(false)
-            return clearInterval(clicker)
-          }
-          if (that.isPlaying === 'paused' || (lastPlayerTime === that.player.currentTime() * 1000)) {
-            console.log('Skipping this iteration because our player state is ' + that.isPlaying + ' or lastPlayerTime is equal to the current player time')
-            return
-          }
-          lastPlayerTime = that.player.currentTime * 1000
-          let slidingTime = seekTo + (25 * iterations)
-          let current = Math.round(that.player.currentTime() * 1000)
-          let difference = Math.abs(current - (slidingTime))
-          if (current < slidingTime) {
+            lastPlayerTime = this.player.currentTime * 1000
+            let slidingTime = seekTo + (25 * iterations)
+            let current = Math.round(this.player.currentTime() * 1000)
+            let difference = Math.abs(current - (slidingTime))
+            if (current < slidingTime) {
             // Speed up
-            playbackSpeed = playbackSpeed + 0.0005
-            if (that.player.playbackRate() < 1.1) {
-              that.player.playbackRate(playbackSpeed)
+              playbackSpeed = playbackSpeed + 0.0005
+              if (this.player.playbackRate() < 1.1) {
+                this.player.playbackRate(playbackSpeed)
+              }
             }
-          }
-          if (current > slidingTime) {
+            if (current > slidingTime) {
             // Slow down
-            playbackSpeed = playbackSpeed - 0.0005
-            if (that.player.playbackRate() > 0.95) {
-              that.player.playbackRate(playbackSpeed)
+              playbackSpeed = playbackSpeed - 0.0005
+              if (this.player.playbackRate() > 0.95) {
+                this.player.playbackRate(playbackSpeed)
+              }
             }
-          }
 
-          console.log('We are ' + difference + 'ms away from where we need to be')
-          if (difference < 50) {
-            console.log('Child: Done seeking')
-            that.player.playbackRate(1.0)
-            data.callback(true)
-            clearInterval(clicker)
-            return
+            console.log('We are ' + difference + 'ms away from where we need to be')
+            if (difference < 50) {
+              console.log('Child: Done seeking')
+              this.player.playbackRate(1.0)
+              resolve()
+              clearInterval(clicker)
+              return
+            }
+            lastPlayerSpeed = this.player.currentTime()
+          }, 25)
+        } else {
+          console.log('Directly seeking to a time')
+          if (!this.player || !this.player.currentTime()) {
+            return reject(new Error('Player is not initialized or does not have a current time'))
           }
-          lastPlayerSpeed = that.player.currentTime()
-        }, 25)
-      } else {
-        console.log('Directly seeking to a time')
-        if (!that.player || !that.player.currentTime()) {
-          data.callback(false)
+          let oldTime = this.lastTime
+          this.player.currentTime(seekTo / 1000)
+          let ticks = 0
+          let ticker = setInterval(() => {
+            console.log('Waiting for the player to skip..')
+            if (oldTime !== this.lastTime) {
+              clearInterval(ticker)
+              console.log('Success on seeking to a direct point in time')
+              return resolve('Directly seeked')
+            }
+            ticks++
+            if (ticks > 150) {
+              clearInterval(ticker)
+              return reject(new Error('Timed out'))
+            }
+          }, 100)
         }
-        let oldTime = this.lastTime
-        that.player.currentTime(seekTo / 1000)
-        let ticks = 0
-        let ticker = setInterval(() => {
-          console.log('Waiting for the player to skip..')
-          if (oldTime !== this.lastTime) {
-            clearInterval(ticker)
-            console.log('Success on seeking to a direct point in time')
-            return data.callback(true)
-          }
-          ticks++
-          if (ticks > 150) {
-            clearInterval(ticker)
-            return data.callback(false)
-          }
-        }, 100)
-      }
+      }))
     })
   },
   beforeDestroy () {
