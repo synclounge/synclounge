@@ -2,7 +2,7 @@
   <div>
     <span
       ref=""
-      v-bind:class="{   
+      v-bind:class="{
         connection_success: connection_success,
         connection_wait: connection_wait,
         connection_failed: connection_failed,
@@ -10,7 +10,7 @@
         truncate: isTrunc
                     }"
        href="#" v-bind:style="styleObj">
-      {{ object.name }}   
+      {{ object.name }}
     </span>
     <span class="grey--text" style="opacity:.8">
       {{ object.product }}
@@ -20,69 +20,62 @@
 
 <script>
 export default {
-  props: ["object", "selected", "startup", "sidebar"],
-  name: "plexclient",
+  props: ['object', 'selected', 'startup', 'sidebar'],
+  name: 'plexclient',
   methods: {},
   computed: {
-    tooltipMsg: function() {
-      return (
-        this.object.name +
-        " running " +
-        this.object.product +
-        " on " +
-        this.object.device
-      );
+    tooltipMsg: function () {
+      return (this.object.name + ' running ' + this.object.product + ' on ' + this.object.device)
     },
-    connection_success: function() {
-      if (this.object.connectedstatus == "connected") {
-        return true;
+    connection_success: function () {
+      if (this.object.connectedstatus === 'connected') {
+        return true
       }
     },
-    connection_wait: function() {
-      if (this.object.connectedstatus == "waiting") {
-        return true;
+    connection_wait: function () {
+      if (this.object.connectedstatus === 'waiting') {
+        return true
       }
     },
-    connection_failed: function() {
-      if (this.object.connectedstatus == "failed") {
-        return true;
+    connection_failed: function () {
+      if (this.object.connectedstatus === 'failed') {
+        return true
       }
     },
-    connection_fresh: function() {
-      if (this.object.connectedstatus == "fresh") {
-        return true;
+    connection_fresh: function () {
+      if (this.object.connectedstatus === 'fresh') {
+        return true
       }
     },
-    isTrunc: function() {
+    isTrunc: function () {
       if (this.sidebar) {
-        return true;
+        return true
       }
-      return false;
+      return false
     },
-    styleObj: function() {
+    styleObj: function () {
       if (this.sidebar) {
         return {
-          height: "30px"
-        };
+          height: '30px'
+        }
       }
       if (!this.startup) {
         return {
-          height: "30px"
-        };
+          height: '30px'
+        }
       }
       if (this.selected) {
         return {
-          "font-weight": "700",
-          height: "30px"
-        };
+          'font-weight': '700',
+          height: '30px'
+        }
       } else {
         return {
-          height: "30px",
-          opacity: "0.7"
-        };
+          height: '30px',
+          opacity: '0.7'
+        }
       }
     }
   }
-};
+}
 </script>
-

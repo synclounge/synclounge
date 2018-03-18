@@ -1,7 +1,5 @@
 <p align="center"><img src="http://synclounge.tv/img/logo-long-dark.png" /></p>
 
-
- 
 <p align="center">
   <a href="https://hub.docker.com/r/starbix/plextogether/builds/"><img src="https://img.shields.io/docker/build/starbix/plextogether.svg" alt="Build Status"></a>
   <a href="https://microbadger.com/images/starbix/plextogether:latest"><img src="https://images.microbadger.com/badges/version/starbix/plextogether:latest.svg" alt="Version"></a>
@@ -19,7 +17,6 @@ Utilising [Vue.js](https://vuejs.org/) and Webpack, SyncLounge has been rewritte
   <br>
 </p>
 
-
 ## How it works
 SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of the SyncLounge clients. Users choose their Plex client, decide on a SyncLounge Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
 
@@ -29,17 +26,17 @@ The host has complete control over a room. Commands they send to their client wi
 * Syncing between Plex Clients over the Internet
 * SyncLounge Player
 	* Plays content directly within SyncLounge.
-	* Built specifically for syncing. 
+	* Built specifically for syncing.
 * Settings to tune SyncLounge to your environment
 	* Client Polling Interval - Sets how frequently SyncLounge will poll the client for new information.
 	* Sync Flexability - Sets the acceptable distance away from the host in milliseconds.
 	* Sync method:
 		* Clean seek - Seeks straight to where the host is.
 		* Skip ahead - Seeks 10 seconds ahead, pauses and then resumes 10 seconds later.
-	* Plex Media Server blocking - allows you to restrict the servers SyncLounge searches for content. 
+	* Plex Media Server blocking - allows you to restrict the servers SyncLounge searches for content.
 * Autoplay content
 	* SyncLounge will automatically search all of your available Plex Media Servers for content that is similar to the Host.
-* Plex Media Server Browsing - find, search and fling content to Plex Clients from within SyncLounge. 
+* Plex Media Server Browsing - find, search and fling content to Plex Clients from within SyncLounge.
 * Metadata fetching from Plex Media Server
 * Chat to others in your room
 * Password locked rooms
@@ -47,7 +44,7 @@ The host has complete control over a room. Commands they send to their client wi
 * Movies and TV Shows (Music not supported)
 ## FAQ
 * _I have to login to Plex.tv on the site, how come?_
-	* SyncLounge uses your Plex account to fetch details about your Plex Clients and Media Servers to use within the app. 
+	* SyncLounge uses your Plex account to fetch details about your Plex Clients and Media Servers to use within the app.
 * _Won't you have access to my username, password and Plex account?_
 	* All of your details are stored client side (in your browser). Absolutely none of your **confidential** data is sent to our server. You can verify this by inspecting the Network tab within Chrome developer tools or if you would like you can deploy SyncLounge yourself - read the 'Building and deploying' section below.
 * _What is sent then?_
@@ -97,7 +94,6 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 ## Contributing
 Please use the Issue tracker here on Github for Issues & Feature requests. We'll gladly merge Pull requests if you're keen to get hands on with the development.
 
-
 ## Building and deploying
 
 ### Docker
@@ -134,7 +130,6 @@ docker run \
 	*  ``npm run build``
 	*  ``node webapp.js --url=http://example.com/slweb``
 * The SL web app will be running at http://ip:8088/slweb.
-
 
 ### Running the server:
 
@@ -187,7 +182,6 @@ You need:
 	* Hot reload is enabled
 	* Suggested to install [Vue.js Devtools](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en)
 
-
 ## Issues
 If you run in to any issues:
 * Raise an Issue here on Github. Try to be as detailed as possible by including details such as:
@@ -204,7 +198,6 @@ If you run in to any issues:
 		* Platform
 
 * Join the [Discord Server](https://discord.gg/Cp9RPSJ) and raise your issue.
-
 
 ## Contributors
 [samcm](https://twitter.com/durksau) - Developer

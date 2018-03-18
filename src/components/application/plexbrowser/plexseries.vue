@@ -5,7 +5,7 @@
           <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
       </v-flex>
     </v-layout>
-    <div v-if="contents" class="mt-3">    
+    <div v-if="contents" class="mt-3">
       <v-flex xs12 style="background: rgba(0, 0, 0, .4);">
         <v-card class="darken-2 white--text"  :img="getArtUrl">
           <v-container style="background:rgba(0,0,0,0.6)" class="pa-3 ma-0" fluid grid-list-lg>
@@ -23,27 +23,27 @@
                   <h1 style="font-size: 72px"> {{ contents.parentTitle }}</h1>
                   <h3 style="font-weight:bold">{{ contents.title }}</h3>
                   <p> {{ getSeasons }} - {{ contents.parentYear }} </p>
-                  <v-divider></v-divider>         
-                  <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ contents.summary }} </p>  
-                  <div>                
-                    <v-chip v-for="genre in genres" :key="genre.tag" label color="grey"> 
+                  <v-divider></v-divider>
+                  <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ contents.summary }} </p>
+                  <div>
+                    <v-chip v-for="genre in genres" :key="genre.tag" label color="grey">
                       {{ genre.tag }}
                     </v-chip>
                   </div>
                   <v-subheader class="white--text"> Featuring </v-subheader>
                   <v-layout row wrap v-if="seriesData">
-                    <v-flex v-for="role in roles" :key="role.tag" xs12 md6 lg4>        
-                      <v-chip style="border: none; background: none; color: white"> 
+                    <v-flex v-for="role in roles" :key="role.tag" xs12 md6 lg4>
+                      <v-chip style="border: none; background: none; color: white">
                         <v-avatar>
                           <img :src="role.thumb">
                         </v-avatar>
-                        {{ role.tag }} 
+                        {{ role.tag }}
                       <div style="opacity:0.7;font-size:80% " class="pa-2"> {{role.role}} </div>
                       </v-chip>
                     </v-flex>
-                  </v-layout>      
+                  </v-layout>
                 </div>
-              </v-flex> 
+              </v-flex>
             </v-layout>
           </v-container>
         </v-card>
@@ -53,7 +53,7 @@
           <v-flex xs4 md3 xl1 lg1  class="pb-3" v-for="content in contents.Metadata" :key="content.key">
             <plexthumb :content="content" :server="plexserver" type="thumb" style="margin:7%"></plexthumb>
           </v-flex>
-      </v-layout>          
+      </v-layout>
     </div>
   </span>
 </template>
@@ -63,89 +63,89 @@ import plexseason from './plexseason.vue'
 import plexthumb from './plexthumb.vue'
 
 export default {
-    props: [],
-    components: {
-        plexseason,
-        plexthumb
-    },
-    created () {
-        // Hit the PMS endpoing /library/sections
-        this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex, this.size, 1, this.$route.params.sectionId).then((result) => {
-            if (result) {
-                this.contents = result.MediaContainer
-                this.setBackground()
-            } else {
-                this.status = 'Error loading libraries!'
-            }
-        }).catch((e, data) => {
-            console.log(e, data)
-        })
-        this.plexserver.getSeriesData(this.$route.params.ratingKey).then((res) => {
-            if (res){
-                this.seriesData = res
-            }
-        }).catch((e, data) => {
-            console.log(data)
-        })
-    },
-    data () {
-        return {
-            browsingContent: null,
-            startingIndex: 0,
-            size: 150,
+  props: [],
+  components: {
+    plexseason,
+    plexthumb
+  },
+  created () {
+    // Hit the PMS endpoing /library/sections
+    this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex, this.size, 1, this.$route.params.sectionId).then((result) => {
+      if (result) {
+        this.contents = result.MediaContainer
+        this.setBackground()
+      } else {
+        this.status = 'Error loading libraries!'
+      }
+    }).catch((e, data) => {
+      console.log(e, data)
+    })
+    this.plexserver.getSeriesData(this.$route.params.ratingKey).then((res) => {
+      if (res) {
+        this.seriesData = res
+      }
+    }).catch((e, data) => {
+      console.log(data)
+    })
+  },
+  data () {
+    return {
+      browsingContent: null,
+      startingIndex: 0,
+      size: 150,
 
-            contents: null,
-            seriesData: null,
-            status: 'loading..',
-        }
-    },
-    mounted () {
-
-    },
-    beforeDestroy () {
-
-    },
-    computed: {
-        getArtUrl (object) {
-            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-            return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 10)
-        },
-        getSeasons () {
-            if (this.contents.size == 1){
-                return this.contents.size + ' season'
-            }
-            return this.contents.size + ' seasons'
-        },
-        roles () {
-            if (!this.seriesData){
-                return []
-            }
-            return this.seriesData.MediaContainer.Metadata[0].Role.slice(0,6)
-        },
-        genres () {
-            if (!this.seriesData){
-                return []
-            }
-            return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0,5)
-        },
-        thumb () {
-            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-            return this.plexserver.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb || this.contents.grandparentThumb, w / 1, h / 1)
-        },
-    },
-    methods: {
-        setBackground () {        
-            var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-            var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-            this.$store.commit('SET_BACKGROUND',this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8))
-        },
-        reset () {
-            this.browsingContent = false
-            this.setBackground()
-        }
-
+      contents: null,
+      seriesData: null,
+      status: 'loading..'
     }
+  },
+  mounted () {
+
+  },
+  beforeDestroy () {
+
+  },
+  computed: {
+    getArtUrl (object) {
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+      return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 10)
+    },
+    getSeasons () {
+      if (this.contents.size === 1) {
+        return this.contents.size + ' season'
+      }
+      return this.contents.size + ' seasons'
+    },
+    roles () {
+      if (!this.seriesData) {
+        return []
+      }
+      return this.seriesData.MediaContainer.Metadata[0].Role.slice(0, 6)
+    },
+    genres () {
+      if (!this.seriesData) {
+        return []
+      }
+      return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0, 5)
+    },
+    thumb () {
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+      return this.plexserver.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb || this.contents.grandparentThumb, w / 1, h / 1)
+    }
+  },
+  methods: {
+    setBackground () {
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+      this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8))
+    },
+    reset () {
+      this.browsingContent = false
+      this.setBackground()
+    }
+
+  }
 }
 </script>
