@@ -31,10 +31,10 @@
       </v-flex>
     </v-layout>
     <v-layout row wrap justify-center>
-      <v-flex xs10 lg8 xl6 v-if="!context.getters.getConnected" style="color:white !important">
+      <v-flex xs10 lg8 xl6 class="nicelist" v-if="!context.getters.getConnected" style="color:white !important">
         <v-select
           v-bind:items="ptservers"
-          class="input-group--focused pt-input"
+          class="input-group--focused pt-input nicelist"
           style="mt-4"
           v-model="selectedServer"
           transition="v-scale-transition" origin="center center"
@@ -73,7 +73,7 @@
         <v-layout row wrap>
           <v-flex xs12>
             <v-text-field
-              transition="v-scale-transition" origin="center center"
+              origin="center center"
               :maxlength="25"
               name="input-2"
               label="Room name"

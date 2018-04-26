@@ -1,15 +1,15 @@
 <template>
-  <span style="height:100%">
+  <span style="max-height: 90%">
     <v-layout v-if="!contents && !browsingContent" row>
-        <v-flex xs12 style="position:relative">
-            <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
-        </v-flex>
+      <v-flex xs12 style="position:relative">
+        <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+      </v-flex>
     </v-layout>
     <div v-if="!browsingContent && contents" class="mt-3 mx-auto" style="height:90vh; overflow-y:scroll ">
       <v-layout class="row" row wrap justify-start>
-            <v-flex xs4 md3 lg1  class="ma-3"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
-              <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
-            </v-flex>
+        <v-flex xs4 md3 lg1  class="ma-1"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
+          <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
+        </v-flex>
       </v-layout>
       <v-layout row>
         <v-flex xs12 v-if="contents && !browsingContent && !stopNewContent" v-observe-visibility="getMoreContent" justify-center>

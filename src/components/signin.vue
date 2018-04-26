@@ -2,7 +2,7 @@
     <v-layout wrap row ckass="pt-2 pa-4" justify-center>
       <v-flex xs12 md8>
         <v-card style="background: rgba(0,0,0,0.3)" class="pa-4">
-          <h1  v-if="!token" :style="fontSizes.largest" class="center-text pa-4">Sign in to Plex.tv</h1>
+          <h1 v-if="!token" :style="fontSizes.largest" class="center-text pa-4">Sign in to Plex.tv</h1>
           <div v-if="!pin">
             <v-layout wrap row style="position:relative">
               <v-flex xs12 md4 offset-md4>
@@ -13,7 +13,7 @@
             </v-layout>
           </div>
           <div v-if="token" class="center-text" style="font-size:400%">
-            <v-icon x-large class="green--text text--darken-2" style="font-size: 64px">done</v-icon>
+            <v-icon class="green--text text--darken-2" style="font-size: 120px">done</v-icon>
             <h3 class="white--text">
               Signed in!
             </h3>

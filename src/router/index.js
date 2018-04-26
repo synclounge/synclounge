@@ -1,13 +1,13 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+import Vue from 'vue'
+import Router from 'vue-router'
 // ===================== Pages Components ======================
-import signin from '../components/signin';
-import signout from '../components/signout';
-import join from '../components/join';
+import signin from '../components/signin'
+import signout from '../components/signout'
+import join from '../components/join'
 
-const settings = require('../../settings.json');
+const settings = require('../../settings.json')
 
-Vue.use(Router);
+Vue.use(Router)
 
 // ==================== Router registration ====================
 export default new Router({
@@ -77,7 +77,7 @@ export default new Router({
       protected: true
     },
     name: 'server',
-    component: require('../components/application/plexbrowser/plexserver.vue'),
+    component: require('../components/application/plexbrowser/plexserver.vue')
   },
   {
     path: '/browse/:machineIdentifier/:sectionId',
@@ -128,4 +128,4 @@ export default new Router({
     component: require('../components/application/plexbrowser/plexcontent.vue')
   }
   ]
-});
+})

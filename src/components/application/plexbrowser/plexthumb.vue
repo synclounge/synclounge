@@ -1,52 +1,52 @@
 <template>
   <div class="portrait" ref="root" style="cursor: pointer" @mouseover="hovering = true" @mouseout="hovering = false">
-      <router-link :to="link">
-        <v-card data-tilt v-on:click.native="emitContentClicked(content)" class="grey darken-4" style="border:solid">
-          <v-card-media
-            class="white--text"
-            style="position:relative"
-            :height="calculatedHeight"
-            :src="getImg(content)"
-          >
-            <v-container class="pa-0 ma-0" fill-height fluid style="position:relative">
-              <v-layout>
-                <v-flex xs12>
-                  <small v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>
-                  <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag && showServer == undefined">
-                    <span class="pa-2 black--text">
-                      <span>
-                        {{ unwatchedCount }}
-                      </span>
+    <router-link :to="link">
+      <v-card data-tilt v-on:click.native="emitContentClicked(content)" class="grey darken-4 elevation-20">
+        <v-card-media
+          class="white--text"
+          style="position:relative"
+          :height="calculatedHeight"
+          :src="getImg(content)"
+        >
+          <v-container class="pa-0 ma-0" fill-height fluid style="position:relative">
+            <v-layout>
+              <v-flex xs12>
+                <small v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>
+                <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag && showServer == undefined">
+                  <span class="pa-2 black--text">
+                    <span>
+                      {{ unwatchedCount }}
                     </span>
-                  </div>
-                  <div style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)" v-if="content.Media && content.Media.length != 1 && showServer == undefined">
-                      <span class="pa-2 black--text">
-                        <span>
-                          {{ content.Media.length }}
-                        </span>
-                      </span>
-                  </div>
-                  <v-container fill-height fluid class="pa-0" style="background: linear-gradient(to top, rgba(0, 0, 0, 5), rgba(0, 0, 0, 00)); background-position-y:bottom; background-repeat:no-repeat; background-size:100% 60%; max-width:100%">
-                    <v-layout row wrap justify-end align-end>
-                      <v-flex xs12>
-                        <v-layout align-end row wrap class="text-xs-left pa-1" style="max-width: 100%">
-                          <v-flex xs12 v-if="!onlyBottom" style="max-width: 100%">
-                              <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
-                          </v-flex>
-                          <v-flex xs12 style="font-size:0.8rem" ref="bottomText">
-                              <div class="truncate soft-text">{{ getUnder(content) }}</div>
-                          </v-flex>
-                        </v-layout>
-                        <v-progress-linear style="width:100%" class="pa-0 mb-1 ma-0 pt-content-progress" v-if="showProgressBar" height="1" :value="unwatchedPercent"></v-progress-linear>
-                      </v-flex>
-                    </v-layout>
-                  </v-container>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card-media>
-        </v-card>
-      </router-link>
+                  </span>
+                </div>
+                <div style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)" v-if="content.Media && content.Media.length != 1 && showServer == undefined">
+                  <span class="pa-2 black--text">
+                    <span>
+                      {{ content.Media.length }}
+                    </span>
+                  </span>
+                </div>
+                <v-container fill-height fluid class="pa-0" style="background: linear-gradient(to top, rgba(0, 0, 0, 5), rgba(0, 0, 0, 00)); background-position-y:bottom; background-repeat:no-repeat; background-size:100% 60%; max-width:100%">
+                  <v-layout row wrap justify-end align-end>
+                    <v-flex xs12>
+                      <v-layout align-end row wrap class="text-xs-left pa-1" style="max-width: 100%">
+                        <v-flex xs12 v-if="!bottomOnly" style="max-width: 100%">
+                          <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
+                        </v-flex>
+                        <v-flex xs12 style="font-size:0.8rem" ref="bottomText">
+                          <div class="truncate soft-text">{{ getUnder(content) }}</div>
+                        </v-flex>
+                      </v-layout>
+                      <v-progress-linear style="width:100%" class="pa-0 mb-1 ma-0 pt-content-progress" v-if="showProgressBar" height="1" :value="unwatchedPercent"></v-progress-linear>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card-media>
+      </v-card>
+    </router-link>
   </div>
 </template>
 
@@ -128,8 +128,7 @@ export default {
         if (exists) {
           final = final + '/' + this.content.librarySectionID
         }
-        final =
-          final +
+        final = final +
           '/tv/' +
           this.content.grandparentRatingKey +
           '/' +
@@ -139,8 +138,7 @@ export default {
         return final
       }
       if (this.content.type === 'season') {
-        return (
-          '/browse/' +
+        return '/browse/' +
           this.serverId +
           '/' +
           this.content.librarySectionID +
@@ -148,17 +146,14 @@ export default {
           this.content.parentRatingKey +
           '/' +
           this.content.ratingKey
-        )
       }
       if (this.content.type === 'series' || this.content.type === 'show') {
-        return (
-          '/browse/' +
+        return '/browse/' +
           this.serverId +
           '/' +
           this.content.librarySectionID +
           '/tv/' +
           this.content.ratingKey
-        )
       }
       return (
         '/browse/' +
@@ -419,6 +414,9 @@ export default {
     },
     getImg (object) {
       var w = Math.round(this.fullwidth * 2)
+      if (this.type === 'thumb') {
+        return this.server.getUrlForLibraryLoc(object.thumb, w, 1000)
+      }
       if (!this.hovering && this.hideThumb && (!this.content.viewCount || this.content.viewCount === 0)) {
         return this.server.getUrlForLibraryLoc(object.art, w, 1000)
       }

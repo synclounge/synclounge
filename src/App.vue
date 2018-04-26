@@ -66,7 +66,7 @@
       </v-toolbar-items>
     </v-toolbar>
     <v-content v-bind:style="mainStyle">
-      <v-container class="ma-0 pa-3" align-start v-bind:style="containerStyle" style="height: 100%" fluid>
+      <v-container class="ma-0 pa-0" align-start :style="containerStyle" style="height: 100%" fluid>
         <v-flex xs12 v-if="(loading || !plex.gotDevices) && route.meta.protected">
           <v-container fill-height>
             <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
@@ -76,8 +76,8 @@
             </v-layout>
           </v-container>
         </v-flex>
-        <div v-else>      
-          <v-breadcrumbs class="text-xs-left" style="justify-content: left">
+        <div v-else :style="paddingStyle">      
+          <v-breadcrumbs v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
             <v-icon slot="divider">chevron_right</v-icon>
             <v-breadcrumbs-item 
               v-for="item in crumbs" :key="item.text" :to="item.to" :exact="true">
@@ -206,10 +206,7 @@ export default {
       this.$store.dispatch("NEW_TIMELINE", timeline);
     });
     if (!window["localStorage"].getItem("plexuser")) {
-      console.log(
-        "Token doesnt exist",
-        window["localStorage"].getItem("plexuser")
-      );
+      console.log("Token doesnt exist", window["localStorage"].getItem("plexuser"));
       this.$router.push("/signin");
       this.loading = false;
       return;
@@ -412,11 +409,22 @@ export default {
       }
     },
     containerStyle: function() {
-      if (this.$store.getters.getBackground != null) {
-        return {
+      let arr = []
+      if (this.$store.getters.getBackground !== null) {
+        arr.push({
           background: "rgba(0,0,0,0.7)"
-        };
+        })
       }
+      return arr
+    },
+    paddingStyle: function() {
+      let arr = []
+      if (this.$route.path.indexOf('/player') === -1) {
+        arr.push({
+          padding: '16px'
+        })
+      }
+      return arr
     }
   }
 };

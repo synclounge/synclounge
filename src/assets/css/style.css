@@ -85,6 +85,10 @@ html {
   border: solid 2px #f3b32b;
 }
 
+.nicelist .theme--dark .list, .application .theme--dark.list{
+  background: white !important
+}
+
 main {
   /*background: #272c38;*/
   background: #2b5876;
@@ -109,9 +113,6 @@ main {
   background: #151924;
 }
 
-.application--dark .navigation-drawer .list {
-  background: #151924;
-}
 
 .application--dark .a {
   color: white !important;

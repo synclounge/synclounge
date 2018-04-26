@@ -14,7 +14,7 @@
       :createdAt="playerCreatedAt"
     ></videoplayer>
     <v-dialog v-model="dialog">
-      <v-card>
+      <v-card color="black">
         <v-card-title>Playback Settings </v-card-title>
         <v-card-text>
           <v-select
@@ -62,21 +62,32 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-layout v-if="playingMetadata && chosenServer" row justify-center>
-      <v-flex md2>
-        <v-btn color="primary" v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
+    <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3">
+      <v-flex xs12 sm7>
+        <v-layout row wrap justify-center align-center>
+          <v-flex xs2 class="hidden-sm-and-down">
+            <img :src="thumbUrl" class="elevation-20" style="height: 120px; width: auto; vertical-align: middle"/>
+          </v-flex>          
+          <v-flex>            
+            <h1>{{ getTitle(playingMetadata) }}</h1>
+            <h3>{{ getUnder(playingMetadata) }}</h3>
+            <h5>Playing from {{ chosenServer.name  }}</h5>
+          </v-flex>
+        </v-layout>
       </v-flex>
-      <v-flex md2>
+      <v-flex xs12 sm5>
+        <v-btn flat color="primary" class="pa-0 ma-0" v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
         <router-link to="/browse">
-          <v-btn color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+          <v-btn flat color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
         </router-link>
-      </v-flex>
+      </v-flex>      
     </v-layout>
   </div>
 </template>
 
 <script>
 import videoplayer from './ptplayer/videoplayer.vue'
+let plexthumb = require('./plexbrowser/plexthumb.vue')
 
 var request = require('request')
 var parseXMLString = require('xml2js').parseString
@@ -84,7 +95,7 @@ var parseXMLString = require('xml2js').parseString
 export default {
   name: 'ptplayer',
   components: {
-    videoplayer
+    videoplayer, plexthumb
   },
   created () {},
   mounted: function () {
@@ -367,6 +378,12 @@ export default {
         })
       }
       return sourcesDone
+    },
+    thumbUrl () {
+      if (!this.playingMetadata) {
+        return
+      }
+      return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb, 200, 200)
     }
   },
   methods: {
@@ -384,6 +401,68 @@ export default {
     },
     openModal () {
       return this.$refs.playersettingsModal.open()
+    },
+    getTitle (content) {
+      switch (content.type) {
+        case 'movie':
+          if (this.fullTitle !== undefined) {
+            if (content.year) {
+              return content.title + ' (' + content.year + ')'
+            }
+          }
+          return content.title
+        case 'show':
+          return content.title
+        case 'season':
+          if (this.fullTitle !== undefined) {
+            return content.parentTitle
+          }
+          return content.title
+        case 'episode':
+          if (this.fullTitle !== undefined) {
+            return content.title
+          }
+          return content.grandparentTitle
+        default:
+          return content.title
+      }
+    },
+    getUnder (content) {
+      switch (content.type) {
+        case 'movie':
+          if (content.year) {
+            return content.year
+          }
+          return ' '
+        case 'show':
+          if (content.childCount === 1) {
+            return content.childCount + ' season'
+          }
+          return content.childCount + ' seasons'
+        case 'season':
+          if (this.fullTitle !== undefined) {
+            return content.title
+          }
+          return content.leafCount + ' episodes'
+        case 'album':
+          return content.year
+        case 'artist':
+          return ''
+        case 'episode':
+          if (this.fullTitle !== undefined) {
+            return 'Episode ' + content.index
+          }
+          return (
+            ' S' +
+            content.parentIndex +
+            'E' +
+            content.index +
+            ' - ' +
+            content.title
+          )
+        default:
+          return content.title
+      }
     },
     generateSources () {
       var that = this

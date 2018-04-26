@@ -28,48 +28,43 @@
 								</div>
 							</v-list>
 						</v-flex>
-						<v-flex xs12 style="height: 50vh max-height: 50vh; position: relative">
-							<v-container class="ma-0 pa-0">
-								<v-layout row wrap>
-									<v-flex xs12>
-										<v-divider></v-divider>  
-										<v-subheader>Messages</v-subheader>  
-										<v-list id="chatbox" :style="chatboxStyle" style="overflow-y:scroll; max-height: 35vh; min-height: 35vh">
-												<v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg.msg + msg.time" tag="div">
-													<v-list-tile-avatar>
-														<img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px"/>
-													</v-list-tile-avatar>
-													<v-list-tile-content>
-														<v-list-tile-title style="color:white; position:relative;">
-															<span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
-															<span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
-														</v-list-tile-title>
-														<v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%;"> {{ msg.msg }}</v-list-tile-sub-title>
-													</v-list-tile-content>
-												</v-list-tile>
-										</v-list>
-									</v-flex>
-                  <v-spacer></v-spacer>
-									<v-flex xs12 style="position: relative" class="pt-0 ml-1">
-										<div style="bottom:0; width: 100%" class="ma-0 pa-0">
-											<v-text-field
-												prepend-icon="message"					
-												:label="'Send a message to ' + '#'+ptRoom"
-												autoGrow
-                        class="ma-0"
-												v-on:keyup.enter.native="sendMessage()"
-												v-model="messageToBeSent"												
-											></v-text-field>
-										</div>
-									</v-flex>
-                  <v-divider></v-divider>
-									<v-flex xs12 class="pt-0">
-										<div style="position: absolute; bottom: 0; width: 100%" class="ma-0 pa-0">
-											<v-btn block v-on:click.native="handleDisconnect()" class="ma-0 mt-1" color="primary">Leave room </v-btn>
-										</div>
-									</v-flex>
-								</v-layout>
-							</v-container>
+						<v-flex xs12 style="height: 50vh;; position: relative">
+              <v-layout column wrap justify-space-around>
+                <v-flex xs9>
+                  <v-divider></v-divider>  
+                  <v-subheader>Messages</v-subheader>  
+                  <v-list id="chatbox" :style="chatboxStyle" style="overflow-y:scroll; min-height: 35vh">
+                    <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg.msg + msg.time" tag="div">
+                      <v-list-tile-avatar>
+                        <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px"/>
+                      </v-list-tile-avatar>
+                      <v-list-tile-content>
+                        <v-list-tile-title style="color:white; position:relative;">
+                          <span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
+                          <span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
+                        </v-list-tile-title>
+                        <v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%;"> {{ msg.msg }}</v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                  </v-list>
+                </v-flex>
+                <v-spacer></v-spacer>
+                <v-flex xs1 style="position: relative">
+                  <div style="bottom:0; width: 100%" class="ma-0 pa-0">
+                    <v-text-field
+                      prepend-icon="message"					
+                      :label="'Send a message to ' + '#'+ptRoom"
+                      autoGrow
+                      class="ma-0"
+                      v-on:keyup.enter.native="sendMessage()"
+                      v-model="messageToBeSent"												
+                    ></v-text-field>
+                  </div>
+                </v-flex>
+                <v-flex xs1 class="pt-0">
+                  <v-btn block v-on:click.native="handleDisconnect()" class="ma-0 mt-1" color="primary">Leave room </v-btn>
+                </v-flex>
+              </v-layout>
 						</v-flex>			
 					</v-layout>		
 				</v-flex>
