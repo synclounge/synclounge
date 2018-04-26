@@ -21,7 +21,7 @@
     "videojs-contrib-hls": "^5.5.2",
     "vue": "^2.5.2",
     "vue-router": "^2.3.1",
-    "vuetify": "^1.0.0-alpha.2"
+    "vuetify": "^1.0.17"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
