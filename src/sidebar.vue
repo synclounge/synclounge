@@ -51,7 +51,7 @@
               <v-flex xs9>
                 <v-divider></v-divider>
                 <v-subheader>Messages</v-subheader>
-                <v-list id="chatbox" :style="chatboxStyle" style="overflow-y:scroll; min-height: 35vh; background: none">
+                <v-list id="chatbox" style="overflow-y:scroll; min-height: 35vh; background: none">
                   <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg.msg + msg.time" tag="div">
                     <v-list-tile-avatar>
                       <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px"/>

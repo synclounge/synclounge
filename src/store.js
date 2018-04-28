@@ -360,22 +360,19 @@ const actions = {
         title = metadata.title
       }
     }
-    let end_obj = {
+    let endObj = {
       time: timeline.time,
       maxTime: timeline.duration,
       title: title,
       rawTitle: rawTitle,
       playerState: timeline.state,
-      clientResponseTime: state.chosenClient.lastResponseTime
+      clientResponseTime: state.chosenClient.lastResponseTime,
+      playerProduct: state.chosenClient.product
     }
-    let time = -1
-    let maxTime = -1
-    let playerState = null
-    let showName = null
 
     if (state.synclounge._socket) {
       state.synclounge._socket.pollStartTime = (new Date()).getTime()
-      state.synclounge._socket.emit('poll', end_obj)
+      state.synclounge._socket.emit('poll', endObj)
     }
   }
 }
