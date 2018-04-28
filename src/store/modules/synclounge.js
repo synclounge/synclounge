@@ -1,5 +1,8 @@
 const EventEmitter = require('events')
 var moment = require('moment')
+var axios = require('axios')
+
+const settings = require('../../../settings.json')
 
 function sendNotification (message) {
   return window.EventBus.$emit('notification', message)
@@ -145,13 +148,13 @@ export default {
       })
     },
     joinRoom ({ state, commit, rootState }, data) {
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         if (!state._socket || !state.connected) {
           return reject(new Error('Not connected to a server!'))
         }
         commit('SET_PASSWORD', data.password)
         state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password))
-        state._socket.on('join-result', (result, _data, details, currentUsers) => {
+        state._socket.on('join-result', async (result, _data, details, currentUsers) => {
           commit('CLEAR_MESSAGES')
           if (result) {
             commit('SET_ROOM', _data.room)
@@ -164,24 +167,23 @@ export default {
             // Generate our short url/invite link
             console.log('generating our invite link')
             console.log(state)
-            let webappSocket = rootState.webapp_socket
 
             let urlOrigin = window.location.origin
+            if (process.env.NODE_ENV === 'development') {
+              urlOrigin = 'http://localhost:8088/' + settings.webroot
+            }
+
             let data = {
               urlOrigin: urlOrigin,
               owner: rootState.plex.user.username,
               server: state.server,
               room: state.room,
-              password: state.password
-
+              password: state.password || ''
             }
-            console.log('Invite link data below')
-            console.log(data)
-            webappSocket.on('shorten-result', (shortUrl) => {
-              console.log('Our short url is ' + shortUrl)
-              commit('SET_SHORTLINK', shortUrl)
+            axios.post(urlOrigin + '/invite', data).then((res) => {
+              console.log('INVITE DATA RESULT', res)
+              commit('SET_SHORTLINK', res.data.url)
             })
-            webappSocket.emit('shorten', data)
 
             // Now we need to setup events for dealing with the PTServer.
             // We will regularly be recieving and sending data to and from the server.

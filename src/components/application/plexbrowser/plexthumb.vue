@@ -11,7 +11,7 @@
           <v-container class="pa-0 ma-0" fill-height fluid style="position:relative">
             <v-layout>
               <v-flex xs12>
-                <small v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>
+                <small class="ma-1" v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>
                 <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag && showServer == undefined">
                   <span class="pa-2 black--text">
                     <span>
