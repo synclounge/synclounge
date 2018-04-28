@@ -12,30 +12,30 @@ export default {
   chosenClient: null,
 
   getRandomThumb: (state) => {
-    return new Promise(async(resolve, reject) => {
-      let validServers = {};
+    return new Promise(async (resolve, reject) => {
+      let validServers = {}
       for (let id in state.servers) {
-        let server = state.servers[id];
+        let server = state.servers[id]
         if (server.chosenConnection) {
-          validServers[id] = server;
+          validServers[id] = server
         }
       }
       if (Object.keys(validServers).length > 1) {
-        let keys = Object.keys(validServers);
-        let randomServer = validServers[keys[keys.length * Math.random() << 0]];
+        let keys = Object.keys(validServers)
+        let randomServer = validServers[keys[keys.length * Math.random() << 0]]
         try {
-          let result = await randomServer.getRandomItem();
+          let result = await randomServer.getRandomItem()
           if (!result) {
-            return reject(false);
+            return reject(new Error('No result found'))
           }
-          return resolve(randomServer.getUrlForLibraryLoc(result.thumb, 900, 900, 8));
+          return resolve(randomServer.getUrlForLibraryLoc(result.thumb, 900, 900, 8))
         } catch (e) {
-          console.log(e);
-          reject(e);
+          console.log(e)
+          reject(e)
         }
       } else {
-        reject();
+        reject(new Error('No valid servers found'))
       }
-    });
-  },
-};
+    })
+  }
+}

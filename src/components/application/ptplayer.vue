@@ -67,8 +67,8 @@
         <v-layout row wrap justify-center align-center>
           <v-flex xs2 class="hidden-sm-and-down">
             <img :src="thumbUrl" class="elevation-20" style="height: 120px; width: auto; vertical-align: middle"/>
-          </v-flex>          
-          <v-flex>            
+          </v-flex>
+          <v-flex>
             <h1>{{ getTitle(playingMetadata) }}</h1>
             <h3>{{ getUnder(playingMetadata) }}</h3>
             <h5>Playing from {{ chosenServer.name  }}</h5>
@@ -80,7 +80,7 @@
         <router-link to="/browse">
           <v-btn flat color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
         </router-link>
-      </v-flex>      
+      </v-flex>
     </v-layout>
   </div>
 </template>
@@ -383,7 +383,7 @@ export default {
       if (!this.playingMetadata) {
         return
       }
-      return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb, 200, 200)
+      return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb || this.playingMetadata.thumb, 200, 200)
     }
   },
   methods: {

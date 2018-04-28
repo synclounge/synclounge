@@ -85,9 +85,10 @@ html {
   border: solid 2px #f3b32b;
 }
 
-.nicelist .theme--dark .list, .application .theme--dark.list{
-  background: white !important
+.theme--dark .list, .application .theme--dark.list{
+  background: #353e58
 }
+
 
 main {
   /*background: #272c38;*/
@@ -183,9 +184,9 @@ span {
 
 .unwatched {
   /* border-radius */
-  -webkit-border-radius: 5px 0 5px 0 !important;
+  /* -webkit-border-radius: 0px 0 5px 0 !important;
   -moz-border-radius: 5px 0 5px 0 !important;
-  border-radius: 5px 0 5px 0 !important;
+  border-radius: 5px 0 5px 0 !important; */
 }
 
 .thumb-title {
@@ -297,6 +298,12 @@ video.vjs-tech,
 
 .ptplayer .video-js {
   max-height: calc(100vh - 64px) !important;
+  min-height: 78vh;
+  padding-top: 0px
+}
+
+.ptplayer .vjs_video_1177-dimensions.vjs-fluid {
+  padding-top: 0px !important
 }
 
 .ptplayer .video-js .vjs-menu-button-inline.vjs-slider-active,

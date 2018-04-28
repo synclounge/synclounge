@@ -23,24 +23,33 @@
           </v-flex>
         </v-layout>
         <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
-        <h4 v-if="subsetOnDeck(3).length > 0"> On Deck
-          <span style="float:right; font-size:5rem; user-select: none;">
-            <v-icon fa @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon fa @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
-          </span>
-        </h4>
-        <v-layout v-if="onDeck" row wrap>
-          <v-flex xs12 sm6 md3 xl3 lg3 class="pb-3 pa-1" v-for="content in subsetOnDeck(4)" :key="content.key" >
-            <plexthumb :content="content" :server="server" type="art" :height="20" @contentSet="setContent(content)"></plexthumb>
+        <v-layout row wrap v-if="subsetOnDeck(onDeckItemsPer).length > 0">
+          <v-flex xs6>
+            <h4>On Deck</h4>
+          </v-flex>
+          <v-flex xs6>
+            <span style="float:right; user-select: none;">
+              <v-icon @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">fa-angle-left</v-icon><v-icon  @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">fa-angle-right</v-icon>
+            </span>
           </v-flex>
         </v-layout>
-        <v-divider v-if="subsetRecentlyAdded(3).length > 0" class="mt-3 ma-2"></v-divider>
-        <h4 v-if="subsetRecentlyAdded(3).length > 0"> Recently Added
-          <span style="float:right; font-size:5rem; user-select: none; ">
-            <v-icon fa @click="recentlyAddedDown" style="margin-right: 15px;cursor: pointer;" :style="recentlyAddedDownStyle">angle-left</v-icon><v-icon fa :style="recentlyAddedUpStyle"  @click="recentlyAddedUp" style="cursor: pointer" >angle-right</v-icon>
-          </span>
-        </h4>
-        <v-layout v-if="recentlyAdded" class="row" row wrap justify-start>
-          <v-flex xs4 sm3 md2 xl1 lg1  class="pb-3 pa-1" v-for="content in subsetRecentlyAdded(10)" :key="content.key">
+        <v-layout v-if="onDeck" row wrap>
+          <v-flex xs12 sm6 md4 lg3 class="pb-3 pa-1" v-for="content in subsetOnDeck()" :key="content.key" >
+            <plexthumb :content="content" :server="server" type="art" :height="15" @contentSet="setContent(content)"></plexthumb>
+          </v-flex>
+        </v-layout>
+        <v-divider v-if="subsetRecentlyAdded(recentItemsPer).length > 0" class="mt-3 ma-2"></v-divider>
+        <v-layout row wrap v-if="subsetRecentlyAdded(recentItemsPer).length > 0">
+          <v-flex xs6>
+            <h4>Recently Added</h4>
+          </v-flex>
+          <v-flex xs6>
+            <span style="float:right; user-select: none;"> <v-icon fa @click="recentlyAddedDown" style="margin-right: 15px;cursor: pointer;" :style="recentlyAddedDownStyle">fa-angle-left</v-icon><v-icon fa :style="recentlyAddedUpStyle"  @click="recentlyAddedUp" style="cursor: pointer" >fa-angle-right</v-icon>
+            </span>
+          </v-flex>
+        </v-layout>
+        <v-layout v-if="recentlyAdded" class="row pt-2" row wrap justify-space-between>
+          <v-flex xs4 sm2 md1 xl1 lg1 class="pb-3 pa-1" v-for="content in subsetRecentlyAdded(recentItemsPer)" :key="content.key">
             <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
@@ -93,6 +102,24 @@ export default {
 
   },
   computed: {
+    recentItemsPer () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 3
+        case 'sm': return 6
+        case 'md': return 12
+        case 'lg': return 12
+        case 'xl': return 12
+      }
+    },
+    onDeckItemsPer () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 1
+        case 'sm': return 2
+        case 'md': return 3
+        case 'lg': return 4
+        case 'xl': return 4
+      }
+    },
     clientIdentifier () {
       return this.$route.params.machineIdentifier
     },
@@ -109,7 +136,7 @@ export default {
       return []
     },
     onDeckUpStyle () {
-      if ((this.onDeckOffset + 4) >= this.onDeck.MediaContainer.Metadata.length) {
+      if ((this.onDeckOffset + this.onDeckItemsPer) >= this.onDeck.MediaContainer.Metadata.length) {
         return {
           opacity: 0.5
         }
@@ -130,7 +157,7 @@ export default {
       }
     },
     recentlyAddedUpStyle () {
-      if ((this.recentlyAddedOffset + 10) >= this.recentlyAdded.MediaContainer.Metadata.length) {
+      if ((this.recentlyAddedOffset + this.recentItemsPer) >= this.recentlyAdded.MediaContainer.Metadata.length) {
         return {
           opacity: 0.5
         }
@@ -158,7 +185,7 @@ export default {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
         return false
       }
-      if (this.onDeckOffset - 4 < 0) {
+      if (this.onDeckOffset - this.onDeckItemsPer < 0) {
         this.onDeckOffset = 0
       } else {
         this.onDeckOffset = this.onDeckOffset - 4
@@ -168,30 +195,30 @@ export default {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
         return false
       }
-      if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length) {
+      if (this.onDeckOffset + this.onDeckItemsPer >= this.onDeck.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
-        this.onDeckOffset = this.onDeckOffset + 4
+        this.onDeckOffset = this.onDeckOffset + this.onDeckItemsPer
       }
     },
     recentlyAddedUp () {
       if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
         return false
       }
-      if (this.recentlyAddedOffset + 10 >= this.recentlyAdded.MediaContainer.Metadata.length) {
+      if (this.recentlyAddedOffset + this.recentItemsPer >= this.recentlyAdded.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
-        this.recentlyAddedOffset = this.recentlyAddedOffset + 10
+        this.recentlyAddedOffset = this.recentlyAddedOffset + this.recentItemsPer
       }
     },
     recentlyAddedDown () {
       if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
         return false
       }
-      if (this.recentlyAddedOffset - 10 < 0) {
+      if (this.recentlyAddedOffset - this.recentItemsPer < 0) {
         this.recentlyAddedOffset = 0
       } else {
-        this.recentlyAddedOffset = this.recentlyAddedOffset - 10
+        this.recentlyAddedOffset = this.recentlyAddedOffset - this.recentItemsPer
       }
     },
     setBackground () {
@@ -202,17 +229,17 @@ export default {
       let url = randomItem.art
       this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6))
     },
-    subsetOnDeck (size) {
+    subsetOnDeck () {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
         return []
       }
-      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + size)
+      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + this.onDeckItemsPer)
     },
-    subsetRecentlyAdded (size) {
+    subsetRecentlyAdded () {
       if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
         return []
       }
-      return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset, this.recentlyAddedOffset + size)
+      return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset, this.recentlyAddedOffset + this.recentItemsPer)
     },
     progress (content) {
       let perc = (parseInt(content.viewOffset) / parseInt(content.duration)) * 100

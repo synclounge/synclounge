@@ -1,23 +1,28 @@
-require('videojs-contrib-hls/dist/videojs-contrib-hls.js');
-require('vanilla-tilt');
 
-import Vue from 'vue';
-import VueScrollTo from 'vue-scrollto';
-import Vuetify from 'vuetify';
+import Vue from 'vue'
+import VueScrollTo from 'vue-scrollto'
+import Vuetify from 'vuetify'
 import {
   ObserveVisibility
-} from 'vue-observe-visibility/dist/vue-observe-visibility';
-import VueVideoPlayer from 'vue-video-player';
-import VueResource from 'vue-resource';
-import VueClipboards from 'vue-clipboards';
+} from 'vue-observe-visibility/dist/vue-observe-visibility'
+import VueVideoPlayer from 'vue-video-player'
+import VueResource from 'vue-resource'
+import VueClipboards from 'vue-clipboards'
 
-const settings = require('../settings.json');
+import App from './App'
+import router from './router'
+import store from './store'
 
-Vue.use(VueScrollTo);
-Vue.use(VueClipboards);
-Vue.use(VueResource);
-Vue.directive('observe-visibility', ObserveVisibility);
-Vue.use(VueVideoPlayer);
+require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
+require('vanilla-tilt')
+
+const settings = require('../settings.json')
+
+Vue.use(VueScrollTo)
+Vue.use(VueClipboards)
+Vue.use(VueResource)
+Vue.directive('observe-visibility', ObserveVisibility)
+Vue.use(VueVideoPlayer)
 
 Vue.use(Vuetify, {
   theme: {
@@ -26,16 +31,11 @@ Vue.use(Vuetify, {
     accent: '#8c9eff',
     error: '#b71c1c'
   }
-});
-
-import App from './App';
-import router from './router';
-import store from './store';
-
-Vue.config.productionTip = false;
+})
+Vue.config.productionTip = false
 
 // Our Event bus
-window.EventBus = new Vue();
+window.EventBus = new Vue()
 window.EventBus.$on('command', (data) => {
   if (data.command === '/player/playback/playMedia') {
     router.push({
@@ -47,49 +47,49 @@ window.EventBus.$on('command', (data) => {
         chosenServer: data.params.machineIdentifier,
         playertime: data.params.offset
       }
-    });
+    })
   }
-});
+})
 
 Vue.mixin({
   computed: {
     appVersion: function () {
-      return this.$store.getters.appVersion;
+      return this.$store.getters.appVersion
     },
     webRoot: function () {
-      return settings.webroot;
+      return settings.webroot
     },
     logos: function () {
-      return this.$store.getters.getLogos;
+      return this.$store.getters.getLogos
     },
     slConnected: function () {
-      return this.$store.getters.getConnected;
+      return this.$store.getters.getConnected
     },
     slServer: function () {
-      return this.$store.getters.getServer;
+      return this.$store.getters.getServer
     },
     slRoom: function () {
-      return this.$store.getters.getRoom;
+      return this.$store.getters.getRoom
     },
     slPassword: function () {
-      return this.$store.getters.getPassword;
+      return this.$store.getters.getPassword
     },
     chosenClient: function () {
-      return this.$store.getters.getChosenClient;
+      return this.$store.getters.getChosenClient
     },
     plex: function () {
-      return this.$store.getters.getPlex;
+      return this.$store.getters.getPlex
     },
     plexserver: function () {
-      return this.plex.servers[this.$route.params.machineIdentifier];
+      return this.plex.servers[this.$route.params.machineIdentifier]
     },
     route: function () {
-      return this.$route;
+      return this.$route
     },
     fontSizes: function () {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      let maxPx = 94;
-      let maxRes = 3000;
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      let maxPx = 94
+      let maxRes = 3000
       return {
         largest: {
           'font-size': ((w / maxRes) * maxPx) + 'px'
@@ -97,12 +97,10 @@ Vue.mixin({
         medium: {
           'font-size': ((w / maxRes) * maxPx) * 0.6 + 'px'
         }
-      };
+      }
     }
   }
-});
-
-
+})
 
 // var data = { type: "FROM_PAGE", text: "Hello from the webpage!", callback: (res) => {
 //   console.log('Result callback!', res)
@@ -117,26 +115,26 @@ router.beforeEach((to, from, next) => {
     if (!store.getters.getChosenClient) {
       return next({
         path: '/clientselect'
-      });
+      })
     }
     if (!store.getters.getRoom) {
       return next({
         path: '/joinroom'
-      });
+      })
     }
     if (!store.getters.getServer) {
       return next({
         path: '/joinroom'
-      });
+      })
     }
-    next();
+    next()
   } else {
     if (!to.meta.protected) {
-      return next(); // make sure to always call next()!
+      return next() // make sure to always call next()!
     }
-    router.push('/browse');
+    router.push('/browse')
   }
-});
+})
 
 /* eslint-disable no-new */
 new Vue({
@@ -147,19 +145,17 @@ new Vue({
   components: {
     App
   }
-});
+})
 
-global.waitFor = async(ms) => {
+global.waitFor = async (ms) => {
   return new Promise((resolve) => {
-    setTimeout(() => resolve, ms);
-  });
-};
-
-
+    setTimeout(() => resolve, ms)
+  })
+}
 
 global.to = (promise) => {
   return promise.then(data => {
-    return [null, data];
+    return [null, data]
   })
-    .catch(err => [err]);
-};
+    .catch(err => [err])
+}

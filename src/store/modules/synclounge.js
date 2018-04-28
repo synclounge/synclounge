@@ -5,7 +5,7 @@ function sendNotification (message) {
   return window.EventBus.$emit('notification', message)
 }
 
-function getHandshakeUser (user, room, password) {
+function HandshakeUser (user, room, password) {
   var tempUser = {
     'username': user.username,
     'room': room,
@@ -87,17 +87,12 @@ export default {
   },
 
   actions: {
-    autoJoin ({
-      state,
-      commit,
-      rootState,
-      dispatch
-    }, data) {
+    autoJoin ({ state, commit, rootState, dispatch }, data) {
       console.log('Attempting to auto join..')
       console.log(rootState)
       dispatch('socketConnect', {
         address: rootState.autoJoinUrl,
-        callback: function (data) {
+        callback: (data) => {
           console.log('Socket connection result below')
           console.log(data)
           if (!data.result) {
@@ -107,7 +102,7 @@ export default {
               user: rootState.plex.user,
               roomName: rootState.autoJoinRoom,
               password: rootState.autoJoinPassword,
-              callback: function (result) {
+              callback: (result) => {
                 console.log(result)
               }
             }
@@ -116,11 +111,7 @@ export default {
         }
       })
     },
-    socketConnect ({
-      state,
-      commit,
-      rootState
-    }, data) {
+    socketConnect ({ state, commit, rootState }, data) {
       return new Promise((resolve, reject) => {
         let address = data.address
         if (state._socket) {
@@ -140,7 +131,7 @@ export default {
           if (state.room) {
             // Looks like the server disconnected on us, lets rejoin
             console.log('Attempting to rejoin our room...')
-            state._socket.emit('join', new getHandshakeUser(rootState.plex.user, state.room, state.password))
+            state._socket.emit('join', new HandshakeUser(rootState.plex.user, state.room, state.password))
           }
           return resolve(true, result)
         })
@@ -149,21 +140,17 @@ export default {
           console.log('Failed to connect', result)
           commit('SET_CONNECTED', false)
           commit('SET_SERVER', null)
-          return reject(false, data)
+          return reject(new Error(result))
         })
       })
     },
-    joinRoom ({
-      state,
-      commit,
-      rootState
-    }, data) {
+    joinRoom ({ state, commit, rootState }, data) {
       return new Promise((resolve, reject) => {
         if (!state._socket || !state.connected) {
-          return reject('Not connected to a server!')
+          return reject(new Error('Not connected to a server!'))
         }
         commit('SET_PASSWORD', data.password)
-        state._socket.emit('join', new getHandshakeUser(data.user, data.roomName, data.password))
+        state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password))
         state._socket.on('join-result', (result, _data, details, currentUsers) => {
           commit('CLEAR_MESSAGES')
           if (result) {
@@ -177,7 +164,7 @@ export default {
             // Generate our short url/invite link
             console.log('generating our invite link')
             console.log(state)
-            let webapp_socket = rootState.webapp_socket
+            let webappSocket = rootState.webapp_socket
 
             let urlOrigin = window.location.origin
             let data = {
@@ -190,20 +177,20 @@ export default {
             }
             console.log('Invite link data below')
             console.log(data)
-            webapp_socket.on('shorten-result', function (shortUrl) {
+            webappSocket.on('shorten-result', (shortUrl) => {
               console.log('Our short url is ' + shortUrl)
               commit('SET_SHORTLINK', shortUrl)
             })
-            webapp_socket.emit('shorten', data)
+            webappSocket.emit('shorten', data)
 
             // Now we need to setup events for dealing with the PTServer.
             // We will regularly be recieving and sending data to and from the server.
             // We want to make sure we are listening for all the server events
-            state._socket.on('poll-result', function (users) {
+            state._socket.on('poll-result', (users) => {
               commit('SET_OURCLIENTRESPONSETIME', Math.abs((new Date().getTime()) - state._socket.pollStartTime))
               commit('SET_USERS', users)
             })
-            state._socket.on('user-joined', function (users, user) {
+            state._socket.on('user-joined', (users, user) => {
               commit('SET_USERS', users)
               commit('ADD_MESSAGE', {
                 msg: user.username + ' joined',
@@ -212,7 +199,7 @@ export default {
               })
               console.log(users)
             })
-            state._socket.on('user-left', function (users, user) {
+            state._socket.on('user-left', (users, user) => {
               commit('SET_USERS', users)
               commit('ADD_MESSAGE', {
                 msg: user.username + ' left the room',
@@ -220,7 +207,7 @@ export default {
                 type: 'alert'
               })
             })
-            state._socket.on('host-swap', function (user) {
+            state._socket.on('host-swap', (user) => {
               if (!user) {
                 return
               }
@@ -230,7 +217,7 @@ export default {
                 type: 'alert'
               })
             })
-            state._socket.on('host-update', function (data) {
+            state._socket.on('host-update', (data) => {
               /* This is data from the host, we should react to this data by potentially changing
                   what we're playing or seeking to get back in sync with the host.
 
@@ -256,7 +243,7 @@ export default {
               // Check previous timeline data age
               let timelineAge = new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt
               if (timelineAge > 1000) {
-                rootState.chosenClient.getTimeline(function (newtimeline) {
+                rootState.chosenClient.getTimeline((newtimeline) => {
                   decisionMaker(0)
                 })
               } else {
@@ -267,10 +254,10 @@ export default {
                 let ourTimeline = rootState.chosenClient.lastTimelineObject
                 let hostTimeline = data
 
-                if (ourTimeline.playerState == 'buffering') {
+                if (ourTimeline.playerState === 'buffering') {
                   return
                 }
-                if ((hostTimeline.playerState == 'stopped' || !hostTimeline.playerState) && ourTimeline.state != 'stopped') {
+                if ((hostTimeline.playerState === 'stopped' || !hostTimeline.playerState) && ourTimeline.state !== 'stopped') {
                   console.log('Pressing stop because the host did')
                   sendNotification('The host pressed stop')
                   rootState.chosenClient.pressStop(() => {
@@ -279,11 +266,11 @@ export default {
                   return
                 }
 
-                if (hostTimeline.playerState == 'stopped') {
+                if (hostTimeline.playerState === 'stopped') {
                   return
                 }
                 // Check if we need to autoplay
-                if ((ourTimeline.state == 'stopped' || !ourTimeline.state) && (hostTimeline.playerState != 'stopped')) {
+                if ((ourTimeline.state === 'stopped' || !ourTimeline.state) && (hostTimeline.playerState !== 'stopped')) {
                   if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
                     return
                   }
@@ -316,16 +303,16 @@ export default {
                 }
                 let difference = Math.abs((parseInt(ourTimeline.time) + parseInt(timelineAge)) - parseInt(hostTimeline.time))
 
-                if (hostTimeline.playerState == 'playing' && ourTimeline.state == 'paused') {
+                if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
                   sendNotification('The host pressed play')
-                  rootState.chosenClient.pressPlay(function () {
+                  rootState.chosenClient.pressPlay(() => {
                     checkForSeek()
                   })
                   return
                 }
-                if (hostTimeline.playerState == 'paused' && ourTimeline.state == 'playing') {
+                if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
                   sendNotification('The host pressed pause')
-                  rootState.chosenClient.pressPause(function () {
+                  rootState.chosenClient.pressPause(() => {
                     checkForSeek()
                   })
                   return
@@ -337,63 +324,58 @@ export default {
                     // We need to seek!
                     console.log('STORE: we need to seek')
                     // Decide what seeking method we want to use
-                    if (rootState.SYNCMODE == 'cleanseek') {
+                    if (rootState.SYNCMODE === 'cleanseek') {
                       cleanSeek()
                       return
                     }
-                    if (rootState.SYNCMODE == 'skipahead') {
+                    if (rootState.SYNCMODE === 'skipahead') {
                       skipAhead()
                       return
                     }
                     // Fall back to skipahead
                     skipAhead()
+                  }
+                  function skipAhead () {
+                    if (parseInt(hostTimeline.time) < parseInt(ourTimeline.time) && difference < 15000) {
+                      state.decisionBlocked = true
+                      // If the host is 'playing' we should seek ahead, pause for the difference and then resume
+                      // If the host is 'paused' we should just seek to their position
 
-                    function skipAhead () {
-                      let server = rootState.plex.servers[ourTimeline.machineIdentifier]
-                      let extra = 500
-                      if (parseInt(hostTimeline.time) < parseInt(ourTimeline.time) && difference < 15000) {
-                        state.decisionBlocked = true
-                        let sleepFor = (parseInt(difference))
-
-                        // If the host is 'playing' we should seek ahead, pause for the difference and then resume
-                        // If the host is 'paused' we should just seek to their position
-
-                        if (hostTimeline.playerState == 'paused') {
-                          rootState.chosenClient.seekTo(parseInt(hostTimeline.time), function () {
-                            state.decisionBlocked = false
-                          })
-                          return
-                        } else {
-                          setTimeout(function () {
-                            rootState.chosenClient.pressPlay(function (result, responseTime) {
-                              state.decisionBlocked = false
-                            })
-                          }, difference)
-                        }
-                        rootState.chosenClient.pressPause(function (result, responseTime) {})
-                      } else {
-                        state.decisionBlocked = true
-                        rootState.chosenClient.seekTo(parseInt(hostTimeline.time) + 10000, function () {
+                      if (hostTimeline.playerState === 'paused') {
+                        rootState.chosenClient.seekTo(parseInt(hostTimeline.time), () => {
                           state.decisionBlocked = false
                         })
+                        return
+                      } else {
+                        setTimeout(function () {
+                          rootState.chosenClient.pressPlay((result, responseTime) => {
+                            state.decisionBlocked = false
+                          })
+                        }, difference)
                       }
-                    }
-
-                    function cleanSeek () {
+                      rootState.chosenClient.pressPause((result, responseTime) => {})
+                    } else {
                       state.decisionBlocked = true
-                      rootState.chosenClient.seekTo(parseInt(hostTimeline.time), function (result) {
-                        console.log('Result from within store for seek was ', result)
-                        console.log('Setting decision blocked to false ')
+                      rootState.chosenClient.seekTo(parseInt(hostTimeline.time) + 10000, () => {
                         state.decisionBlocked = false
                       })
                     }
+                  }
+
+                  function cleanSeek () {
+                    state.decisionBlocked = true
+                    rootState.chosenClient.seekTo(parseInt(hostTimeline.time), (result) => {
+                      console.log('Result from within store for seek was ', result)
+                      console.log('Setting decision blocked to false ')
+                      state.decisionBlocked = false
+                    })
                   }
                 }
               }
             })
             state._socket.on('disconnect', function (data) {
               sendNotification('Disconnected from the SyncLounge server')
-              if (data == 'io client disconnect') {
+              if (data === 'io client disconnect') {
                 console.log('We disconnected from the server')
                 commit('SET_ROOM', null)
                 commit('SET_PASSWORD', null)
@@ -403,7 +385,7 @@ export default {
                 commit('SET_CHAT', false)
                 state.serverError = null
               }
-              if (data == 'transport close') {
+              if (data === 'transport close') {
                 console.log('The server disconnected on us')
               }
             })
@@ -422,14 +404,17 @@ export default {
       })
     },
     disconnectServer ({ state, commit, rootState }) {
-      console.log('Decided we should disconnect from the SL Server.')
-      state._socket.disconnect()
-      commit('SET_ROOM', null)
-      commit('SET_PASSWORD', null)
-      commit('SET_USERS', [])
-      commit('SET_CONNECTED', false)
-      commit('SET_SERVER', null)
-      commit('SET_CHAT', false)
+      return new Promise((resolve, reject) => {
+        console.log('Decided we should disconnect from the SL Server.')
+        state._socket.disconnect()
+        commit('SET_ROOM', null)
+        commit('SET_PASSWORD', null)
+        commit('SET_USERS', [])
+        commit('SET_CONNECTED', false)
+        commit('SET_SERVER', null)
+        commit('SET_CHAT', false)
+        resolve()
+      })
     },
     sendNewMessage ({ state, commit, rootState }, msg) {
       commit('ADD_MESSAGE', {

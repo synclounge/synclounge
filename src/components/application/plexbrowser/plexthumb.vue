@@ -1,7 +1,7 @@
 <template>
   <div class="portrait" ref="root" style="cursor: pointer" @mouseover="hovering = true" @mouseout="hovering = false">
     <router-link :to="link">
-      <v-card data-tilt v-on:click.native="emitContentClicked(content)" class="grey darken-4 elevation-20">
+      <v-card data-tilt flat v-on:click.native="emitContentClicked(content)" class="grey darken-4 elevation-20" style="border-radius: 0px !important">
         <v-card-media
           class="white--text"
           style="position:relative"
@@ -29,14 +29,6 @@
                 <v-container fill-height fluid class="pa-0" style="background: linear-gradient(to top, rgba(0, 0, 0, 5), rgba(0, 0, 0, 00)); background-position-y:bottom; background-repeat:no-repeat; background-size:100% 60%; max-width:100%">
                   <v-layout row wrap justify-end align-end>
                     <v-flex xs12>
-                      <v-layout align-end row wrap class="text-xs-left pa-1" style="max-width: 100%">
-                        <v-flex xs12 v-if="!bottomOnly" style="max-width: 100%">
-                          <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
-                        </v-flex>
-                        <v-flex xs12 style="font-size:0.8rem" ref="bottomText">
-                          <div class="truncate soft-text">{{ getUnder(content) }}</div>
-                        </v-flex>
-                      </v-layout>
                       <v-progress-linear style="width:100%" class="pa-0 mb-1 ma-0 pt-content-progress" v-if="showProgressBar" height="1" :value="unwatchedPercent"></v-progress-linear>
                     </v-flex>
                   </v-layout>
@@ -46,6 +38,14 @@
           </v-container>
         </v-card-media>
       </v-card>
+      <v-layout align-end row wrap class="text-xs-left pa-1 white--text" style="max-width: 100%">
+        <v-flex xs12 v-if="!bottomOnly" style="max-width: 100%">
+          <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
+        </v-flex>
+        <v-flex xs12 style="font-size:0.8rem" ref="bottomText">
+          <div class="truncate soft-text">{{ getUnder(content) }}</div>
+        </v-flex>
+      </v-layout>
     </router-link>
   </div>
 </template>

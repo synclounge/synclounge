@@ -18,7 +18,7 @@
       @statechanged="playerStateChanged($event)"
 
       @ready="playerReadied"
-      style="background-color:transparent !important"
+      style="background-color:transparent !important; min-height: 75vh"
       class="ptplayer">
     </video-player>
     <div class="center" v-if="!src">
@@ -403,3 +403,6 @@ export default {
   }
 }
 </script>
+<style scoped>
+
+</style>
