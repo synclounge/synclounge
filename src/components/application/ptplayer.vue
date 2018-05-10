@@ -133,7 +133,7 @@ export default {
         return data.callback(playerdata)
       }
       if (data.command === '/player/playback/play') {
-        this.eventbus.$emit('player-press-play', function (res) {
+        this.eventbus.$emit('player-press-play', (res) => {
           return data.callback(res)
         })
         return
@@ -557,7 +557,6 @@ export default {
       if (changeItem || !this.playingMetadata) {
         this.playingMetadata = null
         this.chosenServer.getMediaByRatingKey(this.chosenKey).then(result => {
-          console.log(result)
           this.playingMetadata = result.MediaContainer.Metadata[0]
           req()
         })

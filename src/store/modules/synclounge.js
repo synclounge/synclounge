@@ -233,7 +233,7 @@ export default {
                 type: 'alert'
               })
             })
-            state._socket.on('host-update', (data) => {
+            state._socket.on('host-update', async (data) => {
               /* This is data from the host, we should react to this data by potentially changing
                   what we're playing or seeking to get back in sync with the host.
 
@@ -254,7 +254,11 @@ export default {
               }
               if (!rootState.chosenClient.lastTimelineObject) {
                 console.log('Dont have our first timeline data yet.')
-                return
+                if (rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+                  rootState.chosenClient.lastTimelineObject = {}
+                } else {
+                  return
+                }
               }
               // Check previous timeline data age
               let timelineAge = new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt
@@ -266,7 +270,7 @@ export default {
                 decisionMaker(timelineAge)
               }
 
-              function decisionMaker (timelineAge) {
+              async function decisionMaker (timelineAge) {
                 let ourTimeline = rootState.chosenClient.lastTimelineObject
                 let hostTimeline = data
 
@@ -295,39 +299,42 @@ export default {
                   state.decisionBlocked = true
 
                   let blockedServers = rootState.BLOCKEDSERVERS
-                  let validServers = rootState.plex.servers.length
+                  let servers = Object.assign({}, rootState.plex.servers)
                   if (blockedServers) {
                     for (let i = 0; i < blockedServers.length; i++) {
                       if (rootState.plex.servers[blockedServers[i]]) {
-                        validServers--
+                        delete servers[i]
                       }
                     }
                   }
 
-                  sendNotification('Searching ' + validServers + ' Plex Servers for "' + hostTimeline.rawTitle + '"')
-                  rootState.plex.playContentAutomatically(rootState.chosenClient, hostTimeline, blockedServers, hostTimeline.time, function (result) {
-                    console.log('Auto play result: ' + result)
-                    if (!result) {
-                      sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle)
-                    }
-                    state.decisionBlocked = false
+                  sendNotification('Searching Plex Servers for "' + hostTimeline.rawTitle + '"')
+                  let result = await rootState.chosenClient.playContentAutomatically(rootState.chosenClient, hostTimeline, servers, hostTimeline.time).catch((e) => {
+                    sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle)
                     setTimeout(function () {
                       rootState.blockAutoPlay = false
                     }, 15000)
+                    state.decisionBlocked = false
                   })
+                  console.log('Auto play result: ' + result)
+                  state.decisionBlocked = false
+                  await new Promise((resolve, reject) => {
+                    setTimeout(() => resolve(), 10000)
+                  })
+                  rootState.blockAutoPlay = false
                   return
                 }
                 let difference = Math.abs((parseInt(ourTimeline.time) + parseInt(timelineAge)) - parseInt(hostTimeline.time))
 
                 if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
-                  sendNotification('The host pressed play')
+                  sendNotification('Resuming..')
                   rootState.chosenClient.pressPlay(() => {
                     checkForSeek()
                   })
                   return
                 }
                 if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
-                  sendNotification('The host pressed pause')
+                  sendNotification('Pausing..')
                   rootState.chosenClient.pressPause(() => {
                     checkForSeek()
                   })

@@ -205,6 +205,10 @@ export default {
     window.EventBus.$on('NEW_TIMELINE', timeline => {
       this.$store.dispatch('NEW_TIMELINE', timeline)
     })
+    window.EventBus.$on('PLAYBACK_CHANGE', data => {
+      console.log('Playback change event', data)
+      this.$store.dispatch('PLAYBACK_CHANGE', data)
+    })
     if (!window['localStorage'].getItem('plexuser')) {
       console.log('Token doesnt exist', window['localStorage'].getItem('plexuser'))
       this.$router.push('/signin')

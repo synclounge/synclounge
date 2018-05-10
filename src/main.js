@@ -50,6 +50,7 @@ window.EventBus.$on('command', (data) => {
       }
     })
   }
+  return data.callback(true)
 })
 
 Vue.mixin({

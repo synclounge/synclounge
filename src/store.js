@@ -338,7 +338,8 @@ const actions = {
   },
   NEW_TIMELINE ({ commit, state, dispatch }, data) {
     // return true
-    let [client, timeline, mediaContainer] = data
+    let timeline = data
+    let client = state.chosenClient
     // console.log(state)
     if (!state.chosenClient || (client.clientIdentifier !== state.chosenClient.clientIdentifier)) {
       console.log('Invalid client')

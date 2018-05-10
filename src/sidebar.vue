@@ -82,10 +82,8 @@
 </template>
 
 <script>
-import ptuser from './components/application/ptuser.vue'
 export default {
   components: {
-    ptuser
   },
   data () {
     return {
