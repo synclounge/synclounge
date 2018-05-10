@@ -17,6 +17,7 @@ require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
 require('vanilla-tilt')
 
 const settings = require('../settings.json')
+var moment = require('moment')
 
 Vue.use(VueScrollTo)
 Vue.use(VueClipboards)
@@ -52,6 +53,12 @@ window.EventBus.$on('command', (data) => {
 })
 
 Vue.mixin({
+  methods: {
+    sinceNow: function (x) {
+      let time = moment(x)
+      return time.fromNow()
+    }
+  },
   computed: {
     appVersion: function () {
       return this.$store.getters.appVersion

@@ -33,17 +33,11 @@ export default {
   },
 
   PLEX_SERVER_SET_CONNECTION: (state, data) => {
-    let {
-      server,
-      connection
-    } = data
+    let { server, connection } = data
     state.servers[server.clientIdentifier].chosenConnection = connection
   },
   PLEX_CLIENT_SET_CONNECTION: (state, data) => {
-    let {
-      client,
-      connection
-    } = data
+    let { client, connection } = data
     state.clients[client.clientIdentifier].chosenConnection = connection
   },
   SET_ITEMCACHE: (state, data) => {

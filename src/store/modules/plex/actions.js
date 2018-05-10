@@ -33,10 +33,7 @@ export default {
 
   PLEX_LOGIN_STANDARD: ({ dispatch, commit }, data) => {
     return new Promise((resolve, reject) => {
-      let {
-        username,
-        password
-      } = data
+      let { username, password } = data
       var base64encoded = new Buffer(username + ':' + password).toString('base64')
       var options = {
         url: 'https://plex.tv/users/sign_in.json',
@@ -47,7 +44,7 @@ export default {
         method: 'POST'
       }
       request(options, function (error, response, body) {
-        if (!error && (response.statusCode == 200 || response.statusCode == 201)) {
+        if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
           let data = JSON.parse(body)
           if (!data) {
             commit('PLEX_SET_VALUE', ['signedin', false])

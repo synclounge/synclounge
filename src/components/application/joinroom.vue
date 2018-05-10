@@ -30,10 +30,30 @@
         </p>
       </v-flex>
     </v-layout>
-    <v-layout row wrap justify-center>
+    <v-layout row wrap v-if="recents" justify-center class="pa-2">
+      <v-flex xs10 lg8 xl6 class="nicelist" v-if="!context.getters.getConnected" style="color:white !important">
+        <h4>Recent rooms</h4>
+        <v-list class="pa-0">
+          <template v-for="(item, index) in recentsSorted">
+            <v-list-tile :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
+              <v-list-tile-avatar>
+                <img :src="logos.light.small" style="width: 32px; height: auto"/>
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-list-tile-title v-html="item.server"></v-list-tile-title>
+                <v-list-tile-sub-title><b>{{ item.room }}</b> <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span></v-list-tile-sub-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </template>
+        </v-list>
+      </v-flex>
+
+    </v-layout>
+    <v-layout row wrap justify-center class="pa-2">
       <v-flex xs10 lg8 xl6 class="nicelist" v-if="!context.getters.getConnected" style="color:white !important">
         <v-select
           v-bind:items="ptservers"
+          @input="attemptConnect()"
           class="input-group--focused pt-input nicelist"
           style="mt-4"
           v-model="selectedServer"
@@ -119,6 +139,7 @@ export default {
       password: '',
       connectionPending: false,
       thisServer: window.location.origin,
+      recents: null,
 
       ptservers: [
         {
@@ -148,68 +169,88 @@ export default {
     if (this.slRoom && this.slConnected && this.slServer) {
       this.$router.push('/browse')
     }
+    this.recents = JSON.parse(window.localStorage.getItem('recentrooms'))
   },
   methods: {
     attemptConnect: function () {
       // Attempt the connection
-      this.serverError = null
-      if (this.selectedServer !== 'custom') {
-        this.$store
-          .dispatch('socketConnect', { address: this.selectedServer })
-          .then(result => {
+      return new Promise((resolve, reject) => {
+        this.serverError = null
+        console.log('Connecting to', this.selectedServer)
+        if (this.selectedServer !== 'custom') {
+          this.$store.dispatch('socketConnect', { address: this.selectedServer }).then(result => {
+            console.log('Connection done', result)
             this.connectionPending = false
             if (result) {
-              this.serverError = 'Failed to connect to ' + this.selectedServer
+              console.log('Resuming')
+              resolve()
             } else {
               this.serverError = null
+              reject(result)
             }
           })
-          .catch(() => {
-            this.serverError = 'Failed to connect to ' + this.selectedServer
-          })
-      }
+            .catch((e) => {
+              this.serverError = 'Failed to connect to ' + this.selectedServer
+              reject(e)
+            })
+        } else {
+          reject(new Error('Custom error: wrong function'))
+        }
+      })
     },
     attemptConnectCustom: function () {
       this.connectionPending = true
       this.serverError = null
-      this.$store
-        .dispatch('socketConnect', { address: this.CUSTOMSERVER })
-        .then(result => {
-          this.connectionPending = false
-          if (result) {
-            this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
-          } else {
-            this.serverError = null
-          }
-        })
+      this.$store.dispatch('socketConnect', { address: this.CUSTOMSERVER }).then(result => {
+        this.connectionPending = false
+        if (result) {
+          this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
+        } else {
+          this.serverError = null
+        }
+      })
         .catch(() => {
           this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
         })
     },
+    recentConnect: async function (recent) {
+      console.log('Attempting to connect to', recent)
+      this.selectedServer = recent.server
+      this.room = recent.room
+      this.password = recent.password
+      await this.attemptConnect()
+      this.joinRoom().then(() => {
+        console.log('Done joining room')
+      }).catch((e) => {
+        console.log('Unable to join room', e)
+      })
+    },
     joinRoom: function () {
-      if (!this.context.getters.getConnected) {
-        return
-      }
-      if (this.room === '' || this.room == null) {
-        this.roomError = 'You must enter a room name!'
-        return
-      }
-      let temporaryObj = {
-        user: this.plex.user,
-        roomName: this.room.toLowerCase(),
-        password: this.password
-      }
-      this.$store
-        .dispatch('joinRoom', temporaryObj)
-        .then(() => {})
-        .catch(e => {
+      return new Promise((resolve, reject) => {
+        if (!this.context.getters.getConnected) {
+          return reject(new Error('Not connected to a server'))
+        }
+        if (this.room === '' || this.room == null) {
+          this.roomError = 'You must enter a room name!'
+          return reject(new Error('No room specified'))
+        }
+        let temporaryObj = {
+          user: this.plex.user,
+          roomName: this.room.toLowerCase(),
+          password: this.password
+        }
+        this.$store.dispatch('joinRoom', temporaryObj).then(() => {
+          resolve()
+        }).catch(e => {
           this.roomError = e
+          return reject(e)
         })
+      })
     }
   },
   watch: {
     selectedServer: function () {
-      this.attemptConnect()
+      // this.attemptConnect()
       this.serverError = null
     },
     slRoom: function () {
@@ -227,6 +268,20 @@ export default {
     },
     context: function () {
       return this.$store
+    },
+    recentsSorted: function () {
+      if (!this.recents) {
+        return []
+      }
+      let arr = []
+      for (let i in this.recents) {
+        let item = this.recents[i]
+        arr.push(item)
+      }
+      arr = arr.sort((a, b) => {
+        return b.time - a.time
+      })
+      return arr
     },
     CUSTOMSERVER: {
       get () {

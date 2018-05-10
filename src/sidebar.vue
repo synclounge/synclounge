@@ -1,88 +1,83 @@
 <template>
   <v-container class="pa-1 pb-0" fill-height>
-      <v-flex xs12>
-        <v-layout v-if="ptRoom" column>
-          <v-flex xs12 style="height: 50vh">
-            <v-flex xs12>
-              <v-layout row wrap justify-space-between="" align-center>
-                <v-flex xs8 offset-xs2 class="text-xs-center">
-                  <h3 class="mb-0 pb-0 pa-0"> Room {{ ptRoom }}</h3>
-                </v-flex>
-                <v-flex xs2>
-                  <v-menu>
-                    <v-btn icon slot="activator" class="ma-0 pa-0" dark>
-                      <v-icon>more_vert</v-icon>
-                    </v-btn>
-                    <v-list>
-                      <v-list-tile @click="handleDisconnect()">
-                        <v-list-tile-title>Leave Room</v-list-tile-title>
-                      </v-list-tile>
-                    </v-list>
-                  </v-menu>
-                </v-flex>
-              </v-layout>
+    <v-layout v-if="ptRoom" column>
+      <v-flex xs12 style="height: 50vh">
+        <v-flex xs12>
+          <v-layout row wrap justify-space-between="" align-center>
+            <v-flex xs8 offset-xs2 class="text-xs-center">
+              <h3 class="mb-0 pb-0 pa-0"> Room {{ ptRoom }}</h3>
             </v-flex>
-
-            <v-subheader>Users ({{ ptUsers.length }})</v-subheader>
-            <v-list dense style="overflow-y:scroll; max-height: 40vh; background: none">
-              <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
-                  <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
-                    <v-list-tile-avatar>
-                      <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)"/>
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                      <v-list-tile-title> {{ user.username }}</v-list-tile-title>
-                      <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%"><v-icon small>{{ playerState(user) }}</v-icon> - {{ getTitle(user) }}</v-list-tile-sub-title>
-                    </v-list-tile-content>
-                    <v-list-tile-action  v-if="isHost(user)">
-                      <v-icon v-if="isHost(user)" style="color: #E5A00D">star</v-icon>
-                    </v-list-tile-action>
-                  </v-list-tile>
-                <div class="pl-2 pr-2 pt-2 mt-0 pb-0 mb-0">
-                  <span style="float: left;font-size:70%" class="ptuser-time pl-2">{{ getCurrent(user) }}</span>
-                  <span style="float: right;font-size:70%" class="ptuser-maxTime pr-2">{{ getMax(user) }}</span>
-                  <v-progress-linear class="pt-content-progress " :height="2" :value="percent(user)"></v-progress-linear>
-                </div>
-              </div>
-            </v-list>
-          </v-flex>
-          <v-flex xs12 style="position: relative">
-            <v-layout column wrap justify-space-around>
-              <v-flex xs9>
-                <v-divider></v-divider>
-                <v-subheader>Messages</v-subheader>
-                <v-list id="chatbox" style="overflow-y:scroll; min-height: 35vh; background: none">
-                  <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg.msg + msg.time" tag="div">
-                    <v-list-tile-avatar>
-                      <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px"/>
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                      <v-list-tile-title style="color:white; position:relative;">
-                        <span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
-                        <span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
-                      </v-list-tile-title>
-                      <v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%;"> {{ msg.msg }}</v-list-tile-sub-title>
-                    </v-list-tile-content>
+            <v-flex xs2>
+              <v-menu>
+                <v-btn icon slot="activator" class="ma-0 pa-0" dark>
+                  <v-icon>more_vert</v-icon>
+                </v-btn>
+                <v-list>
+                  <v-list-tile @click="handleDisconnect()">
+                    <v-list-tile-title>Leave Room</v-list-tile-title>
                   </v-list-tile>
                 </v-list>
-              </v-flex>
-              <v-spacer></v-spacer>
-              <v-flex xs1 style="position: relative">
-                <div style="bottom:0; width: 100%" class="ma-0 pa-0">
-                  <v-text-field
-                    prepend-icon="message"
-                    :label="'Send a message to ' + '#'+ptRoom"
-                    autoGrow
-                    class="ma-0"
-                    v-on:keyup.enter.native="sendMessage()"
-                    v-model="messageToBeSent"
-                  ></v-text-field>
-                </div>
-              </v-flex>
-            </v-layout>
+              </v-menu>
+            </v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-subheader>Users ({{ ptUsers.length }})</v-subheader>
+        <v-list dense style="overflow-y:scroll; max-height: 40vh; background: none">
+          <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
+              <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
+                <v-list-tile-avatar>
+                  <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)"/>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title> {{ user.username }}</v-list-tile-title>
+                  <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%"><v-icon small>{{ playerState(user) }}</v-icon> - {{ getTitle(user) }}</v-list-tile-sub-title>
+                </v-list-tile-content>
+                <v-list-tile-action  v-if="isHost(user)">
+                  <v-icon v-if="isHost(user)" style="color: #E5A00D">star</v-icon>
+                </v-list-tile-action>
+              </v-list-tile>
+            <div class="pl-2 pr-2 pt-2 mt-0 pb-0 mb-0">
+              <span style="float: left;font-size:70%" class="ptuser-time pl-2">{{ getCurrent(user) }}</span>
+              <span style="float: right;font-size:70%" class="ptuser-maxTime pr-2">{{ getMax(user) }}</span>
+              <v-progress-linear class="pt-content-progress " :height="2" :value="percent(user)"></v-progress-linear>
+            </div>
+          </div>
+        </v-list>
+      </v-flex>
+      <v-flex xs12 style="position: relative">
+        <v-layout column wrap justify-space-around>
+          <v-flex xs9>
+            <v-divider></v-divider>
+            <v-subheader>Messages</v-subheader>
+            <v-list id="chatbox" style="overflow-y:scroll; min-height: 35vh; background: none">
+              <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg.msg + msg.time" tag="div">
+                <v-list-tile-avatar>
+                  <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px"/>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title style="color:white; position:relative;">
+                    <span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
+                    <span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
+                  </v-list-tile-title>
+                  <v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%;"> {{ msg.msg }}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
+          </v-flex>
+          <v-spacer></v-spacer>
+          <v-flex xs1 style="position: relative">
+              <v-text-field
+                prepend-icon="message"
+                :label="'Send a message to ' + '#' + ptRoom"
+                class="ma-0"
+                v-on:keyup.enter.native="sendMessage()"
+                v-model="messageToBeSent"
+              ></v-text-field>
           </v-flex>
         </v-layout>
       </v-flex>
+    </v-layout>
   </v-container>
 </template>
 

@@ -163,6 +163,20 @@ export default {
             commit('SET_CHAT', true)
 
             sendNotification('Joined room: ' + _data.room)
+            // Add this item to our recently-connected list
+            let recents = window.localStorage.getItem('recentrooms')
+            if (!recents) {
+              recents = {}
+            } else {
+              recents = JSON.parse(recents)
+            }
+            recents[state.server + '/' + state.room] = {
+              server: state.server,
+              room: state.room,
+              password: state.password,
+              time: new Date().getTime()
+            }
+            window.localStorage.setItem('recentrooms', JSON.stringify(recents))
 
             // Generate our short url/invite link
             console.log('generating our invite link')
