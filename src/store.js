@@ -48,6 +48,7 @@ const state = {
   shortLink: null,
   extAvailable: false,
   lastRatingKey: null,
+  manualSyncQueued: false,
   // SETTINGS
   DARKMODE: JSON.parse(getSetting('DARKMODE')),
   CLIENTPOLLINTERVAL: getSetting('CLIENTPOLLINTERVAL'),

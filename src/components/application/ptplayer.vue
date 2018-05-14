@@ -76,9 +76,10 @@
         </v-layout>
       </v-flex>
       <v-flex xs12 sm5>
-        <v-btn flat color="primary" class="pa-0 ma-0" v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
+        <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native.stop="doManualSync">Manual sync</v-btn>
+        <v-btn color="primary" v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
         <router-link to="/browse">
-          <v-btn flat color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+          <v-btn color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
         </router-link>
       </v-flex>
     </v-layout>
@@ -97,7 +98,6 @@ export default {
   components: {
     videoplayer, plexthumb
   },
-  created () {},
   mounted: function () {
     // Check if we have params
     if (this.$route.query.start) {
@@ -303,6 +303,9 @@ export default {
     plex: function () {
       return this.$store.getters.getPlex
     },
+    manualSyncQueued: function () {
+      return this.$store.state.manualSyncQueued
+    },
     chosenCombo: function () {
       // Helper for our watch chosenCombo
       return this.chosenKey || this.chosenServer
@@ -398,6 +401,9 @@ export default {
         }
       }
       return null
+    },
+    doManualSync: function () {
+      this.$store.commit('SET_VALUE', 'manualSyncQueued', true)
     },
     openModal () {
       return this.$refs.playersettingsModal.open()
