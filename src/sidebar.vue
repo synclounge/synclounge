@@ -32,8 +32,13 @@
                   </img>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
-                  <v-list-tile-title> {{ user.username }}</v-list-tile-title>
-                  <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
+                  <v-tooltip bottom color="primary">
+                    <span slot="activator">
+                      <v-list-tile-title> {{ user.username }}</v-list-tile-title>
+                      <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
+                    </span>
+                    Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
+                  </v-tooltip>
                 </v-list-tile-content>
                 <v-list-tile-action  v-if="isHost(user)">
                   <v-icon v-if="isHost(user)" style="color: #E5A00D">star</v-icon>
