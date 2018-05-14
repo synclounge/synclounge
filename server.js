@@ -141,6 +141,7 @@ ptserver_io.on('connection', function (socket) {
       temp.clientResponseTime = data.clientResponseTime
       temp.type = data.type
       temp.showName = data.showName
+      temp.status = data.status
       temp.playerProduct = data.playerProduct
       socket.broadcast.to(socket.selfUser.room).emit('host-update', temp)
     }
@@ -205,8 +206,10 @@ ptserver_io.on('connection', function (socket) {
         user.rawTitle = userData.rawTitle
         user.clientResponseTime = userData.clientResponseTime
         user.type = userData.type
-        user.showName = userData.showName
-        user.playerProduct = user.playerProduct
+        user.showName = userData.showName || ''
+        user.playerProduct = userData.playerProduct || ''
+        user.status = userData.status || 'unknown'
+        user.machineIdentifier = userData.machineIdentifier || ''
         console.log('User is now', user)
         return
       }

@@ -27,7 +27,7 @@
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
               <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
                 <v-list-tile-avatar>
-                  <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)" style="">
+                  <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)" :style="getImgStyle(user)">
                     <v-icon v-if="user.playerState !== 'playing'" style="font-size: 32px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">{{ playerState(user) }}</v-icon>
                   </img>
                 </v-list-tile-avatar>
@@ -55,7 +55,7 @@
             <v-list id="chatbox" style="overflow-y:scroll; min-height: 35vh; background: none; max-height: 40vh; overflow: scroll">
               <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg.msg + msg.time" tag="div">
                 <v-list-tile-avatar>
-                  <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px"/>
+                  <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px;" />
                 </v-list-tile-avatar>
                 <v-list-tile-content>
                   <v-list-tile-title style="color:white; position:relative;">
@@ -198,6 +198,26 @@ export default {
   methods: {
     isHost: function (user) {
       return user.role === 'host'
+    },
+    getUserColor: function (user) {
+      if (user.status === 'good' || user.role === 'host') {
+        return '#0de47499'
+      }
+      if (user.status === 'ok') {
+        return '#0a630b'
+      }
+      if (user.status === 'notok') {
+        return '#FFB300'
+      }
+      if (user.status === 'unknown' || user.status === 'error') {
+        return '#F44336'
+      }
+    },
+    getImgStyle: function (user) {
+      let arr = [{
+        border: '2px solid ' + this.getUserColor(user)
+      }]
+      return arr
     },
     transferHost: function (username) {
       window.x = {

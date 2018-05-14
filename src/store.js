@@ -75,10 +75,8 @@ const mutations = {
         // We have a new chosen client, we need to stop
         return
       }
-      state.chosenClient.getTimeline(function (timeline) {
-        // console.log(timeline)
-      })
-      setTimeout(function () {
+      state.chosenClient.getTimeline()
+      setTimeout(() => {
         clientPoller(time)
       }, state.CLIENTPOLLINTERVAL)
     }
@@ -96,7 +94,7 @@ const mutations = {
     }
     state.chosenClientTimeSet = (new Date()).getTime()
     clientPoller(state.chosenClientTimeSet)
-    state.chosenClient.getTimeline(function (timeline) {})
+    state.chosenClient.getTimeline((timeline) => {})
   },
   SET_PLEX (state, value) {
     state.plex = value
@@ -173,7 +171,7 @@ const mutations = {
     state.decisionBlocked = value
   },
   REFRESH_PLEXDEVICES () {
-    store.state.plex.getDevices(function () {})
+    store.state.plex.getDevices(() => {})
   },
   SET_RANDOMBACKROUND (state) {
     state.plex.getRandomThumb((result) => {
@@ -360,6 +358,19 @@ const actions = {
         title = metadata.title
       }
     }
+    let status = 'good'
+    if (!state.synclounge.lastHostTimeline || !state.synclounge.lastHostTimeline.time) {
+      status = 'error'
+    } else {
+      let difference = Math.abs(state.chosenClient.lastTimelineObject.time - state.synclounge.lastHostTimeline.time)
+      if (difference > 1500 && difference < 3000) {
+        status = 'ok'
+      }
+      if (difference > 3000) {
+        status = 'notok'
+      }
+    }
+
     let endObj = {
       time: timeline.time,
       maxTime: timeline.duration,
@@ -367,9 +378,11 @@ const actions = {
       rawTitle: rawTitle,
       playerState: timeline.state,
       clientResponseTime: state.chosenClient.lastResponseTime,
-      playerProduct: state.chosenClient.product
+      playerProduct: state.chosenClient.product,
+      status,
+      machineIdentifier: state.chosenClient.lastTimelineObject.machineIdentifier
     }
-
+    console.log('Sending in poll', endObj)
     if (state.synclounge._socket) {
       state.synclounge._socket.pollStartTime = (new Date()).getTime()
       state.synclounge._socket.emit('poll', endObj)

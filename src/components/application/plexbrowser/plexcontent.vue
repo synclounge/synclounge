@@ -41,7 +41,7 @@
                       <v-icon>more_vert</v-icon>
                     </v-btn>
                     <v-list>
-                      <v-list-tile @click="markWatched(content)">
+                      <v-list-tile @click="markWatched(contents)">
                         <v-list-tile-title>Mark as played</v-list-tile-title>
                       </v-list-tile>
                       <v-list-tile :href="'https://app.plex.tv/desktop#!/server/' + contents.machineIdentifier + '/details?key=' + contents.key" target="_blank">
@@ -407,8 +407,8 @@ export default {
         this.contents.index + size - 1
       )
     },
-    markWatched (content, mediaIndex) {
-      this.server.markWatchedByRatingKey(content.ratingKey, () => {
+    markWatched () {
+      this.server.markWatchedByRatingKey(this.contents.ratingKey, () => {
         this.$parent.reset()
       })
     },
