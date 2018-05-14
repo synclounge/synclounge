@@ -76,8 +76,8 @@
         </v-layout>
       </v-flex>
       <v-flex xs12 sm5>
-        <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native.stop="doManualSync">Manual sync</v-btn>
-        <v-btn color="primary" v-on:click.native.stop="dialog = !dialog">Playback Settings</v-btn>
+        <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync">Manual sync</v-btn>
+        <v-btn color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
         <router-link to="/browse">
           <v-btn color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
         </router-link>
@@ -225,7 +225,6 @@ export default {
     },
     chosenAudioTrackIndex: function () {
       // console.log('Audio track change')
-      var that = this
       let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex]
         .Part[0].Stream[this.chosenAudioTrackIndex].id
       let baseparams = this.getSourceByLabel(this.chosenQuality).params
@@ -238,8 +237,7 @@ export default {
         'X-Plex-Platform-Version': baseparams['X-Plex-Platform-Version'],
         'X-Plex-Device': baseparams['X-Plex-Device'],
         'X-Plex-Device-Name': baseparams['X-Plex-Device-Name'],
-        'X-Plex-Device-Screen-Resolution':
-          baseparams['X-Plex-Device-Screen-Resolution'],
+        'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
         'X-Plex-Token': baseparams['X-Plex-Token']
       }
       var query = ''
@@ -253,16 +251,15 @@ export default {
         method: 'PUT',
         url: url
       }
-      request(options, function (error, response, body) {
+      request(options, (error, response, body) => {
         if (!error) {
-          that.changedPlaying(false)
+          this.changedPlaying(false)
         }
         // console.log(error)
       })
     },
     chosenSubtitleIndex: function () {
       // console.log('Subtitle track change')
-      var that = this
       let subtitleStreamID = 0
       if (this.chosenSubtitleIndex > -1) {
         subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].id
@@ -277,8 +274,7 @@ export default {
         'X-Plex-Platform-Version': baseparams['X-Plex-Platform-Version'],
         'X-Plex-Device': baseparams['X-Plex-Device'],
         'X-Plex-Device-Name': baseparams['X-Plex-Device-Name'],
-        'X-Plex-Device-Screen-Resolution':
-          baseparams['X-Plex-Device-Screen-Resolution'],
+        'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
         'X-Plex-Token': baseparams['X-Plex-Token']
       }
       var query = ''
@@ -291,9 +287,9 @@ export default {
         method: 'PUT',
         url: url
       }
-      request(options, function (error, response, body) {
+      request(options, (error, response, body) => {
         if (!error) {
-          that.changedPlaying(false)
+          this.changedPlaying(false)
         }
         // console.log(error)
       })
@@ -403,7 +399,8 @@ export default {
       return null
     },
     doManualSync: function () {
-      this.$store.commit('SET_VALUE', 'manualSyncQueued', true)
+      console.log('Setting manual sync to true')
+      this.$store.commit('SET_VALUE', ['manualSyncQueued', true])
     },
     openModal () {
       return this.$refs.playersettingsModal.open()

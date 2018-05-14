@@ -317,6 +317,14 @@ export default {
                 if we need to seek or start playing something.
               */
               rootState.hostClientResponseTime = data.clientResponseTime
+              if (rootState.manualSyncQueued) {
+                state.decisionBlocked = new Date().getTime()
+                window.EventBus.$emit('host-playerstate-change')
+                await rootState.chosenClient.seekTo(hostTimeline.time)
+                rootState.manualSyncQueued = false
+                state.decisionBlocked = 0
+                return
+              }
               if (Math.abs(state.decisionBlocked - new Date().getTime()) < 90000) {
                 console.log('We are not going to make a decision from the host data because a command is already running')
                 return
@@ -350,7 +358,6 @@ export default {
                 console.log('Error caught in sync logic', e)
                 state.decisionBlocked = 0
               }
-
               state.decisionBlocked = 0
             })
             state._socket.on('disconnect', function (data) {
