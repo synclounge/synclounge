@@ -61,24 +61,22 @@ export default {
     // Events from the parent component
     this.eventbus.$on('player-press-pause', (callback) => {
       if (this.isPlaying === 'paused') {
-        return callback(true)
+        return callback()
       }
       if (this.player) {
         this.player.pause()
-        return callback(true)
       }
-      return callback(false)
+      return callback()
     })
 
     this.eventbus.$on('player-press-play', (callback) => {
       if (this.isPlaying === 'playing') {
-        return callback(true)
+        return callback()
       }
       if (this.player) {
         this.player.play()
-        return callback(true)
       }
-      return callback(false)
+      return callback()
     })
 
     this.eventbus.$on('player-seek', async (data) => {
@@ -294,13 +292,11 @@ export default {
             return reject(new Error('Player is not initialized or does not have a current time'))
           }
           let oldTime = JSON.parse(JSON.stringify(this.lastTime))
-          this.player.play()
           this.player.currentTime(seekTo / 1000)
-          this.player.pause()
           let ticks = 0
           let ticker = setInterval(() => {
-            console.log('Waiting for the player to skip..')
-            if (oldTime !== this.lastTime) {
+            console.log('Waiting for the player to skip..', oldTime, this.lastTime, (seekTo / 1000))
+            if (oldTime !== this.lastTime || (this.lastTime === (seekTo))) {
               clearInterval(ticker)
               console.log('Success on seeking to a direct point in time')
               return resolve('Directly seeked')

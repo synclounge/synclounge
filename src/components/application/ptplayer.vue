@@ -14,7 +14,7 @@
       :createdAt="playerCreatedAt"
     ></videoplayer>
     <v-dialog v-model="dialog">
-      <v-card color="black">
+      <v-card color="black" width="350">
         <v-card-title>Playback Settings </v-card-title>
         <v-card-text>
           <v-select
@@ -158,7 +158,7 @@ export default {
         this.eventbus.$emit('player-seek', {
           time: data.params.offset,
           callback: async (promise) => {
-            // console.log('Player reported a seek result of ' + res)
+            console.log('Player reported a seek result of ' + promise)
             await promise.catch((e) => {
               data.callback(false)
             })

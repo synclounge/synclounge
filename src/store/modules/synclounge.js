@@ -30,7 +30,7 @@ export default {
     users: [],
     messages: [],
     me: '',
-    decisionBlocked: false,
+    decisionBlocked: 0,
     lastHostTimeline: {}
   },
   getters: {
@@ -317,7 +317,7 @@ export default {
                 if we need to seek or start playing something.
               */
               rootState.hostClientResponseTime = data.clientResponseTime
-              if (state.decisionBlocked) {
+              if (Math.abs(state.decisionBlocked - new Date().getTime()) < 40000) {
                 console.log('We are not going to make a decision from the host data because a command is already running')
                 return
               }
@@ -337,7 +337,7 @@ export default {
                 }
               }
               // Check previous timeline data age
-              state.decisionBlocked = true
+              state.decisionBlocked = new Date().getTime()
               let timelineAge = new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt
               try {
                 if (timelineAge > 1000) {
@@ -348,10 +348,10 @@ export default {
                 }
               } catch (e) {
                 console.log('Error caught in sync logic', e)
-                state.decisionBlocked = false
+                state.decisionBlocked = 0
               }
 
-              state.decisionBlocked = false
+              state.decisionBlocked = 0
             })
             state._socket.on('disconnect', function (data) {
               sendNotification('Disconnected from the SyncLounge server')
