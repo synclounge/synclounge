@@ -304,7 +304,6 @@ export default {
               return resolve('Directly seeked')
             }
             ticks++
-            this.player.play()
             if (ticks > 150) {
               clearInterval(ticker)
               return reject(new Error('Timed out'))
