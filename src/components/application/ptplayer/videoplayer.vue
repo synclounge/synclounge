@@ -223,7 +223,7 @@ export default {
           return resolve(true)
         }
 
-        if (Math.abs(seekTo - this.lastTime) < 5000 && !this.blockedSpeedChanges && this.$store.state.synclounge.lastHostTimeline.playerState === 'playing') {
+        if (Math.abs(seekTo - this.lastTime) < this.$store.state.SYNCFLEXABILITY && !this.blockedSpeedChanges && this.$store.state.synclounge.lastHostTimeline.playerState === 'playing') {
           console.log('Seeking via the speed up method')
           let oldSources = this.player.options_.sources
           let cancelled = false
@@ -243,7 +243,7 @@ export default {
               }
             } catch (e) {
               clearInterval(clicker)
-              return data.callback(false)
+              return reject(e)
             }
             console.log('Playback rate: ' + this.player.playbackRate())
             if (lastPlayerSpeed === this.player.playbackRate()) {
@@ -277,7 +277,7 @@ export default {
             }
 
             console.log('We are ' + difference + 'ms away from where we need to be')
-            if (difference < 50) {
+            if (difference < 30) {
               console.log('Child: Done seeking')
               this.player.playbackRate(1.0)
               resolve()

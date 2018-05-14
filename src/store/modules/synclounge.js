@@ -317,7 +317,7 @@ export default {
                 if we need to seek or start playing something.
               */
               rootState.hostClientResponseTime = data.clientResponseTime
-              if (Math.abs(state.decisionBlocked - new Date().getTime()) < 40000) {
+              if (Math.abs(state.decisionBlocked - new Date().getTime()) < 90000) {
                 console.log('We are not going to make a decision from the host data because a command is already running')
                 return
               }

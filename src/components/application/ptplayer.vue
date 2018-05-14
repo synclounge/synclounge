@@ -13,8 +13,8 @@
       :initialOffset="playertime"
       :createdAt="playerCreatedAt"
     ></videoplayer>
-    <v-dialog v-model="dialog">
-      <v-card color="black" width="350">
+    <v-dialog v-model="dialog" width="350">
+      <v-card color="black">
         <v-card-title>Playback Settings </v-card-title>
         <v-card-text>
           <v-select
