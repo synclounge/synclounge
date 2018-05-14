@@ -225,11 +225,11 @@ export default {
           return resolve(true)
         }
 
-        if (Math.abs(seekTo - this.lastTime) < 7000 && !this.blockedSpeedChanges) {
+        if (Math.abs(seekTo - this.lastTime) < 5000 && !this.blockedSpeedChanges && this.$store.state.synclounge.lastHostTimeline.playerState === 'playing') {
           console.log('Seeking via the speed up method')
           let oldSources = this.player.options_.sources
           let cancelled = false
-          window.EventBus.$on('host-playerstate-change', () => {
+          window.EventBus.$once('host-playerstate-change', () => {
             cancelled = true
             console.log('Cancelling our slow seek attempt')
           })
@@ -304,6 +304,7 @@ export default {
               return resolve('Directly seeked')
             }
             ticks++
+            this.player.play()
             if (ticks > 150) {
               clearInterval(ticker)
               return reject(new Error('Timed out'))

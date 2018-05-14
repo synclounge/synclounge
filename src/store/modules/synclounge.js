@@ -307,13 +307,13 @@ export default {
                 })
               }
               /* This is data from the host, we should react to this data by potentially changing
-                  what we're playing or seeking to get back in sync with the host.
+                what we're playing or seeking to get back in sync with the host.
 
-                  We need to limit how ourself to make sure we dont hit the client too hard.
-                  We'll only fetch new data if our data is older than 1000ms.
-                  If we need to fetch new data, we'll do that and then decide
-                  if we need to seek or start playing something.
-                  */
+                We need to limit how ourself to make sure we dont hit the client too hard.
+                We'll only fetch new data if our data is older than 1000ms.
+                If we need to fetch new data, we'll do that and then decide
+                if we need to seek or start playing something.
+              */
               rootState.hostClientResponseTime = data.clientResponseTime
               if (state.decisionBlocked) {
                 console.log('We are not going to make a decision from the host data because a command is already running')
