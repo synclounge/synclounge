@@ -30,7 +30,8 @@ export default {
     users: [],
     messages: [],
     me: '',
-    decisionBlocked: false
+    decisionBlocked: false,
+    lastHostTimeline: {}
   },
   getters: {
     getServer: state => {
@@ -235,6 +236,14 @@ export default {
             })
             state._socket.on('host-update', async (data) => {
               const hostTimeline = data
+              if (!state.lastHostTimeline || state.lastHostTimeline.playerState !== data.playerState) {
+                window.EventBus.$emit('host-playerstate-change')
+              }
+              let diffBetweenLastUpdate = Math.abs(state.lastHostTimeline.time - data.time)
+              if (diffBetweenLastUpdate > 5000) {
+                window.EventBus.$emit('host-playerstate-change')
+              }
+              state.lastHostTimeline = data
               const decisionMaker = (timelineAge) => {
                 const ourTimeline = rootState.chosenClient.lastTimelineObject
                 return new Promise(async (resolve, reject) => {

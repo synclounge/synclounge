@@ -228,8 +228,13 @@ export default {
         if (Math.abs(seekTo - this.lastTime) < 7000 && !this.blockedSpeedChanges) {
           console.log('Seeking via the speed up method')
           let oldSources = this.player.options_.sources
+          let cancelled = false
+          window.EventBus.$on('host-playerstate-change', () => {
+            cancelled = true
+            console.log('Cancelling our slow seek attempt')
+          })
           let clicker = setInterval(() => {
-            if (!this.player || this.isPlaying === 'paused' || this.isPlaying === 'buffering' || oldSources !== this.player.options_.sources) {
+            if (cancelled || !this.player || this.isPlaying === 'paused' || this.isPlaying === 'buffering' || oldSources !== this.player.options_.sources) {
               clearInterval(clicker)
               return reject(new Error('Slow seek was stop due to buffering or pausing'))
             }

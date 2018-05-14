@@ -247,9 +247,8 @@ module.exports = function PlexClient () {
   this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE) {
     return new Promise(async (resolve, reject) => {
       const timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt
-      console.log('Checking sync', hostTimeline, SYNCFLEXABILITY, SYNCMODE)
       const difference = Math.abs((parseInt(this.lastTimelineObject.time) + parseInt(timelineAge)) - parseInt(hostTimeline.time))
-      console.log('Difference from host', difference)
+
       if (parseInt(difference) > parseInt(SYNCFLEXABILITY)) {
       // We need to seek!
         console.log('STORE: we need to seek')
