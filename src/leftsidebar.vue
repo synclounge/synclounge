@@ -1,6 +1,6 @@
 <template>
     <div>
-      <v-list class="pa-1" dense>
+      <v-list class="pa-1" dense style="background: none">
         <template>
           <v-list-tile v-if="plex && plex.user">
             <v-list-tile-avatar>
@@ -49,18 +49,18 @@
         </template>
       </v-list>
 
-    <v-dialog v-model="ptsettingstoggle">
-      <v-card class="grey darken-4 pa-3">
-        <h6 class="soft-text">SyncLounge Settings</h6>
-        <v-divider></v-divider>
-        <ptsettings></ptsettings>
+    <v-dialog v-model="ptsettingstoggle" width="350">
+      <v-card style="background-color: #151924" class="pa-3">
+        <div class="text-xs-center"><h2>SyncLounge Settings</h2></div>
+        <v-divider class="mt-2 mb-2"></v-divider>
+        <ptsettings class="darken-4 pa-1"></ptsettings>
       </v-card>
     </v-dialog>
-    <v-dialog  v-model="plexsettingstoggle">
-      <v-card class="grey darken-4 pa-3">
-        <h6 class="soft-text">Plex Settings</h6>
-        <v-divider></v-divider>
-        <plexsettings v-if="validPlex && plex.gotDevices"></plexsettings>
+    <v-dialog  v-model="plexsettingstoggle" width="350">
+      <v-card style="background-color: #151924" class="pa-3">
+        <div class="text-xs-center"><h2>Plex Settings</h2></div>
+        <v-divider class="mt-2 mb-2"></v-divider>
+        <plexsettings class="darken-4 pa-1" v-if="validPlex && plex.gotDevices"></plexsettings>
       </v-card>
     </v-dialog>
   </div>

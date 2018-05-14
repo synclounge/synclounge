@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="text-align:center">
-      <h6 style="text-align:initial">Plex Client Polling Interval</h6>
+      <h4 style="text-align:initial">Plex Client Polling Interval</h4>
       <div> {{ clientpollinterval }}</div>
       <v-slider class="pa-0 ma-0" v-model="clientpollinterval" :min="100" :max="10000"
             hint="Sets how frequently SyncLounge will poll the client for new information in milliseconds. Default is 5000ms (5 seconds)"
@@ -10,7 +10,7 @@
     </div>
     <v-divider></v-divider>
     <div style="text-align:center" class="pt-4">
-      <h6 style="text-align:initial">Sync Flexibility</h6>
+      <h4 style="text-align:initial">Sync Flexibility</h4>
       <div> {{ syncflexability }}</div>
       <v-slider class="pa-0 ma-0" v-model="syncflexability" :min="100" :max="10000"
             hint="Sets the acceptable distance away from the host in milliseconds. Default is 3000ms (3 seconds)."
@@ -19,7 +19,7 @@
     </div>
     <v-divider></v-divider>
     <div style="text-align:center" class="pt-4">
-      <h6 style="text-align:initial">Syncing Method</h6>
+      <h4 style="text-align:initial">Syncing Method</h4>
       <v-radio-group v-model="syncmode">
           <v-radio label="Clean Seek" class="pa-0 ma-0" value="cleanseek"></v-radio>
           <v-radio label="Skip Ahead" class="pa-0 ma-0"  value="skipahead"

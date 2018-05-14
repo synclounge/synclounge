@@ -71,7 +71,7 @@ module.exports = function PlexClient () {
             if (command === '/player/timeline/poll') {
               this.updateTimelineObject(resultData)
             }
-            console.log('Heard back from PTPLAYER', resultData)
+            // console.log('Heard back from PTPLAYER', resultData)
             resolve(resultData)
           }
         }
@@ -101,7 +101,6 @@ module.exports = function PlexClient () {
           var _url = connection.uri + command + '?' + query
           this.setValue('commandId', this.commandId + 1)
           var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
-          // console.log('sending api request', options)
 
           if (window.localStorage.getItem('EXTAVAILABLE')) {
             console.log('Extension is available')
@@ -115,7 +114,6 @@ module.exports = function PlexClient () {
               client_command: command,
               query: query
             }, (response) => {
-              // console.log('SyncLoungePlus response', response)
               if (response) {
                 parseXMLString(response, (err, result) => {
                   if (err) {
@@ -136,6 +134,7 @@ module.exports = function PlexClient () {
               .then((response) => {
                 resolve(response)
                 if (command === '/player/timeline/poll') {
+                  console.log('Poll result', response, response.data)
                   this.updateTimelineObject(response)
                 }
               })
@@ -159,37 +158,40 @@ module.exports = function PlexClient () {
     })
   }
 
-  this.getTimeline = async function (callback) {
-    // Get the timeline object from the client
-    let data
-    try {
-      data = await this.hitApi('/player/timeline/poll', { 'wait': 0 }, this.chosenConnection)
-      if (data) {
-        return this.updateTimelineObject(data)
-      } else {
-        return false
+  this.getTimeline = function () {
+    return new Promise(async (resolve, reject) => {
+      let data
+      try {
+        data = await this.hitApi('/player/timeline/poll', { 'wait': 0 })
+        if (data) {
+          return resolve(this.updateTimelineObject(data))
+        } else {
+          return reject(new Error('Invalid data recieved from client'))
+        }
+      } catch (e) {
+        return reject(e)
       }
-    } catch (e) {
-      // console.log(e)
-      return false
-    }
+    })
+    // Get the timeline object from the client
   }
 
   this.updateTimelineObject = function (result) {
-    // console.log('New timeline', result)
     // Check if we are the SLPlayer
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // SLPLAYER
       let tempObj = {
         MediaContainer: {
-          Timeline: [result]
+          Timeline: [{ ...result }]
         }
       }
       result = tempObj
       if (!previousTimeline.MediaContainer || result.MediaContainer.Timeline[0].ratingKey !== previousTimeline.MediaContainer.Timeline[0].ratingKey) {
+        // console.log('Before playback change', result, previousTimeline)
         window.EventBus.$emit('PLAYBACK_CHANGE', [this, result.MediaContainer.Timeline[0].ratingKey, result.MediaContainer.Timeline[0]])
       }
-      previousTimeline = result
+      previousTimeline = tempObj
+      this.lastTimelineObject = result.MediaContainer.Timeline[0]
+      this.lastTimelineObject.recievedAt = new Date().getTime()
       window.EventBus.$emit('NEW_TIMELINE', result.MediaContainer.Timeline[0])
       return result
     }
@@ -200,7 +202,6 @@ module.exports = function PlexClient () {
       let _timeline = timelines[i]['$']
       if (_timeline.type === 'video') {
         videoTimeline = _timeline
-        console.log('Does', videoTimeline.ratingKey + ' equal ' + previousTimeline.ratingKey)
         if (videoTimeline.ratingKey !== previousTimeline.ratingKey) {
           window.EventBus.$emit('PLAYBACK_CHANGE', [this, videoTimeline.ratingKey, result.MediaContainer])
         }
@@ -209,135 +210,63 @@ module.exports = function PlexClient () {
     }
     window.EventBus.$emit('NEW_TIMELINE', [this, videoTimeline, result.MediaContainer])
     previousTimeline = videoTimeline
+    this.lastTimelineObject = videoTimeline
+    this.lastTimelineObject.recievedAt = new Date().getTime()
     // this.setValue('lastTimelineObject', videoTimeline)
     return videoTimeline
   }
-  this.pressPlay = function (callback) {
+  this.pressPlay = function () {
     // Press play on the client
-    this.hitApi('/player/playback/play', { 'wait': 0 }, this.chosenConnection).then((result, responseTime) => {
-      if (result) {
-        // Valid response back from the client
-        return callback(result, responseTime)
-      } else {
-        return callback(null)
-      }
-    })
+    return this.hitApi('/player/playback/play', { wait: 0 })
   }
 
-  this.pressPause = function (callback) {
+  this.pressPause = function () {
     // Press pause on the client
-    this.hitApi('/player/playback/pause', { 'wait': 0 }, this.chosenConnection).then((result, responseTime) => {
-      if (result) {
-        // Valid response back from the client
-        return callback(result, responseTime)
-      } else {
-        return callback(null)
-      }
-    })
+    return this.hitApi('/player/playback/pause', { wait: 0 })
   }
-  this.pressStop = function (callback) {
+  this.pressStop = function () {
     // Press pause on the client
-    this.hitApi('/player/playback/stop', { 'wait': 0 }, this.chosenConnection).then((result, responseTime) => {
-      if (result) {
-        // Valid response back from the client
-        return callback(result, responseTime)
-      } else {
-        return callback(null)
-      }
-    })
+    return this.hitApi('/player/playback/stop', { wait: 0 })
   }
-  this.seekTo = function (time, callback) {
+  this.seekTo = function (time) {
     // Seek to a time (in ms)
-    this.hitApi('/player/playback/seekTo', { 'wait': 0, 'offset': time }, this.chosenConnection, function (result, responseTime) {
-      if (result) {
-        // Valid response back from the client
-        return callback(result, responseTime)
-      } else {
-        return callback(null)
-      }
+    return this.hitApi('/player/playback/seekTo', { wait: 0, offset: time })
+  }
+  this.skipAhead = function (current, duration) {
+    return new Promise(async (resolve, reject) => {
+      await this.seekTo(current + duration)
+      await this.pressPause()
+      await wait(duration)
+      await this.pressPlay()
+      resolve()
     })
   }
-
-  this.getRatingKey = function (callback) {
-    // Get the ratingKey, aka the mediaId, of the item playing
-    this.hitApi('/player/timeline/poll', { 'wait': 0 }, this.chosenConnection).then((result) => {
-      if (result) {
-        // Valid response back from the client
-        var allTimelines = result.MediaContainer.Timeline
-        for (var i in allTimelines) {
-          var timeline = allTimelines[i]['$']
-          // We only want the rating key of whatever is playing in the video timeline
-          if (timeline.type === 'video') {
-            return callback(timeline.ratingKey)
-          }
+  this.cleanSeek = function (time) {
+    return this.seekTo(time)
+  }
+  this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE) {
+    return new Promise(async (resolve, reject) => {
+      const timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt
+      console.log('Checking sync', hostTimeline, SYNCFLEXABILITY, SYNCMODE)
+      const difference = Math.abs((parseInt(this.lastTimelineObject.time) + parseInt(timelineAge)) - parseInt(hostTimeline.time))
+      console.log('Difference from host', difference)
+      if (parseInt(difference) > parseInt(SYNCFLEXABILITY)) {
+      // We need to seek!
+        console.log('STORE: we need to seek')
+        // Decide what seeking method we want to use
+        if (SYNCMODE === 'cleanseek' || hostTimeline.playerState === 'paused') {
+          return resolve(await this.cleanSeek(hostTimeline.time))
         }
-        return callback(null)
-      } else {
-        return callback(null)
-      }
-    })
-  }
-
-  this.getServerId = function (callback) {
-    // Get the machineId of the server we're playing from'
-    this.hitApi('/player/timeline/poll', { 'wait': 0 }, this.chosenConnection).then((result) => {
-      if (result) {
-        // Valid response back from the client
-        var allTimelines = result.MediaContainer.Timeline
-        for (var i in allTimelines) {
-          var timeline = allTimelines[i]['$']
-          // We only want the rating key of whatever is playing in the video timeline
-          if (timeline.type === 'video') {
-            return callback(timeline.machineIdentifier)
-          }
+        if (SYNCMODE === 'skipahead') {
+          return resolve(await this.skipAhead(hostTimeline.time, 10000))
         }
-        return callback(null)
+        // Fall back to skipahead
+        return resolve(await this.skipAhead(hostTimeline.time, 10000))
       } else {
-        return callback(null)
+        resolve('No sync needed')
       }
     })
   }
-
-  this.getPlayerState = function (callback) {
-    // Get the Player State (playing, paused or stopped)
-    this.hitApi('/player/timeline/poll', { 'wait': 0 }, this.chosenConnection).then((result) => {
-      if (result) {
-        // Valid response back from the client
-        var allTimelines = result.MediaContainer.Timeline
-        for (var i in allTimelines) {
-          var timeline = allTimelines[i]['$']
-          // We only want the rating key of whatever is playing in the video timeline
-          if (timeline.type === 'video') {
-            return callback(timeline.state)
-          }
-        }
-        return callback(null)
-      } else {
-        return callback(null)
-      }
-    })
-  }
-
-  this.getPlayerTime = function (callback) {
-    // Get the current playback time in ms
-    this.hitApi('/player/timeline/poll', { 'wait': 0 }, this.chosenConnection).then((result, responseTime, code) => {
-      if (result) {
-        // Valid response back from the client
-        var allTimelines = result.MediaContainer.Timeline
-        for (var i in allTimelines) {
-          var timeline = allTimelines[i]['$']
-          // We only want the rating key of whatever is playing in the video timeline
-          if (timeline.type === 'video') {
-            return callback(timeline.time, responseTime)
-          }
-        }
-        return callback(null, responseTime)
-      } else {
-        return callback(null, responseTime)
-      }
-    })
-  }
-
   this.playMedia = async function (data) {
     // Play a media item given a mediaId key and a server to play from
     // We need the following variables to build our paramaters:
@@ -588,6 +517,13 @@ module.exports = function PlexClient () {
         }
         return false
       }
+    })
+  }
+  const wait = (ms) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(ms)
+      }, ms)
     })
   }
 }

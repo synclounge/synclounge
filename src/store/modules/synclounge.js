@@ -234,6 +234,69 @@ export default {
               })
             })
             state._socket.on('host-update', async (data) => {
+              const hostTimeline = data
+              const decisionMaker = (timelineAge) => {
+                const ourTimeline = rootState.chosenClient.lastTimelineObject
+                return new Promise(async (resolve, reject) => {
+                  if (ourTimeline.playerState === 'buffering') {
+                    return resolve()
+                  }
+                  if ((hostTimeline.playerState === 'stopped' || !hostTimeline.playerState) && ourTimeline.state !== 'stopped') {
+                    console.log('Pressing stop because the host did')
+                    sendNotification('The host pressed stop')
+                    await rootState.chosenClient.pressStop()
+                    return resolve()
+                  }
+
+                  if (hostTimeline.playerState === 'stopped') {
+                    return resolve()
+                  }
+                  // Check if we need to autoplay
+                  if ((ourTimeline.state === 'stopped' || !ourTimeline.state) && (hostTimeline.playerState !== 'stopped')) {
+                    if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
+                      return resolve()
+                    }
+                    // We need to autoplay!
+                    rootState.blockAutoPlay = true
+
+                    let blockedServers = rootState.BLOCKEDSERVERS
+                    let servers = Object.assign({}, rootState.plex.servers)
+                    if (blockedServers) {
+                      for (let i = 0; i < blockedServers.length; i++) {
+                        if (rootState.plex.servers[blockedServers[i]]) {
+                          delete servers[i]
+                        }
+                      }
+                    }
+
+                    sendNotification('Searching Plex Servers for "' + hostTimeline.rawTitle + '"')
+                    let result = await rootState.chosenClient.playContentAutomatically(rootState.chosenClient, hostTimeline, servers, hostTimeline.time).catch((e) => {
+                      sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle + '. Try manually playing the content')
+                      setTimeout(function () {
+                        rootState.blockAutoPlay = false
+                      }, 15000)
+                    })
+                    console.log('Auto play result: ' + result)
+                    await new Promise((resolve, reject) => {
+                      setTimeout(() => resolve(), 10000)
+                    })
+                    rootState.blockAutoPlay = false
+                    return resolve()
+                  }
+
+                  if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
+                    sendNotification('Resuming..')
+                    await rootState.chosenClient.pressPlay()
+                  }
+                  if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
+                    sendNotification('Pausing..')
+                    await rootState.chosenClient.pressPause()
+                  }
+                  console.log('Rootstate', rootState)
+                  await rootState.chosenClient.sync(data, rootState.SYNCFLEXABILITY, rootState.SYNCMODE)
+                  resolve()
+                })
+              }
               /* This is data from the host, we should react to this data by potentially changing
                   what we're playing or seeking to get back in sync with the host.
 
@@ -255,146 +318,29 @@ export default {
               if (!rootState.chosenClient.lastTimelineObject) {
                 console.log('Dont have our first timeline data yet.')
                 if (rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-                  rootState.chosenClient.lastTimelineObject = {}
+                  rootState.chosenClient.lastTimelineObject = {
+                    playerState: 'stopped'
+                  }
                 } else {
                   return
                 }
               }
               // Check previous timeline data age
+              state.decisionBlocked = true
               let timelineAge = new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt
-              if (timelineAge > 1000) {
-                rootState.chosenClient.getTimeline((newtimeline) => {
-                  decisionMaker(0)
-                })
-              } else {
-                decisionMaker(timelineAge)
+              try {
+                if (timelineAge > 1000) {
+                  await rootState.chosenClient.getTimeline()
+                  await decisionMaker(0)
+                } else {
+                  await decisionMaker(timelineAge)
+                }
+              } catch (e) {
+                console.log('Error caught in sync logic', e)
+                state.decisionBlocked = false
               }
 
-              async function decisionMaker (timelineAge) {
-                let ourTimeline = rootState.chosenClient.lastTimelineObject
-                let hostTimeline = data
-
-                if (ourTimeline.playerState === 'buffering') {
-                  return
-                }
-                if ((hostTimeline.playerState === 'stopped' || !hostTimeline.playerState) && ourTimeline.state !== 'stopped') {
-                  console.log('Pressing stop because the host did')
-                  sendNotification('The host pressed stop')
-                  rootState.chosenClient.pressStop(() => {
-                    state.decisionBlocked = false
-                  })
-                  return
-                }
-
-                if (hostTimeline.playerState === 'stopped') {
-                  return
-                }
-                // Check if we need to autoplay
-                if ((ourTimeline.state === 'stopped' || !ourTimeline.state) && (hostTimeline.playerState !== 'stopped')) {
-                  if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
-                    return
-                  }
-                  // We need to autoplay!
-                  rootState.blockAutoPlay = true
-                  state.decisionBlocked = true
-
-                  let blockedServers = rootState.BLOCKEDSERVERS
-                  let servers = Object.assign({}, rootState.plex.servers)
-                  if (blockedServers) {
-                    for (let i = 0; i < blockedServers.length; i++) {
-                      if (rootState.plex.servers[blockedServers[i]]) {
-                        delete servers[i]
-                      }
-                    }
-                  }
-
-                  sendNotification('Searching Plex Servers for "' + hostTimeline.rawTitle + '"')
-                  let result = await rootState.chosenClient.playContentAutomatically(rootState.chosenClient, hostTimeline, servers, hostTimeline.time).catch((e) => {
-                    sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle)
-                    setTimeout(function () {
-                      rootState.blockAutoPlay = false
-                    }, 15000)
-                    state.decisionBlocked = false
-                  })
-                  console.log('Auto play result: ' + result)
-                  state.decisionBlocked = false
-                  await new Promise((resolve, reject) => {
-                    setTimeout(() => resolve(), 10000)
-                  })
-                  rootState.blockAutoPlay = false
-                  return
-                }
-                let difference = Math.abs((parseInt(ourTimeline.time) + parseInt(timelineAge)) - parseInt(hostTimeline.time))
-
-                if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
-                  sendNotification('Resuming..')
-                  rootState.chosenClient.pressPlay(() => {
-                    checkForSeek()
-                  })
-                  return
-                }
-                if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
-                  sendNotification('Pausing..')
-                  rootState.chosenClient.pressPause(() => {
-                    checkForSeek()
-                  })
-                  return
-                }
-                checkForSeek()
-
-                function checkForSeek () {
-                  if (parseInt(difference) > parseInt(rootState.SYNCFLEXABILITY)) {
-                    // We need to seek!
-                    console.log('STORE: we need to seek')
-                    // Decide what seeking method we want to use
-                    if (rootState.SYNCMODE === 'cleanseek') {
-                      cleanSeek()
-                      return
-                    }
-                    if (rootState.SYNCMODE === 'skipahead') {
-                      skipAhead()
-                      return
-                    }
-                    // Fall back to skipahead
-                    skipAhead()
-                  }
-                  function skipAhead () {
-                    if (parseInt(hostTimeline.time) < parseInt(ourTimeline.time) && difference < 15000) {
-                      state.decisionBlocked = true
-                      // If the host is 'playing' we should seek ahead, pause for the difference and then resume
-                      // If the host is 'paused' we should just seek to their position
-
-                      if (hostTimeline.playerState === 'paused') {
-                        rootState.chosenClient.seekTo(parseInt(hostTimeline.time), () => {
-                          state.decisionBlocked = false
-                        })
-                        return
-                      } else {
-                        setTimeout(function () {
-                          rootState.chosenClient.pressPlay((result, responseTime) => {
-                            state.decisionBlocked = false
-                          })
-                        }, difference)
-                      }
-                      rootState.chosenClient.pressPause((result, responseTime) => {})
-                    } else {
-                      state.decisionBlocked = true
-                      rootState.chosenClient.seekTo(parseInt(hostTimeline.time) + 10000, () => {
-                        state.decisionBlocked = false
-                      })
-                    }
-                  }
-
-                  function cleanSeek () {
-                    state.decisionBlocked = true
-                    rootState.chosenClient.seekTo(parseInt(hostTimeline.time), (result) => {
-                      console.log('Result from within store for seek was ', result)
-                      console.log('Setting decision blocked to false ')
-                      state.decisionBlocked = false
-                    })
-                  }
-                }
-              }
+              state.decisionBlocked = false
             })
             state._socket.on('disconnect', function (data) {
               sendNotification('Disconnected from the SyncLounge server')

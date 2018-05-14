@@ -49,8 +49,8 @@ window.EventBus.$on('command', (data) => {
         playertime: data.params.offset
       }
     })
+    return data.callback(true)
   }
-  return data.callback(true)
 })
 
 Vue.mixin({

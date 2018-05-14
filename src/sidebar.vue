@@ -27,11 +27,13 @@
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
               <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
                 <v-list-tile-avatar>
-                  <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)"/>
+                  <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)" style="">
+                    <v-icon v-if="user.playerState !== 'playing'" style="font-size: 32px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">{{ playerState(user) }}</v-icon>
+                  </img>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
                   <v-list-tile-title> {{ user.username }}</v-list-tile-title>
-                  <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%"><v-icon small>{{ playerState(user) }}</v-icon> - {{ getTitle(user) }}</v-list-tile-sub-title>
+                  <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
                 </v-list-tile-content>
                 <v-list-tile-action  v-if="isHost(user)">
                   <v-icon v-if="isHost(user)" style="color: #E5A00D">star</v-icon>
@@ -45,12 +47,12 @@
           </div>
         </v-list>
       </v-flex>
-      <v-flex xs12 style="position: relative">
+      <v-flex xs12 style="position: relative;">
         <v-layout column wrap justify-space-around>
-          <v-flex xs9>
+          <v-flex>
             <v-divider></v-divider>
             <v-subheader>Messages</v-subheader>
-            <v-list id="chatbox" style="overflow-y:scroll; min-height: 35vh; background: none">
+            <v-list id="chatbox" style="overflow-y:scroll; min-height: 35vh; background: none; max-height: 40vh; overflow: scroll">
               <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg.msg + msg.time" tag="div">
                 <v-list-tile-avatar>
                   <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px"/>
@@ -66,14 +68,15 @@
             </v-list>
           </v-flex>
           <v-spacer></v-spacer>
-          <v-flex xs1 style="position: relative">
-              <v-text-field
-                prepend-icon="message"
-                :label="'Send a message to ' + '#' + ptRoom"
-                class="ma-0"
-                v-on:keyup.enter.native="sendMessage()"
-                v-model="messageToBeSent"
-              ></v-text-field>
+          <v-flex style="position: relative">
+            <v-text-field
+              prepend-icon="message"
+              :label="'Send a message to ' + '#' + ptRoom"
+              class="ma-0 ml-1 pr-1 wideinput"
+              v-on:keyup.enter.native="sendMessage()"
+              v-model="messageToBeSent"
+            ></v-text-field>
+            <v-btn block color="primary" @click="sendMessage()">Send</v-btn>
           </v-flex>
         </v-layout>
       </v-flex>
@@ -239,6 +242,9 @@ export default {
       return 'Nothing'
     },
     sendMessage: function () {
+      if (this.messageToBeSent === '') {
+        return
+      }
       console.log('We should send this message: ' + this.messageToBeSent)
       this.$store.dispatch('sendNewMessage', this.messageToBeSent)
       this.messageToBeSent = ''
@@ -272,3 +278,10 @@ export default {
   }
 }
 </script>
+<style scoped>
+.wideinput .input-group--text-field.input-group--prepend-icon .input-group__details {
+  margin-left: unset;
+  max-width: unset;
+}
+
+</style>

@@ -6,8 +6,6 @@ var syncLounge = require('./store/modules/synclounge.js').default
 
 const settings = require('../settings.json')
 
-var socketio = require('socket.io-client')
-
 Vue.use(Vuex)
 
 // Persistant settings handling
