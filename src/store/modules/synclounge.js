@@ -340,7 +340,7 @@ export default {
               state.decisionBlocked = new Date().getTime()
               let timelineAge = new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt
               try {
-                if (timelineAge > 1000) {
+                if (timelineAge > 1000 && this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
                   await rootState.chosenClient.getTimeline()
                   await decisionMaker(0)
                 } else {

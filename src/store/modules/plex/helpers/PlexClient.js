@@ -247,11 +247,11 @@ module.exports = function PlexClient () {
   this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE) {
     return new Promise(async (resolve, reject) => {
       const timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt
-      const difference = Math.abs((parseInt(this.lastTimelineObject.time) + parseInt(timelineAge)) - parseInt(hostTimeline.time))
+      const difference = Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time))
 
       if (parseInt(difference) > parseInt(SYNCFLEXABILITY)) {
       // We need to seek!
-        console.log('STORE: we need to seek')
+        console.log('STORE: we need to seek as we are out by', difference)
         // Decide what seeking method we want to use
         if (SYNCMODE === 'cleanseek' || hostTimeline.playerState === 'paused') {
           return resolve(await this.cleanSeek(hostTimeline.time))
