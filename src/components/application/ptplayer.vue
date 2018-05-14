@@ -63,24 +63,20 @@
       </v-card>
     </v-dialog>
     <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3">
-      <v-flex xs12 sm7>
-        <v-layout row wrap justify-center align-center>
-          <v-flex xs2 class="hidden-sm-and-down">
-            <img :src="thumbUrl" class="elevation-20" style="height: 120px; width: auto; vertical-align: middle"/>
-          </v-flex>
-          <v-flex>
+      <v-flex xs12>
+        <v-layout row wrap align-center>
+          <img :src="thumbUrl" class="elevation-20" style="height: 120px; width: auto; vertical-align: middle"/>
+          <v-flex class="text-xs-left pa-3">
             <h1>{{ getTitle(playingMetadata) }}</h1>
             <h3>{{ getUnder(playingMetadata) }}</h3>
             <h5>Playing from {{ chosenServer.name  }}</h5>
+            <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync">Manual sync</v-btn>
+            <v-btn color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
+            <router-link to="/browse">
+              <v-btn color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+            </router-link>
           </v-flex>
         </v-layout>
-      </v-flex>
-      <v-flex xs12 sm5>
-        <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync">Manual sync</v-btn>
-        <v-btn color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
-        <router-link to="/browse">
-          <v-btn color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
-        </router-link>
       </v-flex>
     </v-layout>
   </div>
