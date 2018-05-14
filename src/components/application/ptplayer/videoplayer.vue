@@ -263,15 +263,15 @@ export default {
             let difference = Math.abs(current - (slidingTime))
             if (current < slidingTime) {
             // Speed up
-              playbackSpeed = playbackSpeed + 0.0003
-              if (this.player.playbackRate() < 1.1) {
+              playbackSpeed = playbackSpeed + 0.0001
+              if (this.player.playbackRate() < 1.03) {
                 this.player.playbackRate(playbackSpeed)
               }
             }
             if (current > slidingTime) {
             // Slow down
-              playbackSpeed = playbackSpeed - 0.0003
-              if (this.player.playbackRate() > 0.95) {
+              playbackSpeed = playbackSpeed - 0.0001
+              if (this.player.playbackRate() > 0.97) {
                 this.player.playbackRate(playbackSpeed)
               }
             }
