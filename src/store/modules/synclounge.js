@@ -287,9 +287,11 @@ export default {
                     })
                     console.log('Auto play result: ' + result)
                     await new Promise((resolve, reject) => {
-                      setTimeout(() => resolve(), 10000)
+                      setTimeout(() => resolve(), 1000)
                     })
-                    rootState.blockAutoPlay = false
+                    setTimeout(() => {
+                      rootState.blockAutoPlay = false
+                    }, 10000)
                     return resolve()
                   }
 

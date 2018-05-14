@@ -265,14 +265,14 @@ export default {
             let difference = Math.abs(current - (slidingTime))
             if (current < slidingTime) {
             // Speed up
-              playbackSpeed = playbackSpeed + 0.0005
+              playbackSpeed = playbackSpeed + 0.0003
               if (this.player.playbackRate() < 1.1) {
                 this.player.playbackRate(playbackSpeed)
               }
             }
             if (current > slidingTime) {
             // Slow down
-              playbackSpeed = playbackSpeed - 0.0005
+              playbackSpeed = playbackSpeed - 0.0003
               if (this.player.playbackRate() > 0.95) {
                 this.player.playbackRate(playbackSpeed)
               }
@@ -293,8 +293,10 @@ export default {
           if (!this.player || !this.player.currentTime()) {
             return reject(new Error('Player is not initialized or does not have a current time'))
           }
-          let oldTime = this.lastTime
+          let oldTime = JSON.parse(JSON.stringify(this.lastTime))
+          this.player.play()
           this.player.currentTime(seekTo / 1000)
+          this.player.pause()
           let ticks = 0
           let ticker = setInterval(() => {
             console.log('Waiting for the player to skip..')
