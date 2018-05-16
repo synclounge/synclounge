@@ -23,33 +23,33 @@
         </v-flex>
 
         <v-subheader>Users ({{ ptUsers.length }})</v-subheader>
-        <v-list dense style="overflow-y:scroll; max-height: 40vh; background: none">
+        <v-list dense three-line style="overflow-y:scroll; max-height: 40vh; background: none">
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
-              <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
-                <v-list-tile-avatar>
-                  <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)" :style="getImgStyle(user)">
-                    <v-icon v-if="user.playerState !== 'playing'" style="font-size: 32px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">{{ playerState(user) }}</v-icon>
-                  </img>
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                  <v-tooltip bottom color="primary">
-                    <span slot="activator">
-                      <v-list-tile-title> {{ user.username }}</v-list-tile-title>
-                      <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
-                    </span>
-                    Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
-                  </v-tooltip>
-                </v-list-tile-content>
-                <v-list-tile-action  v-if="isHost(user)">
-                  <v-icon v-if="isHost(user)" style="color: #E5A00D">star</v-icon>
-                </v-list-tile-action>
-              </v-list-tile>
-            <div class="pl-2 pr-2 pt-2 mt-0 pb-0 mb-0">
-              <span style="float: left;font-size:70%" class="ptuser-time pl-2">{{ getCurrent(user) }}</span>
-              <span style="float: right;font-size:70%" class="ptuser-maxTime pr-2">{{ getMax(user) }}</span>
-              <v-progress-linear class="pt-content-progress " :height="2" :value="percent(user)"></v-progress-linear>
-            </div>
+            <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
+              <v-list-tile-avatar>
+                <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)" :style="getImgStyle(user)">
+                  <v-icon v-if="user.playerState !== 'playing'" style="font-size: 32px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">{{ playerState(user) }}</v-icon>
+                </img>
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-tooltip bottom color="primary">
+                  <span slot="activator">
+                    <v-list-tile-title> {{ user.username }}</v-list-tile-title>
+                    <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
+                  </span>
+                  Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
+                </v-tooltip>
+              </v-list-tile-content>
+              <v-list-tile-action  v-if="isHost(user)">
+                <v-icon v-if="isHost(user)" style="color: #E5A00D">star</v-icon>
+              </v-list-tile-action>
+            </v-list-tile>
+          <div class="pl-2 pr-2 pt-2 mt-0 pb-0 mb-0">
+            <span style="float: left;font-size:70%" class="ptuser-time pl-2">{{ getCurrent(user) }}</span>
+            <span style="float: right;font-size:70%" class="ptuser-maxTime pr-2">{{ getMax(user) }}</span>
+            <v-progress-linear class="pt-content-progress " :height="2" :value="percent(user)"></v-progress-linear>
           </div>
+        </div>
         </v-list>
       </v-flex>
       <v-flex xs12 style="position: relative;">
@@ -58,7 +58,7 @@
             <v-divider></v-divider>
             <v-subheader>Messages</v-subheader>
             <v-list id="chatbox" style="overflow-y:scroll; min-height: 35vh; background: none; max-height: 40vh; overflow: scroll">
-              <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="msg in messages" v-bind:key="msg.msg + msg.time" tag="div">
+              <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
                 <v-list-tile-avatar>
                   <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px;" />
                 </v-list-tile-avatar>
