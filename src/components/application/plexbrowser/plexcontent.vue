@@ -10,9 +10,9 @@
           <div style="background-color: rgba(0, 0, 0, 0.4); height: 100%">
             <v-container style="background-color: rgba(0, 0, 0, 0.8); height: 100%" fluid>
               <v-layout row wrap>
-                <v-flex md3 class="pa-4">
+                <v-flex xs12 md3>
                   <v-layout row wrap>
-                    <v-flex xs12 md12>
+                    <v-flex md12 class="pa-2">
                       <v-card-media
                         :src="thumb"
                         height="30vh"
@@ -21,10 +21,10 @@
                     </v-flex>
                     <v-flex xs8 md12 class="text-xs-center hidden-sm-and-down ">
                       <div v-if="playable">
-                        <v-btn block v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
+                        <v-btn fab v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
                           <v-icon> play_arrow </v-icon>
                         </v-btn>
-                        <v-btn block v-else @click.native.stop="dialog = true" class="primary white--text">
+                        <v-btn fab v-else @click.native.stop="dialog = true" class="primary white--text">
                           <v-icon> play_arrow </v-icon>
                         </v-btn>
                       </div>
@@ -35,20 +35,25 @@
                     </v-flex>
                   </v-layout>
                 </v-flex>
-                <v-flex md9 sm12>
-                  <h1 :style="fontSizes.largest">{{ title }}<span style="float: right"><v-menu>
-                    <v-btn icon slot="activator" class="ma-0 pa-0" dark>
-                      <v-icon>more_vert</v-icon>
-                    </v-btn>
-                    <v-list>
-                      <v-list-tile @click="markWatched(contents)">
-                        <v-list-tile-title>Mark as played</v-list-tile-title>
-                      </v-list-tile>
-                      <v-list-tile :href="'https://app.plex.tv/desktop#!/server/' + contents.machineIdentifier + '/details?key=' + contents.key" target="_blank">
-                        <v-list-tile-title>Open in Plex Web</v-list-tile-title>
-                      </v-list-tile>
-                    </v-list>
-                  </v-menu></span></h1>
+                <v-flex xs12 md9 sm12>
+                  <h1>
+                    {{ title }}
+                    <span style="float: right">
+                      <v-menu>
+                        <v-btn icon slot="activator" class="ma-0 pa-0" dark>
+                          <v-icon>more_vert</v-icon>
+                        </v-btn>
+                        <v-list>
+                          <v-list-tile @click="markWatched(contents)">
+                            <v-list-tile-title>Mark as played</v-list-tile-title>
+                          </v-list-tile>
+                          <v-list-tile :href="'https://app.plex.tv/desktop#!/server/' + contents.machineIdentifier + '/details?key=' + contents.key" target="_blank">
+                            <v-list-tile-title>Open in Plex Web</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                    </span>
+                  </h1>
                   <h4 v-if="contents.type === 'episode'">  Season {{ contents.parentIndex }} Episode {{ contents.index }} ({{ contents.year }}) </h4>
                   <h2 v-if="contents.type === 'episode'">{{ contents.title }} </h2>
                   <h3 v-else>{{ contents.year }}</h3>
@@ -111,7 +116,7 @@
                 </v-flex>
               </v-layout>
               <v-divider></v-divider>
-              <div v-if="subsetParentData(6).length >= 0 && contents.type == 'episode' && playable" style="background: rgba(0,0,0,0.3)">
+              <div v-if="subsetParentData(6).length >= 0 && contents.type == 'episode' && playable" class="hidden-xs-only">
                 <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>
                 <v-layout v-if="parentData" row wrap justify-start>
                     <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)" :key="ep.key">
