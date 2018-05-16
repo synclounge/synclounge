@@ -140,6 +140,14 @@ export default {
         })
         return
       }
+      if (data.command === '/player/playback/playMedia') {
+        console.log('Processing play command', data)
+        this.chosenKey = data.params.key
+        this.chosenMediaIndex = data.params.mediaIndex || 0
+        this.chosenServer = this.plex.servers[data.params.params.chosenServer]
+        this.playertime = data.params.offset
+        this.changedPlaying(true)
+      }
       if (data.command === '/player/playback/stop') {
         this.ready = false
         this.chosenKey = null

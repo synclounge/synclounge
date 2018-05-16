@@ -52,6 +52,7 @@ function generateGuid () {
   }
   return s4() + s4() + s4() + s4()
 }
+
 // Set up out web app socket for fetching short urls
 
 const state = {
@@ -72,6 +73,7 @@ const state = {
   lastRatingKey: null,
   manualSyncQueued: false,
   uuid: generateGuid(),
+  upNextCache: {},
   // SETTINGS
   DARKMODE: JSON.parse(getSetting('DARKMODE')),
   AUTOPLAY: getSetting('AUTOPLAY'),
@@ -378,6 +380,24 @@ const actions = {
       commit('SET_VALUE', ['lastRatingKey', timeline.ratingKey])
       dispatch('PLAYBACK_CHANGE', [client, timeline.ratingKey, timeline])
     }
+
+    // Check if we need to activate the upnext feature
+    if (state.me.role === 'host') {
+      if (Math.abs(timeline.duration - timeline.time) < 10000) {
+        if (!state.upNextCache[timeline.machineIdentifier]) {
+          state.upNextCache[timeline.machineIdentifier] = {}
+        }
+        if (!state.upNextCache[timeline.machineIdentifier][timeline.key]) {
+          state.upNextCache[timeline.machineIdentifier][timeline.key] = {
+            loading: true
+          }
+          state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.key).then((data) => {
+            state.upNextCache[timeline.machineIdentifier][timeline.key] = data
+          })
+        }
+      }
+    }
+
     // state.ourClientResponseTime = timeline.lastResponseTime
     let title = null
     let rawTitle = null

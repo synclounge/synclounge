@@ -84,7 +84,8 @@
               {{ item.text }}
             </v-breadcrumbs-item>
           </v-breadcrumbs>
-          <router-view ></router-view>
+          <router-view></router-view>
+          <upnext v-if="showUpNext"></upnext>
         </div>
         <v-snackbar
           color="green darken-2"
@@ -104,10 +105,12 @@ import './assets/css/style.css'
 
 import drawerright from './sidebar'
 import leftsidebar from './leftsidebar'
+import upnext from './upnext'
 
 export default {
   components: {
     drawerright,
+    upnext,
     leftsidebar
   },
   data () {
@@ -243,6 +246,29 @@ export default {
     },
     libraryCache: function () {
       return this.$store.getters.getLibraryCache
+    },
+    showUpNext: function () {
+      return true
+      let ratingKey
+      if (!this.chosenClient || !this.chosenClient.lastTimelineObject) {
+        return false
+      }
+      ratingKey = this.chosenClient.lastTimelineObject.ratingKey
+      if (ratingKey === this.override) {
+        return false
+      }
+      let cache = this.$store.state.upNextCache
+      let machineIdentifier = this.chosenClient.lastTimelineObject.machineIdentifier
+      if (!cache[machineIdentifier]) {
+        return false
+      }
+      if (!cache[machineIdentifier][ratingKey]) {
+        return false
+      }
+      if (cache[machineIdentifier][ratingKey].loading) {
+        return false
+      }
+      return true
     },
     extAvailable: function () {
       return this.$store.getters.getExtAvailable
