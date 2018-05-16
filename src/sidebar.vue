@@ -104,9 +104,9 @@ export default {
         var options = {
           container: '#chatbox',
           easing: 'ease-in',
-          cancelable: true
+          cancelable: false
         }
-        this.$scrollTo('#lastMessage', 200, options)
+        this.$scrollTo('#lastMessage', 0, options)
       })
     }
   },
@@ -225,11 +225,6 @@ export default {
       return arr
     },
     transferHost: function (username) {
-      window.x = {
-        username: username,
-        this: this
-      }
-      console.log('transfering host', window.x)
       this.$store.dispatch('transferHost', username)
     },
     handleDisconnect: async function () {

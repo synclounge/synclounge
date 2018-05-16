@@ -404,7 +404,6 @@ const actions = {
       status,
       machineIdentifier: state.chosenClient.lastTimelineObject.machineIdentifier
     }
-    console.log('Sending in poll', endObj)
     if (state.synclounge._socket) {
       state.synclounge._socket.pollStartTime = (new Date()).getTime()
       state.synclounge._socket.emit('poll', endObj)

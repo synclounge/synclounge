@@ -3,6 +3,8 @@ var safeParse = require('safe-json-parse/callback')
 var _PlexAuth = require('./PlexAuth.js')
 var PlexAuth = new _PlexAuth()
 
+const axios = require('axios')
+
 module.exports = function PlexServer () {
   this.name = ''
   this.product = ''
@@ -38,27 +40,31 @@ module.exports = function PlexServer () {
   this.hitApi = function (command, params) {
     return new Promise(async (resolve, reject) => {
       try {
-        let query = ''
-        // console.log('Query params: ' + JSON.stringify(params))
-        for (let key in params) {
-          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-        }
         if (!this.chosenConnection) {
           let result = await this.findConnection()
           if (!result) {
             return reject(new Error('Failed to find a connection'))
           }
         }
-        var _url = this.chosenConnection.uri + command + '?' + query
-        var options = PlexAuth.getApiOptions(_url, this.accessToken, 15000, 'GET')
-        request(options, (error, response, body) => {
-          if (!error) {
-            let parsed = JSON.parse(body)
-            console.log('Metadata request result', parsed)
-            this.handleMetadata(parsed)
-            return resolve(parsed)
-          } else return reject(error)
+        var options = PlexAuth.getApiOptions('', this.accessToken, 15000, 'GET')
+        axios.get(this.chosenConnection.uri + command, {
+          params,
+          headers: options.headers
         })
+          .then((response) => {
+            this.handleMetadata(response.data)
+            resolve(response.data)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+        // request(options, (error, response, body) => {
+        //   if (!error) {
+        //     let parsed = JSON.parse(body)
+        //     this.handleMetadata(parsed)
+        //     return resolve(parsed)
+        //   } else return reject(error)
+        // })
       } catch (e) {
         console.log(e)
         reject(e)
@@ -141,6 +147,7 @@ module.exports = function PlexServer () {
       if (data && data.MediaContainer.librarySectionID) {
         this.commit('SET_LIBRARYCACHE', [data.MediaContainer.librarySectionID, this.clientIdentifier, data.MediaContainer.librarySectionTitle])
       }
+      this.getPostplay(ratingKey)
       return data
     } catch (e) {
       console.log(e)
@@ -153,6 +160,9 @@ module.exports = function PlexServer () {
       identifier: 'com.plexapp.plugins.library',
       key: ratingKey
     })
+  }
+  this.getPostplay = function (ratingKey) {
+    return this.hitApi('/hubs/metadata/' + ratingKey + '/postplay', { 'X-Plex-Token': this.accessToken })
   }
   this.getUrlForLibraryLoc = function (location, width, height, blur) {
     if (!(blur > 0)) {
