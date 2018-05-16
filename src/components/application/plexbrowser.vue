@@ -60,14 +60,14 @@
       </div>
       <v-divider></v-divider>
       <div class="pt-4" v-if="validLastServer && results.length == 0">
-        <h4 v-if="subsetOnDeck(3).length > 0"> Continue watching from {{ lastServer.name }}
+        <h4 v-if="subsetOnDeck().length > 0"> Continue watching from {{ lastServer.name }}
           <span style="float:right; font-size:5rem; user-select: none;">
             <v-icon @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
           </span>
         </h4>
         <v-layout v-if="onDeck" row>
-          <v-flex xs12 md4 xl3 class="pb-3 pa-4" v-for="content in subsetOnDeck(3)" :key="content.key" >
-            <plexthumb :content="content" :server="lastServer" height="20" type="art" @contentSet="setContent(content)"></plexthumb>
+          <v-flex xs12 md4 xl3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
+            <plexthumb :content="content" :server="lastServer" type="art" @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
       </div>
@@ -169,7 +169,7 @@ export default {
       }
       return this.onDeck.MediaContainer.Metadata.slice(
         this.onDeckOffset,
-        this.onDeckOffset + size
+        this.onDeckOffset + this.onDeckItemsPer
       )
     },
     reset () {
@@ -316,6 +316,15 @@ export default {
   computed: {
     plex () {
       return this.$store.getters.getPlex
+    },
+    onDeckItemsPer () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 1
+        case 'sm': return 2
+        case 'md': return 3
+        case 'lg': return 4
+        case 'xl': return 4
+      }
     },
     availableServers () {
       let servers = this.plex.servers.filter(function (server) {
