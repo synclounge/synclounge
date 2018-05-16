@@ -26,7 +26,7 @@
                     </span>
                   </span>
                 </div>
-                <v-container fill-height fluid class="pa-0" style="background: linear-gradient(to top, rgba(0, 0, 0, 5), rgba(0, 0, 0, 00)); background-position-y:bottom; background-repeat:no-repeat; background-size:100% 60%; max-width:100%">
+                <v-container fill-height fluid class="pa-0" style="max-width:100%">
                   <v-layout row wrap justify-end align-end>
                     <v-flex xs12>
                       <v-progress-linear style="width:100%" class="pa-0 mb-0 ma-0 pt-content-progress" v-if="showProgressBar" height="1" :value="unwatchedPercent"></v-progress-linear>
