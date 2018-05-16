@@ -34,7 +34,7 @@
               <v-list-tile-content>
                 <v-tooltip bottom color="primary">
                   <span slot="activator">
-                    <v-list-tile-title> {{ user.username }}</v-list-tile-title>
+                    <v-list-tile-title> {{ user.username }} <span style="opacity: 0.6" v-if="user.uuid === me.uuid"> (you) </span></v-list-tile-title>
                     <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
                   </span>
                   Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
@@ -113,6 +113,9 @@ export default {
   computed: {
     plex: function () {
       return this.$store.getters.getPlex
+    },
+    me: function () {
+      return this.$store.state.me
     },
     chosenClient: function () {
       return this.$store.getters.getChosenClient
