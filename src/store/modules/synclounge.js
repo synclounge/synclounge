@@ -266,6 +266,10 @@ export default {
                       return resolve()
                     }
                     // We need to autoplay!
+                    if (!rootState.AUTOPLAY) {
+                      console.log('AUTOPLAY is disabled', rootState.AUTOPLAY)
+                      return resolve()
+                    }
                     rootState.blockAutoPlay = true
 
                     let blockedServers = rootState.BLOCKEDSERVERS

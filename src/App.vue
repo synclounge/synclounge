@@ -67,7 +67,7 @@
     </v-toolbar>
     <v-content v-bind:style="mainStyle">
       <v-container class="ma-0 pa-0" align-start :style="containerStyle" style="height: 100%" fluid>
-        <v-flex xs12 v-if="(loading || !plex.gotDevices) && route.meta.protected">
+        <v-flex xs12 v-if="(loading || !plex.gotDevices)">
           <v-container fill-height>
             <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
               <v-flex xs8 md4>

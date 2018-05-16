@@ -27,6 +27,15 @@
         hint="Sets the syncing method used when we need to get back in line with the host."></v-radio>
       </v-radio-group>
     </div>
+    <div style="text-align:center" class="pt-4">
+      <h4 style="text-align:initial">Autoplay</h4>
+      <div></div>
+        <v-switch
+          label="Enabled"
+          hint="If enabled SyncLounge will attempt to automatically play the same content as the host."
+          v-model="autoplay"
+        ></v-switch>
+    </div>
   </div>
 </template>
 
@@ -49,6 +58,14 @@ export default {
     },
     appVersion () {
       return this.$store.state.appVersion
+    },
+    autoplay: {
+      get () {
+        return this.$store.getters.getSettingAUTOPLAY
+      },
+      set (value) {
+        this.$store.commit('setSettingAUTOPLAY', value)
+      }
     },
     syncmode: {
       get () {

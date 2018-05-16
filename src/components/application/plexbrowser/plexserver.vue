@@ -35,7 +35,7 @@
         </v-layout>
         <v-layout v-if="onDeck" row wrap>
           <v-flex xs12 sm6 md4 lg3 class="pb-3 pa-1" v-for="content in subsetOnDeck()" :key="content.key" >
-            <plexthumb :content="content" :server="server" type="art" style="height: 30vh" @contentSet="setContent(content)"></plexthumb>
+            <plexthumb :content="content" :server="server" type="art" height="25" @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
         <v-divider v-if="subsetRecentlyAdded(recentItemsPer).length > 0" class="mt-3 ma-2"></v-divider>
@@ -49,7 +49,7 @@
           </v-flex>
         </v-layout>
         <v-layout v-if="recentlyAdded" class="row pt-2" row wrap justify-space-between>
-          <v-flex xs4 sm2 md1 xl1 lg1 class="pb-3 pa-1" v-for="content in subsetRecentlyAdded(recentItemsPer)" :key="content.key">
+          <v-flex xs4 sm2 md1 xl1 lg1 class="pb-3 pa-3" v-for="content in subsetRecentlyAdded(recentItemsPer)" :key="content.key">
             <plexthumb :content="content" :server="server" type="thumb" fullTitle locked @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>

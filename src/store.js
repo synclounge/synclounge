@@ -24,11 +24,25 @@ function sendNotification (message) {
 if (!getSetting('INIT')) {
   // Initially setup our settings
   setSetting('CLIENTPOLLINTERVAL', 1000)
+  setSetting('AUTOPLAY', true)
   setSetting('DARKMODE', false)
   setSetting('SYNCMODE', 'cleanseek')
   setSetting('SYNCFLEXABILITY', 3000)
   setSetting('CUSTOMSERVER', 'http://')
   setSetting('INIT', true)
+}
+let defaultSettings = {
+  CLIENTPOLLINTERVAL: 1000,
+  AUTOPLAY: true,
+  DARKMODE: false,
+  SYNCMODE: 'cleanseak',
+  SYNCFLEXABILITY: 3000,
+  CUSTOMSERVER: 'http://'
+}
+for (let i in defaultSettings) {
+  if (getSetting(i) === undefined || getSetting(i) === null) {
+    setSetting(i, defaultSettings[i])
+  }
 }
 // Set up out web app socket for fetching short urls
 
@@ -51,6 +65,7 @@ const state = {
   manualSyncQueued: false,
   // SETTINGS
   DARKMODE: JSON.parse(getSetting('DARKMODE')),
+  AUTOPLAY: getSetting('AUTOPLAY'),
   CLIENTPOLLINTERVAL: getSetting('CLIENTPOLLINTERVAL'),
   SYNCMODE: getSetting('SYNCMODE'),
   SYNCFLEXABILITY: getSetting('SYNCFLEXABILITY'),
@@ -128,6 +143,10 @@ const mutations = {
   setSettingSYNCMODE (state, data) {
     setSetting('SYNCMODE', data)
     state.SYNCMODE = data
+  },
+  setSettingAUTOPLAY (state, data) {
+    setSetting('AUTOPLAY', data)
+    state.AUTOPLAY = data
   },
   setSettingSYNCFLEXABILITY (state, data) {
     setSetting('SYNCFLEXABILITY', data)
@@ -246,6 +265,9 @@ const getters = {
   // SETTINGS
   getSettingCLIENTPOLLINTERVAL: state => {
     return state.CLIENTPOLLINTERVAL
+  },
+  getSettingAUTOPLAY: state => {
+    return state.AUTOPLAY
   },
   getSettingSYNCMODE: state => {
     return state.SYNCMODE
