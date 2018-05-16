@@ -142,10 +142,10 @@ export default {
       }
       if (data.command === '/player/playback/playMedia') {
         console.log('Processing play command', data)
-        this.chosenKey = data.params.key
+        this.chosenKey = data.params.key.replace('/library/metadata/', '')
         this.chosenMediaIndex = data.params.mediaIndex || 0
         this.chosenServer = this.plex.servers[data.params.params.chosenServer]
-        this.playertime = data.params.offset
+        this.playertime = data.params.offset || 0
         this.changedPlaying(true)
       }
       if (data.command === '/player/playback/stop') {
@@ -229,8 +229,7 @@ export default {
     },
     chosenAudioTrackIndex: function () {
       // console.log('Audio track change')
-      let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex]
-        .Part[0].Stream[this.chosenAudioTrackIndex].id
+      let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id
       let baseparams = this.getSourceByLabel(this.chosenQuality).params
       let params = {
         audioStreamID: audioStreamID,

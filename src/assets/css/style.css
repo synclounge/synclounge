@@ -127,6 +127,10 @@ main {
   color: #ffffff;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 span {
   color: #fff;
 }

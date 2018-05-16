@@ -248,7 +248,6 @@ export default {
       return this.$store.getters.getLibraryCache
     },
     showUpNext: function () {
-      return true
       let ratingKey
       if (!this.chosenClient || !this.chosenClient.lastTimelineObject) {
         return false

@@ -188,6 +188,7 @@ export default {
     onPlayerLoaded (player) {
     },
     onPlayerEnded (player) {
+      this.$router.push('/browse')
       this.$emit('playbackEnded')
     },
     onPlayerCanplay (player) {

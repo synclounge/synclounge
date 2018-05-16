@@ -1,50 +1,40 @@
 <template>
-  <v-bottom-sheet v-model="sheet" max-width="250px" hide-overlay persistent>
-    <v-container align-center justify-start v-show="item" class="toolbar pa-0">
-      <v-layout row wrap class="pa-2">
-        <v-flex xs12>
-          <h1>Coming up next</h1>
-        </v-flex>
-      </v-layout>
-      <v-layout row wrap justify-start align-start v-if="content && !content.loading" class="pa-2">
-        <v-card flat style="background: none" class="white--text">
+  <v-bottom-sheet v-model="sheet" hide-overlay persistent>
+    <v-card v-if="ready && content && !content.loading" style="max-width: 100%; margin-left: auto; margin-right: auto" class="white--text" :img="background">
+      <v-container fluid align-center justify-start v-show="ready" class="pa-0" style="background: rgba(0,0,0,0.7);">
+        <v-card-title>
+          <h2>Coming up next</h2>
+          <v-spacer></v-spacer>
+          <v-icon @click="sheet = false" class="clickable">close</v-icon>
+        </v-card-title>
+        <v-layout row wrap justify-start align-start class="pa-2">
           <v-container fluid grid-list-lg>
             <v-layout row>
-              <v-flex xs3 sm1>
+              <v-flex xs3 sm2>
                 <v-card-media
                 :src="thumb"
                   height="125px"
                   contain
                 ></v-card-media>
               </v-flex>
-              <v-flex xs7 sm5>
+              <v-flex>
                 <div>
                   <div class="headline">{{ getTitle }}</div>
                   <div>{{ getUnder }}</div>
                   <h5>From {{ plexserver.name }}</h5>
-                  <p> {{ item.summary }}</p>
                 </div>
-              </v-flex>
-              <v-flex xs2 sm6 class="text-xs-center">
-                <v-container class="pa-0">
-                  <v-layout row wrap justify-center align-center>
-                    <v-flex xs12>
-                      <v-btn @click="pressPlay" fab dark large color="primary">
-                        <v-icon dark>play_arrow</v-icon>
-                      </v-btn>
-                    </v-flex>
-                    <v-flex xs12>
-                      Play Now
-                    </v-flex>
-                  </v-layout>
-                </v-container>
+                <div class="text-xs-right">
+                <span>1.1s</span>
+                <v-btn @click="pressPlay" color="primary">Play Now</v-btn>
+                <v-btn flat>Cancel</v-btn>
+                </div>
               </v-flex>
             </v-layout>
           </v-container>
-        </v-card>
-      </v-layout>
-      <v-progress-linear :value="90" class="pa-0 ma-0" height="3"></v-progress-linear>
-    </v-container>
+        </v-layout>
+        <v-progress-linear :value="percent" class="pa-0 ma-0" height="3"></v-progress-linear>
+      </v-container>
+    </v-card>
   </v-bottom-sheet>
 </template>
 
@@ -55,15 +45,26 @@ export default {
   },
   data () {
     return {
-      sheet: true
+      sheet: true,
+      maxTimer: 10000,
+      timer: 10000,
+      cache: {}
     }
   },
   mounted: async function () {
-    setTimeout(() => {
-      if (this.sheet) {
-        console.log('We should autoplay!')
+
+  },
+  watch: {
+    item: function (to) {
+      if (to) {
+        this.cache[to.ratingKey] = to
       }
-    }, 10000)
+    },
+    ready: function (to) {
+      if (to) {
+        this.startTimer()
+      }
+    }
   },
   methods: {
     pressPlay: function () {
@@ -73,9 +74,33 @@ export default {
         server: this.plexserver,
         offset: 0
       })
+    },
+    startTimer: function () {
+      let ratingKey = this.item.ratingKey
+      let ticker = setInterval(() => {
+        this.timer = this.timer - 50
+        if (this.timer < 1) {
+          this.pressPlay(this.cache[ratingKey])
+          clearInterval(ticker)
+        }
+      }, 50)
     }
   },
   computed: {
+    ready: function () {
+      return (
+        this.chosenClient &&
+        this.chosenClient.lastTimelineObject &&
+        this.$store.state.upNextCache[this.chosenClient.lastTimelineObject.machineIdentifier] &&
+        this.$store.state.upNextCache[this.chosenClient.lastTimelineObject.machineIdentifier][this.chosenClient.lastTimelineObject.key]
+      )
+    },
+    percent: function () {
+      return (this.maxTimer / this.timer) * 100
+    },
+    background: function () {
+      return this.plexserver.getUrlForLibraryLoc(this.item.art, 1000, 450)
+    },
     plex: function () {
       return this.$store.getters.getPlex
     },
