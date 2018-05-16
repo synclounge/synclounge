@@ -128,7 +128,7 @@ ptserver_io.on('connection', function (socket) {
     // Recieved an update from a user
     updateUserData(socket.selfUser.username, data, socket.selfUser.room)
 
-    socket.emit('poll-result', ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users)
+    socket.emit('poll-result', ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users, socket.selfUser)
     if (socket.selfUser.role === 'host') {
       // We're the host, broadcast to all clients our data
       var temp = {}
@@ -210,6 +210,7 @@ ptserver_io.on('connection', function (socket) {
         user.playerProduct = userData.playerProduct || ''
         user.status = userData.status || 'unknown'
         user.machineIdentifier = userData.machineIdentifier || ''
+        user.uuid = userData.uuid
         console.log('User is now', user)
         return
       }

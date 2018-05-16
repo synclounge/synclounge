@@ -58,13 +58,6 @@ module.exports = function PlexServer () {
           .catch((error) => {
             reject(error)
           })
-        // request(options, (error, response, body) => {
-        //   if (!error) {
-        //     let parsed = JSON.parse(body)
-        //     this.handleMetadata(parsed)
-        //     return resolve(parsed)
-        //   } else return reject(error)
-        // })
       } catch (e) {
         console.log(e)
         reject(e)

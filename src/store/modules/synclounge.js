@@ -8,12 +8,13 @@ function sendNotification (message) {
   return window.EventBus.$emit('notification', message)
 }
 
-function HandshakeUser (user, room, password) {
+function HandshakeUser (user, room, password, uuid) {
   var tempUser = {
-    'username': user.username,
-    'room': room,
-    'password': password,
-    'avatarUrl': user.thumb
+    username: user.username,
+    room: room,
+    password: password,
+    avatarUrl: user.thumb,
+    uuid: uuid
   }
   return tempUser
 }
@@ -154,7 +155,7 @@ export default {
           return reject(new Error('Not connected to a server!'))
         }
         commit('SET_PASSWORD', data.password)
-        state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password))
+        state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid))
         state._socket.on('join-result', async (result, _data, details, currentUsers) => {
           commit('CLEAR_MESSAGES')
           if (result) {
@@ -203,7 +204,9 @@ export default {
             // Now we need to setup events for dealing with the PTServer.
             // We will regularly be recieving and sending data to and from the server.
             // We want to make sure we are listening for all the server events
-            state._socket.on('poll-result', (users) => {
+            state._socket.on('poll-result', (users, me) => {
+              console.log('Got me data', me)
+              commit('SET_VALUE', ['me', me])
               commit('SET_OURCLIENTRESPONSETIME', Math.abs((new Date().getTime()) - state._socket.pollStartTime))
               commit('SET_USERS', users)
             })

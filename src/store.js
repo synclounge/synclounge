@@ -44,6 +44,14 @@ for (let i in defaultSettings) {
     setSetting(i, defaultSettings[i])
   }
 }
+function generateGuid () {
+  function s4 () {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1)
+  }
+  return s4() + s4() + s4() + s4()
+}
 // Set up out web app socket for fetching short urls
 
 const state = {
@@ -63,6 +71,7 @@ const state = {
   extAvailable: false,
   lastRatingKey: null,
   manualSyncQueued: false,
+  uuid: generateGuid(),
   // SETTINGS
   DARKMODE: JSON.parse(getSetting('DARKMODE')),
   AUTOPLAY: getSetting('AUTOPLAY'),
@@ -75,7 +84,8 @@ const state = {
   PTPLAYERQUALITY: getSetting('PTPLAYERQUALITY'),
   PTPLAYERVOLUME: getSetting('PTPLAYERVOLUME'),
   LASTSERVER: getSetting('LASTSERVER'),
-  stats: {}
+  stats: {},
+  me: {}
 }
 
 const mutations = {
@@ -402,7 +412,10 @@ const actions = {
       clientResponseTime: state.chosenClient.lastResponseTime,
       playerProduct: state.chosenClient.product,
       status,
-      machineIdentifier: state.chosenClient.lastTimelineObject.machineIdentifier
+      uuid: state.uuid
+    }
+    if (state.chosenClient && state.chosenClient.lastTimelineObject) {
+      endObj.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier
     }
     if (state.synclounge._socket) {
       state.synclounge._socket.pollStartTime = (new Date()).getTime()
