@@ -23,7 +23,7 @@
         </v-flex>
 
         <v-subheader>Users ({{ ptUsers.length }})</v-subheader>
-        <v-list dense three-line style="overflow-y:scroll; max-height: 40vh; background: none">
+        <v-list dense two-line style="overflow-y:scroll; max-height: 40vh; background: none">
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
             <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
               <v-list-tile-avatar>
