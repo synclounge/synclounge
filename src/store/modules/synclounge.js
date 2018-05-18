@@ -206,7 +206,6 @@ export default {
             // We want to make sure we are listening for all the server events
             state._socket.on('poll-result', (users, me) => {
               commit('SET_VALUE', ['me', me])
-              commit('SET_OURCLIENTRESPONSETIME', Math.abs((new Date().getTime()) - state._socket.pollStartTime))
               commit('SET_USERS', users)
             })
             state._socket.on('user-joined', (users, user) => {

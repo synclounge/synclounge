@@ -37,7 +37,8 @@ let defaultSettings = {
   DARKMODE: false,
   SYNCMODE: 'cleanseak',
   SYNCFLEXABILITY: 3000,
-  CUSTOMSERVER: 'http://'
+  CUSTOMSERVER: 'http://',
+  SLPLAYERFORCETRANSCODE: true
 }
 for (let i in defaultSettings) {
   if (getSetting(i) === undefined || getSetting(i) === null) {
@@ -61,7 +62,7 @@ const state = {
   background: null,
   shownChat: false,
   chosenClient: null,
-  chosenClientTimeSet: (new Date()).getTime(),
+  chosenClientTimeSet: new Date().getTime(),
   plexuser: JSON.parse(window['localStorage'].getItem('plexuser')),
   blockAutoPlay: false,
   autoJoin: false,
@@ -82,10 +83,11 @@ const state = {
     SYNCMODE: getSetting('SYNCMODE'),
     SYNCFLEXABILITY: getSetting('SYNCFLEXABILITY'),
     CUSTOMSERVER: getSetting('CUSTOMSERVER'),
-    BLOCKEDSERVERS: JSON.parse(window['localStorage'].getItem('BLOCKEDSERVERS')),
+    BLOCKEDSERVERS: getSetting('BLOCKEDSERVERS'),
     HOMEINIT: getSetting('HOMEINIT'),
     PTPLAYERQUALITY: getSetting('PTPLAYERQUALITY'),
-    PTPLAYERVOLUME: getSetting('PTPLAYERVOLUME')
+    PTPLAYERVOLUME: getSetting('PTPLAYERVOLUME'),
+    SLPLAYERFORCETRANSCODE: getSetting('SLPLAYERFORCETRANSCODE')
   },
 
   LASTSERVER: getSetting('LASTSERVER'),
@@ -152,50 +154,22 @@ const mutations = {
     Vue.set(state.settings, data[0], data[1])
     setSetting(data[0], data[1])
   },
-  // setSettingCLIENTPOLLINTERVAL (state, data) {
-  //   setSetting('CLIENTPOLLINTERVAL', data)
-  //   state.CLIENTPOLLINTERVAL = data
-  // },
-  // setSettingSYNCMODE (state, data) {
-  //   setSetting('SYNCMODE', data)
-  //   state.SYNCMODE = data
-  // },
-  // setSettingAUTOPLAY (state, data) {
-  //   setSetting('AUTOPLAY', data)
-  //   state.AUTOPLAY = data
-  // },
-  // setSettingSYNCFLEXABILITY (state, data) {
-  //   setSetting('SYNCFLEXABILITY', data)
-  //   state.SYNCFLEXABILITY = data
-  // },
-  // setSettingCUSTOMSERVER (state, data) {
-  //   setSetting('CUSTOMSERVER', data)
-  //   state.CUSTOMSERVER = data
-  // },
-  // setSettingDARKMODE (state, data) {
-  //   setSetting('DARKMODE', data)
-  //   state.DARKMODE = data
-  // },
-  // setSettingBLOCKEDSERVERS (state, data) {
-  //   window['localStorage'].setItem('BLOCKEDSERVERS', JSON.stringify(data))
-  //   state.BLOCKEDSERVERS = data
-  // },
-  // setSettingPTPLAYERQUALITY (state, data) {
-  //   window['localStorage'].setItem('PTPLAYERQUALITY', JSON.stringify(data))
-  //   state.PTPLAYERQUALITY = data
-  // },
-  // setSettingPTPLAYERVOLUME (state, data) {
-  //   window['localStorage'].setItem('PTPLAYERVOLUME', JSON.stringify(data))
-  //   state.PTPLAYERVOLUME = data
-  // },
-  // setSettingLASTSERVER (state, data) {
-  //   window['localStorage'].setItem('LASTSERVER', data)
-  //   state.LASTSERVER = data
-  // },
-  // setSettingHOMEINIT (state, data) {
-  //   setSetting('HOMEINIT', data)
-  //   state.HOMEINIT = data
-  // },
+  setSettingPTPLAYERQUALITY (state, data) {
+    window['localStorage'].setItem('PTPLAYERQUALITY', JSON.stringify(data))
+    state.PTPLAYERQUALITY = data
+  },
+  setSettingPTPLAYERVOLUME (state, data) {
+    window['localStorage'].setItem('PTPLAYERVOLUME', JSON.stringify(data))
+    state.PTPLAYERVOLUME = data
+  },
+  setSettingLASTSERVER (state, data) {
+    window['localStorage'].setItem('LASTSERVER', data)
+    state.LASTSERVER = data
+  },
+  setSettingHOMEINIT (state, data) {
+    setSetting('HOMEINIT', data)
+    state.HOMEINIT = data
+  },
   REFRESH_PLEXDEVICES () {
     store.state.plex.getDevices(() => {})
   },
@@ -257,36 +231,15 @@ const getters = {
   getSettings: state => {
     return state.settings
   },
-  // getSettingCLIENTPOLLINTERVAL: state => {
-  //   return state.CLIENTPOLLINTERVAL
-  // },
-  // getSettingAUTOPLAY: state => {
-  //   return state.AUTOPLAY
-  // },
-  // getSettingSYNCMODE: state => {
-  //   return state.SYNCMODE
-  // },
-  // getSettingSYNCFLEXABILITY: state => {
-  //   return state.SYNCFLEXABILITY
-  // },
-  // getSettingCUSTOMSERVER: state => {
-  //   return state.CUSTOMSERVER
-  // },
-  // getSettingDARKMODE: state => {
-  //   return state.DARKMODE
-  // },
-  // getSettingBLOCKEDSERVERS: state => {
-  //   return state.BLOCKEDSERVERS
-  // },
-  // getSettingHOMEINIT: state => {
-  //   return state.HOMEINIT
-  // },
-  // getSettingPTPLAYERQUALITY: state => {
-  //   return state.PTPLAYERQUALITY
-  // },
-  // getSettingPTPLAYERVOLUME: state => {
-  //   return state.PTPLAYERVOLUME
-  // },
+  getSettingHOMEINIT: state => {
+    return state.HOMEINIT
+  },
+  getSettingPTPLAYERQUALITY: state => {
+    return state.PTPLAYERQUALITY
+  },
+  getSettingPTPLAYERVOLUME: state => {
+    return state.PTPLAYERVOLUME
+  },
   getSettingLASTSERVER: state => {
     return state.LASTSERVER
   },

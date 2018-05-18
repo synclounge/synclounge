@@ -325,6 +325,9 @@ export default {
       // Helper for our watch chosenCombo
       return this.chosenKey || this.chosenServer
     },
+    settings: function () {
+      return this.$store.state.settings
+    },
     chosenClient () {
       return this.$store.getters.getChosenClient
     },
@@ -678,9 +681,12 @@ export default {
         'X-Plex-Platform-Version': '57.0',
         'X-Plex-Device': 'Web',
         'X-Plex-Device-Name': 'SyncLounge',
-        'X-Plex-Device-Screen-Resolution':
-          window.screen.availWidth + 'x' + window.screen.availHeight,
+        'X-Plex-Device-Screen-Resolution': window.screen.availWidth + 'x' + window.screen.availHeight,
         'X-Plex-Token': this.chosenServer.accessToken
+      }
+      if (JSON.parse(this.settings.SLPLAYERFORCETRANSCODE)) {
+        params.directStream = 0
+        params['X-Plex-Device'] = 'HTML TV App'
       }
       for (let key in overrideparams) {
         if (!overrideparams[key]) {

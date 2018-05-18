@@ -29,12 +29,19 @@
     </div>
     <div style="text-align:center" class="pt-4">
       <h4 style="text-align:initial">Autoplay</h4>
-      <div></div>
+      <v-switch
+        label="Enabled"
+        hint="If enabled SyncLounge will attempt to automatically play the same content as the host."
+        v-model="autoplay"
+      ></v-switch>
+    </div>
+    <div style="text-align:center" class="pt-4">
+      <h4 style="text-align:initial">SLPlayer Force Transcode</h4>
         <v-switch
           label="Enabled"
-          hint="If enabled SyncLounge will attempt to automatically play the same content as the host."
-          v-model="autoplay"
+          v-model="SLPLAYERFORCETRANSCODE"
         ></v-switch>
+      <small>WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.</small>
     </div>
   </div>
 </template>
@@ -58,6 +65,14 @@ export default {
     },
     appVersion () {
       return this.$store.state.appVersion
+    },
+    SLPLAYERFORCETRANSCODE: {
+      get () {
+        return JSON.parse(this.$store.getters.getSettings['SLPLAYERFORCETRANSCODE'])
+      },
+      set (value) {
+        this.$store.commit('setSetting', ['SLPLAYERFORCETRANSCODE', value])
+      }
     },
     autoplay: {
       get () {
