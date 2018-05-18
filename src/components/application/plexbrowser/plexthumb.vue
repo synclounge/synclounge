@@ -1,8 +1,9 @@
 <template>
   <div class="portrait" ref="root" style="cursor: pointer" @mouseover="hovering = true" @mouseout="hovering = false">
     <router-link :to="link">
-      <v-card data-tilt flat v-on:click.native="emitContentClicked(content)" class="grey darken-4 elevation-20" style="border-radius: 0px !important">
+      <v-card  flat v-on:click.native="emitContentClicked(content)" class="grey darken-4 elevation-20" style="border-radius: 0px !important">
         <v-card-media
+          data-tilt
           class="white--text"
           style="position:relative"
           :height="calculatedHeight"
@@ -95,7 +96,7 @@ export default {
         reverse: true, // reverse the tilt direction
         max: 7, // max tilt rotation (degrees)
         perspective: 1000, // Transform perspective, the lower the more extreme the tilt gets.
-        scale: 1.02, // 2 = 200%, 1.5 = 150%, etc..
+        scale: 1.01, // 2 = 200%, 1.5 = 150%, etc..
         speed: 100, // Speed of the enter/exit transition
         transition: true, // Set a transition on enter/exit.
         axis: null, // What axis should be disabled. Can be X or Y.
@@ -115,11 +116,7 @@ export default {
       return this.$store.getters.getPlex
     },
     serverId () {
-      return (
-        this.$route.params.machineIdentifier ||
-        this.server.clientIdentifier ||
-        this.$route.params.clientIdentifier
-      )
+      return (this.$route.params.machineIdentifier || this.server.clientIdentifier || this.$route.params.clientIdentifier)
     },
     link () {
       if (this.content.type === 'episode') {

@@ -1,62 +1,64 @@
 <template>
   <div>
-    <div v-if="!browsingServer && !selectedItem && !browsingContent">
+    <div>
       <h4> Search </h4>
-      <v-layout class="mb-3" v-if="!selectedItem && !browsingServer" row wrap>
-        <v-flex xs10 lg4>
-          <v-text-field
-            name="searchInput"
-            label="Search"
-            :hint="searchStatus"
-            id="testing"
-            persistent-hint
-            single-line
-            prepend-icon="search"
-            v-model="searchWord"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs2>
-          <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''" style="cursor:pointer;" class="red--text">clear</v-icon>
-        </v-flex>
-      </v-layout>
-      <v-layout row wrap v-if="searching || results.length > 0">
-         <v-chip v-for="server in plex.servers" :key="server.machineIdentifier" outline class="green darken-3 white--text">
-           <v-avatar>
-             <v-icon v-if="!heardBack(server)">clear</v-icon>
-            <v-icon v-if="heardBack(server)">check_circle</v-icon>
-          </v-avatar>
-          {{ server.name }}
-         </v-chip>
-      </v-layout>
-      <v-progress-circular v-if="searching" indeterminate class="amber--text"></v-progress-circular>
-      <div v-if="results.length > 0">
-        <v-layout v-if="filteredMovies && filteredMovies.length > 0" row wrap>
-          <!--Movies-->
-          <v-flex xs12 lg12 >
-            <v-subheader > Movies ({{ filteredMovies.length }})</v-subheader>
+      <div>
+        <v-layout class="mb-3" v-if="!selectedItem && !browsingServer" row wrap>
+          <v-flex xs10 lg4>
+            <v-text-field
+              name="searchInput"
+              label="Search"
+              :hint="searchStatus"
+              id="testing"
+              persistent-hint
+              single-line
+              prepend-icon="search"
+              v-model="searchWord"
+            ></v-text-field>
           </v-flex>
-          <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="movie in filteredMovies" :key="movie.key">
-            <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
+          <v-flex xs2>
+            <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''; searching = false" style="cursor:pointer;" class="red--text pt-3">clear</v-icon>
           </v-flex>
         </v-layout>
-        <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
-          <!--Shows-->
-          <v-flex xs12 lg12 >
-            <v-subheader > TV Shows ({{ filteredShows.length }})</v-subheader>
-          </v-flex>
-          <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="show in filteredShows" :key="show.key">
-            <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
-          </v-flex>
+        <v-layout row wrap v-if="searching || results.length > 0">
+          <v-chip v-for="server in plex.servers" :key="server.machineIdentifier" outline class="green darken-3 white--text">
+            <v-avatar>
+              <v-icon v-if="!heardBack(server)">clear</v-icon>
+              <v-icon v-if="heardBack(server)">check_circle</v-icon>
+            </v-avatar>
+            {{ server.name }}
+          </v-chip>
         </v-layout>
-        <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
-          <!--Episodes-->
-          <v-flex xs12 lg12 >
-            <v-subheader > TV Episodes ({{ filteredEpisodes.length }})</v-subheader>
-          </v-flex>
-          <v-flex xs6 md3 xl2 lg2 class="pb-3 ma-2" v-for="episode in filteredEpisodes" :key="episode.key">
-            <plexthumb :content="episode" :server="episode.server" showServer type="art" search @contentSet="setContent(episode)"></plexthumb>
-          </v-flex>
-        </v-layout>
+        <v-progress-circular v-if="searching" indeterminate class="amber--text"></v-progress-circular>
+        <div v-if="results.length > 0">
+          <v-layout v-if="filteredMovies && filteredMovies.length > 0" row wrap>
+            <!--Movies-->
+            <v-flex xs12 lg12 >
+              <v-subheader > Movies ({{ filteredMovies.length }})</v-subheader>
+            </v-flex>
+            <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="movie in filteredMovies" :key="movie.key">
+              <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
+            </v-flex>
+          </v-layout>
+          <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
+            <!--Shows-->
+            <v-flex xs12 lg12 >
+              <v-subheader > TV Shows ({{ filteredShows.length }})</v-subheader>
+            </v-flex>
+            <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="show in filteredShows" :key="show.key">
+              <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
+            </v-flex>
+          </v-layout>
+          <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
+            <!--Episodes-->
+            <v-flex xs12 lg12 >
+              <v-subheader > TV Episodes ({{ filteredEpisodes.length }})</v-subheader>
+            </v-flex>
+            <v-flex xs6 md3 xl2 lg2 class="pb-3 ma-2" v-for="episode in filteredEpisodes" :key="episode.key">
+              <plexthumb :content="episode" :server="episode.server" showServer type="art" search @contentSet="setContent(episode)"></plexthumb>
+            </v-flex>
+          </v-layout>
+        </div>
       </div>
       <v-divider></v-divider>
       <div class="pt-4" v-if="validLastServer && results.length == 0">
@@ -66,7 +68,7 @@
           </span>
         </h4>
         <v-layout v-if="onDeck" row>
-          <v-flex xs12 md3 xl2 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
+          <v-flex xs12 md3 xl3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
             <plexthumb :content="content" :server="lastServer" type="art" @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
@@ -89,8 +91,8 @@
                     </v-flex>
                     <v-flex xs8>
                       <div>
-                        <div class="headline">{{server.name}}</div>
-                        <div style="opacity:0.8"> v{{server.productVersion}}</div>
+                        <div class="headline">{{ server.name }}</div>
+                        <div style="opacity:0.8"> v{{ server.productVersion }}</div>
                         <div>Owned by {{ ownerOfServer(server) }}</div>
                       </div>
                     </v-flex>
@@ -112,8 +114,8 @@
                   </v-flex>
                   <v-flex xs8>
                     <div>
-                      <div class="headline">{{device.name}}</div>
-                      <div style="opacity:0.8"> v{{device.productVersion}}</div>
+                      <div class="headline">{{ device.name }}</div>
+                      <div style="opacity:0.8"> v{{ device.productVersion }}</div>
                       <div>Owned by {{ ownerOfServer(device) }}</div>
                       <div v-if="!isConnectable(device)" class="red--text">Unable to connect</div>
                     </div>
@@ -160,17 +162,10 @@ export default {
       }
     },
     subsetOnDeck (size) {
-      if (
-        !this.onDeck ||
-        !this.onDeck.MediaContainer ||
-        !this.onDeck.MediaContainer.Metadata
-      ) {
+      if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
         return []
       }
-      return this.onDeck.MediaContainer.Metadata.slice(
-        this.onDeckOffset,
-        this.onDeckOffset + this.onDeckItemsPer
-      )
+      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + this.onDeckItemsPer)
     },
     reset () {
       this.updateOnDeck()
@@ -183,11 +178,7 @@ export default {
       // this.$store.commit('SET_BACKGROUND',null)
     },
     onDeckDown () {
-      if (
-        !this.onDeck ||
-        !this.onDeck.MediaContainer ||
-        !this.onDeck.MediaContainer.Metadata
-      ) {
+      if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
         return false
       }
       if (this.onDeckOffset - 4 < 0) {
@@ -197,11 +188,7 @@ export default {
       }
     },
     onDeckUp () {
-      if (
-        !this.onDeck ||
-        !this.onDeck.MediaContainer ||
-        !this.onDeck.MediaContainer.Metadata
-      ) {
+      if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
         return false
       }
       if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length) {
@@ -227,12 +214,8 @@ export default {
       return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
     },
     getArt (object) {
-      var w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      )
-      var h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      )
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
       return object.server.getUrlForLibraryLoc(object.art, w / 4, h / 4)
     },
     getTitleMovie (movie) {
@@ -275,12 +258,7 @@ export default {
             }
             this.results = this.results.concat(serverSearchResults)
           }
-          this.searchStatus =
-            'Found ' +
-            this.results.length +
-            ' results from ' +
-            this.serversResponded +
-            ' servers'
+          this.searchStatus = 'Found ' + this.results.length + ' results from ' + this.serversResponded + ' servers'
           if (this.serversResponded === Object.keys(this.plex.servers).length) {
             this.searching = false
           }

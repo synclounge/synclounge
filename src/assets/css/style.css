@@ -301,16 +301,18 @@ video.vjs-tech,
   line-height: 1;
 }
 .ptplayer .vjs_video_3-dimensions.vjs-fluid {
-  padding-top: unset;
+  padding-top: 0;
 }
 
 .ptplayer .video-js {
   max-height: calc(100vh - 64px) !important;
   min-height: calc(100vh - 64px) !important;
   max-width: 100vw;
+  padding-top: 0px
 }
 
 .ptplayer .vjs_video_1177-dimensions.vjs-fluid {
+  padding-top: 0;
 }
 
 .ptplayer .video-js .vjs-menu-button-inline.vjs-slider-active,
