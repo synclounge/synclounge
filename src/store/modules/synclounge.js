@@ -205,7 +205,6 @@ export default {
             // We will regularly be recieving and sending data to and from the server.
             // We want to make sure we are listening for all the server events
             state._socket.on('poll-result', (users, me) => {
-              console.log('Got me data', me)
               commit('SET_VALUE', ['me', me])
               commit('SET_OURCLIENTRESPONSETIME', Math.abs((new Date().getTime()) - state._socket.pollStartTime))
               commit('SET_USERS', users)

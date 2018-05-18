@@ -64,29 +64,33 @@
     </v-dialog>
     <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3">
       <v-flex xs12>
-        <v-layout row wrap align-center>
-          <v-flex xs4 sm1>
+        <v-layout row wrap align-center justify-start>
             <img :src="thumbUrl" class="elevation-20" style="height: 120px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"/>
-          </v-flex>
-          <v-flex xs8 sm11 class="text-xs-left pa-3">
+          <v-flex class="text-xs-left pa-3">
             <h1>{{ getTitle(playingMetadata) }}</h1>
             <h3>{{ getUnder(playingMetadata) }}</h3>
             <h5>Playing from {{ chosenServer.name  }}</h5>
             <div class="hidden-xs-only">
-              <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync">Manual sync</v-btn>
+              <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
               <v-btn color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
               <router-link to="/browse">
                 <v-btn color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
               </router-link>
             </div>
           </v-flex>
-          <v-flex xs12 class="hidden-sm-and-up">
-            <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync">Manual sync</v-btn>
-            <v-btn color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
-            <router-link to="/browse">
-              <v-btn color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
-            </router-link>
-          </v-flex>
+          <v-layout row wrap class="hidden-sm-and-up">
+            <v-flex xs12>
+              <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+            </v-flex>
+            <v-flex xs12>
+              <v-btn block color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
+            </v-flex>
+            <v-flex xs12>
+              <router-link to="/browse">
+                <v-btn block color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+              </router-link>
+            </v-flex>
+          </v-layout>
         </v-layout>
       </v-flex>
     </v-layout>
@@ -197,9 +201,7 @@ export default {
       // Content can have multiple copies
       // Below are options chosen for each copy
       chosenMediaIndex: 0, // The index of the item we want to play
-      chosenQuality:
-        JSON.parse(window['localStorage'].getItem('PTPLAYERQUALITY')) ||
-        'Original', // The quality profile
+      chosenQuality: JSON.parse(window['localStorage'].getItem('PTPLAYERQUALITY')) || 'Original', // The quality profile
       chosenSubtitleIndex: 0, // Subtitle track index
       chosenAudioTrackIndex: 0, // Audio track index
       sources: [],
@@ -312,6 +314,9 @@ export default {
   computed: {
     plex: function () {
       return this.$store.getters.getPlex
+    },
+    me: function () {
+      return this.$store.state.me
     },
     manualSyncQueued: function () {
       return this.$store.state.manualSyncQueued
@@ -612,8 +617,7 @@ export default {
         'X-Plex-Platform': this.browser,
         'X-Plex-Platform-Version': '57.0',
         'X-Plex-Device': 'Windows',
-        'X-Plex-Device-Screen-Resolution':
-          window.screen.availWidth + 'x' + window.screen.availHeight,
+        'X-Plex-Device-Screen-Resolution': window.screen.availWidth + 'x' + window.screen.availHeight,
         'X-Plex-Token': this.chosenServer.accessToken
       }
       for (let key in overrideparams) {
@@ -655,7 +659,7 @@ export default {
         protocol: 'hls',
         fastSeek: 1,
         directPlay: 0,
-        directStream: 0,
+        directStream: 1,
         subtitleSize: 100,
         audioBoost: 100,
         location: location,
@@ -672,7 +676,7 @@ export default {
         'X-Plex-Client-Identifier': 'SyncLounge',
         'X-Plex-Platform': 'SyncLounge',
         'X-Plex-Platform-Version': '57.0',
-        'X-Plex-Device': 'HTML TV App',
+        'X-Plex-Device': 'Web',
         'X-Plex-Device-Name': 'SyncLounge',
         'X-Plex-Device-Screen-Resolution':
           window.screen.availWidth + 'x' + window.screen.availHeight,

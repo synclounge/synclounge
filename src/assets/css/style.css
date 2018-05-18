@@ -289,7 +289,7 @@ video.vjs-tech,
   width: 100%;
   height: auto !important;
   max-width: 100% !important;
-  padding-top: 0 !important;
+  padding-top: 0;
   line-height: 0;
 }
 
@@ -302,8 +302,7 @@ video.vjs-tech,
 
 .ptplayer .video-js {
   max-height: calc(100vh - 64px) !important;
-  min-height: 78vh;
-  padding-top: 0px
+  min-height: 85vh;
 }
 
 .ptplayer .vjs_video_1177-dimensions.vjs-fluid {
@@ -511,11 +510,11 @@ video.vjs-tech,
   visibility: visible;
   opacity: 1;
   -webkit-backface-visibility: hidden;
-  -webkit-transform: translateY(3em);
-  -moz-transform: translateY(3em);
-  -ms-transform: translateY(3em);
-  -o-transform: translateY(3em);
-  transform: translateY(3em);
+  -webkit-transform: translateY(4em);
+  -moz-transform: translateY(4em);
+  -ms-transform: translateY(4em);
+  -o-transform: translateY(4em);
+  transform: translateY(4em);
   -webkit-transition: -webkit-transform 1s ease 0s;
   -moz-transition: -moz-transform 1s ease 0s;
   -ms-transition: -ms-transform 1s ease 0s;
