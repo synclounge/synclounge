@@ -287,6 +287,7 @@ video.vjs-tech,
   max-height: calc(100vh - 64px);
   position: relative !important;
   width: 100%;
+  max-width: 100%;
   height: auto !important;
   max-width: 100% !important;
   padding-top: 0;
@@ -299,14 +300,17 @@ video.vjs-tech,
 .vjs-control-bar {
   line-height: 1;
 }
+.ptplayer .vjs_video_3-dimensions.vjs-fluid {
+  padding-top: unset;
+}
 
 .ptplayer .video-js {
   max-height: calc(100vh - 64px) !important;
-  min-height: 85vh;
+  min-height: calc(100vh - 64px) !important;
+  max-width: 100vw;
 }
 
 .ptplayer .vjs_video_1177-dimensions.vjs-fluid {
-  padding-top: 0px !important
 }
 
 .ptplayer .video-js .vjs-menu-button-inline.vjs-slider-active,

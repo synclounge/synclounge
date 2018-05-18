@@ -159,9 +159,11 @@ export default {
         console.log('Processing play command', data)
         this.chosenKey = data.params.key.replace('/library/metadata/', '')
         this.chosenMediaIndex = data.params.mediaIndex || 0
-        this.chosenServer = this.plex.servers[data.params.params.chosenServer]
+        this.chosenServer = this.plex.servers[data.params.machineIdentifier]
+        console.log('Chosen server is now', this.chosenServer)
         this.playertime = data.params.offset || 0
         this.changedPlaying(true)
+        return true
       }
       if (data.command === '/player/playback/stop') {
         this.ready = false
@@ -537,7 +539,7 @@ export default {
     },
     stopPlayback () {
       console.log('Stopped Playback')
-      this.$store.commit('SET_DECISIONBLOCKED', false)
+      this.$store.commit('SET_VALUE', ['decisionBlocked', false])
       request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {})
       this.playerstatus = 'stopped'
       this.sessionId = this.generateGuid()
@@ -546,7 +548,7 @@ export default {
     },
     changedPlaying: function (changeItem) {
       this.ready = false
-      this.$store.commit('SET_DECISIONBLOCKED', false)
+      this.$store.commit('SET_VALUE', ['decisionBlocked', false])
       console.log('Changed what we are meant to be playing!', changeItem)
       if (!this.chosenKey || !this.chosenServer) {
         this.playerstatus = 'stopped'
@@ -604,10 +606,7 @@ export default {
         query +=
           encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
       }
-      let url =
-        this.chosenServer.chosenConnection.uri +
-        '/video/:/transcode/universal/start.m3u8?' +
-        query
+      let url = this.chosenServer.chosenConnection.uri + '/video/:/transcode/universal/start.m3u8?' + query
       // console.log(url)
       return url
     },
