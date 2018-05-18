@@ -21,10 +21,10 @@
                     </v-flex>
                     <v-flex xs8 md12 class="text-xs-center hidden-sm-and-down ">
                       <div v-if="playable">
-                        <v-btn fab v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
+                        <v-btn block v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
                           <v-icon> play_arrow </v-icon>
                         </v-btn>
-                        <v-btn fab v-else @click.native.stop="dialog = true" class="primary white--text">
+                        <v-btn block v-else @click.native.stop="dialog = true" class="primary white--text">
                           <v-icon> play_arrow </v-icon>
                         </v-btn>
                       </div>
@@ -35,7 +35,7 @@
                     </v-flex>
                   </v-layout>
                 </v-flex>
-                <v-flex xs12 md9 sm12>
+                <v-flex xs12 md9 sm12 class="pa-2">
                   <h1>
                     {{ title }}
                     <span style="float: right">
@@ -119,17 +119,17 @@
               <div v-if="subsetParentData(6).length >= 0 && contents.type == 'episode' && playable" class="hidden-xs-only">
                 <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>
                 <v-layout v-if="parentData" row wrap justify-start>
-                    <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)" :key="ep.key">
-                        <plexthumb bottomOnly :content="ep" :img="getLittleThumb(ep)" :class="{highlightBorder: ep.index == contents.index}" style="margin:15%" :server="server" type="thumb" spoilerFilter></plexthumb>
-                    </v-flex>
+                  <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)" :key="ep.key">
+                    <plexthumb bottomOnly :content="ep" :img="getLittleThumb(ep)" :class="{ highlightBorder: ep.index === contents.index }" style="margin:3%" :server="server" type="thumb" spoilerFilter></plexthumb>
+                  </v-flex>
                 </v-layout>
               </div>
               <div v-if="relatedItems.length > 0" style="background: rgba(0,0,0,0.3)">
                 <v-subheader>Related Movies</v-subheader>
                 <v-layout row wrap justify-start>
-                    <v-flex xs4 md2 class="ma-1" v-for="movie in relatedItems" :key="movie.key">
-                        <plexthumb :content="movie" :img="getLittleThumb(movie)" style="margin:15%" :server="server" type="thumb"></plexthumb>
-                    </v-flex>
+                  <v-flex xs4 md2 class="ma-1" v-for="movie in relatedItems" :key="movie.key">
+                      <plexthumb :content="movie" :img="getLittleThumb(movie)" style="margin:3%" :server="server" type="thumb"></plexthumb>
+                  </v-flex>
                 </v-layout>
               </div>
             </v-container>

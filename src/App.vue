@@ -280,6 +280,7 @@ export default {
         try {
           return this.itemCache[this.$route.params.machineIdentifier][id].title
         } catch (e) {
+          console.log(id, e)
           return 'Loading..'
         }
       }

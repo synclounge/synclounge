@@ -275,15 +275,28 @@ module.exports = function PlexServer () {
       if (result.MediaContainer && result.MediaContainer.Metadata && result.MediaContainer.Metadata.length > 0) {
         for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
           result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier
+          let item = result.MediaContainer.Metadata[i]
           if (result.MediaContainer.Metadata[i].ratingKey) {
             this.commit('SET_ITEMCACHE', [result.MediaContainer.Metadata[i].ratingKey,
               result.MediaContainer.Metadata[i]
             ])
           }
+          if (item.grandparentRatingKey) {
+            this.commit('SET_ITEMCACHE', [item.grandparentRatingKey, { title: item.grandparentTitle, machineIdentifier: this.clientIdentifier }])
+          }
+          if (item.parentRatingKey) {
+            this.commit('SET_ITEMCACHE', [item.parentRatingKey, { title: item.parentTitle, machineIdentifier: this.clientIdentifier }])
+          }
         }
       } else {
         if (result.MediaContainer.ratingKey) {
           this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer])
+        } 
+        if (result.MediaContainer.grandparentRatingKey) {
+          this.commit('SET_ITEMCACHE', [result.MediaContainer.grandparentRatingKey, { title: result.MediaContainer.grandparentTitle, machineIdentifier: this.clientIdentifier }])
+        }
+        if (result.MediaContainer.parentRatingKey) {
+          this.commit('SET_ITEMCACHE', [result.MediaContainer.parentRatingKey, { title: result.MediaContainer.parentTitle, machineIdentifier: this.clientIdentifier }])
         }
       }
       return result.MediaContainer.Metadata

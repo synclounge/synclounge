@@ -246,7 +246,6 @@ module.exports = function PlexClient () {
   }
   this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE) {
     return new Promise(async (resolve, reject) => {
-      const timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt
       const difference = Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time))
 
       if (parseInt(difference) > parseInt(SYNCFLEXABILITY)) {

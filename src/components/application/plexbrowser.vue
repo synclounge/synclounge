@@ -66,7 +66,7 @@
           </span>
         </h4>
         <v-layout v-if="onDeck" row>
-          <v-flex xs12 md4 xl3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
+          <v-flex xs12 md4 xl4 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
             <plexthumb :content="content" :server="lastServer" type="art" @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
@@ -322,8 +322,8 @@ export default {
         case 'xs': return 1
         case 'sm': return 2
         case 'md': return 3
-        case 'lg': return 4
-        case 'xl': return 4
+        case 'lg': return 3
+        case 'xl': return 3
       }
     },
     availableServers () {

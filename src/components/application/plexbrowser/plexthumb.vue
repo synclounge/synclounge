@@ -235,6 +235,9 @@ export default {
       if (this.height) {
         return this.height + 'em'
       }
+      if (this.type === 'art') {
+        return Math.round(this.fullwidth * 0.7) + 'px'
+      }
       if (this.content.type === 'movie') {
         return Math.round(this.fullwidth * 1.5) + 'px'
       }
