@@ -4,39 +4,37 @@
           v-if="browsingContent"> > </span> </span>
       <v-layout v-if="!contents && !browsingContent" row>
         <v-flex xs12 style="position:relative">
-            <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+          <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
         </v-flex>
       </v-layout>
       <div v-if="contents && !browsingContent" class="mt-3">
-          <v-card horizontal height="25em" :img="getArtUrl">
-            <v-card-row class="hidden-sm-and-down" :img="getThumb" height="100%"></v-card-row>
-            <v-card-column style="background: rgba(0, 0, 0, .4)">
-              <v-card-row height="11em"  class="white--text">
-                <v-card-text>
-                  <h3> {{ content.title }}</h3>
-                  <p> {{ contents.MediaContainer.summary }} </p>
-                </v-card-text>
-              </v-card-row>
-              <v-card-row actions>
-                <v-chip v-for="genre in content.Genre" :key="genre" v-tooltip:top="{ html: 'Genre' }" label> {{ genre.tag }}</v-chip>
-                <v-chip v-for="country in content.Country" :key="country" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
-              </v-card-row>
-            </v-card-column>
-          </v-card>
-          <h4 class="mt-3"> Albums </h4>
-          <v-divider></v-divider>
-          <div>
-              <v-layout class="row mt-3" row wrap>
-                <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
-                  <plexthumb :content="content" :server="server" type="thumb" fullTitle @contentSet="setContent(content)"></plexthumb>
-                </v-flex>
-            </v-layout>
-          </div>
+        <v-card horizontal height="25em" :img="getArtUrl">
+          <v-card-row class="hidden-sm-and-down" :img="getThumb" height="100%"></v-card-row>
+          <v-card-column style="background: rgba(0, 0, 0, .4)">
+            <v-card-row height="11em"  class="white--text">
+              <v-card-text>
+                <h3> {{ content.title }}</h3>
+                <p> {{ contents.MediaContainer.summary }} </p>
+              </v-card-text>
+            </v-card-row>
+            <v-card-row actions>
+              <v-chip v-for="genre in content.Genre" :key="genre" v-tooltip:top="{ html: 'Genre' }" label> {{ genre.tag }}</v-chip>
+              <v-chip v-for="country in content.Country" :key="country" v-tooltip:top="{ html: 'Country' }"> {{ country.tag }}</v-chip>
+            </v-card-row>
+          </v-card-column>
+        </v-card>
+        <h4 class="mt-3"> Albums </h4>
+        <v-divider></v-divider>
+        <div>
+          <v-layout class="row mt-3" row wrap>
+            <v-flex xs6 md3 xl1 lg2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content">
+              <plexthumb :content="content" :server="server" type="thumb" fullTitle @contentSet="setContent(content)"></plexthumb>
+            </v-flex>
+          </v-layout>
         </div>
-        <plexalbum v-if="browsingContent && browsingContent.type == 'album'" :content="browsingContent"
-                     :server="server" :library="library"></plexalbum>
-        <plexcontent v-if="browsingContent && browsingContent.type != 'album'" :content="browsingContent"
-                     :server="server" :library="library"></plexcontent>
+      </div>
+      <plexalbum v-if="browsingContent && browsingContent.type == 'album'" :content="browsingContent" :server="server" :library="library"></plexalbum>
+      <plexcontent v-if="browsingContent && browsingContent.type != 'album'" :content="browsingContent" :server="server" :library="library"></plexcontent>
     </span>
 </template>
 

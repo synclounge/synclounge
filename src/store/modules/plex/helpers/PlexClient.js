@@ -63,7 +63,6 @@ module.exports = function PlexClient () {
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         // We are using the SyncLounge Player
-
         let data = {
           command: command,
           params: params,
@@ -71,7 +70,6 @@ module.exports = function PlexClient () {
             if (command === '/player/timeline/poll') {
               this.updateTimelineObject(resultData)
             }
-            // console.log('Heard back from PTPLAYER', resultData)
             resolve(resultData)
           }
         }
@@ -100,48 +98,21 @@ module.exports = function PlexClient () {
           }
           var _url = connection.uri + command + '?' + query
           this.setValue('commandId', this.commandId + 1)
-          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
-
-          if (window.localStorage.getItem('EXTAVAILABLE')) {
-            console.log('Extension is available')
-            window.chrome.runtime.sendMessage('mlmjjfdcbemagmnjahllphjnohbmhcnf', {
-              command: 'client',
-              data: {
-                url: _url,
-                query: params,
-                options: options
-              },
-              client_command: command,
-              query: query
-            }, (response) => {
-              if (response) {
-                parseXMLString(response, (err, result) => {
-                  if (err) {
-                    return reject(err)
-                  }
-                  resolve(result)
-                  if (command === '/player/timeline/poll') {
-                    this.updateTimelineObject(result)
-                  }
-                })
+          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)          
+          axios.get(connection.uri + command, {
+            params,
+            headers: options.headers
+          })
+            .then((response) => {
+              resolve(response)
+              if (command === '/player/timeline/poll') {
+                console.log('Poll result', response, response.data)
+                this.updateTimelineObject(response)
               }
             })
-          } else {
-            axios.get(connection.uri + command, {
-              params,
-              headers: options.headers
+            .catch((error) => {
+              reject(error)
             })
-              .then((response) => {
-                resolve(response)
-                if (command === '/player/timeline/poll') {
-                  console.log('Poll result', response, response.data)
-                  this.updateTimelineObject(response)
-                }
-              })
-              .catch((error) => {
-                reject(error)
-              })
-          }
         }
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
           // We need to subscribe first!
@@ -205,7 +176,6 @@ module.exports = function PlexClient () {
         if (videoTimeline.ratingKey !== previousTimeline.ratingKey) {
           window.EventBus.$emit('PLAYBACK_CHANGE', [this, videoTimeline.ratingKey, result.MediaContainer])
         }
-        window.EventBus.$emit('NEW_TIMELINE', videoTimeline)
       }
     }
     window.EventBus.$emit('NEW_TIMELINE', [this, videoTimeline, result.MediaContainer])

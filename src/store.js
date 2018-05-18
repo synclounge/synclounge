@@ -110,7 +110,7 @@ const mutations = {
       state.chosenClient.getTimeline()
       setTimeout(() => {
         clientPoller(time)
-      }, state.CLIENTPOLLINTERVAL)
+      }, state.settings.CLIENTPOLLINTERVAL)
     }
 
     // Check if we need to remove old handlers
@@ -303,6 +303,7 @@ const actions = {
     }
   },
   NEW_TIMELINE ({ commit, state, dispatch }, data) {
+    console.log('Got new timeline', data)
     // return true
     let timeline = data
     let client = state.chosenClient

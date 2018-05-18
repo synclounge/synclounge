@@ -121,7 +121,10 @@ export default {
     }
 
     // Similuate a real plex client
-    this.eventbus.$on('command', data => {
+    this.commandListener = this.eventbus.$on('command', data => {
+      if (this.destroyed) {
+        return
+      }
       if (data.command === '/player/timeline/poll') {
         let key = this.chosenKey
         let ratingKey = null
@@ -222,7 +225,8 @@ export default {
 
       // Browser
       browser: this.getBrowser(),
-      dialog: false
+      dialog: false,
+      destroyed: false
     }
   },
   watch: {
@@ -408,6 +412,9 @@ export default {
       }
       return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb || this.playingMetadata.thumb, 200, 200)
     }
+  },
+  beforeDestroy: function () {
+    this.destroyed = true
   },
   methods: {
     playerMounted: function () {
