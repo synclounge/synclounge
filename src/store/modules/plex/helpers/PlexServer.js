@@ -271,6 +271,7 @@ module.exports = function PlexServer () {
   }
 
   this.handleMetadata = function (result) {
+    // This data is used in our router breadcrumbs
     if (result) {
       if (result.MediaContainer && result.MediaContainer.Metadata && result.MediaContainer.Metadata.length > 0) {
         for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
@@ -291,7 +292,7 @@ module.exports = function PlexServer () {
       } else {
         if (result.MediaContainer.ratingKey) {
           this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer])
-        } 
+        }
         if (result.MediaContainer.grandparentRatingKey) {
           this.commit('SET_ITEMCACHE', [result.MediaContainer.grandparentRatingKey, { title: result.MediaContainer.grandparentTitle, machineIdentifier: this.clientIdentifier }])
         }

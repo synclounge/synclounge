@@ -20,7 +20,7 @@
         </div>
         <div v-if="code" class="text-xs-center">
           <v-btn class="primary" :href="url" target="_blank">Sign in via Plex.tv</v-btn>
-        </div>        
+        </div>
         <v-layout wrap row class="pt-4 pa-2">
           <v-flex xs12 md8 offset-md2 class="center-text">
             <p style="opacity:0.7">
@@ -29,9 +29,7 @@
               for details.
             </p>
           </v-flex>
-        </v-layout><p class="center-text soft-text pt-4 mt-5">
-          Click <router-link to="/pinsignin">here</router-link> to sign in via the pin method
-        </p>
+        </v-layout>
       </v-card>
     </v-flex>
   </v-layout>
@@ -103,67 +101,6 @@ export default {
         this.$router.push('/browse')
       }
     }, 2000)
-    // this.$http
-    //   .post('https://plex.tv/pins.xml', null, {
-    //     headers: {
-    //       'X-Plex-Device': 'Web',
-    //       'X-Plex-Device-Name': 'SyncLounge',
-    //       'X-Plex-Product': 'SyncLounge',
-    //       'X-Plex-Version': this.appVersion,
-    //       'X-Plex-Platform': sBrowser,
-    //       'X-Plex-Platform-Version': '',
-    //       'X-Plex-Client-Identifier': id
-    //     }
-    //   })
-    //   .then(response => {
-    //     parseString(response.body, (err, result) => {
-    //       if (!err) {
-    //         this.pin = result.pin.code[0]
-    //         this.ID = result.pin.id[0]._
-    //         let checker = setInterval(() => {
-    //           var options = {
-    //             url: 'https://plex.tv/pins/' + result.pin.id[0]._ + '.xml',
-                
-    //           }
-    //           request(options, (error, response, body) => {
-    //             if (!error && response.statusCode === 404) {
-    //               clearInterval(checker)
-    //               return
-    //             }
-    //             if (!error && response.statusCode === 200) {
-    //               parseString(body, async (err, result) => {
-    //                 if (!err) {
-    //                   if (
-    //                     result.pin.auth_token[0] != null &&
-    //                     result.pin.auth_token[0].length > 1
-    //                   ) {
-    //                     this.token = result.pin.auth_token[0]
-    //                     let jsonObj = {
-    //                       authToken: this.token
-    //                     }
-    //                     storage.setItem('plexuser', JSON.stringify(jsonObj))
-    //                     await this.$store.dispatch(
-    //                       'PLEX_LOGIN_TOKEN',
-    //                       this.token
-    //                     )
-    //                     setTimeout(() => {
-    //                       this.$router.push('/browse')
-    //                     }, 2500)
-    //                     clearInterval(checker)
-    //                   }
-    //                 }
-    //               })
-    //             }
-    //           })
-    //         }, 2000)
-    //       }
-    //     })
-    // })
-  },
-  methods: {
-    sendNotification () {
-      window.EventBus.$emit('notification', 'Copied to clipboard')
-    }
   }
 }
 </script>
