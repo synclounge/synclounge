@@ -6,7 +6,7 @@
       <v-flex xs12>
         <v-select
           label="Select"
-          v-bind:items="localServersList"
+          :items="localServersList"
           v-model="blockedServers"
           item-value="id"
           item-text="name"
@@ -21,7 +21,6 @@
 
 <script>
 export default {
-  props: ['object'],
   name: 'plexsettings',
   data () {
     return {
@@ -32,7 +31,7 @@ export default {
 
   watch: {
     blockedServers: function () {
-      this.$store.commit('setSettingBLOCKEDSERVERS', this.blockedServers)
+      this.$store.commit('setSetting', ['BLOCKEDSERVERS', this.blockedServers])
     }
   },
   computed: {
@@ -49,7 +48,7 @@ export default {
       }
       for (let id in this.plex.servers) {
         let server = this.plex.servers[id]
-        if (this.$store.getters.getSettingBLOCKEDSERVERS && this.$store.getters.getSettingBLOCKEDSERVERS[server.clientIdentifier]) {
+        if (this.$store.getters.getSettings['BLOCKEDSERVERS'] && this.$store.getters.getSettings['BLOCKEDSERVERS'][server.clientIdentifier]) {
           servers.push({
             name: server.name,
             id: server.clientIdentifier
@@ -60,11 +59,8 @@ export default {
           name: server.name,
           id: server.clientIdentifier
         })
-        return servers
       }
-    },
-    logo: function () {
-      return 'ptweb/plexlogo.png'
+      return servers
     }
   },
   mounted: function () {

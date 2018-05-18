@@ -61,34 +61,34 @@ export default {
     },
     autoplay: {
       get () {
-        return this.$store.getters.getSettingAUTOPLAY
+        return this.$store.getters.getSettings['AUTOPLAY']
       },
       set (value) {
-        this.$store.commit('setSettingAUTOPLAY', value)
+        this.$store.commit('setSetting', ['AUTOPLAY', value])
       }
     },
     syncmode: {
       get () {
-        return this.$store.getters.getSettingSYNCMODE
+        return this.$store.getters.getSettings['SYNCMODE']
       },
       set (value) {
-        this.$store.commit('setSettingSYNCMODE', value)
+        this.$store.commit('setSetting', ['SYNCMODE', value])
       }
     },
     syncflexability: {
       get () {
-        return this.$store.getters.getSettingSYNCFLEXABILITY
+        return this.$store.getters.getSettings['SYNCFLEXABILITY']
       },
       set (value) {
-        this.$store.commit('setSettingSYNCFLEXABILITY', value)
+        this.$store.commit('setSetting', ['SYNCFLEXABILITY', value])
       }
     },
     clientpollinterval: {
       get () {
-        return this.$store.getters.getSettingCLIENTPOLLINTERVAL
+        return this.$store.getters.getSettings['CLIENTPOLLINTERVAL']
       },
       set (value) {
-        this.$store.commit('setSettingCLIENTPOLLINTERVAL', value)
+        this.$store.commit('setSetting', ['CLIENTPOLLINTERVAL', value])
       }
     }
   },
