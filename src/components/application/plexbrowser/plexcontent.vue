@@ -128,7 +128,7 @@
                 <v-subheader>Related Movies</v-subheader>
                 <v-layout row wrap justify-start>
                   <v-flex xs4 md2 class="ma-1" v-for="movie in relatedItems" :key="movie.key">
-                      <plexthumb :content="movie" :img="getLittleThumb(movie)" style="margin:3%" :server="server" type="thumb"></plexthumb>
+                    <plexthumb :content="movie" :img="getLittleThumb(movie)" style="margin:3%" :server="server" type="thumb"></plexthumb>
                   </v-flex>
                 </v-layout>
               </div>

@@ -41,7 +41,7 @@
         <v-divider></v-divider>
         <div>
           <v-layout class="row mt-3" row wrap>
-            <v-flex xs6 md2 lg1  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
+            <v-flex xs6 md2  class="pb-3" v-for="content in contents.MediaContainer.Metadata" :key="content.key">
               <plexthumb :content="content" :server="plexserver" type="thumb" style="margin:2%" fullTitle @contentSet="setContent(content)"></plexthumb>
             </v-flex>
           </v-layout>

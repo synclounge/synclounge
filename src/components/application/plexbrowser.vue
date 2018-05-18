@@ -66,7 +66,7 @@
           </span>
         </h4>
         <v-layout v-if="onDeck" row>
-          <v-flex xs12 md4 xl4 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
+          <v-flex xs12 md4 xl2 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
             <plexthumb :content="content" :server="lastServer" type="art" @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
