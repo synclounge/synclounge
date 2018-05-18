@@ -38,6 +38,20 @@ Vue.config.productionTip = false
 // Our Event bus
 window.EventBus = new Vue()
 window.EventBus.$on('command', (data) => {
+  if (data.command === '/player/timeline/poll') {
+    console.log('Got timeline poll', router)
+    if (router.app.route.fullPath.indexOf('/player') === -1) {
+      return data.callback({
+        key: null,
+        ratingKey: null,
+        time: 0,
+        type: 'video',
+        machineIdentifier: null,
+        duration: 0,
+        state: 'stopped'
+      })
+    }
+  }
   if (data.command === '/player/playback/playMedia') {
     router.push({
       path: '/player',
