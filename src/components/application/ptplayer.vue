@@ -144,6 +144,7 @@ export default {
           duration: this.playerduration,
           state: this.playerstatus
         }
+        this.lastSentTimeline = playerdata
         return data.callback(playerdata)
       }
       if (data.command === '/player/playback/play') {
@@ -227,7 +228,9 @@ export default {
       // Browser
       browser: this.getBrowser(),
       dialog: false,
-      destroyed: false
+      destroyed: false,
+
+      lastSentTimeline: {}
     }
   },
   watch: {
@@ -601,6 +604,30 @@ export default {
       this.playerstatus = data.status
       this.bufferedTill = data.bufferedTill
       this.playerduration = data.duration
+
+      if (this.lastSentTimeline.state !== data.status || this.chosenKey !== this.lastSentTimeline.key) {
+        let key = this.chosenKey
+        let ratingKey = null
+        if (key) {
+          ratingKey = '/library/metadata/' + key
+        }
+        let machineIdentifier = null
+        if (this.chosenServer) {
+          machineIdentifier = this.chosenServer.clientIdentifier
+        }
+        let playerdata = {
+          key: key,
+          ratingKey: ratingKey,
+          time: this.playertime,
+          type: 'video',
+          machineIdentifier: machineIdentifier,
+          duration: this.playerduration,
+          state: this.playerstatus
+        }
+        this.lastSentTimeline = playerdata
+        console.log('Emitting an immediate change')
+        this.chosenClient.updateTimelineObject(playerdata)
+      }
     },
     playerSeekDone (data) {},
     generateTranscodeUrl (overrideparams) {

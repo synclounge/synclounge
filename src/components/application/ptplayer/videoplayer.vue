@@ -382,9 +382,9 @@ export default {
     },
     playerStateChanged (playerCurrentState) {
       // console.log("Setting volume to " + this.player.volume() || 0)
-      this.$store.commit('setSettingPTPLAYERVOLUME', this.player.volume() || 0)
+      this.$store.commit('setSetting', ['PTPLAYERVOLUME', this.player.volume() || 0])
       this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000)
-      this.duration = Math.round(this.player.duration() * 1000)    
+      this.duration = Math.round(this.player.duration() * 1000)
       this.bufferStart = Math.round(this.player.buffered().start(0) * 1000)
       this.bufferEnd = Math.round(this.player.buffered().end(0) * 1000)
       if (this.player.error_) {
