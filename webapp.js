@@ -35,11 +35,11 @@ root.use(bodyParser())
 // root.use(bodyParser.urlencoded({ extended: true }))
 
 // Setup our web app
-root.use('/' + settings.webroot + '/', express.static(path.join(__dirname, 'dist')))
+root.use(settings.webroot + '/', express.static(path.join(__dirname, 'dist')))
 
 // Merge everything together
 
-root.get('/' + settings.webroot + '/invite/:id', (req, res) => {
+root.get(settings.webroot + '/invite/:id', (req, res) => {
   console.log('handling an invite')
   let shortObj = shortenedLinks[req.params.id]
   if (!shortObj) {
@@ -49,7 +49,7 @@ root.get('/' + settings.webroot + '/invite/:id', (req, res) => {
   console.log(JSON.stringify(shortObj, null, 4))
   return res.redirect(shortObj.fullUrl)
 })
-root.post('/' + settings.webroot + '/invite', (req, res) => {
+root.post(settings.webroot + '/invite', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
   if (!req.body) {
     return res.send({
@@ -102,21 +102,21 @@ function shortenObj (data) {
   returnable.urlOrigin = accessIp
   returnable.owner = data.owner
 
-  returnable.ptserver = data.ptserver
-  returnable.ptroom = data.ptroom
-  returnable.ptpassword = data.ptpassword
+  returnable.server = data.server
+  returnable.room = data.room
+  returnable.password = data.password
 
   returnable.starttime = (new Date()).getTime()
   returnable.id = getUniqueId()
   returnable.shortUrl = accessIp + '/invite/' + returnable.id
 
   let params = {
-    ptserver: data.ptserver,
-    ptroom: data.ptroom,
+    server: data.server,
+    room: data.room,
     owner: data.owner
   }
-  if (data.ptpassword) {
-    params.ptpassword = data.ptpassword
+  if (data.password) {
+    params.password = data.password
   }
   let query = ''
   for (let key in params) {

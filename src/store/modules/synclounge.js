@@ -92,29 +92,18 @@ export default {
   },
 
   actions: {
-    autoJoin ({ state, commit, rootState, dispatch }, data) {
+    async autoJoin ({ state, commit, rootState, dispatch }, data) {
       console.log('Attempting to auto join..')
       console.log(rootState)
-      dispatch('socketConnect', {
-        address: rootState.autoJoinUrl,
-        callback: (data) => {
-          console.log('Socket connection result below')
-          console.log(data)
-          if (!data.result) {
-            console.log('Failed to connect')
-          } else {
-            let temporaryObj = {
-              user: rootState.plex.user,
-              roomName: rootState.autoJoinRoom,
-              password: rootState.autoJoinPassword,
-              callback: (result) => {
-                console.log(result)
-              }
-            }
-            dispatch('joinRoom', temporaryObj)
-          }
-        }
+      await dispatch('socketConnect', {
+        address: data.server
       })
+      let temporaryObj = {
+        user: rootState.plex.user,
+        roomName: data.room,
+        password: data.password
+      }
+      await dispatch('joinRoom', temporaryObj)
     },
     socketConnect ({ state, commit, rootState }, data) {
       return new Promise((resolve, reject) => {

@@ -565,20 +565,17 @@ export default {
 
       const req = () => {
         this.sources = this.generateSources()
-        request(
-          this.getSourceByLabel(this.chosenQuality).initUrl,
-          (error, response, body) => {
-            parseXMLString(body, (err, result) => {
-              if (err) {
-                this.ready = false
-              }
-              this.ready = true
-              this.transcodeSessionMetadata = result
-            })
-            if (!error) {
+        request(this.getSourceByLabel(this.chosenQuality).initUrl, (error, response, body) => {
+          parseXMLString(body, (err, result) => {
+            if (err) {
+              this.ready = false
             }
+            this.ready = true
+            this.transcodeSessionMetadata = result
+          })
+          if (!error) {
           }
-        )
+        })
       }
 
       if (this.playingMetadata) {

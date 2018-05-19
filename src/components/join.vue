@@ -1,13 +1,13 @@
 <template>
-    <v-layout wrap row ckass="pt-4">
+    <v-layout wrap row class="text-xs-center">
       <v-flex xs12 md8 offset-md2>
         <v-card style="background: rgba(0,0,0,0.3)">
-          <h4 class="white--text center-text pa-1"> Welcome to SyncLounge!</h4>
-          <div class="center-text">
-            <h6>
-                <span style="font-weight:900">{{ owner }}</span> has invited you to join the room
-                <span style="font-weight:900">{{ room }}</span>
-            </h6>
+          <h1 class="white--text pa-1"> Welcome to SyncLounge!</h1>
+          <div>
+            <h2>
+              <span style="font-weight:900">{{ owner }}</span> has invited you to join the room
+              <span style="font-weight:900">{{ room }}</span>
+            </h2>
           </div>
           <v-layout wrap row class="pa-4">
             <v-flex xs12 md8 offset-md2 class="center-text">
@@ -35,15 +35,12 @@ export default {
     if (this.room && this.server) {
       // Looks like a valid request...
       // Lets setup an auto join and then move the user to /sync
-      this.$store.commit('SET_AUTOJOIN', true)
-      this.$store.commit('SET_AUTOJOINROOM', this.room)
-      this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
-      this.$store.commit('SET_AUTOJOINURL', this.server)
     }
   },
   data () {
     return {
       server: null,
+      password: null,
       room: null,
       owner: null
     }
@@ -54,8 +51,34 @@ export default {
     }
   },
   methods: {
-    letsGo () {
-      this.$router.push('/sync')
+    async letsGo () {
+      console.log('Auto joining')
+      await this.$store.dispatch('autoJoin', {
+        server: this.server,
+        password: this.password,
+        room: this.room
+      })
+      // this.$store.commit('SET_AUTOJOIN', true)
+      // this.$store.commit('SET_AUTOJOINROOM', this.room)
+      // this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
+      // this.$store.commit('SET_AUTOJOINURL', this.server)
+      // this.$store.dispatch('socketConnect', {
+      //   address: this.$store.getters.getAutoJoinUrl,
+      //   callback: function () {
+      //     let temporaryObj = {
+      //     user: this.plex.user,
+      //     roomName: this.room.toLowerCase(),
+      //     password: this.password
+      //   }
+      //   this.$store.dispatch('joinRoom', temporaryObj).then(() => {
+      //     resolve()
+      //   }).catch(e => {
+      //     this.roomError = e
+      //     return reject(e)
+      //   })
+      //   }
+      // })
+      this.$router.push('/browse')
     }
   }
 

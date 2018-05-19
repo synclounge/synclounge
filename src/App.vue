@@ -12,7 +12,7 @@
       <drawerright></drawerright>
     </v-navigation-drawer>
     <v-dialog v-model="donateDialog" max-width="650px">
-      <v-card class="grey darken-4">
+      <v-card>
         <v-card-title class="title">
           Donate
           <v-spacer></v-spacer>
@@ -185,22 +185,14 @@ export default {
       window.localStorage.setItem('EXTAVAILABLE', false)
     }
 
-    if (this.$store.getters.getAutoJoin) {
-      // Attempt to auto join
-      this.$store.dispatch('socketConnect', {
-        address: this.$store.getters.getAutoJoinUrl,
-        callback: function () {}
-      })
-    }
-
-    if (this.$route.query.ptserver && this.$route.query.ptroom) {
-      // Looks like a valid request...
-      // Lets setup an auto join and then move the user to /sync
-      this.$store.commit('SET_AUTOJOIN', true)
-      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.ptroom)
-      this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.ptpassword)
-      this.$store.commit('SET_AUTOJOINURL', this.$route.query.ptserver)
-    }
+    // if (this.$route.query.ptserver && this.$route.query.ptroom) {
+    //   // Looks like a valid request...
+    //   // Lets setup an auto join and then move the user to /sync
+    //   this.$store.commit('SET_AUTOJOIN', true)
+    //   this.$store.commit('SET_AUTOJOINROOM', this.$route.query.ptroom)
+    //   this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.ptpassword)
+    //   this.$store.commit('SET_AUTOJOINURL', this.$route.query.ptserver)
+    // }
     window.EventBus.$on('notification', msg => {
       this.snackbarMsg = msg
       this.snackbar = true
@@ -228,6 +220,13 @@ export default {
       console.log('Login failed', e)
       this.$router.push('/signin')
     }
+    // if (this.$store.getters.getAutoJoin) {
+    //   // Attempt to auto join
+    //   this.$store.dispatch('socketConnect', {
+    //     address: this.$store.getters.getAutoJoinUrl,
+    //     callback: function () {}
+    //   })
+    // }
     this.loading = false
   },
   watch: {
@@ -392,7 +391,7 @@ export default {
       return this.$store.state.plex.user.thumb
     },
     logo: function () {
-      return 'slweb/logo-small-light.png'
+      return this.logos.light.small
     },
     isPlayer: function () {
       if (this.$route.path === '/') {
