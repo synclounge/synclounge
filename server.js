@@ -16,6 +16,8 @@ root.use(cors())
 
 var ptserver = express()
 
+const settings = require('./settings.json')
+
 // Setup our PTServer
 ptserver.get('/', function (req, res) {
   return res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.')
@@ -23,13 +25,18 @@ ptserver.get('/', function (req, res) {
 
 // Merge everything together
 
-root.use('/slserver', ptserver)
+let serverRoot = '/'
+if (settings.serverRoot && settings.serverRoot.length > 1) {
+  serverRoot = settings.serverRoot
+}
+
+root.use(serverRoot, ptserver)
 root.get('*', function (req, res) {
   return res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.')
 })
 
 var rootserver = require('http').createServer(root)
-var ptserver_io = require('socket.io')(rootserver, { path: '/slserver/socket.io' })
+var ptserver_io = require('socket.io')(rootserver, { path: serverRoot + 'socket.io' })
 
 ptserver_io.on('connection', function (socket) {
   console.log('Someone connected to the ptserver socket')

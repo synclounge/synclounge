@@ -176,6 +176,7 @@ export default {
         this.playertime = 0
         this.bufferedTile = null
         this.playingMetadata = null
+        this.$router.push('/browse')
         return data.callback(true)
       }
       if (data.command === '/player/playback/seekTo') {

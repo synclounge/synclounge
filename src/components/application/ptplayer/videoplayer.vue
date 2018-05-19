@@ -126,12 +126,7 @@ export default {
         return this.$refs.videoPlayer.player
       }
     },
-    bufferStart: function () {
-      return Math.round(this.player.buffered().start(0) * 1000)
-    },
-    bufferEnd: function () {
-      return Math.round(this.player.buffered().end(0) * 1000)
-    },
+
     playerOptions () {
       // component options
       return {
@@ -147,6 +142,9 @@ export default {
         autoplay: true,
         width: '100%',
         language: 'en',
+
+        bufferStart: 0,
+        bufferEnd: 0,
 
         sources: [
           this.source
@@ -217,14 +215,14 @@ export default {
         console.log('Player checks passed')
         let lastPlayerSpeed = this.player.currentTime()
         let lastPlayerTime = this.player.currentTime() * 1000
+        // console.log('Buffer start', this.bufferStart, 'Seek To', seekTo, 'Buffer End', this.bufferEnd)
+        // if (seekTo < this.bufferEnd && seekTo > this.bufferStart) {
+        //   console.log('Seeking to a buffered time')
+        //   this.player.currentTime(seekTo)
+        //   return resolve(true)
+        // }
 
-        if (seekTo < this.bufferedEnd && seekTo > this.bufferStart) {
-          console.log('Seeking to a buffered time')
-          this.player.currentTime(seekTo)
-          return resolve(true)
-        }
-
-        if (Math.abs(seekTo - this.lastTime) < this.$store.state.SYNCFLEXABILITY && !this.blockedSpeedChanges && this.$store.state.synclounge.lastHostTimeline.playerState === 'playing') {
+        if ((Math.abs(seekTo - this.lastTime) < 3000) && (!this.blockedSpeedChanges) && (this.$store.state.synclounge.lastHostTimeline.playerState === 'playing')) {
           console.log('Seeking via the speed up method')
           let oldSources = this.player.options_.sources
           let cancelled = false
@@ -285,6 +283,10 @@ export default {
               clearInterval(clicker)
               return
             }
+            if (difference > 5000) {
+              clearInterval(clicker)
+              return reject(new Error('Slow seek was stopped as we are beyond 5000ms'))
+            }
             lastPlayerSpeed = this.player.currentTime()
           }, 25)
         } else {
@@ -297,7 +299,7 @@ export default {
           let ticks = 0
           let ticker = setInterval(() => {
             console.log('Waiting for the player to skip..', oldTime, this.lastTime, (seekTo / 1000))
-            if (oldTime !== this.lastTime || (this.lastTime === (seekTo))) {
+            if (!this.player || oldTime !== this.lastTime || (this.lastTime === (seekTo))) {
               clearInterval(ticker)
               console.log('Success on seeking to a direct point in time')
               return resolve('Directly seeked')
@@ -382,7 +384,9 @@ export default {
       // console.log("Setting volume to " + this.player.volume() || 0)
       this.$store.commit('setSettingPTPLAYERVOLUME', this.player.volume() || 0)
       this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000)
-      this.duration = Math.round(this.player.duration() * 1000)
+      this.duration = Math.round(this.player.duration() * 1000)    
+      this.bufferStart = Math.round(this.player.buffered().start(0) * 1000)
+      this.bufferEnd = Math.round(this.player.buffered().end(0) * 1000)
       if (this.player.error_) {
         this.$emit('playerError')
       }

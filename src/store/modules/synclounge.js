@@ -115,7 +115,7 @@ export default {
         state._socket = state._io.connect(address, {
           'forceNew': true,
           'connect timeout': 7000,
-          path: '/slserver/socket.io'
+          path: '/socket.io'
         })
         state._socket.on('connect', function (result) {
           // Good connection
@@ -175,7 +175,7 @@ export default {
 
             let urlOrigin = window.location.origin
             if (process.env.NODE_ENV === 'development') {
-              urlOrigin = 'http://localhost:8088/' + settings.webroot
+              urlOrigin = 'http://localhost:8088' + settings.webroot
             }
 
             let data = {
@@ -256,8 +256,8 @@ export default {
                       return resolve()
                     }
                     // We need to autoplay!
-                    if (!rootState.AUTOPLAY) {
-                      console.log('AUTOPLAY is disabled', rootState.AUTOPLAY)
+                    if (!rootState.settings.AUTOPLAY) {
+                      console.log('AUTOPLAY is disabled', rootState.settings.AUTOPLAY)
                       return resolve()
                     }
                     rootState.blockAutoPlay = true
@@ -298,7 +298,7 @@ export default {
                     await rootState.chosenClient.pressPause()
                   }
                   console.log('Rootstate', rootState)
-                  await rootState.chosenClient.sync(data, rootState.SYNCFLEXABILITY, rootState.SYNCMODE)
+                  await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE)
                   resolve()
                 })
               }
@@ -342,7 +342,7 @@ export default {
               state.decisionBlocked = new Date().getTime()
               let timelineAge = new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt
               try {
-                if (timelineAge > 1000 && this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
+                if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
                   await rootState.chosenClient.getTimeline()
                   await decisionMaker(0)
                 } else {

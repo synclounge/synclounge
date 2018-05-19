@@ -318,7 +318,7 @@ const actions = {
     }
 
     // Check if we need to activate the upnext feature
-    if (state.me.role === 'host') {
+    if (state.me && state.me.role === 'host') {
       if (Math.abs(timeline.duration - timeline.time) < 10000) {
         if (!state.upNextCache[timeline.machineIdentifier]) {
           state.upNextCache[timeline.machineIdentifier] = {}

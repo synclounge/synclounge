@@ -244,48 +244,40 @@ module.exports = function PlexClient () {
     // First we will mirror the item so the user has an idea of what we're about to play
     return new Promise(async (resolve, reject) => {
       console.log('Autoplaying from client', data)
-      const send = async () => {
-        return new Promise(async (resolve, reject) => {
-          let command = '/player/playback/playMedia'
-          let mediaId = '/library/metadata/' + data.ratingKey
-          let offset = data.offset || 0
-          let serverId = data.server.clientIdentifier
-          let address = data.server.chosenConnection.address
-          let port = data.server.chosenConnection.port
-          let protocol = data.server.chosenConnection.protocol
-          let path = data.server.chosenConnection.uri + mediaId
-
-          let params = {
-            'X-Plex-Client-Identifier': 'SyncLounge',
-            'key': mediaId,
-            'offset': offset,
-            'machineIdentifier': serverId,
-            'address': address,
-            'port': port,
-            'protocol': protocol,
-            'path': path,
-            'wait': 0,
-            'token': data.server.accessToken
-          }
-
-          if (data.mediaIndex !== undefined || data.mediaIndex !== null) {
-            params.mediaIndex = data.mediaIndex
-          }
-
-          // Now that we've built our params, it's time to hit the client api
-          console.log('Sending command')
-          await this.hitApi(command, params, this.chosenConnection)
-          console.log('PlayMedia DONE')
-          resolve(true)
-        })
-      }
-
-      if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
-        return send()
-      } else {
+      if (this.clientIdentifier !== 'PTPLAYER9PLUS10') {
         await this.mirrorContent(data.ratingKey, data.server)
-        return send()
+      } 
+      let command = '/player/playback/playMedia'
+      let mediaId = '/library/metadata/' + data.ratingKey
+      let offset = data.offset || 0
+      let serverId = data.server.clientIdentifier
+      let address = data.server.chosenConnection.address
+      let port = data.server.chosenConnection.port
+      let protocol = data.server.chosenConnection.protocol
+      let path = data.server.chosenConnection.uri + mediaId
+
+      let params = {
+        'X-Plex-Client-Identifier': 'SyncLounge',
+        'key': mediaId,
+        'offset': offset,
+        'machineIdentifier': serverId,
+        'address': address,
+        'port': port,
+        'protocol': protocol,
+        'path': path,
+        'wait': 0,
+        'token': data.server.accessToken
       }
+
+      if (data.mediaIndex !== undefined || data.mediaIndex !== null) {
+        params.mediaIndex = data.mediaIndex
+      }
+
+      // Now that we've built our params, it's time to hit the client api
+      console.log('Sending command')
+      await this.hitApi(command, params, this.chosenConnection)
+      console.log('PlayMedia DONE')
+      resolve(true)      
     })
   }
   this.mirrorContent = function (key, serverObject, callback) {

@@ -285,13 +285,13 @@ export default {
     },
     CUSTOMSERVER: {
       get () {
-        if (!this.$store.getters.getSettingCUSTOMSERVER) {
+        if (!this.$store.getters.getSettings['CUSTOMSERVER']) {
           return 'http://'
         }
-        return this.$store.getters.getSettingCUSTOMSERVER
+        return this.$store.getters.getSettings['CUSTOMSERVER']
       },
       set (value) {
-        this.$store.commit('setSettingCUSTOMSERVER', value)
+        this.$store.commit('setSetting', ['CUSTOMSERVER', value])
       }
     }
   }
