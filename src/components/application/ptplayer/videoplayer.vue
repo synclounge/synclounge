@@ -233,6 +233,7 @@ export default {
           let clicker = setInterval(() => {
             if (cancelled || !this.player || this.isPlaying === 'paused' || this.isPlaying === 'buffering' || oldSources !== this.player.options_.sources) {
               clearInterval(clicker)
+              this.player.playbackRate(1.0)
               return reject(new Error('Slow seek was stop due to buffering or pausing'))
             }
             iterations++
@@ -263,14 +264,14 @@ export default {
             if (current < slidingTime) {
             // Speed up
               playbackSpeed = playbackSpeed + 0.0001
-              if (this.player.playbackRate() < 1.03) {
+              if (this.player.playbackRate() < 1.02) {
                 this.player.playbackRate(playbackSpeed)
               }
             }
             if (current > slidingTime) {
             // Slow down
               playbackSpeed = playbackSpeed - 0.0001
-              if (this.player.playbackRate() > 0.97) {
+              if (this.player.playbackRate() > 0.98) {
                 this.player.playbackRate(playbackSpeed)
               }
             }
@@ -285,6 +286,7 @@ export default {
             }
             if (difference > 5000) {
               clearInterval(clicker)
+              this.player.playbackRate(1.0)
               return reject(new Error('Slow seek was stopped as we are beyond 5000ms'))
             }
             lastPlayerSpeed = this.player.currentTime()
@@ -408,7 +410,7 @@ export default {
     },
     playerReadied (player) {
       // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
-      this.player.volume(this.$store.getters.getSettingPTPLAYERVOLUME || 0)
+      this.player.volume(this.$store.getters.getSettings['PTPLAYERVOLUME'] || 0)
     }
 
   }

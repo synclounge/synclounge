@@ -320,6 +320,7 @@ const actions = {
     // Check if we need to activate the upnext feature
     if (state.me && state.me.role === 'host') {
       if (Math.abs(timeline.duration - timeline.time) < 10000) {
+        console.log('Checking upnext')
         if (!state.upNextCache[timeline.machineIdentifier]) {
           state.upNextCache[timeline.machineIdentifier] = {}
         }
@@ -328,8 +329,12 @@ const actions = {
             loading: true
           }
           state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.key).then((data) => {
+            data.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier
+            window.EventBus.$emit('upnext', data)
             state.upNextCache[timeline.machineIdentifier][timeline.key] = data
           })
+        } else {
+          console.log('Already procced an upnext for this item', timeline)
         }
       }
     }

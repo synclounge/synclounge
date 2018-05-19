@@ -1,14 +1,12 @@
 <template>
   <v-bottom-sheet v-model="sheet" hide-overlay persistent>
-    <v-card v-if="ready && content && !content.loading" style="max-width: 100%; margin-left: auto; margin-right: auto" class="white--text" :img="background">
+    <v-card v-if="ready && content && !content.loading" style="max-width: 100%; margin-left: auto; margin-right: auto" class="white--text pa-0" :img="background">
       <v-container fluid align-center justify-start v-show="ready" class="pa-0" style="background: rgba(0,0,0,0.7);">
-        <v-card-title>
-          <h2>Coming up next</h2>
+        <v-card-title class="pa-0">
           <v-spacer></v-spacer>
-          <v-icon @click="sheet = false" class="clickable">close</v-icon>
         </v-card-title>
-        <v-layout row wrap justify-start align-start class="pa-2">
-          <v-container fluid grid-list-lg>
+        <v-layout row wrap justify-start align-start class="pa-0">
+          <v-container fluid class="pa-1">
             <v-layout row>
               <v-flex xs3 sm2>
                 <v-card-media
@@ -19,20 +17,28 @@
               </v-flex>
               <v-flex>
                 <div>
+                  <h2 style="width: 100%">Coming up next<v-icon style="float: right" @click="sheet = false" class="clickable ma-2">close</v-icon></h2>
                   <div class="headline">{{ getTitle }}</div>
                   <div>{{ getUnder }}</div>
-                  <h5>From {{ plexserver.name }}</h5>
-                </div>
-                <div class="text-xs-right">
-                <span>1.1s</span>
-                <v-btn @click="pressPlay" color="primary">Play Now</v-btn>
-                <v-btn flat>Cancel</v-btn>
-                </div>
+                  <v-layout row wrap>
+                    <v-flex xs12 md6 class="text-xs-left">
+                      <h5>From {{ plexserver.name }}</h5>
+                    </v-flex>
+                    <v-flex xs12 md6 class="text-xs-right">
+                      <div class="text-xs-right">
+                        <span>{{ (Math.round(timer / 1000) * 100) / 100 }}s</span>
+                        <v-btn @click="pressPlay" color="primary">Play Now</v-btn>
+                        <v-btn flat @click="sheet = false">Cancel</v-btn>
+                      </div>
+                    </v-flex>
+                  </v-layout>
+                </div>                
               </v-flex>
             </v-layout>
           </v-container>
         </v-layout>
-        <v-progress-linear :value="percent" class="pa-0 ma-0" height="3"></v-progress-linear>
+        <div :style="{ width: percent + '%'}" class="primary" style="height: 3px"></div>
+        <!-- <v-progress-linear :value="percent" class="pa-0 ma-0" height="3"></v-progress-linear> -->
       </v-container>
     </v-card>
   </v-bottom-sheet>
@@ -48,23 +54,21 @@ export default {
       sheet: true,
       maxTimer: 10000,
       timer: 10000,
-      cache: {}
+      cache: {},
+      content: null,
+      ready: false
     }
   },
   mounted: async function () {
-
+    window.EventBus.$on('upnext', (data) => {
+      console.log('Upnext event', data)
+      this.content = data
+      this.ready = true
+      this.startTimer()
+    })
   },
   watch: {
-    item: function (to) {
-      if (to) {
-        this.cache[to.ratingKey] = to
-      }
-    },
-    ready: function (to) {
-      if (to) {
-        this.startTimer()
-      }
-    }
+    
   },
   methods: {
     pressPlay: function () {
@@ -76,27 +80,25 @@ export default {
       })
     },
     startTimer: function () {
-      let ratingKey = this.item.ratingKey
+      this.timer = 10000
+      let data = this.item
+      this.sheet = true
       let ticker = setInterval(() => {
-        this.timer = this.timer - 50
+        console.log('tick')
+        this.timer = this.timer - 30
         if (this.timer < 1) {
-          this.pressPlay(this.cache[ratingKey])
+          if (this.sheet) {
+            this.pressPlay(data.item)
+          }
           clearInterval(ticker)
+          this.sheet = false
         }
-      }, 50)
+      }, 30)
     }
   },
   computed: {
-    ready: function () {
-      return (
-        this.chosenClient &&
-        this.chosenClient.lastTimelineObject &&
-        this.$store.state.upNextCache[this.chosenClient.lastTimelineObject.machineIdentifier] &&
-        this.$store.state.upNextCache[this.chosenClient.lastTimelineObject.machineIdentifier][this.chosenClient.lastTimelineObject.key]
-      )
-    },
     percent: function () {
-      return (this.maxTimer / this.timer) * 100
+      return (this.timer / this.maxTimer) * 100
     },
     background: function () {
       return this.plexserver.getUrlForLibraryLoc(this.item.art, 1000, 450)
@@ -105,19 +107,19 @@ export default {
       return this.$store.getters.getPlex
     },
     plexserver: function () {
-      return this.plex.servers[this.chosenClient.lastTimelineObject.machineIdentifier]
+      if (!this.content) {
+        return
+      }
+      return this.plex.servers[this.content.machineIdentifier]
     },
     thumb: function () {
-      return this.plexserver.getUrlForLibraryLoc(this.item.grandparentThumb, 1000, 450)
+      return this.plexserver.getUrlForLibraryLoc(this.item.thumb || this.item.art, 1000, 450)
     },
     item: function () {
       if (!this.content || this.content.loading) {
         return
       }
       return this.content.MediaContainer.Hub[0].Metadata[0]
-    },
-    content: function () {
-      return this.$store.state.upNextCache[this.chosenClient.lastTimelineObject.machineIdentifier][this.chosenClient.lastTimelineObject.key]
     },
     chosenClient: function () {
       return this.$store.getters.getChosenClient
