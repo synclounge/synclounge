@@ -262,7 +262,7 @@ export default {
                     }
                     rootState.blockAutoPlay = true
 
-                    let blockedServers = rootState.BLOCKEDSERVERS
+                    let blockedServers = rootState.settings.BLOCKEDSERVERS
                     let servers = Object.assign({}, rootState.plex.servers)
                     if (blockedServers) {
                       for (let i = 0; i < blockedServers.length; i++) {
@@ -273,9 +273,27 @@ export default {
                     }
 
                     sendNotification('Searching Plex Servers for "' + hostTimeline.rawTitle + '"')
-                    let result = await rootState.chosenClient.playContentAutomatically(rootState.chosenClient, hostTimeline, servers, hostTimeline.time).catch((e) => {
-                      sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle + '. Try manually playing the content')
-                      setTimeout(function () {
+                    let result = await rootState.chosenClient.playContentAutomatically(rootState.chosenClient, hostTimeline, servers, hostTimeline.time).catch(async (e) => {
+                      console.log('Host timeline', hostTimeline)
+                      if (rootState.plex.servers[hostTimeline.machineIdentifier] && hostTimeline.key) {
+                        console.log('Attempting to play directly from the server the host is using as we have access')
+                        try {
+                          await rootState.chosenClient.playMedia({
+                            ratingKey: hostTimeline.key,
+                            mediaIndex: null,
+                            server: rootState.plex.servers[hostTimeline.machineIdentifier],
+                            offset: hostTimeline.time || 0
+                          })
+                          setTimeout(() => {
+                            rootState.blockAutoPlay = false
+                          }, 15000)
+                          return resolve()
+                        } catch (e) {
+                          console.log('Error playing directly from the same server as the host', e)
+                        }
+                      }
+                      sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle + '. If you have access to the content try manually playing it.')
+                      setTimeout(() => {
                         rootState.blockAutoPlay = false
                       }, 15000)
                     })

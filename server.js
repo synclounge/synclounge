@@ -5,7 +5,6 @@
 // V2.0
 
 // USER CONFIG
-var PORT = 8089
 
 // END USER CONFIG
 var express = require('express')
@@ -17,6 +16,8 @@ root.use(cors())
 var ptserver = express()
 
 const settings = require('./settings.json')
+
+var PORT = process.env.port || settings.server_port || 8089
 
 // Setup our PTServer
 ptserver.get('/', function (req, res) {
@@ -146,7 +147,9 @@ ptserver_io.on('connection', function (socket) {
       temp.lastHeartbeat = new Date().getTime()
       temp.playerState = data.playerState
       temp.clientResponseTime = data.clientResponseTime
+      temp.machineIdentifier = data.machineIdentifier
       temp.type = data.type
+      temp.key = data.key
       temp.showName = data.showName
       temp.status = data.status
       temp.playerProduct = data.playerProduct
@@ -217,6 +220,7 @@ ptserver_io.on('connection', function (socket) {
         user.playerProduct = userData.playerProduct || ''
         user.status = userData.status || 'unknown'
         user.machineIdentifier = userData.machineIdentifier || ''
+        user.key = userData.key
         user.uuid = userData.uuid
         console.log('User is now', user)
         return

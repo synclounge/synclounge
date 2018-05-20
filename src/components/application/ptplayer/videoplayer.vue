@@ -215,12 +215,12 @@ export default {
         console.log('Player checks passed')
         let lastPlayerSpeed = this.player.currentTime()
         let lastPlayerTime = this.player.currentTime() * 1000
-        // console.log('Buffer start', this.bufferStart, 'Seek To', seekTo, 'Buffer End', this.bufferEnd)
-        // if (seekTo < this.bufferEnd && seekTo > this.bufferStart) {
-        //   console.log('Seeking to a buffered time')
-        //   this.player.currentTime(seekTo)
-        //   return resolve(true)
-        // }
+        console.log('Buffer start', this.bufferStart, 'Seek To', seekTo, 'Buffer End', this.bufferEnd)
+        if (seekTo < this.bufferEnd && seekTo > this.bufferStart) {
+          console.log('Seeking to a buffered time')
+          this.player.currentTime(seekTo / 1000)
+          return resolve(true)
+        }
 
         if ((Math.abs(seekTo - this.lastTime) < 3000) && (!this.blockedSpeedChanges) && (this.$store.state.synclounge.lastHostTimeline.playerState === 'playing')) {
           console.log('Seeking via the speed up method')

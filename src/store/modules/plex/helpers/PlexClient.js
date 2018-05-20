@@ -427,7 +427,8 @@ module.exports = function PlexClient () {
       }))
       const start = async (index) => {
         // Now lets try and play our items one by one
-        if (playables.length === 0) {
+        console.log('Auto playing index', index, 'of total', playables.length)
+        if (playables.length === 0 || index === playables.length) {
           return reject(new Error('Didnt find any playable items'))
         }
         var server = playables[index].server
@@ -441,6 +442,7 @@ module.exports = function PlexClient () {
         if (client.clientIdentifier !== 'PTPLAYER9PLUS10') {
           await client.subscribe()
         }
+        console.log('Attempting to automatically play', data)
         let res = await this.playMedia(data).catch(() => {
           start(parseInt(parseInt(index) + 1))
         })

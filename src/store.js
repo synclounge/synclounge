@@ -377,6 +377,7 @@ const actions = {
     }
     if (state.chosenClient && state.chosenClient.lastTimelineObject) {
       endObj.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier
+      endObj.key = state.chosenClient.lastTimelineObject.key
     }
     if (state.synclounge._socket) {
       state.synclounge._socket.pollStartTime = (new Date()).getTime()
