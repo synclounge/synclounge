@@ -11,9 +11,9 @@ try {
   settings = require('../settings.json')
 } catch (e) {
   let defaults = require('../example_settings.json')
-  jsonfile.writeFileSync('./settings.json', defaults)
+  jsonfile.writeFileSync('../settings.json', defaults)
   setTimeout(() => {
-    settings = require('./settings.json')
+    settings = require('../settings.json')
   }, 50)
 }
 
