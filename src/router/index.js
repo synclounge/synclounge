@@ -5,14 +5,12 @@ import signin from '../components/signin'
 import signout from '../components/signout'
 import join from '../components/join'
 
-const settings = require('../../settings.json')
-
 Vue.use(Router)
 
 // ==================== Router registration ====================
 export default new Router({
   mode: 'hash',
-  base: '/' + settings.webroot + '/',
+  base: '/',
   routes: [{
     path: '/',
     meta: {
@@ -62,7 +60,6 @@ export default new Router({
     },
     component: require('../components/application/ptplayer.vue')
   },
-  
   {
     path: '/nowplaying/:machineIdentifier/:ratingKey',
     meta: {

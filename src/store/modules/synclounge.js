@@ -2,8 +2,6 @@ const EventEmitter = require('events')
 var moment = require('moment')
 var axios = require('axios')
 
-const settings = require('../../../settings.json')
-
 function sendNotification (message) {
   return window.EventBus.$emit('notification', message)
 }
@@ -175,7 +173,7 @@ export default {
 
             let urlOrigin = window.location.origin
             if (process.env.NODE_ENV === 'development') {
-              urlOrigin = 'http://localhost:8088' + settings.webroot
+              urlOrigin = 'http://localhost:8088'
             }
 
             let data = {

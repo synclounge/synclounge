@@ -2,9 +2,7 @@
 import Vue from 'vue'
 import VueScrollTo from 'vue-scrollto'
 import Vuetify from 'vuetify'
-import {
-  ObserveVisibility
-} from 'vue-observe-visibility/dist/vue-observe-visibility'
+import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visibility'
 import VueVideoPlayer from 'vue-video-player'
 import VueResource from 'vue-resource'
 import VueClipboards from 'vue-clipboards'
@@ -16,7 +14,6 @@ import store from './store'
 require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
 require('vanilla-tilt')
 
-const settings = require('../settings.json')
 var moment = require('moment')
 
 Vue.use(VueScrollTo)
@@ -77,9 +74,6 @@ Vue.mixin({
   computed: {
     appVersion: function () {
       return this.$store.getters.appVersion
-    },
-    webRoot: function () {
-      return settings.webroot
     },
     logos: function () {
       return this.$store.getters.getLogos
