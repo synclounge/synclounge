@@ -19,7 +19,7 @@
           </h3>
         </div>
         <div v-if="code" class="text-xs-center">
-          <v-btn class="primary" :href="url" target="_blank">Sign in via Plex.tv</v-btn>
+          <v-btn class="primary" :href="url" target="_blank">Click me</v-btn>
         </div>
         <v-layout wrap row class="pt-4 pa-2">
           <v-flex xs12 md8 offset-md2 class="center-text">

@@ -30,7 +30,9 @@ var webpackConfig = merge(baseWebpackConfig, {
             'process.env': env
         }),
         new webpack.optimize.UglifyJsPlugin({
-            compress: false,      
+            compress: {
+              drop_console: true
+            },
             exclude: '/videojs-contrib-hls/',
             sourceMap: true
         }),

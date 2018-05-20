@@ -71,7 +71,7 @@
         ></v-text-field>
         <v-layout row wrap v-if="selectedServer == 'custom'">
           <v-flex xs4 offset-xs4>
-            <v-btn class="pt-orange white--text pa-0 ma-0" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
+            <v-btn class="pt-orange white--text pa-0 ma-0" color="primary" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
           </v-flex>
         </v-layout>
         <v-layout row wrap v-if="connectionPending">
@@ -157,6 +157,10 @@ export default {
         {
           text: 'SyncLounge EU1',
           value: 'https://eu1.synclounge.tv'
+        },
+        {
+          text: 'SyncLounge V2 US1',
+          value: 'http://v2.synclounge.tv'
         },
         {
           text: 'Custom Server',
