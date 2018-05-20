@@ -185,14 +185,14 @@ export default {
       window.localStorage.setItem('EXTAVAILABLE', false)
     }
 
-    // if (this.$route.query.ptserver && this.$route.query.ptroom) {
-    //   // Looks like a valid request...
-    //   // Lets setup an auto join and then move the user to /sync
-    //   this.$store.commit('SET_AUTOJOIN', true)
-    //   this.$store.commit('SET_AUTOJOINROOM', this.$route.query.ptroom)
-    //   this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.ptpassword)
-    //   this.$store.commit('SET_AUTOJOINURL', this.$route.query.ptserver)
-    // }
+    if (process.env.autojoin && process.env.autojoin_room && process.env.autojoin_server) {
+      // Looks like a valid request...
+      // Lets setup an auto join and then move the user to /sync
+      this.$store.commit('SET_AUTOJOIN', true)
+      this.$store.commit('SET_AUTOJOINROOM', process.env.autojoin_room)
+      this.$store.commit('SET_AUTOJOINPASSWORD', process.env.autojoin_password)
+      this.$store.commit('SET_AUTOJOINURL', process.env.autojoin_server)
+    }
     window.EventBus.$on('notification', msg => {
       this.snackbarMsg = msg
       this.snackbar = true
