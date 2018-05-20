@@ -62,6 +62,15 @@ export default new Router({
     },
     component: require('../components/application/ptplayer.vue')
   },
+  
+  {
+    path: '/nowplaying/:machineIdentifier/:ratingKey',
+    meta: {
+      protected: true
+    },
+    name: 'nowplaying',
+    component: require('../components/application/plexbrowser/plexcontent.vue')
+  },
 
   {
     path: '/browse',

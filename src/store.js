@@ -295,15 +295,15 @@ const actions = {
         state.background = state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
       })
     } else {
+      state.chosenClient.clientPlayingMetadata = null
       let thumb = await state.plex.getRandomThumb(state.plex)
       if (thumb) {
         state.background = thumb
       }
-      state.chosenClient.clientPlayingMetadata = null
     }
   },
   NEW_TIMELINE ({ commit, state, dispatch }, data) {
-    console.log('Got new timeline', data)
+    console.log('Got new timeline', data.time)
     // return true
     let timeline = data
     let client = state.chosenClient

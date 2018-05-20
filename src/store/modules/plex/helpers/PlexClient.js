@@ -1,5 +1,6 @@
 var axios = require('axios')
 const EventEmitter = require('events')
+var parseXMLString = require('xml2js').parseString
 var _PlexAuth = require('./PlexAuth.js')
 var PlexAuth = new _PlexAuth()
 var stringSimilarity = require('string-similarity')
@@ -82,7 +83,8 @@ module.exports = function PlexClient () {
           var query = ''
           Object.assign(params, {
             type: 'video',
-            'X-Plex-Device-Name': 'SyncLounge'
+            'X-Plex-Device-Name': 'SyncLounge',
+            commandID: this.commandId
           })
           // console.log(params)
           for (let key in params) {
@@ -101,7 +103,12 @@ module.exports = function PlexClient () {
             headers: options.headers
           })
             .then((response) => {
-              resolve(response)
+              parseXMLString(response.data, (err, result) => {
+                if (err) {
+                  reject(new Error('Invalid XML', err))
+                }
+                return resolve(result)
+              })
             })
             .catch((error) => {
               reject(error)
@@ -110,7 +117,7 @@ module.exports = function PlexClient () {
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
           // We need to subscribe first!
           try {
-            // await this.subscribe(connection)
+            await this.subscribe(connection)
             doRequest()
           } catch (e) {
             reject(e)
@@ -167,11 +174,11 @@ module.exports = function PlexClient () {
       if (_timeline.type === 'video') {
         videoTimeline = _timeline
         if (videoTimeline.ratingKey !== previousTimeline.ratingKey) {
-          window.EventBus.$emit('PLAYBACK_CHANGE', [this, videoTimeline.ratingKey, result.MediaContainer])
+          window.EventBus.$emit('PLAYBACK_CHANGE', [this, videoTimeline.ratingKey, videoTimeline])
         }
       }
     }
-    window.EventBus.$emit('NEW_TIMELINE', [this, videoTimeline, result.MediaContainer])
+    window.EventBus.$emit('NEW_TIMELINE', videoTimeline)
     previousTimeline = videoTimeline
     this.lastTimelineObject = videoTimeline
     this.lastTimelineObject.recievedAt = new Date().getTime()
@@ -195,11 +202,30 @@ module.exports = function PlexClient () {
     // Seek to a time (in ms)
     return this.hitApi('/player/playback/seekTo', { wait: 0, offset: time })
   }
+  this.waitForMovement = function (startTime) {
+    return new Promise((resolve, reject) => {
+      let timer = setInterval(async () => {
+        let now = await this.getTimeline()
+        if (now.time !== startTime) {
+          resolve()
+          clearInterval(timer)
+        }
+      }, 500)
+    })
+  }
   this.skipAhead = function (current, duration) {
     return new Promise(async (resolve, reject) => {
+      console.log('Seeking via the skip-ahead method')
+      let startedAt = new Date().getTime()
+      let now = this.lastTimelineObject.time
       await this.seekTo(current + duration)
+      await this.waitForMovement(now)
+      // The client is now ready
       await this.pressPause()
-      await wait(duration)
+      // Calculate how long it took to get to our ready state
+      let elapsed = Math.abs(startedAt - new Date().getTime())
+      console.log('Took', elapsed + 'ms for our client to be ready')
+      await wait(duration - elapsed)
       await this.pressPlay()
       resolve()
     })
@@ -239,7 +265,7 @@ module.exports = function PlexClient () {
       console.log('Autoplaying from client', data)
       if (this.clientIdentifier !== 'PTPLAYER9PLUS10') {
         await this.mirrorContent(data.ratingKey, data.server)
-      } 
+      }
       let command = '/player/playback/playMedia'
       let mediaId = '/library/metadata/' + data.ratingKey
       let offset = data.offset || 0
@@ -270,7 +296,7 @@ module.exports = function PlexClient () {
       console.log('Sending command')
       await this.hitApi(command, params, this.chosenConnection)
       console.log('PlayMedia DONE')
-      resolve(true)      
+      resolve(true)
     })
   }
   this.mirrorContent = function (key, serverObject, callback) {
@@ -310,30 +336,36 @@ module.exports = function PlexClient () {
           connection = this.chosenConnection
         }
         var command = '/player/timeline/subscribe'
-        var params = {
-          'port': '8555',
-          'protocol': 'http',
-          'X-Plex-Device-Name': 'SyncLounge'
-        }
+
         // Now that we've built our params, it's time to hit the client api
-        var query = ''
-        for (let key in params) {
-          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-        }
-        query = query + 'commandID=' + this.commandId
         if (connection.uri.charAt(connection.uri.length - 1) === '/') {
           // Remove a trailing / that some clients broadcast
           connection.uri = connection.uri.slice(0, connection.uri.length - 1)
         }
 
-        var _url = connection.uri + command + '?' + query
+        var _url = connection.uri + command
         // console.log('subscription url: ' + _url)
         this.commandId = this.commandId + 1
+        var params = {
+          'port': '8555',
+          'protocol': 'http',
+          'X-Plex-Device-Name': 'SyncLounge',
+          commandID: this.commandId
+        }
         this.setValue('commandId', this.commandId + 1)
         var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
-        console.log(options)
-        resolve()
-        // request(options, (error, response, body) => {
+        axios.get(connection.uri + command, {
+          params,
+          headers: options.headers
+        }).then(() => {
+          console.log('Subscription result')
+          this.setValue('lastSubscribe', new Date().getTime())
+          resolve()
+        }).catch((e) => {
+          console.log('Error sending subscribe', e)
+          reject(e)
+        })
+        // axios(options, (error, response, body) => {
         //   // console.log('subscription result', response)
         //   this.setValue('lastSubscribe', new Date().getTime())
         //   if (error) {
@@ -346,48 +378,6 @@ module.exports = function PlexClient () {
       doRequest()
     })
   }
-  // this.unsubscribe = function (callback) {
-  //   // var that = this
-  //   // doRequest()
-
-  //   // function doRequest () {
-  //   //   // Already have a valid http server running, lets send the request
-  //   //   let tempId = 'SyncLoungeWeb'
-  //   //   var command = '/player/timeline/unsubscribe'
-  //   //   var params = {
-  //   //     'port': '8555',
-  //   //     'protocol': 'http',
-  //   //     'X-Plex-Device-Name': 'SyncLounge'
-  //   //   }
-  //   //   // Now that we've built our params, it's time to hit the client api
-
-  //   //   var query = ''
-  //   //   for (let key in params) {
-  //   //     query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-  //   //   }
-  //   //   query = query + 'commandID=' + that.commandId
-  //   //   if (connection.uri.charAt(connection.uri.length - 1) == '/') {
-  //   //     // Remove a trailing / that some clients broadcast
-  //   //     connection.uri = connection.uri.slice(0, connection.uri.length - 1)
-  //   //   }
-  //   //   if (that.chosenConnection == null) {
-  //   //     // It is possible to try to subscribe before we've found a working connection
-  //   //     console.log('Chosen connection has not been set yet.')
-  //   //     return (callback(false))
-  //   //   }
-  //   //   var _url = that.chosenConnection.uri + command + '?' + query
-  //   //   // console.log('subscription url: ' + _url)
-  //   //   that.commandId = that.commandId + 1
-  //   //   var options = PlexAuth.getClientApiOptions(_url, that.clientIdentifier, that.uuid, 5000)
-  //   //   request(options, function (error, response, body) {
-  //   //     if (!error) {
-  //   //       return callback(true, that)
-  //   //     } else {
-  //   //       return callback(false, that)
-  //   //     }
-  //   //   })
-  //   // }
-  // },
   this.playContentAutomatically = function (client, hostData, servers, offset) {
     // Automatically play content on the client searching all servers based on the title
     return new Promise(async (resolve, reject) => {

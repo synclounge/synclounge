@@ -141,8 +141,7 @@ export default {
       this.gotResponse = false
       this.testClientErrorMsg = null
       try {
-        let result = await this.$store
-          .dispatch('PLEX_CLIENT_FINDCONNECTION', client)
+        let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client)
           .catch(e => {
             console.log(e)
             this.gotResponse = true

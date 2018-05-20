@@ -202,6 +202,12 @@ export default {
     })
     window.EventBus.$on('PLAYBACK_CHANGE', data => {
       console.log('Playback change event', data)
+      if (this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
+        this.$router.push('/nowplaying/' + data[2].machineIdentifier + '/' + data[1])
+      }
+      if (this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && !data[1] && this.$route.fullPath.indexOf('/nowplaying') > -1) {
+        this.$router.push('/browse/')
+      }
       this.$store.dispatch('PLAYBACK_CHANGE', data)
     })
     if (!window['localStorage'].getItem('plexuser')) {

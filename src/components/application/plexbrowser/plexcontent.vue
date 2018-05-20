@@ -32,6 +32,9 @@
                       <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
                         <v-icon></v-icon> Stop
                       </v-btn>
+                      <div v-if="!playable">
+                        <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+                      </div>
                     </v-flex>
                   </v-layout>
                 </v-flex>
@@ -77,10 +80,13 @@
                           <v-icon> play_arrow </v-icon>
                         </v-btn>
                       </div>
-                      <span v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
-                      <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
-                        <v-icon></v-icon> Stop
-                      </v-btn>
+                      <div v-else>
+                        <span class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
+                        <v-btn style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
+                          <v-icon></v-icon> Stop
+                        </v-btn>
+                        <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+                      </div>
                     </v-flex>
                     <div style="width: 100%">
                       <p class="pt-3" style="font-style: italic" v-if="hidden" v-on:click="hiddenOverride = true"> Summary automatically hidden for unwatched content. Click to unhide.</p>
@@ -116,11 +122,11 @@
                 </v-flex>
               </v-layout>
               <v-divider></v-divider>
-              <div v-if="subsetParentData(6).length >= 0 && contents.type == 'episode' && playable" class="hidden-xs-only">
+              <div v-if="subsetParentData(6).length >= 0 && contents.type == 'episode'" class="hidden-xs-only">
                 <v-subheader>Also in Season {{ contents.parentIndex }} of {{ contents.grandparentTitle }}</v-subheader>
                 <v-layout v-if="parentData" row wrap justify-start>
                   <v-flex xs6 md2 xl2 lg2 class="pb-3" v-for="ep in subsetParentData(6)" :key="ep.key">
-                    <plexthumb bottomOnly :content="ep" :img="getLittleThumb(ep)" :class="{ highlightBorder: ep.index === contents.index }" style="margin:3%" :server="server" type="thumb" spoilerFilter></plexthumb>
+                    <plexthumb bottomOnly :content="ep" :img="getLittleThumb(ep)" :class="{ highlightBorder: ep.index === contents.index }" style="margin:3%" :server="server" spoilerFilter></plexthumb>
                   </v-flex>
                 </v-layout>
               </div>
@@ -220,6 +226,12 @@ export default {
     server () {
       return this.plex.servers[this.serverId]
     },
+    me () {
+      return this.$store.state.me
+    },
+    manualSyncQueued: function () {
+      return this.$store.state.manualSyncQueued
+    },
     hidden () {
       if (this.hiddenOverride) {
         return false
@@ -256,10 +268,7 @@ export default {
       return this.$store.getters.getChosenClient
     },
     playable () {
-      if (this.nowPlaying || this.nowPlaying === '') {
-        return false
-      }
-      return true
+      return this.$route.fullPath.indexOf('/nowplaying') === -1
     },
     relatedItems () {
       if (!this.related) {
@@ -377,6 +386,10 @@ export default {
     setContent (content) {
       this.$router.push('/browse/' + this.serverId + '/' + content.ratingKey)
     },
+    doManualSync: function () {
+      console.log('Setting manual sync to true')
+      this.$store.commit('SET_VALUE', ['manualSyncQueued', true])
+    },
     getLittleThumb (content) {
       var w = Math.round(
         Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
@@ -417,7 +430,7 @@ export default {
         this.$parent.reset()
       })
     },
-    playMedia (content, mediaIndex) {
+    async playMedia (content, mediaIndex) {
       var callback = function (result) {
         console.log(result)
       }
@@ -426,13 +439,14 @@ export default {
         offset = this.contents.viewOffset
       }
 
-      this.chosenClient.playMedia({
+      await this.chosenClient.playMedia({
         ratingKey: this.contents.ratingKey,
         mediaIndex: mediaIndex,
         server: this.server,
         offset: offset,
         callback: callback
       })
+      this.dialog = false
     },
     getDuration (dur) {
       return humanizeDuration(dur, {
