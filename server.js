@@ -15,9 +15,7 @@ root.use(cors())
 
 var ptserver = express()
 
-const settings = require('./settings.json')
-
-var PORT = process.env.port || settings.server_port || 8089
+var PORT = process.env.port || 8089
 
 // Setup our PTServer
 ptserver.get('/', function (req, res) {
@@ -27,10 +25,6 @@ ptserver.get('/', function (req, res) {
 // Merge everything together
 
 let serverRoot = '/'
-if (settings.serverRoot && settings.serverRoot.length > 1) {
-  serverRoot = settings.serverRoot
-}
-
 root.use(serverRoot, ptserver)
 root.get('*', function (req, res) {
   return res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.')
