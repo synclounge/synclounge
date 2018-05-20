@@ -1,1 +1,0 @@
-{"webroot":"","serverRoot":"","webapp_port":8088,"server_port":8089,"database":{"datastores":{"defaults":{"adapter":"sails-disk","filePath":"./"}}}}
