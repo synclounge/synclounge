@@ -3,19 +3,6 @@ import Vuex from 'vuex'
 
 var plex = require('./store/modules/plex/').default
 var syncLounge = require('./store/modules/synclounge.js').default
-var jsonfile = require('jsonfile')
-
-let settings 
-
-try {
-  settings = require('../settings.json')
-} catch (e) {
-  let defaults = require('../example_settings.json')
-  jsonfile.writeFileSync('../settings.json', defaults)
-  setTimeout(() => {
-    settings = require('../settings.json')
-  }, 50)
-}
 
 Vue.use(Vuex)
 
