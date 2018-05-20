@@ -275,21 +275,34 @@ export default {
                     sendNotification('Searching Plex Servers for "' + hostTimeline.rawTitle + '"')
                     let result = await rootState.chosenClient.playContentAutomatically(rootState.chosenClient, hostTimeline, servers, hostTimeline.time).catch(async (e) => {
                       console.log('Host timeline', hostTimeline)
-                      if (rootState.plex.servers[hostTimeline.machineIdentifier] && hostTimeline.key) {
-                        console.log('Attempting to play directly from the server the host is using as we have access')
-                        try {
-                          await rootState.chosenClient.playMedia({
-                            ratingKey: hostTimeline.key,
-                            mediaIndex: null,
-                            server: rootState.plex.servers[hostTimeline.machineIdentifier],
-                            offset: hostTimeline.time || 0
+                      let hostServer = rootState.plex.servers[hostTimeline.machineIdentifier]
+                      if (hostServer && hostTimeline.key) {
+                        let isBlocked = false
+                        let blockedServers = JSON.parse(rootState.settings.BLOCKEDSERVERS)
+                        console.log('Blocked servers', rootState.settings.BLOCKEDSERVERS)
+                        if (blockedServers && blockedServers.length > 0) {
+                          blockedServers.map((server) => {
+                            if (server === hostTimeline.machineIdentifier) {
+                              isBlocked = true
+                            }
                           })
-                          setTimeout(() => {
-                            rootState.blockAutoPlay = false
-                          }, 15000)
-                          return resolve()
-                        } catch (e) {
-                          console.log('Error playing directly from the same server as the host', e)
+                        }
+                        if (!isBlocked) {
+                          console.log('Attempting to play directly from the server the host is using as we have access')
+                          try {
+                            await rootState.chosenClient.playMedia({
+                              ratingKey: hostTimeline.key,
+                              mediaIndex: null,
+                              server: rootState.plex.servers[hostTimeline.machineIdentifier],
+                              offset: hostTimeline.time || 0
+                            })
+                            setTimeout(() => {
+                              rootState.blockAutoPlay = false
+                            }, 15000)
+                            return resolve()
+                          } catch (e) {
+                            console.log('Error playing directly from the same server as the host', e)
+                          }
                         }
                       }
                       sendNotification('Failed to find a compatible copy of ' + hostTimeline.rawTitle + '. If you have access to the content try manually playing it.')

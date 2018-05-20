@@ -149,6 +149,7 @@ ptserver_io.on('connection', function (socket) {
       temp.clientResponseTime = data.clientResponseTime
       temp.machineIdentifier = data.machineIdentifier
       temp.type = data.type
+      temp.showName = data.showName
       temp.key = data.key
       temp.showName = data.showName
       temp.status = data.status

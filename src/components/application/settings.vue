@@ -48,7 +48,6 @@
 
 <script>
 export default {
-  props: ['object'],
   name: 'settings',
   data () {
     return {}

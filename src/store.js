@@ -342,14 +342,18 @@ const actions = {
     // state.ourClientResponseTime = timeline.lastResponseTime
     let title = null
     let rawTitle = null
+    let type = null
+    let showName = null
     if (state.chosenClient.clientPlayingMetadata) {
       let metadata = state.chosenClient.clientPlayingMetadata
       rawTitle = metadata.title
       if (metadata.type === 'episode') {
         title = metadata.grandparentTitle + ' - ' + metadata.title + ' S' + metadata.parentIndex + '-' + 'E' + metadata.index
+        showName = metadata.grandparentTitle
       } else {
         title = metadata.title
       }
+      type = metadata.type
     }
     let status = 'good'
     if (!state.synclounge.lastHostTimeline || !state.synclounge.lastHostTimeline.time) {
@@ -373,6 +377,8 @@ const actions = {
       clientResponseTime: state.chosenClient.lastResponseTime,
       playerProduct: state.chosenClient.product,
       status,
+      type,
+      showName,
       uuid: state.uuid
     }
     if (state.chosenClient && state.chosenClient.lastTimelineObject) {

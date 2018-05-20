@@ -24,14 +24,14 @@ export default {
   name: 'plexsettings',
   data () {
     return {
-      blockedServers: this.$store.getters.getSettingBLOCKEDSERVERS || []
+      blockedServers: JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS']) || []
     }
   },
   methods: {},
 
   watch: {
     blockedServers: function () {
-      this.$store.commit('setSetting', ['BLOCKEDSERVERS', this.blockedServers])
+      this.$store.commit('setSetting', ['BLOCKEDSERVERS', JSON.stringify(this.blockedServers)])
     }
   },
   computed: {
@@ -48,7 +48,7 @@ export default {
       }
       for (let id in this.plex.servers) {
         let server = this.plex.servers[id]
-        if (this.$store.getters.getSettings['BLOCKEDSERVERS'] && this.$store.getters.getSettings['BLOCKEDSERVERS'][server.clientIdentifier]) {
+        if (JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS']) && JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS'])[server.clientIdentifier]) {
           servers.push({
             name: server.name,
             id: server.clientIdentifier

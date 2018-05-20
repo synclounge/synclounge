@@ -19,6 +19,7 @@
     "jsonfile": "^4.0.0",
     "sails-disk": "^1.0.1",
     "socket.io": "^2.0.3",
+    "string-similarity": "^1.2.0",
     "videojs-contrib-hls": "^5.5.2",
     "vue": "^2.5.2",
     "vue-router": "^2.3.1",

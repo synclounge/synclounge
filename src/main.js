@@ -102,6 +102,9 @@ Vue.mixin({
     plex: function () {
       return this.$store.getters.getPlex
     },
+    settings: function () {
+      return this.$store.getters.getSettings
+    },
     plexserver: function () {
       return this.plex.servers[this.$route.params.machineIdentifier]
     },

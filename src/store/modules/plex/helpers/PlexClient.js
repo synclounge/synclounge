@@ -1,8 +1,8 @@
 var axios = require('axios')
-var parseXMLString = require('xml2js').parseString
 const EventEmitter = require('events')
 var _PlexAuth = require('./PlexAuth.js')
 var PlexAuth = new _PlexAuth()
+var stringSimilarity = require('string-similarity')
 
 module.exports = function PlexClient () {
   this.commandId = 0
@@ -67,9 +67,6 @@ module.exports = function PlexClient () {
           command: command,
           params: params,
           callback: (resultData) => {
-            if (command === '/player/timeline/poll') {
-              this.updateTimelineObject(resultData)
-            }
             resolve(resultData)
           }
         }
@@ -105,10 +102,6 @@ module.exports = function PlexClient () {
           })
             .then((response) => {
               resolve(response)
-              if (command === '/player/timeline/poll') {
-                console.log('Poll result', response, response.data)
-                this.updateTimelineObject(response)
-              }
             })
             .catch((error) => {
               reject(error)
@@ -456,12 +449,10 @@ module.exports = function PlexClient () {
         // Do a series of checks to see if this result is OK
         // Check if rawTitle matches
         if (data.title !== hostData.rawTitle) {
-          // global.renderLog.info('wrong title')
           return false
         }
         // Check if length is close enough
         if (Math.abs(parseInt(data.duration) - parseInt(hostData.maxTime)) > 5000 || !data.duration) {
-          // global.renderLog.info('wrong time')
           return false
         }
         if (data.type === 'movie') {
@@ -471,8 +462,9 @@ module.exports = function PlexClient () {
         }
         if (data.type === 'episode') {
           // Check if the show name is the same
-          console.log('FOUND A PLAYABLE TV EPISODE')
-          return true
+          let similarity = stringSimilarity.compareTwoStrings(data.grandparentTitle, hostData.showName)
+          console.log('Comparing similarity of', data.grandparentTitle, hostData.showName, similarity)
+          return similarity > 0.40
         }
         if (data.type === 'track') {
           // We're good!
