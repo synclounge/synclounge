@@ -3,176 +3,140 @@
 // Port defaults to 8088
 // REQUIRED: --url argument
 
-const settings = require('./settings.json')
-
-const args = require('args-parser')(process.argv)
-if (!args['url']) {
-  console.log('Missing required argument -url. EG. "node webapp.js --url=http://example.com/ptweb". This URL is used for redirecting invite links.')
-  return
-}
-var accessIp = args['url'] // EG 'http://95.231.444.12:8088/ptweb' or 'http://example.com/ptweb'
-if (accessIp.indexOf('/slweb') === -1) {
-  console.log('WARNING: /slweb was not found in your url. Unless you have changed the URL Base make sure to include this.')
-}
-var PORT = 8088
-if (args['port']) {
-  PORT = parseInt(args['port'])
-} else {
-  console.log('Defaulting to port 8088')
-}
 
 var express = require('express')
 var path = require('path')
 var cors = require('cors')
 var jsonfile = require('jsonfile')
 var bodyParser = require('body-parser')
-var file = 'ptinvites.json'
+var Waterline = require('waterline')
+var WaterlineMysql = require('waterline-mysql')
+var SailsDisk = require('sails-disk')
 
-var root = express()
+let settings = {}
+var accessIp = ''
+var PORT = 8088
 
-root.use(cors())
-root.use(bodyParser())
-// root.use(bodyParser.urlencoded({ extended: true }))
+const bootstrap = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      settings = require('./settings.json')
+    } catch (e) {
+      console.log(e)
+      console.log('Creating default settings.json')
+      let defaults = require('./example_settings.json')
+      jsonfile.writeFileSync('./settings.json', defaults)
+      await new Promise((resolve, reject) => {
+        setTimeout(() => resolve(), 500)
+      })
+      settings = require('./settings.json')
+    }
+    const args = require('args-parser')(process.argv)
+    if (!args['url'] && !process.env.url) {
+      console.log('Missing required argument -url. EG. "node webapp.js --url=http://example.com/ptweb". This URL is used for redirecting invite links.')
+      return reject(new Error('Missing URL for invite links'))
+    }
+    accessIp = args['url'] || process.env.url // EG 'http://95.231.444.12:8088/ptweb' or 'http://example.com/ptweb'
+    if (args['port'] || process.env.port || settings.webapp_port) {
+      PORT = args['port'] || process.env.port || settings.webapp_port
+    } else {
+      console.log('Defaulting webapp to port 8088')
+    }
+    PORT = parseInt(PORT)
+    let baseSettings = require('./waterline_settings.json')
+    baseSettings.adapters = {
+      'waterline-mysql': WaterlineMysql,
+      'sails-disk': SailsDisk
+    }
+    baseSettings.datastores = settings.database.datastores
+    baseSettings.models.invite.beforeCreate = async (data, cb) => {
+      console.log('Creating Invite', data)
+      let fullUrl
+      let params = {
+        server: data.server,
+        room: data.room,
+        owner: data.owner
+      }
+      if (data.password) {
+        params.password = data.password
+      }
+      let query = ''
+      for (let key in params) {
+        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+      }
+      fullUrl = accessIp + '/#/join?' + query
+      data.fullUrl = fullUrl
+      data.code = (0 | Math.random() * 9e6).toString(36)
+      cb()
+    }
+    Waterline.start(baseSettings, (err, orm) => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(orm)
+    })
+  })
+}
 
-// Setup our web app
-root.use(settings.webroot + '/', express.static(path.join(__dirname, 'dist')))
-
-// Merge everything together
-
-root.get(settings.webroot + '/invite/:id', (req, res) => {
-  console.log('handling an invite')
-  let shortObj = shortenedLinks[req.params.id]
-  if (!shortObj) {
-    return res.send('Invite expired')
-  }
-  console.log('Redirecting an invite link')
-  console.log(JSON.stringify(shortObj, null, 4))
-  return res.redirect(shortObj.fullUrl)
-})
-root.post(settings.webroot + '/invite', (req, res) => {
-  res.setHeader('Content-Type', 'application/json')
-  if (!req.body) {
-    return res.send({
-      success: false,
-      msg: 'ERR: You did not send any POST data'
-    }).end()
-  }
-  console.log('Generating Invite URL via the API.')
-  let data = {}
-  let fields = ['server', 'room', 'password', 'owner']
-  for (let i = 0; i < fields.length; i++) {
-    if (req.body[fields[i]] === undefined) {
+const app = async (orm) => {
+  var root = express()
+  root.use(cors())
+  root.use(bodyParser())
+  // Setup our web app
+  root.use(settings.webroot + '/', express.static(path.join(__dirname, 'dist')))
+  root.get(settings.webroot + '/invite/:id', async (req, res) => {
+    console.log('handling an invite', req.params.id)
+    let shortObj = await Waterline.getModel('invite', orm).findOne({ code: req.params.id })
+    console.log('Invite data', shortObj)
+    if (!shortObj) {
+      return res.redirect(accessIp + settings.webroot)
+    }
+    console.log('Redirecting an invite link', shortObj)
+    return res.redirect(shortObj.fullUrl)
+  })
+  root.post(settings.webroot + '/invite', async (req, res) => {
+    res.setHeader('Content-Type', 'application/json')
+    if (!req.body) {
       return res.send({
         success: false,
-        msg: 'ERR: You did not specify ' + fields[i],
-        field: fields[i]
+        msg: 'ERR: You did not send any POST data'
       }).end()
     }
-    data[fields[i]] = req.body[fields[i]]
-  }
-  return res.send({
-    url: shortenObj(data),
-    success: true,
-    generatedAt: new Date().getTime(),
-    details: data
-  }).end()
-})
-root.use('/', express.static(path.join(__dirname, 'dist')))
-
-root.get('*', (req, res) => {
-  console.log('Catch all')
-  return res.redirect('/')
-})
-
-root.use(cors())
-
-var rootserver = require('http').createServer(root)
-
-function getUniqueId () {
-  while (true) {
-    let testId = (0 | Math.random() * 9e6).toString(36)
-    if (!shortenedLinks[testId]) { // Check if we already have a shortURL using that id
-      return testId
-    }
-  }
-}
-
-function shortenObj (data) {
-  let returnable = {}
-  returnable.urlOrigin = accessIp
-  returnable.owner = data.owner
-
-  returnable.server = data.server
-  returnable.room = data.room
-  returnable.password = data.password
-
-  returnable.starttime = (new Date()).getTime()
-  returnable.id = getUniqueId()
-  returnable.shortUrl = accessIp + '/invite/' + returnable.id
-
-  let params = {
-    server: data.server,
-    room: data.room,
-    owner: data.owner
-  }
-  if (data.password) {
-    params.password = data.password
-  }
-  let query = ''
-  for (let key in params) {
-    query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-  }
-  returnable.fullUrl = accessIp + '/#/join?' + query
-
-  shortenedLinks[returnable.id] = returnable
-  saveToFile(shortenedLinks, () => {})
-  return returnable.shortUrl
-}
-
-function saveToFile (content, callback) {
-  jsonfile.writeFile(file, content, (err) => {
-    return callback(err)
-  })
-}
-
-function loadFromFile (callback) {
-  jsonfile.readFile(file, (err, obj) => {
-    if (err || !obj) {
-      // File doesn't exist or an error occured
-      return callback({})
-    } else {
-      return callback(obj)
-    }
-  })
-}
-
-function killOldInvites () {
-  let now = (new Date()).getTime()
-  loadFromFile((data) => {
-    if (!data) {
-      return
-    }
-    console.log('Deleting invites over 1 month old..')
-    let oldSize = Object.keys(data).length
-    for (let key in data) {
-      let invite = data[key]
-      if (Math.abs(invite.starttime - now) > 2629746000) {
-        delete data[key]
+    let data = {}
+    let fields = ['server', 'room', 'password', 'owner']
+    for (let i = 0; i < fields.length; i++) {
+      if (req.body[fields[i]] === undefined) {
+        return res.send({
+          success: false,
+          msg: 'ERR: You did not specify ' + fields[i],
+          field: fields[i]
+        }).end()
       }
+      data[fields[i]] = req.body[fields[i]]
     }
-    console.log('Deleted ' + Math.abs(oldSize - Object.keys(data).length) + ' old invites')
-    saveToFile(data, () => {})
+    let result = await Waterline.getModel('invite', orm).create({ ...data }).fetch()
+    return res.send({
+      url: accessIp + '/invite/' + result.code,
+      success: true,
+      generatedAt: new Date().getTime(),
+      details: result
+    }).end()
   })
-}
-killOldInvites()
-setInterval(() => {
-  killOldInvites()
-}, 3600000)
-
-var shortenedLinks = {}
-loadFromFile((result) => {
-  shortenedLinks = result
+  root.use('/', express.static(path.join(__dirname, 'dist')))
+  root.get('*', (req, res) => {
+    console.log('Catch all')
+    return res.redirect('/')
+  })
+  root.use(cors())
+  var rootserver = require('http').createServer(root)
   rootserver.listen(PORT)
+  console.log('SyncLounge WebApp successfully started on port ' + PORT)
+}
+
+
+bootstrap().then((orm) => {
+  app(orm)
+}).catch((e) => {
+  console.log('Error bootstrapping webapp:', e)
 })
 
-console.log('SyncLounge WebApp successfully started on port ' + PORT)
