@@ -25,8 +25,7 @@
     "vue-router": "^2.3.1",
     "vuetify": "^1.0.17",
     "waterline": "^0.13.4",
-    "waterline-mysql": "^0.6.0",
-    "waterline-sqlite3": "^50.0.0"
+    "waterline-mysql": "^0.6.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
