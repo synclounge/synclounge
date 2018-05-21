@@ -98,6 +98,14 @@ export default {
         clearInterval(this.ticker)
         window.localStorage.setItem('plexuser', JSON.stringify({ authToken: result.data.authToken }))
         await this.$store.dispatch('PLEX_LOGIN_TOKEN', result.data.authToken)
+        if (this.$store.state.autoJoin) {
+          console.log('Autojoining...')
+          await this.$store.dispatch('autoJoin', {
+            server: this.$store.state.autoJoinUrl,
+            password: this.$store.state.autoJoinPassword,
+            room: this.$store.state.autoJoinRoom
+          })
+        }
         this.$router.push('/browse')
       }
     }, 2000)

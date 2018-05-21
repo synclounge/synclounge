@@ -20,7 +20,7 @@
               </v-flex>
               <v-flex xs12 md9 class="ma-2">
                 <div>
-                  <h1 style="font-size: 72px"> {{ contents.parentTitle }}</h1>
+                  <h1> {{ contents.parentTitle }}</h1>
                   <h3 style="font-weight:bold">{{ contents.title }}</h3>
                   <p> {{ getSeasons }} - {{ contents.parentYear }} </p>
                   <v-divider></v-divider>
@@ -109,7 +109,7 @@ export default {
     getArtUrl (object) {
       var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
       var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 10)
+      return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 2)
     },
     getSeasons () {
       if (this.contents.size === 1) {
@@ -139,7 +139,7 @@ export default {
     setBackground () {
       var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
       var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8))
+      this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 2))
     },
     reset () {
       this.browsingContent = false

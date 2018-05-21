@@ -20,7 +20,7 @@
                 </v-flex>
                 <v-flex xs12 md9 style="position:relative" class="ma-2">
                   <div>
-                    <h1 style="font-size: 72px"> {{ contents.MediaContainer.title1 }}</h1>
+                    <h1> {{ contents.MediaContainer.title1 }}</h1>
                     <h3 style="font-weight:bold">{{ contents.MediaContainer.title2 }}</h3>
                     <p> {{ contents.MediaContainer.size }} episodes </p>
                     <v-divider></v-divider>
@@ -91,26 +91,13 @@ export default {
   beforeDestroy () {},
   computed: {
     getArtUrl () {
-      var w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      )
-      var h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      )
-      return this.plexserver.getUrlForLibraryLoc(
-        this.contents.MediaContainer.banner,
-        w / 2,
-        h / 1,
-        5
-      )
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+      return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 2, h / 1, 2)
     },
     getThumb () {
-      var w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      )
-      var h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      )
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
       return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.thumb || this.contents.MediaContainer.grandparentThumb || this.contents.MediaContainer.parentThumb,
         w / 1,
         h / 2
@@ -122,22 +109,10 @@ export default {
       this.browsingContent = content
     },
     setBackground () {
-      var w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      )
-      var h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      )
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
 
-      this.$store.commit(
-        'SET_BACKGROUND',
-        this.plexserver.getUrlForLibraryLoc(
-          this.contents.MediaContainer.art,
-          w / 4,
-          h / 4,
-          8
-        )
-      )
+      this.$store.commit('SET_BACKGROUND', this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.art, w / 4, h / 4, 2))
     },
     reset () {
       this.browsingContent = false

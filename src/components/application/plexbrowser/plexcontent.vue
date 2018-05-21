@@ -408,7 +408,7 @@ export default {
       )
       this.$store.commit(
         'SET_BACKGROUND',
-        this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 8)
+        this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 2)
       )
     },
 

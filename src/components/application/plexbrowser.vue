@@ -67,8 +67,8 @@
             <v-icon @click="onDeckDown" style="margin-right: 15px;cursor: pointer" :style="onDeckDownStyle">angle-left</v-icon><v-icon @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
           </span>
         </h4>
-        <v-layout v-if="onDeck" row>
-          <v-flex xs12 md3 xl3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
+        <v-layout v-if="onDeck" row justify-center>
+          <v-flex xs12 md3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
             <plexthumb :content="content" :server="lastServer" type="art" @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
@@ -299,9 +299,9 @@ export default {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs': return 1
         case 'sm': return 2
-        case 'md': return 3
-        case 'lg': return 3
-        case 'xl': return 3
+        case 'md': return 4
+        case 'lg': return 4
+        case 'xl': return 4
       }
     },
     availableServers () {

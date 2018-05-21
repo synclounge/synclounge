@@ -11,13 +11,13 @@
         </div>
         <h4> Libraries </h4>
         <v-layout row wrap v-if="libraries && !browsingLibrary">
-          <v-flex xs6 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-3" :key="library.name">
-            <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" height="10em" class="clickable text-xs-center" style="max-width:100%; cursor: pointer">
-              <div style="position:relative; width:100%; background: rgba(0,0,0,0.4); height:8em">
+          <v-flex xs12 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-1" :key="library.name">
+            <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" class="clickable text-xs-center" style="max-width:100%; cursor: pointer">
+              <div style="position:relative; width:100%; background: rgba(0,0,0,0.4); height:8em" class="hidden-xs-only">
                 <img style="height: 70%; display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)"/>
               </div>
-              <div style="background: rgba(0,0,0,0.7); position:relative; width:100%; height:2em">
-                <div class="truncate text-xs-center" style="font-size: 1.3em">{{ library.title }}</div>
+              <div style="background: rgba(0,0,0,0.7); position:relative; width:100%; height:2em" class="text-xs-center">
+                <div class="truncate text-xs-left text-sm-center" style="font-size: 1.3em">{{ library.title }}</div>
               </div>
             </v-card>
           </v-flex>

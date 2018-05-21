@@ -52,16 +52,21 @@ export default {
   },
   methods: {
     async letsGo () {
-      console.log('Auto joining')
-      await this.$store.dispatch('autoJoin', {
-        server: this.server,
-        password: this.password,
-        room: this.room
-      })
-      // this.$store.commit('SET_AUTOJOIN', true)
-      // this.$store.commit('SET_AUTOJOINROOM', this.room)
-      // this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
-      // this.$store.commit('SET_AUTOJOINURL', this.server)
+      if (window.localStorage.getItem('plexuser')) {
+        console.log('Auto joining')
+        await this.$store.dispatch('autoJoin', {
+          server: this.server,
+          password: this.password,
+          room: this.room
+        })
+        this.$router.push('/browse')
+      } else {
+        this.$store.commit('SET_AUTOJOIN', true)
+        this.$store.commit('SET_AUTOJOINROOM', this.room)
+        this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
+        this.$store.commit('SET_AUTOJOINURL', this.server)
+        this.$router.push('/signin')
+      }
       // this.$store.dispatch('socketConnect', {
       //   address: this.$store.getters.getAutoJoinUrl,
       //   callback: function () {
@@ -78,7 +83,6 @@ export default {
       //   })
       //   }
       // })
-      this.$router.push('/browse')
     }
   }
 

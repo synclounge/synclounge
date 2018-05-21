@@ -34,7 +34,8 @@ export default new Router({
   {
     path: '/join',
     meta: {
-      noload: true
+      noload: true,
+      protected: false
     },
     component: join
   },
