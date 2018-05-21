@@ -58,7 +58,7 @@
       </router-link>
       <v-spacer></v-spacer>
       <v-toolbar-items>
-        <img class="ma-2" style="height:48px; width: 48px" v-bind:src="logo"/>
+        <img class="ma-2 hidden-xs-only" style="height:48px; width: 48px" v-bind:src="logo"/>
         <v-btn color="primary" dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat @click="donateDialog = true">Donate ♥</v-btn>

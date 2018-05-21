@@ -25,7 +25,10 @@
           </v-flex>
         </v-layout>
         <v-divider></v-divider>
-        <v-layout row wrap>
+        <div v-if="plex && !plex.gotDevices" class="text-xs-center pa-4">
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </div>
+        <v-layout v-else row wrap>
           <v-flex xs12 md6 lg7>
             <v-subheader>Plex Players {{ playercount }}</v-subheader>
             <div v-for="i in recentClients" :key="i.clientIdentifier">

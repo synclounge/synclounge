@@ -307,10 +307,10 @@ video.vjs-tech,
 }
 
 .ptplayer .video-js {
-  max-height: calc(100vh - 64px) !important;
-  min-height: calc(100vh - 64px) !important;
-  max-width: 100vw;
-  padding-top: 0px
+  height: calc(100vh - 64px) !important;
+  padding-top: 0px;
+  position: absolute !important;
+  height: 100% !important;
 }
 
 .ptplayer .vjs_video_1177-dimensions.vjs-fluid {
