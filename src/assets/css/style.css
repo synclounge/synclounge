@@ -309,8 +309,6 @@ video.vjs-tech,
 .ptplayer .video-js {
   height: calc(100vh - 64px) !important;
   padding-top: 0px;
-  position: absolute !important;
-  height: 100% !important;
 }
 
 .ptplayer .vjs_video_1177-dimensions.vjs-fluid {
