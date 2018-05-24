@@ -26,8 +26,8 @@
         <v-list dense two-line style="overflow-y:scroll; max-height: 40vh; background: none">
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
             <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
-              <v-list-tile-avatar>
-                <img v-bind:src="user.avatarUrl" v-on:dblclick="transferHost(user.username)" :style="getImgStyle(user)">
+              <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
+                <img v-bind:src="user.avatarUrl"  :style="getImgStyle(user)">
                   <v-icon v-if="user.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">{{ playerState(user) }}</v-icon>
                 </img>
               </v-list-tile-avatar>
