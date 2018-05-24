@@ -143,24 +143,16 @@ export default {
 
       ptservers: [
         {
-          text: 'SyncLounge AU1',
-          value: 'https://au1.synclounge.tv'
-        },
-        {
-          text: 'SyncLounge US1',
-          value: 'https://us1.synclounge.tv'
-        },
-        {
-          text: 'SyncLounge US2',
-          value: 'https://us2.synclounge.tv'
-        },
-        {
-          text: 'SyncLounge EU1',
-          value: 'https://eu1.synclounge.tv'
+          text: 'SyncLounge V2 AU1',
+          value: 'http://v2au1.synclounge.tv'
         },
         {
           text: 'SyncLounge V2 US1',
           value: 'http://v2.synclounge.tv'
+        },
+        {
+          text: 'SyncLounge V2 EU1',
+          value: 'http://v2eu1.synclounge.tv'
         },
         {
           text: 'Custom Server',
