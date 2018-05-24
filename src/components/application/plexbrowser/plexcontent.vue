@@ -132,8 +132,8 @@
               </div>
               <div v-if="relatedItems.length > 0" style="background: rgba(0,0,0,0.3)">
                 <v-subheader>Related Movies</v-subheader>
-                <v-layout row wrap justify-start>
-                  <v-flex xs4 md2 class="ma-1" v-for="movie in relatedItems" :key="movie.key">
+                <v-layout row wrap justify-space-around align-center>
+                  <v-flex xs4 md1 class="ma-1" v-for="movie in relatedItems" :key="movie.key">
                     <plexthumb :content="movie" :img="getLittleThumb(movie)" style="margin:3%" :server="server" type="thumb"></plexthumb>
                   </v-flex>
                 </v-layout>
@@ -278,7 +278,7 @@ export default {
       this.related.MediaContainer.Hub[0].Metadata.map((item) => {
         items.push(item)
       })
-      return items.slice(0, 4)
+      return items.slice(0, 7)
     },
     getArtUrl () {
       var w = Math.round(

@@ -305,6 +305,7 @@ const actions = {
     // return true
     let timeline = data
     let client = state.chosenClient
+    let metadata = state.chosenClient.clientPlayingMetadata
     // console.log(state)
     if (!state.chosenClient || (client.clientIdentifier !== state.chosenClient.clientIdentifier)) {
       console.log('Invalid client')
@@ -317,7 +318,7 @@ const actions = {
 
     // Check if we need to activate the upnext feature
     if (state.me && state.me.role === 'host') {
-      if (timeline.duration && timeline.time && Math.abs(timeline.duration - timeline.time) < 10000) {
+      if (timeline.duration && timeline.time && Math.abs(timeline.duration - timeline.time) < 10000 && metadata.type === 'episode') {
         console.log('Checking upnext')
         if (!state.upNextCache[timeline.machineIdentifier]) {
           state.upNextCache[timeline.machineIdentifier] = {}
@@ -343,7 +344,6 @@ const actions = {
     let type = null
     let showName = null
     if (state.chosenClient.clientPlayingMetadata) {
-      let metadata = state.chosenClient.clientPlayingMetadata
       rawTitle = metadata.title
       if (metadata.type === 'episode') {
         title = metadata.grandparentTitle + ' - ' + metadata.title + ' S' + metadata.parentIndex + '-' + 'E' + metadata.index
