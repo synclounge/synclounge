@@ -3,7 +3,6 @@
 // Port defaults to 8088
 // REQUIRED: --url argument
 
-
 var express = require('express')
 var path = require('path')
 var cors = require('cors')
@@ -133,10 +132,8 @@ const app = async (orm) => {
   console.log('SyncLounge WebApp successfully started on port ' + PORT)
 }
 
-
 bootstrap().then((orm) => {
   app(orm)
 }).catch((e) => {
   console.log('Error bootstrapping webapp:', e)
 })
-

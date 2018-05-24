@@ -32,7 +32,7 @@
                 </img>
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-tooltip bottom color="accent">
+                <v-tooltip bottom color="primary">
                   <span slot="activator">
                     <v-list-tile-title> {{ user.username }} <span style="opacity: 0.6" v-if="user.uuid === me.uuid"> (you) </span></v-list-tile-title>
                     <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
@@ -103,7 +103,6 @@ export default {
       this.$nextTick(() => {
         var options = {
           container: '#chatbox',
-          easing: 'ease-in',
           cancelable: false
         }
         this.$scrollTo('#lastMessage', 0, options)

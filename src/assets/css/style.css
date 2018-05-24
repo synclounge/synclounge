@@ -307,7 +307,7 @@ video.vjs-tech,
 }
 
 .ptplayer .video-js {
-  height: calc(100vh - 64px) !important;
+  height: calc(100vh - 64px);
   padding-top: 0px;
 }
 

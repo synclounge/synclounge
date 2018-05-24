@@ -1,18 +1,59 @@
 <template>
-  <div style="width:100%; max-height: calc(100vh - 64px)">
-    <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
-      @playerMounted="playerMounted()"
-      @timelineUpdate="timelineUpdate"
-      @playbackEnded="stopPlayback()"
+  <div style="width:100%; position: relative">
+    <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
+      <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
+        @playerMounted="playerMounted()"
+        @timelineUpdate="timelineUpdate"
+        @playbackEnded="stopPlayback()"
 
-      :metadata="playingMetadata"
-      :server="chosenServer"
-      :src="getSourceByLabel(chosenQuality)"
-      :initUrl="getSourceByLabel(chosenQuality).initUrl"
-      :params="getSourceByLabel(chosenQuality).params"
-      :initialOffset="playertime"
-      :createdAt="playerCreatedAt"
-    ></videoplayer>
+        :metadata="playingMetadata"
+        :server="chosenServer"
+        :src="getSourceByLabel(chosenQuality)"
+        :initUrl="getSourceByLabel(chosenQuality).initUrl"
+        :params="getSourceByLabel(chosenQuality).params"
+        :initialOffset="playertime"
+        :createdAt="playerCreatedAt"
+      ></videoplayer>
+      <div v-if="playingMetadata && chosenServer">
+        <transition name="fade">
+          <div v-show="hovered || playerstatus === 'paused'">
+            <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 50" class="pa-3 hidden-xs-only">
+              <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;"/>
+              <v-flex class="pl-3">
+                <v-container class="pa-0" fill-height>
+                  <v-layout column wrap justify-space-apart>
+                    <v-flex>                  
+                      <h1>{{ getTitle(playingMetadata) }}</h1>
+                    </v-flex>
+                    <v-flex>
+                      <h3>{{ getUnder(playingMetadata) }}</h3>
+                    </v-flex>
+                    <v-flex>
+                      <h5>Playing from {{ chosenServer.name  }}</h5>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-flex>
+            </v-layout>
+            <v-layout row wrap style="position: absolute; top: 0; right: 0; z-index: 50" class="pa-3 hidden-xs-only">      
+              <v-flex class="text-xs-right pa-1">
+                <div class="hidden-xs-only">
+                  <!-- <v-icon :color="{ manualSyncQueued ? 'white' : 'primary' }" v-on:click.native="doManualSync">compare_arrows</v-icon> -->
+                  <v-icon color="white" class="clickable" v-on:click="dialog = !dialog">settings</v-icon>
+                  <router-link to="/browse">
+                    <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()">close</v-icon>
+                  </router-link>
+                </div>
+              </v-flex>
+            </v-layout>
+            <v-layout row wrap class="hoverBar" style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;">
+              <v-flex xs12>
+              </v-flex>
+            </v-layout>
+          </div>
+        </transition>
+      </div>
+    </div>
     <v-dialog v-model="dialog" width="350">
       <v-card color="black">
         <v-card-title>Playback Settings </v-card-title>
@@ -62,23 +103,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3">
+    <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3 hidden-sm-and-up">
       <v-flex xs12>
         <v-layout row wrap align-center justify-start>
-            <img :src="thumbUrl" class="elevation-20" style="height: 120px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"/>
-          <v-flex class="text-xs-left pa-3">
-            <h1>{{ getTitle(playingMetadata) }}</h1>
-            <h3>{{ getUnder(playingMetadata) }}</h3>
-            <h5>Playing from {{ chosenServer.name  }}</h5>
-            <div class="hidden-xs-only">
-              <v-btn :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
-              <v-btn color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
-              <router-link to="/browse">
-                <v-btn color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
-              </router-link>
-            </div>
-          </v-flex>
-          <v-layout row wrap class="hidden-sm-and-up">
+          <img :src="thumbUrl" class="elevation-20" style="height: 120px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"/>
+          <v-layout row wrap class="">
             <v-flex xs12>
               <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
             </v-flex>
@@ -117,7 +146,7 @@ export default {
       this.chosenKey = query.key.replace('/library/metadata/', '')
       this.chosenMediaIndex = query.mediaIndex || 0
       this.chosenServer = this.plex.servers[query.chosenServer]
-      this.playertime = query.offset
+      this.playertime = query.playertime
     }
 
     // Similuate a real plex client
@@ -198,6 +227,7 @@ export default {
   },
   data () {
     return {
+      hovered: false,
       eventbus: window.EventBus,
 
       chosenKey: null, // The item we are going to be playing from the chosen server eg. 12345
@@ -788,3 +818,18 @@ export default {
   }
 }
 </script>
+
+<style>
+  .hoverBar {
+    position: absolute;
+    background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),color-stop(60%,rgba(0,0,0,.35)),to(transparent));
+    background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent)
+  }
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.25s ease-out;
+  }
+
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+</style>

@@ -135,7 +135,7 @@ export default {
         // videojs options
         plugins: {},
 
-        fluid: false,
+        fluid: true,
         preload: 'auto',
         volume: 0.5,
         aspectRatio: '16:9',
