@@ -165,6 +165,10 @@ span {
   border-color: #E5A00D;
 }
 
+.menuable__content__active {
+  opacity: 1 !important;
+}
+
 .card {
   background: #323948;
   /* border-radius */
