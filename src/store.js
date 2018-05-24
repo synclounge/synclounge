@@ -317,7 +317,7 @@ const actions = {
 
     // Check if we need to activate the upnext feature
     if (state.me && state.me.role === 'host') {
-      if (Math.abs(timeline.duration - timeline.time) < 10000) {
+      if (timeline.duration && timeline.time && Math.abs(timeline.duration - timeline.time) < 10000) {
         console.log('Checking upnext')
         if (!state.upNextCache[timeline.machineIdentifier]) {
           state.upNextCache[timeline.machineIdentifier] = {}
@@ -358,7 +358,7 @@ const actions = {
       status = 'error'
     } else {
       let difference = Math.abs(state.chosenClient.lastTimelineObject.time - state.synclounge.lastHostTimeline.time)
-      if (difference > 1500 && difference < 3000) {
+      if (difference > 1500 && difference < state.settings.SYNCFLEXABILITY) {
         status = 'ok'
       }
       if (difference > 3000) {

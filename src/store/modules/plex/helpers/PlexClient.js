@@ -236,6 +236,7 @@ module.exports = function PlexClient () {
   this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE) {
     return new Promise(async (resolve, reject) => {
       const difference = Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time))
+      console.log('Difference', difference)
 
       if (parseInt(difference) > parseInt(SYNCFLEXABILITY)) {
       // We need to seek!

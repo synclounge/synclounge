@@ -52,8 +52,8 @@ export default {
   data () {
     return {
       sheet: true,
-      maxTimer: 10000,
-      timer: 10000,
+      maxTimer: 15000,
+      timer: 15000,
       cache: {},
       content: null,
       ready: false
@@ -80,7 +80,7 @@ export default {
       })
     },
     startTimer: function () {
-      this.timer = 10000
+      this.timer = this.maxTimer
       let data = this.item
       this.sheet = true
       let ticker = setInterval(() => {

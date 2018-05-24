@@ -84,7 +84,7 @@
               {{ item.text }}
             </v-breadcrumbs-item>
           </v-breadcrumbs>
-          <router-view></router-view>
+          <router-view style="overflow: scroll"></router-view>
           <upnext></upnext>
         </div>
         <v-snackbar

@@ -12,7 +12,7 @@
     <div style="text-align:center" class="pt-4">
       <h4 style="text-align:initial">Sync Flexibility</h4>
       <div> {{ syncflexability }}</div>
-      <v-slider class="pa-0 ma-0" v-model="syncflexability" :min="100" :max="10000"
+      <v-slider class="pa-0 ma-0" v-model="syncflexability" :min="0" :max="10000"
         hint="Sets the acceptable distance away from the host in milliseconds. Default is 3000ms (3 seconds)."
         persistent-hint>
       </v-slider>

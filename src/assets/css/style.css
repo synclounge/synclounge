@@ -124,6 +124,9 @@ main {
 .menu__content {
   background: #272c38;
 }
+.slcontent .dialog .dialog--active {
+  box-shadow: none;
+}
 
 .list__tile {
   color: #ffffff;

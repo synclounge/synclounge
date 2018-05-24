@@ -120,7 +120,7 @@ ptserver_io.on('connection', function (socket) {
     _data = tempUser
     socket.emit('join-result', result, _data, details, currentUsers)
   })
-  socket.on('poll', function (data) {
+  socket.on('poll', (data) => {
     if (socket.ourRoom == null) {
       // console.log('This user should join a room first')
       socket.emit('flowerror', 'You aren\' connected to a room! Use join')
@@ -130,7 +130,7 @@ ptserver_io.on('connection', function (socket) {
     // Recieved an update from a user
     updateUserData(socket.selfUser.username, data, socket.selfUser.room)
 
-    socket.emit('poll-result', ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users, socket.selfUser)
+    socket.emit('poll-result', ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users, socket.selfUser, data.commandId)
     if (socket.selfUser.role === 'host') {
       // We're the host, broadcast to all clients our data
       var temp = {}

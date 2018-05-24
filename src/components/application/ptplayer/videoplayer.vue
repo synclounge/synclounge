@@ -50,7 +50,9 @@ export default {
 
       decisionResult: null,
       blockedSpeedChanges: false,
-      ticker: null
+      ticker: null,
+
+      playbackRate: 1
     }
   },
   mounted () {
@@ -83,12 +85,21 @@ export default {
       // Return a promise through the callback
       data.callback(this.seekMethod(data))
     })
+    this.eventbus.$on('ptplayer-poll', async (callback) => {
+      // Return a promise through the callback
+      if (this.player) {        
+        callback(this.player.currentTime() * 1000)
+      } else {
+        callback(0)
+      }
+    })
   },
   beforeDestroy () {
     clearInterval(this.ticker)
     this.eventbus.$off('player-press-pause')
     this.eventbus.$off('player-press-play')
     this.eventbus.$off('player-seek')
+    this.eventbus.$off('ptplayer-poll')
 
     var query = ''
     let params = {
@@ -320,10 +331,12 @@ export default {
 
       this.player.currentTime(this.initialOffset / 1000)
 
-      player.on(['waiting', 'pause'], () => {
+      player.on(['pause'], () => {
         this.isPlaying = 'paused'
       })
-
+      player.on(['waiting'], () => {
+        this.isPlaying = 'buffering'
+      })
       player.on('playing', () => {
         this.isPlaying = 'playing'
       })
@@ -401,6 +414,7 @@ export default {
       if (playerCurrentState.playing) {
         this.isPlaying = 'playing'
       }
+      this.playbackRate = this.player.playbackRate()
       this.$emit('timelineUpdate', {
         time: this.lastTime,
         status: this.isPlaying,

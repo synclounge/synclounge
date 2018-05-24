@@ -1,5 +1,5 @@
 <template>
-    <div ref="root">
+    <div ref="root" class="slcontent">
       <v-layout v-if="!contents" row >
         <v-flex xs12 style="position:relative">
           <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
@@ -142,8 +142,8 @@
           </div>
         </v-card>
       </div>
-      <v-dialog v-if="contents" v-model="dialog" style="-webkit-box-shadow: none;-moz-box-shadow: none;" class="pa-0 ma-0" width="500px">
-        <v-card style="background: rgba(0,0,0,0.95); box-shadow: none;">
+      <v-dialog v-if="contents" v-model="dialog" style="background: rgba(0,0,0,0.95); box-shadow: none !important" width="500px">
+        <v-card>
           <v-card-title class="headline">Playback Settings</v-card-title>
           <v-checkbox v-if="contents.viewOffset && contents.viewOffset > 0" v-bind:label="'Resume from ' + getDuration(contents.viewOffset) " color="orange lighten-2" class="pa-0 ma-0 ml-3" v-model="resumeFrom"></v-checkbox>
           <div v-for="(media,index) in contents.Media" :key="media.Part[0].key">

@@ -195,7 +195,7 @@ export default {
               commit('SET_VALUE', ['me', me])
               commit('SET_USERS', users)
             })
-            state._socket.on('user-joined', (users, user) => {
+            state._socket.on('user-joined', (users, user, commandId) => {
               commit('SET_USERS', users)
               commit('ADD_MESSAGE', {
                 msg: user.username + ' joined',

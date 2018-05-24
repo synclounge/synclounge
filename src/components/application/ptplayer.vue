@@ -16,7 +16,7 @@
       ></videoplayer>
       <div v-if="playingMetadata && chosenServer">
         <transition name="fade">
-          <div v-show="hovered || playerstatus === 'paused'">
+          <div v-show="hovered">
             <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 50" class="pa-3 hidden-xs-only">
               <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;"/>
               <v-flex class="pl-3">
@@ -38,9 +38,12 @@
             <v-layout row wrap style="position: absolute; top: 0; right: 0; z-index: 50" class="pa-3 hidden-xs-only">      
               <v-flex class="text-xs-right pa-1">
                 <div class="hidden-xs-only">
-                  <!-- <v-icon :color="{ manualSyncQueued ? 'white' : 'primary' }" v-on:click.native="doManualSync">compare_arrows</v-icon> -->
-                  <v-icon color="white" class="clickable" v-on:click="dialog = !dialog">settings</v-icon>
-                  <router-link to="/browse">
+                  <v-tooltip bottom color="accent" v-if="me && me.role !== 'host'">
+                    <v-icon slot="activator" color="white" class="clickable" :disabled="manualSyncQueued" v-on:click="doManualSync">compare_arrows</v-icon>
+                    Manual Sync
+                  </v-tooltip>                  
+                  <v-icon slot="activator" color="white" class="clickable pl-3" v-on:click="dialog = !dialog">settings</v-icon>           
+                  <router-link to="/browse"  slot="activator">
                     <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()">close</v-icon>
                   </router-link>
                 </div>
@@ -160,6 +163,7 @@ export default {
         if (key) {
           ratingKey = '/library/metadata/' + key
         }
+        
         let machineIdentifier = null
         if (this.chosenServer) {
           machineIdentifier = this.chosenServer.clientIdentifier
@@ -174,7 +178,13 @@ export default {
           state: this.playerstatus
         }
         this.lastSentTimeline = playerdata
-        return data.callback(playerdata)
+        this.eventbus.$emit('ptplayer-poll', (time) => {
+          console.log('Poll time was out by', Math.abs(time - this.playertime))
+          playerdata.time = time
+          this.playertime = time
+          data.callback(playerdata)
+        })
+        return
       }
       if (data.command === '/player/playback/play') {
         this.eventbus.$emit('player-press-play', (res) => {
