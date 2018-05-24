@@ -148,7 +148,7 @@ export default {
         },
         {
           text: 'SyncLounge V2 US1',
-          value: 'http://v2.synclounge.tv'
+          value: 'http://v2us1.synclounge.tv'
         },
         {
           text: 'SyncLounge V2 EU1',
