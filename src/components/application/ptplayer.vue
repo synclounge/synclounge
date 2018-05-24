@@ -109,7 +109,22 @@
     <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3 hidden-sm-and-up">
       <v-flex xs12>
         <v-layout row wrap align-center justify-start>
-          <img :src="thumbUrl" class="elevation-20" style="height: 120px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"/>
+          <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"/>
+          <v-flex class="pl-2">
+            <v-container class="pa-0" fill-height>
+              <v-layout column wrap justify-space-apart>
+                <v-flex>                  
+                  <h1>{{ getTitle(playingMetadata) }}</h1>
+                </v-flex>
+                <v-flex>
+                  <h3>{{ getUnder(playingMetadata) }}</h3>
+                </v-flex>
+                <v-flex>
+                  <h5>Playing from {{ chosenServer.name  }}</h5>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-flex>
           <v-layout row wrap class="">
             <v-flex xs12>
               <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
