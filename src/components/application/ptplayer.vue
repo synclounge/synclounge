@@ -58,7 +58,7 @@
       </div>
     </div>
     <v-dialog v-model="dialog" width="350">
-      <v-card color="black">
+      <v-card>
         <v-card-title>Playback Settings </v-card-title>
         <v-card-text>
           <v-select
@@ -586,7 +586,7 @@ export default {
         new QualityTemplate('20 Mbps 1080p', '1920x1080', 20000, 100),
         new QualityTemplate('Original', null, null, null)
       ]
-      return qualities
+      return qualities.reverse()
     },
     stopPlayback () {
       console.log('Stopped Playback')
