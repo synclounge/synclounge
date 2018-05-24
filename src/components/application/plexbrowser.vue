@@ -151,10 +151,7 @@ export default {
       this.browsingServer = server
     },
     isConnectable (server) {
-      if (this.plex.servers[server.clientIdentifier]) {
-        return true
-      }
-      return false
+      return this.plex.servers[server.clientIdentifier] && this.plex.servers[server.clientIdentifier].chosenConnection
     },
     updateOnDeck: async function () {
       if (this.lastServer) {
