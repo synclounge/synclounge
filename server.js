@@ -11,14 +11,17 @@ var express = require('express')
 var cors = require('cors')
 
 var root = express()
-root.use(cors())
-
+root.use(cors({ credentials: false }))
+root.use((req, res, next) => {  
+  res.setHeader('Access-Control-Allow-Credentials', false)
+  next()
+})
 var ptserver = express()
 
 var PORT = process.env.port || 8089
 
 // Setup our PTServer
-ptserver.get('/', function (req, res) {
+ptserver.get('/', (req, res) => {
   return res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.')
 })
 
@@ -33,7 +36,7 @@ root.get('*', function (req, res) {
 var rootserver = require('http').createServer(root)
 var ptserver_io = require('socket.io')(rootserver, { path: serverRoot + 'socket.io' })
 
-ptserver_io.on('connection', function (socket) {
+ptserver_io.on('connection', (socket) => {
   console.log('Someone connected to the ptserver socket')
 
   socket.on('join', function (data) {

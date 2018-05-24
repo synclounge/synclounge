@@ -74,7 +74,7 @@
             <v-btn class="pt-orange white--text pa-0 ma-0" color="primary" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
           </v-flex>
         </v-layout>
-        <v-layout row wrap v-if="connectionPending">
+        <v-layout row wrap v-if="connectionPending" class="pt-3">
           <v-flex xs4 offset-xs4 center>
             <div style="width:100%;text-align:center">
               <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
@@ -144,15 +144,15 @@ export default {
       ptservers: [
         {
           text: 'SyncLounge V2 AU1',
-          value: 'http://v2au1.synclounge.tv'
+          value: 'https://v2au1.synclounge.tv'
         },
         {
           text: 'SyncLounge V2 US1',
-          value: 'http://v2us1.synclounge.tv'
+          value: 'https://v2us1.synclounge.tv'
         },
         {
           text: 'SyncLounge V2 EU1',
-          value: 'http://v2eu1.synclounge.tv'
+          value: 'https://v2eu1.synclounge.tv'
         },
         {
           text: 'Custom Server',
