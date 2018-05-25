@@ -32,6 +32,14 @@ Vue.use(Vuetify, {
 })
 Vue.config.productionTip = false
 
+function nolog () {}
+
+if (process.env.NODE_ENV !== 'development') {
+  console.log = nolog
+  console.warn = nolog
+  console.error = nolog
+}
+
 // Our Event bus
 window.EventBus = new Vue()
 window.EventBus.$on('command', (data) => {
