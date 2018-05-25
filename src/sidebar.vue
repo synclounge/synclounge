@@ -23,7 +23,7 @@
         </v-flex>
 
         <v-subheader>Users ({{ ptUsers.length }})</v-subheader>
-        <v-list dense two-line style="overflow-y:scroll; max-height: calc(50vh - 84px); background: none">
+        <v-list dense two-line style="overflow-y: auto; max-height: calc(50vh - 84px); background: none">
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
             <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
               <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
@@ -57,11 +57,11 @@
       </v-flex>
       <v-flex xs12 style="position: relative; height: 50vh">
         <v-layout row wrap justify-space-around>
-          <v-flex style="height: calc(100% - 96px)">  
+          <v-flex style="height: calc(100% - 96px)">
             <v-divider></v-divider>
             <v-subheader>Messages</v-subheader>
-            <v-list id="chatbox" style="overflow-y:scroll; background: none; max-height: calc(100% - 48px);">
-              <v-list-tile  style=" position:relative; overflow-y: scroll" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
+            <v-list id="chatbox" style="overflow-y:auto; background: none; max-height: calc(100% - 48px);">
+              <v-list-tile  style=" position:relative; overflow-y: auto" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
                 <v-list-tile-avatar>
                   <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px;" />
                 </v-list-tile-avatar>

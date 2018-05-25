@@ -76,7 +76,7 @@
             </v-layout>
           </v-container>
         </v-flex>
-        <div v-else :style="paddingStyle" style="overflow: scroll">
+        <div v-else :style="paddingStyle" style="overflow: auto">
           <v-breadcrumbs v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
             <v-icon slot="divider">chevron_right</v-icon>
             <v-breadcrumbs-item
@@ -84,7 +84,7 @@
               {{ item.text }}
             </v-breadcrumbs-item>
           </v-breadcrumbs>
-          <router-view style="overflow: scroll"></router-view>
+          <router-view style="overflow: auto"></router-view>
           <upnext></upnext>
         </div>
         <v-snackbar
