@@ -16,6 +16,7 @@
     "babel-eslint": "^8.2.2",
     "body-parser": "^1.18.2",
     "cors": "^2.8.3",
+    "git-rev": "^0.2.1",
     "jsonfile": "^4.0.0",
     "sails-disk": "^1.0.1",
     "socket.io": "^2.0.3",

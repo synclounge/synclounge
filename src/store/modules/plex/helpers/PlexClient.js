@@ -97,7 +97,7 @@ module.exports = function PlexClient () {
           }
           var _url = connection.uri + command + '?' + query
           this.setValue('commandId', this.commandId + 1)
-          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)          
+          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
           axios.get(connection.uri + command, {
             params,
             headers: options.headers
@@ -204,13 +204,17 @@ module.exports = function PlexClient () {
   }
   this.waitForMovement = function (startTime) {
     return new Promise((resolve, reject) => {
+      let time = 500
+      if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
+        time = 10
+      }
       let timer = setInterval(async () => {
         let now = await this.getTimeline()
         if (now.time !== startTime) {
           resolve()
           clearInterval(timer)
         }
-      }, 500)
+      }, time)
     })
   }
   this.skipAhead = function (current, duration) {
@@ -238,7 +242,9 @@ module.exports = function PlexClient () {
       const difference = Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time))
       console.log('Difference', difference)
 
-      if (parseInt(difference) > parseInt(SYNCFLEXABILITY)) {
+      let bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused'
+
+      if (parseInt(difference) > parseInt(SYNCFLEXABILITY) || (bothPaused && difference > 10)) {
       // We need to seek!
         console.log('STORE: we need to seek as we are out by', difference)
         // Decide what seeking method we want to use

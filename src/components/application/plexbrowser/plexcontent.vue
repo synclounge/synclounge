@@ -7,7 +7,7 @@
       </v-layout>
       <div v-if="contents">
         <v-card v-if="contents" horizontal :img="getArtUrl" style="height: 80vh" class="darken-2 white--text">
-          <div style="background-color: rgba(0, 0, 0, 0.4); height: 100%">
+          <div style=" height: 100%">
             <v-container style="background-color: rgba(0, 0, 0, 0.8); height: 100%" fluid>
               <v-layout row wrap>
                 <v-flex xs12 md3>
