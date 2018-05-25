@@ -5,7 +5,7 @@
     </v-navigation-drawer>
     <v-navigation-drawer
       v-if="showRightDrawerButton"
-      style="padding: 0"
+      style="padding: 0; z-index: 6"
       app
       persistent
       v-model="drawerRight" right enable-resize-watcher>
@@ -51,7 +51,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-toolbar app fixed>
+    <v-toolbar app fixed style="z-index: 5">
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
       <router-link :to="'/browse'">
         <v-toolbar-title class="white--text"> SyncLounge </v-toolbar-title>

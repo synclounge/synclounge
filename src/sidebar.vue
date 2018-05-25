@@ -23,9 +23,9 @@
         </v-flex>
 
         <v-subheader>Users ({{ ptUsers.length }})</v-subheader>
-        <v-list dense two-line style="overflow-y:scroll; max-height: 40vh; background: none">
+        <v-list dense two-line style="overflow-y:scroll; max-height: calc(50vh - 84px); background: none">
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
-            <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div" >
+            <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
               <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
                 <img v-bind:src="user.avatarUrl"  :style="getImgStyle(user)">
                   <v-icon v-if="user.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">{{ playerState(user) }}</v-icon>
@@ -52,13 +52,13 @@
         </div>
         </v-list>
       </v-flex>
-      <v-flex xs12 style="position: relative;">
-        <v-layout column wrap justify-space-around>
-          <v-flex>
+      <v-flex xs12 style="position: relative; height: 50vh">
+        <v-layout row wrap justify-space-around>
+          <v-flex style="height: calc(100% - 96px)">  
             <v-divider></v-divider>
             <v-subheader>Messages</v-subheader>
-            <v-list id="chatbox" style="overflow-y:scroll; min-height: 35vh; background: none; max-height: 40vh; overflow: scroll">
-              <v-list-tile  style="min-height:50px; height:initial; position:relative" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
+            <v-list id="chatbox" style="overflow-y:scroll; background: none; max-height: calc(100% - 48px);">
+              <v-list-tile  style=" position:relative; overflow-y: scroll" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
                 <v-list-tile-avatar>
                   <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px;" />
                 </v-list-tile-avatar>
@@ -72,11 +72,11 @@
               </v-list-tile>
             </v-list>
           </v-flex>
-          <v-spacer></v-spacer>
-          <v-flex style="position: relative">
+          <v-flex>
             <v-text-field
               prepend-icon="message"
               :label="'Send a message to ' + '#' + ptRoom"
+              hide-details
               class="ma-0 ml-1 pr-1 wideinput"
               v-on:keyup.enter.native="sendMessage()"
               v-model="messageToBeSent"
@@ -300,10 +300,13 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style>
 .wideinput .input-group--text-field.input-group--prepend-icon .input-group__details {
   margin-left: unset;
   max-width: unset;
+}
+.wideinput .input-group__details {
+  display: none;
 }
 
 </style>

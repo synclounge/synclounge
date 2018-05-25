@@ -149,7 +149,6 @@ export default {
             commit('SET_ROOM', _data.room)
             commit('SET_USERS', currentUsers)
             commit('SET_ME', _data.username)
-            commit('SET_CHAT', true)
 
             sendNotification('Joined room: ' + _data.room)
             // Add this item to our recently-connected list
@@ -392,7 +391,6 @@ export default {
                 commit('SET_USERS', [])
                 commit('SET_CONNECTED', false)
                 commit('SET_SERVER', null)
-                commit('SET_CHAT', false)
                 state.serverError = null
               }
               if (data === 'transport close') {
@@ -407,7 +405,6 @@ export default {
             commit('SET_ROOM', null)
             commit('SET_PASSWORD', null)
             commit('SET_USERS', [])
-            commit('SET_CHAT', false)
           }
           return resolve(result)
         })
@@ -422,7 +419,6 @@ export default {
         commit('SET_USERS', [])
         commit('SET_CONNECTED', false)
         commit('SET_SERVER', null)
-        commit('SET_CHAT', false)
         resolve()
       })
     },
