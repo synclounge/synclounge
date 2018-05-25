@@ -100,13 +100,13 @@ export default {
   },
   watch: {
     messages: function () {
-      this.$nextTick(() => {
-        var options = {
-          container: '#chatbox',
-          cancelable: false
-        }
-        this.$scrollTo('#lastMessage', 0, options)
-      })
+      var options = {
+        container: '#chatbox',
+        easing: 'linear',
+        duration: 1,
+        cancelable: false
+      }
+      this.$scrollTo('#lastMessage', 5, options)
     }
   },
   computed: {
