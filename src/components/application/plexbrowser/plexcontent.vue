@@ -130,13 +130,16 @@
                   </v-flex>
                 </v-layout>
               </div>
-              <div v-if="relatedItems.length > 0" style="background: rgba(0,0,0,0.3)">
+              <div v-if="relatedItems.length > 0">
                 <v-subheader>Related Movies</v-subheader>
-                <v-layout row wrap justify-space-around align-center>
-                  <v-flex xs4 md1 class="ma-1" v-for="movie in relatedItems" :key="movie.key">
-                    <plexthumb :content="movie" :img="getLittleThumb(movie)" style="margin:3%" :server="server" type="thumb"></plexthumb>
-                  </v-flex>
-                </v-layout>
+                <v-container fill-height fluid>
+                  <v-layout row wrap justify-space-around align-center>
+                    <v-flex xs4 md1 class="ma-1" v-for="movie in relatedItems" :key="movie.key">
+                      <plexthumb :content="movie" :img="getLittleThumb(movie)" style="margin:3%" :server="server" type="thumb"></plexthumb>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+
               </div>
             </v-container>
           </div>

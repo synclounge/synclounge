@@ -87,7 +87,7 @@ export default {
     })
     this.eventbus.$on('ptplayer-poll', async (callback) => {
       // Return a promise through the callback
-      if (this.player) {        
+      if (this.player) {
         callback(this.player.currentTime() * 1000)
       } else {
         callback(0)
