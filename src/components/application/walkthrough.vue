@@ -111,7 +111,7 @@ export default {
       return this.$store.getters.getChosenClient
     },
     isHttps: function () {
-      return location.protocol === 'http:'
+      return location.protocol === 'https:'
     },
     clients: function () {
       return this.plex.clients
