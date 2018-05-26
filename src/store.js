@@ -37,7 +37,8 @@ let defaultSettings = {
   SYNCMODE: 'cleanseak',
   SYNCFLEXABILITY: 3000,
   CUSTOMSERVER: 'http://',
-  SLPLAYERFORCETRANSCODE: true
+  SLPLAYERFORCETRANSCODE: true,
+  CLIENTIDENTIFIER: generateGuid() + '-' + generateGuid()
 }
 for (let i in defaultSettings) {
   if (getSetting(i) === undefined || getSetting(i) === null) {
@@ -50,7 +51,7 @@ function generateGuid () {
       .toString(16)
       .substring(1)
   }
-  return s4() + s4() + s4() + s4()
+  return s4() + s4() + '-' + s4() + s4()
 }
 
 // Set up out web app socket for fetching short urls
@@ -89,7 +90,8 @@ const state = {
     PTPLAYERVOLUME: getSetting('PTPLAYERVOLUME'),
     SLPLAYERFORCETRANSCODE: getSetting('SLPLAYERFORCETRANSCODE'),
     HIDEUSERNAME: getSetting('HIDEUSERNAME'),
-    ALTUSERNAME: getSetting('ALTUSERNAME')
+    ALTUSERNAME: getSetting('ALTUSERNAME'),
+    CLIENTIDENTIFIER: getSetting('CLIENTIDENTIFIER')
   },
 
   LASTSERVER: getSetting('LASTSERVER'),

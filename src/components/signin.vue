@@ -62,7 +62,7 @@ export default {
         'X-Plex-Product': 'SyncLounge',
         'X-Plex-Version': this.$store.state.appVersion,
         'X-Plex-Platform-Version': '',
-        'X-Plex-Client-Identifier': 'SyncLounge v' + this.$store.state.appVersion
+        'X-Plex-Client-Identifier': this.$store.state.settings.CLIENTIDENTIFIER
       },
       code: null,
       ready: false
