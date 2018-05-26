@@ -391,9 +391,22 @@ export default {
     onPlayerWaiting (player) {
     },
     onPlayerSeeking (player) {
+      console.log('seeking', player)
+      this.$emit('timelineUpdate', {
+        time: this.player.currentTime() * 1000,
+        status: this.isPlaying,
+        bufferedTill: this.bufferedTill,
+        duration: this.duration
+      })
     },
     onPlayerSeeked (player) {
-      console.log(player)
+      console.log('Seeked', player)
+      this.$emit('timelineUpdate', {
+        time: this.player.currentTime() * 1000,
+        status: this.isPlaying,
+        bufferedTill: this.bufferedTill,
+        duration: this.duration
+      })
     },
     playerStateChanged (playerCurrentState) {
       // console.log("Setting volume to " + this.player.volume() || 0)
