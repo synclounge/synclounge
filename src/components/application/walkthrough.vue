@@ -67,6 +67,9 @@
                 <div v-if="testClient.product.indexOf('Web') > -1">
                   Note: Plex Web is currently not supported
                 </div>
+                <div v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'">
+                  Note: You may not be able to connect to external Plex Clients while loading the page via HTTPS. Click <a :href="nohttpslink">here</a> to load the page via HTTP. More info <a href="https://github.com/samcm/synclounge/issues/52" target="_blank">here</a>.
+                </div>
                 <div class="red--text lighten-3 text-xs-center" v-if="testClientErrorMsg">
                   {{ testClientErrorMsg }}
                 </div>
@@ -107,6 +110,9 @@ export default {
     chosenClient: function () {
       return this.$store.getters.getChosenClient
     },
+    isHttps: function () {
+      return location.protocol === 'http:'
+    },
     clients: function () {
       return this.plex.clients
     },
@@ -119,6 +125,21 @@ export default {
         return '(' + Object.keys(this.plex.clients).length + ')'
       }
       return ''
+    },
+    nohttpslink: function () {
+      if (!this.isHttps) {
+        return ''
+      }
+      let url = 'http:' + window.location.href.substring(window.location.protocol.length)
+      if (this.$store.state.autoJoin) {
+        console.log('Autojoining...')
+        url = url + '?server=' + this.$store.state.autoJoinUrl + '&room=' + this.$store.state.autoJoinRoom + '&autojoin=true&owner=' + this.$store.state.autoJoinOwner
+        if (this.$store.state.autoJoinPassword) {
+          url = url + '&password=' + this.$store.state.autoJoinPassword
+        }
+      }
+      url = url.replace('clientselect', 'join')
+      return url
     },
     logo: function () {
       return this.logos.light.long

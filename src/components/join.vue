@@ -1,6 +1,6 @@
 <template>
     <v-layout wrap row class="text-xs-center">
-      <v-flex xs12 md8 offset-md2>
+      <v-flex v-if="!loading" xs12 md8 offset-md2>
         <v-card style="background: rgba(0,0,0,0.3)">
           <h1 class="white--text pa-1"> Welcome to SyncLounge!</h1>
           <div>
@@ -19,6 +19,9 @@
           </p>
         </v-card>
       </v-flex>
+      <v-flex v-else>
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      </v-flex>
     </v-layout>
 </template>
 <script>
@@ -27,15 +30,10 @@
 export default {
   name: 'join',
   mounted: function () {
-    this.password = this.$route.query.password
+    this.password = this.$route.query.password || ''
     this.room = this.$route.query.room
     this.server = this.$route.query.server
     this.owner = this.$route.query.owner
-
-    if (this.room && this.server) {
-      // Looks like a valid request...
-      // Lets setup an auto join and then move the user to /sync
-    }
   },
   data () {
     return {
@@ -45,13 +43,39 @@ export default {
       owner: null
     }
   },
+  watch: {
+    gotDevices: function (to, from) {
+      console.log('plex changed', to)
+      if (to) {
+        console.log('autojoin is', this.$route.query.autojoin)
+        if (this.$route.query.autojoin) {
+          this.letsGo()
+        }
+      }
+    }
+  },
   computed: {
     logo: function () {
       return this.$store.getters.logos.light.short
+    },
+    gotDevices: function () {
+      return this.$store.state.plex.gotDevices
+    },
+    loading: function () {
+      if (!window.localStorage.getItem('plexuser')) {
+        return false
+      }
+      return !this.$store.state.plex.gotDevices
     }
   },
   methods: {
     async letsGo () {
+      console.log('Doing autojoin')
+      this.$store.commit('SET_AUTOJOIN', true)
+      this.$store.commit('SET_AUTOJOINROOM', this.room)
+      this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
+      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.owner])
+      this.$store.commit('SET_AUTOJOINURL', this.server)
       if (window.localStorage.getItem('plexuser')) {
         console.log('Auto joining')
         await this.$store.dispatch('autoJoin', {
@@ -61,10 +85,6 @@ export default {
         })
         this.$router.push('/browse')
       } else {
-        this.$store.commit('SET_AUTOJOIN', true)
-        this.$store.commit('SET_AUTOJOINROOM', this.room)
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
-        this.$store.commit('SET_AUTOJOINURL', this.server)
         this.$router.push('/signin')
       }
       // this.$store.dispatch('socketConnect', {

@@ -91,17 +91,18 @@ export default {
 
   actions: {
     async autoJoin ({ state, commit, rootState, dispatch }, data) {
-      console.log('Attempting to auto join..')
-      console.log(rootState)
+      console.log('Attempting to auto join..', data)
       await dispatch('socketConnect', {
         address: data.server
       })
+      console.log('Done connection to server in autojoin flow')
       let temporaryObj = {
         user: rootState.plex.user,
         roomName: data.room,
         password: data.password
       }
       await dispatch('joinRoom', temporaryObj)
+      console.log('Done joining room in autojoin flow')
     },
     socketConnect ({ state, commit, rootState }, data) {
       return new Promise((resolve, reject) => {
@@ -139,12 +140,15 @@ export default {
     joinRoom ({ state, commit, rootState }, data) {
       return new Promise(async (resolve, reject) => {
         if (!state._socket || !state.connected) {
+          console.log('Tried to join a room but we are not connected to a SL server')
           return reject(new Error('Not connected to a server!'))
         }
+        data.password = data.password || ''
         commit('SET_PASSWORD', data.password)
         state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid))
         state._socket.on('join-result', async (result, _data, details, currentUsers) => {
           commit('CLEAR_MESSAGES')
+          console.log('Join room result', result, _data, details, currentUsers)
           if (result) {
             commit('SET_ROOM', _data.room)
             commit('SET_USERS', currentUsers)

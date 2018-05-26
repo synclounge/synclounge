@@ -12,7 +12,7 @@ var cors = require('cors')
 
 var root = express()
 root.use(cors({ credentials: false }))
-root.use((req, res, next) => {  
+root.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', false)
   next()
 })
@@ -45,7 +45,8 @@ ptserver_io.on('connection', (socket) => {
       return
     }
     if (!data || !data.username || !data.room) {
-      return socket.emit('join-result', false, {}, 'wrong password', [])
+      console.log('Invalid join attempt', data)
+      return socket.emit('join-result', false, {}, 'Invalid data', [])
     }
     var tempUser = new User()
     var result = true
@@ -80,6 +81,7 @@ ptserver_io.on('connection', (socket) => {
         }
       } else {
         // This room has a password
+        console.log('Checking password', data.password, 'equals', room.password)
         if (room.password === data.password) {
           // Good password!
           if (room.hostUsername == null) {

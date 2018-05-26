@@ -17,7 +17,7 @@
             ></v-text-field>
           </v-flex>
           <v-flex xs2>
-            <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''; searching = false" style="cursor:pointer;" class="red--text pt-3">clear</v-icon>
+            <v-icon v-if="results.length > 0" v-on:click="results = []; searchWord = ''; searching = false" class="clickable red--text pt-3">clear</v-icon>
           </v-flex>
         </v-layout>
         <v-layout row wrap v-if="searching || results.length > 0">

@@ -53,16 +53,16 @@
     </v-dialog>
     <v-toolbar app fixed style="z-index: 5">
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
-      <router-link :to="'/browse'">
-        <v-toolbar-title class="white--text"> SyncLounge </v-toolbar-title>
-      </router-link>
+      <a href="https://v2.synclounge.tv" target="_blank">
+        <img class="ma-1 hidden-xs-only" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logos.light.long"/>
+        <img class="ma-1 hidden-sm-and-up" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logo"/>
+      </a>
       <v-spacer></v-spacer>
       <v-toolbar-items>
-        <img class="ma-2 hidden-xs-only" style="height:48px; width: 48px" v-bind:src="logo"/>
         <v-btn color="primary" dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat @click="donateDialog = true">Donate ♥</v-btn>
-        <v-toolbar-side-icon v-if="showRightDrawerButton" @click="toggleDrawerRight"></v-toolbar-side-icon>
+        <v-icon v-if="showRightDrawerButton" @click="toggleDrawerRight" class="clickable">{{ drawerRight ? 'first_page': 'last_page' }}</v-icon>
       </v-toolbar-items>
     </v-toolbar>
     <v-content v-bind:style="mainStyle">
@@ -186,12 +186,21 @@ export default {
     }
 
     if (process.env.autojoin && process.env.autojoin_room && process.env.autojoin_server) {
-      // Looks like a valid request...
-      // Lets setup an auto join and then move the user to /sync
       this.$store.commit('SET_AUTOJOIN', true)
       this.$store.commit('SET_AUTOJOINROOM', process.env.autojoin_room)
-      this.$store.commit('SET_AUTOJOINPASSWORD', process.env.autojoin_password)
       this.$store.commit('SET_AUTOJOINURL', process.env.autojoin_server)
+      if (process.env.autojoin_password) {
+        this.$store.commit('SET_AUTOJOINPASSWORD', process.env.autojoin_password)
+      }
+    }
+    if (this.$route.query.autojoin) {
+      this.$store.commit('SET_AUTOJOIN', true)
+      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room)
+      this.$store.commit('SET_AUTOJOINURL', this.$route.query.server)
+      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner])
+      if (this.$route.query.password) {
+        this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password)
+      }
     }
     window.EventBus.$on('notification', msg => {
       this.snackbarMsg = msg
