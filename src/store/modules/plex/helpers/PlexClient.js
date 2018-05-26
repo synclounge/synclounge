@@ -120,7 +120,8 @@ module.exports = function PlexClient () {
             await this.subscribe(connection)
             doRequest()
           } catch (e) {
-            reject(e)
+            console.log('Failed to send subscribe command', e)
+            doRequest()
           }
         } else {
           doRequest()
@@ -270,9 +271,9 @@ module.exports = function PlexClient () {
     // First we will mirror the item so the user has an idea of what we're about to play
     return new Promise(async (resolve, reject) => {
       console.log('Autoplaying from client', data)
-      if (this.clientIdentifier !== 'PTPLAYER9PLUS10') {
-        await this.mirrorContent(data.ratingKey, data.server)
-      }
+      // if (this.clientIdentifier !== 'PTPLAYER9PLUS10') {
+      //   await this.mirrorContent(data.ratingKey, data.server)
+      // }
       let command = '/player/playback/playMedia'
       let mediaId = '/library/metadata/' + data.ratingKey
       let offset = data.offset || 0
@@ -364,8 +365,8 @@ module.exports = function PlexClient () {
         axios.get(connection.uri + command, {
           params,
           headers: options.headers
-        }).then(() => {
-          console.log('Subscription result')
+        }).then((res) => {
+          console.log('Subscription result', res)
           this.setValue('lastSubscribe', new Date().getTime())
           resolve()
         }).catch((e) => {
