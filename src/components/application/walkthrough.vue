@@ -137,8 +137,8 @@ export default {
         if (this.$store.state.autoJoinPassword) {
           url = url + '&password=' + this.$store.state.autoJoinPassword
         }
+        url = url.replace('clientselect', 'join')
       }
-      url = url.replace('clientselect', 'join')
       return url
     },
     logo: function () {
