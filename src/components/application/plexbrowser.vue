@@ -81,7 +81,7 @@
             <router-link :to="'/browse/' + server.clientIdentifier">
               <v-card class="white--text" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);">
                 <v-container fluid grid-list-lg>
-                  <v-layout row>
+                  <v-layout row justify-center align-center>
                     <v-flex xs4>
                       <v-card-media
                           :src="logos.plex.standard"
@@ -90,9 +90,9 @@
                         ></v-card-media>
                     </v-flex>
                     <v-flex xs8>
-                      <div>
-                        <div class="headline">{{ server.name }}</div>
-                        <div style="opacity:0.8"> v{{ server.productVersion }}</div>
+                      <div style="overflow: hidden">
+                        <h1>{{ server.name }}</h1>
+                        <h4 style="opacity: 0.9"> v{{ server.productVersion }}</h4>
                         <div>Owned by {{ ownerOfServer(server) }}</div>
                         <div v-if="!isConnectable(server)" class="red--text">Unable to connect</div>
                         <div v-if="!isConnectable(server)" class="red--text" style="font-size: 10px">Try disabling your adblocker</div>
