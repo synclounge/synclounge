@@ -81,7 +81,6 @@ ptserver_io.on('connection', (socket) => {
         }
       } else {
         // This room has a password
-        console.log('Checking password', data.password, 'equals', room.password)
         if (room.password === data.password) {
           // Good password!
           if (room.hostUsername == null) {
