@@ -14,7 +14,7 @@ export default {
     this.$store.state.plex = null
     this.$store.state.signedin = 'notsignedin'
     setTimeout(() => {
-      this.$router.push('/')
+      location.reload()
     }, 2500)
   }
 }

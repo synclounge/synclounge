@@ -32,6 +32,7 @@ if (!getSetting('INIT')) {
 let defaultSettings = {
   CLIENTPOLLINTERVAL: 1000,
   AUTOPLAY: true,
+  HIDEUSERNAME: false,
   DARKMODE: false,
   SYNCMODE: 'cleanseak',
   SYNCFLEXABILITY: 3000,
@@ -86,7 +87,9 @@ const state = {
     HOMEINIT: getSetting('HOMEINIT'),
     PTPLAYERQUALITY: getSetting('PTPLAYERQUALITY'),
     PTPLAYERVOLUME: getSetting('PTPLAYERVOLUME'),
-    SLPLAYERFORCETRANSCODE: getSetting('SLPLAYERFORCETRANSCODE')
+    SLPLAYERFORCETRANSCODE: getSetting('SLPLAYERFORCETRANSCODE'),
+    HIDEUSERNAME: getSetting('HIDEUSERNAME'),
+    ALTUSERNAME: getSetting('ALTUSERNAME')
   },
 
   LASTSERVER: getSetting('LASTSERVER'),

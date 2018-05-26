@@ -6,9 +6,9 @@ function sendNotification (message) {
   return window.EventBus.$emit('notification', message)
 }
 
-function HandshakeUser (user, room, password, uuid) {
+function HandshakeUser (user, room, password, uuid, username) {
   var tempUser = {
-    username: user.username,
+    username: username || user.username,
     room: room,
     password: password,
     avatarUrl: user.thumb,
@@ -145,7 +145,12 @@ export default {
         }
         data.password = data.password || ''
         commit('SET_PASSWORD', data.password)
-        state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid))
+        let username = data.user.username
+        console.log('RootState', rootState, JSON.parse(rootState.settings.HIDEUSERNAME))
+        if (JSON.parse(rootState.settings.HIDEUSERNAME)) {
+          username = rootState.settings.ALTUSERNAME
+        }
+        state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid, username))
         state._socket.on('join-result', async (result, _data, details, currentUsers) => {
           commit('CLEAR_MESSAGES')
           console.log('Join room result', result, _data, details, currentUsers)
