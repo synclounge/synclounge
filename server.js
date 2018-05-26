@@ -221,7 +221,6 @@ ptserver_io.on('connection', (socket) => {
         user.machineIdentifier = userData.machineIdentifier || ''
         user.key = userData.key
         user.uuid = userData.uuid
-        console.log('User is now', user)
         return
       }
     }
