@@ -8,9 +8,10 @@ var PlexClient = require('./helpers/PlexClient.js')
 var PlexAuth = new _PlexAuth()
 
 export default {
-  PLEX_LOGIN_TOKEN: ({ commit, dispatch }, token) => {
+  PLEX_LOGIN_TOKEN: ({ commit, dispatch, rootState }, token) => {
     return new Promise((resolve, reject) => {
       var options = PlexAuth.getApiOptions('https://plex.tv/users/sign_in.json', token, 5000, 'POST')
+      options.headers['X-Plex-Client-Identifier'] = rootState.settings.CLIENTIDENTIFIER
       request(options, (error, response, body) => {
         if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
           let data = JSON.parse(body)
