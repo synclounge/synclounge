@@ -1,4 +1,4 @@
-<p align="center"><img src="http://synclounge.tv/img/logo-long-dark.png" /></p>
+<p align="center"><img src="https://synclounge.tv/assets/img/SL_LOGO_800x200_DARK.png" /></p>
 
 
  
