@@ -8,7 +8,7 @@ function sendNotification (message) {
 
 function HandshakeUser (user, room, password, uuid, username) {
   var tempUser = {
-    username: username || user.username,
+    username: username || user.username || user.title,
     room: room,
     password: password,
     avatarUrl: user.thumb,
@@ -186,7 +186,7 @@ export default {
 
             let data = {
               urlOrigin: urlOrigin,
-              owner: rootState.plex.user.username,
+              owner: rootState.plex.user.username || rootState.plex.user.title,
               server: state.server,
               room: state.room,
               password: state.password || ''
