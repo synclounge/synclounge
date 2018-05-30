@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-1 pb-0" fill-height>
+  <v-container class="pa-0 pb-0" fill-height>
     <v-layout v-if="ptRoom" column>
       <v-flex xs12 style="height: 50vh">
         <v-flex xs12>
@@ -23,7 +23,7 @@
         </v-flex>
 
         <v-subheader>Users ({{ ptUsers.length }})</v-subheader>
-        <v-list dense two-line style="overflow-y: auto; max-height: calc(50vh - 84px); background: none">
+        <v-list dense two-line style="overflow: auto; max-height: calc(50vh - 84px); background: none">
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
             <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
               <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">

@@ -62,7 +62,7 @@
         <v-btn color="primary" dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat @click="donateDialog = true">Donate ♥</v-btn>
-        <v-icon v-if="showRightDrawerButton" @click="toggleDrawerRight" class="clickable">{{ drawerRight ? 'first_page': 'last_page' }}</v-icon>
+        <v-icon v-if="showRightDrawerButton" @click="toggleDrawerRight" class="clickable">{{ drawerRight ? 'first_page' : 'last_page' }}</v-icon>
       </v-toolbar-items>
     </v-toolbar>
     <v-content v-bind:style="mainStyle">
@@ -76,7 +76,7 @@
             </v-layout>
           </v-container>
         </v-flex>
-        <div v-else :style="paddingStyle" style="overflow: auto">
+        <div v-else :style="paddingStyle">
           <v-breadcrumbs v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
             <v-icon slot="divider">chevron_right</v-icon>
             <v-breadcrumbs-item
@@ -84,7 +84,7 @@
               {{ item.text }}
             </v-breadcrumbs-item>
           </v-breadcrumbs>
-          <router-view style="overflow: auto"></router-view>
+          <router-view></router-view>
           <upnext></upnext>
         </div>
         <v-snackbar
