@@ -60,17 +60,17 @@
           <v-flex style="height: calc(100% - 96px); max-height: calc(100% - 96px)">
             <v-divider></v-divider>
             <v-subheader>Messages</v-subheader>
-            <v-list id="chatbox" style="overflow-y:auto; background: none; max-height: calc(100% - 48px);">
-              <v-list-tile  style=" position:relative; overflow-y: auto" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
+            <v-list id="chatbox" style="overflow-y:auto; background: none; max-height: calc(100% - 48px); max-width: 100%">
+              <v-list-tile class="pt-1 pb-1" style="position:relative; max-width: 100%; max-height: 250px" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
                 <v-list-tile-avatar>
                   <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px;" />
                 </v-list-tile-avatar>
                 <v-list-tile-content>
-                  <v-list-tile-title style="color:white; position:relative;">
+                  <v-list-tile-title style="color:white; position:relative; line-height: 1">
                     <span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
                     <span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
                   </v-list-tile-title>
-                  <v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%;"> {{ msg.msg }}</v-list-tile-sub-title>
+                  <v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%; width: 220px; overflow-y: auto; line-height: 1; max-height: 200px"> {{ msg.msg }}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
             </v-list>
