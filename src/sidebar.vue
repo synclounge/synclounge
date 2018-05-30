@@ -55,9 +55,9 @@
         </div>
         </v-list>
       </v-flex>
-      <v-flex xs12 style="position: relative; height: 50vh">
+      <v-flex xs12 style="position: relative; height: 50vh; max-height: 50vh">
         <v-layout row wrap justify-space-around>
-          <v-flex style="height: calc(100% - 96px)">
+          <v-flex style="height: calc(100% - 96px); max-height: calc(100% - 96px)">
             <v-divider></v-divider>
             <v-subheader>Messages</v-subheader>
             <v-list id="chatbox" style="overflow-y:auto; background: none; max-height: calc(100% - 48px);">
