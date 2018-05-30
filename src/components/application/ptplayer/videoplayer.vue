@@ -344,7 +344,7 @@ export default {
       // Setup our intervals for pinging the transcoder and timelines
       function send () {
         // console.log('Sending timeline')
-        if (!that) {
+        if (!that || !that.player) {
           return clearInterval(that.ticker)
         }
         if (!that.player || !that.metadata) {
