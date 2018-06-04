@@ -8,3 +8,5 @@ selenium-debug.log
 .idea/
 package-lock.json
 ptinvites.json
+settings.json
+.tmp
