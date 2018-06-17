@@ -335,8 +335,12 @@ const actions = {
           }
           state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.key).then((data) => {
             data.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier
-            window.EventBus.$emit('upnext', data)
             state.upNextCache[timeline.machineIdentifier][timeline.key] = data
+            // Only proc upnext if the item upnext is from the same show
+            console.log('Checking upnext compat', data, metadata)
+            if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle) {
+              window.EventBus.$emit('upnext', data)
+            }
           })
         } else {
           console.log('Already procced an upnext for this item', timeline)
