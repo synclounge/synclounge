@@ -56,7 +56,7 @@ export default {
     },
     HIDEUSERNAME: {
       get () {
-        return (this.$store.getters.getSettings['HIDEUSERNAME'])
+        return JSON.parse((this.$store.getters.getSettings['HIDEUSERNAME']))
       },
       set (value) {
         this.$store.commit('setSetting', ['HIDEUSERNAME', value])
