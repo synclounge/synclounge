@@ -129,11 +129,6 @@ Vue.mixin({
   }
 })
 
-// var data = { type: "FROM_PAGE", text: "Hello from the webpage!", callback: (res) => {
-//   console.log('Result callback!', res)
-// }};
-// window.postMessage(data, "*");
-
 router.beforeEach((to, from, next) => {
   // console.log('Route change', to, this, store)
   if (to.matched.some(record => record.meta.protected)) {
@@ -157,7 +152,7 @@ router.beforeEach((to, from, next) => {
     next()
   } else {
     if (!to.meta.protected) {
-      return next() // make sure to always call next()!
+      return next()
     }
     router.push('/browse')
   }

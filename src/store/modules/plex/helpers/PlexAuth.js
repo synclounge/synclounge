@@ -6,7 +6,7 @@
  * @param method
  * @returns {{url: *, time: boolean, headers: {X-Plex-Client-Identifier: string, Accept: string, X-Plex-Token: *}, timeout: *, method: *}}
  */
-module.exports = function PlexAuth() {
+module.exports = function PlexAuth () {
   this.getApiOptions = function (url, accessToken, timeout, method) {
     return {
       url: url,
@@ -18,8 +18,8 @@ module.exports = function PlexAuth() {
       },
       timeout: timeout,
       method: method
-    };
-  };
+    }
+  }
 
   /**
    *
@@ -30,17 +30,17 @@ module.exports = function PlexAuth() {
    * @returns {{url: *, time: boolean, headers: {X-Plex-Device-Name: string, X-Plex-Client-Identifier: string, X-Plex-Provides: string, X-Plex-Target-Client-Identifier: *}, timeout: *, method: string}}
    */
   this.getClientApiOptions = function (url, clientIdentifier, uuid, timeout) {
-    var sBrowser, sUsrAg = navigator.userAgent;
+    var sBrowser, sUsrAg = navigator.userAgent
     if (sUsrAg.indexOf('Chrome') > -1) {
-      sBrowser = 'Chrome';
+      sBrowser = 'Chrome'
     } else if (sUsrAg.indexOf('Safari') > -1) {
-      sBrowser = 'Safari';
+      sBrowser = 'Safari'
     } else if (sUsrAg.indexOf('Opera') > -1) {
-      sBrowser = 'Opera';
+      sBrowser = 'Opera'
     } else if (sUsrAg.indexOf('Firefox') > -1) {
-      sBrowser = 'Firefox';
+      sBrowser = 'Firefox'
     } else if (sUsrAg.indexOf('MSIE') > -1) {
-      sBrowser = 'Microsoft Internet Explorer';
+      sBrowser = 'Microsoft Internet Explorer'
     }
     return {
       url: url,
@@ -62,6 +62,6 @@ module.exports = function PlexAuth() {
       },
       timeout: timeout,
       method: 'GET'
-    };
-  };
-};
+    }
+  }
+}
