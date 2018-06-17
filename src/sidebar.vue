@@ -225,7 +225,7 @@ export default {
     },
     getImgStyle: function (user) {
       let arr = [{
-        border: '2px solid ' + this.getUserColor(user)
+        border: '3px solid ' + this.getUserColor(user)
       }]
       return arr
     },

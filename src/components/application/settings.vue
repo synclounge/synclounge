@@ -52,9 +52,6 @@ export default {
   data () {
     return {}
   },
-  methods: {
-    // this.$store.dispatch('function',params)
-  },
   computed: {
     plex: function () {
       return this.$store.state.plex
