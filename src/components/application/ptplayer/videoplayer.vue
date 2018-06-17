@@ -209,7 +209,7 @@ export default {
     seekMethod (data) {
       return new Promise((resolve, reject) => {
         let seekTo = data.time
-        console.log('We have been told we need to seek to position ' + seekTo)
+        console.log('We have been told we need to seek to position ' + seekTo, data)
         // The parent will only ever send us this command if we are within 10s, lets change our playback speed to 3x to catch up
         let playbackSpeed = 1.0
         let iterations = 0
@@ -232,8 +232,11 @@ export default {
           this.player.currentTime(seekTo / 1000)
           return resolve(true)
         }
+        if (data.soft) {
+          return reject(new Error('Soft seek requested but not within buffered range'))
+        }
 
-        if ((Math.abs(seekTo - this.lastTime) < 3000) && (!this.blockedSpeedChanges) && (this.$store.state.synclounge.lastHostTimeline.playerState === 'playing')) {
+        if (((Math.abs(seekTo - this.lastTime) < 3000) && (!this.blockedSpeedChanges) && (this.$store.state.synclounge.lastHostTimeline.playerState === 'playing'))) {
           console.log('Seeking via the speed up method')
           let oldSources = this.player.options_.sources
           let cancelled = false

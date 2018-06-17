@@ -394,7 +394,11 @@ const actions = {
       endObj.key = state.chosenClient.lastTimelineObject.key
     }
     if (state.synclounge._socket) {
-      state.synclounge._socket.pollStartTime = (new Date()).getTime()
+      let commandId = Object.keys(state.synclounge.commands).length + 1
+      state.synclounge.commands[commandId] = {
+        start: new Date().getTime()
+      }
+      endObj.commandId = commandId
       state.synclounge._socket.emit('poll', endObj)
     }
   }

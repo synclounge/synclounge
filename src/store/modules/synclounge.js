@@ -30,7 +30,8 @@ export default {
     messages: [],
     me: '',
     decisionBlocked: 0,
-    lastHostTimeline: {}
+    lastHostTimeline: {},
+    commands: {}
   },
   getters: {
     getServer: state => {
@@ -199,9 +200,13 @@ export default {
             // Now we need to setup events for dealing with the PTServer.
             // We will regularly be recieving and sending data to and from the server.
             // We want to make sure we are listening for all the server events
-            state._socket.on('poll-result', (users, me) => {
+            state._socket.on('poll-result', (users, me, commandId) => {
               commit('SET_VALUE', ['me', me])
               commit('SET_USERS', users)
+              if (state.commands[commandId]) {
+                state.commands[commandId].end = new Date().getTime()
+                state.commands[commandId].difference = Math.abs(state.commands[commandId].end - state.commands[commandId].start)
+              }
             })
             state._socket.on('user-joined', (users, user, commandId) => {
               commit('SET_USERS', users)
@@ -335,6 +340,11 @@ export default {
                     await rootState.chosenClient.pressPause()
                   }
                   console.log('Rootstate', rootState)
+                  if (hostTimeline.playerState === 'playing') {
+                    // Add on the delay between us and the SLServer plus the delay between the server and the host
+                    let ourLastDelay = state.commands[Object.keys(state.commands).length - 1].difference
+                    data.time = data.time + ourLastDelay
+                  }
                   await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE)
                   resolve()
                 })
@@ -356,7 +366,7 @@ export default {
                 state.decisionBlocked = 0
                 return
               }
-              if (Math.abs(state.decisionBlocked - new Date().getTime()) < 90000) {
+              if (Math.abs(state.decisionBlocked - new Date().getTime()) < 180000) {
                 console.log('We are not going to make a decision from the host data because a command is already running')
                 return
               }

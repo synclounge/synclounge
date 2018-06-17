@@ -199,9 +199,9 @@ module.exports = function PlexClient () {
     // Press pause on the client
     return this.hitApi('/player/playback/stop', { wait: 0 })
   }
-  this.seekTo = function (time) {
+  this.seekTo = function (time, params) {
     // Seek to a time (in ms)
-    return this.hitApi('/player/playback/seekTo', { wait: 0, offset: time })
+    return this.hitApi('/player/playback/seekTo', Object.assign({ wait: 0, offset: time }, params))
   }
   this.waitForMovement = function (startTime) {
     return new Promise((resolve, reject) => {
@@ -235,7 +235,10 @@ module.exports = function PlexClient () {
       resolve()
     })
   }
-  this.cleanSeek = function (time) {
+  this.cleanSeek = function (time, isSoft) {
+    if (isSoft) {
+      return this.seekTo(time, { softSeek: true })
+    }
     return this.seekTo(time)
   }
   this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE) {
@@ -257,6 +260,10 @@ module.exports = function PlexClient () {
         }
         // Fall back to skipahead
         return resolve(await this.skipAhead(hostTimeline.time, 10000))
+      }
+      if (this.clientIdentifier === 'PTPLAYER9PLUS10' && difference > 100) {
+        console.log('Soft syncing because difference is', difference)
+        return resolve(await this.cleanSeek(hostTimeline.time, true))
       } else {
         resolve('No sync needed')
       }
