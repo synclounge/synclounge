@@ -97,6 +97,13 @@ export default {
                     tempConnection[key] = connection[key]
                   }
                   tempConnectionsArray.push(tempConnection)
+                  if (connection.local === '1' && connection.uri.indexOf('plex') > -1) {
+                    let rawConnection = new PlexConnection()
+                    Object.assign(rawConnection, connection)
+                    rawConnection.uri = connection.protocol + '://' + connection.address + ':' + connection.port
+                    rawConnection.isManual = true
+                    tempConnectionsArray.push(rawConnection)
+                  }
                 }
               }
               if (device.provides.indexOf('player') !== -1) {
@@ -115,6 +122,7 @@ export default {
                 for (let key in device) {
                   tempServer[key] = device[key]
                 }
+                // Push a manual connection string for when DNS rebind doesnt work
                 tempServer.plexConnections = tempConnectionsArray
                 if (tempServer['accessToken'] == null) {
                   tempServer['accessToken'] = state.user.authToken
@@ -219,6 +227,5 @@ export default {
     let [client, timeline] = data
     console.log('Updating timeline for', client, 'with', timeline)
   }
-
 
 }
