@@ -399,6 +399,8 @@ const actions = {
         start: new Date().getTime()
       }
       endObj.commandId = commandId
+      let latency = state.synclounge.commands(Object.keys(state.synclounge.commands).length - 1)
+      endObj.latency = latency
       state.synclounge._socket.emit('poll', endObj)
     }
   }

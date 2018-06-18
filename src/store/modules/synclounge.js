@@ -342,8 +342,9 @@ export default {
                   console.log('Rootstate', rootState)
                   if (hostTimeline.playerState === 'playing') {
                     // Add on the delay between us and the SLServer plus the delay between the server and the host
-                    let ourLastDelay = state.commands[Object.keys(state.commands).length - 1].difference
-                    data.time = data.time + (ourLastDelay || 0)
+                    let ourLastDelay = state.commands[Object.keys(state.commands).length - 1].difference * 0.50
+                    let hostLastDelay = hostTimeline.latency * 0.50
+                    data.time = data.time + (ourLastDelay || 0) + hostLastDelay
                   }
                   await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE)
                   resolve()

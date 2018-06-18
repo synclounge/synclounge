@@ -149,6 +149,7 @@ ptserver_io.on('connection', (socket) => {
       temp.type = data.type
       temp.showName = data.showName
       temp.key = data.key
+      temp.latency = data.latency
       temp.showName = data.showName
       temp.status = data.status
       temp.playerProduct = data.playerProduct
