@@ -243,6 +243,14 @@ module.exports = function PlexClient () {
   }
   this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE) {
     return new Promise(async (resolve, reject) => {
+      if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
+        await this.getTimeline()
+      }
+      let lagTime = Math.abs(hostTimeline.recievedAt - new Date().getTime())
+      if (lagTime) {
+        console.log('Adding lag time of', lagTime)
+        hostTimeline.time += lagTime
+      }
       const difference = Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time))
       console.log('Difference', difference)
 

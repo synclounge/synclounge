@@ -236,6 +236,7 @@ export default {
               })
             })
             state._socket.on('host-update', async (data) => {
+              data.recievedAt = new Date().getTime()
               const hostTimeline = data
               if (!state.lastHostTimeline || state.lastHostTimeline.playerState !== data.playerState) {
                 window.EventBus.$emit('host-playerstate-change')
@@ -333,18 +334,19 @@ export default {
 
                   if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
                     sendNotification('Resuming..')
-                    await rootState.chosenClient.pressPlay()
+                    return resolve(await rootState.chosenClient.pressPlay())
                   }
                   if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
                     sendNotification('Pausing..')
-                    await rootState.chosenClient.pressPause()
+                    return resolve(await rootState.chosenClient.pressPause())
                   }
                   console.log('Got host data', hostTimeline)
                   if (hostTimeline.playerState === 'playing') {
                     // Add on the delay between us and the SLServer plus the delay between the server and the host
-                    let ourLastDelay = state.commands[Object.keys(state.commands).length - 1].difference * 0.50
-                    let hostLastDelay = hostTimeline.latency * 0.50
-                    data.time = data.time + (ourLastDelay || 0) + hostLastDelay
+                    let ourLastDelay = Math.round(state.commands[Object.keys(state.commands).length - 1].difference * 0.50)
+                    let hostLastDelay = Math.round(hostTimeline.latency * 0.50)
+                    console.log('Adding host delay', hostLastDelay, 'and our lastDelay', ourLastDelay)
+                    data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0)
                   }
                   await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE)
                   resolve()

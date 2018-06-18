@@ -194,7 +194,7 @@ export default {
           state: this.playerstatus
         }
         this.lastSentTimeline = playerdata
-        if (this.playerTime) {
+        if (this.playertime) {
           this.eventbus.$emit('ptplayer-poll', (time) => {
             let difference = Math.abs(time - this.playertime)
             console.log('Poll time was out by', difference)
