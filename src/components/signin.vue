@@ -29,7 +29,7 @@
             </v-layout>
           </div>
           <div v-if="code" class="text-xs-center">
-            <v-btn class="primary" :href="url" target="_blank">Click me</v-btn>
+            <v-btn class="primary" @click="openPopup">Click me</v-btn>
           </div>
           <v-layout wrap row class="pt-4 pa-2">
             <v-flex xs12 md8 offset-md2 class="center-text">
@@ -65,11 +65,34 @@ export default {
         'X-Plex-Client-Identifier': this.$store.state.settings.CLIENTIDENTIFIER
       },
       code: null,
-      ready: false
+      ready: false,
+
+      openedWindow: null
 
     }
   },
   methods: {
+    openPopup: function () {
+      let w = 450
+      let h = 600
+      // Credit: https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+      // Fixes dual-screen position                         Most browsers      Firefox
+      let dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+      let dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+
+      let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
+      let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
+
+      let left = ((width / 2) - (w / 2)) + dualScreenLeft
+      let top = ((height / 2) - (h / 2)) + dualScreenTop
+      let newWindow = window.open(this.url, 'Sign in with Plex.tv', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
+
+      // Puts focus on the newWindow
+      if (window.focus) {
+        newWindow.focus()
+      }
+      this.openedWindow = newWindow
+    },
     letsGo: async function () {
       if (this.$store.state.autoJoin) {
         console.log('Autojoining...')
@@ -136,6 +159,9 @@ export default {
       })
       console.log('Result form pin check', result)
       if (result && result.data && result.data.authToken) {
+        if (this.openedWindow) {
+          this.openedWindow.close()
+        }
         clearInterval(this.ticker)
         window.localStorage.setItem('plexuser', JSON.stringify({ authToken: result.data.authToken }))
         await this.$store.dispatch('PLEX_LOGIN_TOKEN', result.data.authToken)
