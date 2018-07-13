@@ -223,7 +223,7 @@ module.exports = function PlexClient () {
   }
   this.seekTo = function (time, params) {
     // Seek to a time (in ms)
-    return this.hitApi('/player/playback/seekTo', Object.assign({ wait: 0, offset: time }, params))
+    return this.hitApi('/player/playback/seekTo', Object.assign({ wait: 0, offset: Math.round(time) }, params))
   }
   this.waitForMovement = function (startTime) {
     return new Promise((resolve, reject) => {
@@ -258,7 +258,7 @@ module.exports = function PlexClient () {
     })
   }
   this.cleanSeek = function (time, isSoft) {
-    if (isSoft) {
+    if (isSoft && this.clientIdentifier === 'PTPLAYER9PLUS10') {
       return this.seekTo(time, { softSeek: true })
     }
     return this.seekTo(time)
