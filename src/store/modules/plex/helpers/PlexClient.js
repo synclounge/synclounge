@@ -1,3 +1,4 @@
+var request = require('request')
 var axios = require('axios')
 const EventEmitter = require('events')
 var parseXMLString = require('xml2js').parseString
@@ -83,36 +84,57 @@ module.exports = function PlexClient () {
           var query = ''
           Object.assign(params, {
             type: 'video',
-            'X-Plex-Device-Name': 'SyncLounge',
             commandID: this.commandId
           })
-          // console.log(params)
           for (let key in params) {
             query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
           }
-          query = query + 'commandID=' + this.commandId
           if (connection.uri.charAt(connection.uri.length - 1) === '/') {
             // Remove a trailing / that some clients broadcast
             connection.uri = connection.uri.slice(0, connection.uri.length - 1)
           }
           var _url = connection.uri + command + '?' + query
           this.setValue('commandId', this.commandId + 1)
-          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
-          axios.get(connection.uri + command, {
-            params,
-            headers: options.headers
-          })
-            .then((response) => {
-              parseXMLString(response.data, (err, result) => {
+          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000)
+          request(options, (error, response, body) => {
+            if (!error) {
+              parseXMLString(body, function (err, result) {
                 if (err) {
-                  reject(new Error('Invalid XML', err))
+                  return reject(new Error('Invalid XML'))
                 }
                 return resolve(result)
               })
-            })
-            .catch((error) => {
-              reject(error)
-            })
+            } else {
+              return reject(error)
+            }
+          })
+          // // console.log(params)
+          // for (let key in params) {
+          //   query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+          // }
+          // query = query + 'commandID=' + this.commandId
+          // if (connection.uri.charAt(connection.uri.length - 1) === '/') {
+          //   // Remove a trailing / that some clients broadcast
+          //   connection.uri = connection.uri.slice(0, connection.uri.length - 1)
+          // }
+          // var _url = connection.uri + command + '?' + query
+          // this.setValue('commandId', this.commandId + 1)
+          // var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
+          // axios.get(connection.uri + command, {
+          //   params,
+          //   headers: options.headers
+          // })
+          //   .then((response) => {
+          //     parseXMLString(response.data, (err, result) => {
+          //       if (err) {
+          //         reject(new Error('Invalid XML', err))
+          //       }
+          //       return resolve(result)
+          //     })
+          //   })
+          //   .catch((error) => {
+          //     reject(error)
+          //   })
         }
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
           // We need to subscribe first!
@@ -285,6 +307,12 @@ module.exports = function PlexClient () {
 
     // First we will mirror the item so the user has an idea of what we're about to play
     return new Promise(async (resolve, reject) => {
+      // try {
+      //   await this.mirrorContent(data.ratingKey, data.server)
+      // } catch (e) {
+      //   console.log('Error mirroring item to client before playing', e)
+      //   return reject(e)
+      // }
       console.log('Autoplaying from client', data)
       // if (this.clientIdentifier !== 'PTPLAYER9PLUS10') {
       //   await this.mirrorContent(data.ratingKey, data.server)

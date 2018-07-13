@@ -57,7 +57,7 @@ module.exports = function PlexAuth () {
         'X-Plex-Product': 'SyncLounge',
         'X-Plex-Device-Vendor': sBrowser,
         'X-Plex-Platform-Version': '11.0',
-        'Accept': 'text/xml,application/xml',
+        'Accept': 'application/json',
         'X-Plex-Http-Pipeline': 'infinite'
       },
       timeout: timeout,
