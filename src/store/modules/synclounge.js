@@ -348,8 +348,12 @@ export default {
                     console.log('Adding host delay', hostLastDelay, 'and our lastDelay', ourLastDelay)
                     data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0)
                   }
-                  await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE)
-                  resolve()
+                  try {
+                    await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE)
+                  } catch (e) {
+                    return resolve()
+                  }
+                  return resolve()
                 })
               }
               /* This is data from the host, we should react to this data by potentially changing

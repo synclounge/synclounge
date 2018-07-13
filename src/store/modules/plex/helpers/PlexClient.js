@@ -452,6 +452,9 @@ module.exports = function PlexClient () {
         let res = await this.playMedia(data).catch(() => {
           start(parseInt(parseInt(index) + 1))
         })
+        if (!res) {
+          return
+        }
         console.log('Autoplayer await result', res)
         return resolve()
       }
@@ -465,7 +468,7 @@ module.exports = function PlexClient () {
           return false
         }
         // Check if length is close enough
-        if (Math.abs(parseInt(data.duration) - parseInt(hostData.maxTime)) > 5000 || !data.duration) {
+        if (Math.abs(parseInt(data.duration) - parseInt(hostData.maxTime)) > 1000 || !data.duration) {
           return false
         }
         if (data.type === 'movie') {

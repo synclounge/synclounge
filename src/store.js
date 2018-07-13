@@ -158,7 +158,6 @@ const mutations = {
     state.shortLink = value
   },
   setSetting (state, data) {
-    console.log('Setting change', data[0], 'to', data[1])
     Vue.set(state.settings, data[0], data[1])
     setSetting(data[0], data[1])
   },
@@ -311,7 +310,6 @@ const actions = {
     }
   },
   NEW_TIMELINE ({ commit, state, dispatch }, data) {
-    console.log('Got new timeline', data.time)
     // return true
     let timeline = data
     let client = state.chosenClient

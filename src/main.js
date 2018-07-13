@@ -44,7 +44,6 @@ if (process.env.NODE_ENV !== 'development') {
 window.EventBus = new Vue()
 window.EventBus.$on('command', (data) => {
   if (data.command === '/player/timeline/poll') {
-    console.log('Got timeline poll', router)
     if (router.app.route.fullPath.indexOf('/player') === -1) {
       return data.callback({
         key: null,

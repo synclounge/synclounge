@@ -172,7 +172,6 @@ export default {
       if (this.destroyed) {
         return
       }
-      console.log('Got command', data.command)
       if (data.command === '/player/timeline/poll') {
         let key = this.chosenKey
         let ratingKey = null

@@ -217,7 +217,7 @@ export default {
           return reject(new Error('Player is not ready'))
         }
         try {
-          if (!this.player || !this.player.currentTime()) {
+          if (!this.player || isNaN(this.player.currentTime())) {
             return reject(new Error('Player is not ready'))
           }
         } catch (e) {
