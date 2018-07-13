@@ -87,7 +87,7 @@ html {
   border: solid 2px #f3b32b;
 }
 
-.theme--dark .list, .application .theme--dark.list{
+.theme--dark .v-list, .application .theme--dark.v-list{
   background: #353e58
 }
 
@@ -108,7 +108,7 @@ main {
   box-shadow: none;
 }
 
-.navigation-drawer {
+.v-navigation-drawer {
   background: #151924 !important;
 }
 
@@ -128,7 +128,7 @@ main {
   box-shadow: none;
 }
 
-.list__tile {
+.v-list__tile {
   color: #ffffff;
 }
 
@@ -228,7 +228,7 @@ span {
 /* FIX Chat text not wrapping */
 
 .list__tile__sub-title,
-.list__tile__title {
+.v-list__tile__title {
   overflow-wrap: break-word;
   overflow-x: visible;
   white-space: initial;

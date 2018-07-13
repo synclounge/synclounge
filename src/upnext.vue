@@ -1,5 +1,5 @@
 <template>
-  <v-bottom-sheet v-model="sheet" hide-overlay persistent>
+  <v-bottom-sheet v-model="sheet" hide-overlay>
     <v-card v-if="ready && content && !content.loading" style="max-width: 100%; margin-left: auto; margin-right: auto" class="white--text pa-0" :img="background">
       <v-container fluid align-center justify-start v-show="ready" class="pa-0" style="background: rgba(0,0,0,0.7);">
         <v-card-title class="pa-0">
