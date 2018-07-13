@@ -80,7 +80,7 @@
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server.clientIdentifier" class="pa-2">
             <router-link :to="'/browse/' + server.clientIdentifier">
               <v-card class="white--text" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);">
-                <v-container fluid grid-list-lg>
+                <v-container fill-height>
                   <v-layout row justify-center align-center>
                     <v-flex xs4>
                       <v-card-media
