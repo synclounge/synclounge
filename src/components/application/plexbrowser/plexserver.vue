@@ -22,7 +22,7 @@
             </v-card>
           </v-flex>
         </v-layout>
-        <v-divider v-if="onDeck" class="mt-3 ma-2"></v-divider>
+        <v-divider v-if="subsetOnDeck(onDeckItemsPer).length > 0" class="mt-3 ma-2"></v-divider>
         <v-layout row wrap v-if="subsetOnDeck(onDeckItemsPer).length > 0">
           <v-flex xs6>
             <h4>On Deck</h4>
