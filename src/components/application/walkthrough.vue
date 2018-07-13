@@ -6,7 +6,7 @@
           <img style="width:100%" :src="logo">
         </v-flex>
       </v-layout>
-      <v-stepper style="background: rgba(0,0,0,0.3)" v-model="e1" light class="mb-4">
+      <v-stepper dark style="background: rgba(0,0,0,0.3)" v-model="e1" light class="mb-4">
         <v-stepper-header>
           <v-stepper-step step="1" :complete="true">Select a client</v-stepper-step>
           <v-divider></v-divider>
