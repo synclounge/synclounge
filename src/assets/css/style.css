@@ -76,7 +76,7 @@ html {
 .pt-orange-text {
   color: #E5A00D;
 }
-.theme--dark .card, .application .theme--dark.card {
+.theme--dark .v-card, .application .theme--dark.v-card {
   background: #151924;
 }
 .v-toolbar {

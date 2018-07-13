@@ -11,7 +11,7 @@
       <v-subheader> How to donate </v-subheader>
       <v-layout row justify-center align-center class="pa-0 ma-1">
           <v-flex xs4 class="text-xs-center">
-            <v-btn block color="primary" class="white--text" target="_blank" href="https://www.paypal.com/donate/?token=_UmTn9N97vt2VlY6LgaiCUT2AoLdOvEJ2FfMab6kPKD5a0nW8oTZr3r1suW6wxmvzjaTsW&country.x=AU&locale.x=AU">
+            <v-btn block color="primary" class="white--text" target="_blank" href="https://paypal.me/PlexTogether">
               Paypal
             </v-btn>
           </v-flex>
