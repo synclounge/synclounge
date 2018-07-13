@@ -112,9 +112,13 @@ const mutations = {
         return
       }
       state.chosenClient.getTimeline()
+      let interval = state.settings.CLIENTPOLLINTERVAL
+      if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+        interval = 200
+      }
       setTimeout(() => {
         clientPoller(time)
-      }, state.settings.CLIENTPOLLINTERVAL)
+      }, interval)
     }
 
     // Check if we need to remove old handlers
