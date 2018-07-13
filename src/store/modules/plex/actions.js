@@ -140,8 +140,7 @@ export default {
             ptplayer.product = 'SyncLounge'
             ptplayer.name = 'SyncLounge Player (BETA)'
             ptplayer.labels = [
-              ['Recommended', 'green'],
-              ['Beta', 'primary']
+              ['Recommended', 'green']
             ]
             ptplayer.lastSeenAt = Math.round((new Date()).getTime() / 1000)
 

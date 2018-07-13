@@ -1,6 +1,6 @@
 <template>
   <v-layout row wrap justify-center>
-    <v-flex xs12 lg8 xl6 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
+    <v-flex xs12 lg8 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
       <v-layout row wrap justify-center>
         <v-flex xs12 md8 lg4 xl6>
           <img style="width:100%" :src="logo">
@@ -18,7 +18,7 @@
       <div v-if="!chosenClient">
         <v-layout class="mt-2" row wrap>
           <v-flex xs12 center>
-            <h3>Choose your Plex player</h3>
+            <h2>Choose your Plex player</h2>
           </v-flex>
           <v-flex xs12>
             Choose a client from the list below. Once you've found the client you would like to use, click the connect button. SyncLounge will test to see if it can connect with the client and will let you know if it cannot.
@@ -31,11 +31,9 @@
         <v-layout v-else row wrap>
           <v-flex xs12 md6 lg7>
             <v-subheader>Plex Players {{ playercount }}</v-subheader>
-            <div v-for="i in recentClients" :key="i.clientIdentifier">
-              <div v-on:click="previewClient(i); ; gotResponse = true">
-                <plexclient :startup="testClient" :sidebar="false" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
-              </div>
-            </div>
+            <v-list dense style="background: none">
+              <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); ; gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
+            </v-list>
           </v-flex>
           <v-flex xs12 md6 lg5>
             <div v-if="testClient">
