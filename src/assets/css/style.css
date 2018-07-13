@@ -294,7 +294,7 @@ span {
 video.video-js,
 video.vjs-tech,
 {
-  max-height: calc(100vh - 64px);
+  /* max-height: calc(100vh - 64px); */
   position: relative !important;
   width: 100%;
   max-width: 100%;
