@@ -29,7 +29,7 @@
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </div>
         <v-layout v-else row wrap>
-          <v-flex xs12 md6 lg7>
+          <v-flex xs12 md6 lg7 v-if="!doReverse">
             <v-subheader>Plex Players {{ playercount }}</v-subheader>
             <v-list dense style="background: none">
               <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); ; gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
@@ -74,6 +74,12 @@
               </div>
             </div>
           </v-flex>
+          <v-flex xs12 md6 lg7 v-if="doReverse">
+            <v-subheader>Plex Players {{ playercount }}</v-subheader>
+            <v-list dense style="background: none">
+              <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); ; gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
+            </v-list>
+          </v-flex>
         </v-layout>
       </div>
     </v-flex>
@@ -105,6 +111,13 @@ export default {
     joinroom
   },
   computed: {
+    doReverse: function () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return true
+        case 'sm': return true
+        default: return false
+      }
+    },
     chosenClient: function () {
       return this.$store.getters.getChosenClient
     },

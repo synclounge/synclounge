@@ -6,7 +6,6 @@
     <v-list-tile-content>
       <v-list-tile-title>{{ object.name }}<v-chip v-for="label in object.labels" :key="label[0]" :color="label[1]" small label>{{ label[0] }}</v-chip></v-list-tile-title>
       <v-list-tile-sub-title>{{ object.product }} - last seen {{ lastSeenAgo }}</v-list-tile-sub-title>
-
     </v-list-tile-content>
   </v-list-tile>
 </template>
