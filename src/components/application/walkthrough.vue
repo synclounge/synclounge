@@ -164,20 +164,16 @@ export default {
       let client = this.testClient
       this.gotResponse = false
       this.testClientErrorMsg = null
-      try {
-        let result = await this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client)
-          .catch(e => {
-            console.log(e)
-            this.gotResponse = true
-            this.testClientErrorMsg = 'Unable to connect to client'
-          })
-        if (result) {
+      this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client)
+        .then(() => {
           this.$store.commit('SET_CHOSENCLIENT', client)
           this.gotResponse = true
-        }
-      } catch (e) {
-        this.gotResponse = true
-      }
+        })
+        .catch(e => {
+          console.log(e)
+          this.gotResponse = true
+          this.testClientErrorMsg = 'Unable to connect to client'
+        })
       // client.findConnection(function (res) {
       //   let plexObj = that.$store.state.plex
       //   if (res) {

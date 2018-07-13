@@ -181,43 +181,39 @@ export default {
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
     /*eslint-disable */
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (client.clientIdentifier === 'PTPLAYER9PLUS10') {
         return resolve(true)
       }
 
       let resolved = false
       try {
-        Promise.all(client.plexConnections.map((connection) => {
-          return new Promise((_resolve, reject) => {
+        await Promise.all(client.plexConnections.map((connection) => {
+          return new Promise(async (resolve, reject) => {
             try {
-              client.hitApi('/player/timeline/poll', { wait: 0 }, connection).then(() => {
-                if (!resolved) {
-                  resolved = true
-                  commit('PLEX_CLIENT_SET_CONNECTION', {
-                    client,
-                    connection
-                  })
-                  _resolve(true)
-                  resolve(true)
-                }
+              await client.hitApi('/player/timeline/poll', { wait: 0 }, connection)
+              console.log('Got good response on', connection)
+              commit('PLEX_CLIENT_SET_CONNECTION', {
+                client,
+                connection
               })
-                .catch((e) => {
-                  return _reject(e)
-                })
+              resolved = true
+              resolve()
             } catch (e) {
-              return _reject(e)
+              reject()
             }
-          })
-        })).then(() => {
-          if (!resolved) {
-            return reject()
-          }
-        }).catch((e) => {
-          return reject(e)
-        })
+          });
+          
+        }))
+        if (!resolved) {
+          console.log('Couldnt find a connection')
+          return reject()
+        }
+        console.log('Resolved connection finder')
+        return resolve() 
       } catch (e) {
-        throw new Error(e)
+        console.log('Error connecting to client', e)
+        reject(e)
       }
     })
     /* eslint-enable */

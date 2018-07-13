@@ -291,7 +291,7 @@ module.exports = function PlexClient () {
       // }
       let command = '/player/playback/playMedia'
       let mediaId = '/library/metadata/' + data.ratingKey
-      let offset = data.offset || 0
+      let offset = Math.round(data.offset) || 0
       let serverId = data.server.clientIdentifier
       let address = data.server.chosenConnection.address
       let port = data.server.chosenConnection.port

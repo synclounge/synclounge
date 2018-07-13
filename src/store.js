@@ -19,16 +19,6 @@ function sendNotification (message) {
   return window.EventBus.$emit('notification', message)
 }
 
-if (!getSetting('INIT')) {
-  // Initially setup our settings
-  setSetting('CLIENTPOLLINTERVAL', 1000)
-  setSetting('AUTOPLAY', true)
-  setSetting('DARKMODE', false)
-  setSetting('SYNCMODE', 'cleanseek')
-  setSetting('SYNCFLEXABILITY', 3000)
-  setSetting('CUSTOMSERVER', 'http://')
-  setSetting('INIT', true)
-}
 let defaultSettings = {
   CLIENTPOLLINTERVAL: 1000,
   AUTOPLAY: true,

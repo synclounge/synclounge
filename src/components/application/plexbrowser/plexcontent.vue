@@ -28,7 +28,7 @@
                           <v-icon> play_arrow </v-icon>
                         </v-btn>
                       </div>
-                      <span v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
+                      <div v-if="!playable" class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</div>
                       <v-btn v-if="!playable" style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
                         <v-icon></v-icon> Stop
                       </v-btn>
@@ -81,11 +81,19 @@
                         </v-btn>
                       </div>
                       <div v-else>
-                        <span class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</span>
-                        <v-btn style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
-                          <v-icon></v-icon> Stop
-                        </v-btn>
-                        <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+                        <v-layout row wrap>
+                          <v-flex xs12>
+                            <div class="pa-2" >Now playing on {{ chosenClient.name }} from {{ server.name }}</div>
+                          </v-flex>
+                          <v-flex xs12>
+                            <v-btn block style="background-color: #cc3f3f" v-on:click.native="pressStop()" class="white--text">
+                              <v-icon></v-icon> Stop
+                            </v-btn>
+                          </v-flex>
+                          <v-flex xs12>
+                            <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+                          </v-flex>
+                        </v-layout>
                       </div>
                     </v-flex>
                     <div style="width: 100%">
