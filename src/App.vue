@@ -26,7 +26,7 @@
         <v-icon v-if="showRightDrawerButton" @click="toggleDrawerRight" class="clickable">{{ drawerRight ? 'last_page' : 'first_page' }}</v-icon>
       </v-toolbar-items>
     </v-toolbar>
-    <v-content v-bind:style="mainStyle" app >
+    <v-content v-bind:style="mainStyle" app>
       <v-container class="ma-0 pa-0" align-start :style="containerStyle" style="height: 100%; z-index: 250" fluid>
         <v-flex xs12 v-if="(loading || !plex.gotDevices) && route.protected">
           <v-container fill-height>
