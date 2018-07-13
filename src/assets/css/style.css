@@ -79,7 +79,7 @@ html {
 .theme--dark .card, .application .theme--dark.card {
   background: #151924;
 }
-.toolbar {
+.v-toolbar {
   background: #151924 !important;
 }
 
