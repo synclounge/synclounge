@@ -431,6 +431,10 @@ module.exports = function PlexClient () {
           resolve()
         })
       }))
+      playables = playables.sort((a, b) => {
+        return parseInt(b.server.publicAddressMatches) - parseInt(a.server.publicAddressMatches)
+      })
+      console.log('Playables', playables)
       const start = async (index) => {
         // Now lets try and play our items one by one
         console.log('Auto playing index', index, 'of total', playables.length)
