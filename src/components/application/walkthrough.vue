@@ -17,7 +17,7 @@
       </v-stepper>
       <div v-if="!chosenClient">
         <v-layout class="mt-2" row wrap>
-          <v-flex xs12 center>
+          <v-flex xs12>
             <h2>Choose your Plex player</h2>
           </v-flex>
           <v-flex xs12>
@@ -106,6 +106,8 @@ export default {
       joinRoomModal: false
     }
   },
+  mounted: function () {
+  },
   components: {
     plexclient,
     joinroom
@@ -185,17 +187,6 @@ export default {
           this.gotResponse = true
           this.testClientErrorMsg = 'Unable to connect to client'
         })
-      // client.findConnection(function (res) {
-      //   let plexObj = that.$store.state.plex
-      //   if (res) {
-      //     client.connectedstatus = 'connected'
-      //     that.e1 = '2'
-      //     that.$store.commit('SET_CHOSENCLIENT', client)
-
-      //   } else {
-      //     client.connectedstatus = 'failed'
-      //   }
-      // })
     },
     openJoinRoomModal: function () {
       return this.$parent.$refs.joinroomModal.open()

@@ -7,7 +7,7 @@
             <img style="width:100%" v-bind:src="logo">
           </v-flex>
         </v-layout>
-        <v-stepper style="background: rgba(0,0,0,0.3)" v-model="e1" light class="mb-4">
+        <v-stepper style="background: rgba(0,0,0,0.3)" v-model="e1" dark class="mb-4">
           <v-stepper-header>
             <v-stepper-step step="1" :complete="true">Select a client</v-stepper-step>
             <v-divider></v-divider>
@@ -20,7 +20,7 @@
     </v-layout>
     <v-layout row wrap justify-center>
       <v-flex xs10 lg8 xl6>
-        <h3 class="text-xs-center">Connect to a SyncLounge room</h3>
+        <h2 class="text-xs-left">Connect to a SyncLounge room</h2>
       </v-flex>
     </v-layout>
     <v-layout row wrap justify-center>
@@ -74,14 +74,14 @@
             <v-btn class="pt-orange white--text pa-0 ma-0" color="primary" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
           </v-flex>
         </v-layout>
-        <v-layout row wrap v-if="connectionPending" class="pt-3">
+        <v-layout row wrap v-if="connectionPending && !serverError" class="pt-3">
           <v-flex xs4 offset-xs4 center>
             <div style="width:100%;text-align:center">
               <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
             </div>
           </v-flex>
         </v-layout>
-        <v-layout class="pt-3" row wrap v-if="serverError">
+        <v-layout class="pt-3 text-xs-center" row wrap v-if="serverError">
           <v-flex xs12 class="red--text">
             <v-icon class="red--text">info</v-icon> {{ serverError }}
           </v-flex>
@@ -114,7 +114,7 @@
           <v-flex xs4 offset-xs4>
             <v-btn block color="primary" v-on:click.native="joinRoom()">Join</v-btn>
           </v-flex>
-          <v-layout class="pt-3" row wrap v-if="roomError">
+          <v-layout class="pt-3 text-xs-center" row wrap v-if="roomError">
             <v-flex xs12 class="red--text">
               <v-icon class="red--text">info</v-icon> {{ roomError }}
             </v-flex>

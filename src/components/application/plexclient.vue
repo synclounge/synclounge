@@ -195,7 +195,7 @@ export default {
       background-color: #034ea2;
   }
   .platform-synclounge {
-      background-color: #353e58;
+      background-color: #3e4f82;
   }
   .platform-tivo {
       background-color: #00a7e1;
