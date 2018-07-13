@@ -32,7 +32,7 @@
                       </div>
                     </v-flex>
                   </v-layout>
-                </div>                
+                </div>
               </v-flex>
             </v-layout>
           </v-container>
@@ -68,7 +68,7 @@ export default {
     })
   },
   watch: {
-    
+
   },
   methods: {
     pressPlay: function () {
