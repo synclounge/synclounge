@@ -285,6 +285,9 @@ export default {
         if (user.playerState === 'playing') {
           return 'play_arrow'
         }
+        if (user.playerState === 'buffering') {
+          return 'av_timer'
+        }
       }
       return 'stop'
     },

@@ -345,8 +345,10 @@ export default {
                     // Add on the delay between us and the SLServer plus the delay between the server and the host
                     let ourLastDelay = Math.round(state.commands[Object.keys(state.commands).length - 1].difference * 0.50)
                     let hostLastDelay = Math.round(hostTimeline.latency * 0.50)
-                    console.log('Adding host delay', hostLastDelay, 'and our lastDelay', ourLastDelay)
-                    data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0)
+                    if (ourLastDelay && hostLastDelay) {
+                      console.log('Adding host delay', hostLastDelay, 'and our lastDelay', ourLastDelay)
+                      data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0)
+                    }
                   }
                   try {
                     await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE)
