@@ -56,11 +56,11 @@
         </v-list>
       </v-flex>
       <v-flex xs12 style="position: relative; height: 50vh; max-height: 50vh">
-        <v-layout row wrap justify-space-around>
+        <v-layout row wrap justify-space-around fill-height>
           <v-flex style="height: calc(100% - 96px); max-height: calc(100% - 96px)">
-            <v-divider></v-divider>
-            <v-subheader>Messages</v-subheader>
-            <v-list id="chatbox" style="overflow-y:auto; background: none; max-height: calc(100% - 48px); max-width: 100%">
+          <v-divider></v-divider>
+          <v-subheader>Messages</v-subheader>
+            <v-list id="chatbox" style="overflow-y:auto; background: none; height: calc(100% - 48px); max-width: 100%">
               <v-list-tile class="pt-1 pb-1" style="position:relative; max-width: 100%; max-height: 250px" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
                 <v-list-tile-avatar>
                   <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px;" />
