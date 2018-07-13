@@ -15,6 +15,7 @@
     <span class="grey--text" style="opacity:.8">
       {{ object.product }}
     </span>
+    <v-chip v-for="label in object.labels" :color="label[1]" small :key="label[0]" label>{{ label[0] }}</v-chip>
   </div>
 </template>
 

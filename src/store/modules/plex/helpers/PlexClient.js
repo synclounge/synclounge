@@ -26,6 +26,7 @@ module.exports = function PlexClient () {
   this.httpServer = null
   this.tempId = null
   this.events = new EventEmitter()
+  this.labels = []
 
   this.userData = null
 
@@ -108,33 +109,6 @@ module.exports = function PlexClient () {
               return reject(error)
             }
           })
-          // // console.log(params)
-          // for (let key in params) {
-          //   query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-          // }
-          // query = query + 'commandID=' + this.commandId
-          // if (connection.uri.charAt(connection.uri.length - 1) === '/') {
-          //   // Remove a trailing / that some clients broadcast
-          //   connection.uri = connection.uri.slice(0, connection.uri.length - 1)
-          // }
-          // var _url = connection.uri + command + '?' + query
-          // this.setValue('commandId', this.commandId + 1)
-          // var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
-          // axios.get(connection.uri + command, {
-          //   params,
-          //   headers: options.headers
-          // })
-          //   .then((response) => {
-          //     parseXMLString(response.data, (err, result) => {
-          //       if (err) {
-          //         reject(new Error('Invalid XML', err))
-          //       }
-          //       return resolve(result)
-          //     })
-          //   })
-          //   .catch((error) => {
-          //     reject(error)
-          //   })
         }
         if ((new Date().getTime() - this.lastSubscribe) > 29000) {
           // We need to subscribe first!

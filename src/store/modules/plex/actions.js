@@ -139,6 +139,10 @@ export default {
             ptplayer.device = 'Web'
             ptplayer.product = 'SyncLounge'
             ptplayer.name = 'SyncLounge Player (BETA)'
+            ptplayer.labels = [
+              ['Recommended', 'green'],
+              ['Beta', 'primary']
+            ]
             ptplayer.lastSeenAt = Math.round((new Date()).getTime() / 1000)
 
             dispatch('PLEX_ADD_CLIENT', ptplayer)

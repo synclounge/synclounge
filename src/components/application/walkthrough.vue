@@ -45,7 +45,7 @@
               <div class="pl-1">
                 <h3>{{ testClient.name }}</h3>
                 <div>
-                  <label >Last seen</label><span style="opacity:0.8">  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
+                  <label>Last seen</label><span style="opacity:0.8">  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
                 </div>
                 <div>
                   <label>Device</label><span style="opacity:0.8">  {{ testClient.device }}</span>
