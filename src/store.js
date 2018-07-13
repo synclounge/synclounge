@@ -364,7 +364,7 @@ const actions = {
       type = metadata.type
     }
     let status = 'good'
-    if (!state.synclounge.lastHostTimeline || !state.synclounge.lastHostTimeline.time) {
+    if (!state.synclounge.lastHostTimeline || isNaN(state.synclounge.lastHostTimeline.time)) {
       status = 'error'
     } else {
       let difference = Math.abs(state.chosenClient.lastTimelineObject.time - state.synclounge.lastHostTimeline.time)
