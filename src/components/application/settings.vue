@@ -4,7 +4,7 @@
       <h4 style="text-align:initial">Plex Client Polling Interval</h4>
       <div> {{ clientpollinterval }}</div>
       <v-slider class="pa-0 ma-0" v-model="clientpollinterval" :min="100" :max="10000"
-        hint="Sets how frequently SyncLounge will poll the client for new information in milliseconds. Default is 1000ms (1 second)"
+        hint="Sets how frequently SyncLounge will poll external plex clients for new information in milliseconds. Default is 1000ms (1 second)"
         persistent-hint>
       </v-slider>
     </div>
