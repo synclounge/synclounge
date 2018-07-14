@@ -29,49 +29,60 @@
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </div>
         <v-layout v-else row wrap>
-          <v-flex xs12 md6 lg7 v-if="!doReverse">
+          <v-flex xs12 md6 lg6 v-if="!doReverse">
             <v-subheader>Plex Players {{ playercount }}</v-subheader>
             <v-list dense style="background: none">
               <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); ; gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
             </v-list>
           </v-flex>
-          <v-flex xs12 md6 lg5>
-            <div v-if="testClient">
+          <v-flex xs12 md6 lg6>
+            <div v-if="testClient" class="pa-2">
               <v-subheader>
                 Selected Player
               </v-subheader>
-              <div class="pl-1">
-                <h3>{{ testClient.name }}</h3>
-                <div>
-                  <label>Last seen</label><span style="opacity:0.8">  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
-                </div>
-                <div>
-                  <label>Device</label><span style="opacity:0.8">  {{ testClient.device }}</span>
-                </div>
-                <div>
-                  <label>Running</label><span style="opacity:0.8">  {{ testClient.product }} </span>
-                </div>
-                <div class="pb-2">
-                  <label>Platform</label><span style="opacity:0.8">  {{ testClient.platform }} </span>
-                </div>
-                <div v-if="!gotResponse" class="center spinner-orange">
-                  <div style="width:100%;text-align:center">
-                    <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
-                  </div>
-                </div>
-                <div v-if="gotResponse">
-                  <v-btn block color="primary" v-on:click.native="clientClicked()">Connect</v-btn>
-                </div>
-                <div v-if="testClient.product.indexOf('Web') > -1">
-                  Note: Plex Web is currently not supported
-                </div>
-                <div v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'">
-                  Note: You may not be able to connect to external Plex Clients while loading the page via HTTPS. Click <a :href="nohttpslink">here</a> to load the page via HTTP. More info <a href="https://github.com/samcm/synclounge/issues/52" target="_blank">here</a>.
-                </div>
-                <div class="red--text lighten-3 text-xs-center" v-if="testClientErrorMsg">
-                  {{ testClientErrorMsg }}
-                </div>
-              </div>
+              <v-layout row wrap>
+                <v-flex md3>
+                  <img :src="url" style="width: 90%; height: auto; vertical-align: middle"/>
+                </v-flex>
+                <v-flex xs12 md9>
+                  <div class="pl-1">
+                    <h3>{{ testClient.name }}</h3>
+                    <div>
+                      <label>Last seen</label><span style="opacity:0.8">  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
+                    </div>
+                    <div>
+                      <label>Device</label><span style="opacity:0.8">  {{ testClient.device }}</span>
+                    </div>
+                    <div>
+                      <label>Running</label><span style="opacity:0.8">  {{ testClient.product }} </span>
+                    </div>
+                    <div class="pb-2">
+                      <label>Platform</label><span style="opacity:0.8">  {{ testClient.platform }} </span>
+                    </div>
+                    <div v-if="testClient.product.indexOf('Web') > -1" class="warning--text">
+                      Note: Plex Web is currently not supported
+                    </div>
+                    <div v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'" class="warning--text">
+                      Note: You may not be able to connect to external Plex Clients while loading the page via HTTPS. Click <a :href="nohttpslink">here</a> to load the page via HTTP. More info <a href="https://github.com/samcm/synclounge/issues/52" target="_blank">here</a>.
+                    </div>
+                    <div class="red--text" v-if="testClientErrorMsg">
+                      {{ testClientErrorMsg }}
+                    </div>
+                    </div>
+                </v-flex>
+              </v-layout>
+              <v-layout row wrap class="pt-2">
+                <v-flex xs12>
+                  <div v-if="!gotResponse" class="center spinner-orange">
+                      <div style="width:100%;text-align:center">
+                        <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
+                      </div>
+                    </div>
+                    <div v-if="gotResponse">
+                      <v-btn block color="primary" v-on:click.native="clientClicked()">Connect</v-btn>
+                    </div>
+                </v-flex>
+              </v-layout>
             </div>
           </v-flex>
           <v-flex xs12 md6 lg7 v-if="doReverse">
@@ -103,7 +114,44 @@ export default {
       testClientErrorMsg: null,
       gotResponse: true,
       e1: '1',
-      joinRoomModal: false
+      joinRoomModal: false,
+      platformMap: {
+        'android': 'android',
+        'apple tv': 'atv',
+        'chrome': 'chrome',
+        'chromecast': 'chromecast',
+        'dlna': 'dlna',
+        'firefox': 'firefox',
+        'internet explorer': 'ie',
+        'ios': 'ios',
+        'ipad': 'ios',
+        'iphone': 'ios',
+        'kodi': 'kodi',
+        'linux': 'linux',
+        'nexus': 'android',
+        'macos': 'macos',
+        'microsoft edge': 'msedge',
+        'opera': 'opera',
+        'osx': 'macos',
+        'playstation': 'playstation',
+        'plex home theater': 'plex',
+        'plex media player': 'plex',
+        'plexamp': 'plexamp',
+        'plextogether': 'synclounge',
+        'roku': 'roku',
+        'safari': 'safari',
+        'samsung': 'samsung',
+        'synclounge': 'synclounge',
+        'tivo': 'tivo',
+        'tizen': 'samsung',
+        'tvos': 'atv',
+        'vizio': 'opera',
+        'wiiu': 'wiiu',
+        'windows': 'windows',
+        'windows phone': 'wp',
+        'xbmc': 'xbmc',
+        'xbox': 'xbox'
+      }
     }
   },
   mounted: function () {
@@ -125,6 +173,24 @@ export default {
     },
     isHttps: function () {
       return location.protocol === 'https:'
+    },
+    platform: function () {
+      if (!this.testClient || !this.testClient.platform) {
+        return
+      }
+      return this.platformMap[this.testClient.platform.toLowerCase()] || this.platformMap[this.testClient.product.toLowerCase()]
+    },
+    platformClass: function () {
+      return ['platform-' + this.platform]
+    },
+    url: function () {
+      if (!this.platform) {
+        return 'platforms/plex.svg'
+      }
+      if (this.platform === 'synclounge') {
+        return 'platforms/synclounge.png'
+      }
+      return 'platforms/' + this.platform + '.svg'
     },
     clients: function () {
       return this.plex.clients
@@ -183,6 +249,9 @@ export default {
           this.gotResponse = true
         })
         .catch(e => {
+          if (client.clientIdentifier !== this.testClient.clientIdentifier) {
+            return
+          }
           console.log(e)
           this.gotResponse = true
           this.testClientErrorMsg = 'Unable to connect to client'
