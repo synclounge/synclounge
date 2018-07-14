@@ -86,7 +86,9 @@ export default {
       let left = ((width / 2) - (w / 2)) + dualScreenLeft
       let top = ((height / 2) - (h / 2)) + dualScreenTop
       let newWindow = window.open(this.url, 'Sign in with Plex.tv', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
-
+      if (!newWindow) {
+        newWindow = window.open(this.url, '_blank')
+      }
       // Puts focus on the newWindow
       if (window.focus) {
         newWindow.focus()
