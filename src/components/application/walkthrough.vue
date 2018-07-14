@@ -41,8 +41,8 @@
                 Selected Player
               </v-subheader>
               <v-layout row wrap>
-                <v-flex md3 class="text-xs-center">
-                  <img :src="url" style="max-height: 100px; max-width: 90%; vertical-align: middle"/>
+                <v-flex md3 class="text-xs-center" style="position: relative">
+                  <img :src="url" class="flag" style="max-height: 100px; max-width: 90%; vertical-align: middle"/>
                 </v-flex>
                 <v-flex xs12 md9>
                   <div class="pl-1">
