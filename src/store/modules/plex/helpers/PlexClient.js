@@ -62,7 +62,7 @@ module.exports = function PlexClient () {
   }
   this.uuid = this.generateGuid()
 
-  this.hitApi = function (command, params, connection) {
+  this.hitApi = function (command, params, connection, needResponse) {
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         // We are using the SyncLounge Player
@@ -90,6 +90,7 @@ module.exports = function PlexClient () {
           for (let key in params) {
             query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
           }
+          query = query.substring(0, query.length - 1)
           if (connection.uri.charAt(connection.uri.length - 1) === '/') {
             // Remove a trailing / that some clients broadcast
             connection.uri = connection.uri.slice(0, connection.uri.length - 1)
@@ -99,12 +100,17 @@ module.exports = function PlexClient () {
           var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000)
           request(options, (error, response, body) => {
             if (!error) {
-              parseXMLString(body, function (err, result) {
-                if (err) {
-                  return reject(new Error('Invalid XML'))
-                }
-                return resolve(result)
-              })
+              if (needResponse) {
+                parseXMLString(body, function (err, result) {
+                  if (err) {
+                    console.log('Error parsing XML on command', command)
+                    return reject(new Error('Invalid XML on command', command))
+                  }
+                  return resolve(result)
+                })
+              } else {
+                return resolve(true)
+              }
             } else {
               return reject(error)
             }
@@ -130,7 +136,7 @@ module.exports = function PlexClient () {
     return new Promise(async (resolve, reject) => {
       let data
       try {
-        data = await this.hitApi('/player/timeline/poll', { 'wait': 0 })
+        data = await this.hitApi('/player/timeline/poll', { 'wait': 0 }, this.chosenConnection, true)
         if (data) {
           return resolve(this.updateTimelineObject(data))
         } else {

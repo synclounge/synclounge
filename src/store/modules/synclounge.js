@@ -237,6 +237,7 @@ export default {
             })
             state._socket.on('host-update', async (data) => {
               data.recievedAt = new Date().getTime()
+              console.log('Got host data')
               const hostTimeline = data
               if (!state.lastHostTimeline || state.lastHostTimeline.playerState !== data.playerState) {
                 window.EventBus.$emit('host-playerstate-change')
@@ -343,11 +344,15 @@ export default {
                   console.log('Got host data', hostTimeline)
                   if (hostTimeline.playerState === 'playing') {
                     // Add on the delay between us and the SLServer plus the delay between the server and the host
-                    let ourLastDelay = Math.round(state.commands[Object.keys(state.commands).length - 1].difference * 0.50)
-                    let hostLastDelay = Math.round(hostTimeline.latency * 0.50)
-                    if (ourLastDelay && hostLastDelay) {
-                      console.log('Adding host delay', hostLastDelay, 'and our lastDelay', ourLastDelay)
-                      data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0)
+                    try {
+                      let ourLastDelay = Math.round(state.commands[Object.keys(state.commands).length - 1].difference * 0.50)
+                      let hostLastDelay = Math.round(hostTimeline.latency * 0.50)
+                      if (ourLastDelay && hostLastDelay) {
+                        console.log('Adding host delay', hostLastDelay, 'and our lastDelay', ourLastDelay)
+                        data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0)
+                      }
+                    } catch (e) {
+                      console.log('Failed to add extra lag time')
                     }
                   }
                   try {
