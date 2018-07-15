@@ -113,6 +113,7 @@ export default {
                 for (let key in device) {
                   tempClient[key] = device[key]
                 }
+                tempClient.accessToken = state.user.authToken
                 tempClient.plexConnections = tempConnectionsArray
                 dispatch('PLEX_ADD_CLIENT', tempClient)
               } else {
@@ -143,6 +144,23 @@ export default {
               ['Recommended', 'green']
             ]
             ptplayer.lastSeenAt = Math.round((new Date()).getTime() / 1000)
+            for (let i in state.clients) {
+              let client = state.clients[i]
+              for (let j in client.plexConnections) {
+                let clientConnection = client.plexConnections[j]
+                // Check if this URL matches any server connections
+                for (let x in state.servers) {
+                  let server = state.servers[x]
+                  for (let y in server.plexConnections) {
+                    let serverConnection = server.plexConnections[y]
+                    if (serverConnection.uri === clientConnection.uri) {
+                      console.log('ADDING ACCESS TOKEN FOR MATCHING URL', client, server)
+                      client.accessToken = server.accessToken
+                    }
+                  }
+                }
+              }
+            }
 
             dispatch('PLEX_ADD_CLIENT', ptplayer)
             commit('PLEX_SET_VALUE', ['gotDevices', true])
@@ -190,6 +208,7 @@ export default {
       }
 
       let resolved = false
+      let rootResolve = resolve
       try {
         await Promise.all(client.plexConnections.map((connection) => {
           return new Promise(async (resolve, reject) => {
@@ -199,11 +218,15 @@ export default {
               commit('PLEX_CLIENT_SET_CONNECTION', {
                 client,
                 connection
-              })
+              })              
+              if (!resolved) {
+                rootResolve()
+              }
               resolved = true
               resolve()
+
             } catch (e) {
-              reject()
+              resolve()
             }
           });
           

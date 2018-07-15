@@ -29,7 +29,7 @@ module.exports = function PlexAuth () {
    * @param timeout
    * @returns {{url: *, time: boolean, headers: {X-Plex-Device-Name: string, X-Plex-Client-Identifier: string, X-Plex-Provides: string, X-Plex-Target-Client-Identifier: *}, timeout: *, method: string}}
    */
-  this.getClientApiOptions = function (url, clientIdentifier, uuid, timeout) {
+  this.getClientApiOptions = function (url, clientIdentifier, uuid, timeout, token) {
     var sBrowser, sUsrAg = navigator.userAgent
     if (sUsrAg.indexOf('Chrome') > -1) {
       sBrowser = 'Chrome'
@@ -58,7 +58,8 @@ module.exports = function PlexAuth () {
         'X-Plex-Device-Vendor': sBrowser,
         'X-Plex-Platform-Version': '11.0',
         'Accept': 'application/json',
-        'X-Plex-Http-Pipeline': 'infinite'
+        'X-Plex-Http-Pipeline': 'infinite',
+        'X-Plex-Token': token
       },
       timeout: timeout,
       method: 'GET'

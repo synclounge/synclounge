@@ -248,7 +248,7 @@ export default {
               }
               state.lastHostTimeline = data
               const decisionMaker = (timelineAge) => {
-                const ourTimeline = rootState.chosenClient.lastTimelineObject
+                let ourTimeline = rootState.chosenClient.lastTimelineObject
                 return new Promise(async (resolve, reject) => {
                   if (ourTimeline.playerState === 'buffering') {
                     return resolve()
@@ -401,14 +401,15 @@ export default {
               }
               // Check previous timeline data age
               state.decisionBlocked = new Date().getTime()
-              let timelineAge = new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt
+              let timelineAge = Math.abs(new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt)
+              console.log('Timeline age is', timelineAge)
               try {
-                if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-                  await rootState.chosenClient.getTimeline()
-                  await decisionMaker(0)
-                } else {
-                  await decisionMaker(timelineAge)
-                }
+                // if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+                //   await rootState.chosenClient.getTimeline()
+                //   await decisionMaker(0)
+                // } else {
+                await decisionMaker(timelineAge)
+                // }
               } catch (e) {
                 console.log('Error caught in sync logic', e)
                 state.decisionBlocked = 0

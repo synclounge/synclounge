@@ -97,7 +97,7 @@ module.exports = function PlexClient () {
           }
           var _url = connection.uri + command + '?' + query
           this.setValue('commandId', this.commandId + 1)
-          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000)
+          var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000, this.accessToken)
           request(options, (error, response, body) => {
             if (!error) {
               if (needResponse) {
@@ -226,7 +226,7 @@ module.exports = function PlexClient () {
       let startedAt = new Date().getTime()
       let now = this.lastTimelineObject.time
       await this.seekTo(current + duration)
-      await this.waitForMovement(now)
+      // await this.waitForMovement(now)
       // The client is now ready
       await this.pressPause()
       // Calculate how long it took to get to our ready state
@@ -253,7 +253,10 @@ module.exports = function PlexClient () {
         console.log('Adding lag time of', lagTime)
         hostTimeline.time += lagTime
       }
-      const difference = Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time))
+      let timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt
+      console.log('Difference before', Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time)))
+      let ourTime = parseInt(this.lastTimelineObject.time) + parseInt(timelineAge)
+      const difference = Math.abs((parseInt(ourTime)) - parseInt(hostTimeline.time))
       console.log('Difference', difference)
 
       let bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused'
@@ -384,7 +387,7 @@ module.exports = function PlexClient () {
           commandID: this.commandId
         }
         this.setValue('commandId', this.commandId + 1)
-        var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000)
+        var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000, this.accessToken)
         axios.get(connection.uri + command, {
           params,
           headers: options.headers

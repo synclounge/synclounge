@@ -93,6 +93,7 @@ const mutations = {
 
   SET_CHOSENCLIENT (state, client) {
     // Set up our client poller
+    let commandInProgress = false
     function clientPoller (time) {
       if (!state.chosenClient) {
         return
@@ -101,7 +102,14 @@ const mutations = {
         // We have a new chosen client, we need to stop
         return
       }
-      state.chosenClient.getTimeline()
+      if (!commandInProgress) {
+        state.chosenClient.getTimeline().then(() => {
+          commandInProgress = false
+        }).catch((e) => {
+          commandInProgress = false
+        })
+        commandInProgress = true
+      }
       let interval = state.settings.CLIENTPOLLINTERVAL
       if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
         interval = 200
