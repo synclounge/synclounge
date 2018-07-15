@@ -268,7 +268,11 @@ export default {
       if (isNaN(user.time) || user.time === 0 || !user.time) {
         return this.getTimeFromMs(0)
       }
-      return this.getTimeFromMs(parseInt(user.time) + parseInt(this.difference))
+      let time = parseInt(user.time)
+      if (user.playerState === 'playing') {
+        time = time + parseInt(this.difference)
+      }
+      return this.getTimeFromMs(time)
     },
     getMax: function (user) {
       if (isNaN(user.maxTime)) {

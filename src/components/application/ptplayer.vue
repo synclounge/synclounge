@@ -194,7 +194,12 @@ export default {
         }
         this.lastSentTimeline = playerdata
         if (this.playertime) {
-          this.eventbus.$emit('ptplayer-poll', (time) => {
+          console.log('Fetching up to date time from videoplayer')
+          this.eventbus.$emit('ptplayer-poll', (err, time) => {
+            if (err) {
+              return data.callback(this.playertime)
+            }
+            console.log('Video player responded with a new time of', time)
             let difference = Math.abs(time - this.playertime)
             console.log('Poll time was out by', difference)
             playerdata.time = time

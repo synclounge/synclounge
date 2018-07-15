@@ -85,16 +85,18 @@ export default {
       // Return a promise through the callback
       data.callback(this.seekMethod(data))
     })
-    this.eventbus.$on('ptplayer-poll', async (callback) => {
-      // Return a promise through the callback
-      if (this.player) {
-        callback(this.player.currentTime() * 1000)
-      } else {
-        callback(0)
+    this.eventbus.$on('ptplayer-poll', (callback) => {
+      console.log('Got a ptplayer-poll command')
+      try {
+        callback(null, this.player.currentTime() * 1000)
+      } catch (e) {
+        console.log('Caught an error when fetching newest time', e)
+        return callback(e, -1)
       }
     })
   },
   beforeDestroy () {
+    console.log('DESTROYING VIDEOPLAYER INSTANCE')
     clearInterval(this.ticker)
     this.eventbus.$off('player-press-pause')
     this.eventbus.$off('player-press-play')

@@ -102,13 +102,20 @@ const mutations = {
         // We have a new chosen client, we need to stop
         return
       }
-      if (!commandInProgress) {
-        state.chosenClient.getTimeline().then(() => {
-          commandInProgress = false
-        }).catch((e) => {
-          commandInProgress = false
-        })
-        commandInProgress = true
+      console.log('commandInProgress', commandInProgress)
+      if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
+        if (!commandInProgress) {
+          state.chosenClient.getTimeline().then(() => {
+            console.log('Fetch timeline done')
+            commandInProgress = false
+          }).catch((e) => {
+            console.log('Fetch timeline done', e)
+            commandInProgress = false
+          })
+          commandInProgress = true
+        }
+      } else {
+        state.chosenClient.getTimeline()
       }
       let interval = state.settings.CLIENTPOLLINTERVAL
       if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
