@@ -374,11 +374,15 @@ const actions = {
     if (!state.synclounge.lastHostTimeline || isNaN(state.synclounge.lastHostTimeline.time)) {
       status = 'error'
     } else {
-      let difference = Math.abs(state.chosenClient.lastTimelineObject.time - state.synclounge.lastHostTimeline.time)
-      if (difference > 1500 && difference < state.settings.SYNCFLEXABILITY) {
-        status = 'ok'
+      let hostAge = Math.abs(new Date().getTime() - state.synclounge.lastHostTimeline.recievedAt)
+      let hostTime = 0 + state.synclounge.lastHostTimeline.time
+      console.log('Adding hosttime', hostAge)
+      if (state.synclounge.lastHostTimeline.playerState === 'playing') {
+        hostTime = parseInt(hostTime) + parseInt(hostAge)
       }
-      if (difference > 3000) {
+      let difference = Math.abs(data.time - (hostTime))
+      console.log('Reporting a difference of', difference)
+      if (difference > state.settings.SYNCFLEXABILITY) {
         status = 'notok'
       }
     }

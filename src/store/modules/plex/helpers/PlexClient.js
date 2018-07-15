@@ -28,6 +28,8 @@ module.exports = function PlexClient () {
   this.events = new EventEmitter()
   this.labels = []
 
+  this.lastSyncCommand = 0
+
   this.userData = null
 
   // Latest objects for reference in the future
@@ -243,10 +245,15 @@ module.exports = function PlexClient () {
     }
     return this.seekTo(time)
   }
-  this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE) {
+  this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE, POLLINTERVAL) {
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         await this.getTimeline()
+      }
+      let lastCommandTime = Math.abs(this.lastSyncCommand - new Date().getTime())
+      if (this.lastSyncCommand && this.clientIdentifier !== 'PTPLAYER9PLUS10' && lastCommandTime < POLLINTERVAL) {
+        console.log('Too soon for another sync command', lastCommandTime)
+        return reject(new Error('Too soon for another sync command'))
       }
       let lagTime = Math.abs(hostTimeline.recievedAt - new Date().getTime())
       if (lagTime) {
@@ -264,6 +271,7 @@ module.exports = function PlexClient () {
       if (parseInt(difference) > parseInt(SYNCFLEXABILITY) || (bothPaused && difference > 10)) {
       // We need to seek!
         console.log('STORE: we need to seek as we are out by', difference)
+        this.lastSyncCommand = new Date().getTime()
         // Decide what seeking method we want to use
         if (SYNCMODE === 'cleanseek' || hostTimeline.playerState === 'paused') {
           return resolve(await this.cleanSeek(hostTimeline.time))
@@ -329,6 +337,7 @@ module.exports = function PlexClient () {
       // Now that we've built our params, it's time to hit the client api
       console.log('Sending command')
       await this.hitApi(command, params, this.chosenConnection)
+      await this.waitForMovement()
       console.log('PlayMedia DONE')
       resolve(true)
     })

@@ -354,7 +354,7 @@ export default {
                     }
                   }
                   try {
-                    await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE)
+                    await rootState.chosenClient.sync(data, rootState.settings.SYNCFLEXABILITY, rootState.settings.SYNCMODE, rootState.settings.CLIENTPOLLINTERVAL)
                   } catch (e) {
                     return resolve()
                   }
