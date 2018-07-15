@@ -268,7 +268,7 @@ export default {
       if (isNaN(user.time) || user.time === 0 || !user.time) {
         return this.getTimeFromMs(0)
       }
-      return this.getTimeFromMs(user.time + this.difference)
+      return this.getTimeFromMs(parseInt(user.time) + parseInt(this.difference))
     },
     getMax: function (user) {
       if (isNaN(user.maxTime)) {
