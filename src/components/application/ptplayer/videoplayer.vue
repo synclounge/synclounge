@@ -86,7 +86,6 @@ export default {
       data.callback(this.seekMethod(data))
     })
     this.eventbus.$on('ptplayer-poll', (callback) => {
-      console.log('Got a ptplayer-poll command')
       try {
         callback(null, this.player.currentTime() * 1000)
       } catch (e) {

@@ -70,7 +70,6 @@ module.exports = function PlexClient () {
           command: command,
           params: params,
           callback: (resultData) => {
-            console.log('Heard back from eventbus', resultData)
             resolve(resultData)
           }
         }
@@ -256,7 +255,7 @@ module.exports = function PlexClient () {
       }
       let timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt
       console.log('Difference before', Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time)))
-      let ourTime = Math.floor((parseInt(this.lastTimelineObject.time) + parseInt(timelineAge)) / 1000) * 1000
+      let ourTime = (parseInt(this.lastTimelineObject.time) + parseInt(timelineAge))
       const difference = Math.abs((parseInt(ourTime)) - parseInt(hostTimeline.time))
       console.log('Difference', difference)
 
@@ -275,13 +274,12 @@ module.exports = function PlexClient () {
         // Fall back to skipahead
         return resolve(await this.skipAhead(hostTimeline.time, 10000))
       }
-      resolve('No sync needed')
-      // if (this.clientIdentifier === 'PTPLAYER9PLUS10' && difference > 1000) {
-      //   console.log('Soft syncing because difference is', difference)
-      //   return resolve(await this.cleanSeek(hostTimeline.time, true))
-      // } else {
-      //   resolve('No sync needed')
-      // }
+      if (this.clientIdentifier === 'PTPLAYER9PLUS10' && difference > 500) {
+        console.log('Soft syncing because difference is', difference)
+        return resolve(await this.cleanSeek(hostTimeline.time, true))
+      } else {
+        resolve('No sync needed')
+      }
     })
   }
   this.playMedia = async function (data) {

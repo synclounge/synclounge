@@ -214,6 +214,9 @@ export default {
       }
       return 'none'
     },
+    serverDelay: function () {
+      return Math.round(this.$store.state.synclounge.commands[Object.keys(this.$store.state.synclounge.commands).length - 1].difference)
+    },
     messages: function () {
       return this.$store.getters.getMessages
     },
@@ -269,11 +272,13 @@ export default {
         return this.getTimeFromMs(0)
       }
       let time = parseInt(user.time)
-      if (user.playerState === 'playing') {
-        time = time + parseInt(this.difference)
-      }
       return this.getTimeFromMs(time)
+      // if (user.playerState === 'playing') {
+      //   time = Math.floor((Math.floor((time + parseInt(this.difference - this.serverDelay)) / 1000) * 1000))
+      // }
+      // return this.getTimeFromMs(time)
     },
+
     getMax: function (user) {
       if (isNaN(user.maxTime)) {
         return this.getTimeFromMs(0)

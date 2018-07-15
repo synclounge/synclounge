@@ -237,7 +237,6 @@ export default {
             })
             state._socket.on('host-update', async (data) => {
               data.recievedAt = new Date().getTime()
-              console.log('Got host data')
               const hostTimeline = data
               if (!state.lastHostTimeline || state.lastHostTimeline.playerState !== data.playerState) {
                 window.EventBus.$emit('host-playerstate-change')
@@ -341,7 +340,6 @@ export default {
                     sendNotification('Pausing..')
                     return resolve(await rootState.chosenClient.pressPause())
                   }
-                  console.log('Got host data', hostTimeline)
                   if (hostTimeline.playerState === 'playing') {
                     // Add on the delay between us and the SLServer plus the delay between the server and the host
                     try {
