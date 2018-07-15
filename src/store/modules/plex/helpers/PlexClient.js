@@ -228,7 +228,7 @@ module.exports = function PlexClient () {
       let startedAt = new Date().getTime()
       let now = this.lastTimelineObject.time
       await this.seekTo(current + duration)
-      // await this.waitForMovement(now)
+      await this.waitForMovement(now)
       // The client is now ready
       await this.pressPause()
       // Calculate how long it took to get to our ready state
