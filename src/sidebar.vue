@@ -98,8 +98,15 @@ export default {
   },
   data () {
     return {
-      messageToBeSent: ''
+      messageToBeSent: '',
+      lastRecievedUpdate: new Date().getTime(),
+      now: new Date().getTime()
     }
+  },
+  mounted: function () {
+    setInterval(() => {
+      this.now = new Date().getTime()
+    }, 250)
   },
   watch: {
     messages: function () {
@@ -110,6 +117,12 @@ export default {
         cancelable: false
       }
       this.$scrollTo('#lastMessage', 5, options)
+    },
+    ptUsers: {
+      deep: true,
+      handler: function () {
+        this.lastRecievedUpdate = new Date().getTime()
+      }
     }
   },
   computed: {
@@ -203,6 +216,9 @@ export default {
     },
     messages: function () {
       return this.$store.getters.getMessages
+    },
+    difference: function () {
+      return Math.abs(this.now - this.lastRecievedUpdate)
     }
   },
   methods: {
@@ -249,10 +265,10 @@ export default {
       }
     },
     getCurrent: function (user) {
-      if (isNaN(user.time)) {
+      if (isNaN(user.time) || user.time === 0 || !user.time) {
         return this.getTimeFromMs(0)
       }
-      return this.getTimeFromMs(user.time)
+      return this.getTimeFromMs(user.time + this.difference)
     },
     getMax: function (user) {
       if (isNaN(user.maxTime)) {
