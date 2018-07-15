@@ -96,7 +96,6 @@
                 </v-flex>
               </v-layout>
             </v-flex>
-          <v-layout row wrap justify-center>
             <v-flex xs12 v-if="context.getters.getConnected">
               <v-layout row wrap>
                 <v-flex xs12>
@@ -129,7 +128,6 @@
                 </v-layout>
               </v-layout>
             </v-flex>
-          </v-layout>
         </v-layout>
       </v-flex>
     </v-layout>
