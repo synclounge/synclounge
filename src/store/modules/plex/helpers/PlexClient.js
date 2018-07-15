@@ -169,7 +169,7 @@ module.exports = function PlexClient () {
       this.lastTimelineObject = result.MediaContainer.Timeline[0]
       this.lastTimelineObject.recievedAt = new Date().getTime()
       window.EventBus.$emit('NEW_TIMELINE', result.MediaContainer.Timeline[0])
-      return result
+      return result.MediaContainer.Timeline[0]
     }
     // Standard player
     let timelines = result.MediaContainer.Timeline
@@ -211,11 +211,14 @@ module.exports = function PlexClient () {
     return new Promise((resolve, reject) => {
       let time = 500
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
-        time = 10
+        time = 50
       }
       let timer = setInterval(async () => {
+        console.log('Checking if player has moved yet')
         let now = await this.getTimeline()
+        console.log('Result from getTimeline within waitForMovement', now)
         if (now.time !== startTime) {
+          console.log('Player has movement!')
           resolve()
           clearInterval(timer)
         }
