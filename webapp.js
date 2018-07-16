@@ -24,7 +24,7 @@ const bootstrap = () => {
       console.log('Missing required argument -accessUrl. EG. "node webapp.js --accessUrl=http://sl.example.com". This URL is used for redirecting invite links.')
       return reject(new Error('Missing URL for invite links'))
     }
-    accessIp = args['url'] || settings.accessUrl// EG 'http://95.231.444.12:8088/slweb' or 'http://example.com/slweb'
+    accessIp = args['accessUrl'] || settings.accessUrl// EG 'http://95.231.444.12:8088/slweb' or 'http://example.com/slweb'
     if (args['webapp_port'] || process.env.webapp_port) {
       PORT = args['webapp_port'] || process.env.webapp_port
     } else {
