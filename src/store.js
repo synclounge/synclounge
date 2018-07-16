@@ -102,14 +102,11 @@ const mutations = {
         // We have a new chosen client, we need to stop
         return
       }
-      console.log('commandInProgress', commandInProgress)
       if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
         if (!commandInProgress) {
           state.chosenClient.getTimeline().then(() => {
-            console.log('Fetch timeline done')
             commandInProgress = false
           }).catch((e) => {
-            console.log('Fetch timeline done', e)
             commandInProgress = false
           })
           commandInProgress = true

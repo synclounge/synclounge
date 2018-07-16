@@ -154,7 +154,6 @@ export default {
                   for (let y in server.plexConnections) {
                     let serverConnection = server.plexConnections[y]
                     if (serverConnection.uri === clientConnection.uri) {
-                      console.log('ADDING ACCESS TOKEN FOR MATCHING URL', client, server)
                       client.accessToken = server.accessToken
                     }
                   }

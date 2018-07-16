@@ -5,12 +5,15 @@ import signin from '../components/signin'
 import signout from '../components/signout'
 import join from '../components/join'
 
+let SettingsHelper = require('../../SettingsHelper.js')
+let settings = new SettingsHelper()
+
 Vue.use(Router)
 
 // ==================== Router registration ====================
 export default new Router({
   mode: 'hash',
-  base: '/',
+  base: settings.webroot || '/',
   routes: [{
     path: '/',
     meta: {

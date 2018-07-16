@@ -1,40 +1,50 @@
 {
-  "models": {
-    "invite": {
+  "waterline": {
+    "models": {
+      "invite": {
+        "attributes": {
+          "server": {
+            "type": "string",
+            "required": true
+          },
+          "room": {
+            "type": "string",
+            "required": true
+          },
+          "password": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "required": true
+          },
+          "code": {
+            "type": "string"
+          },
+          "fullUrl": {
+            "type": "string"
+          }
+        }
+      }    
+    },
+    "defaultModelSettings": {
+      "primaryKey": "id",
+      "datastore": "defaults",
       "attributes": {
-        "server": {
-          "type": "string",
-          "required": true
-        },
-        "room": {
-          "type": "string",
-          "required": true
-        },
-        "password": {
-          "type": "string"
-        },
-        "owner": {
-          "type": "string",
-          "required": true
-        },
-        "code": {
-          "type": "string"
-        },
-        "fullUrl": {
-          "type": "string"
+        "id": {
+          "type": "number",
+          "autoMigrations": {
+            "autoIncrement": true
+          }
         }
       }
-    }    
-  },
-  "defaultModelSettings": {
-    "primaryKey": "id",
-    "datastore": "defaults",
-    "attributes": {
-      "id": {
-        "type": "number",
-        "autoMigrations": {
-          "autoIncrement": true
-        }
+    }
+  },  
+  "database": {
+    "datastores": {
+      "defaults": {
+        "adapter": "sails-disk",
+        "filePath": "./"
       }
     }
   }

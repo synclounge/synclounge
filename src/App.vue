@@ -72,6 +72,9 @@ import leftsidebar from './leftsidebar'
 import upnext from './upnext'
 import donate from './donate'
 
+let SettingsHelper = require('../SettingsHelper')
+let settings = new SettingsHelper()
+
 export default {
   components: {
     drawerright,
@@ -145,15 +148,6 @@ export default {
       // Browser is not Chrome
       window.localStorage.setItem('EXTAVAILABLE', false)
     }
-
-    if (process.env.autojoin && process.env.autojoin_room && process.env.autojoin_server) {
-      this.$store.commit('SET_AUTOJOIN', true)
-      this.$store.commit('SET_AUTOJOINROOM', process.env.autojoin_room)
-      this.$store.commit('SET_AUTOJOINURL', process.env.autojoin_server)
-      if (process.env.autojoin_password) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', process.env.autojoin_password)
-      }
-    }
     if (this.$route.query.autojoin) {
       this.$store.commit('SET_AUTOJOIN', true)
       this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room)
@@ -197,8 +191,16 @@ export default {
       await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken)
     } catch (e) {
       console.log('Login failed', e)
-      this.$router.push('/signin')
+      return this.$router.push('/signin')
     }
+    if (settings.autoJoin) {
+      await this.$store.dispatch('autoJoin', {
+        server: settings.autoJoinServer,
+        password: settings.autoJoinPassword,
+        room: settings.autoJoinRoom
+      })
+    }
+
     // if (this.$store.getters.getAutoJoin) {
     //   // Attempt to auto join
     //   this.$store.dispatch('socketConnect', {

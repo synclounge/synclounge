@@ -2,6 +2,9 @@ const EventEmitter = require('events')
 var moment = require('moment')
 var axios = require('axios')
 
+let SettingsHelper = require('../../../SettingsHelper.js')
+let settings = new SettingsHelper()
+
 function sendNotification (message) {
   return window.EventBus.$emit('notification', message)
 }
@@ -179,8 +182,8 @@ export default {
             // Generate our short url/invite link
             console.log('generating our invite link')
             console.log(state)
-
-            let urlOrigin = window.location.origin
+            console.log('Loaded settings', settings)
+            let urlOrigin = window.location.origin + (settings.webroot || '')
             if (process.env.NODE_ENV === 'development') {
               urlOrigin = 'http://localhost:8088'
             }

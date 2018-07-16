@@ -10,6 +10,9 @@
 var express = require('express')
 var cors = require('cors')
 
+let SettingsHelper = require('./SettingsHelper')
+let settings = new SettingsHelper()
+
 var root = express()
 root.use(cors({ credentials: false }))
 root.use((req, res, next) => {
@@ -18,7 +21,7 @@ root.use((req, res, next) => {
 })
 var ptserver = express()
 
-var PORT = process.env.port || 8089
+var PORT = process.env.server_port || 8089
 
 // Setup our PTServer
 ptserver.get('/', (req, res) => {
@@ -27,7 +30,7 @@ ptserver.get('/', (req, res) => {
 
 // Merge everything together
 
-let serverRoot = '/'
+let serverRoot = '/' || settings.serverRoot
 root.use(serverRoot, ptserver)
 root.get('*', function (req, res) {
   return res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.')

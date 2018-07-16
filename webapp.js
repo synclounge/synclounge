@@ -6,49 +6,39 @@
 var express = require('express')
 var path = require('path')
 var cors = require('cors')
-var jsonfile = require('jsonfile')
 var bodyParser = require('body-parser')
 var Waterline = require('waterline')
 var WaterlineMysql = require('waterline-mysql')
 var SailsDisk = require('sails-disk')
 
-let settings = {}
+let SettingsHelper = require('./SettingsHelper')
+let settings = new SettingsHelper()
+console.log('Settings', settings)
 var accessIp = ''
 var PORT = 8088
 
 const bootstrap = () => {
   return new Promise(async (resolve, reject) => {
-    try {
-      settings = require('./settings.json')
-    } catch (e) {
-      console.log(e)
-      console.log('Creating default settings.json')
-      let defaults = require('./example_settings.json')
-      jsonfile.writeFileSync('./settings.json', defaults)
-      await new Promise((resolve, reject) => {
-        setTimeout(() => resolve(), 500)
-      })
-      settings = require('./settings.json')
-    }
     const args = require('args-parser')(process.argv)
-    if (!args['url'] && !process.env.url) {
-      console.log('Missing required argument -url. EG. "node webapp.js --url=http://example.com/ptweb". This URL is used for redirecting invite links.')
+    if (!args['accessUrl'] && !settings.accessUrl) {
+      console.log('Missing required argument -accessUrl. EG. "node webapp.js --accessUrl=http://sl.example.com". This URL is used for redirecting invite links.')
       return reject(new Error('Missing URL for invite links'))
     }
-    accessIp = args['url'] || process.env.url // EG 'http://95.231.444.12:8088/ptweb' or 'http://example.com/ptweb'
-    if (args['port'] || process.env.port || settings.webapp_port) {
-      PORT = args['port'] || process.env.port || settings.webapp_port
+    accessIp = args['url'] || settings.accessUrl// EG 'http://95.231.444.12:8088/slweb' or 'http://example.com/slweb'
+    if (args['webapp_port'] || process.env.webapp_port) {
+      PORT = args['webapp_port'] || process.env.webapp_port
     } else {
       console.log('Defaulting webapp to port 8088')
     }
     PORT = parseInt(PORT)
     let baseSettings = require('./waterline_settings.json')
-    baseSettings.adapters = {
+    console.log('Basesettings', baseSettings)
+    baseSettings.waterline.adapters = {
       'waterline-mysql': WaterlineMysql,
       'sails-disk': SailsDisk
     }
-    baseSettings.datastores = settings.database.datastores
-    baseSettings.models.invite.beforeCreate = async (data, cb) => {
+    baseSettings.waterline.datastores = baseSettings.database.datastores
+    baseSettings.waterline.models.invite.beforeCreate = async (data, cb) => {
       console.log('Creating Invite', data)
       let fullUrl
       let params = {
@@ -68,7 +58,7 @@ const bootstrap = () => {
       data.code = (0 | Math.random() * 9e6).toString(36)
       cb()
     }
-    Waterline.start(baseSettings, (err, orm) => {
+    Waterline.start(baseSettings.waterline, (err, orm) => {
       if (err) {
         return reject(err)
       }
@@ -82,7 +72,7 @@ const app = async (orm) => {
   root.use(cors())
   root.use(bodyParser())
   // Setup our web app
-  root.use(settings.webroot + '/', express.static(path.join(__dirname, 'dist')))
+  root.use((settings.webroot) + '/', express.static(path.join(__dirname, 'dist')))
   root.get(settings.webroot + '/invite/:id', async (req, res) => {
     console.log('handling an invite', req.params.id)
     let shortObj = await Waterline.getModel('invite', orm).findOne({ code: req.params.id })
