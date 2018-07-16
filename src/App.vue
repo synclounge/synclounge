@@ -336,7 +336,7 @@ export default {
       return data
     },
     showNowPlaying: function () {
-      return this.chosenClient && this.chosenClient.clientPlayingMetadata && this.$route.name !== 'nowplaying'
+      return this.chosenClient && this.chosenClient.clientPlayingMetadata && this.$route.name === 'browse'
     },
     showRightDrawerButton: function () {
       return this.ptConnected && this.chosenClient && this.ptRoom
