@@ -89,7 +89,7 @@
                           contain
                         ></v-card-media>
                     </v-flex>
-                    <v-flex xs8>
+                    <v-flex xs8 class="pl-2">
                       <div style="overflow: hidden">
                         <h1>{{ server.name }}</h1>
                         <h4 style="opacity: 0.9"> v{{ server.productVersion }}</h4>
