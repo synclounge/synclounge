@@ -1,6 +1,6 @@
 <template>
   <v-container class="pa-0 pb-0" fill-height>
-    <v-layout v-if="ptRoom" column>
+    <v-layout v-if="ptRoom" row wrap>
       <v-flex xs12 style="height: 50vh">
         <v-flex xs12>
           <v-layout row wrap justify-space-between="" align-center>
@@ -48,32 +48,39 @@
               </v-list-tile-action>
             </v-list-tile>
           <div class="pl-2 pr-2 pt-2 mt-0 pb-0 mb-0">
-            <span style="float: left;font-size:70%" class="ptuser-time pl-2">{{ getCurrent(user) }}</span>
-            <span style="float: right;font-size:70%" class="ptuser-maxTime pr-2">{{ getMax(user) }}</span>
+            <span style="float: left; font-size:70%" class="ptuser-time pl-2">{{ getCurrent(user) }}</span>
+            <span style="float: right; font-size:70%" class="ptuser-maxTime pr-2">{{ getMax(user) }}</span>
             <v-progress-linear class="pt-content-progress " :height="2" :value="percent(user)"></v-progress-linear>
           </div>
         </div>
         </v-list>
       </v-flex>
       <v-flex xs12 style="position: relative; height: 50vh; max-height: 50vh">
-        <v-layout row wrap justify-space-around fill-height>
+        <v-layout row wrap style="height: 100%">
           <v-flex style="height: calc(100% - 96px); max-height: calc(100% - 96px)">
-          <v-divider></v-divider>
-          <v-subheader>Messages</v-subheader>
-            <v-list id="chatbox" style="overflow-y:auto; background: none; height: calc(100% - 48px); max-width: 100%">
-              <v-list-tile class="pt-1 pb-1" style="position:relative; max-width: 100%; max-height: 250px" v-bind:id="getMsgId(msg)" v-for="(msg, index) in messages" v-bind:key="index" tag="div">
-                <v-list-tile-avatar>
-                  <img v-bind:src="msg.user.thumb || msg.user.avatarUrl" style="position:absolute;top:0; width: 36px; height: 36px;" />
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                  <v-list-tile-title style="color:white; position:relative; line-height: 1">
-                    <span style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</span>
-                    <span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span>
-                  </v-list-tile-title>
-                  <v-list-tile-sub-title style="opacity:0.8;color:white;font-size:70%; width: 220px; overflow-y: auto; line-height: 1; max-height: 200px"> {{ msg.msg }}</v-list-tile-sub-title>
-                </v-list-tile-content>
-              </v-list-tile>
-            </v-list>
+            <v-divider></v-divider>
+            <v-subheader>Messages</v-subheader>
+            <v-layout row wrap id="chatbox" style="max-height: calc(100% - 48px); overflow-y: auto">
+              <v-flex align-center xs12 class="pb-1" :id="getMsgId(msg)" v-for="(msg, index) in messages" :key="index">
+                <v-layout row wrap justify-start>
+                  <v-flex xs3 class="text-xs-center">
+                    <img :src="msg.user.thumb || msg.user.avatarUrl" style="width: 36px; height: 36px; border-radius: 50%" />
+                  </v-flex>
+                  <v-flex xs9 class="pr-2">
+                    <v-layout row wrap>
+                      <v-flex><b style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</b></v-flex>
+                      <v-flex><span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span></v-flex>
+                      <v-flex xs12>
+                        <div style="opacity:0.8;color:white;font-size:90%; max-width: 100%; word-wrap: break-word"> {{ msg.msg }}</div>
+                      </v-flex>
+                    </v-layout>
+                  </v-flex>
+                </v-layout>
+                <v-layout row class="pt-1">
+                  <v-divider style="opacity: 0.6"></v-divider>
+                </v-layout>
+              </v-flex>
+            </v-layout>
           </v-flex>
           <v-flex>
             <v-text-field
