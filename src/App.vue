@@ -18,6 +18,7 @@
         <img class="ma-1 hidden-xs-only" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logos.light.long"/>
         <img class="ma-1 hidden-sm-and-up" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logo"/>
       </a>
+      <nowplayingchip class="pl-4" v-if="showNowPlaying"></nowplayingchip>
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn color="primary" dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
@@ -70,6 +71,7 @@ import './assets/css/style.css'
 import drawerright from './sidebar'
 import leftsidebar from './leftsidebar'
 import upnext from './upnext'
+import nowplayingchip from './nowplayingchip'
 import donate from './donate'
 
 let SettingsHelper = require('../SettingsHelper')
@@ -79,6 +81,7 @@ export default {
   components: {
     drawerright,
     upnext,
+    nowplayingchip,
     leftsidebar,
     donate
   },
@@ -231,7 +234,7 @@ export default {
       return this.$store.getters.getExtAvailable
     },
     crumbs: function () {
-      if (this.$route.path.indexOf('browse') === -1) {
+      if (this.$route.path.indexOf('browse') === -1 && this.$route.path.indexOf('nowplaying') === -1) {
         return []
       }
       const getTitle = id => {
@@ -330,12 +333,10 @@ export default {
           data.push(link)
         }
       }
-      // this.$route.params.forEach((route) => {
-      //   console.log(route)
-      // if (!route || route.path === '') return
-
-      // })
       return data
+    },
+    showNowPlaying: function () {
+      return this.chosenClient && this.chosenClient.clientPlayingMetadata && this.$route.name !== 'nowplaying'
     },
     showRightDrawerButton: function () {
       return this.ptConnected && this.chosenClient && this.ptRoom

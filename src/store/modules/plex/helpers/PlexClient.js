@@ -375,53 +375,42 @@ module.exports = function PlexClient () {
   }
   this.subscribe = function (connection, commit) {
     return new Promise((resolve, reject) => {
-      const doRequest = () => {
-        // Already have a valid http server running, lets send the request
-        if (!connection) {
-          // It is possible to try to subscribe before we've found a working connection
-          connection = this.chosenConnection
-        }
-        var command = '/player/timeline/subscribe'
-
-        // Now that we've built our params, it's time to hit the client api
-        if (connection.uri.charAt(connection.uri.length - 1) === '/') {
-          // Remove a trailing / that some clients broadcast
-          connection.uri = connection.uri.slice(0, connection.uri.length - 1)
-        }
-
-        var _url = connection.uri + command
-        // console.log('subscription url: ' + _url)
-        this.commandId = this.commandId + 1
-        var params = {
-          'port': '8555',
-          'protocol': 'http',
-          'X-Plex-Device-Name': 'SyncLounge',
-          commandID: this.commandId
-        }
-        this.setValue('commandId', this.commandId + 1)
-        var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, this.uuid, 5000, this.accessToken)
-        axios.get(connection.uri + command, {
-          params,
-          headers: options.headers
-        }).then((res) => {
-          console.log('Subscription result', res)
-          this.setValue('lastSubscribe', new Date().getTime())
-          resolve()
-        }).catch((e) => {
-          console.log('Error sending subscribe', e)
-          reject(e)
-        })
-        // axios(options, (error, response, body) => {
-        //   // console.log('subscription result', response)
-        //   this.setValue('lastSubscribe', new Date().getTime())
-        //   if (error) {
-        //     return reject(error)
-        //   } else {
-        //     return resolve(true)
-        //   }
-        // })
+      // Already have a valid http server running, lets send the request
+      if (!connection) {
+        // It is possible to try to subscribe before we've found a working connection
+        connection = this.chosenConnection
       }
-      doRequest()
+      let command = '/player/timeline/subscribe'
+      let params = {
+        'port': '8555',
+        'protocol': 'http',
+        'X-Plex-Device-Name': 'SyncLounge',
+        commandID: this.commandId
+      }
+      let query = ''
+      Object.assign(params, {
+        type: 'video',
+        commandID: this.commandId
+      })
+      for (let key in params) {
+        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+      }
+      query = query.substring(0, query.length - 1)
+      if (connection.uri.charAt(connection.uri.length - 1) === '/') {
+        // Remove a trailing / that some clients broadcast
+        connection.uri = connection.uri.slice(0, connection.uri.length - 1)
+      }
+      var _url = connection.uri + command + '?' + query
+      this.setValue('commandId', this.commandId + 1)
+      var options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000, this.accessToken)
+      request(options, (error, response, body) => {
+        if (!error) {
+          this.lastSubscribe = new Date().getTime()
+          return resolve(true)
+        } else {
+          return reject(error)
+        }
+      })
     })
   }
   this.playContentAutomatically = function (client, hostData, servers, offset) {
