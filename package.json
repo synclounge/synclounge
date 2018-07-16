@@ -73,6 +73,7 @@
     "socket.io-client": "^2.0.2",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
+    "uglifyjs-webpack-plugin": "^1.2.7",
     "url-loader": "^0.5.8",
     "vanilla-tilt": "^1.4.0",
     "vue-clipboards": "^1.0.2",

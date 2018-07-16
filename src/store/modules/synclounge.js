@@ -105,8 +105,10 @@ export default {
         roomName: data.room,
         password: data.password
       }
-      await dispatch('joinRoom', temporaryObj)
-      console.log('Done joining room in autojoin flow')
+      if (data.room) {
+        await dispatch('joinRoom', temporaryObj)
+        console.log('Done joining room in autojoin flow')
+      }
     },
     socketConnect ({ state, commit, rootState }, data) {
       return new Promise((resolve, reject) => {
