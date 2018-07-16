@@ -20,11 +20,11 @@ var PORT = 8088
 const bootstrap = () => {
   return new Promise(async (resolve, reject) => {
     const args = require('args-parser')(process.argv)
-    if (!args['accessUrl'] && !settings.accessUrl) {
+    if (!settings.accessUrl) {
       console.log('Missing required argument -accessUrl. EG. "node webapp.js --accessUrl=http://sl.example.com". This URL is used for redirecting invite links.')
       return reject(new Error('Missing URL for invite links'))
     }
-    accessIp = args['accessUrl'] || settings.accessUrl// EG 'http://95.231.444.12:8088/slweb' or 'http://example.com/slweb'
+    accessIp = settings.accessUrl// EG 'http://95.231.444.12:8088/slweb' or 'http://example.com/slweb'
     if (args['webapp_port'] || process.env.webapp_port) {
       PORT = args['webapp_port'] || process.env.webapp_port
     } else {
