@@ -42,7 +42,7 @@ ptserver.get('/', (req, res) => {
 })
 // Merge everything together
 
-let serverRoot = settings.serverroot || ''
+let serverRoot = settings.serverroot || '/'
 console.log('Setting up with serverRoot of', serverRoot)
 root.use(serverRoot, ptserver)
 root.get('*', function (req, res) {
