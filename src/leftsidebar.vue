@@ -1,53 +1,71 @@
 <template>
-    <div>
-      <v-list class="pa-1" dense style="background: none">
-        <template>
-          <v-list-tile v-if="plex && plex.user">
-            <v-list-tile-avatar>
-                <img class="pa-1" :src="plex.user.thumb" />
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title style="font-weight: bold">{{ plex.user.username }}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-divider></v-divider>
-          <v-subheader>Preferences</v-subheader>
-          <v-list-tile @click.stop="ptsettingstoggle = !ptsettingstoggle">
-            <v-list-tile-action>
-              <v-icon color="white">settings</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>SyncLounge Settings</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-list-tile v-if="plex && plex.gotDevices" @click.stop="plexsettingstoggle = !plexsettingstoggle">
-            <v-list-tile-action>
-              <v-icon color="white">settings</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>Plex Settings</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-subheader v-if="plex && plex.gotDevices" >Account</v-subheader>
-          <v-list-tile :router="true" to="/signout">
-            <v-list-tile-action>
-              <v-icon color="white">cancel</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>Sign out</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-subheader >About</v-subheader>
-          <v-list-tile>
-            <v-list-tile-action>
-              <v-icon color="white">info</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>SyncLounge v{{appVersion}}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </template>
-      </v-list>
+    <v-container fill-height class="pa-0" style="height: 100%">
+      <v-layout row wrap justify-space-between>
+        <v-flex xs12>
+          <v-list class="pa-1" dense style="background: none;">
+            <template>
+              <v-list-tile v-if="plex && plex.user">
+                <v-list-tile-avatar>
+                    <img class="pa-1" :src="plex.user.thumb" />
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title style="font-weight: bold">{{ plex.user.username }}</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <v-subheader>Preferences</v-subheader>
+              <v-list-tile @click.stop="ptsettingstoggle = !ptsettingstoggle">
+                <v-list-tile-action>
+                  <v-icon color="white">settings</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>SyncLounge Settings</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile v-if="plex && plex.gotDevices" @click.stop="plexsettingstoggle = !plexsettingstoggle">
+                <v-list-tile-action>
+                  <v-icon color="white">settings</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>Plex Settings</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-subheader v-if="plex && plex.gotDevices" >Account</v-subheader>
+              <v-list-tile :router="true" to="/signout">
+                <v-list-tile-action>
+                  <v-icon color="white">cancel</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>Sign out</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-subheader >About</v-subheader>
+              <v-list-tile>
+                <v-list-tile-action>
+                  <v-icon color="white">info</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>SyncLounge v{{appVersion}}</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+
+            </template>
+          </v-list>
+        </v-flex>
+
+        <v-spacer></v-spacer>
+        <v-flex xs12>
+          <v-layout row wrap justify-end align-end style="height: 100%">
+            <v-flex xs12>
+              <v-divider></v-divider>
+              <div class="text-xs-center pa-2" style="opacity: 0.7; font-size: 12px">
+                <div>Build #{{ hash }}</div>
+                <div>Last updated {{ updatedAt }}</div>
+              </div>
+            </v-flex>
+          </v-layout>
+        </v-flex>
+      </v-layout>
 
     <v-dialog v-model="ptsettingstoggle" width="350">
       <v-card style="background-color: #151924" class="pa-3">
@@ -63,12 +81,16 @@
         <plexsettings class="darken-4 pa-1" v-if="validPlex && plex.gotDevices"></plexsettings>
       </v-card>
     </v-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script>
+
 import ptsettings from './components/application/settings'
 import plexsettings from './components/application/plexsettings'
+
+var moment = require('moment')
+
 export default {
   components: {
     ptsettings,
@@ -83,6 +105,15 @@ export default {
   computed: {
     plex: function () {
       return this.$store.getters.getPlex
+    },
+    hash: function () {
+      return process.env.gitHash
+    },
+    date: function () {
+      return process.env.gitDate
+    },
+    updatedAt: function () {
+      return moment(this.date).fromNow()
     },
     chosenClient: function () {
       return this.$store.getters.getChosenClient
