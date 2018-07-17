@@ -24,13 +24,26 @@ var ptserver = express()
 var PORT = process.env.server_port || 8089
 
 // Setup our PTServer
+
+ptserver.get('/health', (req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  let connectedUsers = Object.keys(ptserver_io.sockets.connected).length
+  let load = 'low'
+  if (connectedUsers > 25) {
+    load = 'medium'
+  }
+  if (connectedUsers > 50) {
+    load = 'high'
+  }
+  return res.send(JSON.stringify({ load })).end()
+})
 ptserver.get('/', (req, res) => {
   return res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.')
 })
-
 // Merge everything together
 
-let serverRoot = '/' || settings.serverRoot
+let serverRoot = settings.serverRoot || '/'
+console.log('Setting up with serverRoot of', serverRoot)
 root.use(serverRoot, ptserver)
 root.get('*', function (req, res) {
   return res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.')
