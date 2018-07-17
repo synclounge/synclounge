@@ -1,6 +1,6 @@
 {
     "webroot": "",
-    "serverRoot": "",
+    "serverroot": "",
     "accessUrl": "",
     "autoJoin": false,
     "autoJoinServer": "",

@@ -5,7 +5,7 @@ const args = require('args-parser')(process.argv)
 module.exports = function () {
   const fields = [
     'webroot',
-    'serverRoot',
+    'serverroot',
     'accessUrl',
     'autoJoin',
     'autoJoinServer',
