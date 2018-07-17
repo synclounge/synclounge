@@ -58,8 +58,13 @@
                         <v-btn color="primary" :disabled="connectionPending" @click="serverSelected(server)"> Connect</v-btn>
                         <div v-if="server.value !== 'custom'">
                           <div v-if="results[server.value]">
-                            <div>Ping: <span :class="connectionQualityClass(results[server.value].latency)">{{ results[server.value].latency }}ms </span></div>
-                            <div>Load: <span :class="loadQualityClass(results[server.value].result)">{{ results[server.value].result || 'Unknown' }} </span></div>
+                            <div v-if="results[server.value].alive">
+                              <div>Ping: <span class="thick--text" :class="connectionQualityClass(results[server.value].latency)">{{ results[server.value].latency }}ms </span></div>
+                              <div>Load: <span class="thick--text" :class="loadQualityClass(results[server.value].result)">{{ results[server.value].result || 'Unknown' }} </span></div>
+                            </div>
+                            <div v-else class="text-xs-center red--text">
+                              Unable to connect to server
+                            </div>
                           </div>
                           <div v-else>
                             Testing connection quality...
@@ -156,6 +161,8 @@ export default {
 
       results: {},
 
+      destroyed: false,
+
       ptservers: [
         {
           location: 'Sydney, Australia',
@@ -187,7 +194,16 @@ export default {
   mounted: function () {
     setTimeout(() => {
       this.testConnections()
-    }, 500)
+      let ticker = setInterval(() => {
+        if (this.destroyed) {
+          return clearInterval(ticker)
+        }
+        this.testConnections()
+      }, 5000)
+    }, 1000)
+  },
+  beforeDestroy: function () {
+    this.destroyed = true
   },
   created: function () {
     if (this.slRoom && this.slConnected && this.slServer) {
@@ -197,8 +213,11 @@ export default {
   },
   methods: {
     connectionQualityClass: function (value) {
-      if (value < 125) {
-        return ['green--text']
+      if (value < 50) {
+        return ['green--text', 'text--lighten-1']
+      }
+      if (value < 150) {
+        return ['lime--text']
       }
       if (value < 250) {
         return ['orange--text']
@@ -207,7 +226,7 @@ export default {
     },
     loadQualityClass: function (value) {
       if (value === 'low') {
-        return ['green--text']
+        return ['green--text', 'text--lighten-1']
       }
       if (value === 'medium') {
         return ['orange--text']

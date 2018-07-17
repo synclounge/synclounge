@@ -705,7 +705,9 @@ video.vjs-tech,
 }
 
 
-
+.thick--text {
+  font-weight: 600;
+}
 
 
 .clientLogo {
