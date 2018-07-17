@@ -21,7 +21,7 @@ const bootstrap = () => {
   return new Promise(async (resolve, reject) => {
     const args = require('args-parser')(process.argv)
     if (!settings.accessUrl) {
-      console.log('Missing required argument -accessUrl. EG. "node webapp.js --accessUrl=http://sl.example.com". This URL is used for redirecting invite links.')
+      console.log('Missing required argument -accessUrl. EG. "node webapp.js -accessUrl=http://sl.example.com". This URL is used for redirecting invite links.')
       return reject(new Error('Missing URL for invite links'))
     }
     accessIp = settings.accessUrl// EG 'http://95.231.444.12:8088/slweb' or 'http://example.com/slweb'
