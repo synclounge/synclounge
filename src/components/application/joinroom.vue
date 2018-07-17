@@ -47,7 +47,7 @@
               <v-subheader>Select a server</v-subheader>
               <v-layout row wrap>
                 <v-flex xs12 md3 v-for="server in ptservers" :key="server.url" class="pa-2">
-                  <v-card height="250px" style="background: #353e58">
+                  <v-card height="300px" style="background: #353e58">
                     <v-layout row wrap justify-center style="height: 100%">
                       <v-flex xs12 class="text-xs-center pa-2" style="height: 50%; position: relative; background: rgba(0,0,0,0.2)">
                         <img :src="server.flag" class="flag" style="height: 50%; vertical-align: middle"/>
@@ -56,21 +56,20 @@
                         <h2>{{ server.text }}</h2>
                         <h4>{{ server.location }}</h4>
                         <v-btn color="primary" :disabled="connectionPending" @click="serverSelected(server)"> Connect</v-btn>
+                        <div v-if="server.value !== 'custom'">
+                          <div v-if="results[server.value]">
+                            <div>Ping: <span :class="connectionQualityClass(results[server.value].latency)">{{ results[server.value].latency }}ms </span></div>
+                            <div>Load: <span :class="loadQualityClass(results[server.value].result)">{{ results[server.value].result || 'Unknown' }} </span></div>
+                          </div>
+                          <div v-else>
+                            Testing connection quality...
+                          </div>
+                        </div>
                       </v-flex>
                     </v-layout>
                   </v-card>
                 </v-flex>
               </v-layout>
-              <!-- <v-select
-                box
-                v-bind:items="ptservers"
-                @input="attemptConnect()"
-                class="input-group--focused pt-input nicelist"
-                style="mt-4"
-                v-model="selectedServer"
-                max-height="auto"
-                label="Select a server"
-              ></v-select> -->
               <v-text-field
                 v-if="selectedServer == 'custom'"
                 name="input-2"
@@ -136,6 +135,10 @@
 </template>
 
 <script>
+
+import Vue from 'vue'
+const axios = require('axios')
+
 export default {
   props: ['object'],
   name: 'joinroom',
@@ -150,6 +153,8 @@ export default {
       connectionPending: false,
       thisServer: window.location.origin,
       recents: null,
+
+      results: {},
 
       ptservers: [
         {
@@ -179,6 +184,11 @@ export default {
       ]
     }
   },
+  mounted: function () {
+    setTimeout(() => {
+      this.testConnections()
+    }, 500)
+  },
   created: function () {
     if (this.slRoom && this.slConnected && this.slServer) {
       this.$router.push('/browse')
@@ -186,11 +196,54 @@ export default {
     this.recents = JSON.parse(window.localStorage.getItem('recentrooms'))
   },
   methods: {
+    connectionQualityClass: function (value) {
+      if (value < 125) {
+        return ['green--text']
+      }
+      if (value < 250) {
+        return ['orange--text']
+      }
+      return ['red--text']
+    },
+    loadQualityClass: function (value) {
+      if (value === 'low') {
+        return ['green--text']
+      }
+      if (value === 'medium') {
+        return ['orange--text']
+      }
+      if (value === 'hgh') {
+        return ['red--text']
+      }
+      return ['white--text']
+    },
     serverSelected: function (server) {
       this.selectedServer = server.value
       if (this.selectedServer !== 'custom') {
         this.attemptConnect()
       }
+    },
+    testConnections: async function () {
+      this.ptservers.map((server) => {
+        if (server.value !== 'custom') {
+          let start = new Date().getTime()
+          axios.get(server.value + '/health')
+            .then((res) => {
+              Vue.set(this.results, server.value, {
+                alive: true,
+                latency: Math.abs(start - new Date().getTime()),
+                result: res.data.load || null
+              })
+            })
+            .catch((e) => {
+              Vue.set(this.results, server.value, {
+                alive: false,
+                latency: Math.abs(start - new Date().getTime()),
+                result: null
+              })
+            })
+        }
+      })
     },
     attemptConnect: function () {
       // Attempt the connection
