@@ -212,6 +212,11 @@ export default {
         await Promise.all(client.plexConnections.map((connection) => {
           return new Promise(async (resolve, reject) => {
             try {
+              try {
+                await client.hitApi('/player/timeline/poll', { wait: 0 }, connection, false, true)
+              } catch (e) {
+                // We dont care about this result, some clients require a poll command before sending a subscription command
+              }
               await client.hitApi('/player/timeline/poll', { wait: 0 }, connection)
               console.log('Got good response on', connection)
               commit('PLEX_CLIENT_SET_CONNECTION', {

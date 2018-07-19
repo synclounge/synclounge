@@ -211,7 +211,6 @@ export default {
       }
       let url = 'http:' + window.location.href.substring(window.location.protocol.length)
       if (this.$store.state.autoJoin) {
-        console.log('Autojoining...')
         url = url + '?server=' + this.$store.state.autoJoinUrl + '&room=' + this.$store.state.autoJoinRoom + '&autojoin=true&owner=' + this.$store.state.autoJoinOwner
         if (this.$store.state.autoJoinPassword) {
           url = url + '&password=' + this.$store.state.autoJoinPassword

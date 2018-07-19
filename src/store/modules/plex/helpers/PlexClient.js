@@ -64,7 +64,7 @@ module.exports = function PlexClient () {
   }
   this.uuid = this.generateGuid()
 
-  this.hitApi = function (command, params, connection, needResponse) {
+  this.hitApi = function (command, params, connection, needResponse, dontSub) {
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         // We are using the SyncLounge Player
@@ -118,7 +118,7 @@ module.exports = function PlexClient () {
             }
           })
         }
-        if ((new Date().getTime() - this.lastSubscribe) > 29000) {
+        if (((new Date().getTime() - this.lastSubscribe) > 29000) && !dontSub) {
           // We need to subscribe first!
           try {
             await this.subscribe(connection)
@@ -389,7 +389,6 @@ module.exports = function PlexClient () {
       }
       let query = ''
       Object.assign(params, {
-        type: 'video',
         commandID: this.commandId
       })
       for (let key in params) {
