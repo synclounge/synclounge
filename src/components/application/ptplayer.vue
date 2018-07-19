@@ -11,7 +11,7 @@
         :src="getSourceByLabel(chosenQuality)"
         :initUrl="getSourceByLabel(chosenQuality).initUrl"
         :params="getSourceByLabel(chosenQuality).params"
-        :initialOffset="playertime"
+        :initialOffset="offset"
         :createdAt="playerCreatedAt"
       ></videoplayer>
       <div v-if="playingMetadata && chosenServer">
@@ -164,7 +164,8 @@ export default {
       this.chosenKey = query.key.replace('/library/metadata/', '')
       this.chosenMediaIndex = query.mediaIndex || 0
       this.chosenServer = this.plex.servers[query.chosenServer]
-      this.playertime = query.playertime
+      this.offset = query.playertime
+      console.log('Playertime is now', this.playertime)
     }
 
     // Similuate a real plex client
@@ -198,8 +199,8 @@ export default {
             if (err) {
               return data.callback(this.playertime)
             }
-            let difference = Math.abs(time - this.playertime)
-            console.log('Poll time was out by', difference)
+            // let difference = Math.abs(time - this.playertime)
+            // console.log('Poll time was out by', difference)
             playerdata.time = time
             this.playertime = time
             data.callback(playerdata)
@@ -227,8 +228,12 @@ export default {
         this.chosenMediaIndex = data.params.mediaIndex || 0
         this.chosenServer = this.plex.servers[data.params.machineIdentifier]
         console.log('Chosen server is now', this.chosenServer)
-        this.playertime = data.params.offset || 0
-        this.changedPlaying(true)
+        this.playertime = data.params.offset || this.$route.query.playertime || 0
+        this.offset = this.playertime
+        console.log('Playertime is now', this.playertime)
+        this.$nextTick(() => {
+          this.changedPlaying(true)
+        })
         return true
       }
       if (data.command === '/player/playback/stop') {
@@ -288,6 +293,7 @@ export default {
       playingMetadata: null,
       ready: false,
       transcodeSessionMetadata: {},
+      offset: 0,
 
       // Browser
       browser: this.getBrowser(),

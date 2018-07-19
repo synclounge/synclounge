@@ -225,7 +225,7 @@ export default {
           return reject(new Error(e))
         }
         console.log('Player checks passed')
-        let lastPlayerSpeed = this.player.currentTime()
+        let lastPlayerSpeed = this.player.playbackRate()
         let lastPlayerTime = this.player.currentTime() * 1000
         console.log('Buffer start', this.bufferStart, 'Seek To', seekTo, 'Buffer End', this.bufferEnd)
         if (seekTo < this.bufferEnd && seekTo > this.bufferStart) {
@@ -262,7 +262,7 @@ export default {
             }
             console.log('Playback rate: ' + this.player.playbackRate())
             if (lastPlayerSpeed === this.player.playbackRate()) {
-            // Our played doesnt want to change it speed, lets swap to clean seek
+              // Our played doesnt want to change it speed, lets swap to clean seek
               console.log('Failed seek attempt - swapping to clean seek')
               this.blockedSpeedChanges = true
               reject(new Error('Failed to slow seek as the playback rate did not want to change'))
@@ -304,7 +304,7 @@ export default {
               this.player.playbackRate(1.0)
               return reject(new Error('Slow seek was stopped as we are beyond 5000ms'))
             }
-            lastPlayerSpeed = this.player.currentTime()
+            lastPlayerSpeed = this.player.playbackSpeed()
           }, 25)
         } else {
           console.log('Directly seeking to a time')
@@ -332,8 +332,10 @@ export default {
     },
     onPlayerLoadeddata (player) {
       var that = this
-
-      this.player.currentTime(this.initialOffset / 1000)
+      this.$nextTick(() => {
+        console.log('Setting player time to', this.initialOffset / 1000)
+        this.player.currentTime(this.initialOffset / 1000)
+      })
 
       player.on(['pause'], () => {
         this.isPlaying = 'paused'
