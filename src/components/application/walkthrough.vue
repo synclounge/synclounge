@@ -59,13 +59,7 @@
                     <div class="pb-2">
                       <label>Platform</label><span style="opacity:0.8">  {{ testClient.platform }} </span>
                     </div>
-                    <div v-if="testClient.product.indexOf('Web') > -1" class="warning--text">
-                      Note: Plex Web is currently not supported
-                    </div>
-                    <div v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'" class="warning--text">
-                      Note: You may not be able to connect to external Plex Clients while loading the page via HTTPS. Click <a :href="nohttpslink">here</a> to load the page via HTTP. More info <a href="https://github.com/samcm/synclounge/issues/52" target="_blank">here</a>.
-                    </div>
-                    <div class="red--text" v-if="testClientErrorMsg">
+                    <div class="red--text text--lighten-1" v-if="testClientErrorMsg">
                       {{ testClientErrorMsg }}
                     </div>
                     </div>
@@ -80,6 +74,12 @@
                     </div>
                     <div v-if="gotResponse">
                       <v-btn block color="primary" v-on:click.native="clientClicked()">Connect</v-btn>
+                    </div>
+                    <div v-if="testClient.product.indexOf('Web') > -1" class="warning--text">
+                      Note: Plex Web is currently not supported
+                    </div>
+                    <div v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'" class="warning--text">
+                      Note: You may not be able to connect to external Plex Clients while loading the page via HTTPS. Click <a :href="nohttpslink">here</a> to load the page via HTTP. More info <a href="https://github.com/samcm/synclounge/issues/52" target="_blank">here</a>.
                     </div>
                 </v-flex>
               </v-layout>
