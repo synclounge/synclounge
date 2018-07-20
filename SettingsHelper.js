@@ -1,7 +1,14 @@
 
-var jsonfile = require('jsonfile')
 const args = require('args-parser')(process.argv)
-
+const defaults = {
+  'webroot': '',
+  'serverroot': '',
+  'accessUrl': '',
+  'autoJoin': false,
+  'autoJoinServer': '',
+  'autoJoinRoom': '',
+  'autoJoinPassword': ''
+}
 module.exports = function () {
   const fields = [
     'webroot',
@@ -12,21 +19,11 @@ module.exports = function () {
     'autoJoinRoom',
     'autoJoinPassword'
   ]
-  // Load and export our settings in preference of ENV -> settings.json -> example_settings.json
+  // Load and export our settings in preference of ENV -> args
   let output = {}
-  let settingsFile
-  try {
-    settingsFile = require('./settings.json')
-  } catch (e) {
-    console.log('Creating default settings.json')
-    let defaults = require('./example_settings.json')
-    jsonfile.writeFileSync('./settings.json', defaults)
-    settingsFile = defaults
-  }
-  let defaults = require('./example_settings.json')
   for (let i = 0; i < fields.length; i++) {
     let setting = fields[i]
-    output[setting] = args[setting] || process.env[setting] || settingsFile[setting] || defaults[setting]
+    output[setting] = args[setting] || process.env[setting] || defaults[setting]
   }
   return output
 }
