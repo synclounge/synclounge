@@ -117,10 +117,17 @@ export default {
           state._socket.disconnect()
         }
         console.log('Socket attempt connect on ' + address)
+        const getLocation = (href) => {
+          var l = document.createElement('a')
+          l.href = href
+          return l
+        }
+        let addr = getLocation(address)
+        console.debug(addr.pathname)
         state._socket = state._io.connect(address, {
           'forceNew': true,
           'connect timeout': 7000,
-          path: '/socket.io'
+          path: addr.pathname + '/socket.io'
         })
         state._socket.on('connect', function (result) {
           // Good connection

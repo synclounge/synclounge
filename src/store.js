@@ -258,14 +258,14 @@ const getters = {
   getLogos: () => {
     return {
       light: {
-        long: '/logo-long-light.png',
-        small: '/logo-small-light.png'
+        long: 'logo-long-light.png',
+        small: 'logo-small-light.png'
       },
       dark: {
-        long: '/logo-long-dark.png'
+        long: 'logo-long-dark.png'
       },
       plex: {
-        standard: '/plexlogo.png'
+        standard: 'plexlogo.png'
       }
     }
   }

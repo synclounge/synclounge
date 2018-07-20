@@ -35,9 +35,9 @@ Vue.config.productionTip = false
 function nolog () {}
 
 if (process.env.NODE_ENV !== 'development') {
-  console.log = nolog
-  console.warn = nolog
-  console.error = nolog
+  // console.log = nolog
+  // console.warn = nolog
+  // console.error = nolog
 }
 
 // Our Event bus
