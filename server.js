@@ -220,26 +220,34 @@ ptserver_io.on('connection', (socket) => {
     socket.disconnect(disconnect)
   }
   function updateUserData (username, userData, room) {
-    for (var i in ptserver_io.sockets.adapter.rooms[room].users) {
-      var user = ptserver_io.sockets.adapter.rooms[room].users[i]
-      if (user.username === username) {
-        // This is our user
-        user.time = userData.time
-        user.maxTime = userData.maxTime
-        user.title = userData.title
-        user.lastHeartbeat = (new Date()).getTime()
-        user.playerState = userData.playerState
-        user.rawTitle = userData.rawTitle
-        user.clientResponseTime = userData.clientResponseTime
-        user.type = userData.type
-        user.showName = userData.showName || ''
-        user.playerProduct = userData.playerProduct || ''
-        user.status = userData.status || 'unknown'
-        user.machineIdentifier = userData.machineIdentifier || ''
-        user.key = userData.key
-        user.uuid = userData.uuid
-        return
+    if (!room === undefined || room === undefined || room === null) {
+      console.log('Tried to update a user who isnt in a room', username, userData, room)
+      return false
+    }
+    try {
+      for (var i in ptserver_io.sockets.adapter.rooms[room].users) {
+        var user = ptserver_io.sockets.adapter.rooms[room].users[i]
+        if (user.username === username) {
+          // This is our user
+          user.time = userData.time
+          user.maxTime = userData.maxTime
+          user.title = userData.title
+          user.lastHeartbeat = (new Date()).getTime()
+          user.playerState = userData.playerState
+          user.rawTitle = userData.rawTitle
+          user.clientResponseTime = userData.clientResponseTime
+          user.type = userData.type
+          user.showName = userData.showName || ''
+          user.playerProduct = userData.playerProduct || ''
+          user.status = userData.status || 'unknown'
+          user.machineIdentifier = userData.machineIdentifier || ''
+          user.key = userData.key
+          user.uuid = userData.uuid
+          return
+        }
       }
+    } catch (e) {
+      console.log('Failed to update a user', username, userData, room)
     }
   }
   function transferHost (user, newHostPredicate) {
