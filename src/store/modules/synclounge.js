@@ -190,7 +190,7 @@ export default {
             console.log('Loaded settings', settings)
             let urlOrigin = window.location.origin + (settings.webroot || '')
             if (process.env.NODE_ENV === 'development') {
-              urlOrigin = 'http://localhost:8088'
+              urlOrigin = 'http://app.synclounge.tv'
             }
 
             let data = {
