@@ -11,7 +11,7 @@
 
 SyncLounge (Previously PlexTogether) is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
 
-Utilising [Vue.js](https://vuejs.org/) and Webpack, SyncLounge has been rewritten and brought to the browser. While we run a live version available at [synclounge.tv](http://app.synclounge.tv), the project can be built and deployed completely seperate from synclounge.tv. We also provide a handful of public SyncLounge Server instances that everyone is free to use.
+While we run a live version available at [synclounge.tv](http://app.synclounge.tv), the project can be built and deployed completely seperate from synclounge.tv. We also provide a handful of public SyncLounge Server instances that everyone is free to use.
 <p align="center">
   <a href="http://app.synclounge.tv">Live Version</a>
   <br>
@@ -54,6 +54,8 @@ The host has complete control over a room. Commands they send to their client wi
 		* Content playing title (Eg. Lord of the Rings: The Fellowship of the Ring)
 		* Current timestamp (Eg. 00:35:02)
 		* Maximum timestamp (Eg. 03:48:18)
+    * Host content ratingKey
+    * Host machineIdentifier
 		* Playerstate (Eg. paused, stopped, playing)
 		* Client response time (Ping time between you and your Plex Client)
 	* SL Server address, SL Server Room and SL Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
@@ -61,7 +63,7 @@ The host has complete control over a room. Commands they send to their client wi
 	* We log absolutely nothing to disk. Data is kept within the room instance until you leave or the server restarts. We have enabled SSL on our public servers but if privacy is a concern for you we strongly suggest running your own server. For more details read the 'Building and Deploying' section below.
 
 * _Speaking of SSL, why isn't the site served over HTTPS?_
- 	* While we would love to run the SyncLounge application over HTTPS, doing so forces modern browsers in to blocking all HTTP connections. This effectively stops all communication with Plex Clients which are all HTTP.
+ 	* By default SyncLounge is server via HTTP. While we do offer HTTPS, doing so forces modern browsers in to blocking all HTTP connections. This effectively stops all communication with Plex Clients which are all HTTP.
 ## Screenshots
 
 Head to the [website](http://synclounge.tv)
@@ -82,10 +84,10 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 * Roku
 * Android
 * Nvidia Shield
-
-### Broken
 * iOS (iPhone & iPad)
 * AppleTV
+
+### Broken
 * Xbox One
 * Xbox 360
 * PS3
@@ -97,7 +99,7 @@ Please use the Issue tracker here on Github for Issues & Feature requests. We'll
 ## Building and deploying
 
 ### Docker
-This is the official Docker container for SyncLounge: https://hub.docker.com/r/starbix/plextogether
+This is the official Docker container for SyncLounge: https://hub.docker.com/r/starbix/synclounge
 
 The following tags are available:
 * latest / alpine: webapp and server based on alpine
@@ -106,11 +108,11 @@ The following tags are available:
 * nginx: latest + nginx reverse proxy
 ```
 docker run \
-  --name=plextogether \
+  --name=synclounge \
 	-p 8088:8088 \
 	-p 8089:8089 \
 	-e DOMAIN=example.com \
-  starbix/plextogether
+  starbix/synclounge
 ```
 Use this for the nginx tag:
 ```
@@ -118,7 +120,7 @@ docker run \
   --name=plextogether_nginx \
 	-p 80:80 \
 	-e DOMAIN=example.com \
-  starbix/plextogether:nginx
+  starbix/synclounge:nginx
 ```
 ### Building and running the webapp:
 
@@ -128,8 +130,8 @@ docker run \
 	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run build``
-	*  ``node webapp.js --url=http://example.com/slweb``
-* The SL web app will be running at http://ip:8088/slweb.
+	*  ``node webapp.js --url=http://example.com``
+* The SL web app will be running at http://ip:8088.
 
 ### Running the server:
 
@@ -139,7 +141,7 @@ docker run \
 	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run server``
-* The SL server will be running at http://ip:8089/slserver.
+* The SL server will be running at http://ip:8089.
 
 ### Deploying:
 * To run both the SyncLounge webapp and the SyncLounge server through a web server like nginx you will need to make sure you proxy websockets. Example nginx.conf:
@@ -147,15 +149,14 @@ docker run \
     server {
         listen 80;
     	server_name example.com;
-    	root /location/of/synclounge/;
     	location /slweb {
-    		proxy_pass http://localhost:8088/slweb;
+    		proxy_pass http://localhost:8088;
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
     	}
     	location /slserver {
-    		proxy_pass http://localhost:8089/slserver;
+    		proxy_pass http://localhost:8089;
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
@@ -164,7 +165,7 @@ docker run \
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
-    		proxy_pass http://localhost:8088/slweb;
+    		proxy_pass http://localhost:8088;
     	}
     }
     ```
@@ -172,7 +173,7 @@ docker run \
 
 You need:
 
-* Node v6+
+* Node v8.4.0+
 
 	*  ``git clone https://github.com/samcm/SyncLounge``
 	*  ``cd plextogether``
