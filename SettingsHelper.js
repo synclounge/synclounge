@@ -23,9 +23,11 @@ module.exports = function () {
   let output = {}
   for (let i = 0; i < fields.length; i++) {
     let setting = fields[i]
+    // console.log('Processing setting', setting)
+    // console.log(args[setting], process.env[setting], defaults[setting])
     output[setting] = args[setting] || process.env[setting] || defaults[setting]
     process.env[setting] = output[setting]
   }
-  console.log('Our settings are', output)
+  // console.log('Our settings are', output)
   return output
 }
