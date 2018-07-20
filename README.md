@@ -54,8 +54,8 @@ The host has complete control over a room. Commands they send to their client wi
 		* Content playing title (Eg. Lord of the Rings: The Fellowship of the Ring)
 		* Current timestamp (Eg. 00:35:02)
 		* Maximum timestamp (Eg. 03:48:18)
-    * Host content ratingKey
-    * Host machineIdentifier
+	        * Host content ratingKey
+	        * Host machineIdentifier
 		* Playerstate (Eg. paused, stopped, playing)
 		* Client response time (Ping time between you and your Plex Client)
 	* SL Server address, SL Server Room and SL Server Room Password are sent to the WebApp when you join a room to create shortened invite links.
