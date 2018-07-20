@@ -1,13 +1,16 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 var path = require('path')
 
+let SettingsHelper = require('../SettingsHelper.js')
+let settings = new SettingsHelper()
+
 module.exports = {
   build: {
     env: require('./prod.env'),
     index: path.resolve(__dirname, '../dist/index.html'),
     assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'slweb',
-    assetsPublicPath: '/',
+    assetsSubDirectory: '',
+    assetsPublicPath: settings.webroot || '/',
     productionSourceMap: true,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.
@@ -25,8 +28,8 @@ module.exports = {
     env: require('./dev.env'),
     port: 8080,
     autoOpenBrowser: true,
-    assetsSubDirectory: 'slweb',
-    assetsPublicPath: '/',
+    assetsSubDirectory: '',
+    assetsPublicPath: settings.webroot || '/',
     proxyTable: {},
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README

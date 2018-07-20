@@ -1,413 +1,803 @@
-body {
-  min-width: 650px;
+/* Helpers */
+
+.truncate {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.plex-shark {
-  background-color: #282A2D !important;
+.center-text {
+  text-align: center;
 }
 
-.plex-gamboge-text {
-  color: #E5A00D !important;
+.soft-text {
+  opacity: 0.7;
 }
 
-.plex-riverbed {
-  background-color: #3F4245 !important;
+.softer-text {
+  opacity: 0.4;
 }
 
-.white-text {
-  color: #fff !important;
+.click-cursor {
+  cursor: pointer;
 }
 
-.settings {
-  background-size: 24px 24px;
-  right: 38px;
+
+/* Headers */
+
+h3 {
+  color: white;
 }
 
-.menuButtons {
-  cursor: default;
+h4 {
+  color: #bdbdbd;
 }
 
-.windowBorder {
-  border: 1px solid #B3BAC1;
-  height: 85%;
+h5 {
+  color: #E5A00D;
 }
 
-.windowDrag {
-  -webkit-app-region: drag;
+h6 {
+  color: white;
 }
 
-.windowNoDrag {
-  -webkit-app-region: no-drag;
+h7 {
+  color: #E5A00D;
 }
 
-input[type=range] + .thumb {
-  display: none !important;
+
+/* Background/Text Colors */
+
+a:hover,
+a:visited,
+a:link,
+a:active {
+  text-decoration: none;
 }
 
-.settingsTitle {
-  padding-left: 5%;
-  padding-right: 5%;
-  padding-bottom: 5px;
-  background-color: #F2F3F4;
-}
-
-.plexTogetherInfo {
-  position: absolute;
-  bottom: 0px;
-  /* border-top: 1px solid #F2F3F4; */
-  box-shadow: 0 -2px 5px 0 rgba(0, 0, 0, 0.16);
-  padding-top: 3px;
-  height: 199px
-}
-
-.plexTogetherInfoButton {
-  position: absolute;
-  bottom: 0px;
-  /* border-top: 1px solid #F2F3F4; */
-  /* box-shadow: 0 -2px 5px 0 rgba(0, 0, 0, 0.16); */
-  padding-top: 3px;
-  height: 42px
-}
-
-.plexAccountInfo {
-  top: 0;
-  padding-top: 3px;
-  height: 64px
-}
-
-.plexServerClientInfo {
-  position: absolute;
-  /* top: 64px; */
-  padding-top: 3px;
-  height: 615px;
+html {
   overflow: auto;
-}
-
-.ptUserDropdown {
-  margin-bottom: 0px;
-  padding-top: 10px;
-  height: 120px;
-  margin-top: -10px;
-  /* left: -150px; */
-}
-
-.plexNavAccount {
-  height: 42px;
-  box-shadow: 0 0 0 0 #F2F3F4;
-  cursor: default;
-  transition: box-shadow 0.3s ease-in-out;
-}
-
-.plexNavAccount:hover {
-  box-shadow: 0 0 0 2px #F2F3F4;
-}
-
-.plexNavAccount:active {
-  box-shadow: 0 0 0 2px #E5A00D;
-}
-
-.sideNav {
-  background-color: #3F4245;
-  cursor: default;
-}
-
-.sideNav:hover {
-  background-color: #282A2D;
-}
-
-/* Photon */
-
-.window {
-  position: absolute;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  background-color: #F2F3F4
-}
-
-.window-content {
-  position: relative;
-  overflow-y: auto;
   overflow-x: hidden;
-  display: flex;
-  flex: 1
+  background: #151924;
 }
 
-.pane {
-  overflow-y: auto;
-  flex: 1;
-  /* border-left: 1px solid #ddd */
+::-webkit-scrollbar {
+  width: 0px;
+  /* remove scrollbar space */
+  background: transparent;
+  /* optional: just make scrollbar invisible */
 }
 
-.pane-group {
-  position: absolute;
-  bottom: 0;
-  display: flex
+.pt-orange {
+  background-color: #E5A00D;
 }
 
-.pane-group, .window {
-  top: 0;
-  left: 0;
-  right: 0
+.pt-orange-text {
+  color: #E5A00D;
+}
+.theme--dark .v-card, .application .theme--dark.v-card {
+  background: #151924;
+}
+.v-toolbar {
+  background: #151924 !important;
 }
 
-.pane-sm {
-  width: 165px
+.highlightBorder {
+  border: solid 2px #f3b32b;
 }
 
-.sidebar {
-  background-color: #3F4245
+.theme--dark .v-list, .application .theme--dark.v-list{
+  background: #353e58
 }
 
-.nav-group-title {
-  margin: 0;
-  padding: 10px 10px 2px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #E5A00D
+
+main {
+  /*background: #272c38;*/
+  background: #2b5876;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to top, #182848, #2b5876);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to bottom, #1F1C2C, #182848);
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
-.nav-group-item {
-  padding: 2px 10px 2px 25px;
-  display: block;
-  color: #fff;
-  text-decoration: none
-}
-
-.container {
-  max-width: 100%
-}
-
-#toast-container {
-  width: calc(100% - 165px);
-}
-
-/* --------------------------------
-
-Main Components
-
--------------------------------- */
-.cd-accordion-menu {
-  width: 100%;
-  background: #3F4245;
-  /* margin: 4em auto; */
-  /* box-shadow: 0 4px 40px #70ac76; */
-}
-
-.cd-accordion-menu ul {
-  /* by default hide all sub menus */
-  display: none;
-}
-
-.cd-accordion-menu li {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.cd-accordion-menu input[type=checkbox] {
-  /* hide native checkbox */
-  position: absolute;
-  opacity: 0;
-}
-
-.cd-accordion-menu label, .cd-accordion-menu a {
-  position: relative;
-  display: block;
-  padding: 18px 18px 18px 64px;
-  background: #3F4245;
-  box-shadow: inset 0 -1px #555960;
-  color: #ffffff;
-  font-size: 1.6rem;
-}
-
-.no-touch .cd-accordion-menu label:hover, .no-touch .cd-accordion-menu a:hover {
-  background: #52565d;
-}
-
-.cd-accordion-menu label::before, .cd-accordion-menu label::after, .cd-accordion-menu a::after {
-  /* icons */
-  content: '';
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  top: 50%;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  -o-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
-.cd-accordion-menu label {
-  cursor: default;
-}
-
-.cd-accordion-menu label::before, .cd-accordion-menu label::after {
-  background-repeat: no-repeat;
-}
-
-.cd-accordion-menu label::before {
-  /* arrow icon */
-  left: 18px;
-  background-position: 0 0;
-  -webkit-transform: translateY(-50%) rotate(-90deg);
-  -moz-transform: translateY(-50%) rotate(-90deg);
-  -ms-transform: translateY(-50%) rotate(-90deg);
-  -o-transform: translateY(-50%) rotate(-90deg);
-  transform: translateY(-50%) rotate(-90deg);
-}
-
-.cd-accordion-menu label::after {
-  /* folder icons */
-  left: 41px;
-}
-
-.cd-accordion-menu a::after {
-  /* image icon */
-  left: 36px;
-}
-
-.cd-accordion-menu input[type=checkbox]:checked + label::before {
-  /* rotate arrow */
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  -o-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
-.cd-accordion-menu input[type=checkbox]:checked + label::after {
-  /* show open folder icon if item is checked */
-  background-position: -32px 0;
-}
-
-.cd-accordion-menu input[type=checkbox]:checked + label + ul,
-.cd-accordion-menu input[type=checkbox]:checked + label:nth-of-type(n) + ul {
-  /* use label:nth-of-type(n) to fix a bug on safari (<= 8.0.8) with multiple adjacent-sibling selectors*/
-  /* show children when item is checked */
-  display: block;
-}
-
-.cd-accordion-menu ul label,
-.cd-accordion-menu ul a {
-  background: #35383d;
-  box-shadow: inset 0 -1px #41444a;
-  padding-left: 8px;
-}
-
-.no-touch .cd-accordion-menu ul label:hover, .no-touch
-.cd-accordion-menu ul a:hover {
-  background: #3c3f45;
-}
-
-.cd-accordion-menu > li:last-of-type > label,
-.cd-accordion-menu > li:last-of-type > a,
-.cd-accordion-menu > li > ul > li:last-of-type label,
-.cd-accordion-menu > li > ul > li:last-of-type a {
+.noshadow {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
   box-shadow: none;
 }
 
-.cd-accordion-menu ul label::before {
-  left: 36px;
+.v-navigation-drawer {
+  background: #151924 !important;
 }
 
-.cd-accordion-menu ul label::after,
-.cd-accordion-menu ul a::after {
-  left: 59px;
+.application--dark {
+  background: #151924;
 }
 
-.cd-accordion-menu ul ul label,
-.cd-accordion-menu ul ul a {
-  padding-left: 100px;
+
+.application--dark .a {
+  color: white !important;
 }
 
-.cd-accordion-menu ul ul label::before {
-  left: 54px;
+.menu__content {
+  background: #272c38;
+}
+.slcontent .dialog .dialog--active {
+  box-shadow: none;
 }
 
-.cd-accordion-menu ul ul label::after,
-.cd-accordion-menu ul ul a::after {
-  left: 77px;
+.v-list__tile {
+  color: #ffffff;
 }
 
-.cd-accordion-menu ul ul ul label,
-.cd-accordion-menu ul ul ul a {
-  padding-left: 118px;
+.clickable {
+  cursor: pointer;
 }
 
-.cd-accordion-menu ul ul ul label::before {
-  left: 72px;
+span {
+  color: #fff;
 }
 
-.cd-accordion-menu ul ul ul label::after,
-.cd-accordion-menu ul ul ul a::after {
-  left: 95px;
+.menu__content {
+  margin-top: 35px !important;
 }
 
-@media only screen and (min-width: 1px) {
-  .cd-accordion-menu label, .cd-accordion-menu a {
-    padding: 0 24px 0px 10px;
-    font-size: 12px;
-  }
-
-  .cd-accordion-menu label::before {
-    left: 24px;
-  }
-
-  .cd-accordion-menu label::after {
-    left: 53px;
-  }
-
-  .cd-accordion-menu ul label,
-  .cd-accordion-menu ul a {
-    padding-left: 20px;
-    font-size: 12px;
-  }
-
-  .cd-accordion-menu ul label::before {
-    left: 48px;
-  }
-
-  .cd-accordion-menu ul label::after,
-  .cd-accordion-menu ul a::after {
-    left: 77px;
-  }
-
-  .cd-accordion-menu ul ul label,
-  .cd-accordion-menu ul ul a {
-    padding-left: 130px;
-  }
-
-  .cd-accordion-menu ul ul label::before {
-    left: 72px;
-  }
-
-  .cd-accordion-menu ul ul label::after,
-  .cd-accordion-menu ul ul a::after {
-    left: 101px;
-  }
-
-  .cd-accordion-menu ul ul ul label,
-  .cd-accordion-menu ul ul ul a {
-    padding-left: 154px;
-  }
-
-  .cd-accordion-menu ul ul ul label::before {
-    left: 96px;
-  }
-
-  .cd-accordion-menu ul ul ul label::after,
-  .cd-accordion-menu ul ul ul a::after {
-    left: 125px;
-  }
+.stepper {
+  background: #323948;
+  /* border-radius */
+  -webkit-border-radius: 5px !important;
+  -moz-border-radius: 5px !important;
+  border-radius: 5px !important;
+  /* box-shadow */
+  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
+  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
 }
 
-.cd-accordion-menu.animated label::before {
-  /* this class is used if you're using jquery to animate the accordion */
-  -webkit-transition: -webkit-transform 0.3s;
-  -moz-transition: -moz-transform 0.3s;
-  transition: transform 0.3s;
+.stepper__label {
+  color: #fff !important;
+}
+
+.input-group--text-field.input-group--focused label {
+  color: #E5A00D;
+}
+
+.input-group--focused {
+  border-color: #E5A00D;
+}
+
+.menuable__content__active {
+  opacity: 1 !important;
+}
+
+.card {
+  background: #323948;
+  /* border-radius */
+  -webkit-border-radius: 5px !important;
+  -moz-border-radius: 5px !important;
+  border-radius: 5px !important;
+  /* box-shadow */
+  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
+  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
+}
+
+.thumb {
+  /* border-radius */
+  -webkit-border-radius: 5px !important;
+  -moz-border-radius: 5px !important;
+  border-radius: 5px !important;
+  /* box-shadow */
+  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
+  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
+}
+
+.unwatched {
+  /* border-radius */
+  /* -webkit-border-radius: 0px 0 5px 0 !important;
+  -moz-border-radius: 5px 0 5px 0 !important;
+  border-radius: 5px 0 5px 0 !important; */
+}
+
+.thumb-title {
+  /* border-radius */
+  -webkit-border-radius: 0 0 5px 5px !important;
+  -moz-border-radius: 0 0 5px 5px !important;
+  border-radius: 0 0 5px 5px !important;
+}
+
+.season-content {
+  /* border-radius */
+  -webkit-border-radius: 5px 5px 0 0 !important;
+  -moz-border-radius: 5px 5px 0 0 !important;
+  border-radius: 5px 5px 0 0 !important;
+}
+
+.season-info {
+  background: #3B4254;
+  /* border-radius */
+  -webkit-border-radius: 0 0 5px 5px !important;
+  -moz-border-radius: 0 0 5px 5px !important;
+  border-radius: 0 0 5px 5px !important;
+}
+
+
+/* FIX Chat text not wrapping */
+
+.list__tile__sub-title,
+.v-list__tile__title {
+  overflow-wrap: break-word;
+  overflow-x: visible;
+  white-space: initial;
+  text-overflow: initial;
+}
+
+
+/* PlexBrowser */
+
+.pt-content-title {
+  font-size: 1em;
+  position: absolute;
+  width: 100%;
+  height: 3em;
+  bottom: 0;
+  text-align: center;
+  background: rgba(0, 0, 0, .7)
+}
+
+.pt-content-title span {
+  font-weight: 450;
+  display: block;
+  overflow: hidden;
+  height: 100%;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.pt-content-unwatched {
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-align: center;
+}
+
+.pt-content-progress {
+  min-height: 1px;
+  background: white;
+}
+
+.progress-linear .progress-linear__bar {
+  background: white;
+}
+
+.pt-poster {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 60vw;
+  height: 40vw;
+  border: 1px solid;
+  font-size: 10vw;
+}
+
+
+
+/* PTPlayer */
+
+.video-js.vjs-fluid,
+.video-js.vjs-16-9,
+.video-js.vjs-4-3,
+video.video-js,
+video.vjs-tech,
+{
+  /* max-height: calc(100vh - 64px); */
+  position: relative !important;
+  width: 100%;
+  max-width: 100%;
+  max-width: 100% !important;
+  padding-top: 0;
+  line-height: 0;
+}
+
+
+/* Fix the control bar due to us resetting the line-height on the video-js */
+
+.vjs-control-bar {
+  line-height: 1;
+}
+.ptplayer .vjs_video_3-dimensions.vjs-fluid {
+  padding-top: 0;
+}
+
+.ptplayer .video-js {
+  height: calc(100vh - 64px);
+  padding-top: 0px;
+}
+
+.ptplayer .vjs_video_1177-dimensions.vjs-fluid {
+  padding-top: 0;
+}
+
+.ptplayer .video-js .vjs-menu-button-inline.vjs-slider-active,
+.video-js .vjs-menu-button-inline:focus,
+.video-js .vjs-menu-button-inline:hover,
+.video-js.vjs-no-flex .vjs-menu-button-inline {
+  width: 10em
+}
+
+.vjs-volume-bar {
+  width: 100% !important;
+}
+
+.ptplayer .video-js .vjs-controls-disabled .vjs-big-play-button {
+  display: none !important;
+}
+
+.ptplayer .video-js .vjs-control {
+  width: 5em
+}
+
+.ptplayer .video-js .vjs-volume-control {
+  width: 10em;
+}
+
+.ptplayer .video-js .vjs-menu-button-inline:before {
+  width: 1.5em
+}
+
+.vjs-menu-button-inline .vjs-menu {
+  left: 3em
+}
+
+.ptplayer .vjs-paused.vjs-has-started.video-js .vjs-big-play-button,
+.video-js.vjs-ended .vjs-big-play-button,
+.video-js.vjs-paused .vjs-big-play-button {
+  display: block
+}
+
+.ptplayer .video-js .vjs-load-progress div,
+.vjs-seeking .vjs-big-play-button,
+.vjs-waiting .vjs-big-play-button {
+  display: none !important;
+}
+
+.ptplayer .video-js .vjs-mouse-display:after,
+.video-js .vjs-play-progress:after {
+  padding: 0 .4em .3em
+}
+
+.ptplayer .video-js.vjs-ended .vjs-loading-spinner {
+  display: none;
+}
+
+.ptplayer .video-js.vjs-ended .vjs-big-play-button {
+  display: block !important;
+}
+
+.ptplayer .video-js *,
+.video-js:after,
+.video-js:before {
+  box-sizing: inherit;
+  font-size: inherit;
+  color: inherit;
+  line-height: 3em
+}
+
+.ptplayer .video-js.vjs-fullscreen,
+.video-js.vjs-fullscreen .vjs-tech {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ptplayer .video-js {
+  font-size: 14px;
+  overflow: hidden
+}
+
+.ptplayer .video-js .vjs-control {
+  color: inherit
+}
+
+.ptplayer .video-js .vjs-menu-button-inline:hover,
+.video-js.vjs-no-flex .vjs-menu-button-inline {
+  width: 8.35em
+}
+
+.ptplayer .video-js .vjs-volume-menu-button.vjs-volume-menu-button-horizontal:hover .vjs-menu .vjs-menu-content {
+  height: 2em;
+  width: 6.35em
+}
+
+.ptplayer .video-js .vjs-control:focus:before,
+.video-js .vjs-control:hover:before {
+  text-shadow: 0 0 1em #fff, 0 0 1em #fff, 0 0 1em #fff
+}
+
+.ptplayer .video-js .vjs-spacer,
+.video-js .vjs-time-control {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-flex: 1 1 auto;
+  -moz-box-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto
+}
+
+.ptplayer .video-js .vjs-time-control {
+  -webkit-box-flex: 0 1 auto;
+  -moz-box-flex: 0 1 auto;
+  -webkit-flex: 0 1 auto;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  width: auto
+}
+
+.ptplayer .video-js .vjs-time-control.vjs-time-divider {
+  width: 14px
+}
+
+.ptplayer .video-js .vjs-time-control.vjs-time-divider div {
+  width: 100%;
+  text-align: center
+}
+
+.ptplayer .video-js .vjs-time-control.vjs-current-time {
+  margin-left: 1em
+}
+
+.ptplayer .video-js .vjs-time-control .vjs-current-time-display,
+.video-js .vjs-time-control .vjs-duration-display {
+  width: 100%
+}
+
+.ptplayer .video-js .vjs-time-control .vjs-current-time-display {
+  text-align: right
+}
+
+.ptplayer .video-js .vjs-time-control .vjs-duration-display {
+  text-align: left
+}
+
+.ptplayer .video-js .vjs-play-progress:before,
+.video-js .vjs-progress-control .vjs-play-progress:before,
+.video-js .vjs-remaining-time,
+.video-js .vjs-volume-level:after,
+.video-js .vjs-volume-level:before,
+.video-js.vjs-live .vjs-time-control.vjs-current-time,
+.video-js.vjs-live .vjs-time-control.vjs-duration,
+.video-js.vjs-live .vjs-time-control.vjs-time-divider,
+.video-js.vjs-no-flex .vjs-time-control.vjs-remaining-time {
+  display: none
+}
+
+.ptplayer .video-js.vjs-no-flex .vjs-time-control {
+  display: table-cell;
+  width: 4em
+}
+
+.ptplayer .video-js .vjs-progress-control {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: .5em;
+  top: -.5em
+}
+
+.ptplayer .video-js .vjs-progress-control .vjs-load-progress,
+.video-js .vjs-progress-control .vjs-play-progress,
+.video-js .vjs-progress-control .vjs-progress-holder {
+  height: 100%
+}
+
+.ptplayer .video-js .vjs-progress-control .vjs-progress-holder {
+  margin: 0
+}
+
+.ptplayer .video-js .vjs-progress-control:hover {
+  height: 1.5em;
+  top: -1.5em
+}
+
+.ptplayer .video-js .vjs-control-bar {
+  -webkit-transition: -webkit-transform .1s ease 0s;
+  -moz-transition: -moz-transform .1s ease 0s;
+  -ms-transition: -ms-transform .1s ease 0s;
+  -o-transition: -o-transform .1s ease 0s;
+  transition: transform .1s ease 0s
+}
+
+.ptplayer .video-js.not-hover.vjs-has-started.vjs-paused.vjs-user-active .vjs-control-bar,
+.video-js.not-hover.vjs-has-started.vjs-paused.vjs-user-inactive .vjs-control-bar,
+.video-js.not-hover.vjs-has-started.vjs-playing.vjs-user-active .vjs-control-bar,
+.video-js.not-hover.vjs-has-started.vjs-playing.vjs-user-inactive .vjs-control-bar,
+.video-js.vjs-has-started.vjs-playing.vjs-user-inactive .vjs-control-bar {
+  visibility: visible;
+  opacity: 1;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateY(4em);
+  -moz-transform: translateY(4em);
+  -ms-transform: translateY(4em);
+  -o-transform: translateY(4em);
+  transform: translateY(4em);
+  -webkit-transition: -webkit-transform 1s ease 0s;
+  -moz-transition: -moz-transform 1s ease 0s;
+  -ms-transition: -ms-transform 1s ease 0s;
+  -o-transition: -o-transform 1s ease 0s;
+  transition: transform 1s ease 0s
+}
+
+.ptplayer .video-js.not-hover.vjs-has-started.vjs-paused.vjs-user-active .vjs-progress-control,
+.video-js.not-hover.vjs-has-started.vjs-paused.vjs-user-inactive .vjs-progress-control,
+.video-js.not-hover.vjs-has-started.vjs-playing.vjs-user-active .vjs-progress-control,
+.video-js.not-hover.vjs-has-started.vjs-playing.vjs-user-inactive .vjs-progress-control,
+.video-js.vjs-has-started.vjs-playing.vjs-user-inactive .vjs-progress-control {
+  height: .25em;
+  top: -.25em;
+  pointer-events: none;
+  -webkit-transition: height 1s, top 1s;
+  -moz-transition: height 1s, top 1s;
+  -ms-transition: height 1s, top 1s;
+  -o-transition: height 1s, top 1s;
+  transition: height 1s, top 1s
+}
+
+.ptplayer .video-js.not-hover.vjs-has-started.vjs-paused.vjs-user-active.vjs-fullscreen .vjs-progress-control,
+.video-js.not-hover.vjs-has-started.vjs-paused.vjs-user-inactive.vjs-fullscreen .vjs-progress-control,
+.video-js.not-hover.vjs-has-started.vjs-playing.vjs-user-active.vjs-fullscreen .vjs-progress-control,
+.video-js.not-hover.vjs-has-started.vjs-playing.vjs-user-inactive.vjs-fullscreen .vjs-progress-control,
+.video-js.vjs-has-started.vjs-playing.vjs-user-inactive.vjs-fullscreen .vjs-progress-control {
+  opacity: 0;
+  -webkit-transition: opacity 1s ease 1s;
+  -moz-transition: opacity 1s ease 1s;
+  -ms-transition: opacity 1s ease 1s;
+  -o-transition: opacity 1s ease 1s;
+  transition: opacity 1s ease 1s;
+  right: 0;
+  position: absolute
+}
+
+.ptplayer .video-js.vjs-live .vjs-live-control {
+  margin-left: 100%
+}
+
+.ptplayer .video-js .vjs-big-play-button {
+  top: 50%;
+  left: 50%;
+  margin-left: -1em;
+  margin-top: -1em;
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  border: none;
+  border-radius: 50%;
+  font-size: 3.5em;
+  background-color: rgba(0, 0, 0, .45);
+  color: #fff;
+  -webkit-transition: border-color .4s, outline .4s, background-color .4s;
+  -moz-transition: border-color .4s, outline .4s, background-color .4s;
+  -ms-transition: border-color .4s, outline .4s, background-color .4s;
+  -o-transition: border-color .4s, outline .4s, background-color .4s;
+  transition: border-color .4s, outline .4s, background-color .4s
+}
+
+.ptplayer .video-js .vjs-menu-button-popup .vjs-menu {
+  left: -3em
+}
+
+.ptplayer .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+  background-color: transparent;
+  width: 12em;
+  left: -1.5em;
+  padding-bottom: .5em
+}
+
+.ptplayer .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item,
+.video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-title {
+  background-color: #151b17;
+  margin: .3em 0;
+  padding: .5em;
+  border-radius: .3em
+}
+
+.ptplayer .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item.vjs-selected {
+  background-color: #E5A00D
+}
+
+.ptplayer .video-js .vjs-big-play-button {
+  background-color: rgba(0, 0, 0, 0);
+  font-size: 8em;
+  border-radius: 0%;
+  height: 1em !important;
+  line-height: 1em !important;
+  margin-top: -0.5em !important
+}
+
+.ptplayer .video-js:hover .vjs-big-play-button,
+.video-js .vjs-big-play-button:focus,
+.video-js .vjs-big-play-button:active {
+  background-color: transparent
+}
+
+.ptplayer .video-js .vjs-loading-spinner {
+  border-color: #e5a00d
+}
+
+.ptplayer .video-js .vjs-control-bar2 {
+  background-color: #000000
+}
+
+.ptplayer .video-js .vjs-control-bar {
+  background-color: rgba(0, 0, 0, 1) !important;
+  color: #ffffff;
+  font-size: 12px
+}
+
+.ptplayer .video-js .vjs-play-progress,
+.video-js .vjs-volume-level {
+  background-color: #e5a00d
+}
+
+.ptplayer .video-js .vjs-load-progress {
+  background: rgba(115, 133, 159, 0.5);
+}
+
+.ptplayer .video-js .vjs-big-play-button:hover {
+  color: #E5A00D;
+}
+
+.ptplayer .video-js .vjs-control:focus:before,
+.video-js .vjs-control:hover:before {
+  color: #E5A00D;
+  text-shadow: none
+}
+
+.vjs-volume-level {
+  background-color: #E5A00D !important;
+}
+
+.vjs-fullscreen-control {
+  position: absolute !important;
+  right: 0px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+::-webkit-scrollbar-button {
+  width: 2px;
+  height: 2px;
+}
+::-webkit-scrollbar-thumb {
+  background: #01579b;
+  border: 0px none #ffffff;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ffffff;
+}
+::-webkit-scrollbar-thumb:active {
+  background: #000000;
+}
+::-webkit-scrollbar-track {
+  background: #353e58;
+  border: 0px none #ffffff;
+  border-radius: 50px;
+}
+::-webkit-scrollbar-track:hover {
+  background: #666666;
+}
+::-webkit-scrollbar-track:active {
+  background: #333333;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+.thick--text {
+  font-weight: 600;
+}
+
+
+.clientLogo {
+  padding: 3px;
+  background-origin: content-box !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+.platform-android {
+    background-color: #a4ca39;
+}
+.platform-atv {
+    background-color: #858487;
+}
+.platform-chrome {
+    background-color: #ed5e50;
+}
+.platform-chromecast {
+    background-color: #10a4e8;
+}
+.platform-default {
+    background-color: #e5a00d;
+}
+.platform-dlna {
+    background-color: #0cb14b;
+}
+.platform-firefox {
+    background-color: #e67817;
+}
+.platform-gtv {
+    background-color: #008bcf;
+}
+.platform-ie {
+    background-color: #00599e;
+}
+.platform-ios {
+    background-color: #858487;
+}
+.platform-kodi {
+    background-color: #31afe1;
+}
+.platform-linux {
+    background-color: #1793d0;
+}
+.platform-macos {
+    background-color: #858487;
+}
+.platform-msedge {
+    background-color: #0078d7;
+}
+.platform-opera {
+    background-color: #ff1b2d;
+}
+.platform-playstation {
+    background-color: #034da2;
+}
+.platform-plex {
+    background-color: #e5a00d;
+}
+.platform-plexamp {
+    background-color: #e5a00d;
+}
+.platform-roku {
+    background-color: #6d3c97;
+}
+.platform-safari {
+    background-color: #00a9ec;
+}
+.platform-samsung {
+    background-color: #034ea2;
+}
+.platform-synclounge {
+    background-color: #3e4f82;
+}
+.platform-tivo {
+    background-color: #00a7e1;
+}
+.platform-wiiu {
+    background-color: #03a9f4;
+}
+.platform-windows {
+    background-color: #2fc0f5;
+}
+.platform-wp {
+    background-color: #68217a;
+}
+.platform-xbmc {
+    background-color: #3b4872;
+}
+.platform-xbox {
+    background-color: #107c10;
 }

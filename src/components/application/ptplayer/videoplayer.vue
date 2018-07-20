@@ -18,7 +18,7 @@
       @statechanged="playerStateChanged($event)"
 
       @ready="playerReadied"
-      style="background-color:transparent !important"
+      style="background-color:transparent !important; min-height: 75vh"
       class="ptplayer">
     </video-player>
     <div class="center" v-if="!src">
@@ -28,391 +28,427 @@
 </template>
 
 <script>
-  var request = require('request')
+var request = require('request')
 
-  export default {
-    props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],
-    created () {
+export default {
+  props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],
+  created () {
 
-    },
-    data () {
-      return {
-        eventbus: window.EventBus,
+  },
+  data () {
+    return {
+      eventbus: window.EventBus,
 
-        offset: this.initialOffset,
-        initReqSent: false,
-        source: null,
+      offset: this.initialOffset,
+      initReqSent: false,
+      source: null,
 
-        isPlaying: 'buffering',
-        lastTime: 0,
-        duration: 0,
-        bufferedTill: 0,
+      isPlaying: 'buffering',
+      lastTime: 0,
+      duration: 0,
+      bufferedTill: 0,
 
-        decisionResult: null,
-        blockedSpeedChanges: false,
-        ticker: null,
+      decisionResult: null,
+      blockedSpeedChanges: false,
+      ticker: null,
+
+      playbackRate: 1
+    }
+  },
+  mounted () {
+    this.source = this.src
+    this.initReqSent = true
+    this.$emit('playerMounted')
+
+    // Events from the parent component
+    this.eventbus.$on('player-press-pause', (callback) => {
+      if (this.isPlaying === 'paused') {
+        return callback()
+      }
+      if (this.player) {
+        this.player.pause()
+      }
+      return callback()
+    })
+
+    this.eventbus.$on('player-press-play', (callback) => {
+      if (this.isPlaying === 'playing') {
+        return callback()
+      }
+      if (this.player) {
+        this.player.play()
+      }
+      return callback()
+    })
+
+    this.eventbus.$on('player-seek', async (data) => {
+      // Return a promise through the callback
+      data.callback(this.seekMethod(data))
+    })
+    this.eventbus.$on('ptplayer-poll', (callback) => {
+      try {
+        callback(null, this.player.currentTime() * 1000)
+      } catch (e) {
+        console.log('Caught an error when fetching newest time', e)
+        return callback(e, -1)
+      }
+    })
+  },
+  beforeDestroy () {
+    console.log('DESTROYING VIDEOPLAYER INSTANCE')
+    clearInterval(this.ticker)
+    this.eventbus.$off('player-press-pause')
+    this.eventbus.$off('player-press-play')
+    this.eventbus.$off('player-seek')
+    this.eventbus.$off('ptplayer-poll')
+
+    var query = ''
+    let params = {
+      hasMDE: 1,
+      ratingKey: this.metadata.ratingKey,
+      key: this.metadata.key,
+      state: 'stopped',
+      time: this.lastTime,
+      duration: Math.round(this.player.duration() * 1000),
+      'X-Plex-Product': this.params['X-Plex-Product'],
+      'X-Plex-Version': this.params['X-Plex-Version'],
+      'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
+      'X-Plex-Platform': this.params['X-Plex-Platform'],
+      'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
+      'X-Plex-Device': this.params['X-Plex-Device'],
+      'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
+      'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
+      'X-Plex-Token': this.params['X-Plex-Token'],
+      'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier']
+    }
+    for (let key in params) {
+      query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+    }
+    let url = this.server.chosenConnection.uri + '/:/timeline?' + query
+    console.log('Sending timeline stop')
+    request(url, function (error, response, body) {
+      if (!error) {
+        // console.log('Succesfully sent Player status to PMS')
+      }
+    })
+  },
+  computed: {
+    player () {
+      if (this.$refs && this.$refs.videoPlayer) {
+        return this.$refs.videoPlayer.player
       }
     },
-    mounted () {
-      var that = this
 
-      that.source = that.src
-      that.initReqSent = true
-      this.$emit('playerMounted')
+    playerOptions () {
+      // component options
+      return {
+        playsinline: true,
 
-      // Events from the parent component
-      this.eventbus.$on('player-press-pause', function (callback) {
-        if (that.isPlaying == 'paused') {
-          return callback(true)
-        }
-        if (that.player) {
-          that.player.pause()
-          return callback(true)
-        }
-        return callback(false)
-      })
+        // videojs options
+        plugins: {},
 
-      this.eventbus.$on('player-press-play', function (callback) {
-        if (that.isPlaying == 'playing') {
-          return callback(true)
-        }
-        if (that.player) {
-          that.player.play()
-          return callback(true)
-        }
-        return callback(false)
-      })
+        fluid: true,
+        preload: 'auto',
+        volume: 0.5,
+        aspectRatio: '16:9',
+        autoplay: true,
+        width: '100%',
+        language: 'en',
 
-      this.eventbus.$on('player-seek', (data) => {
+        bufferStart: 0,
+        bufferEnd: 0,
+
+        sources: [
+          this.source
+        ],
+        controlBar: {
+          children: {
+            'playToggle': {},
+            'muteToggle': {},
+            'volumeControl': {},
+            'currentTimeDisplay': {},
+
+            'flexibleWidthSpacer': {},
+            'progressControl': {},
+            'timeDivider': {},
+            'liveDisplay': {},
+            'durationDisplay': {},
+            'fullscreenToggle': {}
+          }
+        }
+      }
+    },
+
+    metadataImage: function () {
+      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
+      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+      return this.server.getUrlForLibraryLoc(this.metadata.thumb, w / 12, h / 4)
+    }
+
+  },
+  methods: {
+
+    // Player events
+    closingPlayer () {
+    },
+    onPlayerPlay (player) {
+    },
+    onPlayerPause (player) {
+    },
+    onPlayerLoaded (player) {
+    },
+    onPlayerEnded (player) {
+      this.$router.push('/browse')
+      this.$emit('playbackEnded')
+    },
+    onPlayerCanplay (player) {
+    },
+    onPlayerCanplaythrough (player) {
+    },
+    onPlayerTimeupdate (player) {
+    },
+    seekMethod (data) {
+      return new Promise((resolve, reject) => {
         let seekTo = data.time
-        console.log('We have been told we need to seek to position ' + seekTo)
+        console.log('We have been told we need to seek to position ' + seekTo, data)
         // The parent will only ever send us this command if we are within 10s, lets change our playback speed to 3x to catch up
         let playbackSpeed = 1.0
         let iterations = 0
-        if (!that.player.isReady_) {
-          return data.callback(false)
+        if (!this.player.isReady_) {
+          return reject(new Error('Player is not ready'))
         }
         try {
-          if (!that.player || !that.player.currentTime()) {
-            return data.callback(false)
+          if (!this.player || isNaN(this.player.currentTime())) {
+            return reject(new Error('Player is not ready'))
           }
         } catch (e) {
-          return data.callback(false)
+          return reject(new Error(e))
         }
-        let oldVolume = that.player.volume()
         console.log('Player checks passed')
-        let lastPlayerSpeed = that.player.currentTime()
-        let lastPlayerTime = that.player.currentTime() * 1000
-
-
-        
-        if (seekTo < that.bufferedEnd && seekTo > that.bufferStart){      
-          console.log('Seeking to a buffered time')    
-          that.player.currentTime(seekTo)
-          return data.callback(true)
+        let lastPlayerSpeed = this.player.playbackRate()
+        let lastPlayerTime = this.player.currentTime() * 1000
+        console.log('Buffer start', this.bufferStart, 'Seek To', seekTo, 'Buffer End', this.bufferEnd)
+        if (seekTo < this.bufferEnd && seekTo > this.bufferStart) {
+          console.log('Seeking to a buffered time')
+          this.player.currentTime(seekTo / 1000)
+          return resolve(true)
+        }
+        if (data.soft) {
+          return reject(new Error('Soft seek requested but not within buffered range'))
         }
 
-
-        if (Math.abs(seekTo - that.lastTime) < 7000 && !that.blockedSpeedChanges) {
+        if (((Math.abs(seekTo - this.lastTime) < 3000) && (!this.blockedSpeedChanges) && (this.$store.state.synclounge.lastHostTimeline.playerState === 'playing'))) {
           console.log('Seeking via the speed up method')
-          let oldSources = that.player.options_.sources
-          let clicker = setInterval(function () {
-            if (that.isPlaying == 'paused' || that.isPlaying == 'buffering' || oldSources != that.player.options_.sources) {
+          let oldSources = this.player.options_.sources
+          let cancelled = false
+          window.EventBus.$once('host-playerstate-change', () => {
+            cancelled = true
+            console.log('Cancelling our slow seek attempt')
+          })
+          let clicker = setInterval(() => {
+            if (cancelled || !this.player || this.isPlaying === 'paused' || this.isPlaying === 'buffering' || oldSources !== this.player.options_.sources) {
               clearInterval(clicker)
-              return data.callback(false)
+              this.player.playbackRate(1.0)
+              return reject(new Error('Slow seek was stop due to buffering or pausing'))
             }
             iterations++
-            try{
-              if (!that.player || !that.player.currentTime() || !that.player.playbackRate()) {
+            try {
+              if (!this.player || !this.player.currentTime() || !this.player.playbackRate()) {
                 return
               }
-            }
-            catch (e) {
+            } catch (e) {
               clearInterval(clicker)
-              return data.callback(false)
+              return reject(e)
             }
-            console.log('Playback rate: ' + that.player.playbackRate())
-            if (lastPlayerSpeed == that.player.playbackRate()) {
+            console.log('Playback rate: ' + this.player.playbackRate())
+            if (lastPlayerSpeed === this.player.playbackRate()) {
               // Our played doesnt want to change it speed, lets swap to clean seek
               console.log('Failed seek attempt - swapping to clean seek')
-              that.blockedSpeedChanges = true
-              data.callback(false)
+              this.blockedSpeedChanges = true
+              reject(new Error('Failed to slow seek as the playback rate did not want to change'))
               return clearInterval(clicker)
             }
-            if (that.isPlaying == 'paused' || (lastPlayerTime == that.player.currentTime() * 1000)) {
-              console.log('Skipping this iteration because our player state is ' + that.isPlaying + ' or lastPlayerTime is equal to the current player time')
+            if (this.isPlaying === 'paused' || (lastPlayerTime === this.player.currentTime() * 1000)) {
+              console.log('Skipping this iteration because our player state is ' + this.isPlaying + ' or lastPlayerTime is equal to the current player time')
               return
             }
-            lastPlayerTime = that.player.currentTime * 1000
+            lastPlayerTime = this.player.currentTime * 1000
             let slidingTime = seekTo + (25 * iterations)
-            let current = Math.round(that.player.currentTime() * 1000)
+            let current = Math.round(this.player.currentTime() * 1000)
             let difference = Math.abs(current - (slidingTime))
             if (current < slidingTime) {
-              // Speed up
-              playbackSpeed = playbackSpeed + 0.0005
-              if (that.player.playbackRate() < 1.1) {
-                that.player.playbackRate(playbackSpeed)
+            // Speed up
+              playbackSpeed = playbackSpeed + 0.0001
+              if (this.player.playbackRate() < 1.02) {
+                this.player.playbackRate(playbackSpeed)
               }
             }
             if (current > slidingTime) {
-              // Slow down
-              playbackSpeed = playbackSpeed - 0.0005
-              if (that.player.playbackRate() > 0.95) {
-                that.player.playbackRate(playbackSpeed)
+            // Slow down
+              playbackSpeed = playbackSpeed - 0.0001
+              if (this.player.playbackRate() > 0.98) {
+                this.player.playbackRate(playbackSpeed)
               }
             }
 
             console.log('We are ' + difference + 'ms away from where we need to be')
-            if (difference < 50) {
+            if (difference < 30) {
               console.log('Child: Done seeking')
-              that.player.playbackRate(1.0)
-              data.callback(true)
+              this.player.playbackRate(1.0)
+              resolve()
               clearInterval(clicker)
               return
             }
-            lastPlayerSpeed = that.player.currentTime()
+            if (difference > 5000) {
+              clearInterval(clicker)
+              this.player.playbackRate(1.0)
+              return reject(new Error('Slow seek was stopped as we are beyond 5000ms'))
+            }
+            lastPlayerSpeed = this.player.playbackSpeed()
           }, 25)
         } else {
           console.log('Directly seeking to a time')
-          if (!that.player || !that.player.currentTime()) {
-            data.callback(false)
+          if (!this.player || !this.player.currentTime()) {
+            return reject(new Error('Player is not initialized or does not have a current time'))
           }
-          let oldTime = this.lastTime
-          that.player.currentTime(seekTo / 1000)
+          let oldTime = JSON.parse(JSON.stringify(this.lastTime))
+          this.player.currentTime(seekTo / 1000)
           let ticks = 0
           let ticker = setInterval(() => {
-            console.log('Waiting for the player to skip..')
-            if (oldTime != this.lastTime) {
+            console.log('Waiting for the player to skip..', oldTime, this.lastTime, (seekTo / 1000))
+            if (!this.player || oldTime !== this.lastTime || (this.lastTime === (seekTo))) {
               clearInterval(ticker)
               console.log('Success on seeking to a direct point in time')
-              return data.callback(true)
+              return resolve('Directly seeked')
             }
             ticks++
             if (ticks > 150) {
               clearInterval(ticker)
-              return data.callback(false)
+              return reject(new Error('Timed out'))
             }
           }, 100)
         }
       })
     },
-    beforeDestroy () {
-      clearInterval(this.ticker)
-      this.eventbus.$off('player-press-pause')
-      this.eventbus.$off('player-press-play')
-      this.eventbus.$off('player-seek')
+    onPlayerLoadeddata (player) {
+      var that = this
+      this.$nextTick(() => {
+        console.log('Setting player time to', this.initialOffset / 1000)
+        this.player.currentTime(this.initialOffset / 1000)
+      })
 
-      var query = '';
-      let params = {
-        hasMDE: 1,
-        ratingKey: this.metadata.ratingKey,
-        key: this.metadata.key,
-        state: 'stopped',
-        time: this.lastTime,
-        duration: Math.round(this.player.duration() * 1000),
-        'X-Plex-Product': this.params['X-Plex-Product'],
-        'X-Plex-Version': this.params['X-Plex-Version'],
-        'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
-        'X-Plex-Platform': this.params['X-Plex-Platform'],
-        'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
-        'X-Plex-Device': this.params['X-Plex-Device'],
-        'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
-        'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
-        'X-Plex-Token': this.params['X-Plex-Token'],
-        'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier']
-      }
-      for (let key in params) {
-        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
-      }
-      let url = this.server.chosenConnection.uri + '/:/timeline?' + query
-      let options = {
-        timeout: 2000,
-        url: url
-      }
-      console.log('Sending timeline stop')
-      request(url, function (error, response, body) {
-        if (!error) {
-          // console.log('Succesfully sent Player status to PMS')
+      player.on(['pause'], () => {
+        this.isPlaying = 'paused'
+      })
+      player.on(['waiting'], () => {
+        this.isPlaying = 'buffering'
+      })
+      player.on('playing', () => {
+        this.isPlaying = 'playing'
+      })
+
+      // Setup our intervals for pinging the transcoder and timelines
+      function send () {
+        // console.log('Sending timeline')
+        if (!that || !that.player) {
+          return clearInterval(that.ticker)
         }
+        if (!that.player || !that.metadata) {
+          return
+        }
+        var query = ''
+        let params = {
+          hasMDE: 1,
+          ratingKey: that.metadata.ratingKey,
+          key: that.metadata.key,
+          state: that.isPlaying,
+          time: that.lastTime,
+          duration: Math.round(that.player.duration() * 1000),
+          'X-Plex-Product': that.params['X-Plex-Product'],
+          'X-Plex-Version': that.params['X-Plex-Version'],
+          'X-Plex-Client-Identifier': that.params['X-Plex-Client-Identifier'],
+          'X-Plex-Platform': that.params['X-Plex-Platform'],
+          'X-Plex-Platform-Version': that.params['X-Plex-Platform-Version'],
+          'X-Plex-Device': that.params['X-Plex-Device'],
+          'X-Plex-Device-Name': that.params['X-Plex-Device-Name'],
+          'X-Plex-Device-Screen-Resolution': that.params['X-Plex-Device-Screen-Resolution'],
+          'X-Plex-Token': that.params['X-Plex-Token'],
+          'X-Plex-Session-Identifier': that.params['X-Plex-Session-Identifier']
+        }
+        for (let key in params) {
+          query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+        }
+        let url = that.server.chosenConnection.uri + '/:/timeline?' + query
+        request(url, (error, response, body) => {
+          if (!error) {
+            // console.log('Succesfully sent Player status to PMS')
+          }
+        })
+      }
+
+      this.ticker = setInterval(() => {
+        // Tell the PMS instance of our status
+        send()
+      }, 10000)
+      send()
+    },
+    onPlayerPlaying (player) {
+    },
+    onPlayerWaiting (player) {
+    },
+    onPlayerSeeking (player) {
+      console.log('seeking', player)
+      this.$emit('timelineUpdate', {
+        time: this.player.currentTime() * 1000,
+        status: this.isPlaying,
+        bufferedTill: this.bufferedTill,
+        duration: this.duration
       })
     },
-    computed: {
-      player () {
-        if (this.$refs && this.$refs.videoPlayer) {
-          return this.$refs.videoPlayer.player
-        }
-      },
-      bufferStart: function () {        
-        return Math.round(this.player.buffered().start(0) * 1000)
-      },
-      bufferEnd: function () {
-        return Math.round(this.player.buffered().end(0) * 1000)
-      },
-      playerOptions () {
-
-        // component options
-        return {
-          playsinline: true,
-
-          // videojs options
-          plugins: {},
-
-          fluid: false,
-          preload: 'auto',
-          volume: 0.5,
-          aspectRatio: '16:9',
-          autoplay: true,
-          width: '100%',
-          language: 'en',
-
-          sources: [
-            this.source
-          ],
-          controlBar: {
-            children: {
-              'playToggle': {},
-              'muteToggle': {},
-              'volumeControl': {},
-              'currentTimeDisplay': {},
-
-              'flexibleWidthSpacer': {},
-              'progressControl': {},
-              'timeDivider': {},
-              'liveDisplay': {},
-              'durationDisplay': {},
-              'fullscreenToggle': {}
-            }
-          }
-        }
-      },
-
-      metadataImage: function () {
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        return this.server.getUrlForLibraryLoc(this.metadata.thumb, w / 12, h / 4)
-      }
-
+    onPlayerSeeked (player) {
+      console.log('Seeked', player)
+      this.$emit('timelineUpdate', {
+        time: this.player.currentTime() * 1000,
+        status: this.isPlaying,
+        bufferedTill: this.bufferedTill,
+        duration: this.duration
+      })
     },
-    methods: {
-
-      // Player events
-      closingPlayer () {
-      },
-      onPlayerPlay (player) {
-      },
-      onPlayerPause (player) {
-      },
-      onPlayerLoaded (player) {
-      },      
-      onPlayerEnded (player) {        
-        this.$emit('playbackEnded')
-      },
-      onPlayerCanplay (player) {
-      },
-      onPlayerCanplaythrough (player) {
-      },
-      onPlayerTimeupdate (player) {
-      },
-      onPlayerLoadeddata (player) {
-        var that = this
-
-        this.player.currentTime(this.initialOffset / 1000)
-
-        player.on(['waiting', 'pause'], function () {
-          that.isPlaying = 'paused';
-        });
-
-        player.on('playing', function () {
-          that.isPlaying = 'playing';
-        });
-
-        // Setup our intervals for pinging the transcoder and timelines
-        function send () {
-          //console.log('Sending timeline')
-          if (!that) {
-            return clearInterval(that.ticker)
-          }
-          if (!that.player || !that.metadata) {
-            return
-          }
-          var query = '';
-          let params = {
-            hasMDE: 1,
-            ratingKey: that.metadata.ratingKey,
-            key: that.metadata.key,
-            state: that.isPlaying,
-            time: that.lastTime,
-            duration: Math.round(that.player.duration() * 1000),
-            'X-Plex-Product': that.params['X-Plex-Product'],
-            'X-Plex-Version': that.params['X-Plex-Version'],
-            'X-Plex-Client-Identifier': that.params['X-Plex-Client-Identifier'],
-            'X-Plex-Platform': that.params['X-Plex-Platform'],
-            'X-Plex-Platform-Version': that.params['X-Plex-Platform-Version'],
-            'X-Plex-Device': that.params['X-Plex-Device'],
-            'X-Plex-Device-Name': that.params['X-Plex-Device-Name'],
-            'X-Plex-Device-Screen-Resolution': that.params['X-Plex-Device-Screen-Resolution'],
-            'X-Plex-Token': that.params['X-Plex-Token'],
-            'X-Plex-Session-Identifier': that.params['X-Plex-Session-Identifier']
-          }
-          for (let key in params) {
-            query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&';
-          }
-          let url = that.server.chosenConnection.uri + '/:/timeline?' + query
-          let options = {
-            timeout: 2000,
-            url: url
-          }
-          request(url, function (error, response, body) {
-            if (!error) {
-              // console.log('Succesfully sent Player status to PMS')
-            }
-          })
-        }
-
-        this.ticker = setInterval(function () {
-          // Tell the PMS instance of our status
-          send()
-        }, 10000)
-        send()
-      },
-      onPlayerPlaying (player) {
-      },
-      onPlayerWaiting (player) {
-      },
-      onPlayerSeeking (player) {
-      },
-      onPlayerSeeked (player) {
-        console.log(player)
-      },
-      playerStateChanged (playerCurrentState) {
-        // console.log("Setting volume to " + this.player.volume() || 0)
-        this.$store.commit('setSettingPTPLAYERVOLUME', this.player.volume() || 0)
-        this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000)
-        this.duration = Math.round(this.player.duration() * 1000)
-        if (this.player.error_) {
-          this.$emit('playerError')
-        }
-        if (playerCurrentState.timeupdate) {
-          this.lastTime = Math.round(playerCurrentState.timeupdate * 1000)
-        }
-        if (playerCurrentState.pause) {
-          this.isPlaying = 'paused'
-        }
-        if (playerCurrentState.playing) {
-          this.isPlaying = 'playing'
-        }
-        this.$emit('timelineUpdate', {
-          time: this.lastTime,
-          status: this.isPlaying,
-          bufferedTill: this.bufferedTill,
-          duration: this.duration
-        })
-      },
-      playerReadied (player) {
-        // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
-        this.player.volume(this.$store.getters.getSettingPTPLAYERVOLUME || 0)
-      },
-
+    playerStateChanged (playerCurrentState) {
+      // console.log("Setting volume to " + this.player.volume() || 0)
+      this.$store.commit('setSetting', ['PTPLAYERVOLUME', this.player.volume() || 0])
+      this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000)
+      this.duration = Math.round(this.player.duration() * 1000)
+      this.bufferStart = Math.round(this.player.buffered().start(0) * 1000)
+      this.bufferEnd = Math.round(this.player.buffered().end(0) * 1000)
+      if (this.player.error_) {
+        this.$emit('playerError')
+      }
+      if (playerCurrentState.timeupdate) {
+        this.lastTime = Math.round(playerCurrentState.timeupdate * 1000)
+      }
+      if (playerCurrentState.pause) {
+        this.isPlaying = 'paused'
+      }
+      if (playerCurrentState.playing) {
+        this.isPlaying = 'playing'
+      }
+      this.playbackRate = this.player.playbackRate()
+      this.$emit('timelineUpdate', {
+        time: this.lastTime,
+        status: this.isPlaying,
+        bufferedTill: this.bufferedTill,
+        duration: this.duration
+      })
+    },
+    playerReadied (player) {
+      // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
+      this.player.volume(this.$store.getters.getSettings['PTPLAYERVOLUME'] || 0)
     }
+
   }
+}
 </script>
+<style scoped>
+
+</style>

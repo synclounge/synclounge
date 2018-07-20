@@ -1,177 +1,177 @@
 <template>
-    <v-layout wrap row ckass="pt-2 pa-4" justify-center>
-      <v-flex xs12 md8>
-        <v-card style="background: rgba(0,0,0,0.3)" class="pa-4">
-          <h1 class="white--text center-text pa-4">Sign in to Plex.tv</h1>
-          <div v-if="!pin">
+  <v-layout wrap row ckass="pt-2 pa-4" justify-center>
+    <v-flex xs12 md8>
+      <v-card style="background: rgba(0,0,0,0.3)" class="pa-4">
+        <v-layout row wrap justify-center align-center v-if="ready">
+          <v-flex xs12 sm8 lg4>
+            <h1 class="text-xs-center pa-2">Hello <span style="font-weight: 700">{{ plex.user.username }}</span>!</h1>
+            <p>Would you like to change your display name when using SyncLounge? By default your Plex.tv username will be used. You can always change this setting later.</p>
+            <v-checkbox
+              class="pt-2"
+              label="Change my display name"
+              v-model="HIDEUSERNAME"
+            ></v-checkbox>
+            <v-text-field v-if="HIDEUSERNAME" v-model="ALTUSERNAME" label="Alternative display name"></v-text-field>
+            <div class="text-xs-right">
+              <v-btn @click="letsGo" color="primary">Get started</v-btn>
+            </div>
+          </v-flex>
+        </v-layout>
+        <div v-else>
+          <h1 v-if="!token" :style="fontSizes.largest" class="center-text pa-4">Sign in to Plex.tv</h1>
+          <div v-if="!code">
             <v-layout wrap row style="position:relative">
-              <v-flex xs12 md4 offset-md4>			
-                <div style="width:100%;text-align:center">				
+              <v-flex xs12 md4 offset-md4>
+                <div style="width:100%;text-align:center">
                   <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
                 </div>
-              </v-flex>      
+              </v-flex>
             </v-layout>
           </div>
-          <div v-if="token" class="center-text" style="font-size:400%">
-              <v-icon class="green--text text--darken-2" style="font-size: 64px">done</v-icon>
-            <h3 class="white--text">
-              Signed in!
-            </h3>
+          <div v-if="code" class="text-xs-center">
+            <v-btn class="primary" @click="openPopup">Click me</v-btn>
           </div>
-          <div v-if="pin && !token">
-            <v-layout wrap row flex class="pt-4">
-              <v-flex xs12 md6 offset-md3>
-                <h1 class="center-text" style="color:white !important; background-color: rgba(128, 128, 128, 0.2); letter-spacing:1px">{{ pin }}</h1>            
-                <v-layout wrap row flex class="pt-4">
-                  <v-flex xs4 offset-xs4 >
-                    <v-btn v-clipboard="pin" v-on:click.native="sendNotification()" primary class="pt-orange" style="width:100%">
-                      <v-icon  class="mr-2">content_copy</v-icon>
-                      Copy
-                    </v-btn>
-                  </v-flex>      
-                </v-layout>
-              </v-flex>      
-            </v-layout>
-            <p class="center-text pt-4">Enter the pin above at <a target="_blank" href="https://plex.tv/link">
-              https://plex.tv/link </a></p>
-            </div>
-            <v-layout wrap row class="pt-4 pa-2">
-              <v-flex xs12 md8 offset-md2 class="center-text">              
-                <p style="opacity:0.7">
-                  Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run SyncLounge yourself
-                  have a look <a target="_blank" href="https://github.com/samcm/SyncLounge"> here </a>
-                  for details. 
-                </p>
-              </v-flex>      
-            </v-layout>
-          </div>
-        </v-card>
-      </v-flex>      
-    </v-layout>
+          <v-layout wrap row class="pt-4 pa-2">
+            <v-flex xs12 md8 offset-md2 class="center-text">
+              <p style="opacity:0.7">
+                Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run SyncLounge yourself
+                have a look <a target="_blank" href="https://github.com/samcm/SyncLounge"> here </a>
+                for details.
+              </p>
+            </v-flex>
+          </v-layout>
+        </div>
+      </v-card>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>
+var axios = require('axios')
+export default {
+  name: 'signin',
+  data () {
+    return {
+      pin: null,
+      ID: null,
+      token: null,
+      status: 'startup',
+      headers: {
+        'X-Plex-Device': 'Web',
+        'X-Plex-Device-Name': 'SyncLounge',
+        'X-Plex-Product': 'SyncLounge',
+        'X-Plex-Version': this.$store.state.appVersion,
+        'X-Plex-Platform-Version': '',
+        'X-Plex-Client-Identifier': this.$store.state.settings.CLIENTIDENTIFIER
+      },
+      code: null,
+      ready: false,
 
+      openedWindow: null
 
-  var parseString = require('xml2js').parseString;
-  var request = require('request')
-  var clipboard = require('clipboard')
+    }
+  },
+  methods: {
+    openPopup: function () {
+      let w = 450
+      let h = 600
+      // Credit: https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+      // Fixes dual-screen position                         Most browsers      Firefox
+      let dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+      let dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
 
-  export default {
-    name: 'signin',
-    data () {
-      return {
-        pin: null,
-        ID: null,
-        token: null,
-        status: 'startup'
+      let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
+      let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
+
+      let left = ((width / 2) - (w / 2)) + dualScreenLeft
+      let top = ((height / 2) - (h / 2)) + dualScreenTop
+      let newWindow = window.open(this.url, 'Sign in with Plex.tv', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
+      if (!newWindow) {
+        newWindow = window.open(this.url, '_blank')
       }
+      // Puts focus on the newWindow
+      if (window.focus) {
+        newWindow.focus()
+      }
+      this.openedWindow = newWindow
     },
-    mounted () {
-      var that = this
-      let storage = window['localStorage']
-      storage.removeItem('plexuser')
-      let id = (Math.random() * 1e32).toString(36)
-
-      function getPin () {
-        var sBrowser, sUsrAg = navigator.userAgent;
-
-        if (sUsrAg.indexOf("Chrome") > -1) {
-          sBrowser = "Google Chrome";
-        } else if (sUsrAg.indexOf("Safari") > -1) {
-          sBrowser = "Apple Safari";
-        } else if (sUsrAg.indexOf("Opera") > -1) {
-          sBrowser = "Opera";
-        } else if (sUsrAg.indexOf("Firefox") > -1) {
-          sBrowser = "Mozilla Firefox";
-        } else if (sUsrAg.indexOf("MSIE") > -1) {
-          sBrowser = "Microsoft Internet Explorer";
-        }
-        console.log('Browser: ' + sBrowser)
-
-        that.$http.post('https://plex.tv/pins.xml', null, {
-          headers: {
-            'X-Plex-Device': 'Web',
-            'X-Plex-Device-Name': 'SyncLounge',
-            'X-Plex-Product': 'SyncLounge',
-            'X-Plex-Version': '1.2',
-            'X-Plex-Platform': sBrowser,
-            'X-Plex-Platform-Version': '',
-            'X-Plex-Client-Identifier': id
-          }
+    letsGo: async function () {
+      if (this.$store.state.autoJoin) {
+        console.log('Autojoining...')
+        await this.$store.dispatch('autoJoin', {
+          server: this.$store.state.autoJoinUrl,
+          password: this.$store.state.autoJoinPassword,
+          room: this.$store.state.autoJoinRoom
         })
-          .then((response) => {
-
-            parseString(response.body, function (err, result) {
-              if (!err) {
-                that.pin = result.pin.code[0]
-                that.ID = result.pin.id[0]._
-                let checker = setInterval(function () {
-                  var options = {
-                    url: 'https://plex.tv/pins/' + that.ID + '.xml',
-                    headers: {
-                      'X-Plex-Device': 'Web',
-                      'X-Plex-Device-Name': 'SyncLounge',
-                      'X-Plex-Product': 'SyncLounge',
-                      'X-Plex-Version': '1.2',
-                      'X-Plex-Platform': sBrowser,
-                      'X-Plex-Platform-Version': '',
-                      'X-Plex-Client-Identifier': id
-                    }
-                  };
-
-                  function callback (error, response, body) {
-                    if (!error && response.statusCode == 404) {
-                      clearInterval(checker)
-                      return
-                    }
-                    if (!error && response.statusCode == 200) {
-                      parseString(body, function (err, result) {
-                        if (!err) {
-                          if (result.pin.auth_token[0] != null && result.pin.auth_token[0].length > 1) {
-                            console.log('GOT TOKEN!')
-                            that.token = result.pin.auth_token[0]
-                            let jsonObj = {
-                              authToken: that.token
-                            }
-                            storage.setItem('plexuser', JSON.stringify(jsonObj))
-                            setTimeout(function () {
-                              that.$router.push('/sync')
-                            }, 2500)
-                            clearInterval(checker)
-                          }
-                        }
-                      })
-                    }
-                  }
-
-                  request(options, callback);
-                }, 2000)
-              }
-            })
-            return
-          })
       }
-
-      getPin()
-
+      this.$router.push('/browse')
+    }
+  },
+  computed: {
+    store: function () {
+      return this
     },
-    methods: {
-      signout: function () {
-        window['localStorage'].removeItem('plexuser')
-        this.$store.state.plexuser = null
+    HIDEUSERNAME: {
+      get () {
+        return (this.$store.getters.getSettings['HIDEUSERNAME'])
       },
-      hitAPI: function () {
-        this.signinProgress = 'sent'
-        this.errormsg = null
-        var that = this
-        var base64encoded = new Buffer(this.user + ":" + this.pass).toString('base64')
+      set (value) {
+        this.$store.commit('setSetting', ['HIDEUSERNAME', value])
+      }
+    },
+    ALTUSERNAME: {
+      get () {
+        return this.$store.getters.getSettings['ALTUSERNAME']
+      },
+      set (value) {
+        this.$store.commit('setSetting', ['ALTUSERNAME', value])
+      }
+    },
+    sBrowser: function () {
+      let sBrowser
+      let sUsrAg = navigator.userAgent
 
-      },
-      sendNotification(){
-        window.EventBus.$emit('notification', 'Copied to clipboard')
+      if (sUsrAg.indexOf('Chrome') > -1) {
+        sBrowser = 'Google Chrome'
+      } else if (sUsrAg.indexOf('Safari') > -1) {
+        sBrowser = 'Apple Safari'
+      } else if (sUsrAg.indexOf('Opera') > -1) {
+        sBrowser = 'Opera'
+      } else if (sUsrAg.indexOf('Firefox') > -1) {
+        sBrowser = 'Mozilla Firefox'
+      } else if (sUsrAg.indexOf('MSIE') > -1) {
+        sBrowser = 'Microsoft Internet Explorer'
+      }
+      return sBrowser
+    },
+    url: function () {
+      if (this.code) {
+        return 'https://app.plex.tv/auth/#!?clientID=' + this.headers['X-Plex-Client-Identifier'] + '&code=' + this.code
       }
     }
+  },
+  async mounted () {
+    this.headers['X-Plex-Platform'] = this.sBrowser
+    let { data } = await axios.create().post('https://plex.tv/api/v2/pins?strong=true', {}, { headers: { ...this.headers } })
+    console.log('Got back post request', data)
+    this.code = data.code
+    this.ticker = setInterval(async () => {
+      let result = await axios('https://plex.tv/api/v2/pins/' + data.id, {
+        headers: { ...this.headers }
+      })
+      console.log('Result form pin check', result)
+      if (result && result.data && result.data.authToken) {
+        if (this.openedWindow) {
+          this.openedWindow.close()
+        }
+        clearInterval(this.ticker)
+        window.localStorage.setItem('plexuser', JSON.stringify({ authToken: result.data.authToken }))
+        await this.$store.dispatch('PLEX_LOGIN_TOKEN', result.data.authToken)
+        this.token = result.data.authToken
+        this.ready = true
+        this.letsGo()
+      }
+    }, 2000)
   }
+}
 </script>
-

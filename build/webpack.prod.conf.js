@@ -9,6 +9,8 @@ var HtmlWebpackPlugin = require('html-webpack-plugin')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+
 var env = config.build.env
 
 var webpackConfig = merge(baseWebpackConfig, {
@@ -29,11 +31,15 @@ var webpackConfig = merge(baseWebpackConfig, {
     new webpack.DefinePlugin({
       'process.env': env
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: false,      
-      exclude: '/videojs-contrib-hls/',
-      sourceMap: true
+    new webpack.DefinePlugin({
+      'typeof global': JSON.stringify('undefined')
     }),
+    new UglifyJsPlugin({
+    }),
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compress: true,
+    //   sourceMap: false
+    // }),
     // extract css into its own file
     new ExtractTextPlugin({
       filename: utils.assetsPath('css/[name].[contenthash].css')

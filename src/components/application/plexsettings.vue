@@ -1,12 +1,11 @@
 <template>
-  <div>          
-    <h6>Blocked Plex Servers</h6>
-    <small>Used for autoplay functionality. Use this list to block SyncLounge from searching certain servers when attempting to autoplay content.</small>    
-    <v-layout row wrap>
-      <v-flex xs12>
-        <v-select
+  <div>
+    <div class="pt-1 text-xs-left">
+      <h4 style="text-align:initial">Blocked Plex Servers</h4>
+      <small>Used for autoplay functionality. Use this list to block SyncLounge from searching certain servers when attempting to autoplay content.</small>
+      <v-select
           label="Select"
-          v-bind:items="localServersList"
+          :items="localServersList"
           v-model="blockedServers"
           item-value="id"
           item-text="name"
@@ -14,63 +13,87 @@
           hint="Blocked Servers"
           persistent-hint
         ></v-select>
+    </div>
+    <v-layout row wrap>
+      <v-flex xs12>
+
       </v-flex>
     </v-layout>
+    <v-divider></v-divider>
+    <div class="pt-4 text-xs-left">
+      <h4 style="text-align:initial">Change display name</h4>
+      <v-checkbox
+        label="Enabled"
+        v-model="HIDEUSERNAME"
+      ></v-checkbox>
+      <v-text-field v-if="HIDEUSERNAME" v-model="ALTUSERNAME" label="Alternative username"></v-text-field>
+      <small>By default SyncLounge uses your Plex.tv username when you join a room.</small>
+    </div>
   </div>
 </template>
 
 <script>
-  export default {
-    props: ['object'],
-    name: 'plexsettings',
-    data () {
-      return {
-        blockedServers: this.$store.getters.getSettingBLOCKEDSERVERS || []
-      }
-    },
-    methods: {
-    },
+export default {
+  name: 'plexsettings',
+  data () {
+    return {
+      blockedServers: JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS']) || []
+    }
+  },
+  methods: {},
 
-    watch: {
-      blockedServers: function() {
-        this.$store.commit('setSettingBLOCKEDSERVERS', this.blockedServers)
+  watch: {
+    blockedServers: function () {
+      this.$store.commit('setSetting', ['BLOCKEDSERVERS', JSON.stringify(this.blockedServers)])
+    }
+  },
+  computed: {
+    plex: function () {
+      return this.$store.state.plex
+    },
+    context: function () {
+      return this.$store
+    },
+    HIDEUSERNAME: {
+      get () {
+        return JSON.parse((this.$store.getters.getSettings['HIDEUSERNAME']))
+      },
+      set (value) {
+        this.$store.commit('setSetting', ['HIDEUSERNAME', value])
       }
     },
-    computed: {
-      plex: function () {
-        return this.$store.state.plex
+    ALTUSERNAME: {
+      get () {
+        return this.$store.getters.getSettings['ALTUSERNAME']
       },
-      context: function () {
-        return this.$store
-      },
-      localServersList: function() {
-        let servers = []
-        if (!this.plex || !this.plex.servers){
-          return servers
-        }
-        this.plex.servers.forEach((server) => {
-          if (this.$store.getters.getSettingBLOCKEDSERVERS && this.$store.getters.getSettingBLOCKEDSERVERS[server.clientIdentifier]){            
-            servers.push({
-              name: server.name,
-              id: server.clientIdentifier,
-            })
-            return
-          }
+      set (value) {
+        this.$store.commit('setSetting', ['ALTUSERNAME', value])
+      }
+    },
+    localServersList: function () {
+      let servers = []
+      if (!this.plex || !this.plex.servers) {
+        return servers
+      }
+      for (let id in this.plex.servers) {
+        let server = this.plex.servers[id]
+        if (JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS']) && JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS'])[server.clientIdentifier]) {
           servers.push({
             name: server.name,
-            id: server.clientIdentifier,
+            id: server.clientIdentifier
           })
+          return
+        }
+        servers.push({
+          name: server.name,
+          id: server.clientIdentifier
         })
-        return servers
-        
-        
-      },
-      logo: function () {
-        return 'slweb/plexlogo.png'
-      },
-    },
-    mounted: function () {
-      // Create event listeners
+      }
+      return servers
     }
+  },
+  mounted: function () {
+    // Create event listeners
   }
+}
 </script>
