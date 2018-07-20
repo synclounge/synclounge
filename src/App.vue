@@ -197,6 +197,7 @@ export default {
       return this.$router.push('/signin')
     }
     if (settings.autoJoin) {
+      console.log('Autojoining...')
       await this.$store.dispatch('autoJoin', {
         server: settings.autoJoinServer,
         password: settings.autoJoinPassword,
