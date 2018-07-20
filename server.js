@@ -50,7 +50,7 @@ root.get('*', function (req, res) {
 })
 
 var rootserver = require('http').createServer(root)
-var ptserver_io = require('socket.io')(rootserver, { path: serverRoot + 'socket.io' })
+var ptserver_io = require('socket.io')(rootserver, { path: serverRoot + '/socket.io' })
 
 ptserver_io.on('connection', (socket) => {
   console.log('Someone connected to the ptserver socket')
