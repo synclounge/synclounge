@@ -23,7 +23,7 @@
           <v-layout row wrap justify-center>
             <v-flex xs12>
               <p class="pa-2">
-                It's time to connect to SyncLounge. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join.
+                It's time to connect to SyncLounge. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join. If the room does not exist it will be created for you.
               </p>
             </v-flex>
           </v-layout>
@@ -83,12 +83,12 @@
                 class="input-group pt-input"
               ></v-text-field>
               <v-layout row wrap v-if="selectedServer == 'custom'">
-                <v-flex xs4 offset-xs4>
+                <v-flex xs12>
                   <v-btn class="pt-orange white--text pa-0 ma-0" color="primary" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
                 </v-flex>
               </v-layout>
               <v-layout row wrap v-if="connectionPending && !serverError" class="pt-3">
-                <v-flex xs4 offset-xs4 center>
+                <v-flex xs12>
                   <div style="width:100%;text-align:center">
                     <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
                   </div>
@@ -100,7 +100,7 @@
                 </v-flex>
               </v-layout>
             </v-flex>
-            <v-flex xs12 v-if="context.getters.getConnected">
+            <v-flex xs12 v-if="context.getters.getConnected" class="text-xs-center">
               <v-layout row wrap>
                 <v-flex xs12>
                   <v-text-field
@@ -122,7 +122,7 @@
                     v-model="password"
                   ></v-text-field>
                 </v-flex>
-                <v-flex xs4 offset-xs4>
+                <v-flex xs12>
                   <v-btn block color="primary" v-on:click.native="joinRoom()">Join</v-btn>
                 </v-flex>
                 <v-layout class="pt-3 text-xs-center" row wrap v-if="roomError">
@@ -296,15 +296,17 @@ export default {
     attemptConnectCustom: function () {
       this.connectionPending = true
       this.serverError = null
-      this.$store.dispatch('socketConnect', { address: this.CUSTOMSERVER }).then(result => {
-        this.connectionPending = false
-        if (result) {
-          this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
-        } else {
-          this.serverError = null
-        }
-      })
+      this.$store.dispatch('socketConnect', { address: this.CUSTOMSERVER })
+        .then(result => {
+          this.connectionPending = false
+          if (result) {
+            this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
+          } else {
+            this.serverError = null
+          }
+        })
         .catch(() => {
+          this.connectionPending = false
           this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
         })
     },
