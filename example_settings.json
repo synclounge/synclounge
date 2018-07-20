@@ -2,8 +2,8 @@
     "webroot": "",
     "serverroot": "",
     "accessUrl": "",
-    "autoJoin": true,
-    "autoJoinServer": "https://v2au1.synclounge.tv",
-    "autoJoinRoom": "acwacdwacdwawd",
+    "autoJoin": false,
+    "autoJoinServer": "",
+    "autoJoinRoom": "",
     "autoJoinPassword": ""
 }
