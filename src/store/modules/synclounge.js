@@ -119,6 +119,12 @@ export default {
         console.log('Socket attempt connect on ' + address)
         let path = address.split('/')[3] || ''
         address = address.replace(path, '')
+        console.log('Address is', address)
+        if (address[address.length - 1] === '/') {
+          console.log('Removing extra slash', address)
+          address = address.slice(0, -1)
+          console.log('Done', address)
+        }
         console.log('Pathname', path)
         state._socket = state._io.connect(address, {
           'forceNew': true,
