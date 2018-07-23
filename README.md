@@ -124,18 +124,18 @@ docker run \
 ```
 ### Building and running the webapp:
 
-* Make sure you have Node v6+ installed
+* Make sure you have Node v8.4.0+ installed
 
 	*  ``git clone https://github.com/samcm/synclounge``
 	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run build``
-	*  ``node webapp.js --url=http://example.com``
+	*  ``node webapp.js --accessUrl=http://example.com``
 * The SL web app will be running at http://ip:8088.
 
 ### Running the server:
 
-* Make sure you have Node v6+ installed
+* Make sure you have Node v8.4.0+ installed
 
 	*  ``git clone https://github.com/samcm/synclounge``
 	*  ``cd synclounge``
@@ -149,23 +149,17 @@ docker run \
     server {
         listen 80;
     	server_name example.com;
-    	location /slweb {
+    	location / {
     		proxy_pass http://localhost:8088;
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
     	}
-    	location /slserver {
+    	location /socket.io {
     		proxy_pass http://localhost:8089;
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
-    	}
-    	location / {
-		    proxy_http_version 1.1;
-		    proxy_set_header Upgrade $http_upgrade;
-		    proxy_set_header Connection "upgrade";
-    		proxy_pass http://localhost:8088;
     	}
     }
     ```
@@ -176,7 +170,7 @@ You need:
 * Node v8.4.0+
 
 	*  ``git clone https://github.com/samcm/SyncLounge``
-	*  ``cd plextogether``
+	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run dev``
 * Once Webpack has finished compiling, navigate to http://localhost:8080 in your web browser.
