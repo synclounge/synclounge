@@ -147,6 +147,11 @@ ptserver_io.on('connection', (socket) => {
       socket.emit('rejoin')
       return
     }
+    let room = ptserver_io.sockets.adapter.rooms[socket.selfUser.room]
+    if (!room) {
+      console.log('Got a poll update from a user in a room that was either destroyed or never existed', data)
+      return
+    }
     // Recieved an update from a user
     updateUserData(socket.selfUser.username, data, socket.selfUser.room)
 
