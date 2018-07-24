@@ -27,7 +27,7 @@
               </p>
             </v-flex>
           </v-layout>
-            <v-flex xs12 class="nicelist" v-if="!context.getters.getConnected && recents" style="color:white !important">
+            <v-flex xs12 class="nicelist" v-if="!context.getters.getConnected && recents && recents.length > 0" style="color:white !important">
               <h4>Recent rooms</h4>
               <v-list class="pa-0">
                 <template v-for="(item, index) in recentsSorted">
@@ -39,6 +39,12 @@
                       <v-list-tile-title v-html="item.server"></v-list-tile-title>
                       <v-list-tile-sub-title><b>{{ item.room }}</b> <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span></v-list-tile-sub-title>
                     </v-list-tile-content>
+                    <v-list-tile-action>
+                      <v-tooltip top color="light-blue darken-4">
+                        <v-icon flat slot="activator" @click.stop="removeHistoryItem(item)">close</v-icon>
+                        Remove
+                      </v-tooltip>
+                    </v-list-tile-action>
                   </v-list-tile>
                 </template>
               </v-list>
@@ -209,9 +215,18 @@ export default {
     if (this.slRoom && this.slConnected && this.slServer) {
       this.$router.push('/browse')
     }
-    this.recents = JSON.parse(window.localStorage.getItem('recentrooms'))
+    this.getRecents()
   },
   methods: {
+    getRecents: function () {
+      this.recents = JSON.parse(window.localStorage.getItem('recentrooms'))
+    },
+    removeHistoryItem: function (item) {
+      let recents = JSON.parse(window.localStorage.getItem('recentrooms'))
+      delete recents[item.server + '/' + item.room]
+      window.localStorage.setItem('recentrooms', JSON.stringify(recents))
+      return this.getRecents()
+    },
     connectionQualityClass: function (value) {
       if (value < 50) {
         return ['green--text', 'text--lighten-1']
