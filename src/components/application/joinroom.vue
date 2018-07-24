@@ -179,7 +179,7 @@ export default {
         {
           location: 'Amsterdam, Netherlands',
           text: 'SyncLounge EU1',
-          value: 'https://v2eu1.synclounge.tv',
+          value: 'https://v2eu1.synclounge.tv/server',
           flag: 'flags/eu.png'
         },
         {
