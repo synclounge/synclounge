@@ -118,19 +118,19 @@ export default {
         }
         console.log('Socket attempt connect on ' + address)
         let path = address.split('/')[3] || ''
-        address = address.replace(path, '')
-        console.log('Address is', address)
-        if (address[address.length - 1] === '/') {
-          console.log('Removing extra slash', address)
-          address = address.slice(0, -1)
-          console.log('Done', address)
+        let addressCopy = (' ' + address).slice(1).replace(path, '')
+        console.log('Address is', addressCopy)
+        if (addressCopy[address.length - 1] === '/') {
+          console.log('Removing extra slash', addressCopy)
+          addressCopy = address.slice(0, -1)
+          console.log('Done', addressCopy)
         }
         console.log('Pathname', path)
         let ext = ''
         if (path) {
           ext = '/' + path
         }
-        state._socket = state._io.connect(address, {
+        state._socket = state._io.connect(addressCopy, {
           'forceNew': true,
           'connect timeout': 7000,
           path: ext + '/socket.io'
