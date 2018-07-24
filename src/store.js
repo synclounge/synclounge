@@ -116,7 +116,7 @@ const mutations = {
       }
       let interval = state.settings.CLIENTPOLLINTERVAL
       if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-        interval = 200
+        interval = 500
       }
       setTimeout(() => {
         clientPoller(time)

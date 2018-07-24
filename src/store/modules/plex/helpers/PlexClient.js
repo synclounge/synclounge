@@ -285,7 +285,7 @@ module.exports = function PlexClient () {
         // Fall back to skipahead
         return resolve(await this.skipAhead(hostTimeline.time, 10000))
       }
-      if (this.clientIdentifier === 'PTPLAYER9PLUS10' && difference > 500) {
+      if (this.clientIdentifier === 'PTPLAYER9PLUS10' && difference > 1000) {
         console.log('Soft syncing because difference is', difference)
         return resolve(await this.cleanSeek(hostTimeline.time, true))
       } else {
