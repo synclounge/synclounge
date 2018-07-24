@@ -126,10 +126,14 @@ export default {
           console.log('Done', address)
         }
         console.log('Pathname', path)
+        let ext = ''
+        if (path) {
+          ext = '/' + path
+        }
         state._socket = state._io.connect(address, {
           'forceNew': true,
           'connect timeout': 7000,
-          path: '/' + path + '/socket.io'
+          path: ext + '/socket.io'
         })
         state._socket.on('connect', function (result) {
           // Good connection

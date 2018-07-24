@@ -167,7 +167,7 @@ export default {
         {
           location: 'Sydney, Australia',
           text: 'SyncLounge AU1',
-          value: 'https://v2au1.synclounge.tv',
+          value: 'https://v2au1.synclounge.tv/server',
           flag: 'flags/aus.png'
         },
         {
@@ -179,7 +179,7 @@ export default {
         {
           location: 'Miami, United States',
           text: 'SyncLounge US1',
-          value: 'https://v2us1.synclounge.tv',
+          value: 'https://v2us1.synclounge.tv/server',
           flag: 'flags/usa.png'
         },
         {
