@@ -1,8 +1,8 @@
 var git = require('git-rev-sync')
 
-// console.log('Production env', process.env)
-
 let settings = new (require('../SettingsHelper'))()
+
+console.log('Production settings', settings)
 
 module.exports = {
   NODE_ENV: '"production"',
