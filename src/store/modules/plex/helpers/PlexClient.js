@@ -47,6 +47,7 @@ module.exports = function PlexClient () {
   this.dispatch = null
 
   let previousTimeline = {}
+  let differenceCache = []
 
   this.setValue = function (key, value) {
     this[key] = value
@@ -285,11 +286,22 @@ module.exports = function PlexClient () {
         // Fall back to skipahead
         return resolve(await this.skipAhead(hostTimeline.time, 10000))
       }
-      if (this.clientIdentifier === 'PTPLAYER9PLUS10' && difference > 1500) {
+      // Calc the average delay of the last 10 host timeline updates
+      // We do this to avoid any issues with random lag spikes
+      differenceCache.unshift(difference)
+      if (differenceCache.length > 5) {
+        differenceCache.pop()
+      }
+      let total = 0
+      for (let i = 0; i < differenceCache.length; i++) {
+        total = total + differenceCache[i]
+      }
+      let avg = total / differenceCache.length
+      if (this.clientIdentifier === 'PTPLAYER9PLUS10' && avg > 800) {
         console.log('Soft syncing because difference is', difference)
         return resolve(await this.cleanSeek(hostTimeline.time, true))
       } else {
-        resolve('No sync needed')
+        return resolve('No sync needed')
       }
     })
   }
