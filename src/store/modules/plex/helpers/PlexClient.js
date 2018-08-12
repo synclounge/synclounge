@@ -297,7 +297,7 @@ module.exports = function PlexClient () {
         total = total + differenceCache[i]
       }
       let avg = total / differenceCache.length
-      if (this.clientIdentifier === 'PTPLAYER9PLUS10' && avg > 800) {
+      if (this.clientIdentifier === 'PTPLAYER9PLUS10' && avg > 1000) {
         console.log('Soft syncing because difference is', difference)
         return resolve(await this.cleanSeek(hostTimeline.time, true))
       } else {
