@@ -210,6 +210,7 @@ export default {
               room: state.room,
               password: state.password || ''
             }
+            // if (settings.webroot) urlOrigin = urlOrigin + settings.webroot
             axios.post(urlOrigin + '/invite', data).then((res) => {
               console.log('INVITE DATA RESULT', res)
               commit('SET_SHORTLINK', res.data.url)

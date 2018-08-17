@@ -151,6 +151,12 @@ export default {
       // Browser is not Chrome
       window.localStorage.setItem('EXTAVAILABLE', false)
     }
+    if (settings.autoJoin) {
+      this.$store.commit('SET_AUTOJOIN', true)
+      this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom)
+      this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer)
+      this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword)
+    }
     if (this.$route.query.autojoin) {
       this.$store.commit('SET_AUTOJOIN', true)
       this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room)
@@ -160,6 +166,7 @@ export default {
         this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password)
       }
     }
+
     window.EventBus.$on('notification', msg => {
       this.snackbarMsg = msg
       this.snackbar = true

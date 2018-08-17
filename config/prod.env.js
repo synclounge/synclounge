@@ -9,6 +9,7 @@ module.exports = {
   gitHash: '"' + git.short() + '"',
   gitDate: '"' + git.date() + '"',
 
+  webroot: '"' + settings.webroot + '"',
   autoJoin: '"' + settings.autoJoin + '"',
   autoJoinRoom: '"' + settings.autoJoinRoom + '"',
   autoJoinPassword: '"' + settings.autoJoinPassword + '"',
