@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card color="slblue">
     <v-card-title class="title">
       Donate
       <v-spacer></v-spacer>

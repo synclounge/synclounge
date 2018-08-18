@@ -46,7 +46,7 @@
                         <v-btn icon slot="activator" class="ma-0 pa-0" dark>
                           <v-icon>more_vert</v-icon>
                         </v-btn>
-                        <v-list>
+                        <v-list class="slblue">
                           <v-list-tile @click="markWatched(contents)">
                             <v-list-tile-title>Mark as played</v-list-tile-title>
                           </v-list-tile>
