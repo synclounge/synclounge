@@ -6,7 +6,7 @@
       </v-flex>
     </v-layout>
     <div v-if="!browsingContent && contents" class="mt-3" style="height:90vh; overflow-y: auto">
-      <v-layout class="row" row wrap align-center justify-center>
+      <v-layout class="row" row wrap align-center justify-start>
         <v-flex xs3 sm3 md1 lg1  class="ma-1"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
           <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
         </v-flex>
