@@ -155,7 +155,7 @@ new Vue({
   components: {
     App
   }
-}).$mount('#app') 
+}).$mount('#app')
 
 global.waitFor = async (ms) => {
   return new Promise((resolve) => {

@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import plexthumb from "./plexthumb"
+import plexthumb from './plexthumb'
 
 var _ = require('lodash')
 export default {

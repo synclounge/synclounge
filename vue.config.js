@@ -1,7 +1,7 @@
-let SettingsHelper = require('../SettingsHelper')
+let SettingsHelper = require('./SettingsHelper')
 let settings = new SettingsHelper()
 
-let baseUrl = undefined;
+let baseUrl
 if (settings.webroot) {
   baseUrl = settings.webroot
 }
