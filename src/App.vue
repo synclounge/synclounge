@@ -1,5 +1,5 @@
 <template>
-  <v-app dark style="height:100%">
+  <v-app dark style="height:100%" class="synclounge">
     <v-navigation-drawer app temporary style="padding: 0" v-model="drawer" disable-route-watcher>
       <leftsidebar></leftsidebar>
     </v-navigation-drawer>

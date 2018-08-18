@@ -27,9 +27,9 @@
               </p>
             </v-flex>
           </v-layout>
-            <v-flex xs12 class="nicelist" v-if="!context.getters.getConnected && recents && Object.keys(recents).length > 0" style="color:white !important">
+            <v-flex xs12 v-if="!context.getters.getConnected && recents && Object.keys(recents).length > 0" style="color:white !important">
               <h4>Recent rooms</h4>
-              <v-list class="pa-0">
+              <v-list class="pa-0 nicelist" style="background: #353e58">
                 <template v-for="(item, index) in recentsSorted">
                   <v-list-tile :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
                     <v-list-tile-avatar>
@@ -49,7 +49,7 @@
                 </template>
               </v-list>
             </v-flex>
-            <v-flex xs12 class="nicelist pt-3" v-if="!context.getters.getConnected" style="color:white !important">
+            <v-flex xs12 class="pt-3" v-if="!context.getters.getConnected" style="color:white !important">
               <v-subheader>Select a server</v-subheader>
               <v-layout row wrap>
                 <v-flex xs12 md3 v-for="server in ptservers" :key="server.url" class="pa-2">
