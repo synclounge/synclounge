@@ -4,6 +4,7 @@ import Vue from 'vue'
 import './plugins/vuetify'
 import VueScrollTo from 'vue-scrollto'
 import VueVideoPlayer from 'vue-video-player'
+import VueObserveVisibility from 'vue-observe-visibility'
 import 'video.js/dist/video-js.css'
 import VueClipboards from 'vue-clipboards'
 
@@ -19,6 +20,7 @@ var moment = require('moment')
 Vue.use(VueScrollTo)
 Vue.use(VueClipboards)
 Vue.use(VueVideoPlayer)
+Vue.use(VueObserveVisibility)
 
 Vue.config.productionTip = false
 
