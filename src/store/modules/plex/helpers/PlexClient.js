@@ -1,12 +1,11 @@
 var request = require('request')
-var axios = require('axios')
 const EventEmitter = require('events')
 var parseXMLString = require('xml2js').parseString
 var _PlexAuth = require('./PlexAuth.js')
 var PlexAuth = new _PlexAuth()
 var stringSimilarity = require('string-similarity')
 
-module.exports = function PlexClient () {
+export default function PlexClient () {
   this.commandId = 0
   this.name = null
   this.product = null

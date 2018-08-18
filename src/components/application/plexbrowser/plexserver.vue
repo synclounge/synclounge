@@ -58,7 +58,7 @@
 </template>
 
 <script>
-let plexthumb = require('./plexthumb.vue')
+import plexthumb from "./plexthumb"
 
 var _ = require('lodash')
 export default {
