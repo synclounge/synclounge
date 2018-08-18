@@ -151,7 +151,7 @@ export default {
       // Browser is not Chrome
       window.localStorage.setItem('EXTAVAILABLE', false)
     }
-    if (settings.autoJoin) {
+    if (settings.autoJoin === true || settings.autoJoin === 'true') {
       this.$store.commit('SET_AUTOJOIN', true)
       this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom)
       this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer)

@@ -98,7 +98,7 @@ export default {
     letsGo: async function () {
       if (this.$store.state.autoJoin) {
         console.log('Autojoining...')
-        await this.$store.dispatch('autoJoin', {
+        this.$store.dispatch('autoJoin', {
           server: this.$store.state.autoJoinUrl,
           password: this.$store.state.autoJoinPassword,
           room: this.$store.state.autoJoinRoom
