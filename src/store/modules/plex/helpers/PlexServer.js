@@ -5,7 +5,7 @@ var PlexAuth = new _PlexAuth()
 
 const axios = require('axios')
 
-export default function PlexServer () {
+module.exports = function PlexServer () {
   this.name = ''
   this.product = ''
   this.productVersion = ''

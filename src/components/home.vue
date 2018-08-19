@@ -15,7 +15,7 @@
         <p> SyncLounge (previously PlexTogether) is a tool to sync Plex playback with friends and family anywhere in the world.
           We started off with a Python script which we distributed amongst our friends. With a command line based UI we quickly realised this was too difficult for our friends to use reliably.
           After playing around with the concept we decided to make a version that we could release that all Plex users could enjoy.
-        </p>
+        </p>  
         <h4> How it works </h4>
         <p>
           SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of SyncLounge clients.
@@ -34,32 +34,33 @@
       </v-flex>
     </v-layout>
   </div>
-
+  
 </template>
 
 <script>
 export default {
-  name: 'home',
-  created: function () {
+  name: "home",
+  created: function() {
     if (this.$store.getters.getSettingHOMEINIT) {
-      this.$router.push('/browse')
+      this.$router.push("/browse");
     }
   },
-  mounted: function () {
-    this.$store.commit('setSettingHOMEINIT', true)
+  mounted: function() {
+    this.$store.commit("setSettingHOMEINIT", true);
   },
   methods: {
-    letsStart: function () {
-      this.$router.push('/')
+    letsStart: function() {
+      this.$router.push("/");
     }
   },
   computed: {
-    logo: function () {
-      return 'slweb/logo-long-light.png'
+    logo: function() {
+      return "slweb/logo-long-light.png";
     },
-    firstRun: function () {
-      return !this.$store.getters.getSettingHOMEINIT
+    firstRun: function() {
+      return !this.$store.getters.getSettingHOMEINIT;
     }
   }
-}
+};
 </script>
+

@@ -58,7 +58,7 @@
       </div>
     </div>
     <v-dialog v-model="dialog" width="350">
-      <v-card color="slblue">
+      <v-card>
         <v-card-title>Playback Settings </v-card-title>
         <v-card-text>
           <v-select
@@ -102,7 +102,7 @@
           ></v-select>
         </v-card-text>
         <v-card-actions>
-          <v-btn class="white--text darken-1" flat @click.native="dialog = false">Close</v-btn>
+          <v-btn class="blue--text darken-1" flat @click.native="dialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

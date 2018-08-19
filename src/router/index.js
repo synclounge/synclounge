@@ -47,14 +47,14 @@ export default new Router({
     meta: {
       noload: false
     },
-    component: require('../components/application/walkthrough.vue').default
+    component: require('../components/application/walkthrough.vue')
   },
   {
     path: '/joinroom',
     meta: {
       noload: false
     },
-    component: require('../components/application/joinroom.vue').default
+    component: require('../components/application/joinroom.vue')
   },
 
   {
@@ -62,7 +62,7 @@ export default new Router({
     meta: {
       protected: true
     },
-    component: require('../components/application/ptplayer.vue').default
+    component: require('../components/application/ptplayer.vue')
   },
   {
     path: '/nowplaying/:machineIdentifier/:ratingKey',
@@ -70,7 +70,7 @@ export default new Router({
       protected: true
     },
     name: 'nowplaying',
-    component: require('../components/application/plexbrowser/plexcontent.vue').default
+    component: require('../components/application/plexbrowser/plexcontent.vue')
   },
 
   {
@@ -79,7 +79,7 @@ export default new Router({
       protected: true
     },
     name: 'browse',
-    component: require('../components/application/plexbrowser.vue').default
+    component: require('../components/application/plexbrowser.vue')
   },
   {
     path: '/browse/:machineIdentifier',
@@ -87,7 +87,7 @@ export default new Router({
       protected: true
     },
     name: 'server',
-    component: require('../components/application/plexbrowser/plexserver.vue').default
+    component: require('../components/application/plexbrowser/plexserver.vue')
   },
   {
     path: '/browse/:machineIdentifier/:sectionId',
@@ -95,7 +95,7 @@ export default new Router({
       protected: true
     },
     name: 'library',
-    component: require('../components/application/plexbrowser/plexlibrary.vue').default
+    component: require('../components/application/plexbrowser/plexlibrary.vue')
   },
   {
     path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
@@ -103,7 +103,7 @@ export default new Router({
       protected: true
     },
     name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue').default
+    component: require('../components/application/plexbrowser/plexcontent.vue')
   },
   {
     path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
@@ -111,7 +111,7 @@ export default new Router({
       protected: true
     },
     name: 'series',
-    component: require('../components/application/plexbrowser/plexseries.vue').default
+    component: require('../components/application/plexbrowser/plexseries.vue')
   },
   {
     path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey',
@@ -119,7 +119,7 @@ export default new Router({
       protected: true
     },
     name: 'season',
-    component: require('../components/application/plexbrowser/plexseason.vue').default
+    component: require('../components/application/plexbrowser/plexseason.vue')
   },
   {
     path: '/browse/:machineIdentifier/:sectionId/tv/:grandparentKey/:parentKey/:ratingKey',
@@ -127,7 +127,7 @@ export default new Router({
       protected: true
     },
     name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue').default
+    component: require('../components/application/plexbrowser/plexcontent.vue')
   },
   {
     path: '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
@@ -135,7 +135,7 @@ export default new Router({
       protected: true
     },
     name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue').default
+    component: require('../components/application/plexbrowser/plexcontent.vue')
   }
   ]
 })

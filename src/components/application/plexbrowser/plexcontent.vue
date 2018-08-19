@@ -46,7 +46,7 @@
                         <v-btn icon slot="activator" class="ma-0 pa-0" dark>
                           <v-icon>more_vert</v-icon>
                         </v-btn>
-                        <v-list class="slblue">
+                        <v-list>
                           <v-list-tile @click="markWatched(contents)">
                             <v-list-tile-title>Mark as played</v-list-tile-title>
                           </v-list-tile>
@@ -154,7 +154,7 @@
         </v-card>
       </div>
       <v-dialog v-if="contents" v-model="dialog" style="background: rgba(0,0,0,0.95); box-shadow: none !important" width="500px">
-        <v-card style="overflow: hidden" color="slblue">
+        <v-card style="overflow: hidden">
           <v-card-title class="headline">Playback Settings</v-card-title>
           <v-checkbox v-if="contents.viewOffset && contents.viewOffset > 0" v-bind:label="'Resume from ' + getDuration(contents.viewOffset) " color="orange lighten-2" class="pa-0 ma-0 ml-3" v-model="resumeFrom"></v-checkbox>
           <div v-for="(media,index) in contents.Media" :key="media.Part[0].key">
