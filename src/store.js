@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-var plex = require('./modules/plex/').default
-var syncLounge = require('./modules/synclounge.js').default
+var plex = require('./store/modules/plex/').default
+var syncLounge = require('./store/modules/synclounge.js').default
 
 Vue.use(Vuex)
 

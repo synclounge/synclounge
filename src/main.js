@@ -1,28 +1,38 @@
-import '@babel/polyfill'
 
 import Vue from 'vue'
-import './plugins/vuetify'
 import VueScrollTo from 'vue-scrollto'
+import Vuetify from 'vuetify'
+import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visibility'
 import VueVideoPlayer from 'vue-video-player'
-import VueObserveVisibility from 'vue-observe-visibility'
-import 'video.js/dist/video-js.css'
+import VueResource from 'vue-resource'
 import VueClipboards from 'vue-clipboards'
 
 import App from './App'
 import router from './router'
 import store from './store'
 
-require('videojs-contrib-hls')
+require('videojs-contrib-hls/dist/videojs-contrib-hls.js')
 require('vanilla-tilt')
 
 var moment = require('moment')
 
 Vue.use(VueScrollTo)
 Vue.use(VueClipboards)
+Vue.use(VueResource)
+Vue.directive('observe-visibility', ObserveVisibility)
 Vue.use(VueVideoPlayer)
-Vue.use(VueObserveVisibility)
 
+Vue.use(Vuetify, {
+  theme: {
+    primary: '#E5A00D',
+    secondary: '#b0bec5',
+    accent: '#8c9eff',
+    error: '#b71c1c'
+  }
+})
 Vue.config.productionTip = false
+
+function nolog () {}
 
 if (process.env.NODE_ENV !== 'development') {
   // console.log = nolog
@@ -148,16 +158,15 @@ router.beforeEach((to, from, next) => {
 })
 
 /* eslint-disable no-new */
-
 new Vue({
+  el: '#app',
   router,
   store,
   template: '<App/>',
-  el: '#app',
   components: {
     App
   }
-}).$mount('#app')
+})
 
 global.waitFor = async (ms) => {
   return new Promise((resolve) => {

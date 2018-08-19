@@ -3,8 +3,8 @@ var parseXMLString = require('xml2js').parseString
 
 var _PlexAuth = require('./helpers/PlexAuth.js')
 var PlexConnection = require('./helpers/PlexConnection.js')
-var PlexServer = require('./helpers/PlexServer.js').default
-var PlexClient = require('./helpers/PlexClient.js').default
+var PlexServer = require('./helpers/PlexServer.js')
+var PlexClient = require('./helpers/PlexClient.js')
 var PlexAuth = new _PlexAuth()
 
 export default {
