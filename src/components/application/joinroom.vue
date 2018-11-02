@@ -246,7 +246,7 @@ export default {
       if (value === 'medium') {
         return ['orange--text']
       }
-      if (value === 'hgh') {
+      if (value === 'high') {
         return ['red--text']
       }
       return ['white--text']
