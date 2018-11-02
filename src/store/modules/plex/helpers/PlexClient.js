@@ -266,7 +266,7 @@ module.exports = function PlexClient () {
       }
       let timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt
       console.log('Difference before', Math.abs((parseInt(this.lastTimelineObject.time)) - parseInt(hostTimeline.time)))
-      let ourTime = (parseInt(this.lastTimelineObject.time) + parseInt(timelineAge))
+      let ourTime = parseInt(this.lastTimelineObject.time) + parseInt(timelineAge)
       const difference = Math.abs((parseInt(ourTime)) - parseInt(hostTimeline.time))
       console.log('Difference', difference)
 
@@ -313,16 +313,7 @@ module.exports = function PlexClient () {
 
     // First we will mirror the item so the user has an idea of what we're about to play
     return new Promise(async (resolve, reject) => {
-      // try {
-      //   await this.mirrorContent(data.ratingKey, data.server)
-      // } catch (e) {
-      //   console.log('Error mirroring item to client before playing', e)
-      //   return reject(e)
-      // }
       console.log('Autoplaying from client', data)
-      // if (this.clientIdentifier !== 'PTPLAYER9PLUS10') {
-      //   await this.mirrorContent(data.ratingKey, data.server)
-      // }
       let command = '/player/playback/playMedia'
       let mediaId = '/library/metadata/' + data.ratingKey
       let offset = Math.round(data.offset) || 0
