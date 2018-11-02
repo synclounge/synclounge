@@ -141,7 +141,7 @@ docker run \
 	*  ``cd synclounge``
 	*  ``npm install``
 	*  ``npm run server``
-* The SL server will be running at http://ip:8089.
+* The SL server will be running at http://ip:8089/slserver.
 
 ### Deploying:
 * To run both the SyncLounge webapp and the SyncLounge server through a web server like nginx you will need to make sure you proxy websockets. Example nginx.conf:
@@ -155,8 +155,8 @@ docker run \
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
     	}
-    	location /socket.io {
-    		proxy_pass http://localhost:8089;
+    	location /slserver {
+    		proxy_pass http://localhost:8089/slserver;
 		    proxy_http_version 1.1;
 		    proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
