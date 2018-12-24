@@ -34,7 +34,7 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="primary" flat @click.stop="donateDialog = false">Close</v-btn>
+      <v-btn color="primary" flat @click.stop="onClose()">Close</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -42,7 +42,11 @@
 <script>
 
 export default {
-  components: {
+  props: {
+    onClose: {
+      type: Function,
+      default: () => {}
+    }
   },
   data () {
     return {
@@ -53,17 +57,6 @@ export default {
         BCH: '1K3ULWzW9dLyGbtpnNqUysHuj1suZFXtx4'
       }
     }
-  },
-  mounted: async function () {
-  },
-  watch: {
-
-  },
-  methods: {
-
-  },
-  computed: {
-
   }
 }
 </script>

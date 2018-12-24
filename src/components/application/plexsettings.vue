@@ -40,8 +40,6 @@ export default {
       blockedServers: JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS']) || []
     }
   },
-  methods: {},
-
   watch: {
     blockedServers: function () {
       this.$store.commit('setSetting', ['BLOCKEDSERVERS', JSON.stringify(this.blockedServers)])

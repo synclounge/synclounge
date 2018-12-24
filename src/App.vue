@@ -57,7 +57,7 @@
         </v-snackbar>
         <upnext></upnext>
         <v-dialog v-model="donateDialog" max-width="650px">
-          <donate :donateDialog="donateDialog"></donate>
+          <donate :donateDialog="donateDialog" :onClose="() => this.donateDialog = false"></donate>
         </v-dialog>
       </v-container>
     </v-content>
