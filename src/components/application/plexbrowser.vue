@@ -77,6 +77,11 @@
       <div class="pt-4" v-if="results.length == 0">
         <h4> Browse </h4>
         <v-layout row wrap>
+          <v-flex xs12 v-if="Object.keys(plex.servers).length === 0">
+            <h5>
+              No Plex Media Servers found. Make sure your server owner has shared their libraries with you!
+            </h5>
+          </v-flex>
           <v-flex xs12 lg4 md6 xl3 v-for="server in plex.servers" :key="server.clientIdentifier" class="pa-2">
             <router-link :to="'/browse/' + server.clientIdentifier">
               <v-card class="white--text" horizontal height="10em" style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);">
