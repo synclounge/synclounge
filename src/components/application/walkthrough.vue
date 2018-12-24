@@ -30,9 +30,11 @@
         </div>
         <v-layout v-else row wrap>
           <v-flex xs12 md6 lg6 v-if="!doReverse">
-            <v-subheader>Plex Players {{ playercount }}</v-subheader>
+            <v-subheader>Plex Players {{ playercount }}
+              <v-icon @click="PLEX_GET_DEVICES()" class="pl-2" small>refresh</v-icon>
+            </v-subheader>
             <v-list dense style="background: none">
-              <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); ; gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
+              <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
             </v-list>
           </v-flex>
           <v-flex xs12 md6 lg6>
@@ -101,7 +103,7 @@
 import plexclient from './plexclient';
 import joinroom from './joinroom';
 
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 const moment = require('moment');
 
@@ -154,13 +156,12 @@ export default {
       },
     };
   },
-  mounted() {
-  },
   components: {
     plexclient,
     joinroom,
   },
   computed: {
+    ...mapState(['plex']),
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs': return true;
@@ -195,7 +196,6 @@ export default {
     clients() {
       return this.plex.clients;
     },
-    ...mapState(['plex']),
     context() {
       return this.$store;
     },
@@ -234,6 +234,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['PLEX_GET_DEVICES']),
     previewClient(client) {
       this.testClient = client;
       this.testClientErrorMsg = null;

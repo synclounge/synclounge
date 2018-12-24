@@ -2,7 +2,7 @@
     <span>
       <span v-on:click="reset()" style="cursor: pointer !important"> {{ content.title }}<span
           v-if="browsingContent"
-> > </span> </span>
+      > > </span> </span>
       <v-layout v-if="!contents && !browsingContent" row>
         <v-flex xs12 style="position:relative">
           <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
