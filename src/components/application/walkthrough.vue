@@ -42,7 +42,7 @@
               </v-subheader>
               <v-layout row wrap>
                 <v-flex md3 class="text-xs-center" style="position: relative">
-                  <img :src="url" style="height: 100px; width: auto; vertical-align: middle"/>
+                  <img :src="url" style="height: 100px; width: auto; vertical-align: middle" />
                 </v-flex>
                 <v-flex xs12 md9>
                   <div class="pl-1">
@@ -98,17 +98,17 @@
 </template>
 
 <script>
-import plexclient from './plexclient'
-import joinroom from './joinroom'
+import plexclient from './plexclient';
+import joinroom from './joinroom';
 
-import { mapState } from 'vuex'
+import { mapState } from 'vuex';
 
-var moment = require('moment')
+const moment = require('moment');
 
 export default {
   props: ['object'],
   name: 'walkthrough',
-  data () {
+  data() {
     return {
       testClient: null,
       testClientErrorMsg: null,
@@ -116,165 +116,164 @@ export default {
       e1: '1',
       joinRoomModal: false,
       platformMap: {
-        'android': 'android',
+        android: 'android',
         'apple tv': 'atv',
-        'chrome': 'chrome',
-        'chromecast': 'chromecast',
-        'dlna': 'dlna',
-        'firefox': 'firefox',
+        chrome: 'chrome',
+        chromecast: 'chromecast',
+        dlna: 'dlna',
+        firefox: 'firefox',
         'internet explorer': 'ie',
-        'ios': 'ios',
-        'ipad': 'ios',
-        'iphone': 'ios',
-        'kodi': 'kodi',
-        'linux': 'linux',
-        'nexus': 'android',
-        'macos': 'macos',
+        ios: 'ios',
+        ipad: 'ios',
+        iphone: 'ios',
+        kodi: 'kodi',
+        linux: 'linux',
+        nexus: 'android',
+        macos: 'macos',
         'microsoft edge': 'msedge',
-        'opera': 'opera',
-        'osx': 'macos',
-        'playstation': 'playstation',
+        opera: 'opera',
+        osx: 'macos',
+        playstation: 'playstation',
         'plex home theater': 'plex',
         'plex media player': 'plex',
-        'plexamp': 'plexamp',
-        'plextogether': 'synclounge',
-        'roku': 'roku',
-        'safari': 'safari',
-        'samsung': 'samsung',
-        'synclounge': 'synclounge',
-        'tivo': 'tivo',
-        'tizen': 'samsung',
-        'tvos': 'atv',
-        'vizio': 'opera',
-        'wiiu': 'wiiu',
-        'windows': 'windows',
+        plexamp: 'plexamp',
+        plextogether: 'synclounge',
+        roku: 'roku',
+        safari: 'safari',
+        samsung: 'samsung',
+        synclounge: 'synclounge',
+        tivo: 'tivo',
+        tizen: 'samsung',
+        tvos: 'atv',
+        vizio: 'opera',
+        wiiu: 'wiiu',
+        windows: 'windows',
         'windows phone': 'wp',
-        'xbmc': 'xbmc',
-        'xbox': 'xbox'
-      }
-    }
+        xbmc: 'xbmc',
+        xbox: 'xbox',
+      },
+    };
   },
-  mounted: function () {
+  mounted() {
   },
   components: {
     plexclient,
-    joinroom
+    joinroom,
   },
   computed: {
-    doReverse: function () {
+    doReverse() {
       switch (this.$vuetify.breakpoint.name) {
-        case 'xs': return true
-        case 'sm': return true
-        default: return false
+        case 'xs': return true;
+        case 'sm': return true;
+        default: return false;
       }
     },
-    chosenClient: function () {
-      return this.$store.getters.getChosenClient
+    chosenClient() {
+      return this.$store.getters.getChosenClient;
     },
-    isHttps: function () {
-      return location.protocol === 'https:'
+    isHttps() {
+      return location.protocol === 'https:';
     },
-    platform: function () {
+    platform() {
       if (!this.testClient || !this.testClient.platform) {
-        return
+        return;
       }
-      return this.platformMap[this.testClient.platform.toLowerCase()] || this.platformMap[this.testClient.product.toLowerCase()]
+      return this.platformMap[this.testClient.platform.toLowerCase()] || this.platformMap[this.testClient.product.toLowerCase()];
     },
-    platformClass: function () {
-      return ['platform-' + this.platform]
+    platformClass() {
+      return [`platform-${this.platform}`];
     },
-    url: function () {
+    url() {
       if (!this.platform) {
-        return 'platforms/plex.svg'
+        return 'platforms/plex.svg';
       }
       if (this.platform === 'synclounge') {
-        return 'platforms/synclounge.png'
+        return 'platforms/synclounge.png';
       }
-      return 'platforms/' + this.platform + '.svg'
+      return `platforms/${this.platform}.svg`;
     },
-    clients: function () {
-      return this.plex.clients
+    clients() {
+      return this.plex.clients;
     },
     ...mapState(['plex']),
-    context: function () {
-      return this.$store
+    context() {
+      return this.$store;
     },
-    playercount: function () {
+    playercount() {
       if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return '(' + Object.keys(this.plex.clients).length + ')'
+        return `(${Object.keys(this.plex.clients).length})`;
       }
-      return ''
+      return '';
     },
-    nohttpslink: function () {
+    nohttpslink() {
       if (!this.isHttps) {
-        return ''
+        return '';
       }
-      let url = 'http:' + window.location.href.substring(window.location.protocol.length)
+      let url = `http:${window.location.href.substring(window.location.protocol.length)}`;
       if (this.$store.state.autoJoin) {
-        url = url + '?server=' + this.$store.state.autoJoinUrl + '&room=' + this.$store.state.autoJoinRoom + '&autojoin=true&owner=' + this.$store.state.autoJoinOwner
+        url = `${url}?server=${this.$store.state.autoJoinUrl}&room=${this.$store.state.autoJoinRoom}&autojoin=true&owner=${this.$store.state.autoJoinOwner}`;
         if (this.$store.state.autoJoinPassword) {
-          url = url + '&password=' + this.$store.state.autoJoinPassword
+          url = `${url}&password=${this.$store.state.autoJoinPassword}`;
         }
-        url = url.replace('clientselect', 'join')
+        url = url.replace('clientselect', 'join');
       }
-      return url
+      return url;
     },
-    logo: function () {
-      return this.logos.light.long
+    logo() {
+      return this.logos.light.long;
     },
-    recentClients: function () {
-      return this.$store.getters.recentClients
-    }
+    recentClients() {
+      return this.$store.getters.recentClients;
+    },
   },
   watch: {
-    chosenClient: function (to, from) {
+    chosenClient(to, from) {
       if (this.chosenClient && !from) {
-        this.$router.push('/joinroom')
+        this.$router.push('/joinroom');
       }
-    }
+    },
   },
   methods: {
-    previewClient: function (client) {
-      this.testClient = client
-      this.testClientErrorMsg = null
+    previewClient(client) {
+      this.testClient = client;
+      this.testClientErrorMsg = null;
     },
-    clientClicked: async function () {
-      let client = this.testClient
-      this.gotResponse = false
-      this.testClientErrorMsg = null
+    async clientClicked() {
+      const client = this.testClient;
+      this.gotResponse = false;
+      this.testClientErrorMsg = null;
       this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client)
         .then(() => {
-          this.$store.commit('SET_CHOSENCLIENT', client)
-          this.gotResponse = true
+          this.$store.commit('SET_CHOSENCLIENT', client);
+          this.gotResponse = true;
         })
-        .catch(e => {
+        .catch((e) => {
           if (client.clientIdentifier !== this.testClient.clientIdentifier) {
-            return
+            return;
           }
-          console.log(e)
-          this.gotResponse = true
-          this.testClientErrorMsg = 'Unable to connect to client'
-        })
+          this.gotResponse = true;
+          this.testClientErrorMsg = 'Unable to connect to client';
+        });
     },
-    openJoinRoomModal: function () {
-      return this.$parent.$refs.joinroomModal.open()
+    openJoinRoomModal() {
+      return this.$parent.$refs.joinroomModal.open();
     },
-    isClientSelected: function (client) {
+    isClientSelected(client) {
       if (client === this.testClient) {
-        return true
+        return true;
       }
-      return false
+      return false;
     },
-    lastSeenAgo: function (clientTime) {
-      let now = moment(new Date().getTime())
-      let end = moment.unix(parseInt(clientTime))
-      let difference = moment.duration(now.diff(end))
-      return difference.humanize() + ' ago'
+    lastSeenAgo(clientTime) {
+      const now = moment(new Date().getTime());
+      const end = moment.unix(parseInt(clientTime));
+      const difference = moment.duration(now.diff(end));
+      return `${difference.humanize()} ago`;
     },
-    refreshPlexDevices: function () {
-      this.$store.commit('SET_CHOSENCLIENT', null)
-      this.$store.commit('REFRESH_PLEXDEVICES')
-    }
-  }
-}
+    refreshPlexDevices() {
+      this.$store.commit('SET_CHOSENCLIENT', null);
+      this.$store.commit('REFRESH_PLEXDEVICES');
+    },
+  },
+};
 </script>

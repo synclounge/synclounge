@@ -1,100 +1,100 @@
-var request = require('request')
-var safeParse = require('safe-json-parse/callback')
-var _PlexAuth = require('./PlexAuth.js')
-var PlexAuth = new _PlexAuth()
+const request = require('request');
+const safeParse = require('safe-json-parse/callback');
+const _PlexAuth = require('./PlexAuth.js');
 
-const axios = require('axios')
+const PlexAuth = new _PlexAuth();
 
-module.exports = function PlexServer () {
-  this.name = ''
-  this.product = ''
-  this.productVersion = ''
-  this.platform = ''
-  this.platformVersion = ''
-  this.device = ''
-  this.clientIdentifier = ''
-  this.createdAt = ''
-  this.lastSeenAt = ''
-  this.provides = ''
-  this.owned = ''
-  this.httpsRequired = ''
-  this.ownerId = ''
-  this.home = ''
-  this.accessToken = ''
-  this.sourceTitle = ''
-  this.synced = ''
-  this.relay = ''
-  this.publicAddressMatches = ''
-  this.presence = ''
-  this.plexConnections = ''
-  this.chosenConnection = null
+const axios = require('axios');
 
-  this.commit = null
+module.exports = function PlexServer() {
+  this.name = '';
+  this.product = '';
+  this.productVersion = '';
+  this.platform = '';
+  this.platformVersion = '';
+  this.device = '';
+  this.clientIdentifier = '';
+  this.createdAt = '';
+  this.lastSeenAt = '';
+  this.provides = '';
+  this.owned = '';
+  this.httpsRequired = '';
+  this.ownerId = '';
+  this.home = '';
+  this.accessToken = '';
+  this.sourceTitle = '';
+  this.synced = '';
+  this.relay = '';
+  this.publicAddressMatches = '';
+  this.presence = '';
+  this.plexConnections = '';
+  this.chosenConnection = null;
+
+  this.commit = null;
 
   this.setValue = function (key, value) {
-    this[key] = value
-    this.commit('PLEX_SERVER_SET_VALUE', [this, key, value])
-  }
+    this[key] = value;
+    this.commit('PLEX_SERVER_SET_VALUE', [this, key, value]);
+  };
 
   // Functions
   this.hitApi = function (command, params) {
     return new Promise(async (resolve, reject) => {
       try {
         if (!this.chosenConnection) {
-          let result = await this.findConnection()
+          const result = await this.findConnection();
           if (!result) {
-            return reject(new Error('Failed to find a connection'))
+            return reject(new Error('Failed to find a connection'));
           }
         }
-        var options = PlexAuth.getApiOptions('', this.accessToken, 15000, 'GET')
+        const options = PlexAuth.getApiOptions('', this.accessToken, 15000, 'GET');
         axios.get(this.chosenConnection.uri + command, {
           params,
-          headers: options.headers
+          headers: options.headers,
         })
           .then((response) => {
-            this.handleMetadata(response.data)
-            resolve(response.data)
+            this.handleMetadata(response.data);
+            resolve(response.data);
           })
           .catch((error) => {
-            reject(error)
-          })
+            reject(error);
+          });
       } catch (e) {
-        console.log(e)
-        reject(e)
+        reject(e);
       }
-    })
-  }
+    });
+  };
   this.hitApiTestConnection = async function (command, connection) {
     return new Promise(async (resolve, reject) => {
-      var _url = connection.uri + command
-      var options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET')
-      request(options, function (error, response, body) {
+      const _url = connection.uri + command;
+      const options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET');
+      request(options, (error, response, body) => {
         if (!error) {
-          safeParse(body, function (err, json) {
+          safeParse(body, (err, json) => {
             if (err) {
-              return reject(err)
+              return reject(err);
             }
-            return resolve(json)
-          })
+            return resolve(json);
+          });
         } else {
-          return reject(error)
+          return reject(error);
         }
-      })
-    })
-  }
+      });
+    });
+  };
   this.setChosenConnection = function (con) {
-    this.chosenConnection = con
-  }
+    this.chosenConnection = con;
+  };
   this.findConnection = function () {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
-    let resolved = false
+    let resolved = false;
 
     return new Promise(async (resolve, reject) => {
-      await Promise.all(this.plexConnections.map(async (connection, index) => {
+      await Promise.all(this.plexConnections.map(async (connection, index) =>
         /*eslint-disable */
-        return new Promise(async (_resolve, _reject) => {
+         new Promise(async (_resolve, _reject) => {
           try {
             let result = await this.hitApiTestConnection('', connection)
             if (result) {
@@ -109,198 +109,194 @@ module.exports = function PlexServer () {
           }
         })
         /* eslint-enable */
-      }))
+      ));
       if (!resolved) {
-        reject(new Error('Unable to find a connection'))
+        reject(new Error('Unable to find a connection'));
       }
-    })
-  }
+    });
+  };
 
   // Functions for dealing with media
   this.search = async function (searchTerm) {
     // This function hits the PMS using the /search endpoint and returns what the server returns if valid
     return new Promise(async (resolve, reject) => {
-      let result = await this.hitApi('/search', { query: searchTerm })
-      let validResults = []
+      const result = await this.hitApi('/search', { query: searchTerm });
+      const validResults = [];
       if (result && result.MediaContainer) {
         if (result.MediaContainer.Metadata) {
           for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
-            validResults.push(result.MediaContainer.Metadata[i])
+            validResults.push(result.MediaContainer.Metadata[i]);
           }
         }
       }
-      return resolve(validResults)
-    })
-  }
+      return resolve(validResults);
+    });
+  };
 
   this.getMediaByRatingKey = async function (ratingKey) {
     // This function hits the PMS and returns the item at the ratingKey
     try {
-      let data = await this.hitApi('/library/metadata/' + ratingKey, {})
+      const data = await this.hitApi(`/library/metadata/${ratingKey}`, {});
       if (data && data.MediaContainer.librarySectionID) {
-        this.commit('SET_LIBRARYCACHE', [data.MediaContainer.librarySectionID, this.clientIdentifier, data.MediaContainer.librarySectionTitle])
+        this.commit('SET_LIBRARYCACHE', [data.MediaContainer.librarySectionID, this.clientIdentifier, data.MediaContainer.librarySectionTitle]);
       }
-      this.getPostplay(ratingKey)
-      return data
+      this.getPostplay(ratingKey);
+      return data;
     } catch (e) {
-      console.log(e)
-      return false
+      console.log(e);
+      return false;
     }
     // return this.handleMetadata(data)
-  }
+  };
   this.markWatchedByRatingKey = function (ratingKey) {
     return this.hitApi('/:/scrobble', {
       identifier: 'com.plexapp.plugins.library',
-      key: ratingKey
-    })
-  }
+      key: ratingKey,
+    });
+  };
   this.getPostplay = function (ratingKey) {
-    return this.hitApi('/hubs/metadata/' + ratingKey + '/postplay', { 'X-Plex-Token': this.accessToken })
-  }
+    return this.hitApi(`/hubs/metadata/${ratingKey}/postplay`, { 'X-Plex-Token': this.accessToken });
+  };
   this.getUrlForLibraryLoc = function (location, width, height, blur) {
     if (!(blur > 0)) {
-      blur = 0
+      blur = 0;
     }
-    return this.chosenConnection.uri + '/photo/:/transcode?url=' + location + '&X-Plex-Token=' + this.accessToken + '&height=' + Math.floor(height) + '&width=' + Math.floor(width) + '&blur=' + blur
-  }
+    return `${this.chosenConnection.uri}/photo/:/transcode?url=${location}&X-Plex-Token=${this.accessToken}&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
+  };
   this.getRandomItem = async function () {
     try {
-      let data = await this.getAllLibraries()
+      const data = await this.getAllLibraries();
       if (!data || !data.MediaContainer || !data.MediaContainer.Directory) {
-        return false
+        return false;
       }
-      let libraries = data.MediaContainer.Directory
-      let library = libraries[Math.floor(Math.random() * libraries.length)]
+      const libraries = data.MediaContainer.Directory;
+      const library = libraries[Math.floor(Math.random() * libraries.length)];
 
-      let result = await this.getLibraryContents(library.key, 0, 50)
+      const result = await this.getLibraryContents(library.key, 0, 50);
       if (!result) {
-        return false
+        return false;
       }
-      let items = result.MediaContainer.Metadata
-      let item = items[Math.floor(Math.random() * items.length)]
-      return item
+      const items = result.MediaContainer.Metadata;
+      const item = items[Math.floor(Math.random() * items.length)];
+      return item;
     } catch (e) {
-      console.log(e)
-      throw new Error(e)
+      throw new Error(e);
     }
-  }
+  };
   this.getAllLibraries = async function () {
     try {
-      let data = await this.hitApi('/library/sections', {})
-      console.log('Library data', data)
+      const data = await this.hitApi('/library/sections', {});
       if (data && data.MediaContainer) {
         data.MediaContainer.Directory.forEach((library) => {
-          this.commit('SET_LIBRARYCACHE', [library.key, this.clientIdentifier, library.title])
-        })
+          this.commit('SET_LIBRARYCACHE', [library.key, this.clientIdentifier, library.title]);
+        });
       }
-      return data
+      return data;
     } catch (e) {
-      return false
+      return false;
     }
-  }
+  };
   this.getLibraryContents = async function (key, start, size) {
     try {
-      let data = await this.hitApi('/library/sections/' + key + '/all', {
+      const data = await this.hitApi(`/library/sections/${key}/all`, {
         'X-Plex-Container-Start': start,
         'X-Plex-Container-Size': size,
-        'excludeAllLeaves': 1
-      })
+        excludeAllLeaves: 1,
+      });
       for (let i = 0; i < data.MediaContainer.Metadata.length; i++) {
-        data.MediaContainer.Metadata[i].librarySectionID = key
+        data.MediaContainer.Metadata[i].librarySectionID = key;
         // this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey,
         // data.MediaContainer.Metadata[i]])
       }
-      return data
+      return data;
     } catch (e) {
-      console.log(e)
-      return false
+      return false;
     }
-  }
+  };
   this.getRelated = function (key, count) {
-    return this.hitApi('/hubs/metadata/' + key + '/related', {
-      'count': count || 10
-    })
-  }
+    return this.hitApi(`/hubs/metadata/${key}/related`, {
+      count: count || 10,
+    });
+  };
   this.getRecentlyAddedAll = function (start, size) {
-    return this.hitApi('/library/recentlyAdded', {})
-  }
+    return this.hitApi('/library/recentlyAdded', {});
+  };
   this.getOnDeck = function (start, size) {
     return this.hitApi('/library/onDeck', {
       'X-Plex-Container-Start': start,
-      'X-Plex-Container-Size': size
-    })
-  }
+      'X-Plex-Container-Size': size,
+    });
+  };
   this.getRelated = function (ratingKey, size) {
-    ratingKey = ratingKey.replace('/library/metadata/', '')
-    return this.hitApi('/hubs/metadata/' + ratingKey + '/related', {
+    ratingKey = ratingKey.replace('/library/metadata/', '');
+    return this.hitApi(`/hubs/metadata/${ratingKey}/related`, {
       excludeFields: 'summary',
-      count: 12
-    })
-  }
+      count: 12,
+    });
+  };
   this.getSeriesData = function (ratingKey) {
-    return this.hitApi('/library/metadata/' + ratingKey, {
+    return this.hitApi(`/library/metadata/${ratingKey}`, {
       includeConcerts: 1,
       includeExtras: 1,
       includeOnDeck: 1,
       includePopularLeaves: 1,
       asyncCheckFiles: 1,
       asyncRefreshAnalysis: 1,
-      asyncRefreshLocalMediaAgent: 1
-    })
-  }
+      asyncRefreshLocalMediaAgent: 1,
+    });
+  };
 
   this.getSeriesChildren = async function (ratingKey, start, size, excludeAllLeaves, library) {
     try {
-      let data = await this.hitApi('/library/metadata/' + ratingKey + '/children', {
+      const data = await this.hitApi(`/library/metadata/${ratingKey}/children`, {
         'X-Plex-Container-Start': start,
         'X-Plex-Container-Size': size,
-        excludeAllLeaves: excludeAllLeaves
-      })
+        excludeAllLeaves,
+      });
       if (library) {
         for (let i = 0; i < data.MediaContainer.Metadata.length; i++) {
-          data.MediaContainer.Metadata[i].librarySectionID = library
+          data.MediaContainer.Metadata[i].librarySectionID = library;
           // this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey,
           // data.MediaContainer.Metadata[i]])
         }
       }
-      return data
+      return data;
     } catch (e) {
-      console.log(e)
-      return false
+      return false;
     }
-  }
+  };
 
   this.handleMetadata = function (result) {
     // This data is used in our router breadcrumbs
     if (result) {
       if (result.MediaContainer && result.MediaContainer.Metadata && result.MediaContainer.Metadata.length > 0) {
         for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
-          result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier
-          let item = result.MediaContainer.Metadata[i]
+          result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier;
+          const item = result.MediaContainer.Metadata[i];
           if (result.MediaContainer.Metadata[i].ratingKey) {
             this.commit('SET_ITEMCACHE', [result.MediaContainer.Metadata[i].ratingKey,
-              result.MediaContainer.Metadata[i]
-            ])
+              result.MediaContainer.Metadata[i],
+            ]);
           }
           if (item.grandparentRatingKey) {
-            this.commit('SET_ITEMCACHE', [item.grandparentRatingKey, { title: item.grandparentTitle, machineIdentifier: this.clientIdentifier }])
+            this.commit('SET_ITEMCACHE', [item.grandparentRatingKey, { title: item.grandparentTitle, machineIdentifier: this.clientIdentifier }]);
           }
           if (item.parentRatingKey) {
-            this.commit('SET_ITEMCACHE', [item.parentRatingKey, { title: item.parentTitle, machineIdentifier: this.clientIdentifier }])
+            this.commit('SET_ITEMCACHE', [item.parentRatingKey, { title: item.parentTitle, machineIdentifier: this.clientIdentifier }]);
           }
         }
       } else {
         if (result.MediaContainer.ratingKey) {
-          this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer])
+          this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer]);
         }
         if (result.MediaContainer.grandparentRatingKey) {
-          this.commit('SET_ITEMCACHE', [result.MediaContainer.grandparentRatingKey, { title: result.MediaContainer.grandparentTitle, machineIdentifier: this.clientIdentifier }])
+          this.commit('SET_ITEMCACHE', [result.MediaContainer.grandparentRatingKey, { title: result.MediaContainer.grandparentTitle, machineIdentifier: this.clientIdentifier }]);
         }
         if (result.MediaContainer.parentRatingKey) {
-          this.commit('SET_ITEMCACHE', [result.MediaContainer.parentRatingKey, { title: result.MediaContainer.parentTitle, machineIdentifier: this.clientIdentifier }])
+          this.commit('SET_ITEMCACHE', [result.MediaContainer.parentRatingKey, { title: result.MediaContainer.parentTitle, machineIdentifier: this.clientIdentifier }]);
         }
       }
-      return result.MediaContainer.Metadata
+      return result.MediaContainer.Metadata;
     }
-  }
-}
+  };
+};

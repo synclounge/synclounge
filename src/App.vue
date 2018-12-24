@@ -8,15 +8,16 @@
       style="padding: 0; z-index: 6"
       app
       persistent
-      v-model="drawerRight" right enable-resize-watcher>
+      v-model="drawerRight" right enable-resize-watcher
+>
       <drawerright></drawerright>
     </v-navigation-drawer>
 
     <v-toolbar app fixed style="z-index: 5">
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
       <a href="https://synclounge.tv" target="_blank">
-        <img class="ma-1 hidden-xs-only" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logos.light.long"/>
-        <img class="ma-1 hidden-sm-and-up" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logo"/>
+        <img class="ma-1 hidden-xs-only" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logos.light.long" />
+        <img class="ma-1 hidden-sm-and-up" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logo" />
       </a>
       <nowplayingchip class="pl-4" v-if="showNowPlaying"></nowplayingchip>
       <v-spacer></v-spacer>
@@ -42,7 +43,8 @@
           <v-breadcrumbs v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
             <v-icon slot="divider">chevron_right</v-icon>
             <v-breadcrumbs-item
-              v-for="item in crumbs" :key="item.text" :to="item.to" :exact="true">
+              v-for="item in crumbs" :key="item.text" :to="item.to" :exact="true"
+>
               {{ item.text }}
             </v-breadcrumbs-item>
           </v-breadcrumbs>
@@ -52,7 +54,8 @@
           color="green darken-2"
           bottom
           :timeout="4000"
-          v-model="snackbar">
+          v-model="snackbar"
+>
           <div style="text-align:center; width:100%">{{ snackbarMsg }}</div>
         </v-snackbar>
         <upnext></upnext>
@@ -66,16 +69,17 @@
 
 <script>
 // Custom css
-import './assets/css/style.css'
+import './assets/css/style.css';
 
-import drawerright from './sidebar'
-import leftsidebar from './leftsidebar'
-import upnext from './upnext'
-import nowplayingchip from './nowplayingchip'
-import donate from './donate'
+import drawerright from './sidebar';
+import leftsidebar from './leftsidebar';
+import upnext from './upnext';
+import nowplayingchip from './nowplayingchip';
+import donate from './donate';
 
-let SettingsHelper = require('../SettingsHelper')
-let settings = new SettingsHelper()
+const SettingsHelper = require('../SettingsHelper');
+
+const settings = new SettingsHelper();
 
 export default {
   components: {
@@ -83,9 +87,9 @@ export default {
     upnext,
     nowplayingchip,
     leftsidebar,
-    donate
+    donate,
   },
-  data () {
+  data() {
     return {
       drawer: false,
       mini: false,
@@ -103,330 +107,312 @@ export default {
 
       items: [
         {
-          title: 'Preferences'
+          title: 'Preferences',
         },
         {
-          title: 'Signout'
-        }
+          title: 'Signout',
+        },
       ],
       links: [
         {
           title: 'Github',
           href: 'https://github.com/samcm/SyncLounge',
-          target: '_blank'
+          target: '_blank',
         },
         {
           title: 'Discord',
           target: '_blank',
-          href: 'https://discord.gg/fKQB3yt'
-        }
-      ]
+          href: 'https://discord.gg/fKQB3yt',
+        },
+      ],
 
-    }
+    };
   },
   methods: {
-    sendNotification () {
-      window.EventBus.$emit('notification', 'Copied to clipboard')
+    sendNotification() {
+      window.EventBus.$emit('notification', 'Copied to clipboard');
     },
-    toggleDrawerRight () {
-      this.drawerRight = !this.drawerRight
-    }
+    toggleDrawerRight() {
+      this.drawerRight = !this.drawerRight;
+    },
   },
-  mounted: async function () {
+  async mounted() {
     // Verify route changes
     try {
       if (window.chrome) {
         window.chrome.runtime.sendMessage(
           'mlmjjfdcbemagmnjahllphjnohbmhcnf',
           { command: 'heartbeat' },
-          response => {
+          (response) => {
             if (response) {
-              this.$store.commit('SET_EXTAVAILABLE', true)
-              window.localStorage.setItem('EXTAVAILABLE', true)
+              this.$store.commit('SET_EXTAVAILABLE', true);
+              window.localStorage.setItem('EXTAVAILABLE', true);
             }
-          }
-        )
+          },
+        );
       }
     } catch (e) {
       // Browser is not Chrome
-      window.localStorage.setItem('EXTAVAILABLE', false)
+      window.localStorage.setItem('EXTAVAILABLE', false);
     }
     if (settings.autoJoin === true || settings.autoJoin === 'true') {
-      this.$store.commit('SET_AUTOJOIN', true)
-      this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom)
-      this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer)
-      this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword)
+      this.$store.commit('SET_AUTOJOIN', true);
+      this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom);
+      this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer);
+      this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword);
     }
     if (this.$route.query.autojoin) {
-      this.$store.commit('SET_AUTOJOIN', true)
-      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room)
-      this.$store.commit('SET_AUTOJOINURL', this.$route.query.server)
-      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner])
+      this.$store.commit('SET_AUTOJOIN', true);
+      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
+      this.$store.commit('SET_AUTOJOINURL', this.$route.query.server);
+      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner]);
       if (this.$route.query.password) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password)
+        this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
       }
     }
 
-    window.EventBus.$on('notification', msg => {
-      this.snackbarMsg = msg
-      this.snackbar = true
-    })
-    window.EventBus.$on('NEW_TIMELINE', timeline => {
-      this.$store.dispatch('NEW_TIMELINE', timeline)
-    })
-    window.EventBus.$on('PLAYBACK_CHANGE', data => {
-      console.log('Playback change event', data)
+    window.EventBus.$on('notification', (msg) => {
+      this.snackbarMsg = msg;
+      this.snackbar = true;
+    });
+    window.EventBus.$on('NEW_TIMELINE', (timeline) => {
+      this.$store.dispatch('NEW_TIMELINE', timeline);
+    });
+    window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
       if (this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
-        this.$router.push('/nowplaying/' + data[2].machineIdentifier + '/' + data[1])
+        this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
       }
       if (this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && !data[1] && this.$route.fullPath.indexOf('/nowplaying') > -1) {
-        this.$router.push('/browse/')
+        this.$router.push('/browse/');
       }
-      this.$store.dispatch('PLAYBACK_CHANGE', data)
-    })
-    console.log('Route path', this.$route.fullPath)
-    if (!window['localStorage'].getItem('plexuser')) {
-      console.log('Token doesnt exist', window['localStorage'].getItem('plexuser'))
+      this.$store.dispatch('PLAYBACK_CHANGE', data);
+    });
+    if (!window.localStorage.getItem('plexuser')) {
+      console.log('Token doesnt exist', window.localStorage.getItem('plexuser'));
       if (this.$route.fullPath.indexOf('join') === -1) {
-        this.$router.push('/signin')
+        this.$router.push('/signin');
       }
-      this.loading = false
-      return
+      this.loading = false;
+      return;
     }
     if (this.$route.path === '/') {
-      this.$router.push('/clientselect')
+      this.$router.push('/clientselect');
     }
-    let plexstorage = JSON.parse(window['localStorage'].getItem('plexuser'))
+    const plexstorage = JSON.parse(window.localStorage.getItem('plexuser'));
     try {
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken)
+      await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken);
     } catch (e) {
-      console.log('Login failed', e)
-      return this.$router.push('/signin')
+      this.$router.push('/signin');
+      return;
     }
-    console.log('Settings', settings)
     if (settings.autoJoin === true || settings.autoJoin === 'true') {
       if (settings.autoJoinServer) {
         this.$store.dispatch('autoJoin', {
           server: settings.autoJoinServer,
           password: settings.autoJoinPassword,
-          room: settings.autoJoinRoom
-        })
+          room: settings.autoJoinRoom,
+        });
       }
     }
 
-    // if (this.$store.getters.getAutoJoin) {
-    //   // Attempt to auto join
-    //   this.$store.dispatch('socketConnect', {
-    //     address: this.$store.getters.getAutoJoinUrl,
-    //     callback: function () {}
-    //   })
-    // }
-    this.loading = false
+    this.loading = false;
   },
   watch: {
-    showRightDrawerButton: function () {
+    showRightDrawerButton() {
       if (this.showRightDrawerButton) {
-        this.drawerRight = true
+        this.drawerRight = true;
       }
-    }
+    },
   },
   computed: {
-    plex: function () {
-      return this.$store.getters.getPlex
+    plex() {
+      return this.$store.getters.getPlex;
     },
-    itemCache: function () {
-      return this.$store.getters.getItemCache
+    itemCache() {
+      return this.$store.getters.getItemCache;
     },
-    libraryCache: function () {
-      return this.$store.getters.getLibraryCache
+    libraryCache() {
+      return this.$store.getters.getLibraryCache;
     },
-    extAvailable: function () {
-      return this.$store.getters.getExtAvailable
+    extAvailable() {
+      return this.$store.getters.getExtAvailable;
     },
-    crumbs: function () {
+    crumbs() {
       if (this.$route.path.indexOf('browse') === -1 && this.$route.path.indexOf('nowplaying') === -1) {
-        return []
+        return [];
       }
-      const getTitle = id => {
+      const getTitle = (id) => {
         try {
-          return this.itemCache[this.$route.params.machineIdentifier][id].title
+          return this.itemCache[this.$route.params.machineIdentifier][id].title;
         } catch (e) {
-          console.log(id, e)
-          return 'Loading..'
+          return 'Loading..';
         }
-      }
-      const getLibrary = id => {
+      };
+      const getLibrary = (id) => {
         try {
-          return this.libraryCache[this.$route.params.machineIdentifier][id]
+          return this.libraryCache[this.$route.params.machineIdentifier][id];
         } catch (e) {
-          return 'Library'
+          return 'Library';
         }
-      }
-      let data = [
+      };
+      const data = [
         {
           text: 'Home',
-          to: '/browse'
-        }
-      ]
-      let map = {
-        machineIdentifier: () => {
-          return {
-            text: this.plex.servers[this.$route.params.machineIdentifier].name,
-            to: '/browse/' + this.$route.params.machineIdentifier
-          }
+          to: '/browse',
         },
-        sectionId: () => {
-          return {
-            text: getLibrary(this.$route.params.sectionId),
-            to:
-              '/browse/' +
-              this.$route.params.machineIdentifier +
-              '/' +
-              this.$route.params.sectionId
-          }
-        },
+      ];
+      const map = {
+        machineIdentifier: () => ({
+          text: this.plex.servers[this.$route.params.machineIdentifier].name,
+          to: `/browse/${this.$route.params.machineIdentifier}`,
+        }),
+        sectionId: () => ({
+          text: getLibrary(this.$route.params.sectionId),
+          to:
+              `/browse/${
+                this.$route.params.machineIdentifier
+              }/${
+                this.$route.params.sectionId}`,
+        }),
         parentKey: () => {
-          let to
+          let to;
           if (this.$route.params.grandparentKey) {
             to =
-              '/browse/' +
-              this.$route.params.machineIdentifier +
-              '/' +
-              this.$route.params.sectionId +
-              '/tv/' +
-              this.$route.params.grandparentKey +
-              '/' +
-              this.$route.params.parentKey
+              `/browse/${
+                this.$route.params.machineIdentifier
+              }/${
+                this.$route.params.sectionId
+              }/tv/${
+                this.$route.params.grandparentKey
+              }/${
+                this.$route.params.parentKey}`;
           } else {
             to =
-              '/browse/' +
-              this.$route.params.machineIdentifier +
-              '/' +
-              this.$route.params.sectionId +
-              '/tv/' +
-              this.$route.params.parentKey
+              `/browse/${
+                this.$route.params.machineIdentifier
+              }/${
+                this.$route.params.sectionId
+              }/tv/${
+                this.$route.params.parentKey}`;
           }
           return {
             text: getTitle(this.$route.params.parentKey),
-            to: to
-          }
+            to,
+          };
         },
-        grandparentKey: () => {
-          return {
-            text: getTitle(this.$route.params.grandparentKey),
-            to:
-              '/browse/' +
-              this.$route.params.machineIdentifier +
-              '/' +
-              this.$route.params.sectionId +
-              '/tv/' +
-              this.$route.params.grandparentKey +
-              '/'
-          }
-        },
-        ratingKey: () => {
-          return {
-            text: getTitle(this.$route.params.ratingKey),
-            to:
-              '/browse/' +
-              this.$route.params.machineIdentifier +
-              '/' +
-              this.$route.params.sectionId +
-              '/' +
-              this.$route.params.ratingKey
-          }
-        }
-      }
-      for (let param in this.$route.params) {
-        let link = map[param]()
+        grandparentKey: () => ({
+          text: getTitle(this.$route.params.grandparentKey),
+          to:
+              `/browse/${
+                this.$route.params.machineIdentifier
+              }/${
+                this.$route.params.sectionId
+              }/tv/${
+                this.$route.params.grandparentKey
+              }/`,
+        }),
+        ratingKey: () => ({
+          text: getTitle(this.$route.params.ratingKey),
+          to:
+              `/browse/${
+                this.$route.params.machineIdentifier
+              }/${
+                this.$route.params.sectionId
+              }/${
+                this.$route.params.ratingKey}`,
+        }),
+      };
+      Object.keys(this.$route.params).forEach((param) => {
+        const link = map[param]();
         if (link) {
-          data.push(link)
+          data.push(link);
         }
-      }
-      return data
+      });
+      return data;
     },
-    showNowPlaying: function () {
-      return this.chosenClient && this.chosenClient.clientPlayingMetadata && this.$route.name === 'browse'
+    showNowPlaying() {
+      return this.chosenClient && this.chosenClient.clientPlayingMetadata && this.$route.name === 'browse';
     },
-    showRightDrawerButton: function () {
-      return this.ptConnected && this.chosenClient && this.ptRoom
+    showRightDrawerButton() {
+      return this.ptConnected && this.chosenClient && this.ptRoom;
     },
-    chosenClient: function () {
-      return this.$store.getters.getChosenClient
+    chosenClient() {
+      return this.$store.getters.getChosenClient;
     },
-    plexusername: function () {
-      return this.$store.state.plex.user.username
+    plexusername() {
+      return this.$store.state.plex.user.username;
     },
-    plexthumb: function () {
-      return this.$store.state.plex.user.thumb
+    plexthumb() {
+      return this.$store.state.plex.user.thumb;
     },
-    logo: function () {
-      return this.logos.light.small
+    logo() {
+      return this.logos.light.small;
     },
-    isPlayer: function () {
+    isPlayer() {
       if (this.$route.path === '/') {
-        return true
+        return true;
       }
-      return false
+      return false;
     },
-    validDevices: function () {
+    validDevices() {
       if (!this.plex) {
-        return false
+        return false;
       }
-      return this.plex.gotDevices
+      return this.plex.gotDevices;
     },
-    ptConnected: function () {
-      return this.$store.getters.getConnected
+    ptConnected() {
+      return this.$store.getters.getConnected;
     },
-    ptServer: function () {
-      return this.$store.getters.getServer
+    ptServer() {
+      return this.$store.getters.getServer;
     },
-    ptRoom: function () {
-      return this.$store.getters.getRoom
+    ptRoom() {
+      return this.$store.getters.getRoom;
     },
-    ptPassword: function () {
-      return this.$store.getters.getPassword
+    ptPassword() {
+      return this.$store.getters.getPassword;
     },
-    showLinkShortener: function () {
-      return this.ptConnected && this.ptServer && this.ptRoom && this.shortUrl
+    showLinkShortener() {
+      return this.ptConnected && this.ptServer && this.ptRoom && this.shortUrl;
     },
-    shortUrl: function () {
-      return this.$store.getters.getShortLink
+    shortUrl() {
+      return this.$store.getters.getShortLink;
     },
-    firstRun: function () {
-      return !this.$store.getters.getSettingHOMEINIT
+    firstRun() {
+      return !this.$store.getters.getSettingHOMEINIT;
     },
 
-    mainStyle: function () {
-      if (this.$store.getters.getBackground != null) {
+    mainStyle() {
+      if (this.$store.getters.getBackground !== null) {
         return {
-          'background-image': 'url(' + this.$store.getters.getBackground + ')',
+          'background-image': `url(${this.$store.getters.getBackground})`,
           'background-repeat': 'no-repeat',
           'background-size': 'cover',
-          'background-position': 'center'
-        }
+          'background-position': 'center',
+        };
       }
+      return {};
     },
-    containerStyle: function () {
-      let arr = []
+    containerStyle() {
+      const arr = [];
       if (this.$store.getters.getBackground !== null) {
         arr.push({
-          background: 'rgba(0,0,0,0.7)'
-        })
+          background: 'rgba(0,0,0,0.7)',
+        });
       }
-      return arr
+      return arr;
     },
-    paddingStyle: function () {
-      let arr = []
+    paddingStyle() {
+      const arr = [];
       if (this.$route.path.indexOf('/player') === -1) {
         arr.push({
-          padding: '16px'
-        })
+          padding: '16px',
+        });
       }
-      return arr
-    }
-  }
-}
+      return arr;
+    },
+  },
+};
 </script>
 
 <style>

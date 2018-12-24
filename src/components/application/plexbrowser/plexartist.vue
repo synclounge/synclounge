@@ -1,7 +1,8 @@
 <template>
     <span>
       <span v-on:click="reset()" style="cursor: pointer !important"> {{ content.title }}<span
-          v-if="browsingContent"> > </span> </span>
+          v-if="browsingContent"
+> > </span> </span>
       <v-layout v-if="!contents && !browsingContent" row>
         <v-flex xs12 style="position:relative">
           <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
@@ -39,85 +40,73 @@
 </template>
 
 <script>
-import plexcontent from './plexcontent'
-import plexalbum from './plexalbum'
-import plexthumb from './plexthumb.vue'
+import plexcontent from './plexcontent';
+import plexalbum from './plexalbum';
+import plexthumb from './plexthumb.vue';
 
 export default {
   props: ['library', 'server', 'content'],
   components: {
     plexcontent,
     plexthumb,
-    plexalbum
+    plexalbum,
   },
-  created () {
+  created() {
     // Hit the PMS endpoing /library/sections
-    this.server.getSeriesContent(this.content.key, 0, 500, 1, result => {
+    this.server.getSeriesContent(this.content.key, 0, 500, 1, (result) => {
       if (result) {
-        this.contents = result
-        this.setBackground()
+        this.contents = result;
+        this.setBackground();
       } else {
-        this.status = 'Error loading content!'
+        this.status = 'Error loading content!';
       }
-    })
+    });
   },
-  data () {
+  data() {
     return {
       browsingContent: null,
 
       contents: null,
-      status: 'loading..'
-    }
+      status: 'loading..',
+    };
   },
   watch: {
-    browsingContent: function () {
+    browsingContent() {
       if (!this.browsingContent) {
-        this.$store.commit('SET_BACKGROUND', null)
+        this.$store.commit('SET_BACKGROUND', null);
       }
-    }
+    },
   },
-  mounted () {},
-  beforeDestroy () {},
+  mounted() {},
+  beforeDestroy() {},
   computed: {
-    getArtUrl () {
-      var w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      )
-      var h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      )
+    getArtUrl() {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(
         this.contents.MediaContainer.banner,
         w / 2,
         h / 1,
-        5
-      )
+        5,
+      );
     },
-    getThumb () {
-      var w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      )
-      var h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      )
+    getThumb() {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(
         this.contents.MediaContainer.thumb,
         w / 1,
-        h / 2
-      )
-    }
+        h / 2,
+      );
+    },
   },
   methods: {
-    setContent (content) {
-      this.browsingContent = content
+    setContent(content) {
+      this.browsingContent = content;
     },
-    setBackground () {
-      var w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-      )
-      var h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      )
+    setBackground() {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
 
       this.$store.commit(
         'SET_BACKGROUND',
@@ -125,14 +114,14 @@ export default {
           this.contents.MediaContainer.art,
           w / 4,
           h / 4,
-          8
-        )
-      )
+          8,
+        ),
+      );
     },
-    reset () {
-      this.browsingContent = false
-      this.setBackground()
-    }
-  }
-}
+    reset() {
+      this.browsingContent = false;
+      this.setBackground();
+    },
+  },
+};
 </script>

@@ -11,116 +11,113 @@
 </template>
 
 <script>
-var moment = require('moment')
+const moment = require('moment');
 
 export default {
   props: ['object', 'selected', 'startup', 'sidebar'],
   name: 'plexclient',
   methods: {},
   computed: {
-    tooltipMsg: function () {
-      return (this.object.name + ' running ' + this.object.product + ' on ' + this.object.device)
+    tooltipMsg() {
+      return (`${this.object.name} running ${this.object.product} on ${this.object.device}`);
     },
-    connection_success: function () {
+    connection_success() {
       if (this.object.connectedstatus === 'connected') {
-        return true
+        return true;
       }
     },
-    connection_wait: function () {
+    connection_wait() {
       if (this.object.connectedstatus === 'waiting') {
-        return true
+        return true;
       }
     },
-    connection_failed: function () {
+    connection_failed() {
       if (this.object.connectedstatus === 'failed') {
-        return true
+        return true;
       }
     },
-    connection_fresh: function () {
+    connection_fresh() {
       if (this.object.connectedstatus === 'fresh') {
-        return true
+        return true;
       }
     },
-    isTrunc: function () {
+    isTrunc() {
       if (this.sidebar) {
-        return true
+        return true;
       }
-      return false
+      return false;
     },
-    lastSeenAgo: function () {
-      let now = moment(new Date().getTime())
-      let end = moment.unix(parseInt(this.object.lastSeenAt))
-      let difference = moment.duration(now.diff(end))
-      return difference.humanize() + ' ago'
+    lastSeenAgo() {
+      const now = moment(new Date().getTime());
+      const end = moment.unix(parseInt(this.object.lastSeenAt));
+      const difference = moment.duration(now.diff(end));
+      return `${difference.humanize()} ago`;
     },
-    platform: function () {
-      return this.platformMap[this.object.platform.toLowerCase()] || this.platformMap[this.object.product.toLowerCase()]
+    platform() {
+      return this.platformMap[this.object.platform.toLowerCase()] || this.platformMap[this.object.product.toLowerCase()];
     },
-    platformClass: function () {
-      return ['platform-' + this.platform]
+    platformClass() {
+      return [`platform-${this.platform}`];
     },
-    url: function () {
+    url() {
       if (!this.platform) {
-        return 'platforms/plex.svg'
+        return 'platforms/plex.svg';
       }
       if (this.platform === 'synclounge') {
-        return 'platforms/synclounge.png'
+        return 'platforms/synclounge.png';
       }
-      return 'platforms/' + this.platform + '.svg'
+      return `platforms/${this.platform}.svg`;
     },
-    styleObj: function () {
+    styleObj() {
       if (this.selected) {
         return {
           'font-weight': '700',
-          'background': 'rgba(0,0,0,0.3)'
-        }
-      } else {
-        return {
-          opacity: '0.7'
-        }
+          background: 'rgba(0,0,0,0.3)',
+        };
       }
-    }
+      return {
+        opacity: '0.7',
+      };
+    },
   },
-  data: () => {
-    return {
-      platformMap: {
-        'android': 'android',
-        'apple tv': 'atv',
-        'chrome': 'chrome',
-        'chromecast': 'chromecast',
-        'dlna': 'dlna',
-        'firefox': 'firefox',
-        'internet explorer': 'ie',
-        'ios': 'ios',
-        'ipad': 'ios',
-        'iphone': 'ios',
-        'kodi': 'kodi',
-        'linux': 'linux',
-        'nexus': 'android',
-        'macos': 'macos',
-        'microsoft edge': 'msedge',
-        'opera': 'opera',
-        'osx': 'macos',
-        'playstation': 'playstation',
-        'plex home theater': 'plex',
-        'plex media player': 'plex',
-        'plexamp': 'plexamp',
-        'plextogether': 'synclounge',
-        'roku': 'roku',
-        'safari': 'safari',
-        'samsung': 'samsung',
-        'synclounge': 'synclounge',
-        'tivo': 'tivo',
-        'tizen': 'samsung',
-        'tvos': 'atv',
-        'vizio': 'opera',
-        'wiiu': 'wiiu',
-        'windows': 'windows',
-        'windows phone': 'wp',
-        'xbmc': 'xbmc',
-        'xbox': 'xbox'
-      }
-    }
-  }
-}
+  data: () => ({
+    platformMap: {
+      android: 'android',
+      'apple tv': 'atv',
+      chrome: 'chrome',
+      chromecast: 'chromecast',
+      dlna: 'dlna',
+      firefox: 'firefox',
+      'internet explorer': 'ie',
+      ios: 'ios',
+      ipad: 'ios',
+      iphone: 'ios',
+      kodi: 'kodi',
+      linux: 'linux',
+      nexus: 'android',
+      macos: 'macos',
+      'microsoft edge': 'msedge',
+      opera: 'opera',
+      osx: 'macos',
+      playstation: 'playstation',
+      'plex home theater': 'plex',
+      'plex media player': 'plex',
+      plexamp: 'plexamp',
+      plextogether: 'synclounge',
+      roku: 'roku',
+      safari: 'safari',
+      samsung: 'samsung',
+      synclounge: 'synclounge',
+      tivo: 'tivo',
+      tizen: 'samsung',
+      tvos: 'atv',
+      vizio: 'opera',
+      wiiu: 'wiiu',
+      windows: 'windows',
+      'windows phone': 'wp',
+      xbmc: 'xbmc',
+      xbox: 'xbox',
+    },
+  }),
+};
 </script>

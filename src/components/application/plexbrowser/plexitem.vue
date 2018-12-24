@@ -5,52 +5,52 @@
 </template>
 
 <script>
-import plexthumb from './plexthumb.vue'
-import plexseason from './plexseason.vue'
-import plexseries from './plexseries.vue'
-import plexcontent from './plexcontent.vue'
+import plexthumb from './plexthumb.vue';
+import plexseason from './plexseason.vue';
+import plexseries from './plexseries.vue';
+import plexcontent from './plexcontent.vue';
 
 export default {
   components: {
     plexthumb,
     plexseason,
     plexseries,
-    plexcontent
+    plexcontent,
   },
-  created () {
+  created() {
     this.server.getMediaByRatingKey(this.content.ratingKey).then((result) => {
       if (result) {
-        this.contents = result
+        this.contents = result;
         if (result.type === 'episode') {
-          this.server.getSeriesChildren(result.parentKey + '/children', 0, 500, 1).then((res) => {
+          this.server.getSeriesChildren(`${result.parentKey}/children`, 0, 500, 1).then((res) => {
             if (res) {
-              this.parentData = res
+              this.parentData = res;
             }
-          })
+          });
         }
-        this.setBackground()
+        this.setBackground();
       } else {
-        this.status = 'Error loading libraries!'
+        this.status = 'Error loading libraries!';
       }
-    })
+    });
   },
-  data () {
+  data() {
     return {
-      contents: null
-    }
+      contents: null,
+    };
   },
-  mounted () {
+  mounted() {
   },
-  beforeDestroy () {
+  beforeDestroy() {
 
   },
   computed: {
-    ratingKey: function () {
-      return this.$route.params.ratingKey
-    }
+    ratingKey() {
+      return this.$route.params.ratingKey;
+    },
   },
   methods: {
 
-  }
-}
+  },
+};
 </script>

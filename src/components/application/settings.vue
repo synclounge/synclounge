@@ -5,7 +5,8 @@
       <div> {{ clientpollinterval }}</div>
       <v-slider class="pa-0 ma-0" v-model="clientpollinterval" :min="100" :max="10000"
         hint="Sets how frequently SyncLounge will poll external plex clients for new information in milliseconds. Default is 1000ms (1 second)"
-        persistent-hint>
+        persistent-hint
+      >
       </v-slider>
     </div>
     <v-divider></v-divider>
@@ -14,7 +15,8 @@
       <div> {{ syncflexability }}</div>
       <v-slider class="pa-0 ma-0" v-model="syncflexability" :min="0" :max="10000"
         hint="Sets the acceptable distance away from the host in milliseconds. Default is 3000ms (3 seconds)."
-        persistent-hint>
+        persistent-hint
+      >
       </v-slider>
     </div>
     <v-divider></v-divider>
@@ -24,7 +26,8 @@
         <v-radio label="Clean Seek" class="pa-0 ma-0" value="cleanseek"></v-radio>
         <v-radio label="Skip Ahead" class="pa-0 ma-0"  value="skipahead"
         persistent-hint
-        hint="Sets the syncing method used when we need to get back in line with the host."></v-radio>
+        hint="Sets the syncing method used when we need to get back in line with the host."
+      ></v-radio>
       </v-radio-group>
     </div>
     <div style="text-align:center" class="pt-4">
@@ -49,62 +52,62 @@
 <script>
 export default {
   name: 'settings',
-  data () {
-    return {}
+  data() {
+    return {};
   },
   computed: {
-    plex: function () {
-      return this.$store.state.plex
+    plex() {
+      return this.$store.state.plex;
     },
-    context: function () {
-      return this.$store
+    context() {
+      return this.$store;
     },
-    appVersion () {
-      return this.$store.state.appVersion
+    appVersion() {
+      return this.$store.state.appVersion;
     },
     SLPLAYERFORCETRANSCODE: {
-      get () {
-        return JSON.parse(this.$store.getters.getSettings['SLPLAYERFORCETRANSCODE'])
+      get() {
+        return JSON.parse(this.$store.getters.getSettings.SLPLAYERFORCETRANSCODE);
       },
-      set (value) {
-        this.$store.commit('setSetting', ['SLPLAYERFORCETRANSCODE', value])
-      }
+      set(value) {
+        this.$store.commit('setSetting', ['SLPLAYERFORCETRANSCODE', value]);
+      },
     },
     autoplay: {
-      get () {
-        return this.$store.getters.getSettings['AUTOPLAY']
+      get() {
+        return this.$store.getters.getSettings.AUTOPLAY;
       },
-      set (value) {
-        this.$store.commit('setSetting', ['AUTOPLAY', value])
-      }
+      set(value) {
+        this.$store.commit('setSetting', ['AUTOPLAY', value]);
+      },
     },
     syncmode: {
-      get () {
-        return this.$store.getters.getSettings['SYNCMODE']
+      get() {
+        return this.$store.getters.getSettings.SYNCMODE;
       },
-      set (value) {
-        this.$store.commit('setSetting', ['SYNCMODE', value])
-      }
+      set(value) {
+        this.$store.commit('setSetting', ['SYNCMODE', value]);
+      },
     },
     syncflexability: {
-      get () {
-        return this.$store.getters.getSettings['SYNCFLEXABILITY']
+      get() {
+        return this.$store.getters.getSettings.SYNCFLEXABILITY;
       },
-      set (value) {
-        this.$store.commit('setSetting', ['SYNCFLEXABILITY', value])
-      }
+      set(value) {
+        this.$store.commit('setSetting', ['SYNCFLEXABILITY', value]);
+      },
     },
     clientpollinterval: {
-      get () {
-        return this.$store.getters.getSettings['CLIENTPOLLINTERVAL']
+      get() {
+        return this.$store.getters.getSettings.CLIENTPOLLINTERVAL;
       },
-      set (value) {
-        this.$store.commit('setSetting', ['CLIENTPOLLINTERVAL', value])
-      }
-    }
+      set(value) {
+        this.$store.commit('setSetting', ['CLIENTPOLLINTERVAL', value]);
+      },
+    },
   },
-  mounted: function () {
+  mounted() {
     // Create event listeners
-  }
-}
+  },
+};
 </script>

@@ -40,26 +40,26 @@
 <script>
 export default {
   name: 'home',
-  created: function () {
+  created() {
     if (this.$store.getters.getSettingHOMEINIT) {
-      this.$router.push('/browse')
+      this.$router.push('/browse');
     }
   },
-  mounted: function () {
-    this.$store.commit('setSettingHOMEINIT', true)
+  mounted() {
+    this.$store.commit('setSettingHOMEINIT', true);
   },
   methods: {
-    letsStart: function () {
-      this.$router.push('/')
-    }
+    letsStart() {
+      this.$router.push('/');
+    },
   },
   computed: {
-    logo: function () {
-      return 'slweb/logo-long-light.png'
+    logo() {
+      return 'slweb/logo-long-light.png';
     },
-    firstRun: function () {
-      return !this.$store.getters.getSettingHOMEINIT
-    }
-  }
-}
+    firstRun() {
+      return !this.$store.getters.getSettingHOMEINIT;
+    },
+  },
+};
 </script>

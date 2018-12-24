@@ -30,7 +30,7 @@
                   <v-list-tile-title>Plex Settings</v-list-tile-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-subheader v-if="plex && plex.gotDevices" >Account</v-subheader>
+              <v-subheader v-if="plex && plex.gotDevices">Account</v-subheader>
               <v-list-tile :router="true" to="/signout">
                 <v-list-tile-action>
                   <v-icon color="white">cancel</v-icon>
@@ -39,7 +39,7 @@
                   <v-list-tile-title>Sign out</v-list-tile-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-subheader >About</v-subheader>
+              <v-subheader>About</v-subheader>
               <v-list-tile>
                 <v-list-tile-action>
                   <v-icon color="white">info</v-icon>
@@ -86,184 +86,183 @@
 
 <script>
 
-import ptsettings from './components/application/settings'
-import plexsettings from './components/application/plexsettings'
+import ptsettings from './components/application/settings';
+import plexsettings from './components/application/plexsettings';
 
-var moment = require('moment')
+const moment = require('moment');
 
 export default {
   components: {
     ptsettings,
-    plexsettings
+    plexsettings,
   },
-  data () {
+  data() {
     return {
       ptsettingstoggle: false,
-      plexsettingstoggle: false
-    }
+      plexsettingstoggle: false,
+    };
   },
   computed: {
-    plex: function () {
-      return this.$store.getters.getPlex
+    plex() {
+      return this.$store.getters.getPlex;
     },
-    hash: function () {
-      return process.env.gitHash
+    hash() {
+      return process.env.gitHash;
     },
-    date: function () {
-      return process.env.gitDate
+    date() {
+      return process.env.gitDate;
     },
-    updatedAt: function () {
-      return moment(this.date).fromNow()
+    updatedAt() {
+      return moment(this.date).fromNow();
     },
-    chosenClient: function () {
-      return this.$store.getters.getChosenClient
+    chosenClient() {
+      return this.$store.getters.getChosenClient;
     },
-    validPlex: function () {
+    validPlex() {
       if (!this.$store.state.plex) {
-        return false
+        return false;
       }
-      return true
+      return true;
     },
-    appVersion: function () {
-      return this.$store.state.appVersion
+    appVersion() {
+      return this.$store.state.appVersion;
     },
-    validDevices: function () {
+    validDevices() {
       if (!this.plex) {
-        return false
+        return false;
       }
-      return this.plex.gotDevices
+      return this.plex.gotDevices;
     },
-    showBrowser () {
+    showBrowser() {
       return (
         this.chosenClient &&
         !this.chosenClient.clientPlayingMetadata &&
         this.ptRoom
-      )
+      );
     },
-    isPTPlayer () {
+    isPTPlayer() {
       return (
         this.chosenClient &&
         this.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10'
-      )
+      );
     },
-    showMetadata () {
+    showMetadata() {
       return (
         !this.isPTPlayer &&
         !this.showBrowser &&
         this.chosenClient &&
         this.chosenClient.clientPlayingMetadata
-      )
+      );
     },
-    darkMode: function () {
-      return this.$store.getters.getSettingDARKMODE
+    darkMode() {
+      return this.$store.getters.getSettingDARKMODE;
     },
-    ptConnected: function () {
-      return this.$store.getters.getConnected
+    ptConnected() {
+      return this.$store.getters.getConnected;
     },
-    ptServer: function () {
-      return this.$store.getters.getServer
+    ptServer() {
+      return this.$store.getters.getServer;
     },
-    ptRoom: function () {
-      return this.$store.getters.getRoom
+    ptRoom() {
+      return this.$store.getters.getRoom;
     },
-    ptPassword: function () {
-      return this.$store.getters.getPassword
+    ptPassword() {
+      return this.$store.getters.getPassword;
     },
-    ptUsers: function () {
-      return this.$store.getters.getUsers
+    ptUsers() {
+      return this.$store.getters.getUsers;
     },
-    userCount: function () {
-      let count = this.$store.getters.getUsers.length
+    userCount() {
+      const count = this.$store.getters.getUsers.length;
       if (count === 1) {
-        return count + ' user'
+        return `${count} user`;
       }
-      return count + ' users'
+      return `${count} users`;
     },
-    chatBoxMessage: function () {
-      return 'Message ' + this.$store.getters.getRoom
+    chatBoxMessage() {
+      return `Message ${this.$store.getters.getRoom}`;
     },
-    playercount: function () {
+    playercount() {
       if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return '(' + this.$store.state.plex.clients.length + ')'
+        return `(${this.$store.state.plex.clients.length})`;
       }
-      return ''
+      return '';
     },
-    servercount: function () {
+    servercount() {
       if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return '(' + this.$store.state.plex.servers.length + ')'
+        return `(${this.$store.state.plex.servers.length})`;
       }
-      return ''
+      return '';
     },
-    showChatValue: function () {
+    showChatValue() {
       if (this.$store.getters.getShownChat) {
-        return 'block'
+        return 'block';
       }
-      return 'none'
+      return 'none';
     },
-    messages: function () {
-      return this.$store.getters.getMessages
-    }
+    messages() {
+      return this.$store.getters.getMessages;
+    },
   },
   methods: {
-    isHost: function (user) {
-      return user.role === 'host'
+    isHost(user) {
+      return user.role === 'host';
     },
-    percent: function (user) {
-      let perc = parseInt(user.time) / parseInt(user.maxTime) * 100
+    percent(user) {
+      let perc = parseInt(user.time) / parseInt(user.maxTime) * 100;
       if (isNaN(perc)) {
-        perc = 0
+        perc = 0;
       }
-      return perc
+      return perc;
     },
-    getCurrent: function (user) {
+    getCurrent(user) {
       if (isNaN(user.time)) {
-        return this.getTimeFromMs(0)
+        return this.getTimeFromMs(0);
       }
-      return this.getTimeFromMs(user.time)
+      return this.getTimeFromMs(user.time);
     },
-    getMax: function (user) {
+    getMax(user) {
       if (isNaN(user.maxTime)) {
-        return this.getTimeFromMs(0)
+        return this.getTimeFromMs(0);
       }
-      return this.getTimeFromMs(user.maxTime)
+      return this.getTimeFromMs(user.maxTime);
     },
-    getTitle: function (user) {
+    getTitle(user) {
       if (user.title && user.title.length > 0) {
-        return user.title
+        return user.title;
       }
-      return 'Nothing'
+      return 'Nothing';
     },
-    sendMessage: function () {
-      console.log('We should send this message: ' + this.messageToBeSent)
-      this.$store.dispatch('sendNewMessage', this.messageToBeSent)
-      this.messageToBeSent = ''
+    sendMessage() {
+      this.$store.dispatch('sendNewMessage', this.messageToBeSent);
+      this.messageToBeSent = '';
     },
-    playerState: function (user) {
+    playerState(user) {
       if (user.playerState) {
         if (user.playerState === 'stopped') {
-          return 'pause'
+          return 'pause';
         }
         if (user.playerState === 'paused') {
-          return 'pause'
+          return 'pause';
         }
         if (user.playerState === 'playing') {
-          return 'play_arrow'
+          return 'play_arrow';
         }
       }
-      return false
+      return false;
     },
-    getTimeFromMs (ms) {
-      var hours = ms / (1000 * 60 * 60)
-      var absoluteHours = Math.floor(hours)
-      var h = absoluteHours > 9 ? absoluteHours : '0' + absoluteHours
-      var minutes = (hours - absoluteHours) * 60
-      var absoluteMinutes = Math.floor(minutes)
-      var m = absoluteMinutes > 9 ? absoluteMinutes : '0' + absoluteMinutes
-      var seconds = (minutes - absoluteMinutes) * 60
-      var absoluteSeconds = Math.floor(seconds)
-      var s = absoluteSeconds > 9 ? absoluteSeconds : '0' + absoluteSeconds
-      return h + ':' + m + ':' + s
-    }
-  }
-}
+    getTimeFromMs(ms) {
+      const hours = ms / (1000 * 60 * 60);
+      const absoluteHours = Math.floor(hours);
+      const h = absoluteHours > 9 ? absoluteHours : `0${absoluteHours}`;
+      const minutes = (hours - absoluteHours) * 60;
+      const absoluteMinutes = Math.floor(minutes);
+      const m = absoluteMinutes > 9 ? absoluteMinutes : `0${absoluteMinutes}`;
+      const seconds = (minutes - absoluteMinutes) * 60;
+      const absoluteSeconds = Math.floor(seconds);
+      const s = absoluteSeconds > 9 ? absoluteSeconds : `0${absoluteSeconds}`;
+      return `${h}:${m}:${s}`;
+    },
+  },
+};
 </script>

@@ -9,13 +9,13 @@
 <script>
 export default {
   name: 'signout',
-  mounted () {
-    window['localStorage'].removeItem('plexuser')
-    this.$store.state.plex = null
-    this.$store.state.signedin = 'notsignedin'
+  mounted() {
+    window.localStorage.removeItem('plexuser');
+    this.$store.state.plex = null;
+    this.$store.state.signedin = 'notsignedin';
     setTimeout(() => {
-      location.reload()
-    }, 2500)
-  }
-}
+      location.reload();
+    }, 2500);
+  },
+};
 </script>

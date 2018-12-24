@@ -49,131 +49,131 @@
 export default {
   components: {
   },
-  data () {
+  data() {
     return {
       sheet: true,
       maxTimer: 15000,
       timer: 15000,
       cache: {},
       content: null,
-      ready: false
-    }
+      ready: false,
+    };
   },
-  mounted: async function () {
+  async mounted() {
     window.EventBus.$on('upnext', (data) => {
-      console.log('Upnext event', data)
-      this.content = data
-      this.ready = true
-      this.startTimer()
-    })
+      console.log('Upnext event', data);
+      this.content = data;
+      this.ready = true;
+      this.startTimer();
+    });
   },
   watch: {
 
   },
   methods: {
-    pressPlay: function () {
+    pressPlay() {
       this.chosenClient.playMedia({
         ratingKey: this.item.ratingKey,
         mediaIndex: null,
         server: this.plexserver,
-        offset: 0
-      })
+        offset: 0,
+      });
     },
-    startTimer: function () {
-      this.timer = this.maxTimer
-      let data = this.item
-      this.sheet = true
-      let ticker = setInterval(() => {
-        console.log('tick')
-        this.timer = this.timer - 30
+    startTimer() {
+      this.timer = this.maxTimer;
+      const data = this.item;
+      this.sheet = true;
+      const ticker = setInterval(() => {
+        console.log('tick');
+        this.timer = this.timer - 30;
         if (this.timer < 1) {
           if (this.sheet) {
-            this.pressPlay(data.item)
+            this.pressPlay(data.item);
           }
-          clearInterval(ticker)
-          this.sheet = false
+          clearInterval(ticker);
+          this.sheet = false;
         }
-      }, 30)
-    }
+      }, 30);
+    },
   },
   computed: {
-    percent: function () {
-      return (this.timer / this.maxTimer) * 100
+    percent() {
+      return (this.timer / this.maxTimer) * 100;
     },
-    background: function () {
-      return this.plexserver.getUrlForLibraryLoc(this.item.art, 1000, 450)
+    background() {
+      return this.plexserver.getUrlForLibraryLoc(this.item.art, 1000, 450);
     },
-    plex: function () {
-      return this.$store.getters.getPlex
+    plex() {
+      return this.$store.getters.getPlex;
     },
-    plexserver: function () {
+    plexserver() {
       if (!this.content) {
-        return
+        return;
       }
-      return this.plex.servers[this.content.machineIdentifier]
+      return this.plex.servers[this.content.machineIdentifier];
     },
-    thumb: function () {
-      return this.plexserver.getUrlForLibraryLoc(this.item.thumb || this.item.art, 1000, 450)
+    thumb() {
+      return this.plexserver.getUrlForLibraryLoc(this.item.thumb || this.item.art, 1000, 450);
     },
-    item: function () {
+    item() {
       if (!this.content || this.content.loading) {
-        return
+        return;
       }
-      return this.content.MediaContainer.Hub[0].Metadata[0]
+      return this.content.MediaContainer.Hub[0].Metadata[0];
     },
-    chosenClient: function () {
-      return this.$store.getters.getChosenClient
+    chosenClient() {
+      return this.$store.getters.getChosenClient;
     },
-    getTitle () {
+    getTitle() {
       switch (this.item.type) {
         case 'movie':
           if (this.fullTitle !== undefined) {
             if (this.item.year) {
-              return this.item.title + ' (' + this.item.year + ')'
+              return `${this.item.title} (${this.item.year})`;
             }
           }
-          return this.item.title
+          return this.item.title;
         case 'show':
-          return this.item.title
+          return this.item.title;
         case 'season':
-          return this.item.title
+          return this.item.title;
         case 'episode':
-          return this.item.grandparentTitle
+          return this.item.grandparentTitle;
         default:
-          return this.item.title
+          return this.item.title;
       }
     },
-    getUnder () {
+    getUnder() {
       switch (this.item.type) {
         case 'movie':
           if (this.item.year) {
-            return this.item.year
+            return this.item.year;
           }
-          return ' '
+          return ' ';
         case 'show':
           if (this.item.childCount === 1) {
-            return this.item.childCount + ' season'
+            return `${this.item.childCount} season`;
           }
-          return this.item.childCount + ' seasons'
+          return `${this.item.childCount} seasons`;
         case 'season':
-          return this.item.leafCount + ' episodes'
+          return `${this.item.leafCount} episodes`;
         case 'album':
-          return this.item.year
+          return this.item.year;
         case 'artist':
-          return ''
+          return '';
         case 'episode':
           return (
-            ' S' +
-            this.item.parentIndex +
-            'E' +
-            this.item.index +
-            ' - ' +
-            this.item.title
-          )
+            ` S${
+              this.item.parentIndex
+            }E${
+              this.item.index
+            } - ${
+              this.item.title}`
+          );
         default:
-          return this.item.title
+          return this.item.title;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

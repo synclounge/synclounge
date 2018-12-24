@@ -1,25 +1,25 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 
-var plex = require('./store/modules/plex/').default
-var syncLounge = require('./store/modules/synclounge.js').default
+const plex = require('./store/modules/plex/').default;
+const syncLounge = require('./store/modules/synclounge.js').default;
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 // Persistant settings handling
-function getSetting (key) {
-  return window['localStorage'].getItem(key)
+function getSetting(key) {
+  return window.localStorage.getItem(key);
 }
 
-function setSetting (key, value) {
-  return window['localStorage'].setItem(key, value)
+function setSetting(key, value) {
+  return window.localStorage.setItem(key, value);
 }
 
-function sendNotification (message) {
-  return window.EventBus.$emit('notification', message)
+function sendNotification(message) {
+  return window.EventBus.$emit('notification', message);
 }
 
-let defaultSettings = {
+const defaultSettings = {
   CLIENTPOLLINTERVAL: 1000,
   AUTOPLAY: true,
   HIDEUSERNAME: false,
@@ -28,20 +28,21 @@ let defaultSettings = {
   SYNCFLEXABILITY: 3000,
   CUSTOMSERVER: 'http://',
   SLPLAYERFORCETRANSCODE: true,
-  CLIENTIDENTIFIER: generateGuid() + '-' + generateGuid()
-}
-for (let i in defaultSettings) {
+  CLIENTIDENTIFIER: `${generateGuid()}-${generateGuid()}`,
+};
+
+for (const i in defaultSettings) {
   if (getSetting(i) === undefined || getSetting(i) === null) {
-    setSetting(i, defaultSettings[i])
+    setSetting(i, defaultSettings[i]);
   }
 }
-function generateGuid () {
-  function s4 () {
+function generateGuid() {
+  function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
       .toString(16)
-      .substring(1)
+      .substring(1);
   }
-  return s4() + s4() + '-' + s4() + s4()
+  return `${s4() + s4()}-${s4()}${s4()}`;
 }
 
 // Set up out web app socket for fetching short urls
@@ -53,7 +54,7 @@ const state = {
   shownChat: false,
   chosenClient: null,
   chosenClientTimeSet: new Date().getTime(),
-  plexuser: JSON.parse(window['localStorage'].getItem('plexuser')),
+  plexuser: JSON.parse(window.localStorage.getItem('plexuser')),
   blockAutoPlay: false,
   autoJoin: false,
   autoJoinUrl: null,
@@ -81,340 +82,293 @@ const state = {
     SLPLAYERFORCETRANSCODE: getSetting('SLPLAYERFORCETRANSCODE'),
     HIDEUSERNAME: getSetting('HIDEUSERNAME'),
     ALTUSERNAME: getSetting('ALTUSERNAME'),
-    CLIENTIDENTIFIER: getSetting('CLIENTIDENTIFIER')
+    CLIENTIDENTIFIER: getSetting('CLIENTIDENTIFIER'),
   },
 
   LASTSERVER: getSetting('LASTSERVER'),
   stats: {},
-  me: {}
-}
+  me: {},
+};
 
 const mutations = {
 
-  SET_CHOSENCLIENT (state, client) {
+  SET_CHOSENCLIENT(state, client) {
     // Set up our client poller
-    let commandInProgress = false
-    function clientPoller (time) {
+    let commandInProgress = false;
+    function clientPoller(time) {
       if (!state.chosenClient) {
-        return
+        return;
       }
       if (state.chosenClientTimeSet !== time) {
         // We have a new chosen client, we need to stop
-        return
+        return;
       }
       if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
         if (!commandInProgress) {
           state.chosenClient.getTimeline().then(() => {
-            commandInProgress = false
+            commandInProgress = false;
           }).catch((e) => {
-            commandInProgress = false
-          })
-          commandInProgress = true
+            commandInProgress = false;
+          });
+          commandInProgress = true;
         }
       } else {
-        state.chosenClient.getTimeline()
+        state.chosenClient.getTimeline();
       }
-      let interval = state.settings.CLIENTPOLLINTERVAL
+      let interval = state.settings.CLIENTPOLLINTERVAL;
       if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-        interval = 500
+        interval = 500;
       }
       setTimeout(() => {
-        clientPoller(time)
-      }, interval)
+        clientPoller(time);
+      }, interval);
     }
 
     // Check if we need to remove old handlers
     if (state.chosenClient) {
-      state.chosenClient.events.removeAllListeners()
+      state.chosenClient.events.removeAllListeners();
     }
-    state.chosenClient = client
+    state.chosenClient = client;
     if (state.chosenClient && state.chosenClient.lastTimelineObject) {
-      state.chosenClient.lastTimelineObject.ratingKey = -1
+      state.chosenClient.lastTimelineObject.ratingKey = -1;
     }
     if (state.chosenClient == null) {
-      return
+      return;
     }
-    state.chosenClientTimeSet = (new Date()).getTime()
-    clientPoller(state.chosenClientTimeSet)
-    state.chosenClient.getTimeline((timeline) => {})
+    state.chosenClientTimeSet = (new Date()).getTime();
+    clientPoller(state.chosenClientTimeSet);
+    state.chosenClient.getTimeline((timeline) => {});
   },
-  SET_PLEX (state, value) {
-    state.plex = value
+  SET_PLEX(state, value) {
+    state.plex = value;
   },
-  SET_AUTOJOIN (state, value) {
-    state.autoJoin = value
+  SET_AUTOJOIN(state, value) {
+    state.autoJoin = value;
   },
-  SET_BACKGROUND (state, value) {
-    state.background = value
+  SET_BACKGROUND(state, value) {
+    state.background = value;
   },
-  SET_AUTOJOINROOM (state, value) {
-    state.autoJoinRoom = value
+  SET_AUTOJOINROOM(state, value) {
+    state.autoJoinRoom = value;
   },
-  SET_AUTOJOINPASSWORD (state, value) {
-    state.autoJoinPassword = value
+  SET_AUTOJOINPASSWORD(state, value) {
+    state.autoJoinPassword = value;
   },
-  SET_AUTOJOINURL (state, value) {
-    state.autoJoinUrl = value
+  SET_AUTOJOINURL(state, value) {
+    state.autoJoinUrl = value;
   },
-  SET_SHORTLINK (state, value) {
-    state.shortLink = value
+  SET_SHORTLINK(state, value) {
+    state.shortLink = value;
   },
-  setSetting (state, data) {
-    Vue.set(state.settings, data[0], data[1])
-    setSetting(data[0], data[1])
+  setSetting(state, data) {
+    Vue.set(state.settings, data[0], data[1]);
+    setSetting(data[0], data[1]);
   },
-  setSettingPTPLAYERQUALITY (state, data) {
-    window['localStorage'].setItem('PTPLAYERQUALITY', JSON.stringify(data))
-    state.PTPLAYERQUALITY = data
+  setSettingPTPLAYERQUALITY(state, data) {
+    window.localStorage.setItem('PTPLAYERQUALITY', JSON.stringify(data));
+    state.PTPLAYERQUALITY = data;
   },
-  setSettingPTPLAYERVOLUME (state, data) {
-    window['localStorage'].setItem('PTPLAYERVOLUME', JSON.stringify(data))
-    state.PTPLAYERVOLUME = data
+  setSettingPTPLAYERVOLUME(state, data) {
+    window.localStorage.setItem('PTPLAYERVOLUME', JSON.stringify(data));
+    state.PTPLAYERVOLUME = data;
   },
-  setSettingLASTSERVER (state, data) {
-    window['localStorage'].setItem('LASTSERVER', data)
-    state.LASTSERVER = data
+  setSettingLASTSERVER(state, data) {
+    window.localStorage.setItem('LASTSERVER', data);
+    state.LASTSERVER = data;
   },
-  setSettingHOMEINIT (state, data) {
-    setSetting('HOMEINIT', data)
-    state.HOMEINIT = data
+  setSettingHOMEINIT(state, data) {
+    setSetting('HOMEINIT', data);
+    state.HOMEINIT = data;
   },
-  REFRESH_PLEXDEVICES () {
-    store.state.plex.getDevices(() => {})
+  REFRESH_PLEXDEVICES() {
+    store.state.plex.getDevices(() => {});
   },
-  SET_RANDOMBACKROUND (state) {
+  SET_RANDOMBACKROUND(state) {
     state.plex.getRandomThumb((result) => {
       if (result) {
-        state.background = result
+        state.background = result;
       }
-    })
+    });
   },
 
-  SET_VALUE (state, data) {
-    let [key, value] = data
-    state[key] = value
-  }
-}
+  SET_VALUE(state, data) {
+    const [key, value] = data;
+    state[key] = value;
+  },
+};
 const getters = {
-  getAppVersion: state => {
-    return state.appVersion
-  },
-  getPlex: state => {
-    return state.plex
-  },
-  getPlexUser: state => {
-    return state.plexuser
-  },
-  getBackground: state => {
-    return state.background
-  },
-  getChosenClient: state => {
-    return state.chosenClient
-  },
-  getShownChat: state => {
-    return state.shownChat
-  },
-  getStats: state => {
-    return state.stats
-  },
-  getBlockAutoPlay: state => {
-    return state.blockAutoPlay
-  },
-  getAutoJoin: state => {
-    return state.autoJoin
-  },
-  getAutoJoinRoom: state => {
-    return state.autoJoinRoom
-  },
-  getAutoJoinPassword: state => {
-    return state.autoJoinPassword
-  },
-  getAutoJoinUrl: state => {
-    return state.autoJoinUrl
-  },
-  getShortLink: state => {
-    return state.shortLink
-  },
+  getAppVersion: state => state.appVersion,
+  getPlex: state => state.plex,
+  getPlexUser: state => state.plexuser,
+  getBackground: state => state.background,
+  getChosenClient: state => state.chosenClient,
+  getShownChat: state => state.shownChat,
+  getStats: state => state.stats,
+  getBlockAutoPlay: state => state.blockAutoPlay,
+  getAutoJoin: state => state.autoJoin,
+  getAutoJoinRoom: state => state.autoJoinRoom,
+  getAutoJoinPassword: state => state.autoJoinPassword,
+  getAutoJoinUrl: state => state.autoJoinUrl,
+  getShortLink: state => state.shortLink,
 
   // SETTINGS
-  getSettings: state => {
-    return state.settings
-  },
-  getSettingHOMEINIT: state => {
-    return state.HOMEINIT
-  },
-  getSettingPTPLAYERQUALITY: state => {
-    return state.PTPLAYERQUALITY
-  },
-  getSettingPTPLAYERVOLUME: state => {
-    return state.PTPLAYERVOLUME
-  },
-  getSettingLASTSERVER: state => {
-    return state.LASTSERVER
-  },
-  getExtAvailable: state => {
-    return state.extAvailable
-  },
-  getLogos: () => {
-    return {
-      light: {
-        long: 'logo-long-light.png',
-        small: 'logo-small-light.png'
-      },
-      dark: {
-        long: 'logo-long-dark.png'
-      },
-      plex: {
-        standard: 'plexlogo.png'
-      }
-    }
-  }
-}
+  getSettings: state => state.settings,
+  getSettingHOMEINIT: state => state.HOMEINIT,
+  getSettingPTPLAYERQUALITY: state => state.PTPLAYERQUALITY,
+  getSettingPTPLAYERVOLUME: state => state.PTPLAYERVOLUME,
+  getSettingLASTSERVER: state => state.LASTSERVER,
+  getExtAvailable: state => state.extAvailable,
+  getLogos: () => ({
+    light: {
+      long: 'logo-long-light.png',
+      small: 'logo-small-light.png',
+    },
+    dark: {
+      long: 'logo-long-dark.png',
+    },
+    plex: {
+      standard: 'plexlogo.png',
+    },
+  }),
+};
 const actions = {
-  async PLAYBACK_CHANGE ({ commit, state, dispatch }, data) {
-    console.log('Playback change!', state.chosenClient)
-    let [client, ratingKey, mediaContainer] = data
+  async PLAYBACK_CHANGE({ commit, state, dispatch }, data) {
+    const [client, ratingKey, mediaContainer] = data;
     if (ratingKey) {
       // Playing something different!
-      console.log(mediaContainer)
-      let server = state.plex.servers[mediaContainer.machineIdentifier]
-      state.LASTSERVER = mediaContainer.machineIdentifier
-      window['localStorage'].setItem('LASTSERVER', mediaContainer.machineIdentifier)
+      const server = state.plex.servers[mediaContainer.machineIdentifier];
+      state.LASTSERVER = mediaContainer.machineIdentifier;
+      window.localStorage.setItem('LASTSERVER', mediaContainer.machineIdentifier);
       if (!server) {
-        console.log('Playing off a server we do not have access to')
-        return
+        return;
       }
       // Fetch our metadata from this server
       // console.log('Loading content metadata from store ' + ratingKey)
       server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {
-        console.log('Metadata:', data)
-        let metadata = data.MediaContainer.Metadata[0]
+        const metadata = data.MediaContainer.Metadata[0];
         if (!metadata) {
-          return
+          return;
         }
         if (metadata.type === 'movie') {
-          sendNotification('Now Playing: ' + metadata.title + ' from ' + state.plex.servers[metadata.machineIdentifier].name)
+          sendNotification(`Now Playing: ${metadata.title} from ${state.plex.servers[metadata.machineIdentifier].name}`);
         }
         if (metadata.type === 'episode') {
-          sendNotification('Now Playing: ' + metadata.grandparentTitle + ' S' + metadata.parentIndex + 'E' + metadata.index + ' from ' + state.plex.servers[metadata.machineIdentifier].name)
+          sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${metadata.index} from ${state.plex.servers[metadata.machineIdentifier].name}`);
         }
-        state.chosenClient.clientPlayingMetadata = metadata
-        var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-        var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-        state.background = state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4)
-      })
+        state.chosenClient.clientPlayingMetadata = metadata;
+        const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+        const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        state.background = state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4);
+      });
     } else {
-      state.chosenClient.clientPlayingMetadata = null
-      let thumb = await state.plex.getRandomThumb(state.plex)
+      state.chosenClient.clientPlayingMetadata = null;
+      const thumb = await state.plex.getRandomThumb(state.plex);
       if (thumb) {
-        state.background = thumb
+        state.background = thumb;
       }
     }
   },
-  NEW_TIMELINE ({ commit, state, dispatch }, data) {
+  NEW_TIMELINE({ commit, state, dispatch }, data) {
     // return true
-    let timeline = data
-    let client = state.chosenClient
-    let metadata = state.chosenClient.clientPlayingMetadata
+    const timeline = data;
+    const client = state.chosenClient;
+    const metadata = state.chosenClient.clientPlayingMetadata;
     // console.log(state)
     if (!state.chosenClient || (client.clientIdentifier !== state.chosenClient.clientIdentifier)) {
-      console.log('Invalid client')
-      return false
+      console.log('Invalid client');
+      return false;
     }
     if (state.lastRatingKey !== timeline.ratingKey) {
-      commit('SET_VALUE', ['lastRatingKey', timeline.ratingKey])
-      dispatch('PLAYBACK_CHANGE', [client, timeline.ratingKey, timeline])
+      commit('SET_VALUE', ['lastRatingKey', timeline.ratingKey]);
+      dispatch('PLAYBACK_CHANGE', [client, timeline.ratingKey, timeline]);
     }
 
     // Check if we need to activate the upnext feature
     if (state.me && state.me.role === 'host') {
       if (timeline.duration && timeline.time && Math.abs(timeline.duration - timeline.time) < 10000 && metadata.type === 'episode') {
-        console.log('Checking upnext')
+        console.log('Checking upnext');
         if (!state.upNextCache[timeline.machineIdentifier]) {
-          state.upNextCache[timeline.machineIdentifier] = {}
+          state.upNextCache[timeline.machineIdentifier] = {};
         }
         if (!state.upNextCache[timeline.machineIdentifier][timeline.key]) {
           state.upNextCache[timeline.machineIdentifier][timeline.key] = {
-            loading: true
-          }
+            loading: true,
+          };
           state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.key).then((data) => {
-            data.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier
-            state.upNextCache[timeline.machineIdentifier][timeline.key] = data
+            data.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
+            state.upNextCache[timeline.machineIdentifier][timeline.key] = data;
             // Only proc upnext if the item upnext is from the same show
-            console.log('Checking upnext compat', data, metadata)
             if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle) {
-              window.EventBus.$emit('upnext', data)
+              window.EventBus.$emit('upnext', data);
             }
-          })
+          });
         } else {
-          console.log('Already procced an upnext for this item', timeline)
+          console.log('Already procced an upnext for this item', timeline);
         }
       }
     }
 
     // state.ourClientResponseTime = timeline.lastResponseTime
-    let title = null
-    let rawTitle = null
-    let type = null
-    let showName = null
+    let title = null;
+    let rawTitle = null;
+    let type = null;
+    let showName = null;
     if (state.chosenClient.clientPlayingMetadata) {
-      rawTitle = metadata.title
+      rawTitle = metadata.title;
       if (metadata.type === 'episode') {
-        title = metadata.grandparentTitle + ' - ' + metadata.title + ' S' + metadata.parentIndex + '-' + 'E' + metadata.index
-        showName = metadata.grandparentTitle
+        title = `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-` + `E${metadata.index}`;
+        showName = metadata.grandparentTitle;
       } else {
-        title = metadata.title
+        title = metadata.title;
       }
-      type = metadata.type
+      type = metadata.type;
     }
-    let status = 'good'
+    let status = 'good';
     if (!state.synclounge.lastHostTimeline || isNaN(state.synclounge.lastHostTimeline.time)) {
-      status = 'error'
+      status = 'error';
     } else {
-      let hostAge = Math.abs(new Date().getTime() - state.synclounge.lastHostTimeline.recievedAt)
-      let hostTime = 0 + state.synclounge.lastHostTimeline.time
-      console.log('Adding hosttime', hostAge)
+      const hostAge = Math.abs(new Date().getTime() - state.synclounge.lastHostTimeline.recievedAt);
+      let hostTime = 0 + state.synclounge.lastHostTimeline.time;
       if (state.synclounge.lastHostTimeline.playerState === 'playing') {
-        hostTime = parseInt(hostTime) + parseInt(hostAge)
+        hostTime = parseInt(hostTime) + parseInt(hostAge);
       }
-      let difference = Math.abs(data.time - (hostTime))
-      console.log('Reporting a difference of', difference)
+      const difference = Math.abs(data.time - (hostTime));
       if (difference > state.settings.SYNCFLEXABILITY) {
-        status = 'notok'
+        status = 'notok';
       }
     }
 
-    let endObj = {
+    const endObj = {
       time: timeline.time,
       maxTime: timeline.duration,
-      title: title,
-      rawTitle: rawTitle,
+      title,
+      rawTitle,
       playerState: timeline.state,
       clientResponseTime: state.chosenClient.lastResponseTime,
       playerProduct: state.chosenClient.product,
       status,
       type,
       showName,
-      uuid: state.uuid
-    }
+      uuid: state.uuid,
+    };
     if (state.chosenClient && state.chosenClient.lastTimelineObject) {
-      endObj.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier
-      endObj.key = state.chosenClient.lastTimelineObject.key
+      endObj.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
+      endObj.key = state.chosenClient.lastTimelineObject.key;
     }
     if (state.synclounge._socket) {
-      let commandId = Object.keys(state.synclounge.commands).length + 1
+      const commandId = Object.keys(state.synclounge.commands).length + 1;
       state.synclounge.commands[commandId] = {
-        start: new Date().getTime()
-      }
-      endObj.commandId = commandId
+        start: new Date().getTime(),
+      };
+      endObj.commandId = commandId;
       if (Object.keys(state.synclounge.commands).length > 1) {
-        let latency = state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1].difference
-        endObj.latency = latency
+        const latency = state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1].difference;
+        endObj.latency = latency;
       }
-      state.synclounge._socket.emit('poll', endObj)
+      state.synclounge._socket.emit('poll', endObj);
     }
-  }
-}
+  },
+};
 
 const store = new Vuex.Store({
   state,
@@ -423,8 +377,8 @@ const store = new Vuex.Store({
   getters,
   modules: {
     synclounge: syncLounge,
-    plex: plex
-  }
-})
+    plex,
+  },
+});
 
-export default store
+export default store;

@@ -33,7 +33,7 @@
                 <template v-for="(item, index) in recentsSorted">
                   <v-list-tile :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
                     <v-list-tile-avatar>
-                      <img :src="logos.light.small" style="width: 32px; height: auto"/>
+                      <img :src="logos.light.small" style="width: 32px; height: auto" />
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                       <v-list-tile-title v-html="item.server"></v-list-tile-title>
@@ -56,7 +56,7 @@
                   <v-card height="300px" style="background: #353e58">
                     <v-layout row wrap justify-center style="height: 100%">
                       <v-flex xs12 class="text-xs-center pa-2" style="height: 50%; position: relative; background: rgba(0,0,0,0.2)">
-                        <img :src="server.flag" class="flag" style="height: 50%; vertical-align: middle"/>
+                        <img :src="server.flag" class="flag" style="height: 50%; vertical-align: middle" />
                       </v-flex>
                       <v-flex xs12 style="height: 50%" class="text-xs-center pt-1">
                         <h2>{{ server.text }}</h2>
@@ -147,13 +147,14 @@
 
 <script>
 
-import Vue from 'vue'
-const axios = require('axios')
+import Vue from 'vue';
+
+const axios = require('axios');
 
 export default {
   props: ['object'],
   name: 'joinroom',
-  data () {
+  data() {
     return {
       selectedServer: '',
       serverError: null,
@@ -174,243 +175,236 @@ export default {
           location: 'Sydney, Australia',
           text: 'SyncLounge AU1',
           value: 'https://v2au1.synclounge.tv/server',
-          flag: 'flags/aus.png'
+          flag: 'flags/aus.png',
         },
         {
           location: 'Amsterdam, Netherlands',
           text: 'SyncLounge EU1',
           value: 'https://v2eu1.synclounge.tv/server',
-          flag: 'flags/eu.png'
+          flag: 'flags/eu.png',
         },
         {
           location: 'Miami, United States',
           text: 'SyncLounge US1',
           value: 'https://v2us1.synclounge.tv/server',
-          flag: 'flags/usa.png'
+          flag: 'flags/usa.png',
         },
         {
           location: 'Anywhere!',
           text: 'Custom Server',
           value: 'custom',
-          flag: 'synclounge-white.png'
-        }
-      ]
-    }
+          flag: 'synclounge-white.png',
+        },
+      ],
+    };
   },
-  mounted: function () {
+  mounted() {
     setTimeout(() => {
-      this.testConnections()
-      let ticker = setInterval(() => {
+      this.testConnections();
+      const ticker = setInterval(() => {
         if (this.destroyed) {
-          return clearInterval(ticker)
+          return clearInterval(ticker);
         }
-        this.testConnections()
-      }, 5000)
-    }, 1000)
+        this.testConnections();
+      }, 5000);
+    }, 1000);
   },
-  beforeDestroy: function () {
-    this.destroyed = true
+  beforeDestroy() {
+    this.destroyed = true;
   },
-  created: function () {
+  created() {
     if (this.slRoom && this.slConnected && this.slServer) {
-      this.$router.push('/browse')
+      this.$router.push('/browse');
     }
-    this.getRecents()
+    this.getRecents();
   },
   methods: {
-    getRecents: function () {
-      this.recents = JSON.parse(window.localStorage.getItem('recentrooms'))
+    getRecents() {
+      this.recents = JSON.parse(window.localStorage.getItem('recentrooms'));
     },
-    removeHistoryItem: function (item) {
-      let recents = JSON.parse(window.localStorage.getItem('recentrooms'))
-      delete recents[item.server + '/' + item.room]
-      window.localStorage.setItem('recentrooms', JSON.stringify(recents))
-      return this.getRecents()
+    removeHistoryItem(item) {
+      const recents = JSON.parse(window.localStorage.getItem('recentrooms'));
+      delete recents[`${item.server}/${item.room}`];
+      window.localStorage.setItem('recentrooms', JSON.stringify(recents));
+      return this.getRecents();
     },
-    connectionQualityClass: function (value) {
+    connectionQualityClass(value) {
       if (value < 50) {
-        return ['green--text', 'text--lighten-1']
+        return ['green--text', 'text--lighten-1'];
       }
       if (value < 150) {
-        return ['lime--text']
+        return ['lime--text'];
       }
       if (value < 250) {
-        return ['orange--text']
+        return ['orange--text'];
       }
-      return ['red--text']
+      return ['red--text'];
     },
-    loadQualityClass: function (value) {
+    loadQualityClass(value) {
       if (value === 'low') {
-        return ['green--text', 'text--lighten-1']
+        return ['green--text', 'text--lighten-1'];
       }
       if (value === 'medium') {
-        return ['orange--text']
+        return ['orange--text'];
       }
       if (value === 'high') {
-        return ['red--text']
+        return ['red--text'];
       }
-      return ['white--text']
+      return ['white--text'];
     },
-    serverSelected: function (server) {
-      this.selectedServer = server.value
+    serverSelected(server) {
+      this.selectedServer = server.value;
       if (this.selectedServer !== 'custom') {
-        this.attemptConnect()
+        this.attemptConnect();
       }
     },
-    testConnections: async function () {
+    async testConnections() {
       this.ptservers.map((server) => {
         if (server.value !== 'custom') {
-          let start = new Date().getTime()
-          axios.get(server.value + '/health')
+          const start = new Date().getTime();
+          axios.get(`${server.value}/health`)
             .then((res) => {
               Vue.set(this.results, server.value, {
                 alive: true,
                 latency: Math.abs(start - new Date().getTime()),
-                result: res.data.load || null
-              })
+                result: res.data.load || null,
+              });
             })
             .catch((e) => {
               Vue.set(this.results, server.value, {
                 alive: false,
                 latency: Math.abs(start - new Date().getTime()),
-                result: null
-              })
-            })
+                result: null,
+              });
+            });
         }
-      })
+      });
     },
-    attemptConnect: function () {
+    attemptConnect() {
       // Attempt the connection
       return new Promise((resolve, reject) => {
-        this.serverError = null
-        console.log('Connecting to', this.selectedServer)
+        this.serverError = null;
         if (this.selectedServer !== 'custom') {
-          this.connectionPending = true
+          this.connectionPending = true;
           this.$store.dispatch('socketConnect', { address: this.selectedServer })
-            .then(result => {
-              console.log('Connection done', result)
-              this.connectionPending = false
+            .then((result) => {
+              this.connectionPending = false;
               if (result) {
-                console.log('Resuming')
-                resolve()
+                resolve();
               } else {
-                this.serverError = null
-                reject(result)
+                this.serverError = null;
+                reject(result);
               }
             })
             .catch((e) => {
-              this.connectionPending = false
-              this.serverError = 'Failed to connect to ' + this.selectedServer
-              reject(e)
-            })
+              this.connectionPending = false;
+              this.serverError = `Failed to connect to ${this.selectedServer}`;
+              reject(e);
+            });
         } else {
-          reject(new Error('Custom error: wrong function'))
+          reject(new Error('Custom error: wrong function'));
         }
-      })
+      });
     },
-    attemptConnectCustom: function () {
-      this.connectionPending = true
-      this.serverError = null
+    attemptConnectCustom() {
+      this.connectionPending = true;
+      this.serverError = null;
       this.$store.dispatch('socketConnect', { address: this.CUSTOMSERVER })
-        .then(result => {
-          this.connectionPending = false
+        .then((result) => {
+          this.connectionPending = false;
           if (result) {
-            this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
+            this.serverError = `Failed to connect to ${this.CUSTOMSERVER}`;
           } else {
-            this.serverError = null
+            this.serverError = null;
           }
         })
         .catch(() => {
-          this.connectionPending = false
-          this.serverError = 'Failed to connect to ' + this.CUSTOMSERVER
-        })
+          this.connectionPending = false;
+          this.serverError = `Failed to connect to ${this.CUSTOMSERVER}`;
+        });
     },
-    recentConnect: async function (recent) {
-      console.log('Attempting to connect to', recent)
-      this.selectedServer = recent.server
-      this.room = recent.room
-      this.password = recent.password
-      await this.attemptConnect()
+    async recentConnect(recent) {
+      console.log('Attempting to connect to', recent);
+      this.selectedServer = recent.server;
+      this.room = recent.room;
+      this.password = recent.password;
+      await this.attemptConnect();
       this.joinRoom().then(() => {
-        console.log('Done joining room')
       }).catch((e) => {
-        console.log('Unable to join room', e)
-      })
+      });
     },
-    joinRoom: function () {
+    joinRoom() {
       return new Promise((resolve, reject) => {
         if (!this.context.getters.getConnected) {
-          return reject(new Error('Not connected to a server'))
+          return reject(new Error('Not connected to a server'));
         }
         if (this.room === '' || this.room == null) {
-          this.roomError = 'You must enter a room name!'
-          return reject(new Error('No room specified'))
+          this.roomError = 'You must enter a room name!';
+          return reject(new Error('No room specified'));
         }
-        let temporaryObj = {
+        const temporaryObj = {
           user: this.plex.user,
           roomName: this.room.toLowerCase(),
-          password: this.password
-        }
+          password: this.password,
+        };
         this.$store.dispatch('joinRoom', temporaryObj).then(() => {
-          resolve()
-        }).catch(e => {
-          this.roomError = e
-          return reject(e)
-        })
-      })
-    }
+          resolve();
+        }).catch((e) => {
+          this.roomError = e;
+          return reject(e);
+        });
+      });
+    },
   },
   watch: {
-    selectedServer: function () {
+    selectedServer() {
       // this.attemptConnect()
-      this.serverError = null
+      this.serverError = null;
     },
-    slRoom: function () {
+    slRoom() {
       if (this.slServer && this.slRoom) {
-        this.$router.push('/browse')
+        this.$router.push('/browse');
       }
-    }
+    },
   },
   computed: {
-    plex: function () {
-      return this.$store.state.plex
+    plex() {
+      return this.$store.state.plex;
     },
-    logo: function () {
-      return this.logos.light.long
+    logo() {
+      return this.logos.light.long;
     },
-    context: function () {
-      return this.$store
+    context() {
+      return this.$store;
     },
-    recentsSorted: function () {
+    recentsSorted() {
       if (!this.recents) {
-        return []
+        return [];
       }
-      let arr = []
-      for (let i in this.recents) {
-        let item = this.recents[i]
-        arr.push(item)
+      let arr = [];
+      for (const i in this.recents) {
+        const item = this.recents[i];
+        arr.push(item);
       }
-      arr = arr.sort((a, b) => {
-        return b.time - a.time
-      })
+      arr = arr.sort((a, b) => b.time - a.time);
       if (arr.length > 3) {
-        return arr.slice(0, 3)
+        return arr.slice(0, 3);
       }
-      return arr
+      return arr;
     },
     CUSTOMSERVER: {
-      get () {
-        if (!this.$store.getters.getSettings['CUSTOMSERVER']) {
-          return 'http://'
+      get() {
+        if (!this.$store.getters.getSettings.CUSTOMSERVER) {
+          return 'http://';
         }
-        return this.$store.getters.getSettings['CUSTOMSERVER']
+        return this.$store.getters.getSettings.CUSTOMSERVER;
       },
-      set (value) {
-        this.$store.commit('setSetting', ['CUSTOMSERVER', value])
-      }
-    }
-  }
-}
+      set(value) {
+        this.$store.commit('setSetting', ['CUSTOMSERVER', value]);
+      },
+    },
+  },
+};
 </script>
 <style>
   .flag {

@@ -18,7 +18,7 @@
         <transition name="fade">
           <div v-show="hovered">
             <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 2" class="pa-3 hidden-xs-only">
-              <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;"/>
+              <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;" />
               <v-flex class="pl-3">
                 <v-container class="pa-0" fill-height>
                   <v-layout column wrap justify-space-apart>
@@ -109,7 +109,7 @@
     <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3 hidden-sm-and-up">
       <v-flex xs12>
         <v-layout row wrap align-center justify-start>
-          <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"/>
+          <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto" />
           <v-flex class="pl-2">
             <v-container class="pa-0" fill-height>
               <v-layout column wrap justify-space-apart>
@@ -145,126 +145,116 @@
 </template>
 
 <script>
-import videoplayer from './ptplayer/videoplayer.vue'
-let plexthumb = require('./plexbrowser/plexthumb.vue')
+import videoplayer from './ptplayer/videoplayer.vue';
 
-var request = require('request')
-var parseXMLString = require('xml2js').parseString
+const plexthumb = require('./plexbrowser/plexthumb.vue');
+
+const request = require('request');
+const parseXMLString = require('xml2js').parseString;
 
 export default {
   name: 'ptplayer',
   components: {
-    videoplayer, plexthumb
+    videoplayer, plexthumb,
   },
-  mounted: function () {
+  mounted() {
     // Check if we have params
     if (this.$route.query.start) {
       // We need to auto play
-      let query = this.$route.query
-      this.chosenKey = query.key.replace('/library/metadata/', '')
-      this.chosenMediaIndex = query.mediaIndex || 0
-      this.chosenServer = this.plex.servers[query.chosenServer]
-      this.offset = query.playertime
-      console.log('Playertime is now', this.playertime)
+      const query = this.$route.query;
+      this.chosenKey = query.key.replace('/library/metadata/', '');
+      this.chosenMediaIndex = query.mediaIndex || 0;
+      this.chosenServer = this.plex.servers[query.chosenServer];
+      this.offset = query.playertime;
     }
 
     // Similuate a real plex client
-    this.commandListener = this.eventbus.$on('command', data => {
+    this.commandListener = this.eventbus.$on('command', (data) => {
       if (this.destroyed) {
-        return
+        return;
       }
       if (data.command === '/player/timeline/poll') {
-        let key = this.chosenKey
-        let ratingKey = null
+        const key = this.chosenKey;
+        let ratingKey = null;
         if (key) {
-          ratingKey = '/library/metadata/' + key
+          ratingKey = `/library/metadata/${key}`;
         }
 
-        let machineIdentifier = null
+        let machineIdentifier = null;
         if (this.chosenServer) {
-          machineIdentifier = this.chosenServer.clientIdentifier
+          machineIdentifier = this.chosenServer.clientIdentifier;
         }
-        let playerdata = {
-          key: key,
-          ratingKey: ratingKey,
+        const playerdata = {
+          key,
+          ratingKey,
           time: this.playertime,
           type: 'video',
-          machineIdentifier: machineIdentifier,
+          machineIdentifier,
           duration: this.playerduration,
-          state: this.playerstatus
-        }
-        this.lastSentTimeline = playerdata
+          state: this.playerstatus,
+        };
+        this.lastSentTimeline = playerdata;
         if (this.playertime) {
           this.eventbus.$emit('ptplayer-poll', (err, time) => {
             if (err) {
-              return data.callback(this.playertime)
+              return data.callback(this.playertime);
             }
             // let difference = Math.abs(time - this.playertime)
             // console.log('Poll time was out by', difference)
-            playerdata.time = time
-            this.playertime = time
-            data.callback(playerdata)
-          })
+            playerdata.time = time;
+            this.playertime = time;
+            data.callback(playerdata);
+          });
         } else {
-          data.callback(playerdata)
+          data.callback(playerdata);
         }
-        return
+        return;
       }
       if (data.command === '/player/playback/play') {
-        this.eventbus.$emit('player-press-play', (res) => {
-          return data.callback(res)
-        })
-        return
+        this.eventbus.$emit('player-press-play', res => data.callback(res));
+        return;
       }
       if (data.command === '/player/playback/pause') {
-        this.eventbus.$emit('player-press-pause', function (res) {
-          return data.callback(res)
-        })
-        return
+        this.eventbus.$emit('player-press-pause', res => data.callback(res));
+        return;
       }
       if (data.command === '/player/playback/playMedia') {
-        console.log('Processing play command', data)
-        this.chosenKey = data.params.key.replace('/library/metadata/', '')
-        this.chosenMediaIndex = data.params.mediaIndex || 0
-        this.chosenServer = this.plex.servers[data.params.machineIdentifier]
-        console.log('Chosen server is now', this.chosenServer)
-        this.playertime = data.params.offset || this.$route.query.playertime || 0
-        this.offset = this.playertime
-        console.log('Playertime is now', this.playertime)
+        this.chosenKey = data.params.key.replace('/library/metadata/', '');
+        this.chosenMediaIndex = data.params.mediaIndex || 0;
+        this.chosenServer = this.plex.servers[data.params.machineIdentifier];
+        this.playertime = data.params.offset || this.$route.query.playertime || 0;
+        this.offset = this.playertime;
         this.$nextTick(() => {
-          this.changedPlaying(true)
-        })
-        return true
+          this.changedPlaying(true);
+        });
+        return true;
       }
       if (data.command === '/player/playback/stop') {
-        this.ready = false
-        this.chosenKey = null
-        this.chosenServer = null
-        this.playerduration = null
-        this.playertime = 0
-        this.bufferedTile = null
-        this.playingMetadata = null
-        this.$router.push('/browse')
-        return data.callback(true)
+        this.ready = false;
+        this.chosenKey = null;
+        this.chosenServer = null;
+        this.playerduration = null;
+        this.playertime = 0;
+        this.bufferedTile = null;
+        this.playingMetadata = null;
+        this.$router.push('/browse');
+        return data.callback(true);
       }
       if (data.command === '/player/playback/seekTo') {
         this.eventbus.$emit('player-seek', {
           time: data.params.offset,
           soft: data.params.softSeek,
           callback: async (promise) => {
-            console.log('Player reported a seek result of ' + promise)
             await promise.catch((e) => {
-              data.callback(false)
-            })
-            data.callback(true)
-          }
-        })
-        return
+              data.callback(false);
+            });
+            data.callback(true);
+          },
+        });
       }
-      console.log('Unable to process the remote control command ' + data.command)
-    })
+    });
   },
-  data () {
+  data() {
     return {
       hovered: false,
       eventbus: window.EventBus,
@@ -277,7 +267,7 @@ export default {
       // Content can have multiple copies
       // Below are options chosen for each copy
       chosenMediaIndex: 0, // The index of the item we want to play
-      chosenQuality: JSON.parse(window['localStorage'].getItem('PTPLAYERQUALITY')) || 'Original', // The quality profile
+      chosenQuality: JSON.parse(window.localStorage.getItem('PTPLAYERQUALITY')) || 'Original', // The quality profile
       chosenSubtitleIndex: 0, // Subtitle track index
       chosenAudioTrackIndex: 0, // Audio track index
       sources: [],
@@ -300,32 +290,32 @@ export default {
       dialog: false,
       destroyed: false,
 
-      lastSentTimeline: {}
-    }
+      lastSentTimeline: {},
+    };
   },
   watch: {
-    chosenKey: function () {
-      this.changedPlaying(true)
+    chosenKey() {
+      this.changedPlaying(true);
     },
-    chosenServer: function () {
-      this.changedPlaying(true)
+    chosenServer() {
+      this.changedPlaying(true);
     },
-    chosenQuality: function () {
-      this.changedPlaying(false)
+    chosenQuality() {
+      this.changedPlaying(false);
       // console.log('Our new preferred quality is now ' + this.chosenQuality )
-      this.$store.commit('setSettingPTPLAYERQUALITY', this.chosenQuality)
+      this.$store.commit('setSettingPTPLAYERQUALITY', this.chosenQuality);
     },
-    chosenMediaIndex: function () {
-      this.chosenSubtitleIndex = 0
-      this.chosenAudioTrackIndex = 0
-      this.changedPlaying(false)
+    chosenMediaIndex() {
+      this.chosenSubtitleIndex = 0;
+      this.chosenAudioTrackIndex = 0;
+      this.changedPlaying(false);
     },
-    chosenAudioTrackIndex: function () {
+    chosenAudioTrackIndex() {
       // console.log('Audio track change')
-      let audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id
-      let baseparams = this.getSourceByLabel(this.chosenQuality).params
-      let params = {
-        audioStreamID: audioStreamID,
+      const audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id;
+      const baseparams = this.getSourceByLabel(this.chosenQuality).params;
+      const params = {
+        audioStreamID,
         'X-Plex-Product': baseparams['X-Plex-Product'],
         'X-Plex-Version': baseparams['X-Plex-Version'],
         'X-Plex-Client-Identifier': baseparams['X-Plex-Client-Identifier'],
@@ -334,35 +324,34 @@ export default {
         'X-Plex-Device': baseparams['X-Plex-Device'],
         'X-Plex-Device-Name': baseparams['X-Plex-Device-Name'],
         'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
-        'X-Plex-Token': baseparams['X-Plex-Token']
+        'X-Plex-Token': baseparams['X-Plex-Token'],
+      };
+      let query = '';
+      for (const key in params) {
+        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
       }
-      var query = ''
-      for (let key in params) {
-        query +=
-          encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-      }
-      let url = this.chosenServer.chosenConnection.uri + '/library/parts/' + this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id + '?' + query
-      this.ready = false
-      let options = {
+      const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id}?${query}`;
+      this.ready = false;
+      const options = {
         method: 'PUT',
-        url: url
-      }
+        url,
+      };
       request(options, (error, response, body) => {
         if (!error) {
-          this.changedPlaying(false)
+          this.changedPlaying(false);
         }
         // console.log(error)
-      })
+      });
     },
-    chosenSubtitleIndex: function () {
+    chosenSubtitleIndex() {
       // console.log('Subtitle track change')
-      let subtitleStreamID = 0
+      let subtitleStreamID = 0;
       if (this.chosenSubtitleIndex > -1) {
-        subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].id
+        subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].id;
       }
-      let baseparams = this.getSourceByLabel(this.chosenQuality).params
-      let params = {
-        subtitleStreamID: subtitleStreamID,
+      const baseparams = this.getSourceByLabel(this.chosenQuality).params;
+      const params = {
+        subtitleStreamID,
         'X-Plex-Product': baseparams['X-Plex-Product'],
         'X-Plex-Version': baseparams['X-Plex-Version'],
         'X-Plex-Client-Identifier': baseparams['X-Plex-Client-Identifier'],
@@ -371,236 +360,235 @@ export default {
         'X-Plex-Device': baseparams['X-Plex-Device'],
         'X-Plex-Device-Name': baseparams['X-Plex-Device-Name'],
         'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
-        'X-Plex-Token': baseparams['X-Plex-Token']
+        'X-Plex-Token': baseparams['X-Plex-Token'],
+      };
+      let query = '';
+      for (const key in params) {
+        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
       }
-      var query = ''
-      for (let key in params) {
-        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-      }
-      let url = this.chosenServer.chosenConnection.uri + '/library/parts/' + this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id + '?' + query
-      this.ready = false
-      let options = {
+      const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id}?${query}`;
+      this.ready = false;
+      const options = {
         method: 'PUT',
-        url: url
-      }
+        url,
+      };
       request(options, (error, response, body) => {
         if (!error) {
-          this.changedPlaying(false)
+          this.changedPlaying(false);
         }
         // console.log(error)
-      })
-    }
+      });
+    },
   },
   computed: {
-    plex: function () {
-      return this.$store.getters.getPlex
+    plex() {
+      return this.$store.getters.getPlex;
     },
-    me: function () {
-      return this.$store.state.me
+    me() {
+      return this.$store.state.me;
     },
-    manualSyncQueued: function () {
-      return this.$store.state.manualSyncQueued
+    manualSyncQueued() {
+      return this.$store.state.manualSyncQueued;
     },
-    chosenCombo: function () {
+    chosenCombo() {
       // Helper for our watch chosenCombo
-      return this.chosenKey || this.chosenServer
+      return this.chosenKey || this.chosenServer;
     },
-    settings: function () {
-      return this.$store.state.settings
+    settings() {
+      return this.$store.state.settings;
     },
-    chosenClient () {
-      return this.$store.getters.getChosenClient
+    chosenClient() {
+      return this.$store.getters.getChosenClient;
     },
-    mediaIndexSelect () {
-      let mediaDone = []
+    mediaIndexSelect() {
+      const mediaDone = [];
       if (!this.playingMetadata) {
-        return mediaDone
+        return mediaDone;
       }
       for (let i = 0; i < this.playingMetadata.Media.length; i++) {
-        let current = this.playingMetadata.Media[i]
+        const current = this.playingMetadata.Media[i];
         mediaDone.push({
           id: i,
-          text: current.videoResolution + 'p  (' + current.videoCodec + ' ' + current.bitrate + 'kbps)'
-        })
+          text: `${current.videoResolution}p  (${current.videoCodec} ${current.bitrate}kbps)`,
+        });
       }
-      return mediaDone
+      return mediaDone;
     },
-    audioTrackSelect () {
-      let audioTracks = []
+    audioTrackSelect() {
+      const audioTracks = [];
       if (!this.playingMetadata) {
-        return audioTracks
+        return audioTracks;
       }
       if (
         this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length === 1
       ) {
-        return audioTracks
+        return audioTracks;
       }
       for (let i = 0; i < this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length; i++) {
-        let current = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[i]
+        const current = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[i];
         if (current.streamType === 2) {
           audioTracks.push({
             id: i,
-            text: current.language + ' (' + current.codec + ' ' + current.audioChannelLayout + ')'
-          })
+            text: `${current.language} (${current.codec} ${current.audioChannelLayout})`,
+          });
         }
       }
-      return audioTracks
+      return audioTracks;
     },
-    subtitleTrackSelect () {
-      let subtitleTracks = []
+    subtitleTrackSelect() {
+      const subtitleTracks = [];
       if (!this.playingMetadata) {
-        return subtitleTracks
+        return subtitleTracks;
       }
       if (this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length === 1) {
-        return subtitleTracks
+        return subtitleTracks;
       }
       subtitleTracks.push({
         id: -1,
-        text: 'None'
-      })
+        text: 'None',
+      });
       for (let i = 0; i < this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length; i++) {
-        let current = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[i]
+        const current = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[i];
         if (current.streamType === 3) {
           subtitleTracks.push({
             id: i,
-            text: current.language + ' (' + current.codec + ')'
-          })
+            text: `${current.language} (${current.codec})`,
+          });
         }
       }
 
-      return subtitleTracks
+      return subtitleTracks;
     },
-    qualitiesSelect () {
-      let sourcesDone = []
+    qualitiesSelect() {
+      const sourcesDone = [];
       for (let i = 0; i < this.sources.length; i++) {
         sourcesDone.push({
           id: this.sources[i].label,
-          text: this.sources[i].label
-        })
+          text: this.sources[i].label,
+        });
       }
-      return sourcesDone
+      return sourcesDone;
     },
-    thumbUrl () {
+    thumbUrl() {
       if (!this.playingMetadata) {
-        return
+        return;
       }
-      return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb || this.playingMetadata.thumb, 200, 200)
-    }
+      return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb || this.playingMetadata.thumb, 200, 200);
+    },
   },
-  beforeDestroy: function () {
-    this.destroyed = true
+  beforeDestroy() {
+    this.destroyed = true;
   },
   methods: {
-    playerMounted: function () {
+    playerMounted() {
       // console.log('Child player said it is mounted')
     },
-    getSourceByLabel: function (label) {
+    getSourceByLabel(label) {
       for (let i = 0; i < this.sources.length; i++) {
-        let source = this.sources[i]
+        const source = this.sources[i];
         if (source.label === label) {
-          return source
+          return source;
         }
       }
-      return null
+      return null;
     },
-    doManualSync: function () {
-      console.log('Setting manual sync to true')
-      this.$store.commit('SET_VALUE', ['manualSyncQueued', true])
+    doManualSync() {
+      this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
     },
-    openModal () {
-      return this.$refs.playersettingsModal.open()
+    openModal() {
+      return this.$refs.playersettingsModal.open();
     },
-    getTitle (content) {
+    getTitle(content) {
       switch (content.type) {
         case 'movie':
           if (this.fullTitle !== undefined) {
             if (content.year) {
-              return content.title + ' (' + content.year + ')'
+              return `${content.title} (${content.year})`;
             }
           }
-          return content.title
+          return content.title;
         case 'show':
-          return content.title
+          return content.title;
         case 'season':
           if (this.fullTitle !== undefined) {
-            return content.parentTitle
+            return content.parentTitle;
           }
-          return content.title
+          return content.title;
         case 'episode':
           if (this.fullTitle !== undefined) {
-            return content.title
+            return content.title;
           }
-          return content.grandparentTitle
+          return content.grandparentTitle;
         default:
-          return content.title
+          return content.title;
       }
     },
-    getUnder (content) {
+    getUnder(content) {
       switch (content.type) {
         case 'movie':
           if (content.year) {
-            return content.year
+            return content.year;
           }
-          return ' '
+          return ' ';
         case 'show':
           if (content.childCount === 1) {
-            return content.childCount + ' season'
+            return `${content.childCount} season`;
           }
-          return content.childCount + ' seasons'
+          return `${content.childCount} seasons`;
         case 'season':
           if (this.fullTitle !== undefined) {
-            return content.title
+            return content.title;
           }
-          return content.leafCount + ' episodes'
+          return `${content.leafCount} episodes`;
         case 'album':
-          return content.year
+          return content.year;
         case 'artist':
-          return ''
+          return '';
         case 'episode':
           if (this.fullTitle !== undefined) {
-            return 'Episode ' + content.index
+            return `Episode ${content.index}`;
           }
           return (
-            ' S' +
-            content.parentIndex +
-            'E' +
-            content.index +
-            ' - ' +
-            content.title
-          )
+            ` S${
+              content.parentIndex
+            }E${
+              content.index
+            } - ${
+              content.title}`
+          );
         default:
-          return content.title
+          return content.title;
       }
     },
-    generateSources () {
-      var that = this
-      let QualityTemplate = function (label, resolution, bitrate, videoQuality) {
-        var session = that.generateGuid()
-        this.label = label
+    generateSources() {
+      const that = this;
+      const QualityTemplate = function (label, resolution, bitrate, videoQuality) {
+        const session = that.generateGuid();
+        this.label = label;
         this.initUrl = that.initTranscodeSessionUrl({
           maxVideoBitrate: bitrate,
           videoResolution: resolution,
-          videoQuality: videoQuality,
-          session: session
-        })
+          videoQuality,
+          session,
+        });
         this.params = that.getBaseParams({
           maxVideoBitrate: bitrate,
           videoResolution: resolution,
-          videoQuality: videoQuality,
-          session: session
-        })
+          videoQuality,
+          session,
+        });
         this.src = that.generateTranscodeUrl({
           maxVideoBitrate: bitrate,
           videoResolution: resolution,
-          videoQuality: videoQuality,
-          session: session
-        })
+          videoQuality,
+          session,
+        });
         this.stopUrl = that.generateTranscodeStopUrl({
-          session: session
-        })
-        this.type = 'application/x-mpegURL'
-      }
-      let qualities = [
+          session,
+        });
+        this.type = 'application/x-mpegURL';
+      };
+      const qualities = [
         new QualityTemplate('64 Kbps', '220x128', 64, 10),
         new QualityTemplate('96 Kbps', '220x128', 96, 20),
         new QualityTemplate('208 Kbps', '284x160', 208, 30),
@@ -614,106 +602,101 @@ export default {
         new QualityTemplate('10 Mbps 1080p', '1920x1080', 10000, 75),
         new QualityTemplate('12 Mbps 1080p', '1920x1080', 12000, 90),
         new QualityTemplate('20 Mbps 1080p', '1920x1080', 20000, 100),
-        new QualityTemplate('Original', null, null, null)
-      ]
-      return qualities.reverse()
+        new QualityTemplate('Original', null, null, null),
+      ];
+      return qualities.reverse();
     },
-    stopPlayback () {
-      console.log('Stopped Playback')
-      this.$store.commit('SET_VALUE', ['decisionBlocked', false])
-      request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {})
-      this.playerstatus = 'stopped'
-      this.sessionId = this.generateGuid()
-      this.xplexsession = this.generateGuid()
-      this.chosenClient.pressStop(function () {})
+    stopPlayback() {
+      console.log('Stopped Playback');
+      this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
+      request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {});
+      this.playerstatus = 'stopped';
+      this.sessionId = this.generateGuid();
+      this.xplexsession = this.generateGuid();
+      this.chosenClient.pressStop(() => {});
     },
-    changedPlaying: function (changeItem) {
-      this.ready = false
-      this.$store.commit('SET_VALUE', ['decisionBlocked', false])
-      console.log('Changed what we are meant to be playing!', changeItem)
+    changedPlaying(changeItem) {
+      this.ready = false;
+      this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
+      console.log('Changed what we are meant to be playing!', changeItem);
       if (!this.chosenKey || !this.chosenServer) {
-        this.playerstatus = 'stopped'
-        this.playerMetadata = null
-        return
+        this.playerstatus = 'stopped';
+        this.playerMetadata = null;
+        return;
       }
 
       const req = () => {
-        this.sources = this.generateSources()
+        this.sources = this.generateSources();
         request(this.getSourceByLabel(this.chosenQuality).initUrl, (error, response, body) => {
           parseXMLString(body, (err, result) => {
             if (err) {
-              this.ready = false
+              this.ready = false;
             }
-            this.ready = true
-            this.transcodeSessionMetadata = result
-          })
-          if (!error) {
-          }
-        })
-      }
+            this.ready = true;
+            this.transcodeSessionMetadata = result;
+          });
+        });
+      };
 
       if (this.playingMetadata) {
-        request(
-          this.getSourceByLabel(this.chosenQuality).stopUrl, () => {
-            // We dont need to know what this resulted in
-          }
-        )
+        request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {
+          // We dont need to know what this resulted in
+        });
       }
       if (changeItem || !this.playingMetadata) {
-        this.playingMetadata = null
-        this.chosenServer.getMediaByRatingKey(this.chosenKey).then(result => {
-          this.playingMetadata = result.MediaContainer.Metadata[0]
-          req()
-        })
+        this.playingMetadata = null;
+        this.chosenServer.getMediaByRatingKey(this.chosenKey).then((result) => {
+          this.playingMetadata = result.MediaContainer.Metadata[0];
+          req();
+        });
       } else {
-        req()
+        req();
       }
     },
-    timelineUpdate (data) {
-      this.playertime = data.time
-      this.playerstatus = data.status
-      this.bufferedTill = data.bufferedTill
-      this.playerduration = data.duration
+    timelineUpdate(data) {
+      this.playertime = data.time;
+      this.playerstatus = data.status;
+      this.bufferedTill = data.bufferedTill;
+      this.playerduration = data.duration;
 
       if (this.lastSentTimeline.state !== data.status || this.chosenKey !== this.lastSentTimeline.key) {
-        let key = this.chosenKey
-        let ratingKey = null
+        const key = this.chosenKey;
+        let ratingKey = null;
         if (key) {
-          ratingKey = '/library/metadata/' + key
+          ratingKey = `/library/metadata/${key}`;
         }
-        let machineIdentifier = null
+        let machineIdentifier = null;
         if (this.chosenServer) {
-          machineIdentifier = this.chosenServer.clientIdentifier
+          machineIdentifier = this.chosenServer.clientIdentifier;
         }
-        let playerdata = {
-          key: key,
-          ratingKey: ratingKey,
+        const playerdata = {
+          key,
+          ratingKey,
           time: this.playertime,
           type: 'video',
-          machineIdentifier: machineIdentifier,
+          machineIdentifier,
           duration: this.playerduration,
-          state: this.playerstatus
-        }
-        this.lastSentTimeline = playerdata
-        console.log('Emitting an immediate change')
-        this.chosenClient.updateTimelineObject(playerdata)
+          state: this.playerstatus,
+        };
+        this.lastSentTimeline = playerdata;
+        this.chosenClient.updateTimelineObject(playerdata);
       }
     },
-    playerSeekDone (data) {},
-    generateTranscodeUrl (overrideparams) {
-      let params = this.getBaseParams(overrideparams)
+    playerSeekDone(data) {},
+    generateTranscodeUrl(overrideparams) {
+      const params = this.getBaseParams(overrideparams);
 
-      var query = ''
-      for (let key in params) {
+      let query = '';
+      for (const key in params) {
         query +=
-          encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+          `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
       }
-      let url = this.chosenServer.chosenConnection.uri + '/video/:/transcode/universal/start.m3u8?' + query
+      const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/start.m3u8?${query}`;
       // console.log(url)
-      return url
+      return url;
     },
-    generateTranscodeStopUrl (overrideparams) {
-      let params = {
+    generateTranscodeStopUrl(overrideparams) {
+      const params = {
         session: this.sessionId,
         'X-Plex-Product': 'SyncLounge',
         'X-Plex-Version': '3.4.1',
@@ -721,41 +704,41 @@ export default {
         'X-Plex-Platform': this.browser,
         'X-Plex-Platform-Version': '57.0',
         'X-Plex-Device': 'Windows',
-        'X-Plex-Device-Screen-Resolution': window.screen.availWidth + 'x' + window.screen.availHeight,
-        'X-Plex-Token': this.chosenServer.accessToken
-      }
-      for (let key in overrideparams) {
+        'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight}`,
+        'X-Plex-Token': this.chosenServer.accessToken,
+      };
+      for (const key in overrideparams) {
         if (!overrideparams[key]) {
-          delete params[key]
+          delete params[key];
         } else {
-          params[key] = overrideparams[key]
+          params[key] = overrideparams[key];
         }
       }
-      let query = ''
-      for (let key in params) {
-        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+      let query = '';
+      for (const key in params) {
+        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
       }
-      let url = this.chosenServer.chosenConnection.uri + '/video/:/transcode/universal/stop?' + query
+      const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/stop?${query}`;
       // console.log(url)
-      return url
+      return url;
     },
-    initTranscodeSessionUrl (overrideparams) {
+    initTranscodeSessionUrl(overrideparams) {
       // We need to tell the Plex Server to start transcoding
-      let params = this.getBaseParams(overrideparams)
+      const params = this.getBaseParams(overrideparams);
 
-      var query = ''
-      for (let key in params) {
-        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+      let query = '';
+      for (const key in params) {
+        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
       }
-      let url = this.chosenServer.chosenConnection.uri + '/video/:/transcode/universal/decision?' + query
-      return url
+      const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/decision?${query}`;
+      return url;
     },
-    getBaseParams (overrideparams) {
-      let location = 'wan'
+    getBaseParams(overrideparams) {
+      let location = 'wan';
       if (this.plex.servers[this.playingMetadata.machineIdentifier].publicAddressMatches === '1') {
-        location = 'lan'
+        location = 'lan';
       }
-      let params = {
+      const params = {
         hasMDE: 1,
         path: this.playingMetadata.key,
         mediaIndex: this.chosenMediaIndex,
@@ -766,7 +749,7 @@ export default {
         directStream: 1,
         subtitleSize: 100,
         audioBoost: 100,
-        location: location,
+        location,
         session: this.sessionId,
         offset: 0,
         // offset: Math.round(this.playertime / 1000),
@@ -782,81 +765,50 @@ export default {
         'X-Plex-Platform-Version': '57.0',
         'X-Plex-Device': 'Web',
         'X-Plex-Device-Name': 'SyncLounge',
-        'X-Plex-Device-Screen-Resolution': window.screen.availWidth + 'x' + window.screen.availHeight,
-        'X-Plex-Token': this.chosenServer.accessToken
-      }
+        'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight}`,
+        'X-Plex-Token': this.chosenServer.accessToken,
+      };
       if (JSON.parse(this.settings.SLPLAYERFORCETRANSCODE)) {
-        params.directStream = 0
-        params['X-Plex-Device'] = 'HTML TV App'
+        params.directStream = 0;
+        params['X-Plex-Device'] = 'HTML TV App';
       }
-      for (let key in overrideparams) {
+      for (const key in overrideparams) {
         if (!overrideparams[key]) {
-          delete params[key]
+          delete params[key];
         } else {
-          params[key] = overrideparams[key]
+          params[key] = overrideparams[key];
         }
       }
-      return params
+      return params;
     },
-    sendPMSPoll () {
-      // // We need to tell the PMS about our player every 20s
-
-      // const send = () => {
-      //   let params = {
-      //     deviceClass: 'pc',
-      //     protocolCapabilities: 'playback',
-      //     protocolVersion: '1',
-      //     timeout: 1,
-      //     'X-Plex-Product': 'SyncLounge',
-      //     'X-Plex-Version': '3.4.1',
-      //     'X-Plex-Client-Identifier': 'SyncLounge',
-      //     'X-Plex-Platform': this.browser,
-      //     'X-Plex-Platform-Version': '57.0',
-      //     'X-Plex-Device': 'Windows',
-      //     'X-Plex-Device-Name': 'SyncLounge',
-      //     'X-Plex-Device-Screen-Resolution':
-      //       window.screen.availWidth + 'x' + window.screen.availHeight,
-      //     'X-Plex-Token': this.chosenServer.accessToken
-      //   }
-      //   let query = ''
-      //   for (let key in params) {
-      //     query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-      //   }
-      //   let url = this.chosenServer.chosenConnection.uri + '/player/proxy/poll?' + query
-      //   request(url, function () {})
-      // }
-
-      // setInterval(function () {
-      //   // send()
-      // }, 20000)
-      // // send()
+    sendPMSPoll() {
     },
-    generateGuid () {
-      function s4 () {
+    generateGuid() {
+      function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
           .toString(16)
-          .substring(1)
+          .substring(1);
       }
-      return s4() + s4() + s4() + s4()
+      return s4() + s4() + s4() + s4();
     },
-    getBrowser () {
-      let sBrowser
-      let sUsrAg = navigator.userAgent
+    getBrowser() {
+      let sBrowser;
+      const sUsrAg = navigator.userAgent;
       if (sUsrAg.indexOf('Chrome') > -1) {
-        sBrowser = 'Chrome'
+        sBrowser = 'Chrome';
       } else if (sUsrAg.indexOf('Safari') > -1) {
-        sBrowser = 'Safari'
+        sBrowser = 'Safari';
       } else if (sUsrAg.indexOf('Opera') > -1) {
-        sBrowser = 'Opera'
+        sBrowser = 'Opera';
       } else if (sUsrAg.indexOf('Firefox') > -1) {
-        sBrowser = 'Firefox'
+        sBrowser = 'Firefox';
       } else if (sUsrAg.indexOf('MSIE') > -1) {
-        sBrowser = 'Microsoft Internet Explorer'
+        sBrowser = 'Microsoft Internet Explorer';
       }
-      return sBrowser
-    }
-  }
-}
+      return sBrowser;
+    },
+  },
+};
 </script>
 
 <style>

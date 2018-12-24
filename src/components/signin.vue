@@ -47,10 +47,11 @@
 </template>
 
 <script>
-var axios = require('axios')
+const axios = require('axios');
+
 export default {
   name: 'signin',
-  data () {
+  data() {
     return {
       pin: null,
       ID: null,
@@ -62,116 +63,114 @@ export default {
         'X-Plex-Product': 'SyncLounge',
         'X-Plex-Version': this.$store.state.appVersion,
         'X-Plex-Platform-Version': '',
-        'X-Plex-Client-Identifier': this.$store.state.settings.CLIENTIDENTIFIER
+        'X-Plex-Client-Identifier': this.$store.state.settings.CLIENTIDENTIFIER,
       },
       code: null,
       ready: false,
 
-      openedWindow: null
+      openedWindow: null,
 
-    }
+    };
   },
   methods: {
-    openPopup: function () {
-      let w = 450
-      let h = 600
+    openPopup() {
+      const w = 450;
+      const h = 600;
       // Credit: https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
       // Fixes dual-screen position                         Most browsers      Firefox
-      let dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
-      let dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+      const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+      const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
 
-      let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
-      let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
+      const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+      const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
 
-      let left = ((width / 2) - (w / 2)) + dualScreenLeft
-      let top = ((height / 2) - (h / 2)) + dualScreenTop
-      let newWindow = window.open(this.url, 'Sign in with Plex.tv', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
+      const left = ((width / 2) - (w / 2)) + dualScreenLeft;
+      const top = ((height / 2) - (h / 2)) + dualScreenTop;
+      let newWindow = window.open(this.url, 'Sign in with Plex.tv', `scrollbars=yes, width=${w}, height=${h}, top=${top}, left=${left}`);
       if (!newWindow) {
-        newWindow = window.open(this.url, '_blank')
+        newWindow = window.open(this.url, '_blank');
       }
       // Puts focus on the newWindow
       if (window.focus) {
-        newWindow.focus()
+        newWindow.focus();
       }
-      this.openedWindow = newWindow
+      this.openedWindow = newWindow;
     },
-    letsGo: async function () {
+    async letsGo() {
       if (this.$store.state.autoJoin) {
-        console.log('Autojoining...')
         this.$store.dispatch('autoJoin', {
           server: this.$store.state.autoJoinUrl,
           password: this.$store.state.autoJoinPassword,
-          room: this.$store.state.autoJoinRoom
-        })
+          room: this.$store.state.autoJoinRoom,
+        });
       }
-      this.$router.push('/browse')
-    }
+      this.$router.push('/browse');
+    },
   },
   computed: {
-    store: function () {
-      return this
+    store() {
+      return this;
     },
     HIDEUSERNAME: {
-      get () {
-        return (this.$store.getters.getSettings['HIDEUSERNAME'])
+      get() {
+        return (this.$store.getters.getSettings.HIDEUSERNAME);
       },
-      set (value) {
-        this.$store.commit('setSetting', ['HIDEUSERNAME', value])
-      }
+      set(value) {
+        this.$store.commit('setSetting', ['HIDEUSERNAME', value]);
+      },
     },
     ALTUSERNAME: {
-      get () {
-        return this.$store.getters.getSettings['ALTUSERNAME']
+      get() {
+        return this.$store.getters.getSettings.ALTUSERNAME;
       },
-      set (value) {
-        this.$store.commit('setSetting', ['ALTUSERNAME', value])
-      }
+      set(value) {
+        this.$store.commit('setSetting', ['ALTUSERNAME', value]);
+      },
     },
-    sBrowser: function () {
-      let sBrowser
-      let sUsrAg = navigator.userAgent
+    sBrowser() {
+      let sBrowser;
+      const sUsrAg = navigator.userAgent;
 
       if (sUsrAg.indexOf('Chrome') > -1) {
-        sBrowser = 'Google Chrome'
+        sBrowser = 'Google Chrome';
       } else if (sUsrAg.indexOf('Safari') > -1) {
-        sBrowser = 'Apple Safari'
+        sBrowser = 'Apple Safari';
       } else if (sUsrAg.indexOf('Opera') > -1) {
-        sBrowser = 'Opera'
+        sBrowser = 'Opera';
       } else if (sUsrAg.indexOf('Firefox') > -1) {
-        sBrowser = 'Mozilla Firefox'
+        sBrowser = 'Mozilla Firefox';
       } else if (sUsrAg.indexOf('MSIE') > -1) {
-        sBrowser = 'Microsoft Internet Explorer'
+        sBrowser = 'Microsoft Internet Explorer';
       }
-      return sBrowser
+      return sBrowser;
     },
-    url: function () {
+    url() {
       if (this.code) {
-        return 'https://app.plex.tv/auth/#!?clientID=' + this.headers['X-Plex-Client-Identifier'] + '&code=' + this.code
+        return `https://app.plex.tv/auth/#!?clientID=${this.headers['X-Plex-Client-Identifier']}&code=${this.code}`;
       }
-    }
+      return '';
+    },
   },
-  async mounted () {
-    this.headers['X-Plex-Platform'] = this.sBrowser
-    let { data } = await axios.create().post('https://plex.tv/api/v2/pins?strong=true', {}, { headers: { ...this.headers } })
-    console.log('Got back post request', data)
-    this.code = data.code
+  async mounted() {
+    this.headers['X-Plex-Platform'] = this.sBrowser;
+    const { data } = await axios.create().post('https://plex.tv/api/v2/pins?strong=true', {}, { headers: { ...this.headers } });
+    this.code = data.code;
     this.ticker = setInterval(async () => {
-      let result = await axios('https://plex.tv/api/v2/pins/' + data.id, {
-        headers: { ...this.headers }
-      })
-      console.log('Result form pin check', result)
+      const result = await axios(`https://plex.tv/api/v2/pins/${data.id}`, {
+        headers: { ...this.headers },
+      });
       if (result && result.data && result.data.authToken) {
         if (this.openedWindow) {
-          this.openedWindow.close()
+          this.openedWindow.close();
         }
-        clearInterval(this.ticker)
-        window.localStorage.setItem('plexuser', JSON.stringify({ authToken: result.data.authToken }))
-        await this.$store.dispatch('PLEX_LOGIN_TOKEN', result.data.authToken)
-        this.token = result.data.authToken
-        this.ready = true
-        this.letsGo()
+        clearInterval(this.ticker);
+        window.localStorage.setItem('plexuser', JSON.stringify({ authToken: result.data.authToken }));
+        await this.$store.dispatch('PLEX_LOGIN_TOKEN', result.data.authToken);
+        this.token = result.data.authToken;
+        this.ready = true;
+        this.letsGo();
       }
-    }, 2000)
-  }
-}
+    }, 2000);
+  },
+};
 </script>

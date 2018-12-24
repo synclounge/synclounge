@@ -5,7 +5,7 @@
           <v-container fill-height>
             <v-layout row wrap>
               <v-flex xs12 md3 class="text-xs-center">
-                <img :src="logos.light.small" style="width: 90%"/>
+                <img :src="logos.light.small" style="width: 90%" />
               </v-flex>
               <v-flex md9>
                 <h1 class="white--text pa-1"> Welcome to SyncLounge!</h1>
@@ -39,82 +39,62 @@
 
 export default {
   name: 'join',
-  mounted: function () {
-    this.password = this.$route.query.password || ''
-    this.room = this.$route.query.room
-    this.server = this.$route.query.server
-    this.owner = this.$route.query.owner
+  mounted() {
+    this.password = this.$route.query.password || '';
+    this.room = this.$route.query.room;
+    this.server = this.$route.query.server;
+    this.owner = this.$route.query.owner;
   },
-  data () {
+  data() {
     return {
       server: null,
       password: null,
       room: null,
-      owner: null
-    }
+      owner: null,
+    };
   },
   watch: {
-    gotDevices: function (to, from) {
-      console.log('plex changed', to)
+    gotDevices(to) {
       if (to) {
-        console.log('autojoin is', this.$route.query.autojoin)
         if (this.$route.query.autojoin) {
-          this.letsGo()
+          this.letsGo();
         }
       }
-    }
+    },
   },
   computed: {
-    logo: function () {
-      return this.$store.getters.logos.light.short
+    logo() {
+      return this.$store.getters.logos.light.short;
     },
-    gotDevices: function () {
-      return this.$store.state.plex.gotDevices
+    gotDevices() {
+      return this.$store.state.plex.gotDevices;
     },
-    loading: function () {
+    loading() {
       if (!window.localStorage.getItem('plexuser')) {
-        return false
+        return false;
       }
-      return !this.$store.state.plex.gotDevices
-    }
+      return !this.$store.state.plex.gotDevices;
+    },
   },
   methods: {
-    async letsGo () {
-      console.log('Doing autojoin')
-      this.$store.commit('SET_AUTOJOIN', true)
-      this.$store.commit('SET_AUTOJOINROOM', this.room)
-      this.$store.commit('SET_AUTOJOINPASSWORD', this.password)
-      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.owner])
-      this.$store.commit('SET_AUTOJOINURL', this.server)
+    async letsGo() {
+      this.$store.commit('SET_AUTOJOIN', true);
+      this.$store.commit('SET_AUTOJOINROOM', this.room);
+      this.$store.commit('SET_AUTOJOINPASSWORD', this.password);
+      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.owner]);
+      this.$store.commit('SET_AUTOJOINURL', this.server);
       if (window.localStorage.getItem('plexuser')) {
-        console.log('Auto joining')
         await this.$store.dispatch('autoJoin', {
           server: this.server,
           password: this.password,
-          room: this.room
-        })
-        this.$router.push('/browse')
+          room: this.room,
+        });
+        this.$router.push('/browse');
       } else {
-        this.$router.push('/signin')
+        this.$router.push('/signin');
       }
-      // this.$store.dispatch('socketConnect', {
-      //   address: this.$store.getters.getAutoJoinUrl,
-      //   callback: function () {
-      //     let temporaryObj = {
-      //     user: this.plex.user,
-      //     roomName: this.room.toLowerCase(),
-      //     password: this.password
-      //   }
-      //   this.$store.dispatch('joinRoom', temporaryObj).then(() => {
-      //     resolve()
-      //   }).catch(e => {
-      //     this.roomError = e
-      //     return reject(e)
-      //   })
-      //   }
-      // })
-    }
-  }
+    },
+  },
 
-}
+};
 </script>

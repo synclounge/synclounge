@@ -3,7 +3,7 @@
     <v-card color="blue darken-4" hover style="height: 100%; width: 230px">
       <v-layout row wrap justify-center align-center>
         <v-flex md2 class="hidden-xs-only text-xs-center">
-          <img :src="thumb" style="height: 52px; vertical-align: middle"/>
+          <img :src="thumb" style="height: 52px; vertical-align: middle" />
         </v-flex>
         <v-flex md10 xs12 class="pl-3 pa-1 text-xs-left" style="overflow: hidden; white-space: nowrap; line-height: 24px">
           <div style="font-size: 18px">Now Playing</div>
@@ -20,12 +20,12 @@
 export default {
   components: {
   },
-  data () {
+  data() {
     return {
 
-    }
+    };
   },
-  mounted: async function () {
+  async mounted() {
 
   },
   watch: {
@@ -35,86 +35,84 @@ export default {
 
   },
   computed: {
-    item: function () {
-      return this.chosenClient.clientPlayingMetadata
+    item() {
+      return this.chosenClient.clientPlayingMetadata;
     },
-    href: function () {
-      return '/nowplaying/' + this.item.machineIdentifier + '/' + this.item.ratingKey
+    href() {
+      return `/nowplaying/${this.item.machineIdentifier}/${this.item.ratingKey}`;
     },
-    chosenClient: function () {
-      return this.$store.getters.getChosenClient
+    chosenClient() {
+      return this.$store.getters.getChosenClient;
     },
-    plexserver: function () {
-      if (!this.item) {
-        return
-      }
-      return this.plex.servers[this.item.machineIdentifier]
+    plexserver() {
+      if (!this.item) return null;
+      return this.plex.servers[this.item.machineIdentifier];
     },
-    thumb: function () {
-      return this.plexserver.getUrlForLibraryLoc(this.item[this.imageType], 100, 300)
+    thumb() {
+      return this.plexserver.getUrlForLibraryLoc(this.item[this.imageType], 100, 300);
     },
-    imageType: function () {
+    imageType() {
       switch (this.item.type) {
         case 'movie':
-          return 'thumb'
+          return 'thumb';
         case 'show':
-          return 'parentThumb'
+          return 'parentThumb';
         case 'episode':
-          return 'grandparentThumb'
+          return 'grandparentThumb';
         default:
-          return 'thumb'
+          return 'thumb';
       }
     },
-    getTitle () {
+    getTitle() {
       switch (this.item.type) {
         case 'movie':
           if (this.fullTitle !== undefined) {
             if (this.item.year) {
-              return this.item.title + ' (' + this.item.year + ')'
+              return `${this.item.title} (${this.item.year})`;
             }
           }
-          return this.item.title
+          return this.item.title;
         case 'show':
-          return this.item.title
+          return this.item.title;
         case 'season':
-          return this.item.title
+          return this.item.title;
         case 'episode':
-          return this.item.grandparentTitle
+          return this.item.grandparentTitle;
         default:
-          return this.item.title
+          return this.item.title;
       }
     },
-    getUnder () {
+    getUnder() {
       switch (this.item.type) {
         case 'movie':
           if (this.item.year) {
-            return this.item.year
+            return this.item.year;
           }
-          return ' '
+          return ' ';
         case 'show':
           if (this.item.childCount === 1) {
-            return this.item.childCount + ' season'
+            return `${this.item.childCount} season`;
           }
-          return this.item.childCount + ' seasons'
+          return `${this.item.childCount} seasons`;
         case 'season':
-          return this.item.leafCount + ' episodes'
+          return `${this.item.leafCount} episodes`;
         case 'album':
-          return this.item.year
+          return this.item.year;
         case 'artist':
-          return ''
+          return '';
         case 'episode':
           return (
-            ' S' +
-            this.item.parentIndex +
-            'E' +
-            this.item.index +
-            ' - ' +
-            this.item.title
-          )
+            ` S${
+              this.item.parentIndex
+            }E${
+              this.item.index
+            } - ${
+              this.item.title}`
+          );
         default:
-          return this.item.title
+          return this.item.title;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

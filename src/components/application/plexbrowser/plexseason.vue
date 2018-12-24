@@ -26,7 +26,7 @@
                     <v-divider></v-divider>
                     <p style="font-style: italic" class="pt-3; overflow: hidden"> {{ contents.summary }} </p>
                     <div>
-                      <div style="float:right" class="pa-4" >
+                      <div style="float:right" class="pa-4">
                         <v-chip v-if="contents.MediaContainer.grandparentContentRating" label color="grey"> {{ contents.MediaContainer.grandparentContentRating }}</v-chip>
                         <v-chip v-if="contents.MediaContainer.grandparentStudio"  secondary color="grey"> {{ contents.MediaContainer.grandparentStudio }}</v-chip>
                       </div>
@@ -51,73 +51,74 @@
 </template>
 
 <script>
-import plexcontent from './plexcontent'
-import plexthumb from './plexthumb.vue'
+import plexcontent from './plexcontent';
+import plexthumb from './plexthumb.vue';
 
 export default {
   props: ['library', 'server', 'content'],
   components: {
     plexcontent,
-    plexthumb
+    plexthumb,
   },
-  created () {
+  created() {
     // Hit the PMS endpoing /library/sections
     this.plexserver.getSeriesChildren(this.$route.params.ratingKey, 0, 500, 1, this.$route.params.sectionId)
-      .then(result => {
+      .then((result) => {
         if (result) {
-          this.contents = result
-          this.setBackground()
+          this.contents = result;
+          this.setBackground();
         } else {
-          this.status = 'Error loading content!'
+          this.status = 'Error loading content!';
         }
-      })
+      });
   },
-  data () {
+  data() {
     return {
       browsingContent: null,
 
       contents: null,
-      status: 'loading..'
-    }
+      status: 'loading..',
+    };
   },
   watch: {
-    browsingContent: function () {
+    browsingContent() {
       if (!this.browsingContent) {
-        this.$store.commit('SET_BACKGROUND', null)
+        this.$store.commit('SET_BACKGROUND', null);
       }
-    }
-  },
-  mounted () {},
-  beforeDestroy () {},
-  computed: {
-    getArtUrl () {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 2, h / 1, 2)
     },
-    getThumb () {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.thumb || this.contents.MediaContainer.grandparentThumb || this.contents.MediaContainer.parentThumb,
+  },
+  mounted() {},
+  beforeDestroy() {},
+  computed: {
+    getArtUrl() {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 2, h / 1, 2);
+    },
+    getThumb() {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      return this.plexserver.getUrlForLibraryLoc(
+        this.contents.MediaContainer.thumb || this.contents.MediaContainer.grandparentThumb || this.contents.MediaContainer.parentThumb,
         w / 1,
-        h / 2
-      )
-    }
+        h / 2,
+      );
+    },
   },
   methods: {
-    setContent (content) {
-      this.browsingContent = content
+    setContent(content) {
+      this.browsingContent = content;
     },
-    setBackground () {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+    setBackground() {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
 
-      this.$store.commit('SET_BACKGROUND', this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.art, w / 4, h / 4, 2))
+      this.$store.commit('SET_BACKGROUND', this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.art, w / 4, h / 4, 2));
     },
-    reset () {
-      this.browsingContent = false
-      this.setBackground()
-    }
-  }
-}
+    reset() {
+      this.browsingContent = false;
+      this.setBackground();
+    },
+  },
+};
 </script>

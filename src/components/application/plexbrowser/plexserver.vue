@@ -14,10 +14,10 @@
           <v-flex xs12 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-1" :key="library.name">
             <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" flat class="clickable text-xs-center" style="max-width:100%; cursor: pointer; border-radius: 0px !important">
               <div style="position:relative; width:100%; background: rgba(0,0,0,0.4); height:8em" class="hidden-xs-only">
-                <img style="height: 70%; display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)"/>
+                <img style="height: 70%; display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)" />
               </div>
               <div style="background: rgba(0,0,0,0.7); position:relative; width:100%;" class="text-xs-center pa-1">
-                <h2 class="truncate text-xs-left text-sm-center" >{{ library.title }}</h2>
+                <h2 class="truncate text-xs-left text-sm-center">{{ library.title }}</h2>
               </div>
             </v-card>
           </v-flex>
@@ -34,7 +34,7 @@
           </v-flex>
         </v-layout>
         <v-layout v-if="onDeck" row wrap>
-          <v-flex xs12 sm6 md4 lg3 class="pb-3 pa-1" v-for="content in subsetOnDeck()" :key="content.key" >
+          <v-flex xs12 sm6 md4 lg3 class="pb-3 pa-1" v-for="content in subsetOnDeck()" :key="content.key">
             <plexthumb :content="content" :server="server" type="art" @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
@@ -44,7 +44,7 @@
             <h4>Recently Added</h4>
           </v-flex>
           <v-flex xs6>
-            <span style="float:right; user-select: none;"> <v-icon fa @click="recentlyAddedDown" style="margin-right: 15px;cursor: pointer;" :style="recentlyAddedDownStyle">fa-angle-left</v-icon><v-icon fa :style="recentlyAddedUpStyle"  @click="recentlyAddedUp" style="cursor: pointer" >fa-angle-right</v-icon>
+            <span style="float:right; user-select: none;"> <v-icon fa @click="recentlyAddedDown" style="margin-right: 15px;cursor: pointer;" :style="recentlyAddedDownStyle">fa-angle-left</v-icon><v-icon fa :style="recentlyAddedUpStyle"  @click="recentlyAddedUp" style="cursor: pointer">fa-angle-right</v-icon>
             </span>
           </v-flex>
         </v-layout>
@@ -58,16 +58,17 @@
 </template>
 
 <script>
-let plexthumb = require('./plexthumb.vue')
+const plexthumb = require('./plexthumb.vue');
 
-var _ = require('lodash')
+const _ = require('lodash');
+
 export default {
   components: {
-    plexthumb
+    plexthumb,
   },
-  created () {
+  created() {
   },
-  data () {
+  data() {
     return {
       browsingLibrary: null,
       selectedItem: null,
@@ -79,208 +80,207 @@ export default {
       onDeck: null,
 
       onDeckOffset: 0,
-      recentlyAddedOffset: 0
-    }
+      recentlyAddedOffset: 0,
+    };
   },
-  mounted: async function () {
+  async mounted() {
     this.server.getAllLibraries().then((data) => {
       if (data) {
-        this.libraries = data
+        this.libraries = data;
       } else {
-        this.status = 'Error loading libraries!'
+        this.status = 'Error loading libraries!';
       }
-    })
+    });
     this.server.getRecentlyAddedAll(0, 12).then((result) => {
       if (result) {
-        this.recentlyAdded = result
-        this.setBackground()
+        this.recentlyAdded = result;
+        this.setBackground();
       }
-    })
-    this.updateOnDeck()
+    });
+    this.updateOnDeck();
   },
-  beforeDestroy () {
+  beforeDestroy() {
 
   },
   computed: {
-    recentItemsPer () {
+    recentItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
-        case 'xs': return 3
-        case 'sm': return 6
-        case 'md': return 12
-        case 'lg': return 12
-        case 'xl': return 12
+        case 'xs': return 3;
+        case 'sm': return 6;
+        case 'md': return 12;
+        case 'lg': return 12;
+        case 'xl': return 12;
       }
     },
-    onDeckItemsPer () {
+    onDeckItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
-        case 'xs': return 1
-        case 'sm': return 2
-        case 'md': return 3
-        case 'lg': return 4
-        case 'xl': return 4
+        case 'xs': return 1;
+        case 'sm': return 2;
+        case 'md': return 3;
+        case 'lg': return 4;
+        case 'xl': return 4;
       }
     },
-    clientIdentifier () {
-      return this.$route.params.machineIdentifier
+    clientIdentifier() {
+      return this.$route.params.machineIdentifier;
     },
-    server () {
-      return this.plex.servers[this.clientIdentifier]
+    server() {
+      return this.plex.servers[this.clientIdentifier];
     },
-    plex () {
-      return this.$store.getters.getPlex
+    plex() {
+      return this.$store.getters.getPlex;
     },
-    filteredLibraries () {
+    filteredLibraries() {
       if (this.libraries) {
-        return this.libraries.MediaContainer.Directory
+        return this.libraries.MediaContainer.Directory;
       }
-      return []
+      return [];
     },
-    onDeckUpStyle () {
+    onDeckUpStyle() {
       if ((this.onDeckOffset + this.onDeckItemsPer) >= this.onDeck.MediaContainer.Metadata.length) {
         return {
-          opacity: 0.5
-        }
+          opacity: 0.5,
+        };
       }
     },
-    onDeckDownStyle () {
+    onDeckDownStyle() {
       if (this.onDeckOffset === 0) {
         return {
-          opacity: 0.5
-        }
+          opacity: 0.5,
+        };
       }
     },
-    recentlyAddedDownStyle () {
+    recentlyAddedDownStyle() {
       if (this.recentlyAddedOffset === 0) {
         return {
-          opacity: 0.5
-        }
+          opacity: 0.5,
+        };
       }
     },
-    recentlyAddedUpStyle () {
+    recentlyAddedUpStyle() {
       if ((this.recentlyAddedOffset + this.recentItemsPer) >= this.recentlyAdded.MediaContainer.Metadata.length) {
         return {
-          opacity: 0.5
-        }
+          opacity: 0.5,
+        };
       }
-    }
+    },
 
   },
   methods: {
-    setContent (content) {
-      this.selectedItem = content
+    setContent(content) {
+      this.selectedItem = content;
     },
-    setLibrary (library) {
-      console.log('Setting library', library)
-      this.$router.push('/browse/' + this.server.clientIdentifier + '/' + library.key)
+    setLibrary(library) {
+      this.$router.push(`/browse/${this.server.clientIdentifier}/${library.key}`);
       // this.browsingLibrary = library
     },
-    updateOnDeck () {
+    updateOnDeck() {
       this.server.getOnDeck(0, 10).then((result) => {
         if (result) {
-          this.onDeck = result
+          this.onDeck = result;
         }
-      })
+      });
     },
-    onDeckDown () {
+    onDeckDown() {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return false
+        return false;
       }
       if (this.onDeckOffset - this.onDeckItemsPer < 0) {
-        this.onDeckOffset = 0
+        this.onDeckOffset = 0;
       } else {
-        this.onDeckOffset = this.onDeckOffset - 4
+        this.onDeckOffset = this.onDeckOffset - 4;
       }
     },
-    onDeckUp () {
+    onDeckUp() {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return false
+        return false;
       }
       if (this.onDeckOffset + this.onDeckItemsPer >= this.onDeck.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
-        this.onDeckOffset = this.onDeckOffset + this.onDeckItemsPer
+        this.onDeckOffset = this.onDeckOffset + this.onDeckItemsPer;
       }
     },
-    recentlyAddedUp () {
+    recentlyAddedUp() {
       if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
-        return false
+        return false;
       }
       if (this.recentlyAddedOffset + this.recentItemsPer >= this.recentlyAdded.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
-        this.recentlyAddedOffset = this.recentlyAddedOffset + this.recentItemsPer
+        this.recentlyAddedOffset = this.recentlyAddedOffset + this.recentItemsPer;
       }
     },
-    recentlyAddedDown () {
+    recentlyAddedDown() {
       if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
-        return false
+        return false;
       }
       if (this.recentlyAddedOffset - this.recentItemsPer < 0) {
-        this.recentlyAddedOffset = 0
+        this.recentlyAddedOffset = 0;
       } else {
-        this.recentlyAddedOffset = this.recentlyAddedOffset - this.recentItemsPer
+        this.recentlyAddedOffset = this.recentlyAddedOffset - this.recentItemsPer;
       }
     },
-    setBackground () {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
+    setBackground() {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
 
-      let randomItem = _.sample(this.recentlyAdded.MediaContainer.Metadata)
-      let url = randomItem.art
-      this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6))
+      const randomItem = _.sample(this.recentlyAdded.MediaContainer.Metadata);
+      const url = randomItem.art;
+      this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6));
     },
-    subsetOnDeck () {
+    subsetOnDeck() {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return []
+        return [];
       }
-      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + this.onDeckItemsPer)
+      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + this.onDeckItemsPer);
     },
-    subsetRecentlyAdded () {
+    subsetRecentlyAdded() {
       if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
-        return []
+        return [];
       }
-      return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset, this.recentlyAddedOffset + this.recentItemsPer)
+      return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset, this.recentlyAddedOffset + this.recentItemsPer);
     },
-    progress (content) {
-      let perc = (parseInt(content.viewOffset) / parseInt(content.duration)) * 100
+    progress(content) {
+      let perc = (parseInt(content.viewOffset) / parseInt(content.duration)) * 100;
       if (isNaN(perc)) {
-        perc = 0
+        perc = 0;
       }
-      return perc + '%'
+      return `${perc}%`;
     },
-    getArt (object) {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1)
+    getArt(object) {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1);
     },
-    getArtLibrary (object) {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1, 15)
+    getArtLibrary(object) {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1, 15);
     },
-    getThumb (object) {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return this.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
+    getThumb(object) {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      return this.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4);
     },
-    getTitleMovie (movie) {
+    getTitleMovie(movie) {
       if (movie.year) {
-        return movie.title + ' (' + movie.year + ')'
+        return `${movie.title} (${movie.year})`;
       }
-      return movie.title
+      return movie.title;
     },
-    getGrandparentThumb (object) {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 4)
+    getGrandparentThumb(object) {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 4);
     },
-    reset () {
-      this.updateOnDeck()
-      this.browsingLibrary = false
-      this.selectedItem = false
-      this.setBackground()
-    }
+    reset() {
+      this.updateOnDeck();
+      this.browsingLibrary = false;
+      this.selectedItem = false;
+      this.setBackground();
+    },
 
-  }
-}
+  },
+};
 </script>
