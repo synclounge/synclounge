@@ -58,14 +58,16 @@ export default {
     });
   }),
 
-  PLEX_GET_DEVICES: ({ state, commit, dispatch }) => new Promise((resolve, reject) => {
+  PLEX_GET_DEVICES: ({ state, commit, dispatch }, dontDelete) => new Promise((resolve, reject) => {
     if (!state.user) {
       return reject(new Error('Sign in before getting devices'));
     }
 
-    commit('PLEX_SET_VALUE', ['gotDevices', false]);
-    commit('PLEX_SET_VALUE', ['servers', {}]);
-    commit('PLEX_SET_VALUE', ['clients', {}]);
+    if (!dontDelete) {
+      commit('PLEX_SET_VALUE', ['gotDevices', false]);
+      commit('PLEX_SET_VALUE', ['servers', {}]);
+      commit('PLEX_SET_VALUE', ['clients', {}]);
+    }
     const options = PlexAuth.getApiOptions('https://plex.tv/api/resources?includeHttps=1', state.user.authToken, 5000, 'GET');
     request(options, (error, response, body) => {
       if (!error && response.statusCode === 200) {

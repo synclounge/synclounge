@@ -33,8 +33,8 @@
         <div v-if="results.length > 0">
           <v-layout v-if="filteredMovies && filteredMovies.length > 0" row wrap>
             <!--Movies-->
-            <v-flex xs12 lg12 >
-              <v-subheader > Movies ({{ filteredMovies.length }})</v-subheader>
+            <v-flex xs12 lg12>
+              <v-subheader> Movies ({{ filteredMovies.length }})</v-subheader>
             </v-flex>
             <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="movie in filteredMovies" :key="movie.key">
               <plexthumb :content="movie" :server="movie.server" showServer search @contentSet="setContent(movie)"></plexthumb>
@@ -42,8 +42,8 @@
           </v-layout>
           <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
             <!--Shows-->
-            <v-flex xs12 lg12 >
-              <v-subheader > TV Shows ({{ filteredShows.length }})</v-subheader>
+            <v-flex xs12 lg12>
+              <v-subheader> TV Shows ({{ filteredShows.length }})</v-subheader>
             </v-flex>
             <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="show in filteredShows" :key="show.key">
               <plexthumb :content="show" :server="show.server" showServer search @contentSet="setContent(show)"></plexthumb>
@@ -51,8 +51,8 @@
           </v-layout>
           <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
             <!--Episodes-->
-            <v-flex xs12 lg12 >
-              <v-subheader > TV Episodes ({{ filteredEpisodes.length }})</v-subheader>
+            <v-flex xs12 lg12>
+              <v-subheader> TV Episodes ({{ filteredEpisodes.length }})</v-subheader>
             </v-flex>
             <v-flex xs6 md3 xl2 lg2 class="pb-3 ma-2" v-for="episode in filteredEpisodes" :key="episode.key">
               <plexthumb :content="episode" :server="episode.server" showServer type="art" search @contentSet="setContent(episode)"></plexthumb>
@@ -68,14 +68,17 @@
           </span>
         </h4>
         <v-layout v-if="onDeck" row justify-center>
-          <v-flex xs12 md3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key" >
+          <v-flex xs12 md3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key">
             <plexthumb :content="content" :server="lastServer" type="art" @contentSet="setContent(content)"></plexthumb>
           </v-flex>
         </v-layout>
       </div>
       <v-divider></v-divider>
       <div class="pt-4" v-if="results.length == 0">
-        <h4> Browse </h4>
+        <h4>
+          Browse
+          <v-icon @click="PLEX_GET_DEVICES(true)" class="pl-2" small>refresh</v-icon>
+        </h4>
         <v-layout row wrap>
           <v-flex xs12 v-if="Object.keys(plex.servers).length === 0">
             <h5>
@@ -115,139 +118,140 @@
 </template>
 
 <script>
-import plexthumb from './plexbrowser/plexthumb'
+import { mapActions } from 'vuex';
+import plexthumb from './plexbrowser/plexthumb';
 
-var _ = require('lodash')
+const _ = require('lodash');
 
 export default {
   components: {
-    plexthumb
+    plexthumb,
   },
   name: 'plexbrowser',
-  mounted () {
-    this.updateOnDeck()
+  mounted() {
+    this.updateOnDeck();
   },
   methods: {
-    setContent (content) {
-      this.selectedItem = content
+    ...mapActions(['PLEX_GET_DEVICES']),
+    setContent(content) {
+      this.selectedItem = content;
     },
-    setServer (server) {
-      this.browsingServer = server
+    setServer(server) {
+      this.browsingServer = server;
     },
-    isConnectable (server) {
-      return this.plex.servers[server.clientIdentifier] && this.plex.servers[server.clientIdentifier].chosenConnection
+    isConnectable(server) {
+      return this.plex.servers[server.clientIdentifier] && this.plex.servers[server.clientIdentifier].chosenConnection;
     },
-    updateOnDeck: async function () {
+    async updateOnDeck() {
       if (this.lastServer) {
-        this.onDeck = await this.lastServer.getOnDeck(0, 10)
+        this.onDeck = await this.lastServer.getOnDeck(0, 10);
       }
     },
-    subsetOnDeck (size) {
+    subsetOnDeck(size) {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return []
+        return [];
       }
-      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + this.onDeckItemsPer)
+      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + this.onDeckItemsPer);
     },
-    reset () {
-      this.updateOnDeck()
-      this.browsingServer = false
-      this.selectedItem = false
-      this.results = []
-      this.searchWord = ''
-      this.searching = false
-      this.setBackground()
+    reset() {
+      this.updateOnDeck();
+      this.browsingServer = false;
+      this.selectedItem = false;
+      this.results = [];
+      this.searchWord = '';
+      this.searching = false;
+      this.setBackground();
       // this.$store.commit('SET_BACKGROUND',null)
     },
-    onDeckDown () {
+    onDeckDown() {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return false
+        return false;
       }
       if (this.onDeckOffset - 4 < 0) {
-        this.onDeckOffset = 0
+        this.onDeckOffset = 0;
       } else {
-        this.onDeckOffset = this.onDeckOffset - 4
+        this.onDeckOffset = this.onDeckOffset - 4;
       }
     },
-    onDeckUp () {
+    onDeckUp() {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return false
+        return false;
       }
       if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
-        this.onDeckOffset = this.onDeckOffset + 4
+        this.onDeckOffset = this.onDeckOffset + 4;
       }
     },
-    ownerOfServer (server) {
+    ownerOfServer(server) {
       if (server.owned === '1') {
-        return 'you'
-      } else {
-        return server.sourceTitle
+        return 'you';
       }
+      return server.sourceTitle;
     },
-    setBackground () {
+    setBackground() {
       // this.$store.commit('SET_RANDOMBACKROUND')
       // this.$store.commit('SET_BACKROUND',null)
     },
-    getThumb (object) {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4)
+    getThumb(object) {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4);
     },
-    getArt (object) {
-      var w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0))
-      var h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0))
-      return object.server.getUrlForLibraryLoc(object.art, w / 4, h / 4)
+    getArt(object) {
+      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      return object.server.getUrlForLibraryLoc(object.art, w / 4, h / 4);
     },
-    getTitleMovie (movie) {
+    getTitleMovie(movie) {
       if (movie.year) {
-        return movie.title + ' (' + movie.year + ')'
+        return `${movie.title} (${movie.year})`;
       }
-      return movie.title
+      return movie.title;
     },
-    heardBack (server) {
+    heardBack(server) {
       for (let i = 0; i < this.serversHeardBack.length; i++) {
-        let tempserver = this.serversHeardBack[i]
+        const tempserver = this.serversHeardBack[i];
         if (tempserver.clientIdentifier === server.clientIdentifier) {
-          return true
+          return true;
         }
       }
-      return false
+      return false;
     },
     searchAllServers: _.debounce(function () {
       if (this.searchWord === '') {
-        this.results = []
-        this.searchStatus = 'Search your available Plex Media Servers'
-        return
+        this.results = [];
+        this.searchStatus = 'Search your available Plex Media Servers';
+        return;
       }
-      this.searching = true
-      this.results = []
-      this.serversResponded = 0
-      let storedWord = this.searchWord
-      for (let i in this.plex.servers) {
-        let server = this.plex.servers[i]
-        server.search(this.searchWord).then(serverSearchResults => {
+      this.searching = true;
+      this.results = [];
+      this.serversResponded = 0;
+      const storedWord = this.searchWord;
+      for (const i in this.plex.servers) {
+        const server = this.plex.servers[i];
+        server.search(this.searchWord).then((serverSearchResults) => {
           if (storedWord !== this.searchWord) {
             // Old data
-            return
+            return;
           }
-          this.serversResponded++
-          this.serversHeardBack.push(server)
+          this.serversResponded++;
+          this.serversHeardBack.push(server);
           if (serverSearchResults) {
             for (let j = 0; j < serverSearchResults.length; j++) {
-              serverSearchResults[j].server = server
+              serverSearchResults[j].server = server;
             }
-            this.results = this.results.concat(serverSearchResults)
+            this.results = this.results.concat(serverSearchResults);
           }
-          this.searchStatus = 'Found ' + this.results.length + ' results from ' + this.serversResponded + ' servers'
+          this.searchStatus = `Found ${this.results.length} results from ${this.serversResponded} servers`;
           if (this.serversResponded === Object.keys(this.plex.servers).length) {
-            this.searching = false
+            this.searching = false;
           }
-        })
+        });
       }
-    }, 1000)
+    }, 1000),
   },
-  data () {
+  data() {
     return {
       browsingServer: null,
       selectedItem: null,
@@ -259,108 +263,108 @@ export default {
       searchWord: '',
       searchStatus: 'Search your available Plex Media Servers',
       searching: false,
-      serversHeardBack: []
-    }
+      serversHeardBack: [],
+    };
   },
   watch: {
-    searchWord () {
+    searchWord() {
       if (this.searchWord === '') {
-        this.results = []
-        this.searchStatus = 'Search your available Plex Media Servers'
-        return
+        this.results = [];
+        this.searchStatus = 'Search your available Plex Media Servers';
+        return;
       }
-      this.searchAllServers()
-    }
+      this.searchAllServers();
+    },
   },
   computed: {
-    plex () {
-      return this.$store.getters.getPlex
+    plex() {
+      return this.$store.getters.getPlex;
     },
-    onDeckItemsPer () {
+    onDeckItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
-        case 'xs': return 1
-        case 'sm': return 2
-        case 'md': return 4
-        case 'lg': return 4
-        case 'xl': return 4
+        case 'xs': return 1;
+        case 'sm': return 2;
+        case 'md': return 4;
+        case 'lg': return 4;
+        case 'xl': return 4;
       }
     },
-    availableServers () {
-      let servers = this.plex.servers.filter(function (server) {
+    availableServers() {
+      const servers = this.plex.servers.filter((server) => {
         if (server.chosenConnection) {
-          return true
+          return true;
         }
-        return false
-      })
-      return servers
+        return false;
+      });
+      return servers;
     },
-    validLastServer () {
+    validLastServer() {
       return (
         this.$store.getters.getSettingLASTSERVER &&
         this.plex.servers[this.$store.getters.getSettingLASTSERVER]
-      )
+      );
     },
-    lastServer () {
-      return this.plex.servers[this.$store.getters.getSettingLASTSERVER]
+    lastServer() {
+      return this.plex.servers[this.$store.getters.getSettingLASTSERVER];
     },
-    onDeckUpStyle () {
+    onDeckUpStyle() {
       if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length) {
         return {
-          opacity: 0.5
-        }
+          opacity: 0.5,
+        };
       }
     },
-    onDeckDownStyle () {
+    onDeckDownStyle() {
       if (this.onDeckOffset === 0) {
         return {
-          opacity: 0.5
-        }
+          opacity: 0.5,
+        };
       }
     },
-    filteredShows () {
-      return this.results.filter(item => {
+    filteredShows() {
+      return this.results.filter((item) => {
         if (!item) {
-          return false
+          return false;
         }
         if (item.type === 'show') {
-          return true
+          return true;
         }
-        return false
-      })
+        return false;
+      });
     },
-    filteredEpisodes () {
-      return this.results.filter(item => {
+    filteredEpisodes() {
+      return this.results.filter((item) => {
         if (!item) {
-          return false
+          return false;
         }
         if (item.type === 'episode') {
-          return true
+          return true;
         }
-        return false
-      })
+        return false;
+      });
     },
-    filteredMovies () {
-      return this.results.filter(item => {
+    filteredMovies() {
+      return this.results.filter((item) => {
         if (!item) {
-          return false
+          return false;
         }
         if (item.type === 'movie') {
-          return true
+          return true;
         }
-        return false
-      })
+        return false;
+      });
     },
-    filteredSeasons () {
-      return this.results.filter(item => {
+    filteredSeasons() {
+      return this.results.filter((item) => {
         if (!item) {
-          return false
+          return false;
         }
         if (item.type === 'series') {
-          return true
+          return true;
         }
-        return false
-      })
-    }
-  }
-}
+        return false;
+      });
+    },
+  },
+};
 </script>
