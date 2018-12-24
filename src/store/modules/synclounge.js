@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 const EventEmitter = require('events');
 const moment = require('moment');
 const axios = require('axios');
@@ -32,6 +34,7 @@ export default {
     password: false,
     users: [],
     messages: [],
+    partyPausing: false,
     me: '',
     decisionBlocked: 0,
     lastHostTimeline: {},
@@ -46,6 +49,7 @@ export default {
     getConnected: state => state.connected,
     getMessages: state => state.messages,
     getSocket: state => state._socket,
+    getPartyPausing: state => () => state.partyPausing,
   },
   mutations: {
     SET_CONNECTED(state, value) {
@@ -68,6 +72,9 @@ export default {
     },
     SET_SERVER(state, value) {
       state.server = value;
+    },
+    SET_PARTYPAUSING(state, value) {
+      Vue.set(state, 'partyPausing', value);
     },
     ADD_MESSAGE(state, msg) {
       msg.time = moment().format('h:mm A');
@@ -145,12 +152,13 @@ export default {
           username = rootState.settings.ALTUSERNAME;
         }
         state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid, username));
-        state._socket.on('join-result', async (result, _data, details, currentUsers) => {
+        state._socket.on('join-result', async (result, _data, details, currentUsers, partyPausing) => {
           commit('CLEAR_MESSAGES');
           if (result) {
             commit('SET_ROOM', _data.room);
             commit('SET_USERS', currentUsers);
             commit('SET_ME', _data.username);
+            commit('SET_PARTYPAUSING', partyPausing);
 
             sendNotification(`Joined room: ${_data.room}`);
             // Add this item to our recently-connected list
@@ -183,7 +191,6 @@ export default {
             };
             // if (settings.webroot) urlOrigin = urlOrigin + settings.webroot
             axios.post(`${urlOrigin}/invite`, data).then((res) => {
-              console.log('INVITE DATA RESULT', res);
               commit('SET_SHORTLINK', res.data.url);
             });
 
@@ -196,6 +203,25 @@ export default {
               if (state.commands[commandId]) {
                 state.commands[commandId].end = new Date().getTime();
                 state.commands[commandId].difference = Math.abs(state.commands[commandId].end - state.commands[commandId].start);
+              }
+            });
+            state._socket.on('party-pausing-changed', ({ value, user }) => {
+              commit('ADD_MESSAGE', {
+                msg: `Party Pausing is now ${value ? 'enabled' : 'disabled'}`,
+                user,
+                type: 'alert',
+              });
+              commit('SET_PARTYPAUSING', value);
+            });
+            state._socket.on('party-pausing-pause', (user) => {
+              commit('ADD_MESSAGE', {
+                msg: `${user.username} pressed pause`,
+                user,
+                type: 'alert',
+              });
+              sendNotification(`${user.username} pressed pause`);
+              if (rootState.chosenClient) {
+                rootState.chosenClient.pressPause();
               }
             });
             state._socket.on('user-joined', (users, user, commandId) => {
@@ -273,12 +299,10 @@ export default {
 
                     sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
                     const result = await rootState.chosenClient.playContentAutomatically(rootState.chosenClient, hostTimeline, servers, hostTimeline.time).catch(async (e) => {
-                      console.log('Host timeline', hostTimeline);
                       const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
                       if (hostServer && hostTimeline.key) {
                         let isBlocked = false;
                         const blockedServers = JSON.parse(rootState.settings.BLOCKEDSERVERS);
-                        console.log('Blocked servers', rootState.settings.BLOCKEDSERVERS);
                         if (blockedServers && blockedServers.length > 0) {
                           blockedServers.map((server) => {
                             if (server === hostTimeline.machineIdentifier) {
@@ -287,7 +311,6 @@ export default {
                           });
                         }
                         if (!isBlocked) {
-                          console.log('Attempting to play directly from the server the host is using as we have access');
                           try {
                             await rootState.chosenClient.playMedia({
                               ratingKey: hostTimeline.key,
@@ -300,7 +323,6 @@ export default {
                             }, 15000);
                             return resolve();
                           } catch (e) {
-                            console.log('Error playing directly from the same server as the host', e);
                           }
                         }
                       }
@@ -309,7 +331,6 @@ export default {
                         rootState.blockAutoPlay = false;
                       }, 15000);
                     });
-                    console.log(`Auto play result: ${result}`);
                     await new Promise((resolve, reject) => {
                       setTimeout(() => resolve(), 1000);
                     });
@@ -461,6 +482,20 @@ export default {
       if (state._socket.connected) {
         state._socket.emit('transfer_host', {
           username,
+        });
+      }
+    },
+    updatePartyPausing({ state, commit }, value) {
+      commit('SET_PARTYPAUSING', value);
+      if (state._socket.connected) {
+        state._socket.emit('party_pausing_change', value);
+      }
+    },
+    sendPartyPause({ rootState, state, commit }) {
+      if (state._socket.connected) {
+        state._socket.emit('party_pausing_send', (response) => {
+          console.log('Response from send', response);
+          if (response) rootState.chosenClient.pressPause();
         });
       }
     },

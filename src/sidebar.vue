@@ -21,14 +21,48 @@
             </v-flex>
           </v-layout>
         </v-flex>
-
-        <v-subheader>Users ({{ ptUsers.length }})</v-subheader>
+        <v-subheader>
+          <v-container class="pa-0" justify-center align-center>
+            <v-layout row wrap align-center justify-center>
+              <v-flex xs6>
+                Users ({{ ptUsers.length }})
+              </v-flex>
+              <v-flex xs6>
+                <v-switch
+                  class="pa-0 ma-0 party-pausing-label"
+                  label="Party Pausing"
+                  style="font-size: 12px !important;"
+                  v-if="isHost(me)"
+                  v-model="partyPausing"
+                ></v-switch>
+                <v-tooltip
+                  bottom
+                  color="light-blue darken-4"
+                  v-else
+                >
+                  <v-btn
+                    color="primary"
+                    slot="activator"
+                    :disabled="!partyPausing"
+                    block
+                    @click="sendPartyPauseLocal()"
+                  >
+                    Pause
+                  </v-btn>
+                  <span> Party Pausing is currently {{ partyPausing ? 'enabled' : 'disabled' }} by the host </span>
+                </v-tooltip>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-subheader>
         <v-list dense two-line style="overflow: auto; max-height: calc(50vh - 84px); background: none">
           <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
             <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
               <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
                 <img v-bind:src="user.avatarUrl"  :style="getImgStyle(user)">
-                  <v-icon v-if="user.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">{{ playerState(user) }}</v-icon>
+                  <v-icon v-if="user.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">
+                    {{ playerState(user) }}
+                  </v-icon>
                 </img>
               </v-list-tile-avatar>
               <v-list-tile-content>
@@ -100,6 +134,9 @@
 </template>
 
 <script>
+
+import { mapActions, mapGetters } from 'vuex';
+
 export default {
   components: {
   },
@@ -108,6 +145,8 @@ export default {
       messageToBeSent: '',
       lastRecievedUpdate: new Date().getTime(),
       now: new Date().getTime(),
+
+      localPauseTimeout: false,
     };
   },
   mounted() {
@@ -133,6 +172,7 @@ export default {
     },
   },
   computed: {
+    ...mapGetters(['getPartyPausing']),
     plex() {
       return this.$store.getters.getPlex;
     },
@@ -205,13 +245,13 @@ export default {
     },
     playercount() {
       if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${this.$store.state.plex.clients.length })`;
+        return `(${this.$store.state.plex.clients.length})`;
       }
       return '';
     },
     servercount() {
       if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${this.$store.state.plex.servers.length })`;
+        return `(${this.$store.state.plex.servers.length})`;
       }
       return '';
     },
@@ -230,10 +270,27 @@ export default {
     difference() {
       return Math.abs(this.now - this.lastRecievedUpdate);
     },
+    partyPausing: {
+      get() {
+        if (this.localPauseTimeout) return false;
+        return this.getPartyPausing();
+      },
+      set(value) {
+        this.updatePartyPausing(value);
+      },
+    },
   },
   methods: {
+    ...mapActions(['updatePartyPausing', 'sendPartyPause']),
     isHost(user) {
       return user.role === 'host';
+    },
+    sendPartyPauseLocal() {
+      this.localPauseTimeout = true;
+      setTimeout(() => {
+        this.localPauseTimeout = false;
+      }, 3000);
+      this.sendPartyPause();
     },
     getUserColor(user) {
       if (user.status === 'good' || user.role === 'host') {
@@ -345,6 +402,15 @@ export default {
 }
 .wideinput .input-group__details {
   display: none;
+}
+.party-pausing-label label {
+  font-size: 12px !important;
+}
+.party-pausing-label .v-messages {
+  display: none;
+}
+.party-pausing-label .v-input__slot {
+  margin: 0;
 }
 
 </style>

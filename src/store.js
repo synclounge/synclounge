@@ -193,7 +193,7 @@ const mutations = {
 
   SET_VALUE(state, data) {
     const [key, value] = data;
-    state[key] = value;
+    Vue.set(state, key, value);
   },
 };
 const getters = {
