@@ -286,6 +286,12 @@ export default {
       if (!this.related) {
         return [];
       }
+      if (!this.related || !this.related.MediaContainer || !this.related.MediaContainer) {
+        return [];
+      }
+      if (!this.related.MediaContainer.Hub || !this.related.MediaContainer.Hub.length > 0) {
+        return [];
+      }
       const items = [];
       this.related.MediaContainer.Hub[0].Metadata.map((item) => {
         items.push(item);
