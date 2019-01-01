@@ -16,7 +16,6 @@
     </div>
     <v-layout row wrap>
       <v-flex xs12>
-
       </v-flex>
     </v-layout>
     <v-divider></v-divider>
@@ -33,17 +32,24 @@
 </template>
 
 <script>
+
+import { mapGetters, mapMutations } from 'vuex';
+
 export default {
   name: 'plexsettings',
   data () {
     return {
-      blockedServers: JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS']) || []
+      blockedServers: this.getSettings().BLOCKEDSERVERS,
     }
   },
   watch: {
     blockedServers: function () {
-      this.$store.commit('setSetting', ['BLOCKEDSERVERS', JSON.stringify(this.blockedServers)])
+      this.setSetting(['BLOCKEDSERVERS', this.blockedServers])
     }
+  },
+  methods: {
+    ...mapGetters(['getSettings']),
+    ...mapMutations(['setSetting']),
   },
   computed: {
     plex: function () {
@@ -54,7 +60,7 @@ export default {
     },
     HIDEUSERNAME: {
       get () {
-        return JSON.parse((this.$store.getters.getSettings['HIDEUSERNAME']))
+        return this.getSettings().HIDEUSERNAME
       },
       set (value) {
         this.$store.commit('setSetting', ['HIDEUSERNAME', value])
@@ -75,7 +81,7 @@ export default {
       }
       for (let id in this.plex.servers) {
         let server = this.plex.servers[id]
-        if (JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS']) && JSON.parse(this.$store.getters.getSettings['BLOCKEDSERVERS'])[server.clientIdentifier]) {
+        if (this.getSettings().BLOCKEDSERVERS && this.getSettings().BLOCKEDSERVERS[server]) {
           servers.push({
             name: server.name,
             id: server.clientIdentifier
@@ -90,8 +96,5 @@ export default {
       return servers
     }
   },
-  mounted: function () {
-    // Create event listeners
-  }
 }
 </script>

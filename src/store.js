@@ -1,50 +1,20 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import { get, set } from '@/utils/storage';
+import { generateGuid } from '@/utils/helpers';
+import { getAll } from '@/utils/settings';
+
 const plex = require('./store/modules/plex/').default;
 const syncLounge = require('./store/modules/synclounge.js').default;
 
 Vue.use(Vuex);
 
-// Persistant settings handling
-function getSetting(key) {
-  return window.localStorage.getItem(key);
-}
-
-function setSetting(key, value) {
-  return window.localStorage.setItem(key, value);
-}
-
 function sendNotification(message) {
   return window.EventBus.$emit('notification', message);
 }
 
-const defaultSettings = {
-  CLIENTPOLLINTERVAL: 1000,
-  AUTOPLAY: true,
-  HIDEUSERNAME: false,
-  DARKMODE: false,
-  SYNCMODE: 'cleanseak',
-  SYNCFLEXABILITY: 3000,
-  CUSTOMSERVER: 'http://',
-  SLPLAYERFORCETRANSCODE: true,
-  CLIENTIDENTIFIER: `${generateGuid()}-${generateGuid()}`,
-};
-
-for (const i in defaultSettings) {
-  if (getSetting(i) === undefined || getSetting(i) === null) {
-    setSetting(i, defaultSettings[i]);
-  }
-}
-function generateGuid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return `${s4() + s4()}-${s4()}${s4()}`;
-}
-
+console.log('Got settings', getAll());
 // Set up out web app socket for fetching short urls
 
 const state = {
@@ -69,29 +39,14 @@ const state = {
   upNextCache: {},
 
   // SETTINGS
-  settings: {
-    AUTOPLAY: getSetting('AUTOPLAY'),
-    CLIENTPOLLINTERVAL: getSetting('CLIENTPOLLINTERVAL'),
-    SYNCMODE: getSetting('SYNCMODE'),
-    SYNCFLEXABILITY: getSetting('SYNCFLEXABILITY'),
-    CUSTOMSERVER: getSetting('CUSTOMSERVER'),
-    BLOCKEDSERVERS: getSetting('BLOCKEDSERVERS'),
-    HOMEINIT: getSetting('HOMEINIT'),
-    PTPLAYERQUALITY: getSetting('PTPLAYERQUALITY'),
-    PTPLAYERVOLUME: getSetting('PTPLAYERVOLUME'),
-    SLPLAYERFORCETRANSCODE: getSetting('SLPLAYERFORCETRANSCODE'),
-    HIDEUSERNAME: getSetting('HIDEUSERNAME'),
-    ALTUSERNAME: getSetting('ALTUSERNAME'),
-    CLIENTIDENTIFIER: getSetting('CLIENTIDENTIFIER'),
-  },
+  settings: getAll(),
 
-  LASTSERVER: getSetting('LASTSERVER'),
+  LASTSERVER: get('LASTSERVER'),
   stats: {},
   me: {},
 };
 
 const mutations = {
-
   SET_CHOSENCLIENT(state, client) {
     // Set up our client poller
     let commandInProgress = false;
@@ -105,11 +60,14 @@ const mutations = {
       }
       if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
         if (!commandInProgress) {
-          state.chosenClient.getTimeline().then(() => {
-            commandInProgress = false;
-          }).catch((e) => {
-            commandInProgress = false;
-          });
+          state.chosenClient
+            .getTimeline()
+            .then(() => {
+              commandInProgress = false;
+            })
+            .catch((e) => {
+              commandInProgress = false;
+            });
           commandInProgress = true;
         }
       } else {
@@ -135,7 +93,7 @@ const mutations = {
     if (state.chosenClient == null) {
       return;
     }
-    state.chosenClientTimeSet = (new Date()).getTime();
+    state.chosenClientTimeSet = new Date().getTime();
     clientPoller(state.chosenClientTimeSet);
     state.chosenClient.getTimeline((timeline) => {});
   },
@@ -162,7 +120,7 @@ const mutations = {
   },
   setSetting(state, data) {
     Vue.set(state.settings, data[0], data[1]);
-    setSetting(data[0], data[1]);
+    set(data[0], data[1]);
   },
   setSettingPTPLAYERQUALITY(state, data) {
     window.localStorage.setItem('PTPLAYERQUALITY', JSON.stringify(data));
@@ -177,7 +135,7 @@ const mutations = {
     state.LASTSERVER = data;
   },
   setSettingHOMEINIT(state, data) {
-    setSetting('HOMEINIT', data);
+    set('HOMEINIT', data);
     state.HOMEINIT = data;
   },
   REFRESH_PLEXDEVICES() {
@@ -250,15 +208,24 @@ const actions = {
           return;
         }
         if (metadata.type === 'movie') {
-          sendNotification(`Now Playing: ${metadata.title} from ${state.plex.servers[metadata.machineIdentifier].name}`);
+          sendNotification(`Now Playing: ${metadata.title} from ${
+            state.plex.servers[metadata.machineIdentifier].name
+          }`);
         }
         if (metadata.type === 'episode') {
-          sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${metadata.index} from ${state.plex.servers[metadata.machineIdentifier].name}`);
+          sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
+            metadata.index
+          } from ${state.plex.servers[metadata.machineIdentifier].name}`);
         }
         state.chosenClient.clientPlayingMetadata = metadata;
         const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
         const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-        state.background = state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(metadata.thumb, w / 4, h / 4, 4);
+        state.background = state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(
+          metadata.thumb,
+          w / 4,
+          h / 4,
+          4,
+        );
       });
     } else {
       state.chosenClient.clientPlayingMetadata = null;
@@ -272,9 +239,9 @@ const actions = {
     // return true
     const timeline = data;
     const client = state.chosenClient;
-    const metadata = state.chosenClient.clientPlayingMetadata;
+    const metadata = state.chosenClient.clientPlayingMetadata || {};
     // console.log(state)
-    if (!state.chosenClient || (client.clientIdentifier !== state.chosenClient.clientIdentifier)) {
+    if (!state.chosenClient || client.clientIdentifier !== state.chosenClient.clientIdentifier) {
       console.log('Invalid client');
       return false;
     }
@@ -285,7 +252,12 @@ const actions = {
 
     // Check if we need to activate the upnext feature
     if (state.me && state.me.role === 'host') {
-      if (timeline.duration && timeline.time && Math.abs(timeline.duration - timeline.time) < 10000 && metadata.type === 'episode') {
+      if (
+        timeline.duration &&
+        timeline.time &&
+        Math.abs(timeline.duration - timeline.time) < 10000 &&
+        metadata.type === 'episode'
+      ) {
         console.log('Checking upnext');
         if (!state.upNextCache[timeline.machineIdentifier]) {
           state.upNextCache[timeline.machineIdentifier] = {};
@@ -298,7 +270,9 @@ const actions = {
             data.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
             state.upNextCache[timeline.machineIdentifier][timeline.key] = data;
             // Only proc upnext if the item upnext is from the same show
-            if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle) {
+            if (
+              data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle
+            ) {
               window.EventBus.$emit('upnext', data);
             }
           });
@@ -316,7 +290,9 @@ const actions = {
     if (state.chosenClient.clientPlayingMetadata) {
       rawTitle = metadata.title;
       if (metadata.type === 'episode') {
-        title = `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-` + `E${metadata.index}`;
+        title =
+          `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-` +
+          `E${metadata.index}`;
         showName = metadata.grandparentTitle;
       } else {
         title = metadata.title;
@@ -332,15 +308,15 @@ const actions = {
       if (state.synclounge.lastHostTimeline.playerState === 'playing') {
         hostTime = parseInt(hostTime) + parseInt(hostAge);
       }
-      const difference = Math.abs(data.time - (hostTime));
+      const difference = Math.abs(data.time - hostTime);
       if (difference > state.settings.SYNCFLEXABILITY) {
         status = 'notok';
       }
     }
 
     const endObj = {
-      time: timeline.time,
-      maxTime: timeline.duration,
+      time: parseInt(timeline.time),
+      maxTime: parseInt(timeline.duration),
       title,
       rawTitle,
       playerState: timeline.state,
@@ -362,7 +338,8 @@ const actions = {
       };
       endObj.commandId = commandId;
       if (Object.keys(state.synclounge.commands).length > 1) {
-        const latency = state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1].difference;
+        const latency =
+          state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1].difference;
         endObj.latency = latency;
       }
       state.synclounge._socket.emit('poll', endObj);
