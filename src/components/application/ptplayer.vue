@@ -1,5 +1,5 @@
 <template>
-  <div style="width:100%; position: relative; height: 100%;">
+  <div style="width:100%; position: relative">
     <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
       <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
         @playerMounted="playerMounted()"
@@ -106,73 +106,46 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-container fill-height class="pa-0">
-      <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3 hidden-sm-and-up">
-        <v-flex xs12>
-          <v-layout row wrap align-center justify-start>
-            <v-flex xs2>
-              <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto" />
+    <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3 hidden-sm-and-up">
+      <v-flex xs12>
+        <v-layout row wrap align-center justify-start>
+          <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto" />
+          <v-flex class="pl-2">
+            <v-container class="pa-0" fill-height>
+              <v-layout column wrap justify-space-apart>
+                <v-flex>
+                  <h1>{{ getTitle(playingMetadata) }}</h1>
+                </v-flex>
+                <v-flex>
+                  <h3>{{ getUnder(playingMetadata) }}</h3>
+                </v-flex>
+                <v-flex>
+                  <h5>Playing from {{ chosenServer.name  }}</h5>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-flex>
+          <v-layout row wrap class="">
+            <v-flex xs12>
+              <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
             </v-flex>
-            <v-flex xs10 class="pl-2">
-              <v-container class="pa-0" fill-height>
-                <v-layout column wrap justify-space-apart>
-                  <v-flex>
-                    <h2>{{ getTitle(playingMetadata) }}</h2>
-                  </v-flex>
-                  <v-flex>
-                    <h3>{{ getUnder(playingMetadata) }}</h3>
-                  </v-flex>
-                  <v-flex>
-                    <h5>Playing from {{ chosenServer.name  }}</h5>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-flex> 
-            <v-expansion-panel class="pt-2" dark>
-              <v-expansion-panel-content>
-                <div slot="header">Controls</div>
-                <v-card>
-                  <v-layout row wrap justify-space-around align-content-start class="pt-2">
-                    <v-flex xs12 class="pa-1">
-                      <v-btn
-                        large
-                        color="primary"
-                        slot="activator"
-                        :disabled="!partyPausing"
-                        block
-                        @click="sendPartyPauseLocal()"
-                      >
-                        Party Pause
-                      </v-btn>
-                    </v-flex>
-                    <v-flex xs6 v-if="me.role !== 'host'" class="pa-1">
-                      <v-btn block :disabled="manualSyncQueued" color="blue" large v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
-                    </v-flex>
-                    <v-flex xs6 class="pa-1">
-                      <v-btn block color="green" large v-on:click.native="dialog = !dialog">Settings</v-btn>
-                    </v-flex>
-                    <v-flex xs6 class="pa-1">
-                      <router-link to="/browse">
-                        <v-btn block color="error" large v-on:click.native="stopPlayback()">Stop</v-btn>
-                      </router-link>
-                    </v-flex>
-                  </v-layout>
-                </v-card>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-            <Chat :chatMaxHeight="chatHeight"/>
+            <v-flex xs12>
+              <v-btn block color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
+            </v-flex>
+            <v-flex xs12>
+              <router-link to="/browse">
+                <v-btn block color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+              </router-link>
+            </v-flex>
           </v-layout>
-        </v-flex>
-      </v-layout>
-    </v-container>
+        </v-layout>
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
-
 import videoplayer from './ptplayer/videoplayer.vue';
-import Chat from '@/components/application/chat.vue';
 
 const plexthumb = require('./plexbrowser/plexthumb.vue');
 
@@ -182,9 +155,7 @@ const parseXMLString = require('xml2js').parseString;
 export default {
   name: 'ptplayer',
   components: {
-    videoplayer, 
-    plexthumb,
-    Chat,
+    videoplayer, plexthumb,
   },
   mounted() {
     // Check if we have params
@@ -320,7 +291,6 @@ export default {
       destroyed: false,
 
       lastSentTimeline: {},
-      localPauseTimeout: false,
     };
   },
   watch: {
@@ -411,18 +381,11 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['getPartyPausing']),
     plex() {
       return this.$store.getters.getPlex;
     },
     me() {
       return this.$store.state.me;
-    },
-    breakpoint() {
-      return this.$vuetify.breakpoint.name;
-    },
-    chatHeight() {
-      return window.innerHeight / 3;
     },
     manualSyncQueued() {
       return this.$store.state.manualSyncQueued;
@@ -512,30 +475,13 @@ export default {
       }
       return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb || this.playingMetadata.thumb, 200, 200);
     },
-    partyPausing: {
-      get() {
-        if (this.localPauseTimeout) return false;
-        return this.getPartyPausing();
-      },
-      set(value) {
-        this.updatePartyPausing(value);
-      },
-    },
   },
   beforeDestroy() {
     this.destroyed = true;
   },
   methods: {
-    ...mapActions(['updatePartyPausing', 'sendPartyPause']),
     playerMounted() {
       // console.log('Child player said it is mounted')
-    },    
-    sendPartyPauseLocal() {
-      this.localPauseTimeout = true;
-      setTimeout(() => {
-        this.localPauseTimeout = false;
-      }, 3000);
-      this.sendPartyPause();
     },
     getSourceByLabel(label) {
       for (let i = 0; i < this.sources.length; i++) {
@@ -866,30 +812,16 @@ export default {
 </script>
 
 <style>
-.hoverBar {
-  position: absolute;
-  background: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(rgba(0, 0, 0, 0.8)),
-    color-stop(60%, rgba(0, 0, 0, 0.35)),
-    to(transparent)
-  );
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.8) 0,
-    rgba(0, 0, 0, 0.35) 60%,
-    transparent
-  );
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s ease-out;
-}
+  .hoverBar {
+    position: absolute;
+    background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),color-stop(60%,rgba(0,0,0,.35)),to(transparent));
+    background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent)
+  }
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.25s ease-out;
+  }
 
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
 </style>
