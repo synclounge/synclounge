@@ -18,9 +18,8 @@
       @statechanged="playerStateChanged($event)"
 
       @ready="playerReadied"
-      style="background-color:transparent !important;"
+      style="background-color:transparent !important; min-height: 75vh"
       class="ptplayer"
-      :class="ptplayerClass"
 >
     </video-player>
     <div class="center" v-if="!src">
@@ -136,11 +135,6 @@ export default {
       if (this.$refs && this.$refs.videoPlayer) {
         return this.$refs.videoPlayer.player;
       }
-    },
-
-    ptplayerClass() {
-      const breakpoint = this.$vuetify.breakpoint.name;
-      return breakpoint === 'sm' || breakpoint === 'xs' ? ['ptplayer-small'] : ['']
     },
 
     playerOptions() {
@@ -437,4 +431,5 @@ export default {
 };
 </script>
 <style scoped>
+
 </style>
