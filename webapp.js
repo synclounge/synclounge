@@ -51,7 +51,7 @@ const bootstrap = () => {
       }
       let query = ''
       for (let key in params) {
-        query += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+        query += encodeURIComponent(key) + '=' + params[key] + '&'
       }
       fullUrl = accessIp + '/#/join?' + query
       data.fullUrl = fullUrl
