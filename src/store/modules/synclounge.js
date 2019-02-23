@@ -302,7 +302,12 @@ export default {
                       const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
                       if (hostServer && hostTimeline.key) {
                         let isBlocked = false;
-                        const blockedServers = JSON.parse(rootState.settings.BLOCKEDSERVERS);
+                        let blockedServers;
+                        try {
+                          blockedServers = JSON.parse(rootState.settings.BLOCKEDSERVERS);
+                        } catch (e) {
+                          blockedServers = rootState.settings.BLOCKEDSERVERS;
+                        }
                         if (blockedServers && blockedServers.length > 0) {
                           blockedServers.map((server) => {
                             if (server === hostTimeline.machineIdentifier) {
@@ -499,6 +504,6 @@ export default {
         });
       }
     },
-    getServerList() {},
+    getServerList() { },
   },
 };
