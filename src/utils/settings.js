@@ -1,8 +1,6 @@
 import { defaultSettings } from './constants';
 import { get } from './storage';
 
-import { merge } from 'lodash';
-
 const keys = [
   'AUTOPLAY',
   'CLIENTPOLLINTERVAL',
@@ -17,6 +15,7 @@ const keys = [
   'HIDEUSERNAME',
   'ALTUSERNAME',
   'CLIENTIDENTIFIER',
+  'LASTSERVER',
 ];
 
 export const getAll = () => {

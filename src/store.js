@@ -40,8 +40,6 @@ const state = {
 
   // SETTINGS
   settings: getAll(),
-
-  LASTSERVER: get('LASTSERVER'),
   stats: {},
   me: {},
 };
@@ -95,7 +93,7 @@ const mutations = {
     }
     state.chosenClientTimeSet = new Date().getTime();
     clientPoller(state.chosenClientTimeSet);
-    state.chosenClient.getTimeline((timeline) => {});
+    state.chosenClient.getTimeline((timeline) => { });
   },
   SET_PLEX(state, value) {
     state.plex = value;
@@ -130,16 +128,12 @@ const mutations = {
     window.localStorage.setItem('PTPLAYERVOLUME', JSON.stringify(data));
     state.PTPLAYERVOLUME = data;
   },
-  setSettingLASTSERVER(state, data) {
-    window.localStorage.setItem('LASTSERVER', data);
-    state.LASTSERVER = data;
-  },
   setSettingHOMEINIT(state, data) {
     set('HOMEINIT', data);
     state.HOMEINIT = data;
   },
   REFRESH_PLEXDEVICES() {
-    store.state.plex.getDevices(() => {});
+    store.state.plex.getDevices(() => { });
   },
   SET_RANDOMBACKROUND(state) {
     state.plex.getRandomThumb((result) => {
@@ -174,7 +168,6 @@ const getters = {
   getSettingHOMEINIT: state => state.HOMEINIT,
   getSettingPTPLAYERQUALITY: state => state.PTPLAYERQUALITY,
   getSettingPTPLAYERVOLUME: state => state.PTPLAYERVOLUME,
-  getSettingLASTSERVER: state => state.LASTSERVER,
   getExtAvailable: state => state.extAvailable,
   getLogos: () => ({
     light: {
@@ -195,8 +188,9 @@ const actions = {
     if (ratingKey) {
       // Playing something different!
       const server = state.plex.servers[mediaContainer.machineIdentifier];
-      state.LASTSERVER = mediaContainer.machineIdentifier;
-      window.localStorage.setItem('LASTSERVER', mediaContainer.machineIdentifier);
+      commit('setSetting', ['LASTSERVER', mediaContainer.machineIdentifier]);
+      // state.settings.LASTSERVER = mediaContainer.machineIdentifier;
+      // window.localStorage.setItem('LASTSERVER', mediaContainer.machineIdentifier);
       if (!server) {
         return;
       }

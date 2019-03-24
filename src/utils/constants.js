@@ -11,6 +11,7 @@ export const defaultSettings = {
   SLPLAYERFORCETRANSCODE: true,
   CLIENTIDENTIFIER: `${generateGuid()}-${generateGuid()}`,
   blockedServers: [],
+  LASTSERVER: '',
 };
 
 export default {
