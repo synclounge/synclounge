@@ -290,11 +290,11 @@ export default {
                     const blockedServers = rootState.settings.BLOCKEDSERVERS;
                     const servers = Object.assign({}, rootState.plex.servers);
                     if (blockedServers) {
-                      for (let i = 0; i < blockedServers.length; i++) {
-                        if (rootState.plex.servers[blockedServers[i]]) {
-                          delete servers[i];
+                      blockedServers.forEach((id) => {
+                        if (rootState.plex.servers[id]) {
+                          delete servers[id];
                         }
-                      }
+                      });
                     }
 
                     sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
