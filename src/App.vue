@@ -207,7 +207,7 @@ export default {
       this.$router.push('/signin');
       return;
     }
-    if (settings.autoJoin === true || settings.autoJoin === 'true' || this.config.autoJoin) {
+    if (settings.autoJoin === true || settings.autoJoin === 'true' || (this.config && this.config.autoJoin)) {
       if (settings.autoJoinServer || this.config.autoJoinServer) {
         this.$store.dispatch('autoJoin', {
           server: settings.autoJoinServer,
