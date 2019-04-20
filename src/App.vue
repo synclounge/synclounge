@@ -30,6 +30,15 @@
     </v-toolbar>
     <v-content v-bind:style="mainStyle" app>
       <v-container class="ma-0 pa-0" align-start :style="containerStyle" style="height: 100%; z-index: 250" fluid>
+        <v-flex xs12 v-if="configError">
+          <v-alert
+            :dismissible="true"
+            :value="configError"
+            type="error"
+          >
+            {{ configError }}
+          </v-alert>
+        </v-flex>
         <v-flex xs12 v-if="(loading || !plex.gotDevices) && route.protected">
           <v-container fill-height>
             <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
@@ -77,6 +86,8 @@ import upnext from './upnext';
 import nowplayingchip from './nowplayingchip';
 import donate from './donate';
 
+import { mapActions, mapState } from 'vuex';
+
 const SettingsHelper = require('../SettingsHelper');
 
 const settings = new SettingsHelper();
@@ -101,6 +112,7 @@ export default {
       donateDialog: false,
 
       loading: true,
+      configError: null,
 
       snackbar: false,
       snackbarMsg: false,
@@ -129,6 +141,7 @@ export default {
     };
   },
   methods: {
+    ...mapActions('config', ['fetchConfig']),
     sendNotification() {
       window.EventBus.$emit('notification', 'Copied to clipboard');
     },
@@ -137,30 +150,20 @@ export default {
     },
   },
   async mounted() {
-    // Verify route changes
     try {
-      if (window.chrome) {
-        window.chrome.runtime.sendMessage(
-          'mlmjjfdcbemagmnjahllphjnohbmhcnf',
-          { command: 'heartbeat' },
-          (response) => {
-            if (response) {
-              this.$store.commit('SET_EXTAVAILABLE', true);
-              window.localStorage.setItem('EXTAVAILABLE', true);
-            }
-          },
-        );
-      }
+      await this.fetchConfig();
     } catch (e) {
-      // Browser is not Chrome
-      window.localStorage.setItem('EXTAVAILABLE', false);
+      this.configError = `Failed to fetch config: ${e}`;
     }
-    if (settings.autoJoin === true || settings.autoJoin === 'true') {
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom);
-      this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer);
-      this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword);
+    if (this.config && this.config.autoJoin) {
+      if (settings.autoJoin === true || settings.autoJoin === 'true') {
+        this.$store.commit('SET_AUTOJOIN', true);
+        this.$store.commit('SET_AUTOJOINROOM', this.config.autoJoinRoom);
+        this.$store.commit('SET_AUTOJOINURL', this.config.autoJoinServer);
+        this.$store.commit('SET_AUTOJOINPASSWORD', this.config.autoJoinPassword);
+      }
     }
+
     if (this.$route.query.autojoin) {
       this.$store.commit('SET_AUTOJOIN', true);
       this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
@@ -188,7 +191,6 @@ export default {
       this.$store.dispatch('PLAYBACK_CHANGE', data);
     });
     if (!window.localStorage.getItem('plexuser')) {
-      console.log('Token doesnt exist', window.localStorage.getItem('plexuser'));
       if (this.$route.fullPath.indexOf('join') === -1) {
         this.$router.push('/signin');
       }
@@ -205,8 +207,8 @@ export default {
       this.$router.push('/signin');
       return;
     }
-    if (settings.autoJoin === true || settings.autoJoin === 'true') {
-      if (settings.autoJoinServer) {
+    if (settings.autoJoin === true || settings.autoJoin === 'true' || this.config.autoJoin) {
+      if (settings.autoJoinServer || this.config.autoJoinServer) {
         this.$store.dispatch('autoJoin', {
           server: settings.autoJoinServer,
           password: settings.autoJoinPassword,
@@ -225,6 +227,9 @@ export default {
     },
   },
   computed: {
+    ...mapState('config', {
+      config: state => state.configuration,
+    }),
     plex() {
       return this.$store.getters.getPlex;
     },

@@ -4,6 +4,7 @@ import Vuex from 'vuex';
 import { get, set } from '@/utils/storage';
 import { generateGuid } from '@/utils/helpers';
 import { getAll } from '@/utils/settings';
+import config from './store/modules/config/config.store';
 
 const plex = require('./store/modules/plex/').default;
 const syncLounge = require('./store/modules/synclounge.js').default;
@@ -349,6 +350,7 @@ const store = new Vuex.Store({
   modules: {
     synclounge: syncLounge,
     plex,
+    config,
   },
 });
 
