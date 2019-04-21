@@ -1,10 +1,10 @@
 <p align="center"><img src="https://synclounge.tv/assets/img/SL_LOGO_800x200_DARK.png" /></p>
 
 <p align="center">
-  <a href="https://hub.docker.com/r/starbix/plextogether/builds/"><img src="https://img.shields.io/docker/build/starbix/plextogether.svg" alt="Build Status"></a>
-  <a href="https://microbadger.com/images/starbix/plextogether:latest"><img src="https://images.microbadger.com/badges/version/starbix/plextogether:latest.svg" alt="Version"></a>
-  <a href="https://microbadger.com/images/starbix/plextogether:latest"><img src="https://images.microbadger.com/badges/image/starbix/plextogether:latest.svg" alt="Size"></a>
-  <a href="https://hub.docker.com/r/starbix/plextogether/"><img src="https://img.shields.io/docker/pulls/starbix/plextogether.svg" alt="Pulls"></a>
+  <a href="https://hub.docker.com/r/starbix/synclounge/builds/"><img src="https://img.shields.io/docker/build/starbix/synclounge.svg" alt="Build Status"></a>
+  <a href="https://microbadger.com/images/starbix/synclounge:latest"><img src="https://images.microbadger.com/badges/version/starbix/synclounge:latest.svg" alt="Version"></a>
+  <a href="https://microbadger.com/images/starbix/synclounge:latest"><img src="https://images.microbadger.com/badges/image/starbix/synclounge:latest.svg" alt="Size"></a>
+  <a href="https://hub.docker.com/r/starbix/synclounge/"><img src="https://img.shields.io/docker/pulls/starbix/synclounge.svg" alt="Pulls"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
   <br>
 </p>
