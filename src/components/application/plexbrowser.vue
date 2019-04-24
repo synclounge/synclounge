@@ -152,7 +152,6 @@
               <v-card
                 class="white--text"
                 horizontal
-                height="10em"
                 style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);"
               >
                 <v-container fill-height>
