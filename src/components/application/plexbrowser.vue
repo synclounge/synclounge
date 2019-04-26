@@ -152,7 +152,9 @@
               <v-card
                 class="white--text"
                 horizontal
+                height="10em"
                 style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);"
+                :title="server.name"
               >
                 <v-container fill-height>
                   <v-layout row justify-center align-center>
@@ -160,8 +162,8 @@
                       <v-card-media :src="logos.plex.standard" height="110px" contain></v-card-media>
                     </v-flex>
                     <v-flex xs8 class="pl-2">
-                      <div style="overflow: hidden">
-                        <h1>{{ server.name }}</h1>
+                      <div>
+                        <h1 style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ server.name }}</h1>
                         <h4 style="opacity: 0.9">v{{ server.productVersion }}</h4>
                         <div>Owned by {{ ownerOfServer(server) }}</div>
                         <div v-if="!isConnectable(server)" class="red--text">Unable to connect</div>
