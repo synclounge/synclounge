@@ -201,19 +201,19 @@ ptserver_io.on('connection', (socket) => {
     socket.emit('party-pausing-changed', { value, user });
     return true;
   });
-  socket.on('party_pausing_send', () => {
+  socket.on('party_pausing_send', (isPause) => {
     const user = socket.selfUser;
     const room = ptserver_io.sockets.adapter.rooms[user.room];
     if (!room || !room.partyPausing) {
       return false;
     }
-    socket.broadcast.to(socket.selfUser.room).emit('party-pausing-pause', user);
-    socket.emit('party-pausing-pause', user);
+    socket.broadcast.to(socket.selfUser.room).emit('party-pausing-pause', { isPause, user });
+    socket.emit('party-pausing-pause', { isPause, user });
     return true;
   });
   socket.on('transfer_host', (data) => {
     if (socket.ourRoom == null) {
-      socket.emit('flowerror', 'You aren\' connected to a room! Use join');
+      socket.emit('flowerror', 'You aren\'t connected to a room! Use join');
       socket.emit('rejoin');
       return;
     }

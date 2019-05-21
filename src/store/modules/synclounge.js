@@ -213,15 +213,20 @@ export default {
               });
               commit('SET_PARTYPAUSING', value);
             });
-            state._socket.on('party-pausing-pause', (user) => {
+            state._socket.on('party-pausing-pause', ({ isPause, user }) => {
+              const messageText = `${user.username} pressed ${isPause ? 'pause' : 'play'}`
               commit('ADD_MESSAGE', {
-                msg: `${user.username} pressed pause`,
+                msg: messageText,
                 user,
                 type: 'alert',
               });
-              sendNotification(`${user.username} pressed pause`);
+              sendNotification(messageText);
               if (rootState.chosenClient) {
-                rootState.chosenClient.pressPause();
+                if (isPause) {
+                  rootState.chosenClient.pressPause();
+                } else {
+                  rootState.chosenClient.pressPlay();
+                }
               }
             });
             state._socket.on('user-joined', (users, user, commandId) => {
@@ -496,11 +501,17 @@ export default {
         state._socket.emit('party_pausing_change', value);
       }
     },
-    sendPartyPause({ rootState, state, commit }) {
+    sendPartyPause({ rootState, state, commit }, isPause) {
       if (state._socket.connected) {
-        state._socket.emit('party_pausing_send', (response) => {
+        state._socket.emit('party_pausing_send', isPause, (response) => {
           console.log('Response from send', response);
-          if (response) rootState.chosenClient.pressPause();
+          if (response) {
+            if (isPause) {
+              rootState.chosenClient.pressPause();
+            } else {
+              rootState.chosenClient.pressPlay();
+            }
+          }
         });
       }
     },

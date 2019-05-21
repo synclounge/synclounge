@@ -44,10 +44,12 @@
                     color="primary"
                     slot="activator"
                     :disabled="!partyPausing"
-                    block
-                    @click="sendPartyPauseLocal()"
+                    style="min-width: 0; float: right;"
+                    @click="sendPartyPauseLocal(playerState(host) === 'play_arrow')"
+                    v-if="playerState(host) !== 'stop'"
                   >
-                    Pause
+                    <v-icon v-if="playerState(host) === 'play_arrow'">pause</v-icon>
+                    <v-icon v-else>play_arrow</v-icon>
                   </v-btn>
                   <span> Party Pausing is currently {{ partyPausing ? 'enabled' : 'disabled' }} by the host </span>
                 </v-tooltip>
@@ -179,6 +181,9 @@ export default {
     me() {
       return this.$store.state.me;
     },
+    host() {
+      return this.$store.getters.getUsers.find(user => user.role === 'host')
+    },
     chosenClient() {
       return this.$store.getters.getChosenClient;
     },
@@ -285,12 +290,12 @@ export default {
     isHost(user) {
       return user.role === 'host';
     },
-    sendPartyPauseLocal() {
+    sendPartyPauseLocal(isPause) {
       this.localPauseTimeout = true;
       setTimeout(() => {
         this.localPauseTimeout = false;
       }, 3000);
-      this.sendPartyPause();
+      this.sendPartyPause(isPause);
     },
     getUserColor(user) {
       if (user.status === 'good' || user.role === 'host') {
