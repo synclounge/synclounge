@@ -14,48 +14,51 @@
         :initialOffset="offset"
         :createdAt="playerCreatedAt"
       ></videoplayer>
-      <div v-if="playingMetadata && chosenServer">
-        <transition name="fade">
-          <div v-show="hovered">
-            <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 2" class="pa-3 hidden-xs-only">
-              <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;" />
-              <v-flex class="pl-3">
-                <v-container class="pa-0" fill-height>
-                  <v-layout column wrap justify-space-apart>
-                    <v-flex>
-                      <h1>{{ getTitle(playingMetadata) }}</h1>
-                    </v-flex>
-                    <v-flex>
-                      <h3>{{ getUnder(playingMetadata) }}</h3>
-                    </v-flex>
-                    <v-flex>
-                      <h5>Playing from {{ chosenServer.name  }}</h5>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-flex>
-            </v-layout>
-            <v-layout row wrap style="position: absolute; top: 0; right: 0; z-index: 2" class="pa-3 hidden-xs-only">
-              <v-flex class="text-xs-right pa-1">
-                <div class="hidden-xs-only">
-                  <v-tooltip bottom color="accent" v-if="me && me.role !== 'host'">
-                    <v-icon slot="activator" color="white" class="clickable" :disabled="manualSyncQueued" v-on:click="doManualSync">compare_arrows</v-icon>
-                    Manual Sync
-                  </v-tooltip>
-                  <v-icon slot="activator" color="white" class="clickable pl-3" v-on:click="dialog = !dialog">settings</v-icon>
-                  <router-link to="/browse"  slot="activator">
-                    <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()">close</v-icon>
-                  </router-link>
-                </div>
-              </v-flex>
-            </v-layout>
-            <v-layout row wrap class="hoverBar" style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;">
-              <v-flex xs12>
-              </v-flex>
-            </v-layout>
-          </div>
-        </transition>
-      </div>
+    </div>
+    <div v-if="playingMetadata && chosenServer">
+      <transition name="fade">
+        <div v-show="hovered">
+          <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 2" class="pa-3 hidden-xs-only">
+            <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;" />
+            <v-flex class="pl-3">
+              <v-container class="pa-0" fill-height>
+                <v-layout column wrap justify-space-apart>
+                  <v-flex>
+                    <h1>{{ getTitle(playingMetadata) }}</h1>
+                  </v-flex>
+                  <v-flex>
+                    <h3>{{ getUnder(playingMetadata) }}</h3>
+                  </v-flex>
+                  <v-flex>
+                    <h5>Playing from {{ chosenServer.name  }}</h5>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-flex>
+          </v-layout>
+          <v-layout row wrap style="position: absolute; top: 0; right: 0; z-index: 2" class="pa-3 hidden-xs-only">
+            <v-flex class="text-xs-right pa-1">
+              <div class="hidden-xs-only">
+                <v-tooltip bottom color="accent" v-if="me && me.role !== 'host'">
+                  <v-icon slot="activator" color="white" class="clickable" :disabled="manualSyncQueued" v-on:click="doManualSync">compare_arrows</v-icon>
+                  Manual Sync
+                </v-tooltip>
+                <v-icon slot="activator" color="white" class="clickable pl-3" v-on:click="dialog = !dialog">settings</v-icon>
+                <router-link to="/browse"  slot="activator">
+                  <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()">close</v-icon>
+                </router-link>
+              </div>
+            </v-flex>
+          </v-layout>
+          <v-layout row wrap class="hoverBar" style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;">
+            <v-flex xs12>
+            </v-flex>
+          </v-layout>
+        </div>
+      </transition>
+    </div>
+    <div class="messages-wrapper" v-if="$vuetify.breakpoint.mdAndDown">
+      <messages :ptRoom="'room'"></messages>
     </div>
     <v-dialog v-model="dialog" width="350">
       <v-card>
@@ -106,9 +109,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3 hidden-sm-and-up">
+    <v-layout v-if="playingMetadata && chosenServer" justify-center row class="pa-3 hidden-sm-and-up">
       <v-flex xs12>
-        <v-layout row wrap align-center justify-start>
+        <v-layout row wrap>
           <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto" />
           <v-flex class="pl-2">
             <v-container class="pa-0" fill-height>
@@ -144,8 +147,18 @@
   </div>
 </template>
 
+<style scoped>
+  .messages-wrapper {
+    height: calc(100vh - (0.5625 * 100vw) - 150px);
+  }
+  .is-fullscreen .messages-wrapper {
+    height: calc(100vh - (0.5625 * 100vw));
+  }
+</style>
+
 <script>
 import videoplayer from './ptplayer/videoplayer.vue';
+import messages from '@/components/messages';
 
 const plexthumb = require('./plexbrowser/plexthumb.vue');
 
@@ -155,7 +168,7 @@ const parseXMLString = require('xml2js').parseString;
 export default {
   name: 'ptplayer',
   components: {
-    videoplayer, plexthumb,
+    videoplayer, plexthumb, messages,
   },
   mounted() {
     // Check if we have params
