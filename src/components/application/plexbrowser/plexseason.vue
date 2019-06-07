@@ -11,12 +11,12 @@
             <v-container style="background: rgba(0, 0, 0, .6);"  class="pa-0 ma-0" fluid grid-list-lg>
               <v-layout row style="height:100%">
                 <v-flex xs12 md3 class="hidden-sm-and-down">
-                  <v-card-media
+                  <v-img
                     :src="getThumb"
                     class="ma-0 pa-0"
                     height="25em"
                     contain
-                  ></v-card-media>
+                  ></v-img>
                 </v-flex>
                 <v-flex xs12 md9 style="position:relative" class="ma-2">
                   <div>

@@ -13,11 +13,11 @@
                 <v-flex xs12 md3>
                   <v-layout row wrap>
                     <v-flex md12 class="pa-2">
-                      <v-card-media
+                      <v-img
                         :src="thumb"
                         height="30vh"
                         contain
-                      ></v-card-media>
+                      ></v-img>
                     </v-flex>
                     <v-flex xs8 md12 class="text-xs-center hidden-sm-and-down ">
                       <div v-if="playable">
