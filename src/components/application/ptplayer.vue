@@ -57,7 +57,7 @@
         </transition>
       </div>
       <div class="messages-wrapper" v-if="$vuetify.breakpoint.mdAndDown">
-        <messages :ptRoom="'room'"></messages>
+        <messages></messages>
       </div>
       <v-dialog v-model="dialog" width="350">
         <v-card>

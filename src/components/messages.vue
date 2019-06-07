@@ -10,7 +10,7 @@
     <v-flex xs12>
       <v-text-field
         prepend-icon="message"
-        :label="'Send a message to ' + '#' + ptRoom"
+        :label="chatboxLabel"
         hide-details
         single-line
         class="ma-0 ml-1 pr-1 wideinput"
@@ -32,7 +32,6 @@ export default {
   components: {
     message
   },
-  props: ['ptRoom'],
   data() {
     return {
       messageToBeSent: '',
@@ -54,8 +53,8 @@ export default {
     messages() {
       return this.$store.getters.getMessages;
     },
-    chatBoxMessage() {
-      return `Message ${this.$store.getters.getRoom}`;
+    chatboxLabel() {
+      return `Send a message to #${this.$store.getters.getRoom}`;
     },
   },
   methods: {

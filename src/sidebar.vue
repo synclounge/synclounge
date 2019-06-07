@@ -92,7 +92,7 @@
         </v-list>
       </v-flex>
       <v-flex xs12 style="position: relative; height: 50vh; max-height: 50vh">
-        <messages :ptRoom="ptRoom" v-if="$vuetify.breakpoint.lgAndUp"></messages>
+        <messages v-if="$vuetify.breakpoint.lgAndUp"></messages>
       </v-flex>
     </v-layout>
   </v-container>
