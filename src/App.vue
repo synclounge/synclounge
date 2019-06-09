@@ -50,13 +50,13 @@
           </v-container>
         </v-flex>
         <div v-else :style="paddingStyle">
-          <v-breadcrumbs v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
-            <v-icon slot="divider">chevron_right</v-icon>
-            <v-breadcrumbs-item
-              v-for="item in crumbs" :key="item.text" :to="item.to" :exact="true"
->
-              {{ item.text }}
-            </v-breadcrumbs-item>
+          <v-breadcrumbs :items="crumbs" v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
+              <template v-slot:divider>
+                <v-icon>chevron_right</v-icon>
+              </template>
+              <template v-slot:item="props">
+                <v-breadcrumbs-item :to="props.item.to" :exact="true">{{ props.item.text }}</v-breadcrumbs-item>
+              </template>
           </v-breadcrumbs>
           <router-view></router-view>
         </div>
