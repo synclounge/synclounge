@@ -110,7 +110,12 @@ const app = async (orm) => {
       details: result,
     }).end();
   });
-  root.get('/config', (req, res) => res.send(SettingsHelper()));
+  root.get('/config', (req, res) => {
+    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.header('Expires', '-1');
+    res.header('Pragma', 'no-cache');
+    res.send(SettingsHelper())
+  });
   root.use('/', express.static(path.join(__dirname, 'dist')));
   root.get('*', (req, res) => {
     console.log('Catch all');

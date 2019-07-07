@@ -13,7 +13,7 @@ export default {
   },
   actions: {
     async fetchConfig({ commit }) {
-      const url = process.env.API_OVERRIDE || '';
+      const url = window.location.origin;
       const { data } = await axios.get(`${url}/config`);
       commit('setConfig', data);
       return data;
