@@ -2,7 +2,7 @@
   <div class="portrait" ref="root" style="cursor: pointer" @mouseover="hovering = true" @mouseout="hovering = false">
     <router-link :to="link">
       <v-card  flat v-on:click.native="emitContentClicked(content)" class="grey darken-4 elevation-20" style="border-radius: 0px !important">
-        <v-card-media
+        <v-img
           data-tilt
           class="white--text"
           style="position:relative"
@@ -37,7 +37,7 @@
               </v-flex>
             </v-layout>
           </v-container>
-        </v-card-media>
+        </v-img>
       </v-card>
       <v-layout align-end row wrap class="text-xs-left pa-1 white--text" style="max-width: 100%">
         <v-flex xs12 v-if="!bottomOnly" style="max-width: 100%">

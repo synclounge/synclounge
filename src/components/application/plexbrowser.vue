@@ -159,7 +159,7 @@
                 <v-container fill-height>
                   <v-layout row justify-center align-center>
                     <v-flex xs4>
-                      <v-card-media :src="logos.plex.standard" height="110px" contain></v-card-media>
+                      <v-img :src="logos.plex.standard" height="110px" contain></v-img>
                     </v-flex>
                     <v-flex xs8 class="pl-2">
                       <div>

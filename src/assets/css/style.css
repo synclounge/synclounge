@@ -318,6 +318,13 @@ video.vjs-tech,
   padding-top: 0px;
 }
 
+/* Make player 16x9 relative to viewport width on mobile */
+@media screen and (max-width: 1264px) {
+  .ptplayer .video-js {
+    height: calc(0.5625 * 100vw);
+  }
+}
+
 .ptplayer .vjs_video_1177-dimensions.vjs-fluid {
   padding-top: 0;
 }

@@ -56,96 +56,109 @@
           </div>
         </transition>
       </div>
-    </div>
-    <v-dialog v-model="dialog" width="350">
-      <v-card>
-        <v-card-title>Playback Settings </v-card-title>
-        <v-card-text>
-          <v-select
-            v-model="chosenQuality"
-            :items="qualitiesSelect"
-            item-text="text"
-            item-value="id"
-            persistent-hint
-            label="Quality"
-            hint="Select a different quality"
-          ></v-select>
-          <v-select
-            v-model="chosenAudioTrackIndex"
-            :select-text="'Default'"
-            label="Audio track"
-            item-text="text"
-            item-value="id"
-            persistent-hint
-            hint="Select a different audio track"
-            :items="audioTrackSelect"
-          ></v-select>
-          <v-select
-            persistent-hint
-            label="Subtitles"
-            item-text="text"
-            item-value="id"
-            hint="Select a different subtitle track"
-            v-model="chosenSubtitleIndex"
-            :select-text="'Default'"
-            :items="subtitleTrackSelect"
-          ></v-select>
-          <v-select
-            v-if="mediaIndexSelect.length > 1"
-            persistent-hint
-            item-text="text"
-            item-value="id"
-            hint="Select a different version of the content you're playing"
-            v-model="chosenMediaIndex"
-            label="Version"
-            :items="mediaIndexSelect"
-          ></v-select>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn class="blue--text darken-1" flat @click.native="dialog = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-layout v-if="playingMetadata && chosenServer" justify-center align-center row class="pa-3 hidden-sm-and-up">
-      <v-flex xs12>
-        <v-layout row wrap align-center justify-start>
-          <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto" />
-          <v-flex class="pl-2">
-            <v-container class="pa-0" fill-height>
-              <v-layout column wrap justify-space-apart>
-                <v-flex>
-                  <h1>{{ getTitle(playingMetadata) }}</h1>
-                </v-flex>
-                <v-flex>
-                  <h3>{{ getUnder(playingMetadata) }}</h3>
-                </v-flex>
-                <v-flex>
-                  <h5>Playing from {{ chosenServer.name  }}</h5>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-flex>
-          <v-layout row wrap class="">
-            <v-flex xs12>
-              <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+      <div class="messages-wrapper" v-if="$vuetify.breakpoint.mdAndDown">
+        <messages></messages>
+      </div>
+      <v-dialog v-model="dialog" width="350">
+        <v-card>
+          <v-card-title>Playback Settings </v-card-title>
+          <v-card-text>
+            <v-select
+              v-model="chosenQuality"
+              :items="qualitiesSelect"
+              item-text="text"
+              item-value="id"
+              persistent-hint
+              label="Quality"
+              hint="Select a different quality"
+            ></v-select>
+            <v-select
+              v-model="chosenAudioTrackIndex"
+              :select-text="'Default'"
+              label="Audio track"
+              item-text="text"
+              item-value="id"
+              persistent-hint
+              hint="Select a different audio track"
+              :items="audioTrackSelect"
+            ></v-select>
+            <v-select
+              persistent-hint
+              label="Subtitles"
+              item-text="text"
+              item-value="id"
+              hint="Select a different subtitle track"
+              v-model="chosenSubtitleIndex"
+              :select-text="'Default'"
+              :items="subtitleTrackSelect"
+            ></v-select>
+            <v-select
+              v-if="mediaIndexSelect.length > 1"
+              persistent-hint
+              item-text="text"
+              item-value="id"
+              hint="Select a different version of the content you're playing"
+              v-model="chosenMediaIndex"
+              label="Version"
+              :items="mediaIndexSelect"
+            ></v-select>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn class="blue--text darken-1" flat @click.native="dialog = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-layout v-if="playingMetadata && chosenServer" justify-center row class="pa-3 hidden-sm-and-up">
+        <v-flex xs12>
+          <v-layout row wrap>
+            <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto" />
+            <v-flex class="pl-2">
+              <v-container class="pa-0" fill-height>
+                <v-layout column wrap justify-space-apart>
+                  <v-flex>
+                    <h1>{{ getTitle(playingMetadata) }}</h1>
+                  </v-flex>
+                  <v-flex>
+                    <h3>{{ getUnder(playingMetadata) }}</h3>
+                  </v-flex>
+                  <v-flex>
+                    <h5>Playing from {{ chosenServer.name  }}</h5>
+                  </v-flex>
+                </v-layout>
+              </v-container>
             </v-flex>
-            <v-flex xs12>
-              <v-btn block color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
-            </v-flex>
-            <v-flex xs12>
-              <router-link to="/browse">
-                <v-btn block color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
-              </router-link>
-            </v-flex>
+            <v-layout row wrap class="">
+              <v-flex xs12>
+                <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+              </v-flex>
+              <v-flex xs12>
+                <v-btn block color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
+              </v-flex>
+              <v-flex xs12>
+                <router-link to="/browse">
+                  <v-btn block color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+                </router-link>
+              </v-flex>
+            </v-layout>
           </v-layout>
-        </v-layout>
-      </v-flex>
-    </v-layout>
+        </v-flex>
+      </v-layout>
+    </div>
   </div>
 </template>
 
+<style scoped>
+  .messages-wrapper {
+    height: calc(100vh - (0.5625 * 100vw) - 150px);
+  }
+  .is-fullscreen .messages-wrapper {
+    height: calc(100vh - (0.5625 * 100vw));
+  }
+</style>
+
 <script>
 import videoplayer from './ptplayer/videoplayer.vue';
+import messages from '@/components/messages';
 
 const plexthumb = require('./plexbrowser/plexthumb.vue');
 
@@ -155,7 +168,7 @@ const parseXMLString = require('xml2js').parseString;
 export default {
   name: 'ptplayer',
   components: {
-    videoplayer, plexthumb,
+    videoplayer, plexthumb, messages,
   },
   mounted() {
     // Check if we have params

@@ -9,11 +9,11 @@
       app
       persistent
       v-model="drawerRight" right enable-resize-watcher
->
+    >
       <drawerright></drawerright>
     </v-navigation-drawer>
 
-    <v-toolbar app fixed style="z-index: 5">
+    <v-toolbar app fixed scroll-off-screen :scroll-threshold="1" :manual-scroll="appIsFullscreen" style="z-index: 5">
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
       <a href="https://synclounge.tv" target="_blank">
         <img class="ma-1 hidden-xs-only" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logos.light.long" />
@@ -23,6 +23,7 @@
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn color="primary" dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
+        <v-btn dark @click="goFullscreen" class="hidden-lg-and-up" icon><v-icon>fullscreen</v-icon></v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat @click="donateDialog = true">Donate ♥</v-btn>
         <v-icon v-if="showRightDrawerButton" @click="toggleDrawerRight" class="clickable">{{ drawerRight ? 'last_page' : 'first_page' }}</v-icon>
@@ -49,13 +50,13 @@
           </v-container>
         </v-flex>
         <div v-else :style="paddingStyle">
-          <v-breadcrumbs v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
-            <v-icon slot="divider">chevron_right</v-icon>
-            <v-breadcrumbs-item
-              v-for="item in crumbs" :key="item.text" :to="item.to" :exact="true"
->
-              {{ item.text }}
-            </v-breadcrumbs-item>
+          <v-breadcrumbs :items="crumbs" v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
+              <template v-slot:divider>
+                <v-icon>chevron_right</v-icon>
+              </template>
+              <template v-slot:item="props">
+                <v-breadcrumbs-item :to="props.item.to" :exact="true">{{ props.item.text }}</v-breadcrumbs-item>
+              </template>
           </v-breadcrumbs>
           <router-view></router-view>
         </div>
@@ -79,6 +80,8 @@
 <script>
 // Custom css
 import './assets/css/style.css';
+
+import fscreen from 'fscreen';
 
 import drawerright from './sidebar';
 import leftsidebar from './leftsidebar';
@@ -137,7 +140,7 @@ export default {
           href: 'https://discord.gg/fKQB3yt',
         },
       ],
-
+      appIsFullscreen: false,
     };
   },
   methods: {
@@ -148,6 +151,9 @@ export default {
     toggleDrawerRight() {
       this.drawerRight = !this.drawerRight;
     },
+    goFullscreen() {
+      fscreen.requestFullscreen(document.body);
+    }
   },
   async mounted() {
     try {
@@ -216,6 +222,12 @@ export default {
         });
       }
     }
+
+    fscreen.addEventListener('fullscreenchange', () => {
+      const isFullscreen = fscreen.fullscreenElement !== null;
+      this.appIsFullscreen = isFullscreen;
+      document.body.classList.toggle('is-fullscreen', isFullscreen);
+    });
 
     this.loading = false;
   },

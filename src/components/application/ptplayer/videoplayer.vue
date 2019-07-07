@@ -18,7 +18,7 @@
       @statechanged="playerStateChanged($event)"
 
       @ready="playerReadied"
-      style="background-color:transparent !important; min-height: 75vh"
+      style="background-color:transparent !important;"
       class="ptplayer"
 >
     </video-player>

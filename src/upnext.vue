@@ -9,11 +9,11 @@
           <v-container fluid class="pa-1">
             <v-layout row>
               <v-flex xs3 sm2>
-                <v-card-media
+                <v-img
                 :src="thumb"
                   height="125px"
                   contain
-                ></v-card-media>
+                ></v-img>
               </v-flex>
               <v-flex>
                 <div>

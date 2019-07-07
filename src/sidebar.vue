@@ -92,44 +92,7 @@
         </v-list>
       </v-flex>
       <v-flex xs12 style="position: relative; height: 50vh; max-height: 50vh">
-        <v-layout row wrap style="height: 100%">
-          <v-flex style="height: calc(100% - 96px); max-height: calc(100% - 96px)">
-            <v-divider></v-divider>
-            <v-subheader>Messages</v-subheader>
-            <v-layout row wrap id="chatbox" style="max-height: calc(100% - 48px); overflow-y: auto">
-              <v-flex align-center xs12 class="pb-1" :id="getMsgId(msg)" v-for="(msg, index) in messages" :key="index">
-                <v-layout row wrap justify-start>
-                  <v-flex xs3 class="text-xs-center">
-                    <img :src="msg.user.thumb || msg.user.avatarUrl" style="width: 36px; height: 36px; border-radius: 50%" />
-                  </v-flex>
-                  <v-flex xs9 class="pr-2">
-                    <v-layout row wrap>
-                      <v-flex><b style="opacity:1;font-size:80%; float:left"> {{ msg.user.username }}</b></v-flex>
-                      <v-flex><span style="opacity:0.6;font-size:60%; float:right"> {{ msg.time}}</span></v-flex>
-                      <v-flex xs12>
-                        <div style="opacity:0.8;color:white;font-size:90%; max-width: 100%; word-wrap: break-word"> {{ msg.msg }}</div>
-                      </v-flex>
-                    </v-layout>
-                  </v-flex>
-                </v-layout>
-                <v-layout row class="pt-1">
-                  <v-divider style="opacity: 0.6"></v-divider>
-                </v-layout>
-              </v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex>
-            <v-text-field
-              prepend-icon="message"
-              :label="'Send a message to ' + '#' + ptRoom"
-              hide-details
-              class="ma-0 ml-1 pr-1 wideinput"
-              v-on:keyup.enter.native="sendMessage()"
-              v-model="messageToBeSent"
-            ></v-text-field>
-            <v-btn block color="primary" @click="sendMessage()">Send</v-btn>
-          </v-flex>
-        </v-layout>
+        <messages v-if="$vuetify.breakpoint.lgAndUp"></messages>
       </v-flex>
     </v-layout>
   </v-container>
@@ -139,12 +102,14 @@
 
 import { mapActions, mapGetters } from 'vuex';
 
+import messages from '@/components/messages.vue';
+
 export default {
   components: {
+    messages
   },
   data() {
     return {
-      messageToBeSent: '',
       lastRecievedUpdate: new Date().getTime(),
       now: new Date().getTime(),
 
@@ -157,15 +122,6 @@ export default {
     }, 250);
   },
   watch: {
-    messages() {
-      const options = {
-        container: '#chatbox',
-        easing: 'linear',
-        duration: 1,
-        cancelable: false,
-      };
-      this.$scrollTo('#lastMessage', 5, options);
-    },
     ptUsers: {
       deep: true,
       handler() {
@@ -245,9 +201,6 @@ export default {
       }
       return `${count} users`;
     },
-    chatBoxMessage() {
-      return `Message ${this.$store.getters.getRoom}`;
-    },
     playercount() {
       if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
         return `(${this.$store.state.plex.clients.length})`;
@@ -268,9 +221,6 @@ export default {
     },
     serverDelay() {
       return Math.round(this.$store.state.synclounge.commands[Object.keys(this.$store.state.synclounge.commands).length - 1].difference);
-    },
-    messages() {
-      return this.$store.getters.getMessages;
     },
     difference() {
       return Math.abs(this.now - this.lastRecievedUpdate);
@@ -331,11 +281,6 @@ export default {
       }
       return perc;
     },
-    getMsgId(msg) {
-      if (this.messages && msg === this.messages[this.messages.length - 1]) {
-        return 'lastMessage';
-      }
-    },
     getCurrent(user) {
       if (isNaN(user.time) || user.time === 0 || !user.time) {
         return this.getTimeFromMs(0);
@@ -359,14 +304,6 @@ export default {
         return user.title;
       }
       return 'Nothing';
-    },
-    sendMessage() {
-      if (this.messageToBeSent === '') {
-        return;
-      }
-      console.log(`We should send this message: ${this.messageToBeSent}`);
-      this.$store.dispatch('sendNewMessage', this.messageToBeSent);
-      this.messageToBeSent = '';
     },
     playerState(user) {
       if (user.playerState) {
