@@ -112,9 +112,8 @@ export default {
       right: null,
       fixed: false,
       initialized: false,
-
       donateDialog: false,
-
+      
       loading: true,
       configError: null,
 
