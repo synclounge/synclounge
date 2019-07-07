@@ -36,6 +36,7 @@
             :dismissible="true"
             :value="configError"
             type="error"
+            class="mt-0"
           >
             {{ configError }}
           </v-alert>

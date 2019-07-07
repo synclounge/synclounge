@@ -5,7 +5,7 @@
       <v-layout row wrap id="chatbox" v-if="messages.length > 0" style="max-height: 100%; overflow-y: scroll">
         <message :message="msg" :id="getMsgId(msg)" v-for="(msg, index) in messages" :key="index"></message>
       </v-layout>
-      <v-subheader v-else>Say something to the room down below :)</v-subheader>
+      <v-subheader v-else>Messages</v-subheader>
     </v-flex>
     <v-flex xs12>
       <v-text-field

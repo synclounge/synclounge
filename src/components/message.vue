@@ -1,7 +1,7 @@
 <template>
-  <v-flex align-center xs12 class="pb-1">
-    <v-layout row wrap justify-start>
-      <v-flex xs3 class="text-xs-center">
+  <v-flex xs12>
+    <v-layout row wrap justify-start align-center>
+      <v-flex xs3 class="text-xs-center pt-1">
         <img :src="message.user.thumb || message.user.avatarUrl" style="width: 36px; height: 36px; border-radius: 50%" />
       </v-flex>
       <v-flex xs9 class="pr-2">
