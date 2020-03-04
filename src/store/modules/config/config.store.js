@@ -13,7 +13,7 @@ export default {
   },
   actions: {
     async fetchConfig({ commit }) {
-      const url = window.location.origin;
+      const url = window.location.origin + window.location.pathname.replace(/\/+$/, "");
       const { data } = await axios.get(`${url}/config`);
       commit('setConfig', data);
       return data;
