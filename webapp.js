@@ -119,7 +119,7 @@ const app = async (orm) => {
   root.use('/', express.static(path.join(__dirname, 'dist')));
   root.get('*', (req, res) => {
     console.log('Catch all');
-    return res.redirect('/');
+    return res.redirect(`${settings.webroot}/`);
   });
   root.use(cors());
   const rootserver = require('http').createServer(root);
