@@ -110,7 +110,7 @@ const app = async (orm) => {
       details: result,
     }).end();
   });
-  root.get('/config', (req, res) => {
+  root.get(`${settings.webroot}/config`, (req, res) => {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     res.header('Expires', '-1');
     res.header('Pragma', 'no-cache');
