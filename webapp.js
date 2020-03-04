@@ -1,7 +1,7 @@
 // ABOUT
 // Runs the SyncLounge Web App - handles serving the static web content and link shortening services
 // Port defaults to 8088
-// REQUIRED: --url argument
+// REQUIRED: Access URL must be set using --accessUrl=<URL> or accessUrl ENV variable
 
 const express = require('express');
 const path = require('path');
@@ -15,19 +15,14 @@ const SettingsHelper = require('./SettingsHelper');
 
 const settings = new SettingsHelper();
 console.log('Settings', settings);
-let accessIp = '';
-let PORT = 8088;
+let PORT = settings.webapp_port || 8088;
 
 const bootstrap = () => new Promise(async (resolve, reject) => {
-  const args = require('args-parser')(process.argv);
   if (!settings.accessUrl) {
-    console.log('Missing required argument -accessUrl. EG. "node webapp.js -accessUrl=http://sl.example.com". This URL is used for redirecting invite links.');
+    console.log('Missing required argument `accessUrl`. EG. "node webapp.js -accessUrl=http://sl.example.com". This URL is used for redirecting invite links.');
     return reject(new Error('Missing URL for invite links'));
   }
-  accessIp = settings.accessUrl;// EG 'http://95.231.444.12:8088/slweb' or 'http://example.com/slweb'
-  if (args.webapp_port || process.env.webapp_port) {
-    PORT = args.webapp_port || process.env.webapp_port;
-  } else {
+  if (!settings.webapp_port) {
     console.log('Defaulting webapp to port 8088');
   }
   PORT = parseInt(PORT);
@@ -53,7 +48,7 @@ const bootstrap = () => new Promise(async (resolve, reject) => {
     for (const key in params) {
       query += `${encodeURIComponent(key)}=${params[key]}&`;
     }
-    fullUrl = `${accessIp}/#/join?${query}`;
+    fullUrl = `${settings.accessUrl}/#/join?${query}`;
     data.fullUrl = fullUrl;
     data.code = (0 | Math.random() * 9e6).toString(36);
     cb();
@@ -68,16 +63,17 @@ const bootstrap = () => new Promise(async (resolve, reject) => {
 
 const app = async (orm) => {
   const root = express();
+  // Setup our web app
   root.use(cors());
   root.use(bodyParser());
-  // Setup our web app
   root.use(`${settings.webroot}/`, express.static(path.join(__dirname, 'dist')));
+  // Invite handling
   root.get(`${settings.webroot}/invite/:id`, async (req, res) => {
     console.log('handling an invite', req.params.id);
     const shortObj = await Waterline.getModel('invite', orm).findOne({ code: req.params.id });
     console.log('Invite data', shortObj);
     if (!shortObj) {
-      return res.redirect(accessIp + settings.webroot);
+      return res.redirect(settings.accessUrl + settings.webroot);
     }
     console.log('Redirecting an invite link', shortObj);
     return res.redirect(shortObj.fullUrl);
@@ -104,27 +100,32 @@ const app = async (orm) => {
     }
     const result = await Waterline.getModel('invite', orm).create({ ...data }).fetch();
     return res.send({
-      url: `${accessIp}/invite/${result.code}`,
+      url: `${settings.accessUrl}/invite/${result.code}`,
       success: true,
       generatedAt: new Date().getTime(),
       details: result,
     }).end();
   });
-  root.get('/config', (req, res) => {
+  // Config handling
+  root.get(`${settings.webroot}/config`, (req, res) => {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     res.header('Expires', '-1');
     res.header('Pragma', 'no-cache');
-    res.send(SettingsHelper())
+    res.send(settings);
   });
-  root.use('/', express.static(path.join(__dirname, 'dist')));
+  // Catch anything else and redirect to the base URL
   root.get('*', (req, res) => {
-    console.log('Catch all');
-    return res.redirect('/');
+    console.log('Catch all:', req.url);
+    return res.redirect(`${settings.webroot}/`);
   });
-  root.use(cors());
+
   const rootserver = require('http').createServer(root);
   rootserver.listen(PORT);
   console.log(`SyncLounge WebApp successfully started on port ${PORT}`);
+  if (settings.webroot) {
+    console.log(`Running with base URL: ${settings.webroot}`);
+  }
+  console.log(`Access URL is ${settings.accessUrl}`);
 };
 
 bootstrap().then((orm) => {
