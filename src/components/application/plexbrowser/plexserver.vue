@@ -131,10 +131,15 @@ export default {
       return this.$store.getters.getPlex;
     },
     filteredLibraries() {
+      let data = [];
       if (this.libraries) {
-        return this.libraries.MediaContainer.Directory;
+        this.libraries.MediaContainer.Directory.forEach((library) => {
+          if(library.type != 'artist' || library.agent != 'tv.plex.agents.music') {
+            data.push(library);
+          }
+        });
       }
-      return [];
+      return data;
     },
     onDeckUpStyle() {
       if ((this.onDeckOffset + this.onDeckItemsPer) >= this.onDeck.MediaContainer.Metadata.length) {
