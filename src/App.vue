@@ -113,7 +113,7 @@ export default {
       fixed: false,
       initialized: false,
       donateDialog: false,
-      
+
       loading: true,
       configError: null,
 
@@ -153,7 +153,7 @@ export default {
     },
     goFullscreen() {
       fscreen.requestFullscreen(document.body);
-    }
+    },
   },
   async mounted() {
     try {
@@ -216,9 +216,9 @@ export default {
     if (settings.autoJoin === true || settings.autoJoin === 'true' || (this.config && this.config.autoJoin)) {
       if (settings.autoJoinServer || this.config.autoJoinServer) {
         this.$store.dispatch('autoJoin', {
-          server: settings.autoJoinServer,
-          password: settings.autoJoinPassword,
-          room: settings.autoJoinRoom,
+          server: settings.autoJoinServer || this.config.autoJoinServer,
+          password: settings.autoJoinPassword || this.config.autoJoinPassword,
+          room: settings.autoJoinRoom || this.config.autoJoinRoom,
         });
       }
     }
