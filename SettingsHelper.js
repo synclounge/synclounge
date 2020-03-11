@@ -1,6 +1,6 @@
 
 const args = require('args-parser')(process.argv);
-const settings = require(`./data/settings.json`);
+const settings = require('./settings.json');
 
 module.exports = function () {
   const fields = [
