@@ -52,11 +52,11 @@
             <v-flex xs12 class="nicelist pt-3" v-if="!context.getters.getConnected" style="color:white !important">
               <v-subheader>Select a server</v-subheader>
               <v-layout row wrap>
-                <v-flex xs12 md3 v-for="server in ptservers" :key="server.url" class="pa-2">
+                <v-flex xs12 pa-2 v-for="server in ptservers" :key="server.url" v-bind:class="ptserversClass">
                   <v-card height="300px" style="background: #353e58">
                     <v-layout row wrap justify-center style="height: 100%">
                       <v-flex xs12 class="text-xs-center pa-2" style="height: 50%; position: relative; background: rgba(0,0,0,0.2)">
-                        <img :src="server.flag" class="flag" style="height: 50%; vertical-align: middle" />
+                        <img :src="server.flag" class="flag" style="height: 50%; vertical-align: middle; max-width: 80%" />
                       </v-flex>
                       <v-flex xs12 style="height: 50%" class="text-xs-center pt-1">
                         <h2>{{ server.text }}</h2>
@@ -82,13 +82,13 @@
                 </v-flex>
               </v-layout>
               <v-text-field
-                v-if="selectedServer == 'custom'"
+                v-if="selectedServer.value == 'custom'"
                 name="input-2"
                 label="Custom Server"
                 v-model="CUSTOMSERVER"
                 class="input-group pt-input"
               ></v-text-field>
-              <v-layout row wrap v-if="selectedServer == 'custom'">
+              <v-layout row wrap v-if="selectedServer.value == 'custom'">
                 <v-flex xs12>
                   <v-btn class="pt-orange white--text pa-0 ma-0" color="primary" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
                 </v-flex>
@@ -168,34 +168,7 @@ export default {
 
       results: {},
 
-      destroyed: false,
-
-      ptservers: [
-        {
-          location: 'Sydney, Australia',
-          text: 'SyncLounge AU1',
-          value: 'https://v2au1.synclounge.tv/server',
-          flag: 'flags/aus.png',
-        },
-        {
-          location: 'Amsterdam, Netherlands',
-          text: 'SyncLounge EU1',
-          value: 'https://v2eu1.synclounge.tv/server',
-          flag: 'flags/eu.png',
-        },
-        {
-          location: 'Miami, United States',
-          text: 'SyncLounge US1',
-          value: 'https://v2us1.synclounge.tv/server',
-          flag: 'flags/usa.png',
-        },
-        {
-          location: 'Anywhere!',
-          text: 'Custom Server',
-          value: 'custom',
-          flag: 'synclounge-white.png',
-        },
-      ],
+      destroyed: false
     };
   },
   mounted() {
@@ -253,8 +226,15 @@ export default {
       return ['white--text'];
     },
     serverSelected(server) {
-      this.selectedServer = server.value;
-      if (this.selectedServer !== 'custom') {
+      this.selectedServer = server;
+      if(this.selectedServer.defaultRoom) {
+        this.room = this.selectedServer.defaultRoom;
+
+        if(this.selectedServer.defaultPassword) {
+          this.password = this.selectedServer.defaultPassword;
+        }
+      }
+      if (this.selectedServer.value !== 'custom') {
         this.attemptConnect();
       }
     },
@@ -284,12 +264,17 @@ export default {
       // Attempt the connection
       return new Promise((resolve, reject) => {
         this.serverError = null;
-        if (this.selectedServer !== 'custom') {
+        if (this.selectedServer.value !== 'custom') {
           this.connectionPending = true;
-          this.$store.dispatch('socketConnect', { address: this.selectedServer })
+          this.$store.dispatch('socketConnect', { address: this.selectedServer.value })
             .then((result) => {
               this.connectionPending = false;
               if (result) {
+                if(this.room) {
+                  this.joinRoom().then(() => {
+                  }).catch((e) => {
+                  });
+                }
                 resolve();
               } else {
                 this.serverError = null;
@@ -298,7 +283,7 @@ export default {
             })
             .catch((e) => {
               this.connectionPending = false;
-              this.serverError = `Failed to connect to ${this.selectedServer}`;
+              this.serverError = `Failed to connect to ${this.selectedServer.value}`;
               reject(e);
             });
         } else {
@@ -402,6 +387,14 @@ export default {
       set(value) {
         this.$store.commit('setSetting', ['CUSTOMSERVER', value]);
       },
+    },
+    ptservers() {
+      return this.$store.getters.getSettings.SERVERS;
+    },
+    ptserversClass() {
+      let serversCount = this.$store.getters.getSettings.SERVERS.length;
+      let classNum = 12/serversCount;
+      return `md${classNum}`;
     },
   },
 };
