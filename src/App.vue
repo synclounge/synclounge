@@ -191,29 +191,29 @@ export default {
 
     let servers = [
       {
+        name: 'SyncLounge AU1',
         location: 'Sydney, Australia',
-        text: 'SyncLounge AU1',
-        value: 'https://v2au1.synclounge.tv/server',
-        flag: 'flags/aus.png',
+        url: 'https://v2au1.synclounge.tv/server',
+        image: 'flags/aus.png',
       },
       {
+        name: 'SyncLounge EU1',
         location: 'Amsterdam, Netherlands',
-        text: 'SyncLounge EU1',
-        value: 'https://v2eu1.synclounge.tv/server',
-        flag: 'flags/eu.png',
+        url: 'https://v2eu1.synclounge.tv/server',
+        image: 'flags/eu.png',
       },
       {
+        name: 'SyncLounge US1',
         location: 'Miami, United States',
-        text: 'SyncLounge US1',
-        value: 'https://v2us1.synclounge.tv/server',
-        flag: 'flags/usa.png',
+        url: 'https://v2us1.synclounge.tv/server',
+        image: 'flags/usa.png',
       },
     ];
     let customServer = {
+      name: 'Custom Server',
       location: 'Anywhere!',
-      text: 'Custom Server',
-      value: 'custom',
-      flag: 'synclounge-white.png',
+      url: 'custom',
+      image: 'synclounge-white.png',
     }
 
     if (this.config && this.config.servers) {
@@ -243,7 +243,7 @@ export default {
     if (servers.length == 1 && !this.$store.autoJoinServer) {
       let server = servers[0];
       this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINURL', server.value);
+      this.$store.commit('SET_AUTOJOINURL', server.url);
       if(!this.$store.autoJoinRoom && server.defaultRoom) {
         this.$store.commit('SET_AUTOJOINROOM', server.defaultRoom);
       }
