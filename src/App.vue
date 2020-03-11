@@ -231,8 +231,8 @@ export default {
     else if (this.config && this.config.customServer) {
       servers.push(this.config.customServer);
     }
-    else if (this.config && this.settings.customServer) {
-      servers.push(this.settings.customServer);
+    else if (settings && settings.customServer) {
+      servers.push(settings.customServer);
     }
     else {
       servers.push(customServer);
