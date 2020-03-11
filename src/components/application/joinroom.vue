@@ -56,17 +56,17 @@
                   <v-card height="300px" style="background: #353e58">
                     <v-layout row wrap justify-center style="height: 100%">
                       <v-flex xs12 class="text-xs-center pa-2" style="height: 50%; position: relative; background: rgba(0,0,0,0.2)">
-                        <img :src="server.flag" class="flag" style="height: 50%; vertical-align: middle; max-width: 80%" />
+                        <img :src="server.image" class="flag" style="height: 50%; vertical-align: middle; max-width: 80%" />
                       </v-flex>
                       <v-flex xs12 style="height: 50%" class="text-xs-center pt-1">
-                        <h2>{{ server.text }}</h2>
+                        <h2>{{ server.name }}</h2>
                         <h4>{{ server.location }}</h4>
                         <v-btn color="primary" :disabled="connectionPending" @click="serverSelected(server)"> Connect</v-btn>
-                        <div v-if="server.value !== 'custom'">
-                          <div v-if="results[server.value]">
-                            <div v-if="results[server.value].alive">
-                              <div>Ping: <span class="thick--text" :class="connectionQualityClass(results[server.value].latency)">{{ results[server.value].latency }}ms </span></div>
-                              <div>Load: <span class="thick--text" :class="loadQualityClass(results[server.value].result)">{{ results[server.value].result || 'Unknown' }} </span></div>
+                        <div v-if="server.url !== 'custom'">
+                          <div v-if="results[server.url]">
+                            <div v-if="results[server.url].alive">
+                              <div>Ping: <span class="thick--text" :class="connectionQualityClass(results[server.url].latency)">{{ results[server.url].latency }}ms </span></div>
+                              <div>Load: <span class="thick--text" :class="loadQualityClass(results[server.url].result)">{{ results[server.url].result || 'Unknown' }} </span></div>
                             </div>
                             <div v-else class="text-xs-center red--text">
                               Unable to connect to server
@@ -82,13 +82,13 @@
                 </v-flex>
               </v-layout>
               <v-text-field
-                v-if="selectedServer.value == 'custom'"
+                v-if="selectedServer.url == 'custom'"
                 name="input-2"
                 label="Custom Server"
                 v-model="CUSTOMSERVER"
                 class="input-group pt-input"
               ></v-text-field>
-              <v-layout row wrap v-if="selectedServer.value == 'custom'">
+              <v-layout row wrap v-if="selectedServer.url == 'custom'">
                 <v-flex xs12>
                   <v-btn class="pt-orange white--text pa-0 ma-0" color="primary" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
                 </v-flex>
@@ -234,24 +234,24 @@ export default {
           this.password = this.selectedServer.defaultPassword;
         }
       }
-      if (this.selectedServer.value !== 'custom') {
+      if (this.selectedServer.url !== 'custom') {
         this.attemptConnect();
       }
     },
     async testConnections() {
       this.ptservers.map((server) => {
-        if (server.value !== 'custom') {
+        if (server.url !== 'custom') {
           const start = new Date().getTime();
-          axios.get(`${server.value}/health`)
+          axios.get(`${server.url}/health`)
             .then((res) => {
-              Vue.set(this.results, server.value, {
+              Vue.set(this.results, server.url, {
                 alive: true,
                 latency: Math.abs(start - new Date().getTime()),
                 result: res.data.load || null,
               });
             })
             .catch((e) => {
-              Vue.set(this.results, server.value, {
+              Vue.set(this.results, server.url, {
                 alive: false,
                 latency: Math.abs(start - new Date().getTime()),
                 result: null,
@@ -264,9 +264,9 @@ export default {
       // Attempt the connection
       return new Promise((resolve, reject) => {
         this.serverError = null;
-        if (this.selectedServer.value !== 'custom') {
+        if (this.selectedServer.url !== 'custom') {
           this.connectionPending = true;
-          this.$store.dispatch('socketConnect', { address: this.selectedServer.value })
+          this.$store.dispatch('socketConnect', { address: this.selectedServer.url })
             .then((result) => {
               this.connectionPending = false;
               if (result) {
@@ -283,7 +283,7 @@ export default {
             })
             .catch((e) => {
               this.connectionPending = false;
-              this.serverError = `Failed to connect to ${this.selectedServer.value}`;
+              this.serverError = `Failed to connect to ${this.selectedServer.url}`;
               reject(e);
             });
         } else {
