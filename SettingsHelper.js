@@ -10,6 +10,9 @@ const defaults = {
   autoJoinServer: '',
   autoJoinRoom: '',
   autoJoinPassword: '',
+  authentication: {
+    mechanism: 'none'
+  }
 };
 
 module.exports = function () {
@@ -21,6 +24,7 @@ module.exports = function () {
     'autoJoinServer',
     'autoJoinRoom',
     'autoJoinPassword',
+    'authentication'
   ];
   // Load and export our settings in preference of ENV -> args
   const output = {};

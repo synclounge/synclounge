@@ -28,8 +28,13 @@
               </v-flex>
             </v-layout>
           </div>
-          <div v-if="code" class="text-xs-center">
+          <div v-if="code && !authError" class="text-xs-center">
             <v-btn class="primary" @click="openPopup">Click me</v-btn>
+          </div>
+          <div v-if="authError" class="text-xs-center error">
+            <p>
+              You are not authorized to access this server
+            </p>
           </div>
           <v-layout wrap row class="pt-4 pa-2">
             <v-flex xs12 md8 offset-md2 class="center-text">
@@ -67,9 +72,8 @@ export default {
       },
       code: null,
       ready: false,
-
       openedWindow: null,
-
+      authError: null,
     };
   },
   methods: {
@@ -106,6 +110,71 @@ export default {
       }
       this.$router.push('/browse');
     },
+    async checkAuth(authToken) {
+      console.log('AuthToken 2: ', authToken);
+      // Get stored authentication settings
+      let authentication = this.$store.state.authentication;
+      // Authentication defaults to false
+      let authenticationPassed = false;
+
+      // Authenication via Plex mechanism
+      if (authentication.mechanism == 'plex') {
+        // Server authorization using server data
+        if(authentication.type.includes('server')) {
+          // Retrieve and store the user's servers
+          try {
+            console.log('AuthToken 3: ', authToken);
+            await this.$store.dispatch('PLEX_GET_SERVERS', authToken);
+            // Get the user object
+            let user = this.$store.state.plex.user;
+            let servers = user.servers;
+
+            // Compare servers against the authorized list
+            let serverFound = false;
+            for (const id in servers) {
+              const server = servers[id].$;
+              if(authentication.authorized.includes(server.machineIdentifier)) {
+                authenticationPassed = true;
+              }
+            }
+          }
+          catch (e) {
+            console.error('An error occurred when authenticating with Plex: ', e);
+          }
+        }
+        // Authorization using user data
+        if (authentication.type.includes('user')) {
+          // Get the user object
+          let user = this.$store.state.plex.user;
+          // Compare the user's email against the authorized list
+          if(authentication.authorized.includes(user.email)) {
+            authenticationPassed = true;
+          }
+          // Compare the user's name against the authorized list
+          if(authentication.authorized.includes(user.username)) {
+            authenticationPassed = true;
+          }
+        }
+      }
+      // New authentication mechanisms can be added here
+      // else if (authentication.mechanism == 'new_mech' ) {
+      // }
+      // Authenication via an unsupported mechanism
+      else if (authentication.mechanism != 'none' ) {
+        console.error(`Invalid authentication mechanism provided: '${authentication.mechanism}'. Reverting to default.`);
+        this.$store.state.authentication = {
+          mechanism: 'none'
+        };
+        authenticationPassed = true;
+      }
+      // Authenication mechanism isn't set. This should never happen.
+      else {
+        console.log('No authentication set');
+        authenticationPassed = true;
+      }
+
+      return authenticationPassed;
+    }
   },
   computed: {
     store() {
@@ -163,12 +232,22 @@ export default {
         if (this.openedWindow) {
           this.openedWindow.close();
         }
+        console.log('AuthToken: ', result.data.authToken);
+        let authenticated = await this.checkAuth(result.data.authToken);
+        console.log('authenticated: ', authenticated);
+        if(authenticated) {
+          window.localStorage.setItem('plexuser', JSON.stringify({ authToken: result.data.authToken }));
+          await this.$store.dispatch('PLEX_LOGIN_TOKEN', result.data.authToken);
+          this.token = result.data.authToken;
+          console.log('Token: ', this.token);
+          this.ready = true;
+
+          this.letsGo();
+        }
+        else {
+          this.authError = `You are not authorized to access this server.`;
+        }
         clearInterval(this.ticker);
-        window.localStorage.setItem('plexuser', JSON.stringify({ authToken: result.data.authToken }));
-        await this.$store.dispatch('PLEX_LOGIN_TOKEN', result.data.authToken);
-        this.token = result.data.authToken;
-        this.ready = true;
-        this.letsGo();
       }
     }, 2000);
   },
