@@ -1,9 +1,13 @@
 {
     "webroot": "",
-    "serverroot": "",
+    "webapp_port": "8088",
     "accessUrl": "",
-    "autoJoin": false,
+    "serverroot": "",
+    "server_port": "8089",
+    "autoJoin": "false",
     "autoJoinServer": "",
     "autoJoinRoom": "",
-    "autoJoinPassword": ""
+    "autoJoinPassword": "",
+    "servers": "",
+    "customServer": ""
 }

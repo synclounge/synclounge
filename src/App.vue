@@ -205,6 +205,69 @@ export default {
       }
     }
 
+    let servers = [
+      {
+        name: 'SyncLounge AU1',
+        location: 'Sydney, Australia',
+        url: 'https://v2au1.synclounge.tv/server',
+        image: 'flags/aus.png',
+      },
+      {
+        name: 'SyncLounge EU1',
+        location: 'Amsterdam, Netherlands',
+        url: 'https://v2eu1.synclounge.tv/server',
+        image: 'flags/eu.png',
+      },
+      {
+        name: 'SyncLounge US1',
+        location: 'Miami, United States',
+        url: 'https://v2us1.synclounge.tv/server',
+        image: 'flags/usa.png',
+      },
+    ];
+    let customServer = {
+      name: 'Custom Server',
+      location: 'Anywhere!',
+      url: 'custom',
+      image: 'synclounge-white.png',
+    }
+
+    if (this.config && this.config.servers) {
+      servers = this.config.servers
+      if(this.config.customServer) {
+        console.error(`'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.`);
+      }
+    }
+    else if (settings && settings.servers) {
+      servers = settings.servers;
+      if(settings.customServer) {
+        console.error(`'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.`);
+      }
+    }
+    else if (this.config && this.config.customServer) {
+      servers.push(this.config.customServer);
+    }
+    else if (settings && settings.customServer) {
+      servers.push(settings.customServer);
+    }
+    else {
+      servers.push(customServer);
+    }
+
+    this.$store.commit('setSetting', ['SERVERS', servers]);
+
+    if (servers.length == 1 && !this.$store.autoJoinServer) {
+      let server = servers[0];
+      this.$store.commit('SET_AUTOJOIN', true);
+      this.$store.commit('SET_AUTOJOINURL', server.url);
+      if(!this.$store.autoJoinRoom && server.defaultRoom) {
+        this.$store.commit('SET_AUTOJOINROOM', server.defaultRoom);
+      }
+      if(!this.$store.autoJoinPassword && server.defaultPassword) {
+        this.$store.commit('SET_AUTOJOINPASSWORD', server.defaultPassword);
+      }
+    }
+
     window.EventBus.$on('notification', (msg) => {
       this.snackbarMsg = msg;
       this.snackbar = true;
