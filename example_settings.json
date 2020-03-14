@@ -5,5 +5,7 @@
     "autoJoin": false,
     "autoJoinServer": "",
     "autoJoinRoom": "",
-    "autoJoinPassword": ""
+    "autoJoinPassword": "",
+    "servers": "",
+    "customServer": ""
 }
