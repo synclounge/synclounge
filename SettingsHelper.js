@@ -22,7 +22,7 @@ module.exports = function () {
     {
       local: 'serverroot',
       env: 'SERVER_ROOT',
-      default: ''
+      default: '/slserver'
     },
     {
       local: 'server_port',
@@ -48,9 +48,19 @@ module.exports = function () {
       local: 'autoJoinPassword',
       env: 'AUTOJOIN_PASSWORD',
       default: ''
+    },
+    {
+      local: 'custom_server',
+      env: 'CUSTOM_SERVER',
+      default: ''
+    },
+    {
+      local: 'servers',
+      env: 'SERVERS',
+      default: ''
     }
   ];
-  // Load and export our settings in preference of ENV -> args
+  // Load and export our settings in preference of Args -> ENV -> Settings file -> Default
   const output = {};
   for (let i = 0; i < fields.length; i++) {
     const setting = fields[i];
@@ -62,12 +72,19 @@ module.exports = function () {
 
     // Remove trailing slashes, if they exist
     if ((setting.local == 'webroot' || setting.local == 'accessUrl') && output[setting.local].endsWith("/")) {
+      console.log(`${setting.local}/${setting.env} should not end in '/'. Removing trailing slash(es) for you.`);
       output[setting.local] = output[setting.local].replace(/\/+$/, "");
     }
     // Add leading slash, if not provided
     if (setting.local == 'webroot' && !output[setting.local].startsWith("/")) {
+      console.log(`${setting.local}/${setting.env} should always start with '/'. Adding the leading slash for you.`);
       // Make sure it starts with one leading slash
       output[setting.local] = `/${output[setting.local]}`;
+    }
+    // Make sure 'webroot' and 'serverroot' aren't set to '/'. Revert to default if they do.
+    if ((setting.local == 'webroot' || setting.local == 'serverroot') && output[setting.local] == '/') {
+      console.log(`${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${setting.default}'`);
+      output[setting.local] = setting.default;
     }
     process.env[setting.local] = output[setting.local];
   }
