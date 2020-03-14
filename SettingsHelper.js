@@ -4,6 +4,7 @@ const settings = require('./settings.json');
 
 module.exports = function () {
   const fields = [
+    // Webapp settings
     {
       local: 'webroot',
       env: 'WEB_ROOT',
@@ -18,16 +19,6 @@ module.exports = function () {
       local: 'accessUrl',
       env: 'WEB_ACCESSURL',
       default: ''
-    },
-    {
-      local: 'serverroot',
-      env: 'SERVER_ROOT',
-      default: '/slserver'
-    },
-    {
-      local: 'server_port',
-      env: 'SERVER_PORT',
-      default: '8089'
     },
     {
       local: 'autoJoin',
@@ -58,6 +49,17 @@ module.exports = function () {
       local: 'servers',
       env: 'SERVERS',
       default: ''
+    },
+    // Server settings
+    {
+      local: 'serverroot',
+      env: 'SERVER_ROOT',
+      default: '/slserver'
+    },
+    {
+      local: 'server_port',
+      env: 'SERVER_PORT',
+      default: '8089'
     }
   ];
   // Load and export our settings in preference of Args -> ENV -> Settings file -> Default
