@@ -41,7 +41,7 @@
             {{ configError }}
           </v-alert>
         </v-flex>
-        <v-flex xs12 v-if="(loading || !plex.gotDevices) && route.protected">
+        <v-flex xs12 v-if="(loading || (plex && !plex.gotDevices)) && route.protected">
           <v-container fill-height>
             <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
               <v-flex xs8 md4>
@@ -161,15 +161,8 @@ export default {
     } catch (e) {
       this.configError = `Failed to fetch config: ${e}`;
     }
-    if (this.config && this.config.autoJoin) {
-      if (settings.autoJoin === true || settings.autoJoin === 'true') {
-        this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', this.config.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', this.config.autoJoinServer);
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.config.autoJoinPassword);
-      }
-    }
 
+    // Set AutoJoin information in order of importance: query -> config -> settings
     if (this.$route.query.autojoin) {
       this.$store.commit('SET_AUTOJOIN', true);
       this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
@@ -177,6 +170,22 @@ export default {
       this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner]);
       if (this.$route.query.password) {
         this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
+      }
+    }
+    else if (this.config && this.config.autoJoin) {
+      if (this.config.autoJoin === true || this.config.autoJoin === 'true') {
+        this.$store.commit('SET_AUTOJOIN', true);
+        this.$store.commit('SET_AUTOJOINROOM', this.config.autoJoinRoom);
+        this.$store.commit('SET_AUTOJOINURL', this.config.autoJoinServer);
+        this.$store.commit('SET_AUTOJOINPASSWORD', this.config.autoJoinPassword);
+      }
+    }
+    else if (settings && settings.autoJoin) {
+      if (settings.autoJoin === true || settings.autoJoin === 'true') {
+        this.$store.commit('SET_AUTOJOIN', true);
+        this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom);
+        this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer);
+        this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword);
       }
     }
 
@@ -213,14 +222,12 @@ export default {
       this.$router.push('/signin');
       return;
     }
-    if (settings.autoJoin === true || settings.autoJoin === 'true' || (this.config && this.config.autoJoin)) {
-      if (settings.autoJoinServer || this.config.autoJoinServer) {
-        this.$store.dispatch('autoJoin', {
-          server: settings.autoJoinServer || this.config.autoJoinServer,
-          password: settings.autoJoinPassword || this.config.autoJoinPassword,
-          room: settings.autoJoinRoom || this.config.autoJoinRoom,
-        });
-      }
+    if (this.$store.state.autoJoin) {
+      this.$store.dispatch('autoJoin', {
+        server: this.$store.state.autoJoinUrl,
+        password: this.$store.state.autoJoinPassword,
+        room: this.$store.state.autoJoinRoom,
+      });
     }
 
     fscreen.addEventListener('fullscreenchange', () => {
