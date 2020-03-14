@@ -113,6 +113,72 @@ The following can be used to change some of the settings in the application. Arg
 | autoJoinServer | AUTOJOIN_SERVERURL | Set this to the server URL you want the user to auto join. Required if auto join is enabled. Ex - `http://mysynclounge.com/slserver` |
 | autoJoinRoom | AUTOJOIN_ROOM | Set this to the room name in the server that you want the users to auto join. Optional |
 | autoJoinPassword | AUTOJOIN_PASSWORD | Set this to the room's password, if it has one. Optional |
+| authentication | AUTHENTICATION | Configure authentication for the server. See below for more information. Optional |
+| customServer | CUSTOM_SERVER | Override the custom server entry in the servers list. See below for more information. Optional |
+| servers | SERVERS | Set your own servers list. See below for more information. Optional |
+
+#### Authentication
+To enable authentication, the following setting and format is used
+```json
+"authentication": {
+    "mechanism": "plex",
+    "type": ["server", "user"],
+    "authorized": [
+      "PLEX_SERVER_MACHINE_ID",
+      "PLEX_USER_EMAIL",
+      "PLEX_USER_NAME",
+    ]
+  }
+```
+
+- `mechanism` specifies how SyncLounge should authenticate a user. This is mostly for future-proofing to allow other authentication mechanisms to be provided. Defaults to `none`.
+- `type` is mechanism dependent. Since `plex` is the only one currently, either or both `server` and `user` can be specified.
+  - `server` checks against the plex server machine ID (`PLEX_SERVER_MACHINE_ID`). If the user has access to a server matching any of the IDs in the `authorized` list, they will be granted access.
+  - `user` checks against the user's email (`PLEX_USER_EMAIL`) or username (`PLEX_USER_NAME`). If either matches a value in the `authorized` list, they will be granted access.
+- `authorized` is a list of information for who is authorized.
+
+#### Customize the server list
+##### Customize the Custom Server entry
+Adding this to your settings will override the the custom server in the server list.
+```json
+"customServer": {
+  "name": "Custom Server 1",
+  "location": "Custom Location",
+  "url": "https://mycustomserver.com/server",
+  "logo": "https://mycustomserver.com/logo.png"
+}
+```
+![image](https://user-images.githubusercontent.com/1524443/76433720-19a3f180-638b-11ea-8c20-1997728e8325.png)
+
+##### Customize servers list
+The servers list can be modified with your own list of servers. If this setting is provided, it will ignore the `customServer` setting above. Also, if only one server is provided, it will automatically join it! A server entry can also handle a default Room, with or without password. If set, SyncLounge will attempt to auto-join the room when the server is selected by the user.
+
+```json
+"servers": [
+  {
+    "name": "Custom Server 1",
+    "location": "Custom Location",
+    "url": "https://1.mycustomserver.com/server",
+    "logo": "https://mycustomserver.com/logo.png"
+  },
+  {
+    "name": "Custom Server 2",
+    "location": "Custom Location",
+    "url": "https://2.mycustomserver.com/server",
+    "logo": "https://mycustomserver.com/logo-2.png",
+    "defaultRoom": "DefaultRoom"
+  },
+  {
+    "name": "Custom Server 3",
+    "location": "Custom Location",
+    "url": "https://3.mycustomserver.com/server",
+    "logo": "https://mycustomserver.com/logo-3.png",
+    "defaultRoom": "DefaultRoom",
+    "defaultPassword": "DefaultPassword123"
+  }
+]
+```
+  ![image](https://user-images.githubusercontent.com/1524443/76433958-6daed600-638b-11ea-9cf6-41ea79182dbc.png)
 
 ### Docker
 This is the official Docker container for SyncLounge: https://hub.docker.com/r/starbix/synclounge
@@ -218,6 +284,8 @@ If you run in to any issues:
 [Brandz](https://twitter.com/homebrandz) - Design
 
 [TheGrimmChester](https://github.com/TheGrimmChester) - Developer/Tester
+
+[MagicalCodeMonkey](https://github.com/MagicalCodeMonkey) - Developer/Tester
 
 [Starbix](https://github.com/Starbix) - Docker Support
 
