@@ -111,7 +111,6 @@ export default {
       this.$router.push('/browse');
     },
     async checkAuth(authToken) {
-      console.log('AuthToken 2: ', authToken);
       // Get stored authentication settings
       let authentication = this.$store.state.authentication;
       // Authentication defaults to false
@@ -123,7 +122,6 @@ export default {
         if(authentication.type.includes('server')) {
           // Retrieve and store the user's servers
           try {
-            console.log('AuthToken 3: ', authToken);
             await this.$store.dispatch('PLEX_GET_SERVERS', authToken);
             // Get the user object
             let user = this.$store.state.plex.user;
@@ -167,7 +165,7 @@ export default {
         };
         authenticationPassed = true;
       }
-      // Authenication mechanism isn't set. This should never happen.
+      // Authenication mechanism isn't set. This should only happen when authentication mechanism is set to 'none'.
       else {
         console.log('No authentication set');
         authenticationPassed = true;
@@ -232,14 +230,11 @@ export default {
         if (this.openedWindow) {
           this.openedWindow.close();
         }
-        console.log('AuthToken: ', result.data.authToken);
         let authenticated = await this.checkAuth(result.data.authToken);
-        console.log('authenticated: ', authenticated);
         if(authenticated) {
           window.localStorage.setItem('plexuser', JSON.stringify({ authToken: result.data.authToken }));
           await this.$store.dispatch('PLEX_LOGIN_TOKEN', result.data.authToken);
           this.token = result.data.authToken;
-          console.log('Token: ', this.token);
           this.ready = true;
 
           this.letsGo();
