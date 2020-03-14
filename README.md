@@ -72,6 +72,7 @@ Head to the [website](http://synclounge.tv)
 Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with SyncLounge may vary. If you have access to one of the untested clients please let us know so we can update our list below.
 
 Some low powered clients may be hard to achieve a perfect sync with (for example: Raspberry Pi clients).
+
 ### Unsupported
 * Plex Web Player (Chrome/Safari/Firefox)
 
@@ -97,6 +98,21 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 Please use the Issue tracker here on Github for Issues & Feature requests. We'll gladly merge Pull requests if you're keen to get hands on with the development.
 
 ## Building and deploying
+
+### Arguments and ENV variables
+The following can be used to change some of the settings in the application. Arguments are passed to the application by using `--<argument>=<value>` when running the application. ENV variables are mostly for Docker but can be set locally on your system.
+
+| Argument | ENV | Description |
+| ------ | ------ | ------ |
+| webroot | WEB_ROOT | Change the base URL of the web app. Ex - `/lounge` |
+| webapp_port | WEB_PORT | Change the port the web app uses. Defaults to `8088` |
+| accessUrl | WEB_ACCESSURL | Set the URL the web app uses for things like invites. Ex - `http://mysynclounge.com` |
+| serverroot | SERVER_ROOT | Change the base URL of the server app. Ex - `/server`. Defaults to `/slserver` |
+| server_port | SERVER_PORT | Change the port the server app uses. Defaults to `8089` |
+| autoJoin | AUTOJOIN_ENABLED | Set to `true` to enable auto joining. Defaults to `false` |
+| autoJoinServer | AUTOJOIN_SERVERURL | Set this to the server URL you want the user to auto join. Required if auto join is enabled. Ex - `http://mysynclounge.com/slserver` |
+| autoJoinRoom | AUTOJOIN_ROOM | Set this to the room name in the server that you want the users to auto join. Optional |
+| autoJoinPassword | AUTOJOIN_PASSWORD | Set this to the room's password, if it has one. Optional |
 
 ### Docker
 This is the official Docker container for SyncLounge: https://hub.docker.com/r/starbix/synclounge
