@@ -41,6 +41,13 @@ module.exports = function () {
       default: ''
     },
     {
+      local: 'authentication',
+      env: 'AUTHENTICATION',
+      default: {
+        mechanism: 'none'
+      }
+    },
+    {
       local: 'custom_server',
       env: 'CUSTOM_SERVER',
       default: ''
