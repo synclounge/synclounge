@@ -85,7 +85,7 @@ module.exports = function () {
       output[setting.local] = output[setting.local].replace(/\/+$/, "");
     }
     // Add leading slash, if not provided
-    if (setting.local == 'webroot' && !output[setting.local].startsWith("/")) {
+    if (setting.local == 'webroot' && output[setting.local].length > 1 && !output[setting.local].startsWith("/")) {
       console.log(`${setting.local}/${setting.env} should always start with '/'. Adding the leading slash for you.`);
       // Make sure it starts with one leading slash
       output[setting.local] = `/${output[setting.local]}`;
