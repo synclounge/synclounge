@@ -246,4 +246,26 @@ export default {
     console.log('Updating timeline for', client, 'with', timeline);
   },
 
+  PLEX_GET_SERVERS: ({ state, commit, dispatch }, token) => new Promise((resolve, reject) => {
+    if (!state.user) {
+      return reject(new Error('Sign in before getting devices'));
+    }
+
+    const options = PlexAuth.getApiOptions('https://plex.tv/pms/servers.xml', token, 5000, 'GET');
+    request(options, (error, response, body) => {
+      if (!error && response.statusCode === 200) {
+        // Valid response
+        parseXMLString(body, async (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          // Save the servers list associated with the logged in account
+          state.user.servers = result.MediaContainer.Server;
+          return resolve(true);
+        });
+      }
+      return reject(error);
+    });
+  }),
+
 };

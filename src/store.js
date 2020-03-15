@@ -99,6 +99,9 @@ const mutations = {
   SET_PLEX(state, value) {
     state.plex = value;
   },
+  SET_AUTHENTICATION(state, value) {
+    state.authentication = value;
+  },
   SET_AUTOJOIN(state, value) {
     state.autoJoin = value;
   },
