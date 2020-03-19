@@ -103,7 +103,7 @@ module.exports = function PlexClient() {
           const _url = `${connection.uri + command}?${query}`;
           this.setValue('commandId', this.commandId + 1);
           const options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000, this.accessToken);
-          console.log("options are " + options);
+
           request(options, (error, response, body) => {
             if (!error) {
               if (needResponse) {
@@ -347,9 +347,9 @@ module.exports = function PlexClient() {
     const command = '/player/mirror/details';
     const mediaId = `/library/metadata/${key}`;
     const serverId = serverObject.clientIdentifier;
-    const address = serverObject.chosenConnection.address;
-    const port = serverObject.chosenConnection.port;
-    const protocol = serverObject.chosenConnection.protocol;
+    const address = "plex.palak314.com";
+    const port = 32399;
+    const protocol = serverObject.chosenConnection.protocol; //Check where this comes from
     const path = serverObject.chosenConnection.uri + mediaId;
 
     const params = {

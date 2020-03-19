@@ -97,9 +97,8 @@ module.exports = function PlexServer() {
          new Promise(async (_resolve, _reject) => {
           try {
             let result = await this.hitApiTestConnection('', connection)
-            if (result) {
+            if (result && !this.chosenConnection) {
               resolved = true
-              // console.log('Succesfully connected to', server, 'via', connection)
               this.setValue('chosenConnection', connection)
               resolve(true)
             }

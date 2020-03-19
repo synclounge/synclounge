@@ -73,6 +73,7 @@ export default {
       if (!error && response.statusCode === 200) {
         // Valid response
         parseXMLString(body, async (err, result) => {
+          console.log(body);
           if (err) {
             return reject(err);
           }
@@ -100,6 +101,7 @@ export default {
                   rawConnection.isManual = true;
                   tempConnectionsArray.push(rawConnection);
                 }
+                console.log(tempConnectionsArray)
               }
             }
             if (device.provides.indexOf('player') !== -1) {
