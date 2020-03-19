@@ -73,7 +73,6 @@ export default {
       if (!error && response.statusCode === 200) {
         // Valid response
         parseXMLString(body, async (err, result) => {
-          console.log(body);
           if (err) {
             return reject(err);
           }
@@ -88,7 +87,8 @@ export default {
             for (const i in connections) {
               const connection = connections[i].$;
               // Exclude local IPs starting with 169.254
-              if (!connection.address.startsWith('169.254')) {
+              var letters = /^[A-Za-z]/;
+              if (!connection.address.startsWith('169.254') && connection.address.match(letters)) {
                 const tempConnection = new PlexConnection();
                 for (const key in connection) {
                   tempConnection[key] = connection[key];
