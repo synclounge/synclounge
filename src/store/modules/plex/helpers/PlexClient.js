@@ -95,6 +95,7 @@ module.exports = function PlexClient() {
             query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
           }
           query = query.substring(0, query.length - 1);
+          console.log(query);
           if (connection.uri.charAt(connection.uri.length - 1) === '/') {
             // Remove a trailing / that some clients broadcast
             connection.uri = connection.uri.slice(0, connection.uri.length - 1);
@@ -102,6 +103,7 @@ module.exports = function PlexClient() {
           const _url = `${connection.uri + command}?${query}`;
           this.setValue('commandId', this.commandId + 1);
           const options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000, this.accessToken);
+          console.log("options are " + options);
           request(options, (error, response, body) => {
             if (!error) {
               if (needResponse) {
@@ -305,8 +307,8 @@ module.exports = function PlexClient() {
       const mediaId = `/library/metadata/${data.ratingKey}`;
       const offset = Math.round(data.offset) || 0;
       const serverId = data.server.clientIdentifier;
-      const address = data.server.chosenConnection.address;
-      const port = data.server.chosenConnection.port;
+      const address = "plex.palak314.com";
+      const port = 32399;
       const protocol = data.server.chosenConnection.protocol;
       const path = data.server.chosenConnection.uri + mediaId;
 
@@ -321,6 +323,9 @@ module.exports = function PlexClient() {
         path,
         wait: 0,
         token: data.server.accessToken,
+        "includeLoudnessRamps": 1,
+        "includeChapters": 1,
+        "includeRelated": 1,
       };
 
       if (data.mediaIndex !== undefined || data.mediaIndex !== null) {
@@ -357,6 +362,11 @@ module.exports = function PlexClient() {
       path,
       wait: 0,
       token: serverObject.accessToken,
+      "includeLoudnessRamps": 1,
+      "includeChapters": 1,
+      "includeRelated": 1,
+
+
     };
     // Now that we've built our params, it's time to hit the client api
     return this.hitApi(command, params, this.chosenConnection);

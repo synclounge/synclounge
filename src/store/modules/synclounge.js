@@ -400,7 +400,7 @@ export default {
                 console.log('We are not going to make a decision from the host data because a command is already running');
                 return;
               }
-              console.log('Decision isnt blocked');
+             // console.log('Decision isnt blocked');
               if (!rootState.chosenClient) {
                 console.log('We dont have a client chosen yet!');
                 return;
@@ -418,7 +418,7 @@ export default {
               // Check previous timeline data age
               state.decisionBlocked = new Date().getTime();
               const timelineAge = Math.abs(new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt);
-              console.log('Timeline age is', timelineAge);
+              //console.log('Timeline age is', timelineAge);
               try {
                 // if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
                 //   await rootState.chosenClient.getTimeline()
