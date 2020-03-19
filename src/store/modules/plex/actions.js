@@ -93,7 +93,7 @@ export default {
                   tempConnection[key] = connection[key];
                 }
                 tempConnectionsArray.push(tempConnection);
-                if (connection.local === '1' && connection.uri.indexOf('plex') > -1) {
+                if (connection.local === '1' && connection.uri.indexOf('plex') > -1 && connection.uri.indexOf('com') > -1) {
                   const rawConnection = new PlexConnection();
                   Object.assign(rawConnection, connection);
                   rawConnection.uri = `${connection.protocol}://${connection.address}:${connection.port}`;

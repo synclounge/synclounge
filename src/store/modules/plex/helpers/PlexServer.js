@@ -97,8 +97,7 @@ module.exports = function PlexServer() {
          new Promise(async (_resolve, _reject) => {
           try {
             let result = await this.hitApiTestConnection('', connection)
-            var letters = /^[A-Za-z]/;
-            if (result && connection.publicAddressMatches.match(letters)) {
+            if (result) {
               resolved = true
               this.setValue('chosenConnection', connection)
               resolve(true)
