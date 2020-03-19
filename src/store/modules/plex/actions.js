@@ -87,8 +87,7 @@ export default {
             for (const i in connections) {
               const connection = connections[i].$;
               // Exclude local IPs starting with 169.254
-              var letters = /^[A-Za-z]/;
-              if (!connection.address.startsWith('169.254') && connection.address.match(letters)) {
+              if (!connection.address.startsWith('169.254')) {
                 const tempConnection = new PlexConnection();
                 for (const key in connection) {
                   tempConnection[key] = connection[key];
