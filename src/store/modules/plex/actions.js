@@ -68,8 +68,72 @@ export default {
       commit('PLEX_SET_VALUE', ['servers', {}]);
       commit('PLEX_SET_VALUE', ['clients', {}]);
     }
-    const options = PlexAuth.getApiOptions('https://plex.tv/api/resources?includeHttps=1', state.user.authToken, 5000, 'GET');
-    request(options, (error, response, body) => {
+    const clients = PlexAuth.getApiOptions('https://plex.tv/devices.xml?includeHttps=1', state.user.authToken, 5000, 'GET');
+    request(clients, (error, response, body) => {
+      if (!error && response.statusCode === 200) {
+        // Valid response
+        parseXMLString(body, async (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          var client = 10;
+          for (var index in result.MediaContainer.Device) {
+            const device = result.MediaContainer.Device[index].$; 
+            if (device.model) {
+              console.log(client)
+              client--;
+            const tempConnectionsArray = [];
+            const tempClient = new PlexClient();
+            for (const key in device) {
+                tempClient[key] = device[key];
+            }
+            tempClient.accessToken = state.user.authToken;
+            tempClient.plexConnections = tempConnectionsArray;
+            dispatch('PLEX_ADD_CLIENT', tempClient);
+            if (client == 0) {
+              break;
+            }
+          }
+          } 
+                    // Setup our slPlayer
+                    const ptplayer = new PlexClient();
+                    ptplayer.provides = 'player';
+                    ptplayer.clientIdentifier = 'PTPLAYER9PLUS10';
+                    ptplayer.platform = 'Web';
+                    ptplayer.device = 'Web';
+                    ptplayer.product = 'SyncLounge';
+                    ptplayer.name = 'SyncLounge Player (BETA)';
+                    ptplayer.labels = [
+                      ['Recommended', 'green'],
+                    ];
+                    ptplayer.lastSeenAt = Math.round((new Date()).getTime() / 1000);
+                    for (const i in state.clients) {
+                      const client = state.clients[i];
+                      for (const j in client.plexConnections) {
+                        const clientConnection = client.plexConnections[j];
+                        // Check if this URL matches any server connections
+                        for (const x in state.servers) {
+                          const server = state.servers[x];
+                          for (const y in server.plexConnections) {
+                            const serverConnection = server.plexConnections[y];
+                            if (serverConnection.uri === clientConnection.uri) {
+                              client.accessToken = server.accessToken;
+                            }
+                          }
+                        }
+                      }
+                    }
+          
+                    dispatch('PLEX_ADD_CLIENT', ptplayer);      
+        });
+    } else {
+    // Invalid response
+    commit('PLEX_SET_VALUE', ['gotDevices', true]);
+    return reject(new Error('Invalid Response'));
+    }
+  });
+    const servers = PlexAuth.getApiOptions('https://plex.tv/api/resources?includeHttps=1', state.user.authToken, 5000, 'GET');
+    request(servers, (error, response, body) => {
       if (!error && response.statusCode === 200) {
         // Valid response
         parseXMLString(body, async (err, result) => {
@@ -106,13 +170,13 @@ export default {
             if (device.provides.indexOf('player') !== -1) {
               // This is a Client
               // Create a new PlexClient object
-              const tempClient = new PlexClient();
-              for (const key in device) {
-                tempClient[key] = device[key];
-              }
-              tempClient.accessToken = state.user.authToken;
-              tempClient.plexConnections = tempConnectionsArray;
-              dispatch('PLEX_ADD_CLIENT', tempClient);
+              // const tempClient = new PlexClient();
+              // for (const key in device) {
+              //   tempClient[key] = device[key];
+              // }
+              // tempClient.accessToken = state.user.authToken;
+              // tempClient.plexConnections = tempConnectionsArray;
+              // dispatch('PLEX_ADD_CLIENT', tempClient);
             } else {
               // This is a Server
               // Create a new PlexServer object
@@ -129,36 +193,6 @@ export default {
               dispatch('PLEX_ADD_SERVER', tempServer);
             }
           }
-          // Setup our slPlayer
-          const ptplayer = new PlexClient();
-          ptplayer.provides = 'player';
-          ptplayer.clientIdentifier = 'PTPLAYER9PLUS10';
-          ptplayer.platform = 'Web';
-          ptplayer.device = 'Web';
-          ptplayer.product = 'SyncLounge';
-          ptplayer.name = 'SyncLounge Player (BETA)';
-          ptplayer.labels = [
-            ['Recommended', 'green'],
-          ];
-          ptplayer.lastSeenAt = Math.round((new Date()).getTime() / 1000);
-          for (const i in state.clients) {
-            const client = state.clients[i];
-            for (const j in client.plexConnections) {
-              const clientConnection = client.plexConnections[j];
-              // Check if this URL matches any server connections
-              for (const x in state.servers) {
-                const server = state.servers[x];
-                for (const y in server.plexConnections) {
-                  const serverConnection = server.plexConnections[y];
-                  if (serverConnection.uri === clientConnection.uri) {
-                    client.accessToken = server.accessToken;
-                  }
-                }
-              }
-            }
-          }
-
-          dispatch('PLEX_ADD_CLIENT', ptplayer);
           commit('PLEX_SET_VALUE', ['gotDevices', true]);
           dispatch('PLEX_REFRESH_SERVER_CONNECTIONS');
           return resolve(true);
