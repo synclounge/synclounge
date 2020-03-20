@@ -80,7 +80,7 @@ export default {
           for (var index in result.MediaContainer.Device) {
             const device = result.MediaContainer.Device[index].$;
             const connections = result.MediaContainer.Device[index].Connection;
-            if (device.provides.indexOf('player') > -1 && device.product != "Plex Web" && connections.length > 0) {
+            if (device.provides.indexOf('player') > -1 && device.product != "Plex Web" && connections && connections.length > 0) {
               console.log(client)
               client--;
               const tempConnectionsArray = [];
