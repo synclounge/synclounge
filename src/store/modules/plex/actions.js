@@ -79,11 +79,31 @@ export default {
           var client = 10;
           for (var index in result.MediaContainer.Device) {
             const device = result.MediaContainer.Device[index].$;
+            const connections = result.MediaContainer.Device[index].Connection;
             if (device.model) {
               console.log(client)
               client--;
               const tempConnectionsArray = [];
               const tempClient = new PlexClient();
+              for (const i in connections) {
+                const connection = connections[i].$;
+                // Exclude local IPs starting with 169.254
+                if (!connection.uri.startsWith('http://169.254')) {
+                  const tempConnection = new PlexConnection();
+                  for (const key in connection) {
+                    tempConnection[key] = connection[key];
+                  }
+                  tempConnectionsArray.push(tempConnection);
+                  if (connection.local === '1' && connection.uri.indexOf('plex.direct') == -1 && (connection.uri.indexOf('com') > -1 || connection.uri.indexOf('org') > -1)) {
+                    const rawConnection = new PlexConnection();
+                    Object.assign(rawConnection, connection);
+                    rawConnection.uri = `${connection.protocol}://${connection.address}:${connection.port}`;
+                    rawConnection.isManual = true;
+                    tempConnectionsArray.push(rawConnection);
+                  }
+                  console.log(tempConnectionsArray)
+                }
+              }
               for (const key in device) {
                 tempClient[key] = device[key];
               }
