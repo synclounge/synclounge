@@ -265,7 +265,7 @@ module.exports = function PlexClient() {
       const bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused';
 
       if (parseInt(difference) > parseInt(SYNCFLEXABILITY) || (bothPaused && difference > 10)) {
-      // We need to seek!
+        // We need to seek!
         this.lastSyncCommand = new Date().getTime();
         // Decide what seeking method we want to use
         if (SYNCMODE === 'cleanseek' || hostTimeline.playerState === 'paused') {

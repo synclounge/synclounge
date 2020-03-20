@@ -400,7 +400,7 @@ export default {
                 console.log('We are not going to make a decision from the host data because a command is already running');
                 return;
               }
-             // console.log('Decision isnt blocked');
+              // console.log('Decision isnt blocked');
               if (!rootState.chosenClient) {
                 console.log('We dont have a client chosen yet!');
                 return;

@@ -94,7 +94,7 @@ module.exports = function PlexServer() {
     return new Promise(async (resolve, reject) => {
       await Promise.all(this.plexConnections.map(async (connection, index) =>
         /*eslint-disable */
-         new Promise(async (_resolve, _reject) => {
+        new Promise(async (_resolve, _reject) => {
           try {
             let result = await this.hitApiTestConnection('', connection)
             if (result) {
@@ -274,7 +274,7 @@ module.exports = function PlexServer() {
           const item = result.MediaContainer.Metadata[i];
           if (result.MediaContainer.Metadata[i].ratingKey) {
             this.commit('SET_ITEMCACHE', [result.MediaContainer.Metadata[i].ratingKey,
-              result.MediaContainer.Metadata[i],
+            result.MediaContainer.Metadata[i],
             ]);
           }
           if (item.grandparentRatingKey) {
