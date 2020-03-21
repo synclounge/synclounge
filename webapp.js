@@ -1,7 +1,7 @@
 // ABOUT
 // Runs the SyncLounge Web App - handles serving the static web content and link shortening services
 // Port defaults to 8088
-// REQUIRED: Access URL must be set using --accessUrl=<URL> or accessUrl ENV variable
+// REQUIRED: Access URL must be set. See documentation for how to set this.
 
 const express = require('express');
 const path = require('path');
@@ -14,12 +14,11 @@ const SailsDisk = require('sails-disk');
 const SettingsHelper = require('./SettingsHelper');
 
 const settings = new SettingsHelper();
-console.log('Settings', settings);
-let PORT = settings.webapp_port || 8088;
+let PORT = process.env['PORT'] ||settings.webapp_port || 8088;
 
 const bootstrap = () => new Promise(async (resolve, reject) => {
   if (!settings.accessUrl) {
-    console.log('Missing required argument `accessUrl`. EG. "node webapp.js -accessUrl=http://sl.example.com". This URL is used for redirecting invite links.');
+    console.log('Missing required argument `accessUrl`. This URL is used for redirecting invite links. See documentation for how to set this');
     return reject(new Error('Missing URL for invite links'));
   }
   if (!settings.webapp_port) {
