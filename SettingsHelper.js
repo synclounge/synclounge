@@ -48,6 +48,13 @@ module.exports = function () {
       local: 'autoJoinPassword',
       env: 'AUTOJOIN_PASSWORD',
       default: ''
+    },
+    {
+      local: 'authentication',
+      env: 'AUTHENTICATION',
+      default: {
+        mechanism: 'none'
+      }
     }
   ];
   // Load and export our settings in preference of ENV -> args

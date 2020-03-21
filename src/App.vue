@@ -172,20 +172,36 @@ export default {
         this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
       }
     }
-    else if (this.config && this.config.autoJoin) {
-      if (this.config.autoJoin === true || this.config.autoJoin === 'true') {
+    else if (this.config) {
+      if (this.config.autoJoin && (this.config.autoJoin === true || this.config.autoJoin === 'true')) {
         this.$store.commit('SET_AUTOJOIN', true);
         this.$store.commit('SET_AUTOJOINROOM', this.config.autoJoinRoom);
         this.$store.commit('SET_AUTOJOINURL', this.config.autoJoinServer);
         this.$store.commit('SET_AUTOJOINPASSWORD', this.config.autoJoinPassword);
       }
+      if(this.config.authentication) {
+        this.$store.commit('SET_AUTHENTICATION', this.config.authentication);
+      }
+      else {
+        this.$store.commit('SET_AUTHENTICATION', {
+          "type": "none"
+        });
+      }
     }
-    else if (settings && settings.autoJoin) {
-      if (settings.autoJoin === true || settings.autoJoin === 'true') {
+    else if (settings) {
+      if (settings.autoJoin && (settings.autoJoin === true || settings.autoJoin === 'true')) {
         this.$store.commit('SET_AUTOJOIN', true);
         this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom);
         this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer);
         this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword);
+      }
+      if(settings.authentication) {
+        this.$store.commit('SET_AUTHENTICATION', settings.authentication);
+      }
+      else {
+        this.$store.commit('SET_AUTHENTICATION', {
+          "type": "none"
+        });
       }
     }
 
@@ -285,6 +301,7 @@ export default {
       this.$router.push('/signin');
       return;
     }
+
     if (this.$store.state.autoJoin) {
       this.$store.dispatch('autoJoin', {
         server: this.$store.state.autoJoinUrl,
