@@ -48,7 +48,7 @@ module.exports = function () {
       }
     },
     {
-      local: 'custom_server',
+      local: 'customServer',
       env: 'CUSTOM_SERVER',
       default: ''
     },
