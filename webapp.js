@@ -64,7 +64,10 @@ const app = async (orm) => {
   const root = express();
   // Setup our web app
   root.use(cors());
-  root.use(bodyParser());
+  root.use(bodyParser.json());
+  root.use(bodyParser.urlencoded({
+    extended: true
+  }));
   root.use(`${settings.webroot}/`, express.static(path.join(__dirname, 'dist')));
   // Invite handling
   root.get(`${settings.webroot}/invite/:id`, async (req, res) => {
