@@ -122,7 +122,8 @@ module.exports = function PlexClient() {
         if (((new Date().getTime() - this.lastSubscribe) > 29000) && !dontSub) {
           // We need to subscribe first!
           try {
-            await this.subscribe(connection);
+            // This causes certain clients to crash and is unused(Fire Devices)
+            // await this.subscribe(connection);
             doRequest();
           } catch (e) {
             doRequest();
@@ -440,7 +441,8 @@ module.exports = function PlexClient() {
           offset: offset || 0,
         };
         if (client.clientIdentifier !== 'PTPLAYER9PLUS10') {
-          await client.subscribe();
+          // this causes certain clients to crash and is unused
+          // await client.subscribe();
         }
         const res = await this.playMedia(data).catch(() => {
           start(parseInt(parseInt(index) + 1));
