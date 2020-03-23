@@ -306,8 +306,9 @@ module.exports = function PlexClient() {
       const mediaId = `/library/metadata/${data.ratingKey}`;
       const offset = Math.round(data.offset) || 0;
       const serverId = data.server.clientIdentifier;
-      const address = data.server.chosenConnection.address;
-      const port = data.server.chosenConnection.port;
+      const uri =  new URL(data.server.chosenConnection.uri);
+      const address = uri.hostname;
+      const port = uri.port;
       const protocol = data.server.chosenConnection.protocol;
       const path = data.server.chosenConnection.uri + mediaId;
 
@@ -343,8 +344,9 @@ module.exports = function PlexClient() {
     const command = '/player/mirror/details';
     const mediaId = `/library/metadata/${key}`;
     const serverId = serverObject.clientIdentifier;
-    const address = serverObject.chosenConnection.address;
-    const port = serverObject.chosenConnection.port;
+    const uri =  new URL(data.server.chosenConnection.uri);
+    const address = uri.hostname;
+    const port = uri.port;
     const protocol = serverObject.chosenConnection.protocol;
     const path = serverObject.chosenConnection.uri + mediaId;
 
