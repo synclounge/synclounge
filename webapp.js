@@ -12,9 +12,9 @@ const WaterlineMysql = require('waterline-mysql');
 const SailsDisk = require('sails-disk');
 
 const SettingsHelper = require('./SettingsHelper');
+let settings = new SettingsHelper();
 
-const settings = new SettingsHelper();
-let PORT = process.env['PORT'] ||settings.webapp_port || 8088;
+let PORT = 8088;
 
 const bootstrap = () => new Promise(async (resolve, reject) => {
   if (!settings.accessUrl) {
@@ -23,6 +23,9 @@ const bootstrap = () => new Promise(async (resolve, reject) => {
   }
   if (!settings.webapp_port) {
     console.log('Defaulting webapp to port 8088');
+  }
+  else{
+    PORT = settings.webapp_port;
   }
   PORT = parseInt(PORT);
   const baseSettings = require('./waterline_settings.json');
