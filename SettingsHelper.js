@@ -95,7 +95,7 @@ module.exports = function () {
       console.log(`${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${setting.default}'`);
       output[setting.local] = setting.default;
     }
-    process.env[setting.local] = output[setting.local];
+    process.env[setting.env] = output[setting.local];
   }
   //console.log('Our settings are', output)
   return output;
