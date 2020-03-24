@@ -40,12 +40,36 @@
                 </v-list-tile-content>
               </v-list-tile>
               <v-subheader>About</v-subheader>
-              <v-list-tile>
+              <v-list-tile href="https://synclounge.tv/" target="_blank">
                 <v-list-tile-action>
                   <v-icon color="white">info</v-icon>
                 </v-list-tile-action>
                 <v-list-tile-content>
                   <v-list-tile-title>SyncLounge v{{appVersion}}</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile href="https://discord.gg/fKQB3yt" target="_blank">
+                <v-list-tile-action>
+                  <v-icon color="white">chat</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>Discord</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile href="https://github.com/samcm/synclounge" target="_blank">
+                <v-list-tile-action>
+                  <v-icon color="white">code</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>GitHub</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile @click.stop="donateDialog = true">
+                <v-list-tile-action>
+                  <v-icon color="white">favorite</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                  <v-list-tile-title>Donate</v-list-tile-title>
                 </v-list-tile-content>
               </v-list-tile>
 
@@ -81,6 +105,9 @@
         <plexsettings class="darken-4 pa-1" v-if="validPlex && plex.gotDevices"></plexsettings>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="donateDialog" max-width="650px">
+      <donate :donateDialog="donateDialog" :onClose="() => this.donateDialog = false"></donate>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -88,6 +115,7 @@
 
 import ptsettings from './components/application/settings';
 import plexsettings from './components/application/plexsettings';
+import donate from './donate';
 
 const moment = require('moment');
 
@@ -95,11 +123,13 @@ export default {
   components: {
     ptsettings,
     plexsettings,
+    donate,
   },
   data() {
     return {
       ptsettingstoggle: false,
       plexsettingstoggle: false,
+      donateDialog: false,
     };
   },
   computed: {
