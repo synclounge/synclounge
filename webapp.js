@@ -29,7 +29,7 @@ const bootstrap = () => new Promise(async (resolve, reject) => {
   }
   PORT = parseInt(PORT);
   const baseSettings = require('./waterline_settings.json');
-  console.log('Basesettings', baseSettings);
+  //console.log('Basesettings', baseSettings);
   baseSettings.waterline.adapters = {
     'waterline-mysql': WaterlineMysql,
     'sails-disk': SailsDisk,
