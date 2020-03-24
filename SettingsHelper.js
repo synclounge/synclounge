@@ -77,7 +77,7 @@ module.exports = function () {
     // console.log(`Args: '${args[setting.env]}'; '${args[setting.local]}'`);
     // console.log(`ENV: '${process.env[setting.env]}'; '${process.env[setting.local]}'`);
     // console.log(`Settings: '${settings[setting.local]}'; '${setting.default}'`);
-    output[setting.local] = args[setting.env] || args[setting.local] || process.env[setting.env] || process.env[setting.local] || settings[setting.local] || setting.default;
+    output[setting.local] = args[setting.env] || args[setting.local] || process.env[setting.env] || process.env[setting.local] || settings[setting.env] || settings[setting.local] || setting.default;
 
     // Remove trailing slashes, if they exist
     if ((setting.local == 'webroot' || setting.local == 'accessUrl') && output[setting.local].endsWith("/")) {
