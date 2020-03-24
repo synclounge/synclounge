@@ -82,7 +82,7 @@ module.exports = function () {
     // Backwards compatibilty for PORT ENV setting
     if(setting.local == 'webapp_port' && output[setting.local] == 8088) {
       let port = args['PORT'] || process.env['PORT'] || settings['PORT'];
-      if(!port || port !== 8088) {
+      if(port && port !== 8088) {
         console.log(`Please change 'PORT' to 'WEB_PORT'. Setting WEB_PORT to '${port}'`)
         output[setting.local] = port;
       }
