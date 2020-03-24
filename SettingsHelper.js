@@ -79,6 +79,15 @@ module.exports = function () {
     // console.log(`Settings: '${settings[setting.local]}'; '${setting.default}'`);
     output[setting.local] = args[setting.env] || args[setting.local] || process.env[setting.env] || process.env[setting.local] || settings[setting.env] || settings[setting.local] || setting.default;
 
+    // Backwards compatibilty for PORT ENV setting
+    if(setting.local == 'webapp_port' && output[setting.local] == 8088) {
+      let port = args['PORT'] || process.env['PORT'] || settings['PORT'];
+      if(!port || port !== 8088) {
+        console.log(`Please change 'PORT' to 'WEB_PORT'. Setting WEB_PORT to '${port}'`)
+        output[setting.local] = port;
+      }
+    }
+
     // Remove trailing slashes, if they exist
     if ((setting.local == 'webroot' || setting.local == 'accessUrl') && output[setting.local].endsWith("/")) {
       console.log(`${setting.local}/${setting.env} should not end in '/'. Removing trailing slash(es) for you.`);
