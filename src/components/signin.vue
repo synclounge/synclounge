@@ -174,6 +174,7 @@ export default {
           }
           // Authorization using user data
           if (authentication.type.includes('user')) {
+            await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
             // Get the user object
             let user = this.$store.state.plex.user;
             // Compare the user's email against the authorized list
