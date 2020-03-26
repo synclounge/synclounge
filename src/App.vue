@@ -162,6 +162,9 @@ export default {
       this.configError = `Failed to fetch config: ${e}`;
     }
 
+    //
+    //  Settings
+    //
     // Set AutoJoin information in order of importance: query -> config -> settings
     if (this.$route.query.autojoin) {
       this.$store.commit('SET_AUTOJOIN', true);
@@ -179,14 +182,6 @@ export default {
         this.$store.commit('SET_AUTOJOINURL', this.config.autoJoinServer);
         this.$store.commit('SET_AUTOJOINPASSWORD', this.config.autoJoinPassword);
       }
-      if(this.config.authentication) {
-        this.$store.commit('SET_AUTHENTICATION', this.config.authentication);
-      }
-      else {
-        this.$store.commit('SET_AUTHENTICATION', {
-          "type": "none"
-        });
-      }
     }
     else if (settings) {
       if (settings.autoJoin && (settings.autoJoin === true || settings.autoJoin === 'true')) {
@@ -195,16 +190,23 @@ export default {
         this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer);
         this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword);
       }
-      if(settings.authentication) {
-        this.$store.commit('SET_AUTHENTICATION', settings.authentication);
-      }
-      else {
-        this.$store.commit('SET_AUTHENTICATION', {
-          "type": "none"
-        });
-      }
     }
 
+    // Get other settings in order of importance: config -> settings
+    // Authentication Mechanism setting
+    if(this.config && this.config.authentication) {
+      this.$store.commit('SET_AUTHENTICATION', this.config.authentication);
+    }
+    else if(settings && settings.authentication) {
+      this.$store.commit('SET_AUTHENTICATION', settings.authentication);
+    }
+    else {
+      this.$store.commit('SET_AUTHENTICATION', {
+        "type": "none"
+      });
+    }
+
+    // Custom Servers list settings
     let servers = [
       {
         name: 'SyncLounge AU1',
@@ -256,6 +258,7 @@ export default {
 
     this.$store.commit('setSetting', ['SERVERS', servers]);
 
+    // Auto-join if a single server is provided and autoJoinServer is not
     if (servers.length == 1 && !this.$store.autoJoinServer) {
       let server = servers[0];
       this.$store.commit('SET_AUTOJOIN', true);
@@ -267,6 +270,9 @@ export default {
         this.$store.commit('SET_AUTOJOINPASSWORD', server.defaultPassword);
       }
     }
+    //
+    // End Settings
+    //
 
     window.EventBus.$on('notification', (msg) => {
       this.snackbarMsg = msg;

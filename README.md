@@ -145,7 +145,7 @@ Adding this to your settings will override the the custom server in the server l
   "name": "Custom Server 1",
   "location": "Custom Location",
   "url": "https://mycustomserver.com/server",
-  "logo": "https://mycustomserver.com/logo.png"
+  "image": "https://mycustomserver.com/logo.png"
 }
 ```
 ![image](https://user-images.githubusercontent.com/1524443/76433720-19a3f180-638b-11ea-8c20-1997728e8325.png)
@@ -159,20 +159,20 @@ The servers list can be modified with your own list of servers. If this setting 
     "name": "Custom Server 1",
     "location": "Custom Location",
     "url": "https://1.mycustomserver.com/server",
-    "logo": "https://mycustomserver.com/logo.png"
+    "image": "https://mycustomserver.com/logo.png"
   },
   {
     "name": "Custom Server 2",
     "location": "Custom Location",
     "url": "https://2.mycustomserver.com/server",
-    "logo": "https://mycustomserver.com/logo-2.png",
+    "image": "https://mycustomserver.com/logo-2.png",
     "defaultRoom": "DefaultRoom"
   },
   {
     "name": "Custom Server 3",
     "location": "Custom Location",
     "url": "https://3.mycustomserver.com/server",
-    "logo": "https://mycustomserver.com/logo-3.png",
+    "image": "https://mycustomserver.com/logo-3.png",
     "defaultRoom": "DefaultRoom",
     "defaultPassword": "DefaultPassword123"
   }

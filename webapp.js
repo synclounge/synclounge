@@ -1,7 +1,7 @@
 // ABOUT
 // Runs the SyncLounge Web App - handles serving the static web content and link shortening services
 // Port defaults to 8088
-// REQUIRED: Access URL must be set using --accessUrl=<URL> or accessUrl ENV variable
+// REQUIRED: Access URL must be set. See documentation for how to set this.
 
 const express = require('express');
 const path = require('path');
@@ -12,22 +12,24 @@ const WaterlineMysql = require('waterline-mysql');
 const SailsDisk = require('sails-disk');
 
 const SettingsHelper = require('./SettingsHelper');
+let settings = new SettingsHelper();
 
-const settings = new SettingsHelper();
-console.log('Settings', settings);
-let PORT = settings.webapp_port || 8088;
+let PORT = 8088;
 
 const bootstrap = () => new Promise(async (resolve, reject) => {
   if (!settings.accessUrl) {
-    console.log('Missing required argument `accessUrl`. EG. "node webapp.js -accessUrl=http://sl.example.com". This URL is used for redirecting invite links.');
+    console.log('Missing required argument `accessUrl`. This URL is used for redirecting invite links. See documentation for how to set this');
     return reject(new Error('Missing URL for invite links'));
   }
   if (!settings.webapp_port) {
     console.log('Defaulting webapp to port 8088');
   }
+  else{
+    PORT = settings.webapp_port;
+  }
   PORT = parseInt(PORT);
   const baseSettings = require('./waterline_settings.json');
-  console.log('Basesettings', baseSettings);
+  //console.log('Basesettings', baseSettings);
   baseSettings.waterline.adapters = {
     'waterline-mysql': WaterlineMysql,
     'sails-disk': SailsDisk,
@@ -65,7 +67,10 @@ const app = async (orm) => {
   const root = express();
   // Setup our web app
   root.use(cors());
-  root.use(bodyParser());
+  root.use(bodyParser.json());
+  root.use(bodyParser.urlencoded({
+    extended: true
+  }));
   root.use(`${settings.webroot}/`, express.static(path.join(__dirname, 'dist')));
   // Invite handling
   root.get(`${settings.webroot}/invite/:id`, async (req, res) => {

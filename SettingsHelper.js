@@ -48,7 +48,7 @@ module.exports = function () {
       }
     },
     {
-      local: 'custom_server',
+      local: 'customServer',
       env: 'CUSTOM_SERVER',
       default: ''
     },
@@ -77,7 +77,16 @@ module.exports = function () {
     // console.log(`Args: '${args[setting.env]}'; '${args[setting.local]}'`);
     // console.log(`ENV: '${process.env[setting.env]}'; '${process.env[setting.local]}'`);
     // console.log(`Settings: '${settings[setting.local]}'; '${setting.default}'`);
-    output[setting.local] = args[setting.env] || args[setting.local] || process.env[setting.env] || process.env[setting.local] || settings[setting.local] || setting.default;
+    output[setting.local] = args[setting.env] || args[setting.local] || process.env[setting.env] || process.env[setting.local] || settings[setting.env] || settings[setting.local] || setting.default;
+
+    // Backwards compatibilty for PORT ENV setting
+    if(setting.local == 'webapp_port' && output[setting.local] == 8088) {
+      let port = args['PORT'] || process.env['PORT'] || settings['PORT'];
+      if(port && port !== 8088) {
+        console.log(`Please change 'PORT' to 'WEB_PORT'. Setting WEB_PORT to '${port}'`)
+        output[setting.local] = port;
+      }
+    }
 
     // Remove trailing slashes, if they exist
     if ((setting.local == 'webroot' || setting.local == 'accessUrl') && output[setting.local].endsWith("/")) {
@@ -95,7 +104,7 @@ module.exports = function () {
       console.log(`${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${setting.default}'`);
       output[setting.local] = setting.default;
     }
-    process.env[setting.local] = output[setting.local];
+    process.env[setting.env] = output[setting.local];
   }
   //console.log('Our settings are', output)
   return output;

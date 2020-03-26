@@ -310,7 +310,9 @@ export default {
     },
     async recentConnect(recent) {
       console.log('Attempting to connect to', recent);
-      this.selectedServer = recent.server;
+      this.selectedServer = {
+        url: recent.server
+      };
       this.room = recent.room;
       this.password = recent.password;
       await this.attemptConnect();
