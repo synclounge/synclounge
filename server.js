@@ -38,11 +38,13 @@ ptserver.get('/health', (req, res) => {
   }
   return res.send(JSON.stringify({ load })).end();
 });
+
 ptserver.get('/users', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   const users = Object.keys(ptserver_io.sockets.connected).length;
   return res.send(JSON.stringify({ users })).end();
 });
+
 ptserver.get('/', (req, res) => res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.'));
 // Merge everything together
 
