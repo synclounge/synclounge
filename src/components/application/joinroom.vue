@@ -180,7 +180,7 @@ export default {
         }
         this.testConnections();
       }, 5000);
-    }, 1000);
+    }, 1500);
   },
   beforeDestroy() {
     this.destroyed = true;
