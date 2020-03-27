@@ -47,14 +47,6 @@
           </v-layout>
         </div>
       </v-card>
-      <v-dialog v-model="popupBlockerDialog" max-width="650px" :onClose="() => this.popupBlockerDialog = false">
-        <v-card style="background-color: #151924" class="pa-3">
-          <div class="text-xs-center">
-            It appears that your browser is blocking popups.<br />
-            Please enable popups for this site and try again.
-          </div>
-      </v-card>
-      </v-dialog>
     </v-flex>
   </v-layout>
 </template>
@@ -83,7 +75,6 @@ export default {
       ready: false,
       openedWindow: null,
       authError: null,
-      popupBlockerDialog: false,
     };
   },
   methods: {
@@ -128,17 +119,11 @@ export default {
         newWindow = window.open(this.url, '_blank');
       }
 
-      if (!newWindow) {
-        clearInterval(this.ticker);
-        this.popupBlockerDialog = true;
+      // Puts focus on the newWindow
+      if (window.focus) {
+        newWindow.focus();
       }
-      else {
-        // Puts focus on the newWindow
-        if (window.focus) {
-          newWindow.focus();
-        }
-        this.openedWindow = newWindow;
-      }
+      this.openedWindow = newWindow;
     },
     async setAuth(authToken) {
       window.localStorage.setItem('plexuser', JSON.stringify({ authToken: authToken }));
