@@ -51,8 +51,8 @@
             </v-flex>
             <v-flex xs12 class="nicelist pt-3" v-if="!context.getters.getConnected" style="color:white !important">
               <v-subheader>Select a server</v-subheader>
-              <v-layout row wrap>
-                <v-flex xs12 pa-2 v-for="server in ptservers" :key="server.url" v-bind:class="ptserversClass">
+              <v-layout row wrap justify-center align-center>
+                <v-flex pa-2 v-for="server in ptservers" :key="server.url" v-bind:class="ptserversClass">
                   <v-card height="300px" style="background: #353e58">
                     <v-layout row wrap justify-center style="height: 100%">
                       <v-flex xs12 class="text-xs-center pa-2" style="height: 50%; position: relative; background: rgba(0,0,0,0.2)">
