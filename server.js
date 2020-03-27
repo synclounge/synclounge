@@ -22,7 +22,7 @@ root.use((req, res, next) => {
 });
 const ptserver = express();
 
-const PORT = process.env.server_port || 8089;
+const PORT = process.env.SERVER_PORT || 8089;
 
 // Setup our PTServer
 
