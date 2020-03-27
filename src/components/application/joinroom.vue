@@ -168,7 +168,7 @@ export default {
 
       results: {},
 
-      destroyed: false
+      destroyed: false,
     };
   },
   mounted() {
@@ -227,10 +227,10 @@ export default {
     },
     serverSelected(server) {
       this.selectedServer = server;
-      if(this.selectedServer.defaultRoom) {
+      if (this.selectedServer.defaultRoom) {
         this.room = this.selectedServer.defaultRoom;
 
-        if(this.selectedServer.defaultPassword) {
+        if (this.selectedServer.defaultPassword) {
           this.password = this.selectedServer.defaultPassword;
         }
       }
@@ -270,7 +270,7 @@ export default {
             .then((result) => {
               this.connectionPending = false;
               if (result) {
-                if(this.room) {
+                if (this.room) {
                   this.joinRoom().then(() => {
                   }).catch((e) => {
                   });
@@ -311,7 +311,7 @@ export default {
     async recentConnect(recent) {
       console.log('Attempting to connect to', recent);
       this.selectedServer = {
-        url: recent.server
+        url: recent.server,
       };
       this.room = recent.room;
       this.password = recent.password;
@@ -391,11 +391,14 @@ export default {
       },
     },
     ptservers() {
+      if (typeof this.$store.getters.getSettings.SERVERS === 'string') {
+        return JSON.parse(this.$store.getters.getSettings.SERVERS);
+      }
       return this.$store.getters.getSettings.SERVERS;
     },
     ptserversClass() {
-      let serversCount = this.$store.getters.getSettings.SERVERS.length;
-      let classNum = 12/serversCount;
+      const serversCount = this.$store.getters.getSettings.SERVERS.length;
+      const classNum = 12 / serversCount;
       return `md${classNum}`;
     },
   },
