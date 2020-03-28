@@ -316,31 +316,25 @@ export default {
       this.room = recent.room;
       this.password = recent.password;
       await this.attemptConnect();
-      this.joinRoom().then(() => {
-      }).catch((e) => {
-      });
     },
-    joinRoom() {
-      return new Promise((resolve, reject) => {
-        if (!this.context.getters.getConnected) {
-          return reject(new Error('Not connected to a server'));
-        }
-        if (this.room === '' || this.room == null) {
-          this.roomError = 'You must enter a room name!';
-          return reject(new Error('No room specified'));
-        }
-        const temporaryObj = {
+    async joinRoom() {
+      if (!this.context.getters.getConnected) {
+        throw new Error('not connected to a server');
+      }
+      if (this.room === '' || this.room == null) {
+        this.roomError = 'You must enter a room name!';
+        throw new Error('no room specified');
+      }
+      try {
+        await this.$store.dispatch('joinRoom', {
           user: this.plex.user,
-          roomName: this.room.toLowerCase(),
+          roomName: this.room,
           password: this.password,
-        };
-        this.$store.dispatch('joinRoom', temporaryObj).then(() => {
-          resolve();
-        }).catch((e) => {
-          this.roomError = e;
-          return reject(e);
         });
-      });
+      } catch (e) {
+        this.roomError = e;
+        throw e;
+      }
     },
   },
   watch: {

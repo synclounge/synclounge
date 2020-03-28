@@ -243,14 +243,14 @@ module.exports = function PlexClient() {
     }
     return this.seekTo(time);
   };
-  this.sync = function (hostTimeline, SYNCFLEXABILITY, SYNCMODE, POLLINTERVAL) {
+  this.sync = function sync(hostTimeline, SYNCFLEXABILITY, SYNCMODE, POLLINTERVAL) {
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         await this.getTimeline();
       }
       const lastCommandTime = Math.abs(this.lastSyncCommand - new Date().getTime());
       if (this.lastSyncCommand && this.clientIdentifier !== 'PTPLAYER9PLUS10' && lastCommandTime < POLLINTERVAL) {
-        return reject(new Error('Too soon for another sync command'));
+        return reject(new Error('too soon for another sync command'));
       }
       const lagTime = Math.abs(hostTimeline.recievedAt - new Date().getTime());
       if (lagTime) {
@@ -259,7 +259,7 @@ module.exports = function PlexClient() {
       const timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt;
       const ourTime = parseInt(this.lastTimelineObject.time) + parseInt(timelineAge);
       const difference = Math.abs((parseInt(ourTime)) - parseInt(hostTimeline.time));
-
+      console.log('Difference with host is', difference);
       const bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused';
 
       if (parseInt(difference) > parseInt(SYNCFLEXABILITY) || (bothPaused && difference > 10)) {

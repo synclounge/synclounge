@@ -143,8 +143,12 @@ export default {
     joinRoom({ state, commit, rootState }, data) {
       return new Promise(async (resolve, reject) => {
         if (!state._socket || !state.connected) {
-          return reject(new Error('Not connected to a server!'));
+          throw new Error('Not connected to a server!');
         }
+        if (typeof data.roomName !== 'string') {
+          throw new Error('invalid room name');
+        }
+        console.log('Joining room', data.roomName);
         data.password = data.password || '';
         commit('SET_PASSWORD', data.password);
         let username = data.user.username;
@@ -153,6 +157,7 @@ export default {
         }
         state._socket.emit('join', new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid, username));
         state._socket.on('join-result', async (result, _data, details, currentUsers, partyPausing) => {
+          console.log('Got join result', result);
           commit('CLEAR_MESSAGES');
           if (result) {
             commit('SET_ROOM', _data.room);
@@ -214,7 +219,7 @@ export default {
               commit('SET_PARTYPAUSING', value);
             });
             state._socket.on('party-pausing-pause', ({ isPause, user }) => {
-              const messageText = `${user.username} pressed ${isPause ? 'pause' : 'play'}`
+              const messageText = `${user.username} pressed ${isPause ? 'pause' : 'play'}`;
               commit('ADD_MESSAGE', {
                 msg: messageText,
                 user,
@@ -361,8 +366,9 @@ export default {
                   if (hostTimeline.playerState === 'playing') {
                     // Add on the delay between us and the SLServer plus the delay between the server and the host
                     try {
-                      const ourLastDelay = Math.round(state.commands[Object.keys(state.commands).length - 1].difference * 0.50);
-                      const hostLastDelay = Math.round(hostTimeline.latency * 0.50);
+                      const ourLastDelay = Math.round(state.commands[Object.keys(state.commands).length - 1].difference);
+                      const hostLastDelay = Math.round(hostTimeline.latency);
+                      console.log('adding delays', { ourLastDelay, hostLastDelay });
                       if (ourLastDelay && hostLastDelay) {
                         console.log('Adding host delay', hostLastDelay, 'and our lastDelay', ourLastDelay);
                         data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0);
@@ -434,6 +440,7 @@ export default {
             });
             state._socket.on('disconnect', (data) => {
               sendNotification('Disconnected from the SyncLounge server');
+              console.log('Disconnect data', data);
               if (data === 'io client disconnect') {
                 console.log('We disconnected from the server');
                 commit('SET_ROOM', null);
