@@ -122,7 +122,8 @@ module.exports = function PlexClient() {
         if (((new Date().getTime() - this.lastSubscribe) > 29000) && !dontSub) {
           // We need to subscribe first!
           try {
-            await this.subscribe(connection);
+            // This causes certain clients to crash and is unused(Fire Devices)
+            // await this.subscribe(connection);
             doRequest();
           } catch (e) {
             doRequest();
@@ -305,8 +306,9 @@ module.exports = function PlexClient() {
       const mediaId = `/library/metadata/${data.ratingKey}`;
       const offset = Math.round(data.offset) || 0;
       const serverId = data.server.clientIdentifier;
-      const address = data.server.chosenConnection.address;
-      const port = data.server.chosenConnection.port;
+      const uri =  new URL(data.server.chosenConnection.uri);
+      const address = uri.hostname;
+      const port = uri.port;
       const protocol = data.server.chosenConnection.protocol;
       const path = data.server.chosenConnection.uri + mediaId;
 
@@ -342,8 +344,9 @@ module.exports = function PlexClient() {
     const command = '/player/mirror/details';
     const mediaId = `/library/metadata/${key}`;
     const serverId = serverObject.clientIdentifier;
-    const address = serverObject.chosenConnection.address;
-    const port = serverObject.chosenConnection.port;
+    const uri =  new URL(data.server.chosenConnection.uri);
+    const address = uri.hostname;
+    const port = uri.port;
     const protocol = serverObject.chosenConnection.protocol;
     const path = serverObject.chosenConnection.uri + mediaId;
 
@@ -440,7 +443,8 @@ module.exports = function PlexClient() {
           offset: offset || 0,
         };
         if (client.clientIdentifier !== 'PTPLAYER9PLUS10') {
-          await client.subscribe();
+          // this causes certain clients to crash and is unused
+          // await client.subscribe();
         }
         const res = await this.playMedia(data).catch(() => {
           start(parseInt(parseInt(index) + 1));
