@@ -17,10 +17,6 @@ let settings = new SettingsHelper();
 let PORT = 8088;
 
 const bootstrap = () => new Promise(async (resolve, reject) => {
-  if (!settings.accessUrl) {
-    console.log('Missing required argument `accessUrl`. This URL is used for redirecting invite links. See documentation for how to set this');
-    return reject(new Error('Missing URL for invite links'));
-  }
   if (!settings.webapp_port) {
     console.log('Defaulting webapp to port 8088');
   }
@@ -50,7 +46,8 @@ const bootstrap = () => new Promise(async (resolve, reject) => {
     for (const key in params) {
       query += `${encodeURIComponent(key)}=${params[key]}&`;
     }
-    fullUrl = `${settings.accessUrl}/#/join?${query}`;
+    fullUrl = `${settings.accessUrl || data.urlOrigin}/#/join?${query}`;
+    console.log(`fullUrl:`, fullUrl);
     data.fullUrl = fullUrl;
     data.code = (0 | Math.random() * 9e6).toString(36);
     cb();
@@ -78,7 +75,7 @@ const app = async (orm) => {
     const shortObj = await Waterline.getModel('invite', orm).findOne({ code: req.params.id });
     console.log('Invite data', shortObj);
     if (!shortObj) {
-      return res.redirect(settings.accessUrl + settings.webroot);
+      return res.redirect(settings.webroot);
     }
     console.log('Redirecting an invite link', shortObj);
     return res.redirect(shortObj.fullUrl);
@@ -91,8 +88,9 @@ const app = async (orm) => {
         msg: 'ERR: You did not send any POST data',
       }).end();
     }
+    console.log(`req.body:`, req.body);
     const data = {};
-    const fields = ['server', 'room', 'password', 'owner'];
+    const fields = ['urlOrigin', 'server', 'room', 'password', 'owner'];
     for (let i = 0; i < fields.length; i++) {
       if (req.body[fields[i]] === undefined) {
         return res.send({
@@ -103,9 +101,10 @@ const app = async (orm) => {
       }
       data[fields[i]] = req.body[fields[i]];
     }
-    const result = await Waterline.getModel('invite', orm).create({ ...data }).fetch();
+    console.log('data: ', data);
+    const result = await Waterline.getModel('invite', orm).create(data).fetch();
     return res.send({
-      url: `${settings.accessUrl}/invite/${result.code}`,
+      url: `${settings.accessUrl || data.urlOrigin}/invite/${result.code}`,
       success: true,
       generatedAt: new Date().getTime(),
       details: result,
@@ -130,7 +129,12 @@ const app = async (orm) => {
   if (settings.webroot) {
     console.log(`Running with base URL: ${settings.webroot}`);
   }
-  console.log(`Access URL is ${settings.accessUrl}`);
+  if(settings.accessUrl) {
+    console.log(`Access URL is ${settings.accessUrl}`);
+    if(settings.webroot && !settings.accessUrl.includes(settings.webroot)) {
+      console.log(`- Your Access URL does not contain your 'webroot', '${settings.webroot}'. Make sure this is correct.`)
+    }
+  }
 };
 
 bootstrap().then((orm) => {

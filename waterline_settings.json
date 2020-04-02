@@ -3,6 +3,9 @@
     "models": {
       "invite": {
         "attributes": {
+          "urlOrigin": {
+            "type": "string"
+          },
           "server": {
             "type": "string",
             "required": true
