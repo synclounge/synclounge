@@ -8,38 +8,81 @@
       style="padding: 0; z-index: 6"
       app
       persistent
-      v-model="drawerRight" right enable-resize-watcher
+      v-model="drawerRight"
+      right
+      enable-resize-watcher
     >
       <drawerright></drawerright>
     </v-navigation-drawer>
 
-    <v-toolbar app fixed scroll-off-screen :scroll-threshold="1" :manual-scroll="appIsFullscreen" style="z-index: 5">
+    <v-toolbar
+      app
+      fixed
+      scroll-off-screen
+      :scroll-threshold="1"
+      :manual-scroll="appIsFullscreen"
+      style="z-index: 5"
+    >
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
       <a href="https://synclounge.tv" target="_blank">
-        <img class="ma-1 hidden-xs-only" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logos.light.long" />
-        <img class="ma-1 hidden-sm-and-up" style="height: 42px; width: auto; vertical-align: middle" v-bind:src="logo" />
+        <img
+          class="ma-1 hidden-xs-only"
+          style="height: 42px; width: auto; vertical-align: middle"
+          v-bind:src="logos.light.long"
+        />
+        <img
+          class="ma-1 hidden-sm-and-up"
+          style="height: 42px; width: auto; vertical-align: middle"
+          v-bind:src="logo"
+        />
       </a>
       <nowplayingchip class="pl-4" v-if="showNowPlaying"></nowplayingchip>
       <v-spacer></v-spacer>
       <v-toolbar-items>
-        <v-btn color="primary" dark raised v-if="shortUrl != null" v-clipboard="shortUrl" @success="sendNotification()">Invite</v-btn>
-        <v-btn dark @click="goFullscreen" class="hidden-lg-and-up" icon><v-icon>fullscreen</v-icon></v-btn>
-        <v-btn small tag="a" class="hidden-sm-and-down" flat v-for="item in links" :key="item.title" :href="item.href" :target="item.target">{{ item.title }}</v-btn>
+        <v-btn
+          color="primary"
+          dark
+          raised
+          v-if="shortUrl != null"
+          v-clipboard="shortUrl"
+          @success="sendNotification()"
+        >Invite</v-btn>
+        <v-btn dark @click="goFullscreen" class="hidden-lg-and-up" icon>
+          <v-icon>fullscreen</v-icon>
+        </v-btn>
+        <v-btn
+          small
+          tag="a"
+          class="hidden-sm-and-down"
+          flat
+          v-for="item in links"
+          :key="item.title"
+          :href="item.href"
+          :target="item.target"
+        >{{ item.title }}</v-btn>
         <v-btn small tag="a" class="hidden-sm-and-down" flat @click="donateDialog = true">Donate ♥</v-btn>
-        <v-icon v-if="showRightDrawerButton" @click="toggleDrawerRight" class="clickable">{{ drawerRight ? 'last_page' : 'first_page' }}</v-icon>
+        <v-icon
+          v-if="showRightDrawerButton"
+          @click="toggleDrawerRight"
+          class="clickable"
+        >{{ drawerRight ? 'last_page' : 'first_page' }}</v-icon>
       </v-toolbar-items>
     </v-toolbar>
     <v-content v-bind:style="mainStyle" app>
-      <v-container class="ma-0 pa-0" align-start :style="containerStyle" style="height: 100%; z-index: 250" fluid>
+      <v-container
+        class="ma-0 pa-0"
+        align-start
+        :style="containerStyle"
+        style="height: 100%; z-index: 250"
+        fluid
+      >
         <v-flex xs12 v-if="configError">
           <v-alert
             :dismissible="true"
             :value="configError"
             type="error"
             class="mt-0"
-          >
-            {{ configError }}
-          </v-alert>
+          >{{ configError }}</v-alert>
         </v-flex>
         <v-flex xs12 v-if="(loading || (plex && !plex.gotDevices)) && route.protected">
           <v-container fill-height>
@@ -51,22 +94,22 @@
           </v-container>
         </v-flex>
         <div v-else :style="paddingStyle">
-          <v-breadcrumbs :items="crumbs" v-if="crumbs && crumbs.length > 0" class="text-xs-left" style="justify-content: left">
-              <template v-slot:divider>
-                <v-icon>chevron_right</v-icon>
-              </template>
-              <template v-slot:item="props">
-                <v-breadcrumbs-item :to="props.item.to" :exact="true">{{ props.item.text }}</v-breadcrumbs-item>
-              </template>
+          <v-breadcrumbs
+            :items="crumbs"
+            v-if="crumbs && crumbs.length > 0"
+            class="text-xs-left"
+            style="justify-content: left"
+          >
+            <template v-slot:divider>
+              <v-icon>chevron_right</v-icon>
+            </template>
+            <template v-slot:item="props">
+              <v-breadcrumbs-item :to="props.item.to" :exact="true">{{ props.item.text }}</v-breadcrumbs-item>
+            </template>
           </v-breadcrumbs>
           <router-view></router-view>
         </div>
-        <v-snackbar
-          color="green darken-2"
-          bottom
-          :timeout="4000"
-          v-model="snackbar"
->
+        <v-snackbar color="green darken-2" bottom :timeout="4000" v-model="snackbar">
           <div style="text-align:center; width:100%">{{ snackbarMsg }}</div>
         </v-snackbar>
         <upnext></upnext>
@@ -80,19 +123,19 @@
 
 <script>
 // Custom css
-import './assets/css/style.css';
+import "./assets/css/style.css";
 
-import fscreen from 'fscreen';
+import fscreen from "fscreen";
 
-import drawerright from './sidebar';
-import leftsidebar from './leftsidebar';
-import upnext from './upnext';
-import nowplayingchip from './nowplayingchip';
-import donate from './donate';
+import drawerright from "./sidebar";
+import leftsidebar from "./leftsidebar";
+import upnext from "./upnext";
+import nowplayingchip from "./nowplayingchip";
+import donate from "./donate";
 
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState } from "vuex";
 
-const SettingsHelper = require('../SettingsHelper');
+const SettingsHelper = require("../SettingsHelper");
 
 const settings = new SettingsHelper();
 
@@ -102,7 +145,7 @@ export default {
     upnext,
     nowplayingchip,
     leftsidebar,
-    donate,
+    donate
   },
   data() {
     return {
@@ -122,38 +165,38 @@ export default {
 
       items: [
         {
-          title: 'Preferences',
+          title: "Preferences"
         },
         {
-          title: 'Signout',
-        },
+          title: "Signout"
+        }
       ],
       links: [
         {
-          title: 'Github',
-          href: 'https://github.com/samcm/SyncLounge',
-          target: '_blank',
+          title: "Github",
+          href: "https://github.com/samcm/SyncLounge",
+          target: "_blank"
         },
         {
-          title: 'Discord',
-          target: '_blank',
-          href: 'https://discord.gg/fKQB3yt',
-        },
+          title: "Discord",
+          target: "_blank",
+          href: "https://discord.gg/fKQB3yt"
+        }
       ],
-      appIsFullscreen: false,
+      appIsFullscreen: false
     };
   },
   methods: {
-    ...mapActions('config', ['fetchConfig']),
+    ...mapActions("config", ["fetchConfig"]),
     sendNotification() {
-      window.EventBus.$emit('notification', 'Copied to clipboard');
+      window.EventBus.$emit("notification", "Copied to clipboard");
     },
     toggleDrawerRight() {
       this.drawerRight = !this.drawerRight;
     },
     goFullscreen() {
       fscreen.requestFullscreen(document.body);
-    },
+    }
   },
   async mounted() {
     try {
@@ -167,159 +210,185 @@ export default {
     //
     // Set AutoJoin information in order of importance: query -> config -> settings
     if (this.$route.query.autojoin) {
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
-      this.$store.commit('SET_AUTOJOINURL', this.$route.query.server);
-      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner]);
+      this.$store.commit("SET_AUTOJOIN", true);
+      this.$store.commit("SET_AUTOJOINROOM", this.$route.query.room);
+      this.$store.commit("SET_AUTOJOINURL", this.$route.query.server);
+      this.$store.commit("SET_VALUE", [
+        "autoJoinOwner",
+        this.$route.query.owner
+      ]);
       if (this.$route.query.password) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
+        this.$store.commit("SET_AUTOJOINPASSWORD", this.$route.query.password);
       }
-    }
-    else if (this.config) {
-      if (this.config.autoJoin && (this.config.autoJoin === true || this.config.autoJoin === 'true')) {
-        this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', this.config.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', this.config.autoJoinServer);
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.config.autoJoinPassword);
+    } else if (this.config) {
+      if (
+        this.config.autoJoin &&
+        (this.config.autoJoin === true || this.config.autoJoin === "true")
+      ) {
+        this.$store.commit("SET_AUTOJOIN", true);
+        this.$store.commit("SET_AUTOJOINROOM", this.config.autoJoinRoom);
+        this.$store.commit("SET_AUTOJOINURL", this.config.autoJoinServer);
+        this.$store.commit(
+          "SET_AUTOJOINPASSWORD",
+          this.config.autoJoinPassword
+        );
       }
-    }
-    else if (settings) {
-      if (settings.autoJoin && (settings.autoJoin === true || settings.autoJoin === 'true')) {
-        this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer);
-        this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword);
+    } else if (settings) {
+      if (
+        settings.autoJoin &&
+        (settings.autoJoin === true || settings.autoJoin === "true")
+      ) {
+        this.$store.commit("SET_AUTOJOIN", true);
+        this.$store.commit("SET_AUTOJOINROOM", settings.autoJoinRoom);
+        this.$store.commit("SET_AUTOJOINURL", settings.autoJoinServer);
+        this.$store.commit("SET_AUTOJOINPASSWORD", settings.autoJoinPassword);
       }
     }
 
     // Get other settings in order of importance: config -> settings
     // Authentication Mechanism setting
-    if(this.config && this.config.authentication) {
-      this.$store.commit('SET_AUTHENTICATION', this.config.authentication);
-    }
-    else if(settings && settings.authentication) {
-      this.$store.commit('SET_AUTHENTICATION', settings.authentication);
-    }
-    else {
-      this.$store.commit('SET_AUTHENTICATION', {
-        "type": "none"
+    if (this.config && this.config.authentication) {
+      this.$store.commit("SET_AUTHENTICATION", this.config.authentication);
+    } else if (settings && settings.authentication) {
+      this.$store.commit("SET_AUTHENTICATION", settings.authentication);
+    } else {
+      this.$store.commit("SET_AUTHENTICATION", {
+        type: "none"
       });
     }
 
     // Custom Servers list settings
     let servers = [
       {
-        name: 'SyncLounge AU1',
-        location: 'Sydney, Australia',
-        url: 'https://v2au1.synclounge.tv/server',
-        image: 'flags/aus.png',
+        name: "SyncLounge AU1",
+        location: "Sydney, Australia",
+        url: "https://v3au1.synclounge.tv/slserver",
+        image: "flags/au.png"
       },
       {
-        name: 'SyncLounge EU1',
-        location: 'Amsterdam, Netherlands',
-        url: 'https://v2eu1.synclounge.tv/server',
-        image: 'flags/eu.png',
+        name: "SyncLounge EU1",
+        location: "Amsterdam, Netherlands",
+        url: "https://v2eu1.synclounge.tv/server",
+        image: "flags/eu.png"
       },
       {
-        name: 'SyncLounge US1',
-        location: 'Miami, United States',
-        url: 'https://v2us1.synclounge.tv/server',
-        image: 'flags/usa.png',
+        name: "SyncLounge US1",
+        location: "Miami, United States",
+        url: "https://v2us1.synclounge.tv/server",
+        image: "flags/us.png"
       },
+      {
+        name: "SyncLounge US2",
+        location: "Miami, United States",
+        url: "https://v3us1.synclounge.tv/slserver",
+        image: "flags/us.png"
+      },
+      {
+        name: "SyncLounge US3",
+        location: "Miami, United States",
+        url: "https://v3us2.synclounge.tv/slserver",
+        image: "flags/us.png"
+      }
     ];
-    let customServer = {
-      name: 'Custom Server',
-      location: 'Anywhere!',
-      url: 'custom',
-      image: 'synclounge-white.png',
-    }
+    const customServer = {
+      name: "Custom Server",
+      location: "Anywhere!",
+      url: "custom",
+      image: "synclounge-white.png"
+    };
 
     if (this.config && this.config.servers) {
-      servers = this.config.servers
-      if(this.config.customServer) {
-        console.error(`'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.`);
+      servers = this.config.servers;
+      if (this.config.customServer) {
+        console.error(
+          "'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting."
+        );
       }
-    }
-    else if (settings && settings.servers) {
+    } else if (settings && settings.servers) {
       servers = settings.servers;
-      if(settings.customServer) {
-        console.error(`'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.`);
+      if (settings.customServer) {
+        console.error(
+          "'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting."
+        );
       }
-    }
-    else if (this.config && this.config.customServer) {
+    } else if (this.config && this.config.customServer) {
       servers.push(this.config.customServer);
-    }
-    else if (settings && settings.customServer) {
+    } else if (settings && settings.customServer) {
       servers.push(settings.customServer);
-    }
-    else {
+    } else {
       servers.push(customServer);
     }
 
-    this.$store.commit('setSetting', ['SERVERS', servers]);
+    this.$store.commit("setSetting", ["SERVERS", servers]);
 
     // Auto-join if a single server is provided and autoJoinServer is not
     if (servers.length == 1 && !this.$store.autoJoinServer) {
-      let server = servers[0];
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINURL', server.url);
-      if(!this.$store.autoJoinRoom && server.defaultRoom) {
-        this.$store.commit('SET_AUTOJOINROOM', server.defaultRoom);
+      const server = servers[0];
+      this.$store.commit("SET_AUTOJOIN", true);
+      this.$store.commit("SET_AUTOJOINURL", server.url);
+      if (!this.$store.autoJoinRoom && server.defaultRoom) {
+        this.$store.commit("SET_AUTOJOINROOM", server.defaultRoom);
       }
-      if(!this.$store.autoJoinPassword && server.defaultPassword) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', server.defaultPassword);
+      if (!this.$store.autoJoinPassword && server.defaultPassword) {
+        this.$store.commit("SET_AUTOJOINPASSWORD", server.defaultPassword);
       }
     }
     //
     // End Settings
     //
 
-    window.EventBus.$on('notification', (msg) => {
+    window.EventBus.$on("notification", msg => {
       this.snackbarMsg = msg;
       this.snackbar = true;
     });
-    window.EventBus.$on('NEW_TIMELINE', (timeline) => {
-      this.$store.dispatch('NEW_TIMELINE', timeline);
+    window.EventBus.$on("NEW_TIMELINE", timeline => {
+      this.$store.dispatch("NEW_TIMELINE", timeline);
     });
-    window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
-      if (this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
-        this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
+    window.EventBus.$on("PLAYBACK_CHANGE", data => {
+      if (this.chosenClient.clientIdentifier !== "PTPLAYER9PLUS10" && data[1]) {
+        this.$router.push(
+          `/nowplaying/${data[2].machineIdentifier}/${data[1]}`
+        );
       }
-      if (this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && !data[1] && this.$route.fullPath.indexOf('/nowplaying') > -1) {
-        this.$router.push('/browse/');
+      if (
+        this.chosenClient.clientIdentifier !== "PTPLAYER9PLUS10" &&
+        !data[1] &&
+        this.$route.fullPath.indexOf("/nowplaying") > -1
+      ) {
+        this.$router.push("/browse/");
       }
-      this.$store.dispatch('PLAYBACK_CHANGE', data);
+      this.$store.dispatch("PLAYBACK_CHANGE", data);
     });
-    if (!window.localStorage.getItem('plexuser')) {
-      if (this.$route.fullPath.indexOf('join') === -1) {
-        this.$router.push('/signin');
+    if (!window.localStorage.getItem("plexuser")) {
+      if (this.$route.fullPath.indexOf("join") === -1) {
+        this.$router.push("/signin");
       }
       this.loading = false;
       return;
     }
-    if (this.$route.path === '/') {
-      this.$router.push('/clientselect');
+    if (this.$route.path === "/") {
+      this.$router.push("/clientselect");
     }
-    const plexstorage = JSON.parse(window.localStorage.getItem('plexuser'));
+    const plexstorage = JSON.parse(window.localStorage.getItem("plexuser"));
     try {
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken);
+      await this.$store.dispatch("PLEX_LOGIN_TOKEN", plexstorage.authToken);
     } catch (e) {
-      this.$router.push('/signin');
+      this.$router.push("/signin");
       return;
     }
 
     if (this.$store.state.autoJoin) {
-      this.$store.dispatch('autoJoin', {
+      this.$store.dispatch("autoJoin", {
         server: this.$store.state.autoJoinUrl,
         password: this.$store.state.autoJoinPassword,
-        room: this.$store.state.autoJoinRoom,
+        room: this.$store.state.autoJoinRoom
       });
     }
 
-    fscreen.addEventListener('fullscreenchange', () => {
+    fscreen.addEventListener("fullscreenchange", () => {
       const isFullscreen = fscreen.fullscreenElement !== null;
       this.appIsFullscreen = isFullscreen;
-      document.body.classList.toggle('is-fullscreen', isFullscreen);
+      document.body.classList.toggle("is-fullscreen", isFullscreen);
     });
 
     this.loading = false;
@@ -329,11 +398,11 @@ export default {
       if (this.showRightDrawerButton) {
         this.drawerRight = true;
       }
-    },
+    }
   },
   computed: {
-    ...mapState('config', {
-      config: state => state.configuration,
+    ...mapState("config", {
+      config: state => state.configuration
     }),
     plex() {
       return this.$store.getters.getPlex;
@@ -348,91 +417,63 @@ export default {
       return this.$store.getters.getExtAvailable;
     },
     crumbs() {
-      if (this.$route.path.indexOf('browse') === -1 && this.$route.path.indexOf('nowplaying') === -1) {
+      if (
+        this.$route.path.indexOf("browse") === -1 &&
+        this.$route.path.indexOf("nowplaying") === -1
+      ) {
         return [];
       }
-      const getTitle = (id) => {
+      const getTitle = id => {
         try {
           return this.itemCache[this.$route.params.machineIdentifier][id].title;
         } catch (e) {
-          return 'Loading..';
+          return "Loading..";
         }
       };
-      const getLibrary = (id) => {
+      const getLibrary = id => {
         try {
           return this.libraryCache[this.$route.params.machineIdentifier][id];
         } catch (e) {
-          return 'Library';
+          return "Library";
         }
       };
       const data = [
         {
-          text: 'Home',
-          to: '/browse',
-        },
+          text: "Home",
+          to: "/browse"
+        }
       ];
       const map = {
         machineIdentifier: () => ({
           text: this.plex.servers[this.$route.params.machineIdentifier].name,
-          to: `/browse/${this.$route.params.machineIdentifier}`,
+          to: `/browse/${this.$route.params.machineIdentifier}`
         }),
         sectionId: () => ({
           text: getLibrary(this.$route.params.sectionId),
-          to:
-              `/browse/${
-                this.$route.params.machineIdentifier
-              }/${
-                this.$route.params.sectionId}`,
+          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}`
         }),
         parentKey: () => {
           let to;
           if (this.$route.params.grandparentKey) {
-            to =
-              `/browse/${
-                this.$route.params.machineIdentifier
-              }/${
-                this.$route.params.sectionId
-              }/tv/${
-                this.$route.params.grandparentKey
-              }/${
-                this.$route.params.parentKey}`;
+            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentKey}/${this.$route.params.parentKey}`;
           } else {
-            to =
-              `/browse/${
-                this.$route.params.machineIdentifier
-              }/${
-                this.$route.params.sectionId
-              }/tv/${
-                this.$route.params.parentKey}`;
+            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.parentKey}`;
           }
           return {
             text: getTitle(this.$route.params.parentKey),
-            to,
+            to
           };
         },
         grandparentKey: () => ({
           text: getTitle(this.$route.params.grandparentKey),
-          to:
-              `/browse/${
-                this.$route.params.machineIdentifier
-              }/${
-                this.$route.params.sectionId
-              }/tv/${
-                this.$route.params.grandparentKey
-              }/`,
+          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentKey}/`
         }),
         ratingKey: () => ({
           text: getTitle(this.$route.params.ratingKey),
-          to:
-              `/browse/${
-                this.$route.params.machineIdentifier
-              }/${
-                this.$route.params.sectionId
-              }/${
-                this.$route.params.ratingKey}`,
-        }),
+          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/${this.$route.params.ratingKey}`
+        })
       };
-      Object.keys(this.$route.params).forEach((param) => {
+      Object.keys(this.$route.params).forEach(param => {
         const link = map[param]();
         if (link) {
           data.push(link);
@@ -441,7 +482,11 @@ export default {
       return data;
     },
     showNowPlaying() {
-      return this.chosenClient && this.chosenClient.clientPlayingMetadata && this.$route.name === 'browse';
+      return (
+        this.chosenClient &&
+        this.chosenClient.clientPlayingMetadata &&
+        this.$route.name === "browse"
+      );
     },
     showRightDrawerButton() {
       return this.ptConnected && this.chosenClient && this.ptRoom;
@@ -459,7 +504,7 @@ export default {
       return this.logos.light.small;
     },
     isPlayer() {
-      if (this.$route.path === '/') {
+      if (this.$route.path === "/") {
         return true;
       }
       return false;
@@ -495,10 +540,10 @@ export default {
     mainStyle() {
       if (this.$store.getters.getBackground !== null) {
         return {
-          'background-image': `url(${this.$store.getters.getBackground})`,
-          'background-repeat': 'no-repeat',
-          'background-size': 'cover',
-          'background-position': 'center',
+          "background-image": `url(${this.$store.getters.getBackground})`,
+          "background-repeat": "no-repeat",
+          "background-size": "cover",
+          "background-position": "center"
         };
       }
       return {};
@@ -507,21 +552,21 @@ export default {
       const arr = [];
       if (this.$store.getters.getBackground !== null) {
         arr.push({
-          background: 'rgba(0,0,0,0.7)',
+          background: "rgba(0,0,0,0.7)"
         });
       }
       return arr;
     },
     paddingStyle() {
       const arr = [];
-      if (this.$route.path.indexOf('/player') === -1) {
+      if (this.$route.path.indexOf("/player") === -1) {
         arr.push({
-          padding: '16px',
+          padding: "16px"
         });
       }
       return arr;
-    },
-  },
+    }
+  }
 };
 </script>
 
