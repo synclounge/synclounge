@@ -26,6 +26,7 @@
     "string-similarity": "^1.2.0",
     "videojs-contrib-hls": "^5.15.0",
     "vue": "^2.6.10",
+    "vue-cookies": "^1.7.0",
     "vue-router": "^2.3.1",
     "vuetify": "^1.5.14",
     "vuex": "^2.3.1",
