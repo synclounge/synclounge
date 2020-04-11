@@ -1,3 +1,9 @@
+---
+name: Bug/Issue report
+about: Create a report to help us improve
+
+---
+
 If you haven't already, be sure to check the **How-to Report an Issue page** before reporting an issue: https://docs.synclounge.tv/how-tos/report_an_issue/
 
 Please complete the following when reporting a bug/an issue.
