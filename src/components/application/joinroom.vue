@@ -75,38 +75,35 @@
                 :key="server.url"
                 v-bind:class="ptserversClass"
               >
-                <v-card height="200px" style="border-radius: 20px">
+                <v-card height="250px" style="border-radius: 20px">
                   <v-layout row wrap justify-center style="height: 100%">
-                    <v-flex
-                      xs12
-                      class="text-xs-center pa-2"
-                      style="height: 10%; position: relative;  border-radius: 20px 20px 0 0;"
-                    >
-                      <h2>{{ server.name }}</h2>
-                    </v-flex>
-                    <v-flex
-                      xs6
-                      class="text-xs-center pa-2"
-                      style="height: 60%; position: relative; "
-                    >
+
+                    <v-flex xs12 class="text-xs-center pa-2" style="height: 40%">
                       <img
                         :src="server.image"
-                        class="flag"
-                        style="max-height: 50%; vertical-align: middle; max-width: 80%"
+                        style="max-height: 100%; vertical-align: middle; max-width: 80%; border-radius: 7px"
                       />
                     </v-flex>
-                    <v-flex xs6 style="height: 60%; " class="text-xs-center pt-3 pr-3">
+                    <v-flex xs12 class="text-xs-center">
+                      <h2>{{ server.name }}</h2>
                       <h4>{{ server.location }}</h4>
+                    </v-flex>
+                    <v-flex xs6 class="text-xs-center" v-if="server.url !== 'custom'">
+                      <div v-if="results[server.url]">
+                        <div v-if="results[server.url].alive">
+                          Ping:
+                          <span
+                            class="thick--text"
+                            :class="connectionQualityClass(results[server.url].latency)"
+                          >{{ results[server.url].latency }}ms</span>
+                        </div>
+                        <div v-else class="text-xs-center red--text">error</div>
+                        </div>
+                    </v-flex>
+                    <v-flex xs6 class="text-xs-center">
                       <div v-if="server.url !== 'custom'">
                         <div v-if="results[server.url]">
                           <div v-if="results[server.url].alive">
-                            <div>
-                              Ping:
-                              <span
-                                class="thick--text"
-                                :class="connectionQualityClass(results[server.url].latency)"
-                              >{{ results[server.url].latency }}ms</span>
-                            </div>
                             <div>
                               Load:
                               <span
@@ -115,18 +112,17 @@
                               >{{ results[server.url].result || 'Unknown' }}</span>
                             </div>
                           </div>
-                          <div v-else class="text-xs-center red--text">Unable to connect to server</div>
+                          <div v-else class="text-xs-center red--text">error</div>
                         </div>
-                        <div v-else>Testing connection quality...</div>
                       </div>
                     </v-flex>
 
-                    <v-flex xs12 style="height: 20%;" class="text-xs-center pt-1">
+                    <v-flex xs12 class="text-xs-center pt-1 mt-4">
                       <v-btn
                         color="primary"
                         :disabled="connectionPending"
                         @click="serverSelected(server)"
-                        style="width: 80%; border-radius: 7px; margin: auto"
+                        style="width: 80%; border-radius: 7px; margin: auto; position: absolute; bottom: 5px; left: 0; right: 0;"
                       >Connect</v-btn>
                     </v-flex>
                   </v-layout>
