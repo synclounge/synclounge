@@ -1,5 +1,4 @@
 <template>
-  <div>
     <v-layout row wrap justify-center>
       <v-flex xs12 lg8 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
         <v-layout row wrap justify-center>
@@ -25,11 +24,9 @@
           <v-flex xs12 class="ml-4">
             <h2 class="text-xs-left">Connect to a SyncLounge room</h2>
           </v-flex>
-          <v-layout row wrap justify-center>
             <v-flex xs12 class="ml-4">
               <p>It's time to connect to SyncLounge. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join. If the room does not exist it will be created for you.</p>
             </v-flex>
-          </v-layout>
           <v-flex
             xs12
             class="nicelist pa-4"
@@ -210,32 +207,31 @@
         </v-layout>
       </v-flex>
     </v-layout>
-  </div>
 </template>
 
 <script>
-import Vue from "vue";
+import Vue from 'vue';
 
-const axios = require("axios");
+const axios = require('axios');
 
 export default {
-  props: ["object"],
-  name: "joinroom",
+  props: ['object'],
+  name: 'joinroom',
   data() {
     return {
-      selectedServer: "",
+      selectedServer: '',
       serverError: null,
       roomError: null,
-      room: "",
+      room: '',
       e1: 2,
-      password: "",
+      password: '',
       connectionPending: false,
       thisServer: window.location.origin,
       recents: null,
 
       results: {},
 
-      destroyed: false
+      destroyed: false,
     };
   },
   mounted() {
@@ -254,43 +250,43 @@ export default {
   },
   created() {
     if (this.slRoom && this.slConnected && this.slServer) {
-      this.$router.push("/browse");
+      this.$router.push('/browse');
     }
     this.getRecents();
   },
   methods: {
     getRecents() {
-      this.recents = JSON.parse(window.localStorage.getItem("recentrooms"));
+      this.recents = JSON.parse(window.localStorage.getItem('recentrooms'));
     },
     removeHistoryItem(item) {
-      const recents = JSON.parse(window.localStorage.getItem("recentrooms"));
+      const recents = JSON.parse(window.localStorage.getItem('recentrooms'));
       delete recents[`${item.server}/${item.room}`];
-      window.localStorage.setItem("recentrooms", JSON.stringify(recents));
+      window.localStorage.setItem('recentrooms', JSON.stringify(recents));
       return this.getRecents();
     },
     connectionQualityClass(value) {
       if (value < 50) {
-        return ["green--text", "text--lighten-1"];
+        return ['green--text', 'text--lighten-1'];
       }
       if (value < 150) {
-        return ["lime--text"];
+        return ['lime--text'];
       }
       if (value < 250) {
-        return ["orange--text"];
+        return ['orange--text'];
       }
-      return ["red--text"];
+      return ['red--text'];
     },
     loadQualityClass(value) {
-      if (value === "low") {
-        return ["green--text", "text--lighten-1"];
+      if (value === 'low') {
+        return ['green--text', 'text--lighten-1'];
       }
-      if (value === "medium") {
-        return ["orange--text"];
+      if (value === 'medium') {
+        return ['orange--text'];
       }
-      if (value === "high") {
-        return ["red--text"];
+      if (value === 'high') {
+        return ['red--text'];
       }
-      return ["white--text"];
+      return ['white--text'];
     },
     serverSelected(server) {
       this.selectedServer = server;
@@ -301,28 +297,28 @@ export default {
           this.password = this.selectedServer.defaultPassword;
         }
       }
-      if (this.selectedServer.url !== "custom") {
+      if (this.selectedServer.url !== 'custom') {
         this.attemptConnect();
       }
     },
     async testConnections() {
-      this.ptservers.map(server => {
-        if (server.url !== "custom") {
+      this.ptservers.map((server) => {
+        if (server.url !== 'custom') {
           const start = new Date().getTime();
           axios
             .get(`${server.url}/health`)
-            .then(res => {
+            .then((res) => {
               Vue.set(this.results, server.url, {
                 alive: true,
                 latency: Math.abs(start - new Date().getTime()),
-                result: res.data.load || null
+                result: res.data.load || null,
               });
             })
-            .catch(e => {
+            .catch((e) => {
               Vue.set(this.results, server.url, {
                 alive: false,
                 latency: Math.abs(start - new Date().getTime()),
-                result: null
+                result: null,
               });
             });
         }
@@ -332,17 +328,17 @@ export default {
       // Attempt the connection
       return new Promise((resolve, reject) => {
         this.serverError = null;
-        if (this.selectedServer.url !== "custom") {
+        if (this.selectedServer.url !== 'custom') {
           this.connectionPending = true;
           this.$store
-            .dispatch("socketConnect", { address: this.selectedServer.url })
-            .then(result => {
+            .dispatch('socketConnect', { address: this.selectedServer.url })
+            .then((result) => {
               this.connectionPending = false;
               if (result) {
                 if (this.room) {
                   this.joinRoom()
                     .then(() => {})
-                    .catch(e => {});
+                    .catch((e) => {});
                 }
                 resolve();
               } else {
@@ -350,13 +346,13 @@ export default {
                 reject(result);
               }
             })
-            .catch(e => {
+            .catch((e) => {
               this.connectionPending = false;
               this.serverError = `Failed to connect to ${this.selectedServer.url}`;
               reject(e);
             });
         } else {
-          reject(new Error("Custom error: wrong function"));
+          reject(new Error('Custom error: wrong function'));
         }
       });
     },
@@ -364,8 +360,8 @@ export default {
       this.connectionPending = true;
       this.serverError = null;
       this.$store
-        .dispatch("socketConnect", { address: this.CUSTOMSERVER })
-        .then(result => {
+        .dispatch('socketConnect', { address: this.CUSTOMSERVER })
+        .then((result) => {
           this.connectionPending = false;
           if (result) {
             this.serverError = `Failed to connect to ${this.CUSTOMSERVER}`;
@@ -379,9 +375,9 @@ export default {
         });
     },
     async recentConnect(recent) {
-      console.log("Attempting to connect to", recent);
+      console.log('Attempting to connect to', recent);
       this.selectedServer = {
-        url: recent.server
+        url: recent.server,
       };
       this.room = recent.room;
       this.password = recent.password;
@@ -389,23 +385,23 @@ export default {
     },
     async joinRoom() {
       if (!this.context.getters.getConnected) {
-        throw new Error("not connected to a server");
+        throw new Error('not connected to a server');
       }
-      if (this.room === "" || this.room == null) {
-        this.roomError = "You must enter a room name!";
-        throw new Error("no room specified");
+      if (this.room === '' || this.room == null) {
+        this.roomError = 'You must enter a room name!';
+        throw new Error('no room specified');
       }
       try {
-        await this.$store.dispatch("joinRoom", {
+        await this.$store.dispatch('joinRoom', {
           user: this.plex.user,
           roomName: this.room,
-          password: this.password
+          password: this.password,
         });
       } catch (e) {
         this.roomError = e;
         throw e;
       }
-    }
+    },
   },
   watch: {
     selectedServer() {
@@ -414,9 +410,9 @@ export default {
     },
     slRoom() {
       if (this.slServer && this.slRoom) {
-        this.$router.push("/browse");
+        this.$router.push('/browse');
       }
-    }
+    },
   },
   computed: {
     plex() {
@@ -446,16 +442,16 @@ export default {
     CUSTOMSERVER: {
       get() {
         if (!this.$store.getters.getSettings.CUSTOMSERVER) {
-          return "http://";
+          return 'http://';
         }
         return this.$store.getters.getSettings.CUSTOMSERVER;
       },
       set(value) {
-        this.$store.commit("setSetting", ["CUSTOMSERVER", value]);
-      }
+        this.$store.commit('setSetting', ['CUSTOMSERVER', value]);
+      },
     },
     ptservers() {
-      if (typeof this.$store.getters.getSettings.SERVERS === "string") {
+      if (typeof this.$store.getters.getSettings.SERVERS === 'string') {
         return JSON.parse(this.$store.getters.getSettings.SERVERS);
       }
       return this.$store.getters.getSettings.SERVERS;
@@ -466,9 +462,9 @@ export default {
       if (classNum >= 2) {
         return `md${classNum}`;
       }
-      return "md-2";
-    }
-  }
+      return 'md-2';
+    },
+  },
 };
 </script>
 <style>

@@ -135,7 +135,7 @@ export default {
           ptplayer.platform = 'Web';
           ptplayer.device = 'Web';
           ptplayer.product = 'SyncLounge';
-          ptplayer.name = 'SyncLounge Player (BETA)';
+          ptplayer.name = 'SyncLounge Player';
           ptplayer.labels = [
             ['Recommended', 'green'],
           ];

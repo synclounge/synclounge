@@ -634,7 +634,7 @@ span {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #01579b;
+  background: rgba(229, 160, 13, 0.6);
   border: 0px none #ffffff;
   border-radius: 0px;
 }

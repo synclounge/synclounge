@@ -1,4 +1,3 @@
-
 import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
 import Vuetify from 'vuetify';
@@ -26,7 +25,7 @@ Vue.use(Vuetify, {
   theme: {
     primary: '#E5A00D',
     secondary: '#b0bec5',
-    accent: '#8c9eff',
+    accent: '#E5A00D',
     error: '#b71c1c',
   },
 });
@@ -121,7 +120,7 @@ Vue.mixin({
           'font-size': `${(w / maxRes) * maxPx}px`,
         },
         medium: {
-          'font-size': `${((w / maxRes) * maxPx) * 0.6}px`,
+          'font-size': `${(w / maxRes) * maxPx * 0.6}px`,
         },
       };
     },
@@ -168,9 +167,9 @@ new Vue({
   },
 });
 
-global.waitFor = async ms => new Promise((resolve) => {
-  setTimeout(() => resolve, ms);
-});
+global.waitFor = async ms =>
+  new Promise((resolve) => {
+    setTimeout(() => resolve, ms);
+  });
 
-global.to = promise => promise.then(data => [null, data])
-  .catch(err => [err]);
+global.to = promise => promise.then(data => [null, data]).catch(err => [err]);
