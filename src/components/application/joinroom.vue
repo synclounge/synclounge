@@ -41,7 +41,7 @@
                     <img :src="logos.light.small" style="width: 32px; height: auto" />
                   </v-list-tile-avatar>
                   <v-list-tile-content>
-                    <v-list-tile-title v-html="item.server"></v-list-tile-title>
+                    <v-list-tile-title v-html="item.name || item.server || 'Custom'"></v-list-tile-title>
                     <v-list-tile-sub-title>
                       <b>{{ item.room }}</b>
                       <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span>
