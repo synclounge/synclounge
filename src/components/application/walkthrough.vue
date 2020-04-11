@@ -6,7 +6,7 @@
           <img style="width:100%" :src="logo">
         </v-flex>
       </v-layout>
-      <v-stepper style="background: rgba(0,0,0,0.3); color: white !important" v-model="e1" class="mb-4">
+      <v-stepper style="background: rgba(0,0,0,0.3); color: white !important; border-radius: 20px" v-model="e1" class="ma-4">
         <v-stepper-header dark>
           <v-stepper-step step="1" dark :complete="true">Select a client</v-stepper-step>
           <v-divider></v-divider>
@@ -16,20 +16,19 @@
         </v-stepper-header>
       </v-stepper>
       <div v-if="!chosenClient">
-        <v-layout class="mt-2" row wrap>
-          <v-flex xs12>
+        <v-layout row wrap justify-center mb-2>
+          <v-flex xs12 class="ml-4">
             <h2>Choose your Plex player</h2>
           </v-flex>
-          <v-flex xs12>
+          <v-flex xs12 class="ml-4">
             Choose a client from the list below. Once you've found the client you would like to use, click the connect button. SyncLounge will test to see if it can connect with the client and will let you know if it cannot.
           </v-flex>
         </v-layout>
-        <v-divider></v-divider>
         <div v-if="plex && !plex.gotDevices" class="text-xs-center pa-4">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </div>
-        <v-layout v-else row wrap>
-          <v-flex xs12 md6 lg6 v-if="!doReverse">
+        <v-layout v-else row wrap justify-center class="ml-4 mr-4">
+          <v-flex xs10 md6 lg6 v-if="!doReverse">
             <v-subheader>Plex Players {{ playercount }}
               <v-icon @click="PLEX_GET_DEVICES()" class="pl-2" small>refresh</v-icon>
             </v-subheader>
@@ -37,7 +36,7 @@
               <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
             </v-list>
           </v-flex>
-          <v-flex xs12 md6 lg6>
+          <v-flex xs10 md6 lg6>
             <div v-if="testClient" class="pa-2">
               <v-subheader>
                 Selected Player
@@ -164,9 +163,12 @@ export default {
     ...mapState(['plex']),
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {
-        case 'xs': return true;
-        case 'sm': return true;
-        default: return false;
+        case 'xs':
+          return true;
+        case 'sm':
+          return true;
+        default:
+          return false;
       }
     },
     chosenClient() {
@@ -179,7 +181,10 @@ export default {
       if (!this.testClient || !this.testClient.platform) {
         return;
       }
-      return this.platformMap[this.testClient.platform.toLowerCase()] || this.platformMap[this.testClient.product.toLowerCase()];
+      return (
+        this.platformMap[this.testClient.platform.toLowerCase()] ||
+        this.platformMap[this.testClient.product.toLowerCase()]
+      );
     },
     platformClass() {
       return [`platform-${this.platform}`];
@@ -211,7 +216,9 @@ export default {
       }
       let url = `http:${window.location.href.substring(window.location.protocol.length)}`;
       if (this.$store.state.autoJoin) {
-        url = `${url}?server=${this.$store.state.autoJoinUrl}&room=${this.$store.state.autoJoinRoom}&autojoin=true&owner=${this.$store.state.autoJoinOwner}`;
+        url = `${url}?server=${this.$store.state.autoJoinUrl}&room=${
+          this.$store.state.autoJoinRoom
+        }&autojoin=true&owner=${this.$store.state.autoJoinOwner}`;
         if (this.$store.state.autoJoinPassword) {
           url = `${url}&password=${this.$store.state.autoJoinPassword}`;
         }
@@ -243,7 +250,8 @@ export default {
       const client = this.testClient;
       this.gotResponse = false;
       this.testClientErrorMsg = null;
-      this.$store.dispatch('PLEX_CLIENT_FINDCONNECTION', client)
+      this.$store
+        .dispatch('PLEX_CLIENT_FINDCONNECTION', client)
         .then(() => {
           this.$store.commit('SET_CHOSENCLIENT', client);
           this.gotResponse = true;

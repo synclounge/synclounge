@@ -1,113 +1,156 @@
 <template>
   <v-container class="pa-0 pb-0" fill-height>
-    <v-layout v-if="ptRoom" row wrap>
+    <v-layout v-if="ptRoom" row wrap style="background: rgba(30, 31, 50,0.6)">
       <v-flex xs12 style="height: 50vh">
         <v-flex xs12>
-          <v-layout row wrap justify-space-between="" align-center>
-            <v-flex xs8 offset-xs2 class="text-xs-center">
-              <h3 class="mb-0 pb-0 pa-0"> Room: {{ ptRoom }}</h3>
-            </v-flex>
-            <v-flex xs2>
-              <v-menu :offset-y="true">
-                <v-btn icon slot="activator" class="ma-0 pa-0" dark>
-                  <v-icon>more_vert</v-icon>
-                </v-btn>
-                <v-list>
-                  <v-list-tile @click="handleDisconnect()">
-                    <v-list-tile-title>Leave Room</v-list-tile-title>
-                  </v-list-tile>
-                </v-list>
-              </v-menu>
-            </v-flex>
-          </v-layout>
-        </v-flex>
-        <v-flex xs12>
-          <v-layout row wrap justify-space-between="" align-center>
-            <v-flex xs8 offset-xs2 class="text-xs-center" v-if="me.role !== 'host' && this.$route.path.indexOf('/player') === -1">
-              <span class="mb-0 pb-0 pa-0"> Waiting for the host to start</span>
-            </v-flex>
-          </v-layout>
-        </v-flex>
-        <v-subheader>
-          <v-container class="pa-0" justify-center align-center>
-            <v-layout row wrap align-center justify-center>
+          <v-card style="background: linear-gradient(180deg,#1f1c2c,#182848); border-radius: 7px" class="pa-2 ma-3">
+            <v-layout row wrap justify-space-between="" align-center>
               <v-flex xs6>
-                Users ({{ ptUsers.length }})
+                <h3 class="mb-0 pb-0 pa-0"> {{ ptRoom }}</h3>
               </v-flex>
-              <v-flex xs6>
-                <v-switch
-                  class="pa-0 ma-0 party-pausing-label"
-                  label="Party Pausing"
-                  style="font-size: 12px !important;"
-                  v-if="isHost(me)"
-                  v-model="partyPausing"
-                ></v-switch>
-                <v-tooltip
-                  bottom
-                  color="light-blue darken-4"
-                  v-else
-                >
-                  <v-btn
-                    color="primary"
-                    slot="activator"
-                    :disabled="!partyPausing"
-                    style="min-width: 0; float: right;"
-                    @click="sendPartyPauseLocal(playerState(host) === 'play_arrow')"
-                    v-if="playerState(host) !== 'stop'"
-                  >
-                    <v-icon v-if="playerState(host) === 'play_arrow'">pause</v-icon>
-                    <v-icon v-else>play_arrow</v-icon>
+              <v-flex xs2>
+                <v-menu>
+                  <v-btn icon slot="activator" class="ma-0 pa-0" dark>
+                    <v-icon>more_vert</v-icon>
                   </v-btn>
-                  <span> Party Pausing is currently {{ partyPausing ? 'enabled' : 'disabled' }} by the host </span>
-                </v-tooltip>
+                  <v-list>
+                    <v-list-tile @click="handleDisconnect()">
+                      <v-list-tile-title class="user-menu-list">Leave Room</v-list-tile-title>
+                    </v-list-tile>
+                  </v-list>
+                </v-menu>
+              </v-flex>
+              <v-flex xs12>
+                <div v-if="ptUsers.length != 1" class="participant-count">
+                  {{ ptUsers.length }} people
+                </div>
+                <div v-else class="participant-count">
+                  It's just you, invite some friends
+                </div>
+              </v-flex>
+              <v-flex xs12>
+                <v-layout row wrap>
+                  <v-flex xs6>
+                    <v-switch
+                      class="pa-0 mt-2 party-pausing-label"
+                      label="Party Pausing"
+                      v-if="isHost(me)"
+                      v-model="partyPausing"
+                    ></v-switch>
+                    <v-tooltip
+                      bottom
+                      color="rgb(44, 44, 49)"
+                      v-else
+                    >
+                      <v-btn
+                        color="primary"
+                        slot="activator"
+                        :disabled="!partyPausing"
+                        style="min-width: 0; float: right;"
+                        @click="sendPartyPauseLocal(playerState(host) === 'play_arrow')"
+                        v-if="playerState(host) !== 'stop'"
+                      >
+                        <v-icon v-if="playerState(host) === 'play_arrow'">pause</v-icon>
+                        <v-icon v-else>play_arrow</v-icon>
+                      </v-btn>
+                      <span> Party Pausing is currently {{ partyPausing ? 'enabled' : 'disabled' }} by the host </span>
+                    </v-tooltip>
+                  </v-flex>
+                </v-layout>
               </v-flex>
             </v-layout>
-          </v-container>
-        </v-subheader>
-        <v-list dense two-line style="overflow: auto; max-height: calc(50vh - 84px); background: none">
-          <div v-for="user in ptUsers" v-bind:key="user.username" style="position:relative;height:7em">
-            <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
-              <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
-                <img v-bind:src="user.avatarUrl"  :style="getImgStyle(user)">
-                  <v-icon v-if="user.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">
-                    {{ playerState(user) }}
+          </v-card>
+          <v-card style="background: #E5A00D; border-radius: 7px" class="pa-2 ma-3" v-if="me.role !== 'host' && this.$route.path.indexOf('/player') === -1">
+            <v-layout row wrap justify-space-between="" align-center>
+              <v-flex xs12 class="text-xs-center">
+                <span class="mb-0 pb-0 pa-0" style="color: rgb(44, 44, 49); "> Waiting for {{ hostUser().username }} to start</span>
+              </v-flex>
+            </v-layout>
+          </v-card>
+        </v-flex>
+        <v-list dense two-line style="overflow: auto; max-height: calc(50vh - 154px); background: none">
+          <v-card style="background: linear-gradient(180deg,#1f1c2c,#182848)!important; border-radius: 7px" class="pa-1 ml-3 mr-3">
+            <v-list-tile avatar style="height:4em" class="pl-1 pr-1 mb-0" tag="div">
+              <v-list-tile-avatar>
+                <img v-bind:src="hostUser().avatarUrl" :style="getImgStyle(hostUser())">
+                  <v-icon v-if="hostUser().playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.5)">
+                    {{ playerState(hostUser()) }}
                   </v-icon>
                 </img>
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-tooltip bottom color="light-blue darken-4" multi-line class="userlist">
+                <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
                   <span slot="activator">
-                    <v-list-tile-title> {{ user.username }} <span style="opacity: 0.6" v-if="user.uuid === me.uuid"> (you) </span></v-list-tile-title>
-                    <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
+                    <v-list-tile-title> {{ hostUser().username }} <span style="opacity: 0.6" v-if="hostUser().uuid === me.uuid"> (you) </span></v-list-tile-title>
+                    <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(hostUser()) }}</v-list-tile-sub-title>
                   </span>
-                  Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
-                  <span v-if="plex.servers[user.machineIdentifier]">
-                    <br />via {{ plex.servers[user.machineIdentifier].name }}
+                  Watching on {{ hostUser().playerProduct || 'Unknown Plex Client' }}
+                  <span v-if="plex.servers[hostUser().machineIdentifier]">
+                    <br />via {{ plex.servers[hostUser().machineIdentifier].name }}
                   </span>
                 </v-tooltip>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-tooltip bottom color="light-blue darken-4" multi-line class="userlist">
-                  <v-icon v-if="isHost(user)" style="color: #E5A00D" slot="activator">star</v-icon>
+                <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
+                  <v-icon style="color: #E5A00D" slot="activator">star</v-icon>
                   Host
                 </v-tooltip>
-                <v-menu v-if="user.uuid !== me.uuid && isHost(me)" :offset-y="true">
-                    <v-btn icon slot="activator" class="ma-0 pa-0" dark>
-                      <v-icon>more_vert</v-icon>
-                    </v-btn>
-                  <v-list>
-                    <v-list-tile @click="transferHost(user.username)">
-                      <v-list-tile-title>Make Host</v-list-tile-title>
-                    </v-list-tile>
-                  </v-list>
-                </v-menu>
               </v-list-tile-action>
             </v-list-tile>
-          <div class="pl-2 pr-2 pt-2 mt-0 pb-0 mb-0">
-            <span style="float: left; font-size:70%" class="ptuser-time pl-2">{{ getCurrent(user) }}</span>
-            <span style="float: right; font-size:70%" class="ptuser-maxTime pr-2">{{ getMax(user) }}</span>
-            <v-progress-linear class="pt-content-progress " :height="2" :value="percent(user)"></v-progress-linear>
-          </div>
+            <div class="pl-1 pr-1 pt-1 mt-0 pb-0 mb-0">
+              <span style="float: left; font-size:70%" class="ptuser-time pl-1">{{ getCurrent(hostUser()) }}</span>
+              <span style="float: right; font-size:70%" class="ptuser-maxTime pr-1">{{ getMax(hostUser()) }}</span>
+              <v-progress-linear class="pt-content-progress " :height="2" :value="percent(hostUser())"></v-progress-linear>
+            </div>
+          </v-card>
+          <div v-for="user in ptUsers" v-bind:key="user.username">
+            <div class="pa-1 ml-3 mr-3" v-if="!isHost(user)">
+              <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
+                <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
+                  <img v-bind:src="user.avatarUrl"  :style="getImgStyle(user)">
+                    <v-icon v-if="user.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">
+                      {{ playerState(user) }}
+                    </v-icon>
+                  </img>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
+                    <span slot="activator">
+                      <v-list-tile-title> {{ user.username }} <span style="opacity: 0.6" v-if="user.uuid === me.uuid"> (you) </span></v-list-tile-title>
+                      <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
+                    </span>
+                    Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
+                    <span v-if="plex.servers[user.machineIdentifier]">
+                      <br />via {{ plex.servers[user.machineIdentifier].name }}
+                    </span>
+                  </v-tooltip>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
+                    <v-icon v-if="isHost(user)" style="color: #E5A00D" slot="activator">star</v-icon>
+                    Host
+                  </v-tooltip>
+                  <v-menu v-if="user.uuid !== me.uuid && isHost(me)" :offset-y="true">
+                      <v-btn icon slot="activator" class="ma-0 pa-0" dark>
+                        <v-icon>more_vert</v-icon>
+                      </v-btn>
+                    <v-list>
+                      <v-list-tile @click="transferHost(user.username)">
+                        <v-list-tile-title class="user-menu-list">Make Host</v-list-tile-title>
+                      </v-list-tile>
+                      <!-- <v-list-tile @click.stop="openInviteDialog(user)">
+                        <v-list-tile-title class="user-menu-list">Invite to a Plex Server</v-list-tile-title>
+                      </v-list-tile> -->
+                    </v-list>
+                  </v-menu>
+                </v-list-tile-action>
+              </v-list-tile>
+              <div class="pl-0 pr-0 pt-1 mt-0 pb-0 mb-0">
+                <span style="float: left; font-size:70%" class="ptuser-time pl-1">{{ getCurrent(user) }}</span>
+                <span style="float: right; font-size:70%" class="ptuser-maxTime pr-1">{{ getMax(user) }}</span>
+                <v-progress-linear class="pt-content-progress " :height="2" :value="percent(user)"></v-progress-linear>
+              </div>
+            </div>
         </div>
         </v-list>
       </v-flex>
@@ -119,14 +162,13 @@
 </template>
 
 <script>
-
 import { mapActions, mapGetters } from 'vuex';
 
 import messages from '@/components/messages.vue';
 
 export default {
   components: {
-    messages
+    messages,
   },
   data() {
     return {
@@ -158,7 +200,7 @@ export default {
       return this.$store.state.me;
     },
     host() {
-      return this.$store.getters.getUsers.find(user => user.role === 'host')
+      return this.$store.getters.getUsers.find(user => user.role === 'host');
     },
     chosenClient() {
       return this.$store.getters.getChosenClient;
@@ -176,17 +218,10 @@ export default {
       return this.plex.gotDevices;
     },
     showBrowser() {
-      return (
-        this.chosenClient &&
-        !this.chosenClient.clientPlayingMetadata &&
-        this.ptRoom
-      );
+      return this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom;
     },
     isPTPlayer() {
-      return (
-        this.chosenClient &&
-        this.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10'
-      );
+      return this.chosenClient && this.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10';
     },
     showMetadata() {
       return (
@@ -240,7 +275,9 @@ export default {
       return 'none';
     },
     serverDelay() {
-      return Math.round(this.$store.state.synclounge.commands[Object.keys(this.$store.state.synclounge.commands).length - 1].difference);
+      return Math.round(this.$store.state.synclounge.commands[
+        Object.keys(this.$store.state.synclounge.commands).length - 1
+      ].difference);
     },
     difference() {
       return Math.abs(this.now - this.lastRecievedUpdate);
@@ -259,6 +296,9 @@ export default {
     ...mapActions(['updatePartyPausing', 'sendPartyPause']),
     isHost(user) {
       return user.role === 'host';
+    },
+    hostUser() {
+      return this.ptUsers.find(u => u.role === 'host');
     },
     sendPartyPauseLocal(isPause) {
       this.localPauseTimeout = true;
@@ -282,9 +322,11 @@ export default {
       }
     },
     getImgStyle(user) {
-      const arr = [{
-        border: `3px solid ${this.getUserColor(user)}`,
-      }];
+      const arr = [
+        {
+          border: `3px solid ${this.getUserColor(user)}`,
+        },
+      ];
       return arr;
     },
     transferHost(username) {
@@ -295,7 +337,7 @@ export default {
       this.$router.push('/');
     },
     percent(user) {
-      let perc = parseInt(user.time) / parseInt(user.maxTime) * 100;
+      let perc = (parseInt(user.time) / parseInt(user.maxTime)) * 100;
       if (isNaN(perc)) {
         perc = 0;
       }
@@ -374,5 +416,14 @@ export default {
 .party-pausing-label .v-input__slot {
   margin: 0;
 }
-
+.participant-count {
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.7);
+}
+.v-list__tile {
+  padding: 0;
+}
+.user-menu-list {
+  padding: 0 16px;
+}
 </style>

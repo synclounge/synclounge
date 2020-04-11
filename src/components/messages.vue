@@ -2,24 +2,25 @@
   <v-layout row wrap style="height: 100%;">
     <v-flex xs12 style="height: calc(100% - 96px)">
       <v-divider class="hidden-md-and-down"></v-divider>
-      <v-layout row wrap id="chatbox" v-if="messages.length > 0" style="max-height: 100%; overflow-y: scroll">
+      <v-subheader class="md-4">Chat</v-subheader>
+      <v-layout row wrap id="chatbox" v-if="messages.length > 0" style="max-height: calc(100% - 32px); overflow-y: scroll">
         <message :message="msg" :id="getMsgId(msg)" v-for="(msg, index) in messages" :key="index"></message>
       </v-layout>
-      <v-subheader v-else>Messages</v-subheader>
     </v-flex>
     <v-flex xs12>
       <v-text-field
-        prepend-icon="message"
+        append-outer-icon="send"
+        @click:append-outer="sendMessage()"
         :label="chatboxLabel"
         hide-details
         single-line
-        class="ma-0 ml-1 pr-1 wideinput"
+        class="ml-2 mr-2 pr-1"
         v-on:keyup.enter.native="sendMessage()"
         v-model="messageToBeSent"
       ></v-text-field>
-      <v-btn block color="primary" @click="sendMessage()" :disabled="messageToBeSent.length === 0">Send<v-icon right>send</v-icon></v-btn>
+      <!-- <v-btn block color="primary" @click="sendMessage()" :disabled="messageToBeSent.length === 0">Send<v-icon right>send</v-icon></v-btn> -->
     </v-flex>
-  </v-layout>    
+  </v-layout>
 </template>
 
 <script>
@@ -30,12 +31,12 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   components: {
-    message
+    message,
   },
   data() {
     return {
       messageToBeSent: '',
-    }
+    };
   },
   watch: {
     messages() {
@@ -45,7 +46,7 @@ export default {
         duration: 1,
         cancelable: false,
       };
-      console.info(this.$vuetify.breakpoint)
+      console.info(this.$vuetify.breakpoint);
       this.$scrollTo('#lastMessage', 5, options);
     },
   },
@@ -54,7 +55,7 @@ export default {
       return this.$store.getters.getMessages;
     },
     chatboxLabel() {
-      return `Send a message to #${this.$store.getters.getRoom}`;
+      return 'Message';
     },
   },
   methods: {
@@ -72,5 +73,5 @@ export default {
       this.messageToBeSent = '';
     },
   },
-}
+};
 </script>
