@@ -5,10 +5,10 @@
         <v-flex xs12>
           <v-layout row wrap justify-space-between="" align-center>
             <v-flex xs8 offset-xs2 class="text-xs-center">
-              <h3 class="mb-0 pb-0 pa-0"> Room {{ ptRoom }}</h3>
+              <h3 class="mb-0 pb-0 pa-0"> Room: {{ ptRoom }}</h3>
             </v-flex>
             <v-flex xs2>
-              <v-menu>
+              <v-menu :offset-y="true">
                 <v-btn icon slot="activator" class="ma-0 pa-0" dark>
                   <v-icon>more_vert</v-icon>
                 </v-btn>
@@ -18,6 +18,13 @@
                   </v-list-tile>
                 </v-list>
               </v-menu>
+            </v-flex>
+          </v-layout>
+        </v-flex>
+        <v-flex xs12>
+          <v-layout row wrap justify-space-between="" align-center>
+            <v-flex xs8 offset-xs2 class="text-xs-center" v-if="me.role !== 'host' && this.$route.path.indexOf('/player') === -1">
+              <span class="mb-0 pb-0 pa-0"> Waiting for the host to start</span>
             </v-flex>
           </v-layout>
         </v-flex>
@@ -79,8 +86,21 @@
                   </span>
                 </v-tooltip>
               </v-list-tile-content>
-              <v-list-tile-action  v-if="isHost(user)">
-                <v-icon v-if="isHost(user)" style="color: #E5A00D">star</v-icon>
+              <v-list-tile-action>
+                <v-tooltip bottom color="light-blue darken-4" multi-line class="userlist">
+                  <v-icon v-if="isHost(user)" style="color: #E5A00D" slot="activator">star</v-icon>
+                  Host
+                </v-tooltip>
+                <v-menu v-if="user.uuid !== me.uuid && isHost(me)" :offset-y="true">
+                    <v-btn icon slot="activator" class="ma-0 pa-0" dark>
+                      <v-icon>more_vert</v-icon>
+                    </v-btn>
+                  <v-list>
+                    <v-list-tile @click="transferHost(user.username)">
+                      <v-list-tile-title>Make Host</v-list-tile-title>
+                    </v-list-tile>
+                  </v-list>
+                </v-menu>
               </v-list-tile-action>
             </v-list-tile>
           <div class="pl-2 pr-2 pt-2 mt-0 pb-0 mb-0">
