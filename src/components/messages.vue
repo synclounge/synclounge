@@ -17,7 +17,6 @@
         class="ma-0 ml-1 pr-1"
         v-on:keyup.enter.native="sendMessage()"
         v-model="messageToBeSent"
-        outline
       ></v-text-field>
       <!-- <v-btn block color="primary" @click="sendMessage()" :disabled="messageToBeSent.length === 0">Send<v-icon right>send</v-icon></v-btn> -->
     </v-flex>
