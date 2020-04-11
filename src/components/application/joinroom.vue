@@ -78,7 +78,7 @@
                 :key="server.url"
               >
                 <v-card height="300px" style="border-radius: 20px">
-                  <v-layout row wrap justify-center style="height: 100%">
+                  <v-layout row wrap justify-start align-center style="height: 100%">
                     <v-flex xs12 class="text-xs-center pa-2" style="height: 80px">
                       <img
                         :src="server.image"

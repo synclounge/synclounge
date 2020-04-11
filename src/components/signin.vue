@@ -253,6 +253,9 @@ export default {
       return '';
     },
   },
+  beforeDestroy() {
+    clearInterval(this.ticker);
+  },
   async mounted() {
     let authToken = null;
     // Check for PlexToken set via SyncLounge or Plex
