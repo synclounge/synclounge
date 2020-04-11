@@ -14,7 +14,7 @@
         :label="chatboxLabel"
         hide-details
         single-line
-        class="ma-0 ml-1 pr-1"
+        class="ml-2 mr-2 pr-1"
         v-on:keyup.enter.native="sendMessage()"
         v-model="messageToBeSent"
       ></v-text-field>
