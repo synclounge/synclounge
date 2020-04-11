@@ -259,6 +259,9 @@ export default {
     if (window.localStorage.getItem('myPlexAccessToken')) {
       authToken = window.localStorage.getItem('myPlexAccessToken');
     }
+    else if($cookies.get('mpt')) {
+      authToken = $cookies.get('mpt');
+    }
 
     if (authToken) {
       this.ticker = setInterval(async () => {

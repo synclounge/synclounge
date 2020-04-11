@@ -5,6 +5,7 @@ import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visib
 import VueVideoPlayer from 'vue-video-player';
 import VueResource from 'vue-resource';
 import VueClipboards from 'vue-clipboards';
+import VueCookies from 'vue-cookies'
 
 import App from './App';
 import router from './router';
@@ -30,6 +31,10 @@ Vue.use(Vuetify, {
   },
 });
 Vue.config.productionTip = false;
+
+Vue.use(VueCookies);
+// set default config
+Vue.$cookies.config('7d');
 
 function nolog() {}
 
