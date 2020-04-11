@@ -1,6 +1,6 @@
 <template>
     <v-layout row wrap justify-center>
-      <v-flex xs12 lg8 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
+      <v-flex xs12 lg10 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
         <v-layout row wrap justify-center>
           <v-flex xs12 md8 lg4 xl6>
             <img style="width:100%" v-bind:src="logo" />
@@ -71,14 +71,15 @@
             <v-layout row wrap justify-center align-center>
               <v-flex
                 pa-2
+                xs12
+                md3
+                lg2
                 v-for="server in ptservers"
                 :key="server.url"
-                v-bind:class="ptserversClass"
               >
-                <v-card height="250px" style="border-radius: 20px">
+                <v-card height="300px" style="border-radius: 20px">
                   <v-layout row wrap justify-center style="height: 100%">
-
-                    <v-flex xs12 class="text-xs-center pa-2" style="height: 40%">
+                    <v-flex xs12 class="text-xs-center pa-2" style="height: 80px">
                       <img
                         :src="server.image"
                         style="max-height: 100%; vertical-align: middle; max-width: 80%; border-radius: 7px"
@@ -88,7 +89,7 @@
                       <h2>{{ server.name }}</h2>
                       <h4>{{ server.location }}</h4>
                     </v-flex>
-                    <v-flex xs6 class="text-xs-center" v-if="server.url !== 'custom'">
+                    <v-flex xs12 class="text-xs-center" v-if="server.url !== 'custom'">
                       <div v-if="results[server.url]">
                         <div v-if="results[server.url].alive">
                           Ping:
@@ -100,7 +101,7 @@
                         <div v-else class="text-xs-center red--text">error</div>
                         </div>
                     </v-flex>
-                    <v-flex xs6 class="text-xs-center">
+                    <v-flex xs12 class="text-xs-center">
                       <div v-if="server.url !== 'custom'">
                         <div v-if="results[server.url]">
                           <div v-if="results[server.url].alive">
@@ -452,24 +453,9 @@ export default {
       }
       return this.$store.getters.getSettings.SERVERS;
     },
-    ptserversClass() {
-      const serversCount = this.$store.getters.getSettings.SERVERS.length;
-      const classNum = 12 / serversCount;
-      if (classNum >= 2) {
-        return `md${classNum}`;
-      }
-      return 'md-2';
-    },
   },
 };
 </script>
 <style>
-.flag {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
-}
+
 </style>
