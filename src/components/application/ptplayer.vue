@@ -1,19 +1,39 @@
 <template>
   <div style="width:100%; position: relative">
     <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
-      <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
-        @playerMounted="playerMounted()"
-        @timelineUpdate="timelineUpdate"
-        @playbackEnded="stopPlayback()"
+      <div class="player container">
 
-        :metadata="playingMetadata"
-        :server="chosenServer"
-        :src="getSourceByLabel(chosenQuality)"
-        :initUrl="getSourceByLabel(chosenQuality).initUrl"
-        :params="getSourceByLabel(chosenQuality).params"
-        :initialOffset="offset"
-        :createdAt="playerCreatedAt"
-      ></videoplayer>
+        <!-- Players -->
+        <div class="video-container">
+
+          <video
+            ref="video"
+            width="1280px"
+          />
+          <v3player
+            v-if="video"
+            ref="player"
+            :video="video"
+            @playerMounted="playerMounted()"
+            @timelineUpdate="timelineUpdate"
+            @playbackEnded="stopPlayback()"
+
+            :metadata="playingMetadata"
+            :server="chosenServer"
+            :src="getSourceByLabel(chosenQuality)"
+            :initUrl="getSourceByLabel(chosenQuality).initUrl"
+            :params="getSourceByLabel(chosenQuality).params"
+            :initialOffset="offset"
+            :createdAt="playerCreatedAt"
+          />
+          <!-- Controls -->
+          <v3controls
+            :video="this.$refs.video"
+            v-on:play="play"
+            v-on:pause="pause"
+          />
+        </div>
+      </div>
       <div v-if="playingMetadata && chosenServer">
         <transition name="fade">
           <div v-show="hovered">
@@ -158,6 +178,8 @@
 
 <script>
 import videoplayer from './ptplayer/videoplayer.vue';
+import v3player from './ptplayer/v3player.vue';
+import v3controls from './ptplayer/v3controls.vue';
 import messages from '@/components/messages';
 
 const plexthumb = require('./plexbrowser/plexthumb.vue');
@@ -168,9 +190,10 @@ const parseXMLString = require('xml2js').parseString;
 export default {
   name: 'ptplayer',
   components: {
-    videoplayer, plexthumb, messages,
+    videoplayer, plexthumb, messages, v3player, v3controls,
   },
   mounted() {
+    this.video = this.$refs.video;
     // Check if we have params
     if (this.$route.query.start) {
       // We need to auto play
@@ -216,6 +239,7 @@ export default {
             // console.log('Poll time was out by', difference)
             playerdata.time = time;
             this.playertime = time;
+            console.log('playertime', this.playertime);
             data.callback(playerdata);
           });
         } else {
@@ -304,6 +328,17 @@ export default {
       destroyed: false,
 
       lastSentTimeline: {},
+
+      // shaka
+      autoplay: true,
+      v3controls: false,
+      logs: [],
+      probe: null,
+      video: null,
+      tracks: [],
+      stats: {},
+      buffer: '0',
+      controlkey: 0,
     };
   },
   watch: {
@@ -486,6 +521,7 @@ export default {
       if (!this.playingMetadata) {
         return;
       }
+      // eslint-disable-next-line consistent-return
       return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb || this.playingMetadata.thumb, 200, 200);
     },
   },
@@ -493,8 +529,48 @@ export default {
     this.destroyed = true;
   },
   methods: {
+    // shaka
+    // Common player methods.
+    play() {
+      this.$refs.player.play();
+    },
+    pause() {
+      this.$refs.player.pause();
+    },
+
+    // Common player events.
+    onGetTracks(event) {
+      this.log('[player] - onGetTracks');
+      this.tracks = event;
+    },
+    onChangeTrack(event) {
+      this.log('[player] - onChangeTrack', event);
+      this.$refs.player.selectTrack(event);
+    },
+    onEnableAdaptation(event) {
+      this.log('[player] - onEnableAdaptation', event);
+      this.$refs.player.enableAdaptation(event);
+    },
+    onStats(event) {
+      // console.log('[player] - onStats');
+      this.stats = event;
+    },
+    onBuffer(event) {
+      // console.log('[player] - onBuffer');
+      this.buffer = event;
+    },
+
+    // Logger.
+    log(...message) {
+      this.log(message.join(' ')); // eslint-disable-line no-console
+      // logs gets updated and passed to <Log /> prop.
+      this.logs = this.logs.concat(message.join(' '));
+      console.log(this.logs);
+    },
+
+
     playerMounted() {
-      // console.log('Child player said it is mounted')
+      // console.log('Child player said it is mounted');
     },
     getSourceByLabel(label) {
       for (let i = 0; i < this.sources.length; i++) {
@@ -575,6 +651,7 @@ export default {
     },
     generateSources() {
       const that = this;
+      // eslint-disable-next-line func-names
       const QualityTemplate = function (label, resolution, bitrate, videoQuality) {
         const session = that.generateGuid();
         this.label = label;
@@ -621,6 +698,10 @@ export default {
     },
     stopPlayback() {
       console.log('Stopped Playback');
+      // shaka
+      this.$refs.player.unload();
+      // shaka
+
       this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
       request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {});
       this.playerstatus = 'stopped';
@@ -666,11 +747,12 @@ export default {
         req();
       }
     },
-    timelineUpdate(data) {
+    timelineUpdate() {
       this.playertime = data.time;
       this.playerstatus = data.status;
       this.bufferedTill = data.bufferedTill;
       this.playerduration = data.duration;
+
 
       if (this.lastSentTimeline.state !== data.status || this.chosenKey !== this.lastSentTimeline.key) {
         const key = this.chosenKey;
