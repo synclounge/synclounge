@@ -91,7 +91,7 @@ module.exports = function () {
             output[setting.local] = parsed;
           }
           catch(e) {
-            console.log(`- Unable to parse '${output[setting.local]}'`);
+            console.log(`- Unable to parse:`, output[setting.local]);
             console.log(`- Please check your syntax. Reverting to default.`);
           }
           console.log(`- Done.`);
@@ -113,6 +113,7 @@ module.exports = function () {
           if(tempArr.length > 0) {
             let tempOutArr = [];
             tempArr.forEach(element => {
+              element = element.trim();
               try {
                 if(!element.endsWith('}')) {
                   element = element + '}';
@@ -122,7 +123,7 @@ module.exports = function () {
                 tempOutArr.push(parsed);
               }
               catch(e) {
-                console.log(`- Unable to parse '${element}'`);
+                console.log(`- Unable to parse:`, element);
                 console.log(`- Please check your syntax. Skipping...`);
               }
             });
