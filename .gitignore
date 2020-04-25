@@ -9,4 +9,4 @@ selenium-debug.log
 ptinvites.json
 db.sqlite
 .tmp
-.vs_code
+.vscode
