@@ -43,9 +43,9 @@ module.exports = function () {
     {
       local: 'authentication',
       env: 'AUTHENTICATION',
-      default: JSON.stringify({
+      default: {
         mechanism: 'none'
-      })
+      }
     },
     {
       local: 'customServer',
