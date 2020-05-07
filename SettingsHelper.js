@@ -168,7 +168,7 @@ module.exports = function () {
       output[setting.local] = setting.default;
       console.log(`- Done.`);
     }
-    process.env[setting.env] = output[setting.local];
+    process.env[setting.env] = typeof output[setting.local] === 'object' ? JSON.stringify(output[setting.local]) : output[setting.local];
   }
   //console.log('Our settings are', output)
   return output;
