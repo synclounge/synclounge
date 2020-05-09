@@ -25,7 +25,7 @@
             v-if="!token"
             class="center-text pa-4"
           >To use SyncLounge you need to sign in with your Plex account.</h1>
-          <div v-if="!preAuth">
+          <div v-if="!preAuth || checkingAuth">
             <v-layout wrap row style="position:relative">
               <v-flex xs12 md4 offset-md4>
                 <div style="width:100%;text-align:center">
@@ -39,7 +39,7 @@
               </v-flex>
             </v-layout>
           </div>
-          <div v-if="preAuth && !authError" class="text-xs-center">
+          <div v-if="preAuth && !checkingAuth && !authError" class="text-xs-center">
             <v-btn
               class="primary"
               @click="openPopup()"
@@ -88,6 +88,7 @@ export default {
       },
       code: null,
       preAuth: false,
+      checkingAuth: false,
       ready: false,
       openedWindow: null,
       authError: null,
@@ -135,8 +136,10 @@ export default {
       this.$router.push('/browse');
     },
     async checkAuth(authToken) {
+      this.checkingAuth = true;
+      await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
       // Get stored authentication settings
-      const authentication = this.$store.state.authentication;
+      const authentication = { ...this.$store.state.authentication };
       // Authentication defaults to false
       let authenticationPassed = false;
 
@@ -145,18 +148,16 @@ export default {
         if (authentication.mechanism === 'plex') {
           // Server authorization using server data
           if (authentication.type.includes('server')) {
-            // Retrieve and store the user's servers
             try {
-              await this.$store.dispatch('PLEX_GET_SERVERS', authToken);
-              // Get the user object
-              const user = this.$store.state.plex.user;
-              const servers = user.servers;
+              // Retrieve and store the user's servers
+              await this.$store.dispatch('PLEX_GET_DEVICES', true);
+              // Get the user's servers
+              const servers = { ...this.$store.state.plex.servers };
 
               // Compare servers against the authorized list
-              const serverFound = false;
               for (const id in servers) {
-                const server = servers[id].$;
-                if (authentication.authorized.includes(server.machineIdentifier)) {
+                const server = servers[id];
+                if (authentication.authorized.includes(server.clientIdentifier)) {
                   authenticationPassed = true;
                 }
               }
@@ -166,7 +167,6 @@ export default {
           }
           // Authorization using user data
           if (authentication.type.includes('user')) {
-            await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
             // Get the user object
             const user = this.$store.state.plex.user;
             // Compare the user's email against the authorized list
@@ -199,7 +199,7 @@ export default {
           console.log('No authentication set');
           authenticationPassed = true;
         }
-
+        this.checkingAuth = false;
         return authenticationPassed;
       }
 
@@ -269,6 +269,7 @@ export default {
     if (authToken) {
       this.ticker = setInterval(async () => {
         try {
+          console.log('--- Check Auth mounted ---')
           const authenticated = await this.checkAuth(authToken);
           if (authenticated != null) {
             if (authenticated == true) {
