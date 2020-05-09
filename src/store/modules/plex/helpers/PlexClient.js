@@ -308,8 +308,8 @@ module.exports = function PlexClient() {
       const serverId = data.server.clientIdentifier;
       const uri =  new URL(data.server.chosenConnection.uri);
       const address = uri.hostname;
-      const port = uri.port;
-      const protocol = data.server.chosenConnection.protocol;
+      const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443':'80'); // port not specified if standard
+      const protocol = uri.protocol.replace(':', ''); // remove extra colon
       const path = data.server.chosenConnection.uri + mediaId;
 
       const params = {
@@ -346,8 +346,8 @@ module.exports = function PlexClient() {
     const serverId = serverObject.clientIdentifier;
     const uri =  new URL(data.server.chosenConnection.uri);
     const address = uri.hostname;
-    const port = uri.port;
-    const protocol = serverObject.chosenConnection.protocol;
+    const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443':'80'); // port not specified if standard
+    const protocol = uri.protocol.replace(':', ''); // remove extra colon
     const path = serverObject.chosenConnection.uri + mediaId;
 
     const params = {
