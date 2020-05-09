@@ -354,9 +354,7 @@ export default {
       this.$store.dispatch('PLAYBACK_CHANGE', data);
     });
     if (!window.localStorage.getItem('plexuser')) {
-      if (this.$route.fullPath.indexOf('join') === -1) {
-        this.$router.push('/signin');
-      }
+      this.$router.push('/signin');
       this.loading = false;
       return;
     }
