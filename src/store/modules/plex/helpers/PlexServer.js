@@ -161,7 +161,12 @@ module.exports = function PlexServer() {
     if (!(blur > 0)) {
       blur = 0;
     }
-    return `${this.chosenConnection.uri}/photo/:/transcode?url=${location}&X-Plex-Token=${this.accessToken}&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
+    if(this.chosenConnection) {
+      return `${this.chosenConnection.uri}/photo/:/transcode?url=${location}&X-Plex-Token=${this.accessToken}&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
+    }
+    else {
+      return ``;
+    }
   };
   this.getRandomItem = async function () {
     try {
