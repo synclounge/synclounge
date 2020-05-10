@@ -102,17 +102,22 @@ export default {
                 }
               }
             }
+            // If device is a player
             if (device.provides.indexOf('player') !== -1) {
-              // This is a Client
-              // Create a new PlexClient object
-              const tempClient = new PlexClient();
-              for (const key in device) {
-                tempClient[key] = device[key];
+              // If device is not Plex Web
+              if(device.product.indexOf('Plex Web') === -1) {
+                // This is a Client
+                // Create a new PlexClient object
+                const tempClient = new PlexClient();
+                for (const key in device) {
+                  tempClient[key] = device[key];
+                }
+                tempClient.accessToken = state.user.authToken;
+                tempClient.plexConnections = tempConnectionsArray;
+                dispatch('PLEX_ADD_CLIENT', tempClient);
               }
-              tempClient.accessToken = state.user.authToken;
-              tempClient.plexConnections = tempConnectionsArray;
-              dispatch('PLEX_ADD_CLIENT', tempClient);
-            } else {
+            // If device is a server
+            } else if (device.provides.indexOf('server') !== -1) {
               // This is a Server
               // Create a new PlexServer object
               const tempServer = new PlexServer();
@@ -135,7 +140,7 @@ export default {
           ptplayer.platform = 'Web';
           ptplayer.device = 'Web';
           ptplayer.product = 'SyncLounge';
-          ptplayer.name = 'SyncLounge Player (BETA)';
+          ptplayer.name = 'SyncLounge Player';
           ptplayer.labels = [
             ['Recommended', 'green'],
           ];

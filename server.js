@@ -49,7 +49,6 @@ ptserver.get('/', (req, res) => res.send('You\'ve connected to the SLServer, you
 // Merge everything together
 
 const serverRoot = settings.serverroot || '/slserver';
-console.log('Setting up with serverRoot of', serverRoot);
 root.use(serverRoot, ptserver);
 root.get('*', (req, res) => res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.'));
 
@@ -57,7 +56,8 @@ const rootserver = require('http').createServer(root);
 const ptserver_io = require('socket.io')(rootserver, { path: `${serverRoot}/socket.io` });
 
 ptserver_io.on('connection', (socket) => {
-  console.log('Someone connected to the ptserver socket');
+  console.log('Someone connected to the SyncLounge server socket');
+  console.log(`Total Connected users: ${Object.keys(ptserver_io.sockets.connected).length}`);
 
   socket.on('join', (data) => {
     // A user is attempting to join a room
@@ -244,6 +244,7 @@ ptserver_io.on('connection', (socket) => {
       socket.broadcast.to(socket.selfUser.room).emit('user-left', ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users, socket.selfUser);
     }
     socket.disconnect(disconnect);
+    console.log(`Total Connected users: ${Object.keys(ptserver_io.sockets.connected).length}`);
   }
   function updateUserData(username, userData, room) {
     if (!room === undefined || room === undefined || room === null) {
@@ -351,7 +352,5 @@ ptserver_io.on('connection', (socket) => {
 });
 rootserver.listen(PORT);
 console.log(`SyncLounge Server successfully started on port ${PORT}`);
+console.log(`Running with base URL: ${serverRoot}`);
 
-setInterval(() => {
-  console.log(`Connected users: ${Object.keys(ptserver_io.sockets.connected).length}`);
-}, 5000);

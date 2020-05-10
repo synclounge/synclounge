@@ -134,6 +134,15 @@ const app = async (orm) => {
       console.log(`- Your Access URL does not contain your 'webroot', '${settings.webroot}'. Make sure this is correct.`)
     }
   }
+  if(settings.authentication && settings.authentication.mechanism != 'none') {
+    console.log('Authentication:', settings.authentication);
+  }
+  if(settings.servers) {
+    console.log('Servers List:', settings.servers);
+  }
+  else if(settings.custom_server) {
+    console.log('Custom Server List:', settings.custom_server);
+  }
 };
 
 bootstrap().then((orm) => {

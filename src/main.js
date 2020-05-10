@@ -1,4 +1,3 @@
-
 import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
 import Vuetify from 'vuetify';
@@ -6,6 +5,7 @@ import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visib
 import VueVideoPlayer from 'vue-video-player';
 import VueResource from 'vue-resource';
 import VueClipboards from 'vue-clipboards';
+import VueCookies from 'vue-cookies'
 
 import App from './App';
 import router from './router';
@@ -26,11 +26,15 @@ Vue.use(Vuetify, {
   theme: {
     primary: '#E5A00D',
     secondary: '#b0bec5',
-    accent: '#8c9eff',
+    accent: '#E5A00D',
     error: '#b71c1c',
   },
 });
 Vue.config.productionTip = false;
+
+Vue.use(VueCookies);
+// set default config
+Vue.$cookies.config('7d');
 
 function nolog() {}
 
@@ -121,7 +125,7 @@ Vue.mixin({
           'font-size': `${(w / maxRes) * maxPx}px`,
         },
         medium: {
-          'font-size': `${((w / maxRes) * maxPx) * 0.6}px`,
+          'font-size': `${(w / maxRes) * maxPx * 0.6}px`,
         },
       };
     },
@@ -168,9 +172,9 @@ new Vue({
   },
 });
 
-global.waitFor = async ms => new Promise((resolve) => {
-  setTimeout(() => resolve, ms);
-});
+global.waitFor = async ms =>
+  new Promise((resolve) => {
+    setTimeout(() => resolve, ms);
+  });
 
-global.to = promise => promise.then(data => [null, data])
-  .catch(err => [err]);
+global.to = promise => promise.then(data => [null, data]).catch(err => [err]);

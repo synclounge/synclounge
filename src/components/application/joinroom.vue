@@ -1,13 +1,17 @@
 <template>
-  <div>
     <v-layout row wrap justify-center>
-      <v-flex xs12 lg8 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
+      <v-flex xs12 lg10 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
         <v-layout row wrap justify-center>
           <v-flex xs12 md8 lg4 xl6>
-            <img style="width:100%" v-bind:src="logo">
+            <img style="width:100%" v-bind:src="logo" />
           </v-flex>
         </v-layout>
-        <v-stepper style="background: rgba(0,0,0,0.3)" v-model="e1" dark class="mb-4">
+        <v-stepper
+          style="background: rgba(0,0,0,0.3); border-radius: 20px"
+          v-model="e1"
+          dark
+          class="ma-4"
+        >
           <v-stepper-header>
             <v-stepper-step step="1" :complete="true">Select a client</v-stepper-step>
             <v-divider></v-divider>
@@ -17,136 +21,192 @@
           </v-stepper-header>
         </v-stepper>
         <v-layout row wrap justify-center>
-          <v-flex xs12>
+          <v-flex xs12 class="ml-4">
             <h2 class="text-xs-left">Connect to a SyncLounge room</h2>
           </v-flex>
-          <v-layout row wrap justify-center>
-            <v-flex xs12>
-              <p class="pa-2">
-                It's time to connect to SyncLounge. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join. If the room does not exist it will be created for you.
-              </p>
+            <v-flex xs12 class="ml-4">
+              <p>It's time to connect to SyncLounge. From the list select a server which is closest to your location. Once you've chosen one that works for you it's time to create a room for your friends to join. If the room does not exist it will be created for you.</p>
             </v-flex>
-          </v-layout>
-            <v-flex xs12 class="nicelist" v-if="!context.getters.getConnected && recents && Object.keys(recents).length > 0" style="color:white !important">
-              <h4>Recent rooms</h4>
-              <v-list class="pa-0">
-                <template v-for="(item, index) in recentsSorted">
-                  <v-list-tile :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
-                    <v-list-tile-avatar>
-                      <img :src="logos.light.small" style="width: 32px; height: auto" />
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                      <v-list-tile-title v-html="item.server"></v-list-tile-title>
-                      <v-list-tile-sub-title><b>{{ item.room }}</b> <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span></v-list-tile-sub-title>
-                    </v-list-tile-content>
-                    <v-list-tile-action>
-                      <v-tooltip top color="light-blue darken-4">
-                        <v-icon color="white" dark slot="activator" @click.stop="removeHistoryItem(item)">close</v-icon>
-                        Remove
-                      </v-tooltip>
-                    </v-list-tile-action>
-                  </v-list-tile>
-                </template>
-              </v-list>
-            </v-flex>
-            <v-flex xs12 class="nicelist pt-3" v-if="!context.getters.getConnected" style="color:white !important">
-              <v-subheader>Select a server</v-subheader>
-              <v-layout row wrap justify-center align-center>
-                <v-flex pa-2 v-for="server in ptservers" :key="server.url" v-bind:class="ptserversClass">
-                  <v-card height="300px" style="background: #353e58">
-                    <v-layout row wrap justify-center style="height: 100%">
-                      <v-flex xs12 class="text-xs-center pa-2" style="height: 50%; position: relative; background: rgba(0,0,0,0.2)">
-                        <img :src="server.image" class="flag" style="height: 50%; vertical-align: middle; max-width: 80%" />
-                      </v-flex>
-                      <v-flex xs12 style="height: 50%" class="text-xs-center pt-1">
-                        <h2>{{ server.name }}</h2>
-                        <h4>{{ server.location }}</h4>
-                        <v-btn color="primary" :disabled="connectionPending" @click="serverSelected(server)"> Connect</v-btn>
-                        <div v-if="server.url !== 'custom'">
-                          <div v-if="results[server.url]">
-                            <div v-if="results[server.url].alive">
-                              <div>Ping: <span class="thick--text" :class="connectionQualityClass(results[server.url].latency)">{{ results[server.url].latency }}ms </span></div>
-                              <div>Load: <span class="thick--text" :class="loadQualityClass(results[server.url].result)">{{ results[server.url].result || 'Unknown' }} </span></div>
-                            </div>
-                            <div v-else class="text-xs-center red--text">
-                              Unable to connect to server
-                            </div>
-                          </div>
-                          <div v-else>
-                            Testing connection quality...
-                          </div>
+          <v-flex
+            xs12
+            class="nicelist pa-4"
+            v-if="!context.getters.getConnected && recents && Object.keys(recents).length > 0"
+            style="color:white !important;"
+          >
+            <v-subheader>Recent Rooms</v-subheader>
+            <v-list class="pa-0">
+              <template v-for="(item, index) in recentsSorted">
+                <v-list-tile :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
+                  <v-list-tile-avatar>
+                    <img :src="logos.light.small" style="width: 32px; height: auto" />
+                  </v-list-tile-avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title>{{ item.name || item.server || 'Custom' }}</v-list-tile-title>
+                    <v-list-tile-sub-title>
+                      <b>{{ item.room }}</b>
+                      <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span>
+                    </v-list-tile-sub-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-tooltip top color="light-blue darken-4">
+                      <v-icon
+                        color="white"
+                        dark
+                        slot="activator"
+                        @click.stop="removeHistoryItem(item)"
+                      >close</v-icon>Remove
+                    </v-tooltip>
+                  </v-list-tile-action>
+                </v-list-tile>
+              </template>
+            </v-list>
+          </v-flex>
+          <v-flex
+            xs12
+            class="nicelist pa-4"
+            v-if="!context.getters.getConnected"
+            style="color:white !important"
+          >
+            <v-subheader>Select a server</v-subheader>
+            <v-layout row wrap justify-center align-center>
+              <v-flex
+                pa-2
+                xs12
+                md3
+                lg2
+                v-for="server in ptservers"
+                :key="server.url"
+              >
+                <v-card height="300px" style="border-radius: 20px">
+                  <v-layout row wrap justify-start align-center style="height: 100%">
+                    <v-flex xs12 class="text-xs-center pa-2" style="height: 80px">
+                      <img
+                        :src="server.image"
+                        style="max-height: 100%; vertical-align: middle; max-width: 80%; border-radius: 7px"
+                      />
+                    </v-flex>
+                    <v-flex xs12 class="text-xs-center">
+                      <h2>{{ server.name }}</h2>
+                      <h4>{{ server.location }}</h4>
+                    </v-flex>
+                    <v-flex xs12 class="text-xs-center" v-if="server.url !== 'custom'">
+                      <div v-if="results[server.url]">
+                        <div v-if="results[server.url].alive">
+                          Ping:
+                          <span
+                            class="thick--text"
+                            :class="connectionQualityClass(results[server.url].latency)"
+                          >{{ results[server.url].latency }}ms</span>
                         </div>
-                      </v-flex>
-                    </v-layout>
-                  </v-card>
-                </v-flex>
-              </v-layout>
-              <v-text-field
-                v-if="selectedServer.url == 'custom'"
-                name="input-2"
-                label="Custom Server"
-                v-model="CUSTOMSERVER"
-                class="input-group pt-input"
-              ></v-text-field>
-              <v-layout row wrap v-if="selectedServer.url == 'custom'">
-                <v-flex xs12>
-                  <v-btn class="pt-orange white--text pa-0 ma-0" color="primary" primary style="width:100%" v-on:click.native="attemptConnectCustom()">Connect</v-btn>
-                </v-flex>
-              </v-layout>
-              <v-layout row wrap v-if="connectionPending && !serverError" class="pt-3">
-                <v-flex xs12>
-                  <div style="width:100%;text-align:center">
-                    <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
-                  </div>
-                </v-flex>
-              </v-layout>
-              <v-layout class="pt-3 text-xs-center" row wrap v-if="serverError">
+                        <div v-else class="text-xs-center red--text">error</div>
+                        </div>
+                    </v-flex>
+                    <v-flex xs12 class="text-xs-center">
+                      <div v-if="server.url !== 'custom'">
+                        <div v-if="results[server.url]">
+                          <div v-if="results[server.url].alive">
+                            <div>
+                              Load:
+                              <span
+                                class="thick--text"
+                                :class="loadQualityClass(results[server.url].result)"
+                              >{{ results[server.url].result || 'Unknown' }}</span>
+                            </div>
+                          </div>
+                          <div v-else class="text-xs-center red--text">error</div>
+                        </div>
+                      </div>
+                    </v-flex>
+
+                    <v-flex xs12 class="text-xs-center pt-1 mt-4">
+                      <v-btn
+                        color="primary"
+                        :disabled="connectionPending"
+                        @click="serverSelected(server)"
+                        style="width: 80%; border-radius: 7px; margin: auto; position: absolute; bottom: 5px; left: 0; right: 0;"
+                      >Connect</v-btn>
+                    </v-flex>
+                  </v-layout>
+                </v-card>
+              </v-flex>
+            </v-layout>
+            <v-text-field
+              v-if="selectedServer.url == 'custom'"
+              name="input-2"
+              label="Custom Server"
+              v-model="CUSTOMSERVER"
+              class="input-group pt-input"
+            ></v-text-field>
+            <v-layout row wrap v-if="selectedServer.url == 'custom'">
+              <v-flex xs12>
+                <v-btn
+                  class="pt-orange white--text pa-0 ma-0"
+                  color="primary"
+                  primary
+                  style="width:100%"
+                  v-on:click.native="attemptConnectCustom()"
+                >Connect</v-btn>
+              </v-flex>
+            </v-layout>
+            <v-layout row wrap v-if="connectionPending && !serverError" class="pt-3">
+              <v-flex xs12>
+                <div style="width:100%;text-align:center">
+                  <v-progress-circular
+                    indeterminate
+                    v-bind:size="50"
+                    class="amber--text"
+                    style="display:inline-block"
+                  ></v-progress-circular>
+                </div>
+              </v-flex>
+            </v-layout>
+            <v-layout class="pt-3 text-xs-center" row wrap v-if="serverError">
+              <v-flex xs12 class="red--text">
+                <v-icon class="red--text">info</v-icon>
+                {{ serverError }}
+              </v-flex>
+            </v-layout>
+          </v-flex>
+          <v-flex xs12 v-if="context.getters.getConnected" class="text-xs-center">
+            <v-layout row wrap>
+              <v-flex xs12 md6 offset-md3>
+                <v-text-field
+                  origin="center center"
+                  :maxlength="25"
+                  name="input-2"
+                  label="Room name"
+                  :autofocus="true"
+                  v-on:keyup.enter.native="joinRoom()"
+                  v-model="room"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12 md6 offset-md3>
+                <v-text-field
+                  transition="v-scale-transition"
+                  origin="center center"
+                  name="input-2"
+                  label="Room password"
+                  v-on:keyup.enter.native="joinRoom()"
+                  v-model="password"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12 md6 offset-md3>
+                <v-btn block color="primary" v-on:click.native="joinRoom()">Join</v-btn>
+              </v-flex>
+              <v-layout class="pt-3 text-xs-center" row wrap v-if="roomError">
                 <v-flex xs12 class="red--text">
-                  <v-icon class="red--text">info</v-icon> {{ serverError }}
+                  <v-icon class="red--text">info</v-icon>
+                  {{ roomError }}
                 </v-flex>
               </v-layout>
-            </v-flex>
-            <v-flex xs12 v-if="context.getters.getConnected" class="text-xs-center">
-              <v-layout row wrap>
-                <v-flex xs12>
-                  <v-text-field
-                    origin="center center"
-                    :maxlength="25"
-                    name="input-2"
-                    label="Room name"
-                    :autofocus="true"
-                    v-on:keyup.enter.native="joinRoom()"
-                    v-model="room"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12>
-                  <v-text-field
-                    transition="v-scale-transition" origin="center center"
-                    name="input-2"
-                    label="Room password"
-                    v-on:keyup.enter.native="joinRoom()"
-                    v-model="password"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12>
-                  <v-btn block color="primary" v-on:click.native="joinRoom()">Join</v-btn>
-                </v-flex>
-                <v-layout class="pt-3 text-xs-center" row wrap v-if="roomError">
-                  <v-flex xs12 class="red--text">
-                    <v-icon class="red--text">info</v-icon> {{ roomError }}
-                  </v-flex>
-                </v-layout>
-              </v-layout>
-            </v-flex>
+            </v-layout>
+          </v-flex>
         </v-layout>
       </v-flex>
     </v-layout>
-
-  </div>
 </template>
 
 <script>
-
 import Vue from 'vue';
 
 const axios = require('axios');
@@ -242,7 +302,8 @@ export default {
       this.ptservers.map((server) => {
         if (server.url !== 'custom') {
           const start = new Date().getTime();
-          axios.get(`${server.url}/health`)
+          axios
+            .get(`${server.url}/health`)
             .then((res) => {
               Vue.set(this.results, server.url, {
                 alive: true,
@@ -266,14 +327,15 @@ export default {
         this.serverError = null;
         if (this.selectedServer.url !== 'custom') {
           this.connectionPending = true;
-          this.$store.dispatch('socketConnect', { address: this.selectedServer.url })
+          this.$store
+            .dispatch('socketConnect', { address: this.selectedServer.url })
             .then((result) => {
               this.connectionPending = false;
               if (result) {
                 if (this.room) {
-                  this.joinRoom().then(() => {
-                  }).catch((e) => {
-                  });
+                  this.joinRoom()
+                    .then(() => {})
+                    .catch((e) => {});
                 }
                 resolve();
               } else {
@@ -294,7 +356,8 @@ export default {
     attemptConnectCustom() {
       this.connectionPending = true;
       this.serverError = null;
-      this.$store.dispatch('socketConnect', { address: this.CUSTOMSERVER })
+      this.$store
+        .dispatch('socketConnect', { address: this.CUSTOMSERVER })
         .then((result) => {
           this.connectionPending = false;
           if (result) {
@@ -390,21 +453,9 @@ export default {
       }
       return this.$store.getters.getSettings.SERVERS;
     },
-    ptserversClass() {
-      const serversCount = this.$store.getters.getSettings.SERVERS.length;
-      const classNum = 12 / serversCount;
-      return `md${classNum}`;
-    },
   },
 };
 </script>
 <style>
-  .flag {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto
-  }
+
 </style>
