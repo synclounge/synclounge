@@ -47,7 +47,6 @@ const bootstrap = () => new Promise(async (resolve, reject) => {
       query += `${encodeURIComponent(key)}=${params[key]}&`;
     }
     fullUrl = `${settings.accessUrl || data.urlOrigin}/#/join?${query}`;
-    console.log(`fullUrl:`, fullUrl);
     data.fullUrl = fullUrl;
     data.code = (0 | Math.random() * 9e6).toString(36);
     cb();
@@ -88,7 +87,7 @@ const app = async (orm) => {
         msg: 'ERR: You did not send any POST data',
       }).end();
     }
-    console.log(`req.body:`, req.body);
+
     const data = {};
     const fields = ['urlOrigin', 'server', 'room', 'password', 'owner'];
     for (let i = 0; i < fields.length; i++) {
@@ -101,7 +100,7 @@ const app = async (orm) => {
       }
       data[fields[i]] = req.body[fields[i]];
     }
-    console.log('data: ', data);
+
     const result = await Waterline.getModel('invite', orm).create(data).fetch();
     return res.send({
       url: `${settings.accessUrl || data.urlOrigin}/invite/${result.code}`,
