@@ -306,7 +306,7 @@ export default {
                     // Check if we need to autoplay
                     if (
                       (ourTimeline.state === 'stopped' || !ourTimeline.state) &&
-                      hostTimeline.playerState !== 'stopped'
+                      hostTimeline.playerState !== 'stopped' || rootState.rawTitle !== hostTimeline.rawTitle
                     ) {
                       if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
                         return resolve();
@@ -327,6 +327,7 @@ export default {
                         });
                       }
 
+                      rootState.rawTitle = hostTimeline.rawTitle;
                       sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
                       const result = await rootState.chosenClient
                         .playContentAutomatically(
