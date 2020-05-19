@@ -788,3 +788,21 @@ span {
 .platform-xbox {
   background-color: #107c10;
 }
+
+.video-js .vjs-text-track-display > div > div > div {
+  font-size: 1em;
+  line-height: normal;
+  padding: 5px;
+  background: transparent !important;
+  display: inline-block !important;
+
+  text-shadow:
+    -1px -1px 0 #000,
+     0   -1px 0 #000,
+     1px -1px 0 #000,
+     1px  0   0 #000,
+     1px  1px 0 #000,
+     0    1px 0 #000,
+    -1px  1px 0 #000,
+    -1px  0   0 #000;
+}

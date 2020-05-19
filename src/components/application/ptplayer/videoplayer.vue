@@ -320,6 +320,15 @@ export default {
         this.player.currentTime(this.initialOffset / 1000);
       });
 
+      // Show subtitles
+      let tracks = this.player.textTracks();
+      for (let i = 0; i < tracks.length; i++) {
+        let track = tracks[i];
+        if (track.kind === 'subtitles') {
+          track.mode = 'showing';
+        }
+      }
+
       player.on(['pause'], () => {
         this.isPlaying = 'paused';
       });
@@ -431,5 +440,4 @@ export default {
 };
 </script>
 <style scoped>
-
 </style>
