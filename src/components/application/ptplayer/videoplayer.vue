@@ -147,7 +147,7 @@ export default {
 
         fluid: true,
         preload: 'auto',
-        volume: 0.5,
+        volume: 1,
         aspectRatio: '16:9',
         autoplay: true,
         width: '100%',
@@ -424,7 +424,7 @@ export default {
     },
     playerReadied(player) {
       // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
-      this.player.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 0);
+      this.player.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
     },
 
   },
