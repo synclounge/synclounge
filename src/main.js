@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
 import Vuetify from 'vuetify';
 import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visibility';
-import VueVideoPlayer from 'vue-video-player';
+import VideojsPlayer from 'vue-videojs-player';
 import VueResource from 'vue-resource';
 import VueClipboards from 'vue-clipboards';
 import VueCookies from 'vue-cookies'
@@ -11,7 +11,6 @@ import App from './App';
 import router from './router';
 import store from './store';
 
-require('videojs-contrib-hls/dist/videojs-contrib-hls.js');
 require('vanilla-tilt');
 
 const moment = require('moment');
@@ -20,7 +19,7 @@ Vue.use(VueScrollTo);
 Vue.use(VueClipboards);
 Vue.use(VueResource);
 Vue.directive('observe-visibility', ObserveVisibility);
-Vue.use(VueVideoPlayer);
+Vue.use(VideojsPlayer);
 
 Vue.use(Vuetify, {
   theme: {

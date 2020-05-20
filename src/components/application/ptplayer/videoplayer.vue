@@ -1,6 +1,6 @@
 <template>
   <div v-if="source && initReqSent">
-    <video-player
+    <videojs-player
       ref="videoPlayer"
       :options="playerOptions"
 
@@ -17,11 +17,11 @@
       @seeked="onPlayerSeeked($event)"
       @statechanged="playerStateChanged($event)"
 
-      @ready="playerReadied"
+      @ready="playerReadied($event)"
       style="background-color:transparent !important;"
       class="ptplayer"
 >
-    </video-player>
+    </videojs-player>
     <div class="center" v-if="!src">
       Waiting...
     </div>
