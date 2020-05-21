@@ -20,7 +20,7 @@ export default {
     },
   },
   getters: {
-    getConfig: () => state => state.configuration,
+    configuration: state => state.configuration,
   },
 };
 

@@ -1,10 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
 
-import { get, set } from '@/utils/storage';
+import { set } from '@/utils/storage';
 import { generateGuid } from '@/utils/helpers';
-import { getAll } from '@/utils/settings';
 import config from './store/modules/config/config.store';
+import settings from './store/modules/settings/settings.store';
 
 const plex = require('./store/modules/plex/').default;
 const syncLounge = require('./store/modules/synclounge.js').default;
@@ -15,7 +16,6 @@ function sendNotification(message) {
   return window.EventBus.$emit('notification', message);
 }
 
-console.log('Got settings', getAll());
 // Set up out web app socket for fetching short urls
 
 const state = {
@@ -40,7 +40,6 @@ const state = {
   upNextCache: {},
 
   // SETTINGS
-  settings: getAll(),
   stats: {},
   me: {},
 };
@@ -186,6 +185,7 @@ const getters = {
     },
   }),
 };
+
 const actions = {
   async PLAYBACK_CHANGE({ commit, state, dispatch }, data) {
     const [client, ratingKey, mediaContainer] = data;
@@ -208,12 +208,12 @@ const actions = {
         if (metadata.type === 'movie') {
           sendNotification(`Now Playing: ${metadata.title} from ${
             state.plex.servers[metadata.machineIdentifier].name
-          }`);
+            }`);
         }
         if (metadata.type === 'episode') {
           sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
             metadata.index
-          } from ${state.plex.servers[metadata.machineIdentifier].name}`);
+            } from ${state.plex.servers[metadata.machineIdentifier].name}`);
         }
         state.chosenClient.clientPlayingMetadata = metadata;
         const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
@@ -342,8 +342,15 @@ const actions = {
       }
       state.synclounge._socket.emit('poll', endObj);
     }
-  },
+  }
 };
+
+
+const persistedState = createPersistedState({
+  paths: [
+    'settings'
+  ]
+});
 
 const store = new Vuex.Store({
   state,
@@ -354,7 +361,9 @@ const store = new Vuex.Store({
     synclounge: syncLounge,
     plex,
     config,
+    settings
   },
+  plugins: [persistedState]
 });
 
 export default store;

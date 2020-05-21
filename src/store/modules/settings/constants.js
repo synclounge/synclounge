@@ -1,5 +1,3 @@
-import { generateGuid } from './helpers';
-
 export const defaultSettings = {
   CLIENTPOLLINTERVAL: 1000,
   AUTOPLAY: true,
@@ -9,9 +7,8 @@ export const defaultSettings = {
   SYNCFLEXABILITY: 3000,
   CUSTOMSERVER: 'http://',
   SLPLAYERFORCETRANSCODE: true,
-  CLIENTIDENTIFIER: `${generateGuid()}-${generateGuid()}`,
-  blockedServers: [],
-  LASTSERVER: '',
+  PTPLAYERQUALITY: 'Original',
+  PTPLAYERVOLUME: 100
 };
 
 export default {
