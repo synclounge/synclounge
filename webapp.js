@@ -11,8 +11,8 @@ const Waterline = require('waterline');
 const WaterlineMysql = require('waterline-mysql');
 const SailsDisk = require('sails-disk');
 
-const SettingsHelper = require('./SettingsHelper');
-let settings = new SettingsHelper();
+const { readSettings } = require('./SettingsHelper');
+const settings = readSettings();
 
 let PORT = 8088;
 
@@ -24,7 +24,7 @@ const bootstrap = () => new Promise(async (resolve, reject) => {
   if (!settings.webapp_port) {
     console.log('Defaulting webapp to port 8088');
   }
-  else{
+  else {
     PORT = settings.webapp_port;
   }
   PORT = parseInt(PORT);
@@ -130,19 +130,19 @@ const app = async (orm) => {
   if (settings.webroot) {
     console.log(`Running with base URL: ${settings.webroot}`);
   }
-  if(settings.accessUrl) {
+  if (settings.accessUrl) {
     console.log(`Access URL is ${settings.accessUrl}`);
-    if(settings.webroot && !settings.accessUrl.includes(settings.webroot)) {
+    if (settings.webroot && !settings.accessUrl.includes(settings.webroot)) {
       console.log(`- WARNING: Your Access URL does not contain your webroot/WEBROOT setting: '${settings.webroot}'. Invite URLs may not work properly.`)
     }
   }
-  if(settings.authentication && settings.authentication.mechanism != 'none') {
+  if (settings.authentication && settings.authentication.mechanism != 'none') {
     console.log('Authentication:', settings.authentication);
   }
-  if(settings.servers) {
+  if (settings.servers) {
     console.log('Servers List:', settings.servers);
   }
-  else if(settings.custom_server) {
+  else if (settings.custom_server) {
     console.log('Custom Server List:', settings.custom_server);
   }
 };

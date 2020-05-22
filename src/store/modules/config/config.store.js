@@ -1,26 +1,34 @@
 import axios from 'axios';
-import Vue from 'vue';
+
+const state = () => ({
+  configuration: {}
+});
+
+const getters = {
+  GET_CONFIG: state => state.configuration
+};
+
+const mutations = {
+  SET_CONFIG: (state, data) => {
+    state.configuration = data;
+  }
+};
+
+const actions = {
+  fetchConfig: ({ commit }) => {
+    const url = window.location.origin + window.location.pathname.replace(/\/+$/, "");
+    axios.get(`${url}/config`).then(({ data }) => {
+      commit('SET_CONFIG', data);
+    }).catch(error => {
+      throw new Error(`Failed to fetch config: ${error}`);
+    });
+  }
+};
 
 export default {
   namespaced: true,
-  state: {
-    configuration: null,
-  },
-  mutations: {
-    setConfig(state, data) {
-      Vue.set(state, 'configuration', data);
-    },
-  },
-  actions: {
-    async fetchConfig({ commit }) {
-      const url = window.location.origin + window.location.pathname.replace(/\/+$/, "");
-      const { data } = await axios.get(`${url}/config`);
-      commit('setConfig', data);
-      return data;
-    },
-  },
-  getters: {
-    configuration: state => state.configuration,
-  },
+  state,
+  mutations,
+  actions,
+  getters
 };
-

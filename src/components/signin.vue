@@ -12,7 +12,8 @@
             <v-checkbox class="pt-2" label="Change my display name" v-model="HIDEUSERNAME"></v-checkbox>
             <v-text-field
               v-if="HIDEUSERNAME"
-              v-model="ALTUSERNAME"
+              :value="GET_ALTUSERNAME"
+              @change="SET_ALTUSERNAME"
               label="Alternative display name"
             ></v-text-field>
             <div class="text-xs-right">
@@ -68,7 +69,8 @@
 </template>
 
 <script>
-const axios = require('axios');
+import axios from 'axios';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'signin',
@@ -97,6 +99,10 @@ export default {
     };
   },
   methods: {
+    ...mapMutations('settings', [
+      'SET_HIDEUSERNAME',
+      'SET_ALTUSERNAME'
+    ]),
     async openPopup() {
       this.openedWindow = window.open(this.url, '_blank');
       this.ticker = setInterval(async () => {
@@ -207,24 +213,17 @@ export default {
     },
   },
   computed: {
-    store() {
-      return this;
-    },
+    ...mapGetters('settings', [
+      'GET_HIDEUSERNAME',
+      'GET_ALTUSERNAME'
+    ]),
     HIDEUSERNAME: {
       get() {
-        return this.$store.getters.getSettings.HIDEUSERNAME;
+        return this.GET_HIDEUSERNAMEl
       },
       set(value) {
-        this.$store.commit('setSetting', ['HIDEUSERNAME', value]);
-      },
-    },
-    ALTUSERNAME: {
-      get() {
-        return this.$store.getters.getSettings.ALTUSERNAME;
-      },
-      set(value) {
-        this.$store.commit('setSetting', ['ALTUSERNAME', value]);
-      },
+         this.SET_HIDEUSERNAME(value);
+      }
     },
     sBrowser() {
       let sBrowser;

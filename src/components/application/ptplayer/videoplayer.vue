@@ -29,6 +29,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 const request = require('request');
 
 export default {
@@ -131,6 +132,7 @@ export default {
     });
   },
   computed: {
+    ...mapGetters('settings', ['GET_AUTOPLAY']),
     player() {
       if (this.$refs && this.$refs.videoPlayer) {
         return this.$refs.videoPlayer.player;
@@ -149,7 +151,7 @@ export default {
         preload: 'auto',
         volume: 0.5,
         aspectRatio: '16:9',
-        autoplay: true,
+        autoplay: this.GET_AUTOPLAY,
         width: '100%',
         language: 'en',
 

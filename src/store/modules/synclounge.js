@@ -4,10 +4,6 @@ const EventEmitter = require('events');
 const moment = require('moment');
 const axios = require('axios');
 
-const SettingsHelper = require('../../../SettingsHelper.js');
-
-const settings = new SettingsHelper();
-
 function sendNotification(message) {
   return window.EventBus.$emit('notification', message);
 }
@@ -87,7 +83,7 @@ export default {
 
   actions: {
     async autoJoin({
-      state, commit, rootState, dispatch,
+      state, commit, rootState, dispatch
     }, data) {
       await dispatch('socketConnect', {
         address: data.server,
@@ -146,7 +142,7 @@ export default {
         });
       });
     },
-    joinRoom({ state, commit, rootState }, data) {
+    joinRoom({ state, commit, rootState, rootGetters }, data) {
       return new Promise(async (resolve, reject) => {
         if (!state._socket || !state.connected) {
           throw new Error('Not connected to a server!');
@@ -193,7 +189,7 @@ export default {
               window.localStorage.setItem('recentrooms', JSON.stringify(recents));
 
               // Generate our short url/invite link
-              let urlOrigin = window.location.origin + (settings.webroot || '');
+              let urlOrigin = window.location.origin + (rootGetters['config/GET_CONFIG'].autoplay || '');
               if (process.env.NODE_ENV === 'development') {
                 urlOrigin = 'http://app.synclounge.tv';
               }
@@ -312,7 +308,7 @@ export default {
                         return resolve();
                       }
                       // We need to autoplay!
-                      if (!rootState.settings.AUTOPLAY) {
+                      if (!rootGetters['settings/GET_AUTOPLAY']) {
                         return resolve();
                       }
                       rootState.blockAutoPlay = true;
@@ -364,12 +360,12 @@ export default {
                                   rootState.blockAutoPlay = false;
                                 }, 15000);
                                 return resolve();
-                              } catch (e) {}
+                              } catch (e) { }
                             }
                           }
                           sendNotification(`Failed to find a compatible copy of ${
                             hostTimeline.rawTitle
-                          }. If you have access to the content try manually playing it.`);
+                            }. If you have access to the content try manually playing it.`);
                           setTimeout(() => {
                             rootState.blockAutoPlay = false;
                           }, 15000);
@@ -413,9 +409,9 @@ export default {
                     try {
                       await rootState.chosenClient.sync(
                         data,
-                        rootState.settings.SYNCFLEXABILITY,
-                        rootState.settings.SYNCMODE,
-                        rootState.settings.CLIENTPOLLINTERVAL,
+                        rootGetters['settings/GET_SYNCFLEXIBILITY'],
+                        rootGetters['settings/GET_SYNCMODE'],
+                        rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
                       );
                     } catch (e) {
                       return resolve();
@@ -561,6 +557,6 @@ export default {
         });
       }
     },
-    getServerList() {},
+    getServerList() { },
   },
 };

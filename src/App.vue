@@ -133,11 +133,7 @@ import upnext from './upnext';
 import nowplayingchip from './nowplayingchip';
 import donate from './donate';
 
-import { mapActions, mapState } from 'vuex';
-
-const SettingsHelper = require('../SettingsHelper');
-
-const settings = new SettingsHelper();
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -198,13 +194,10 @@ export default {
       fscreen.requestFullscreen(document.body);
     },
   },
+  created() {
+    this.fetchConfig();
+  },
   async mounted() {
-    try {
-      await this.fetchConfig();
-    } catch (e) {
-      this.configError = `Failed to fetch config: ${e}`;
-    }
-
     //
     //  Settings
     //
@@ -233,24 +226,12 @@ export default {
           this.config.autoJoinPassword,
         );
       }
-    } else if (settings) {
-      if (
-        settings.autoJoin &&
-        (settings.autoJoin === true || settings.autoJoin === 'true')
-      ) {
-        this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer);
-        this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword);
-      }
     }
 
     // Get other settings in order of importance: config -> settings
     // Authentication Mechanism setting
     if (this.config && this.config.authentication) {
       this.$store.commit('SET_AUTHENTICATION', this.config.authentication);
-    } else if (settings && settings.authentication) {
-      this.$store.commit('SET_AUTHENTICATION', settings.authentication);
     } else {
       this.$store.commit('SET_AUTHENTICATION', {
         type: 'none',
@@ -302,20 +283,13 @@ export default {
       if (this.config.customServer) {
         console.error("'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.");
       }
-    } else if (settings && settings.servers) {
-      servers = settings.servers;
-      if (settings.customServer) {
-        console.error("'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.");
-      }
     } else if (this.config && this.config.customServer) {
       servers.push(this.config.customServer);
-    } else if (settings && settings.customServer) {
-      servers.push(settings.customServer);
+    } else if (this.settingsCustomServer) {
+      servers.push(this.settingsCustomServer);
     } else {
       servers.push(customServer);
     }
-
-    this.$store.commit('setSetting', ['SERVERS', servers]);
 
     // Auto-join if a single server is provided and autoJoinServer is not
     if (servers.length == 1 && !this.$store.autoJoinServer) {
@@ -393,9 +367,7 @@ export default {
     },
   },
   computed: {
-    ...mapState('config', {
-      config: state => state.configuration,
-    }),
+    ...mapGetters({config: 'config/GET_CONFIG', settingsCustomServer: 'settings/GET_CUSTOMSERVER'}),
     plex() {
       return this.$store.getters.getPlex;
     },

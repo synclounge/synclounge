@@ -18,7 +18,7 @@ function sendNotification(message) {
 
 // Set up out web app socket for fetching short urls
 
-const state = {
+const state = () => ({
   appTitle: 'SyncLounge',
   appVersion: '2.0.0',
   background: null,
@@ -42,7 +42,7 @@ const state = {
   // SETTINGS
   stats: {},
   me: {},
-};
+});
 
 const mutations = {
   SET_CHOSENCLIENT(state, client) {
@@ -71,7 +71,7 @@ const mutations = {
       } else {
         state.chosenClient.getTimeline();
       }
-      let interval = state.settings.CLIENTPOLLINTERVAL;
+      let interval = state.getters['settings/GET_CLIENTPOLLINTERVAL'];
       if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
         interval = 500;
       }
@@ -119,22 +119,6 @@ const mutations = {
   SET_SHORTLINK(state, value) {
     state.shortLink = value;
   },
-  setSetting(state, data) {
-    Vue.set(state.settings, data[0], data[1]);
-    set(data[0], data[1]);
-  },
-  setSettingPTPLAYERQUALITY(state, data) {
-    window.localStorage.setItem('PTPLAYERQUALITY', JSON.stringify(data));
-    state.PTPLAYERQUALITY = data;
-  },
-  setSettingPTPLAYERVOLUME(state, data) {
-    window.localStorage.setItem('PTPLAYERVOLUME', JSON.stringify(data));
-    state.PTPLAYERVOLUME = data;
-  },
-  setSettingHOMEINIT(state, data) {
-    set('HOMEINIT', data);
-    state.HOMEINIT = data;
-  },
   REFRESH_PLEXDEVICES() {
     store.state.plex.getDevices(() => { });
   },
@@ -151,6 +135,7 @@ const mutations = {
     Vue.set(state, key, value);
   },
 };
+
 const getters = {
   getAppVersion: state => state.appVersion,
   getPlex: state => state.plex,
@@ -187,12 +172,12 @@ const getters = {
 };
 
 const actions = {
-  async PLAYBACK_CHANGE({ commit, state, dispatch }, data) {
+  async PLAYBACK_CHANGE({ commit, state, dispatch,  }, data) {
     const [client, ratingKey, mediaContainer] = data;
     if (ratingKey) {
       // Playing something different!
       const server = state.plex.servers[mediaContainer.machineIdentifier];
-      commit('setSetting', ['LASTSERVER', mediaContainer.machineIdentifier]);
+      commit('settings/SET_LASTSERVER', mediaContainer.machineIdentifier);
       // state.settings.LASTSERVER = mediaContainer.machineIdentifier;
       // window.localStorage.setItem('LASTSERVER', mediaContainer.machineIdentifier);
       if (!server) {
@@ -233,7 +218,7 @@ const actions = {
       }
     }
   },
-  NEW_TIMELINE({ commit, state, dispatch }, data) {
+  NEW_TIMELINE({ commit, state, dispatch, getters }, data) {
     // return true
     const timeline = data;
     const client = state.chosenClient;
@@ -307,7 +292,7 @@ const actions = {
         hostTime = parseInt(hostTime) + parseInt(hostAge);
       }
       const difference = Math.abs(data.time - hostTime);
-      if (difference > state.settings.SYNCFLEXABILITY) {
+      if (difference > getters['settings/GET_SYNCFLEXIBILITY']) {
         status = 'notok';
       }
     }

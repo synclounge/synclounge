@@ -1,6 +1,7 @@
 const git = require('git-rev-sync');
 
-const settings = new (require('../SettingsHelper'))();
+const { readSettings } = require('../SettingsHelper');
+const settings = readSettings();
 
 console.log('Production settings', settings);
 if (process.env.API_OVERRIDE) {

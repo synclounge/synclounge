@@ -1,16 +1,12 @@
 export const defaultSettings = {
-  CLIENTPOLLINTERVAL: 1000,
-  AUTOPLAY: true,
-  HIDEUSERNAME: false,
+  autoplay: true,
+  clientPollInterval: 1000,
+  hideUsername: false,
   DARKMODE: false,
-  SYNCMODE: 'cleanseek',
-  SYNCFLEXABILITY: 3000,
+  syncMode: 'cleanseek',
+  syncFlexibility: 3000,
   CUSTOMSERVER: 'http://',
-  SLPLAYERFORCETRANSCODE: true,
+  slPlayerForceTranscode: true,
   PTPLAYERQUALITY: 'Original',
   PTPLAYERVOLUME: 100
-};
-
-export default {
-  defaultSettings,
 };

@@ -1,8 +1,9 @@
-
 const args = require('args-parser')(process.argv);
 const settings = require('./settings.json');
 
-module.exports = function () {
+const { coalesce } = require('./src/utils/helpers');
+
+module.exports.readSettings = () => {
   const fields = [
     // Webapp settings
     {
@@ -67,6 +68,31 @@ module.exports = function () {
       local: 'server_port',
       env: 'SERVER_PORT',
       default: '8089'
+    },
+    {
+      local: 'autoplay',
+      env: 'AUTOPLAY',
+      default: true
+    },
+    {
+      local: 'clientPollInterval',
+      env: 'CLIENTPOLLINTERVAL',
+      default: 1000
+    },
+    {
+      local: 'syncMode',
+      env: 'SYNCMODE',
+      default: 'cleanseek'
+    },
+    {
+      local: 'syncFlexibility',
+      env: 'SYNCFLEXIBILITY',
+      default: 3000
+    },
+    {
+      local: 'hideUsername',
+      env: 'HIDEUSERNAME',
+      default: false
     }
   ];
   // Load and export our settings in preference of Args -> ENV -> Settings file -> Default
@@ -77,20 +103,20 @@ module.exports = function () {
     // console.log(`Args: '${args[setting.env]}'; '${args[setting.local]}'`);
     // console.log(`ENV: '${process.env[setting.env]}'; '${process.env[setting.local]}'`);
     // console.log(`Settings: '${settings[setting.local]}'; '${setting.default}'`);
-    output[setting.local] = args[setting.env] || args[setting.local] || process.env[setting.env] || process.env[setting.local] || settings[setting.env] || settings[setting.local] || setting.default;
+    output[setting.local] = coalesce(args[setting.env], args[setting.local], process.env[setting.env], process.env[setting.local], settings[setting.env], settings[setting.local], setting.default);
 
     // Make sure these settings are properly formatted
-    if(output[setting.local]) {
+    if (output[setting.local]) {
       // Make sure these settings are properly formatted to JSON
       let jsonSettings = ['authentication', 'customServer'];
-      if(jsonSettings.includes(setting.local) && output[setting.local]) {
-        if(typeof output[setting.local] !== "object") {
+      if (jsonSettings.includes(setting.local) && output[setting.local]) {
+        if (typeof output[setting.local] !== "object") {
           console.log(`${setting.local}/${setting.env} must be a JSON object. Attempting to convert it for you.`);
           try {
             let parsed = JSON.parse(output[setting.local]);
             output[setting.local] = parsed;
           }
-          catch(e) {
+          catch (e) {
             console.log(`- Unable to parse:`, output[setting.local]);
             console.log(`- Please check your syntax. Reverting to default.`);
           }
@@ -100,8 +126,8 @@ module.exports = function () {
       // Make sure these settings are properly formatted to an Array
       // This currently is only coded to handle the servers setting which is an Array of JSON objects
       let arraySettings = ['servers'];
-      if(arraySettings.includes(setting.local)) {
-        if(!Array.isArray(output[setting.local])) {
+      if (arraySettings.includes(setting.local)) {
+        if (!Array.isArray(output[setting.local])) {
           console.log(`${setting.local}/${setting.env} must be an Array of JSON objects. Attempting to convert it for you.`);
 
           let temp = output[setting.local].trim();
@@ -110,25 +136,25 @@ module.exports = function () {
           temp = temp.replace("]", "");
           let tempArr = temp.split("},");
 
-          if(tempArr.length > 0) {
+          if (tempArr.length > 0) {
             let tempOutArr = [];
             tempArr.forEach(element => {
               element = element.trim();
               try {
-                if(!element.endsWith('}')) {
+                if (!element.endsWith('}')) {
                   element = element + '}';
                 }
                 let parsed = JSON.parse(element);
 
                 tempOutArr.push(parsed);
               }
-              catch(e) {
+              catch (e) {
                 console.log(`- Unable to parse:`, element);
                 console.log(`- Please check your syntax. Skipping...`);
               }
             });
 
-            if(tempOutArr.length == 0) {
+            if (tempOutArr.length == 0) {
               console.log(`- No elements to use. Reverting to default.`);
             }
             output[setting.local] = tempOutArr;
@@ -142,9 +168,9 @@ module.exports = function () {
       }
     }
     // Backwards compatibilty for PORT ENV setting
-    if(setting.local == 'webapp_port' && output[setting.local] == 8088) {
+    if (setting.local == 'webapp_port' && output[setting.local] == 8088) {
       let port = args['PORT'] || process.env['PORT'] || settings['PORT'];
-      if(port && port !== 8088) {
+      if (port && port !== 8088) {
         console.log(`Please change 'PORT' to 'WEB_PORT'. Setting WEB_PORT to '${port}'`)
         output[setting.local] = port;
       }
@@ -174,3 +200,4 @@ module.exports = function () {
   //console.log('Our settings are', output)
   return output;
 };
+

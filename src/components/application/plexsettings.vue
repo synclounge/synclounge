@@ -6,7 +6,7 @@
       <v-select
           label="Select"
           :items="localServersList"
-          v-model="blockedServers"
+          v-model="BLOCKEDSERVERS"
           item-value="id"
           item-text="name"
           multiple
@@ -25,63 +25,58 @@
         label="Enabled"
         v-model="HIDEUSERNAME"
       ></v-checkbox>
-      <v-text-field v-if="HIDEUSERNAME" v-model="ALTUSERNAME" label="Alternative username"></v-text-field>
+      <v-text-field v-if="HIDEUSERNAME" :value="GET_ALTUSERNAME" @change="SET_ALTUSERNAME" label="Alternative username"></v-text-field>
       <small>By default SyncLounge uses your Plex.tv username when you join a room.</small>
     </div>
   </div>
 </template>
 
 <script>
-
 import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'plexsettings',
-  data () {
-    return {
-      blockedServers: this.getSettings().BLOCKEDSERVERS,
-    }
-  },
-  watch: {
-    blockedServers: function () {
-      this.setSetting(['BLOCKEDSERVERS', this.blockedServers])
-    }
-  },
   methods: {
-    ...mapGetters(['getSettings']),
-    ...mapMutations(['setSetting']),
+    ...mapMutations('settings', [
+      'SET_HIDEUSERNAME',
+      'SET_ALTUSERNAME',
+      'SET_BLOCKEDSERVERS'
+    ])
   },
   computed: {
+    ...mapGetters('settings', [
+      'GET_HIDEUSERNAME',
+      'GET_ALTUSERNAME',
+      'GET_BLOCKEDSERVERS'
+    ]),
     plex: function () {
       return this.$store.state.plex
     },
-    context: function () {
-      return this.$store
-    },
-    HIDEUSERNAME: {
-      get () {
-        return this.getSettings().HIDEUSERNAME
+    BLOCKEDSERVERS: {
+      get() {
+        return this.GET_BLOCKEDSERVERS;
       },
-      set (value) {
-        this.$store.commit('setSetting', ['HIDEUSERNAME', value])
+      set(value) {
+        this.SET_BLOCKEDSERVERS(value);
       }
     },
-    ALTUSERNAME: {
-      get () {
-        return this.$store.getters.getSettings['ALTUSERNAME']
+    HIDEUSERNAME: {
+      get() {
+        return this.GET_HIDEUSERNAME;
       },
-      set (value) {
-        this.$store.commit('setSetting', ['ALTUSERNAME', value])
+      set(value) {
+         this.SET_HIDEUSERNAME(value);
       }
     },
     localServersList: function () {
+      // TODO: FIX THIS please
       let servers = []
       if (!this.plex || !this.plex.servers) {
         return servers
       }
       for (let id in this.plex.servers) {
         let server = this.plex.servers[id]
-        if (this.getSettings().BLOCKEDSERVERS && this.getSettings().BLOCKEDSERVERS[server]) {
+        if (this.GET_BLOCKEDSERVERS[server]) {
           servers.push({
             name: server.name,
             id: server.clientIdentifier
@@ -95,6 +90,6 @@ export default {
       }
       return servers
     }
-  },
+  }
 }
 </script>

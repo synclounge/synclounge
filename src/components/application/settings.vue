@@ -2,8 +2,8 @@
   <div>
     <div style="text-align:center">
       <h4 style="text-align:initial">Plex Client Polling Interval</h4>
-      <div> {{ clientpollinterval }}</div>
-      <v-slider class="pa-0 ma-0" v-model="clientpollinterval" :min="100" :max="10000"
+      <div> {{ GET_CLIENTPOLLINTERVAL }}</div>
+      <v-slider class="pa-0 ma-0" :value="GET_CLIENTPOLLINTERVAL" @change="SET_CLIENTPOLLINTERVAL" :min="100" :max="10000"
         hint="Sets how frequently SyncLounge will poll external plex clients for new information in milliseconds. Default is 1000ms (1 second)"
         persistent-hint
       >
@@ -12,8 +12,8 @@
     <v-divider></v-divider>
     <div style="text-align:center" class="pt-4">
       <h4 style="text-align:initial">Sync Flexibility</h4>
-      <div> {{ syncflexability }}</div>
-      <v-slider class="pa-0 ma-0" v-model="syncflexability" :min="0" :max="10000"
+      <div> {{ GET_SYNCFLEXIBILITY }}</div>
+      <v-slider class="pa-0 ma-0" :value="GET_SYNCFLEXIBILITY" @change="SET_SYNCFLEXIBILITY" :min="0" :max="10000"
         hint="Sets the acceptable distance away from the host in milliseconds. Default is 3000ms (3 seconds)."
         persistent-hint
       >
@@ -24,7 +24,7 @@
       <h4 style="text-align:initial">Syncing Method</h4>
       <v-radio-group v-model="syncmode">
         <v-radio label="Clean Seek" class="pa-0 ma-0" value="cleanseek"></v-radio>
-        <v-radio label="Skip Ahead" class="pa-0 ma-0"  value="skipahead"
+        <v-radio label="Skip Ahead" class="pa-0 ma-0" value="skipahead"
         persistent-hint
         hint="Sets the syncing method used when we need to get back in line with the host."
       ></v-radio>
@@ -35,14 +35,16 @@
       <v-switch
         label="Enabled"
         hint="If enabled SyncLounge will attempt to automatically play the same content as the host."
-        v-model="autoplay"
+        :input-value="GET_AUTOPLAY"
+        @change="SET_AUTOPLAY"
       ></v-switch>
     </div>
     <div style="text-align:center" class="pt-4">
       <h4 style="text-align:initial">SLPlayer Force Transcode</h4>
         <v-switch
           label="Enabled"
-          v-model="SLPLAYERFORCETRANSCODE"
+          :input-value="GET_SLPLAYERFORCETRANSCODE"
+          @change="SET_SLPLAYERFORCETRANSCODE"
         ></v-switch>
       <small>WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.</small>
     </div>
@@ -50,64 +52,35 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex';
+
 export default {
   name: 'settings',
-  data() {
-    return {};
-  },
   computed: {
-    plex() {
-      return this.$store.state.plex;
-    },
-    context() {
-      return this.$store;
-    },
-    appVersion() {
-      return this.$store.state.appVersion;
-    },
-    SLPLAYERFORCETRANSCODE: {
-      get() {
-        return JSON.parse(this.$store.getters.getSettings.SLPLAYERFORCETRANSCODE);
-      },
-      set(value) {
-        this.$store.commit('setSetting', ['SLPLAYERFORCETRANSCODE', value]);
-      },
-    },
-    autoplay: {
-      get() {
-        return this.$store.getters.getSettings.AUTOPLAY;
-      },
-      set(value) {
-        this.$store.commit('setSetting', ['AUTOPLAY', value]);
-      },
-    },
+    ...mapGetters('settings', [
+      'GET_AUTOPLAY',
+      'GET_SLPLAYERFORCETRANSCODE',
+      'GET_CLIENTPOLLINTERVAL',
+      'GET_SYNCFLEXIBILITY',
+      'GET_SYNCMODE'
+    ]),
     syncmode: {
       get() {
-        return this.$store.getters.getSettings.SYNCMODE;
+        return this.GET_SYNCMODE;
       },
-      set(value) {
-        this.$store.commit('setSetting', ['SYNCMODE', value]);
+      set(value){
+        this.SET_SYNCMODE(value);
       },
-    },
-    syncflexability: {
-      get() {
-        return this.$store.getters.getSettings.SYNCFLEXABILITY;
-      },
-      set(value) {
-        this.$store.commit('setSetting', ['SYNCFLEXABILITY', value]);
-      },
-    },
-    clientpollinterval: {
-      get() {
-        return this.$store.getters.getSettings.CLIENTPOLLINTERVAL;
-      },
-      set(value) {
-        this.$store.commit('setSetting', ['CLIENTPOLLINTERVAL', value]);
-      },
-    },
+    }
   },
-  mounted() {
-    // Create event listeners
-  },
+  methods: {
+    ...mapMutations('settings', [
+      'SET_AUTOPLAY',
+      'SET_SLPLAYERFORCETRANSCODE',
+      'SET_CLIENTPOLLINTERVAL',
+      'SET_SYNCFLEXIBILITY',
+      'SET_SYNCMODE'
+    ])
+  }
 };
 </script>

@@ -1,8 +1,10 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 var path = require('path')
 
-let SettingsHelper = require('../SettingsHelper.js')
-let settings = new SettingsHelper()
+const { readSettings } = require('../SettingsHelper');
+const settings = readSettings();
+
+process.env.VUE_APP_BASE_URL = settings.webroot;
 
 module.exports = {
   build: {
