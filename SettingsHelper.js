@@ -2,6 +2,7 @@ const args = require('args-parser')(process.argv);
 const settings = require('./settings.json');
 
 const { coalesce } = require('./src/utils/helpers');
+const { defaultSettings } = require('./src/default-settings');
 
 module.exports.readSettings = () => {
   const fields = [
@@ -72,27 +73,27 @@ module.exports.readSettings = () => {
     {
       local: 'autoplay',
       env: 'AUTOPLAY',
-      default: true
+      default: defaultSetting.autoplay
     },
     {
       local: 'clientPollInterval',
       env: 'CLIENTPOLLINTERVAL',
-      default: 1000
+      default: defaultSetting.clientPollInterval
     },
     {
       local: 'syncMode',
       env: 'SYNCMODE',
-      default: 'cleanseek'
+      default: defaultSettings.syncMode
     },
     {
       local: 'syncFlexibility',
       env: 'SYNCFLEXIBILITY',
-      default: 3000
+      default: defaultSettings.syncFlexibility
     },
     {
       local: 'hideUsername',
       env: 'HIDEUSERNAME',
-      default: false
+      default: defaultSettings.hideUsername
     }
   ];
   // Load and export our settings in preference of Args -> ENV -> Settings file -> Default

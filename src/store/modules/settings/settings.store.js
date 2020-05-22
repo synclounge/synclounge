@@ -1,5 +1,5 @@
 const { coalesce, generateGuid } = require('@/utils/helpers');
-import { defaultSettings } from './constants';
+const { defaultSettings } = require('@/default-settings');
 
 
 // The state must return a function
