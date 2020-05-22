@@ -54,9 +54,13 @@ Object.keys(proxyTable).forEach(function (context) {
   app.use(proxyMiddleware(options.filter || context, options))
 })
 
+
+const staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory);
+
 // handle fallback for HTML5 history API
+const indexPath = path.posix.join(staticPath, 'index.html');
 app.use(history({
-  index: `${webpackConfig.output.publicPath}/index.html`
+  index: indexPath
 }));
 
 // serve webpack bundle output
@@ -67,8 +71,7 @@ app.use(devMiddleware)
 app.use(hotMiddleware)
 
 // serve pure static assets
-const staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
-app.use(`${staticPath}/`, express.static('./static'))
+app.use(staticPath, express.static('./static'))
 
 const uri = `http://localhost:${port}${staticPath}/`;
 
@@ -87,7 +90,8 @@ devMiddleware.waitUntilValid(() => {
   _resolve()
 });
 
-app.get(`${staticPath}/config`, (req, res) => {
+const configPath = path.posix.join(staticPath, 'config');
+app.get(configPath, (req, res) => {
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
   res.header('Expires', '-1');
   res.header('Pragma', 'no-cache');
