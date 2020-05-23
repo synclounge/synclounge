@@ -313,15 +313,12 @@ export default {
                       }
                       rootState.blockAutoPlay = true;
 
-                      const blockedServers = rootState.settings.BLOCKEDSERVERS;
                       const servers = Object.assign({}, rootState.plex.servers);
-                      if (blockedServers) {
-                        blockedServers.forEach((id) => {
-                          if (rootState.plex.servers[id]) {
-                            delete servers[id];
-                          }
-                        });
-                      }
+                      rootGetters['settings/GET_BLOCKEDSERVERS'].forEach((id) => {
+                        if (rootState.plex.servers[id]) {
+                          delete servers[id];
+                        }
+                      });
 
                       sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
                       const result = await rootState.chosenClient
@@ -334,21 +331,7 @@ export default {
                         .catch(async (e) => {
                           const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
                           if (hostServer && hostTimeline.key) {
-                            let isBlocked = false;
-                            let blockedServers;
-                            try {
-                              blockedServers = JSON.parse(rootState.settings.BLOCKEDSERVERS);
-                            } catch (e) {
-                              blockedServers = rootState.settings.BLOCKEDSERVERS;
-                            }
-                            if (blockedServers && blockedServers.length > 0) {
-                              blockedServers.map((server) => {
-                                if (server === hostTimeline.machineIdentifier) {
-                                  isBlocked = true;
-                                }
-                              });
-                            }
-                            if (!isBlocked) {
+                            if (!rootGetters['settings/GET_BLOCKEDSERVERS'].includes(hostTimeline.machineIdentifier)) {
                               try {
                                 await rootState.chosenClient.playMedia({
                                   ratingKey: hostTimeline.key,

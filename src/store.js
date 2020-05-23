@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
-import { set } from '@/utils/storage';
 import { generateGuid } from '@/utils/helpers';
 import config from './store/modules/config/config.store';
 import settings from './store/modules/settings/settings.store';
@@ -136,6 +135,40 @@ const mutations = {
   },
 };
 
+// Custom Servers list settings
+const defaultSyncloungeServers = [
+  {
+    name: 'SyncLounge AU1',
+    location: 'Sydney, Australia',
+    url: 'https://v3au1.synclounge.tv/slserver',
+    image: 'flags/au.png',
+  },
+  {
+    name: 'SyncLounge EU1',
+    location: 'Amsterdam, Netherlands',
+    url: 'https://v2eu1.synclounge.tv/server',
+    image: 'flags/eu.png',
+  },
+  {
+    name: 'SyncLounge US1',
+    location: 'Miami, United States',
+    url: 'https://v2us1.synclounge.tv/server',
+    image: 'flags/us.png',
+  },
+  {
+    name: 'SyncLounge US2',
+    location: 'Miami, United States',
+    url: 'https://v3us1.synclounge.tv/slserver',
+    image: 'flags/us.png',
+  },
+  {
+    name: 'SyncLounge US3',
+    location: 'Miami, United States',
+    url: 'https://v3us2.synclounge.tv/slserver',
+    image: 'flags/us.png',
+  },
+];
+
 const getters = {
   getAppVersion: state => state.appVersion,
   getPlex: state => state.plex,
@@ -152,10 +185,6 @@ const getters = {
   getShortLink: state => state.shortLink,
 
   // SETTINGS
-  getSettings: state => state.settings,
-  getSettingHOMEINIT: state => state.HOMEINIT,
-  getSettingPTPLAYERQUALITY: state => state.PTPLAYERQUALITY,
-  getSettingPTPLAYERVOLUME: state => state.PTPLAYERVOLUME,
   getExtAvailable: state => state.extAvailable,
   getLogos: () => ({
     light: {
@@ -169,10 +198,23 @@ const getters = {
       standard: 'plexlogo.png',
     },
   }),
+
+  GET_SYNCLOUNGE_SERVERS: (state, getters) => {
+    if (getters['config/GET_CONFIG'].servers && getters['config/GET_CONFIG'].servers.length > 0) {
+      if (getters['config/GET_CONFIG'].customServer) {
+        console.error("'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.");
+      }
+      return getters['config/GET_CONFIG'].servers;
+    } else if (getters['config/GET_CONFIG'].customServer) {
+      return defaultSyncloungeServers.concat([getters['config/GET_CONFIG'].customServer]);
+    } else {
+      return defaultSyncloungeServers.concat([getters['settings/GET_CUSTOMSERVER']]);
+    }
+  }
 };
 
 const actions = {
-  async PLAYBACK_CHANGE({ commit, state, dispatch,  }, data) {
+  async PLAYBACK_CHANGE({ commit, state, dispatch, }, data) {
     const [client, ratingKey, mediaContainer] = data;
     if (ratingKey) {
       // Playing something different!

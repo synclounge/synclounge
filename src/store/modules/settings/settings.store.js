@@ -10,7 +10,12 @@ const state = () => ({
   clientPollInterval: null,
   syncMode: null,
   syncFlexibility: null,
-  'CUSTOMSERVER': null,
+  customServer: {
+    name: 'Custom Server',
+    location: 'Anywhere!',
+    url: 'custom',
+    image: 'synclounge-white.png',
+  },
   blockedServers: [],
   'HOMEINIT': false,
   'PTPLAYERQUALITY': null,
@@ -33,7 +38,7 @@ const getters = {
   GET_SYNCFLEXIBILITY: (state, getters, rootState, rootGetters) =>
     coalesce(state.syncFlexibility, rootGetters['config/GET_CONFIG'].syncFlexibility, defaultSettings.syncFlexibility),
   GET_CUSTOMSERVER: (state, getters, rootState, rootGetters) =>
-    coalesce(state.CUSTOMSERVER, rootGetters['config/GET_CONFIG'].CUSTOMSERVER, defaultSettings.CUSTOMSERVER),
+    coalesce(state.customServer, rootGetters['config/GET_CONFIG'].customServer),
   GET_BLOCKEDSERVERS: state => state.blockedServers,
   GET_HOMEINIT: state => state.HOMEINIT,
   GET_PTPLAYERQUALITY: (state, getters, rootState, rootGetters) =>
@@ -57,7 +62,8 @@ const mutations = {
   SET_SYNCMODE: (state, mode) => state.syncMode = mode,
   SET_HIDEUSERNAME: (state, hide) => state.hideUsername = hide,
   SET_ALTUSERNAME: (state, alt) => state.altUsername = alt,
-  SET_BLOCKEDSERVERS: (state, blocked) => state.blockedServers = blocked
+  SET_BLOCKEDSERVERS: (state, blocked) => state.blockedServers = blocked,
+  SET_CUSTOMSERVER: (state, server) => state.customServer = server
 };
 
 export default {

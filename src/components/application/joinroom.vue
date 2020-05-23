@@ -74,7 +74,7 @@
                 xs12
                 md3
                 lg2
-                v-for="server in ptservers"
+                v-for="server in syncloungeServers"
                 :key="server.url"
               >
                 <v-card height="300px" style="border-radius: 20px">
@@ -208,8 +208,9 @@
 
 <script>
 import Vue from 'vue';
+import axios from 'axios';
 
-const axios = require('axios');
+import { mapGetters } from 'vuex';
 
 export default {
   props: ['object'],
@@ -299,11 +300,10 @@ export default {
       }
     },
     async testConnections() {
-      this.ptservers.map((server) => {
+      this.syncloungeServers.map((server) => {
         if (server.url !== 'custom') {
           const start = new Date().getTime();
-          axios
-            .get(`${server.url}/health`)
+          axios.get(`${server.url}/health`)
             .then((res) => {
               Vue.set(this.results, server.url, {
                 alive: true,
@@ -412,6 +412,9 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({
+      'syncloungeServers': 'GET_SYNCLOUNGE_SERVERS'
+    }),
     plex() {
       return this.$store.state.plex;
     },
@@ -446,16 +449,7 @@ export default {
       set(value) {
         this.$store.commit('setSetting', ['CUSTOMSERVER', value]);
       },
-    },
-    ptservers() {
-      if (typeof this.$store.getters.getSettings.SERVERS === 'string') {
-        return JSON.parse(this.$store.getters.getSettings.SERVERS);
-      }
-      return this.$store.getters.getSettings.SERVERS;
-    },
-  },
+    }
+  }
 };
 </script>
-<style>
-
-</style>

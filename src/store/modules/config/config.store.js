@@ -15,12 +15,10 @@ const mutations = {
 };
 
 const actions = {
-  fetchConfig: ({ commit }) => {
+  fetchConfig: async ({ commit }) => {
     const url = window.location.origin + window.location.pathname.replace(/\/+$/, "");
-    axios.get(`${url}/config`).then(({ data }) => {
+    return axios.get(`${url}/config`).then(({ data }) => {
       commit('SET_CONFIG', data);
-    }).catch(error => {
-      throw new Error(`Failed to fetch config: ${error}`);
     });
   }
 };

@@ -34,7 +34,8 @@ const devMiddleware = require('webpack-dev-middleware')(compiler, {
 })
 
 const hotMiddleware = require('webpack-hot-middleware')(compiler, {
-  publicPath: webpackConfig.output.publicPath
+  publicPath: webpackConfig.output.publicPath,
+  log: () => { }
 });
 
 // force page reload when html-webpack-plugin template changes
@@ -73,7 +74,7 @@ app.use(hotMiddleware)
 // serve pure static assets
 app.use(staticPath, express.static('./static'))
 
-const uri = `http://localhost:${port}${staticPath}/`;
+const uri = `http://localhost:${port}${staticPath}`;
 
 let _resolve
 const readyPromise = new Promise(resolve => {

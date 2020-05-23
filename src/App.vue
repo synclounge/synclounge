@@ -158,6 +158,7 @@ export default {
 
       snackbar: false,
       snackbarMsg: false,
+      configFetchPromise: null,
 
       items: [
         {
@@ -192,13 +193,18 @@ export default {
     },
     goFullscreen() {
       fscreen.requestFullscreen(document.body);
-    },
+    }
   },
   created() {
-    this.fetchConfig();
+    this.configFetchPromise = this.fetchConfig();
   },
   async mounted() {
-    //
+    try {
+      await this.configFetchPromise;
+    } catch (e) {
+      this.configError = `Failed to fetch config: ${e}`;
+    }
+    // 
     //  Settings
     //
     // Set AutoJoin information in order of importance: query -> config -> settings
@@ -238,62 +244,9 @@ export default {
       });
     }
 
-    // Custom Servers list settings
-    let servers = [
-      {
-        name: 'SyncLounge AU1',
-        location: 'Sydney, Australia',
-        url: 'https://v3au1.synclounge.tv/slserver',
-        image: 'flags/au.png',
-      },
-      {
-        name: 'SyncLounge EU1',
-        location: 'Amsterdam, Netherlands',
-        url: 'https://v2eu1.synclounge.tv/server',
-        image: 'flags/eu.png',
-      },
-      {
-        name: 'SyncLounge US1',
-        location: 'Miami, United States',
-        url: 'https://v2us1.synclounge.tv/server',
-        image: 'flags/us.png',
-      },
-      {
-        name: 'SyncLounge US2',
-        location: 'Miami, United States',
-        url: 'https://v3us1.synclounge.tv/slserver',
-        image: 'flags/us.png',
-      },
-      {
-        name: 'SyncLounge US3',
-        location: 'Miami, United States',
-        url: 'https://v3us2.synclounge.tv/slserver',
-        image: 'flags/us.png',
-      },
-    ];
-    const customServer = {
-      name: 'Custom Server',
-      location: 'Anywhere!',
-      url: 'custom',
-      image: 'synclounge-white.png',
-    };
-
-    if (this.config && this.config.servers) {
-      servers = this.config.servers;
-      if (this.config.customServer) {
-        console.error("'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.");
-      }
-    } else if (this.config && this.config.customServer) {
-      servers.push(this.config.customServer);
-    } else if (this.settingsCustomServer) {
-      servers.push(this.settingsCustomServer);
-    } else {
-      servers.push(customServer);
-    }
-
     // Auto-join if a single server is provided and autoJoinServer is not
-    if (servers.length == 1 && !this.$store.autoJoinServer) {
-      const server = servers[0];
+    if (this.syncloungeServers.length == 1 && !this.$store.autoJoinServer) {
+      const server = this.syncloungeServers[0];
       this.$store.commit('SET_AUTOJOIN', true);
       this.$store.commit('SET_AUTOJOINURL', server.url);
       if (!this.$store.autoJoinRoom && server.defaultRoom) {
@@ -306,6 +259,15 @@ export default {
     //
     // End Settings
     //
+
+    if (this.$store.state.autoJoin) {
+      this.$store.dispatch('autoJoin', {
+        server: this.$store.state.autoJoinUrl,
+        password: this.$store.state.autoJoinPassword,
+        room: this.$store.state.autoJoinRoom,
+      });
+    }
+    
 
     window.EventBus.$on('notification', (msg) => {
       this.snackbarMsg = msg;
@@ -343,14 +305,6 @@ export default {
       return;
     }
 
-    if (this.$store.state.autoJoin) {
-      this.$store.dispatch('autoJoin', {
-        server: this.$store.state.autoJoinUrl,
-        password: this.$store.state.autoJoinPassword,
-        room: this.$store.state.autoJoinRoom,
-      });
-    }
-
     fscreen.addEventListener('fullscreenchange', () => {
       const isFullscreen = fscreen.fullscreenElement !== null;
       this.appIsFullscreen = isFullscreen;
@@ -364,10 +318,13 @@ export default {
       if (this.showRightDrawerButton) {
         this.drawerRight = true;
       }
-    },
+    }
   },
   computed: {
-    ...mapGetters({config: 'config/GET_CONFIG', settingsCustomServer: 'settings/GET_CUSTOMSERVER'}),
+    ...mapGetters({
+      config: 'config/GET_CONFIG',
+      syncloungeServers: 'GET_SYNCLOUNGE_SERVERS'
+    }),
     plex() {
       return this.$store.getters.getPlex;
     },

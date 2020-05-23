@@ -20,21 +20,18 @@ export default new Router({
   {
     path: '/signin',
     meta: {
-      noload: true,
     },
     component: signin,
   },
   {
     path: '/signout',
     meta: {
-      noload: true,
     },
     component: signout,
   },
   {
     path: '/join',
     meta: {
-      noload: true,
       protected: false,
     },
     component: join,
@@ -42,14 +39,12 @@ export default new Router({
   {
     path: '/clientselect',
     meta: {
-      noload: false,
     },
     component: require('../components/application/walkthrough.vue'),
   },
   {
     path: '/joinroom',
     meta: {
-      noload: false,
     },
     component: require('../components/application/joinroom.vue'),
   },
