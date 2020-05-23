@@ -316,9 +316,6 @@ export default {
     },
     onPlayerLoadeddata(player) {
       const that = this;
-      this.$nextTick(() => {
-        this.player.currentTime(this.initialOffset / 1000);
-      });
 
       player.on(['pause'], () => {
         this.isPlaying = 'paused';
@@ -425,6 +422,7 @@ export default {
     playerReadied(player) {
       // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
       this.player.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 0);
+      this.player.currentTime(this.initialOffset / 1000);
     },
 
   },
