@@ -189,7 +189,7 @@ export default {
               window.localStorage.setItem('recentrooms', JSON.stringify(recents));
 
               // Generate our short url/invite link
-              let urlOrigin = window.location.origin + (rootGetters['config/GET_CONFIG'].autoplay || '');
+              let urlOrigin = window.location.origin + (rootGetters['config/GET_CONFIG'].webroot || '');
               if (process.env.NODE_ENV === 'development') {
                 urlOrigin = 'http://app.synclounge.tv';
               }
