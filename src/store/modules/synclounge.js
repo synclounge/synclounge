@@ -1,8 +1,7 @@
 import Vue from 'vue';
-
+import axios from 'axios';
+import moment from 'moment';
 const EventEmitter = require('events');
-const moment = require('moment');
-const axios = require('axios');
 
 function sendNotification(message) {
   return window.EventBus.$emit('notification', message);
@@ -154,8 +153,9 @@ export default {
         data.password = data.password || '';
         commit('SET_PASSWORD', data.password);
         let username = data.user.username;
-        if (JSON.parse(rootState.settings.HIDEUSERNAME)) {
-          username = rootState.settings.ALTUSERNAME;
+
+        if (rootGetters['settings/GET_HIDEUSERNAME']) {
+          username = rootGetters['settings/GET_ALTUSERNAME']
         }
         state._socket.emit(
           'join',
