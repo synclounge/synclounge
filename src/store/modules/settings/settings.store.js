@@ -16,6 +16,7 @@ const state = () => ({
     url: 'custom',
     image: 'synclounge-white.png',
   },
+  customServerUserInputtedUrl: 'http://',
   blockedServers: [],
   'HOMEINIT': false,
   'PTPLAYERQUALITY': null,
@@ -51,7 +52,8 @@ const getters = {
     coalesce(state.hideUsername, rootGetters['config/GET_CONFIG'].hideUsername, defaultSettings.hideUsername),
   GET_ALTUSERNAME: state => state.altUsername,
   GET_CLIENTIDENTIFIER: state => state.CLIENTIDENTIFIER,
-  GET_LASTSERVER: state => state.LASTSERVER
+  GET_LASTSERVER: state => state.LASTSERVER,
+  GET_CUSTOM_SERVER_USER_INPUTTED_URL: state => state.customServerUserInputtedUrl
 };
 
 const mutations = {
@@ -63,7 +65,7 @@ const mutations = {
   SET_HIDEUSERNAME: (state, hide) => state.hideUsername = hide,
   SET_ALTUSERNAME: (state, alt) => state.altUsername = alt,
   SET_BLOCKEDSERVERS: (state, blocked) => state.blockedServers = blocked,
-  SET_CUSTOMSERVER: (state, server) => state.customServer = server
+  SET_CUSTOM_SERVER_USER_INPUTTED_URL: (state, url) => state.customServerUserInputtedUrl = url
 };
 
 export default {

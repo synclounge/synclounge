@@ -134,7 +134,8 @@
               v-if="selectedServer.url == 'custom'"
               name="input-2"
               label="Custom Server"
-              v-model="CUSTOMSERVER"
+              :value="GET_CUSTOM_SERVER_USER_INPUTTED_URL"
+              @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
               class="input-group pt-input"
             ></v-text-field>
             <v-layout row wrap v-if="selectedServer.url == 'custom'">
@@ -210,7 +211,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   props: ['object'],
@@ -253,6 +254,9 @@ export default {
     this.getRecents();
   },
   methods: {
+    ...mapMutations('settings', [
+      'SET_CUSTOM_SERVER_USER_INPUTTED_URL'
+    ]),
     getRecents() {
       this.recents = JSON.parse(window.localStorage.getItem('recentrooms'));
     },
@@ -345,6 +349,7 @@ export default {
             })
             .catch((e) => {
               this.connectionPending = false;
+              console.log(this.selectedServer);
               this.serverError = `Failed to connect to ${this.selectedServer.url}`;
               reject(e);
             });
@@ -357,18 +362,18 @@ export default {
       this.connectionPending = true;
       this.serverError = null;
       this.$store
-        .dispatch('socketConnect', { address: this.CUSTOMSERVER })
+        .dispatch('socketConnect', { address: this.GET_CUSTOM_SERVER_USER_INPUTTED_URL })
         .then((result) => {
           this.connectionPending = false;
           if (result) {
-            this.serverError = `Failed to connect to ${this.CUSTOMSERVER}`;
+            this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
           } else {
             this.serverError = null;
           }
         })
         .catch(() => {
           this.connectionPending = false;
-          this.serverError = `Failed to connect to ${this.CUSTOMSERVER}`;
+          this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
         });
     },
     async recentConnect(recent) {
@@ -413,7 +418,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      'syncloungeServers': 'GET_SYNCLOUNGE_SERVERS'
+      'syncloungeServers': 'GET_SYNCLOUNGE_SERVERS',
+      'GET_CUSTOM_SERVER_USER_INPUTTED_URL': 'settings/GET_CUSTOM_SERVER_USER_INPUTTED_URL'
     }),
     plex() {
       return this.$store.state.plex;
@@ -438,17 +444,6 @@ export default {
         return arr.slice(0, 3);
       }
       return arr;
-    },
-    CUSTOMSERVER: {
-      get() {
-        if (!this.$store.getters.getSettings.CUSTOMSERVER) {
-          return 'http://';
-        }
-        return this.$store.getters.getSettings.CUSTOMSERVER;
-      },
-      set(value) {
-        this.$store.commit('setSetting', ['CUSTOMSERVER', value]);
-      },
     }
   }
 };
