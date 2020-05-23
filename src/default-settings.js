@@ -7,7 +7,7 @@ module.exports = {
     syncMode: 'cleanseek',
     syncFlexibility: 3000,
     slPlayerForceTranscode: true,
-    PTPLAYERQUALITY: 'Original',
+    slPlayerQuality: 'Original',
     PTPLAYERVOLUME: 100
   }
 };

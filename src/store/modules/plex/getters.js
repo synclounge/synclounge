@@ -7,4 +7,5 @@ export default {
     clients = clients.sort((a, b) => parseInt(b.lastSeenAt) - parseInt(a.lastSeenAt));
     return clients;
   },
+  GET_LASTSERVER: (state, getters) => state.servers[getters['settings/GET_LASTSERVER']]
 };

@@ -1,16 +1,16 @@
 <template>
   <div style="width:100%; position: relative">
     <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
-      <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
+      <videoplayer v-if="playingMetadata && chosenServer && slPlayerQuality && ready"
         @playerMounted="playerMounted()"
         @timelineUpdate="timelineUpdate"
         @playbackEnded="stopPlayback()"
 
         :metadata="playingMetadata"
         :server="chosenServer"
-        :src="getSourceByLabel(chosenQuality)"
-        :initUrl="getSourceByLabel(chosenQuality).initUrl"
-        :params="getSourceByLabel(chosenQuality).params"
+        :src="getSourceByLabel(slPlayerQuality)"
+        :initUrl="getSourceByLabel(slPlayerQuality).initUrl"
+        :params="getSourceByLabel(slPlayerQuality).params"
         :initialOffset="offset"
         :createdAt="playerCreatedAt"
       ></videoplayer>
@@ -64,7 +64,8 @@
           <v-card-title>Playback Settings </v-card-title>
           <v-card-text>
             <v-select
-              v-model="chosenQuality"
+              :value="slPlayerQuality"
+              @input="SET_SLPLAYERQUALITY"
               :items="qualitiesSelect"
               item-text="text"
               item-value="id"
@@ -159,6 +160,8 @@
 <script>
 import videoplayer from './ptplayer/videoplayer.vue';
 import messages from '@/components/messages';
+
+import { mapGetters, mapMutations } from 'vuex';
 
 const plexthumb = require('./plexbrowser/plexthumb.vue');
 
@@ -280,7 +283,6 @@ export default {
       // Content can have multiple copies
       // Below are options chosen for each copy
       chosenMediaIndex: 0, // The index of the item we want to play
-      chosenQuality: JSON.parse(window.localStorage.getItem('PTPLAYERQUALITY')) || 'Original', // The quality profile
       chosenSubtitleIndex: 0, // Subtitle track index
       chosenAudioTrackIndex: 0, // Audio track index
       sources: [],
@@ -394,6 +396,10 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({
+      slPlayerQuality: 'settings/GET_SLPLAYERQUALITY',
+      slPlayerForceTranscode: 'settings/GET_SLPLAYERFORCETRANSCODE'
+    }),
     plex() {
       return this.$store.getters.getPlex;
     },
@@ -406,9 +412,6 @@ export default {
     chosenCombo() {
       // Helper for our watch chosenCombo
       return this.chosenKey || this.chosenServer;
-    },
-    settings() {
-      return this.$store.state.settings;
     },
     chosenClient() {
       return this.$store.getters.getChosenClient;
@@ -493,6 +496,9 @@ export default {
     this.destroyed = true;
   },
   methods: {
+    ...mapMutations('settings', [
+      'SET_SLPLAYERQUALITY',
+    ]),
     playerMounted() {
       // console.log('Child player said it is mounted')
     },
@@ -622,7 +628,7 @@ export default {
     stopPlayback() {
       console.log('Stopped Playback');
       this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
-      request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {});
+      request(this.getSourceByLabel(this.slPlayerQuality).stopUrl, () => {});
       this.playerstatus = 'stopped';
       this.sessionId = this.generateGuid();
       this.xplexsession = this.generateGuid();
@@ -640,7 +646,7 @@ export default {
 
       const req = () => {
         this.sources = this.generateSources();
-        request(this.getSourceByLabel(this.chosenQuality).initUrl, (error, response, body) => {
+        request(this.getSourceByLabel(this.slPlayerQuality).initUrl, (error, response, body) => {
           parseXMLString(body, (err, result) => {
             if (err) {
               this.ready = false;
@@ -652,7 +658,7 @@ export default {
       };
 
       if (this.playingMetadata) {
-        request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {
+        request(this.getSourceByLabel(this.slPlayerQuality).stopUrl, () => {
           // We dont need to know what this resulted in
         });
       }
@@ -781,7 +787,7 @@ export default {
         'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight}`,
         'X-Plex-Token': this.chosenServer.accessToken,
       };
-      if (JSON.parse(this.settings.SLPLAYERFORCETRANSCODE)) {
+      if (this.slPlayerForceTranscode) {
         params.directStream = 0;
         params['X-Plex-Device'] = 'HTML TV App';
       }

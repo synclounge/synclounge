@@ -105,7 +105,7 @@
         </div>
       </div>
       <v-divider></v-divider>
-      <div class="pt-4" v-if="validLastServer && results.length == 0">
+      <div class="pt-4" v-if="lastServer && results.length == 0">
         <h4 v-if="subsetOnDeck().length > 0">
           Continue watching from {{ lastServer.name }}
           <span
@@ -186,7 +186,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import plexthumb from "./plexbrowser/plexthumb";
 
 const _ = require("lodash");
@@ -373,6 +373,9 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      'lastServer': 'GET_LASTSERVER'
+    }),
     plex() {
       return this.$store.getters.getPlex;
     },
@@ -398,15 +401,6 @@ export default {
         return false;
       });
       return servers;
-    },
-    validLastServer() {
-      return (
-        this.$store.getters.getSettings.LASTSERVER &&
-        this.plex.servers[this.$store.getters.getSettings.LASTSERVER]
-      );
-    },
-    lastServer() {
-      return this.plex.servers[this.$store.getters.getSettings.LASTSERVER];
     },
     onDeckUpStyle() {
       if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length) {

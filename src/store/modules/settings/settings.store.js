@@ -19,13 +19,13 @@ const state = () => ({
   customServerUserInputtedUrl: 'http://',
   blockedServers: [],
   'HOMEINIT': false,
-  'PTPLAYERQUALITY': null,
+  slPlayerQuality: null,
   'PTPLAYERVOLUME': null,
   'slPlayerForceTranscode': null,
   hideUsername: null,
   altUsername: null,
   'CLIENTIDENTIFIER': `${generateGuid()}-${generateGuid()}`,
-  'LASTSERVER': null
+  lastServer: null
 });
 
 // Use stored value if not null, othewise fallback to config, then default values
@@ -42,8 +42,8 @@ const getters = {
     coalesce(state.customServer, rootGetters['config/GET_CONFIG'].customServer),
   GET_BLOCKEDSERVERS: state => state.blockedServers,
   GET_HOMEINIT: state => state.HOMEINIT,
-  GET_PTPLAYERQUALITY: (state, getters, rootState, rootGetters) =>
-    coalesce(state.PTPLAYERQUALITY, rootGetters['config/GET_CONFIG'].PTPLAYERQUALITY, defaultSettings.PTPLAYERQUALITY),
+  GET_SLPLAYERQUALITY: (state, getters, rootState, rootGetters) =>
+    coalesce(state.slPlayerQuality, rootGetters['config/GET_CONFIG'].slPlayerQuality, defaultSettings.slPlayerQuality),
   GET_PTPLAYERVOLUME: (state, getters, rootState, rootGetters) =>
     coalesce(state.PTPLAYERVOLUME, rootGetters['config/GET_CONFIG'].PTPLAYERVOLUME, defaultSettings.PTPLAYERVOLUME),
   GET_SLPLAYERFORCETRANSCODE: (state, getters, rootState, rootGetters) =>
@@ -52,7 +52,7 @@ const getters = {
     coalesce(state.hideUsername, rootGetters['config/GET_CONFIG'].hideUsername, defaultSettings.hideUsername),
   GET_ALTUSERNAME: state => state.altUsername,
   GET_CLIENTIDENTIFIER: state => state.CLIENTIDENTIFIER,
-  GET_LASTSERVER: state => state.LASTSERVER,
+  GET_LASTSERVER: state => state.lastServer,
   GET_CUSTOM_SERVER_USER_INPUTTED_URL: state => state.customServerUserInputtedUrl
 };
 
@@ -65,7 +65,9 @@ const mutations = {
   SET_HIDEUSERNAME: (state, hide) => state.hideUsername = hide,
   SET_ALTUSERNAME: (state, alt) => state.altUsername = alt,
   SET_BLOCKEDSERVERS: (state, blocked) => state.blockedServers = blocked,
-  SET_CUSTOM_SERVER_USER_INPUTTED_URL: (state, url) => state.customServerUserInputtedUrl = url
+  SET_CUSTOM_SERVER_USER_INPUTTED_URL: (state, url) => state.customServerUserInputtedUrl = url,
+  SET_SLPLAYERQUALITY: (state, quality) => state.slPlayerQuality = quality,
+  SET_LASTSERVER: (state, server) => state.lastServer = server
 };
 
 export default {

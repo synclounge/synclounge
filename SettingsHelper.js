@@ -111,6 +111,12 @@ const fields = [
     env: 'HIDEUSERNAME',
     default: defaultSettings.hideUsername,
     type: 'boolean'
+  },
+  {
+    local: 'slPlayerQuality',
+    env: 'SLPLAYERQUALITY',
+    default: defaultSettings.slPlayerQuality,
+    type: 'string'
   }
 ];
 
