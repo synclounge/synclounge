@@ -202,74 +202,11 @@ export default {
     host() {
       return this.$store.getters.getUsers.find(user => user.role === 'host');
     },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
-    validPlex() {
-      if (!this.$store.state.plex) {
-        return false;
-      }
-      return true;
-    },
-    validDevices() {
-      if (!this.plex) {
-        return false;
-      }
-      return this.plex.gotDevices;
-    },
-    showBrowser() {
-      return this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom;
-    },
-    isPTPlayer() {
-      return this.chosenClient && this.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10';
-    },
-    showMetadata() {
-      return (
-        !this.isPTPlayer &&
-        !this.showBrowser &&
-        this.chosenClient &&
-        this.chosenClient.clientPlayingMetadata
-      );
-    },
-    ptConnected() {
-      return this.$store.getters.getConnected;
-    },
-    ptServer() {
-      return this.$store.getters.getServer;
-    },
     ptRoom() {
       return this.$store.getters.getRoom;
     },
-    ptPassword() {
-      return this.$store.getters.getPassword;
-    },
     ptUsers() {
       return this.$store.getters.getUsers;
-    },
-    userCount() {
-      const count = this.$store.getters.getUsers.length;
-      if (count === 1) {
-        return `${count} user`;
-      }
-      return `${count} users`;
-    },
-    playercount() {
-      if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${this.$store.state.plex.clients.length})`;
-      }
-      return '';
-    },
-    servercount() {
-      if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${this.$store.state.plex.servers.length})`;
-      }
-      return '';
-    },
-    showChatValue() {
-      if (this.$store.getters.getShownChat) {
-        return 'block';
-      }
-      return 'none';
     },
     serverDelay() {
       return Math.round(this.$store.state.synclounge.commands[
