@@ -16,6 +16,7 @@
       @seeking="onPlayerSeeking($event)"
       @seeked="onPlayerSeeked($event)"
       @statechanged="playerStateChanged($event)"
+      @volumechange="volumeChange($event)"
 
       @ready="playerReadied($event)"
       style="background-color:transparent !important;"
@@ -147,14 +148,10 @@ export default {
 
         fluid: true,
         preload: 'auto',
-        volume: 1,
         aspectRatio: '16:9',
         autoplay: true,
         width: '100%',
         language: 'en',
-
-        bufferStart: 0,
-        bufferEnd: 0,
 
         sources: [
           this.source,
@@ -392,9 +389,12 @@ export default {
         duration: this.duration,
       });
     },
-    playerStateChanged(playerCurrentState) {
+    volumeChange(event) {
       // console.log("Setting volume to " + this.player.volume() || 0)
       this.$store.commit('setSetting', ['PTPLAYERVOLUME', this.player.volume() || 0]);
+    },
+    playerStateChanged(playerCurrentState) {
+
       this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000);
       this.duration = Math.round(this.player.duration() * 1000);
       this.bufferStart = Math.round(this.player.buffered().start(0) * 1000);
