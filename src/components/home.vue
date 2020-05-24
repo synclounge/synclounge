@@ -53,10 +53,7 @@ export default {
   methods: {
     ...mapMutations('settings', [
       'SET_HOMEINIT'
-    ]),
-    letsStart() {
-      this.$router.push('/');
-    },
+    ])
   },
   computed: {
     ...mapGetters('settings', [
