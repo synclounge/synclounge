@@ -638,6 +638,11 @@ export default {
         return;
       }
 
+      if (!changeItem) {
+        // Update offset to current time to resume where we were
+        this.offset = this.playertime;
+      }
+
       const req = () => {
         this.sources = this.generateSources();
         request(this.getSourceByLabel(this.chosenQuality).initUrl, (error, response, body) => {
@@ -766,6 +771,7 @@ export default {
         session: this.sessionId,
         offset: 0,
         // offset: Math.round(this.playertime / 1000),
+        time: Math.round(this.playertime / 1000),
         subtitles: 'burn',
         copyts: 1,
         'Accept-Language': 'en',
