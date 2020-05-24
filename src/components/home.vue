@@ -38,28 +38,33 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex';
+
 export default {
   name: 'home',
   created() {
-    if (this.$store.getters.getSettingHOMEINIT) {
+    if (this.GET_HOMEINIT) {
       this.$router.push('/browse');
     }
   },
   mounted() {
-    this.$store.commit('setSettingHOMEINIT', true);
+    this.SET_HOMEINIT(true);
   },
   methods: {
+    ...mapMutations('settings', [
+      'SET_HOMEINIT'
+    ]),
     letsStart() {
       this.$router.push('/');
     },
   },
   computed: {
+    ...mapGetters('settings', [
+      'GET_HOMEINIT'
+    ]),
     logo() {
       return 'slweb/logo-long-light.png';
-    },
-    firstRun() {
-      return !this.$store.getters.getSettingHOMEINIT;
-    },
-  },
+    }
+  }
 };
 </script>

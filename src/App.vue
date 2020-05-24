@@ -454,9 +454,6 @@ export default {
     shortUrl() {
       return this.$store.getters.getShortLink;
     },
-    firstRun() {
-      return !this.$store.getters.getSettingHOMEINIT;
-    },
 
     mainStyle() {
       if (this.$store.getters.getBackground !== null) {
