@@ -7,15 +7,22 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+
 export default {
   name: 'signout',
   mounted() {
-    window.localStorage.removeItem('plexuser');
+    this.SET_PLEX_AUTH_TOKEN(null);
     this.$store.state.plex = null;
     this.$store.state.signedin = 'notsignedin';
     setTimeout(() => {
       location.reload();
     }, 2500);
   },
+  methods: {
+    ...mapMutations('settings', [
+      'SET_PLEX_AUTH_TOKEN'
+    ]),
+  }
 };
 </script>

@@ -24,7 +24,6 @@ const state = () => ({
   shownChat: false,
   chosenClient: null,
   chosenClientTimeSet: new Date().getTime(),
-  plexuser: JSON.parse(window.localStorage.getItem('plexuser')),
   blockAutoPlay: false,
   autoJoin: false,
   autoJoinUrl: null,
@@ -92,7 +91,7 @@ const mutations = {
     }
     state.chosenClientTimeSet = new Date().getTime();
     clientPoller(state.chosenClientTimeSet);
-    state.chosenClient.getTimeline((timeline) => { });
+    state.chosenClient.getTimeline((timeline) => {});
   },
   SET_PLEX(state, value) {
     state.plex = value;
@@ -119,7 +118,7 @@ const mutations = {
     state.shortLink = value;
   },
   REFRESH_PLEXDEVICES() {
-    store.state.plex.getDevices(() => { });
+    store.state.plex.getDevices(() => {});
   },
   SET_RANDOMBACKROUND(state) {
     state.plex.getRandomThumb((result) => {
@@ -172,7 +171,6 @@ const defaultSyncloungeServers = [
 const getters = {
   getAppVersion: state => state.appVersion,
   getPlex: state => state.plex,
-  getPlexUser: state => state.plexuser,
   getBackground: state => state.background,
   getChosenClient: state => state.chosenClient,
   getShownChat: state => state.shownChat,
@@ -207,14 +205,13 @@ const getters = {
       return getters['config/GET_CONFIG'].servers;
     } else if (getters['config/GET_CONFIG'].customServer) {
       return defaultSyncloungeServers.concat([getters['config/GET_CONFIG'].customServer]);
-    } else {
-      return defaultSyncloungeServers.concat([getters['settings/GET_CUSTOMSERVER']]);
     }
-  }
+    return defaultSyncloungeServers.concat([getters['settings/GET_CUSTOMSERVER']]);
+  },
 };
 
 const actions = {
-  async PLAYBACK_CHANGE({ commit, state, dispatch, }, data) {
+  async PLAYBACK_CHANGE({ commit, state, dispatch }, data) {
     const [client, ratingKey, mediaContainer] = data;
     if (ratingKey) {
       // Playing something different!
@@ -235,12 +232,12 @@ const actions = {
         if (metadata.type === 'movie') {
           sendNotification(`Now Playing: ${metadata.title} from ${
             state.plex.servers[metadata.machineIdentifier].name
-            }`);
+          }`);
         }
         if (metadata.type === 'episode') {
           sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
             metadata.index
-            } from ${state.plex.servers[metadata.machineIdentifier].name}`);
+          } from ${state.plex.servers[metadata.machineIdentifier].name}`);
         }
         state.chosenClient.clientPlayingMetadata = metadata;
         const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
@@ -260,7 +257,9 @@ const actions = {
       }
     }
   },
-  NEW_TIMELINE({ commit, state, dispatch, getters }, data) {
+  NEW_TIMELINE({
+    commit, state, dispatch, getters,
+  }, data) {
     // return true
     const timeline = data;
     const client = state.chosenClient;
@@ -369,14 +368,11 @@ const actions = {
       }
       state.synclounge._socket.emit('poll', endObj);
     }
-  }
+  },
 };
 
-
 const persistedState = createPersistedState({
-  paths: [
-    'settings'
-  ]
+  paths: ['settings'],
 });
 
 const store = new Vuex.Store({
@@ -388,9 +384,9 @@ const store = new Vuex.Store({
     synclounge: syncLounge,
     plex,
     config,
-    settings
+    settings,
   },
-  plugins: [persistedState]
+  plugins: [persistedState],
 });
 
 export default store;

@@ -23,7 +23,7 @@
         </v-layout>
         <div v-else>
           <h1
-            v-if="!token"
+            v-if="!GET_PLEX_AUTH_TOKEN"
             class="center-text pa-4"
           >To use SyncLounge you need to sign in with your Plex account.</h1>
           <div v-if="!preAuth || checkingAuth">
@@ -78,7 +78,6 @@ export default {
     return {
       pin: null,
       ID: null,
-      token: null,
       status: 'startup',
       headers: {
         'X-Plex-Device': 'Web',
@@ -101,7 +100,8 @@ export default {
   methods: {
     ...mapMutations('settings', [
       'SET_HIDEUSERNAME',
-      'SET_ALTUSERNAME'
+      'SET_ALTUSERNAME',
+      'SET_PLEX_AUTH_TOKEN'
     ]),
     async openPopup() {
       this.openedWindow = window.open(this.url, '_blank');
@@ -126,7 +126,7 @@ export default {
       }, this.interval);
     },
     async setAuth(authToken) {
-      window.localStorage.setItem('plexuser', JSON.stringify({ authToken }));
+      this.SET_PLEX_AUTH_TOKEN(authToken);
       await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
       this.token = authToken;
       this.ready = true;
@@ -215,7 +215,8 @@ export default {
   computed: {
     ...mapGetters('settings', [
       'GET_HIDEUSERNAME',
-      'GET_ALTUSERNAME'
+      'GET_ALTUSERNAME',
+      'GET_PLEX_AUTH_TOKEN'
     ]),
     HIDEUSERNAME: {
       get() {
@@ -258,10 +259,7 @@ export default {
   async mounted() {
     let authToken = null;
     // Check for PlexToken set via SyncLounge or Plex
-    if (window.localStorage.getItem('myPlexAccessToken')) {
-      authToken = window.localStorage.getItem('myPlexAccessToken');
-    }
-    else if($cookies.get('mpt')) {
+    if($cookies.get('mpt')) {
       authToken = $cookies.get('mpt');
     }
 

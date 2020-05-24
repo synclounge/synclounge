@@ -4,6 +4,7 @@ const { defaultSettings } = require('@/default-settings');
 // The state must return a function
 // to make the module reusable.
 // See: https://vuex.vuejs.org/en/modules.html#module-reuse
+// All of these settings are stored in localStorage and are persistent across reloads
 const state = () => ({
   autoplay: null,
   clientPollInterval: null,
@@ -24,6 +25,7 @@ const state = () => ({
   altUsername: null,
   CLIENTIDENTIFIER: `${generateGuid()}-${generateGuid()}`,
   lastServer: null,
+  plexAuthToken: null,
 });
 
 // Use stored value if not null, othewise fallback to config, then default values
@@ -75,6 +77,7 @@ const getters = {
   GET_CLIENTIDENTIFIER: state => state.CLIENTIDENTIFIER,
   GET_LASTSERVER: state => state.lastServer,
   GET_CUSTOM_SERVER_USER_INPUTTED_URL: state => state.customServerUserInputtedUrl,
+  GET_PLEX_AUTH_TOKEN: state => state.plexAuthToken,
 };
 
 const mutations = {
@@ -90,6 +93,7 @@ const mutations = {
   SET_SLPLAYERQUALITY: (state, quality) => (state.slPlayerQuality = quality),
   SET_LASTSERVER: (state, server) => (state.lastServer = server),
   SET_SLPLAYERVOLUME: (state, volume) => (state.slPlayerVolume = volume),
+  SET_PLEX_AUTH_TOKEN: (state, token) => (state.plexAuthToken = token),
 };
 
 export default {

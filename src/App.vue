@@ -289,7 +289,7 @@ export default {
       }
       this.$store.dispatch('PLAYBACK_CHANGE', data);
     });
-    if (!window.localStorage.getItem('plexuser')) {
+    if (!this.plexAuthToken) {
       this.$router.push('/signin');
       this.loading = false;
       return;
@@ -297,9 +297,9 @@ export default {
     if (this.$route.path === '/') {
       this.$router.push('/clientselect');
     }
-    const plexstorage = JSON.parse(window.localStorage.getItem('plexuser'));
+
     try {
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken);
+      await this.$store.dispatch('PLEX_LOGIN_TOKEN', this.plexAuthToken);
     } catch (e) {
       this.$router.push('/signin');
       return;
@@ -323,7 +323,8 @@ export default {
   computed: {
     ...mapGetters({
       config: 'config/GET_CONFIG',
-      syncloungeServers: 'GET_SYNCLOUNGE_SERVERS'
+      syncloungeServers: 'GET_SYNCLOUNGE_SERVERS',
+      plexAuthToken: 'settings/GET_PLEX_AUTH_TOKEN'
     }),
     plex() {
       return this.$store.getters.getPlex;
@@ -414,9 +415,6 @@ export default {
     },
     chosenClient() {
       return this.$store.getters.getChosenClient;
-    },
-    plexusername() {
-      return this.$store.state.plex.user.username;
     },
     plexthumb() {
       return this.$store.state.plex.user.thumb;
