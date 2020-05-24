@@ -231,9 +231,6 @@ export default {
         this.chosenClient.clientPlayingMetadata
       );
     },
-    darkMode() {
-      return this.$store.getters.getSettingDARKMODE;
-    },
     ptConnected() {
       return this.$store.getters.getConnected;
     },
