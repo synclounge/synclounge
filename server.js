@@ -15,6 +15,7 @@ const SettingsHelper = require('./SettingsHelper');
 const settings = new SettingsHelper();
 
 const root = express();
+root.options('*', cors()) // enable pre-flight across-the-board
 root.use(cors({ credentials: false }));
 root.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', false);
@@ -53,7 +54,18 @@ root.use(serverRoot, ptserver);
 root.get('*', (req, res) => res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.'));
 
 const rootserver = require('http').createServer(root);
-const ptserver_io = require('socket.io')(rootserver, { path: `${serverRoot}/socket.io` });
+const ptserver_io = require('socket.io')(rootserver, {
+  path: `${serverRoot}/socket.io`,
+  handlePreflightRequest: (req, res) => {
+    var headers = {
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Origin': req.headers.origin || '*',
+      'Access-Control-Allow-Credentials': true
+    };
+    res.writeHead(200, headers);
+    res.end();
+  }
+});
 
 ptserver_io.on('connection', (socket) => {
   console.log('Someone connected to the SyncLounge server socket');

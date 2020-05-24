@@ -152,7 +152,7 @@ export default {
         fluid: true,
         preload: 'auto',
         // TODO: this volume doesn't seem to do anything
-        volume: 0.5, // volume goes from 0 to 1
+        volume: 1,
         aspectRatio: '16:9',
         autoplay: this.GET_AUTOPLAY,
         width: '100%',
@@ -323,9 +323,6 @@ export default {
     },
     onPlayerLoadeddata(player) {
       const that = this;
-      this.$nextTick(() => {
-        this.player.currentTime(this.initialOffset / 1000);
-      });
 
       player.on(['pause'], () => {
         this.isPlaying = 'paused';
@@ -403,6 +400,7 @@ export default {
       });
     },
     playerStateChanged(playerCurrentState) {
+      // TODO: move this volume setting to an actual volume change event handler
       if (this.player.volume() !== this.GET_SLPLAYERVOLUME) {
         this.SET_SLPLAYERVOLUME(this.player.volume());
       }
@@ -433,6 +431,7 @@ export default {
     },
     playerReadied(player) {
       this.player.volume(this.GET_SLPLAYERVOLUME);
+      this.player.currentTime(this.initialOffset / 1000);
     },
   }
 };
