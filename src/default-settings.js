@@ -8,6 +8,6 @@ module.exports = {
     syncFlexibility: 3000,
     slPlayerForceTranscode: true,
     slPlayerQuality: 'Original',
-    PTPLAYERVOLUME: 100
-  }
+    slPlayerVolume: 1,
+  },
 };

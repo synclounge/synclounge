@@ -17,7 +17,6 @@
       @seeked="onPlayerSeeked($event)"
       @statechanged="playerStateChanged($event)"
 
-      @ready="playerReadied"
       style="background-color:transparent !important;"
       class="ptplayer"
 >
@@ -29,7 +28,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 const request = require('request');
 
 export default {
@@ -132,7 +131,10 @@ export default {
     });
   },
   computed: {
-    ...mapGetters('settings', ['GET_AUTOPLAY']),
+    ...mapGetters('settings', [
+      'GET_AUTOPLAY',
+      'GET_SLPLAYERVOLUME'
+    ]),
     player() {
       if (this.$refs && this.$refs.videoPlayer) {
         return this.$refs.videoPlayer.player;
@@ -149,7 +151,8 @@ export default {
 
         fluid: true,
         preload: 'auto',
-        volume: 0.5,
+        // TODO: this volume doesn't seem to do anything
+        volume: 0.5, // volume goes from 0 to 1
         aspectRatio: '16:9',
         autoplay: this.GET_AUTOPLAY,
         width: '100%',
@@ -187,7 +190,9 @@ export default {
 
   },
   methods: {
-
+    ...mapMutations('settings', [
+      'SET_SLPLAYERVOLUME'
+    ]),
     // Player events
     closingPlayer() {
     },
@@ -398,8 +403,10 @@ export default {
       });
     },
     playerStateChanged(playerCurrentState) {
-      // console.log("Setting volume to " + this.player.volume() || 0)
-      this.$store.commit('setSetting', ['PTPLAYERVOLUME', this.player.volume() || 0]);
+      if (this.player.volume() !== this.GET_SLPLAYERVOLUME) {
+        this.SET_SLPLAYERVOLUME(this.player.volume());
+      }
+
       this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000);
       this.duration = Math.round(this.player.duration() * 1000);
       this.bufferStart = Math.round(this.player.buffered().start(0) * 1000);
@@ -425,11 +432,9 @@ export default {
       });
     },
     playerReadied(player) {
-      // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
-      this.player.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 0);
+      this.player.volume(this.GET_SLPLAYERVOLUME);
     },
-
-  },
+  }
 };
 </script>
 <style scoped>

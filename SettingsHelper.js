@@ -4,122 +4,127 @@ const settings = require('./settings.json');
 const { coalesce } = require('./src/utils/helpers');
 const { defaultSettings } = require('./src/default-settings');
 
-
 const fields = [
   // Webapp settings
   {
     local: 'webroot',
     env: 'WEB_ROOT',
     default: '',
-    type: 'string'
+    type: 'string',
   },
   {
     local: 'webapp_port',
     env: 'WEB_PORT',
     default: '8088',
-    type: 'number'
+    type: 'number',
   },
   {
     local: 'accessUrl',
     env: 'WEB_ACCESSURL',
     default: '',
-    type: 'string'
+    type: 'string',
   },
   {
     local: 'autoJoin',
     env: 'AUTOJOIN_ENABLED',
     default: false,
-    type: 'boolean'
+    type: 'boolean',
   },
   {
     local: 'autoJoinServer',
     env: 'AUTOJOIN_SERVERURL',
     default: '',
-    type: 'string'
+    type: 'string',
   },
   {
     local: 'autoJoinRoom',
     env: 'AUTOJOIN_ROOM',
     default: '',
-    type: 'string'
+    type: 'string',
   },
   {
     local: 'autoJoinPassword',
     env: 'AUTOJOIN_PASSWORD',
     default: '',
-    type: 'string'
+    type: 'string',
   },
   {
     local: 'authentication',
     env: 'AUTHENTICATION',
     default: {
-      mechanism: 'none'
+      mechanism: 'none',
     },
-    type: 'object'
+    type: 'object',
   },
   {
     local: 'customServer',
     env: 'CUSTOM_SERVER',
     default: null,
-    type: 'object'
+    type: 'object',
   },
   {
     local: 'servers',
     env: 'SERVERS',
     default: [],
-    type: 'array'
+    type: 'array',
   },
   // Server settings
   {
     local: 'serverroot',
     env: 'SERVER_ROOT',
     default: '/slserver',
-    type: 'string'
+    type: 'string',
   },
   {
     local: 'server_port',
     env: 'SERVER_PORT',
     default: '8089',
-    type: 'number'
+    type: 'number',
   },
   {
     local: 'autoplay',
     env: 'AUTOPLAY',
     default: defaultSettings.autoplay,
-    type: 'boolean'
+    type: 'boolean',
   },
   {
     local: 'clientPollInterval',
     env: 'CLIENTPOLLINTERVAL',
     default: defaultSettings.clientPollInterval,
-    type: 'number'
+    type: 'number',
   },
   {
     local: 'syncMode',
     env: 'SYNCMODE',
     default: defaultSettings.syncMode,
-    type: 'string'
+    type: 'string',
   },
   {
     local: 'syncFlexibility',
     env: 'SYNCFLEXIBILITY',
     default: defaultSettings.syncFlexibility,
-    type: 'number'
+    type: 'number',
   },
   {
     local: 'hideUsername',
     env: 'HIDEUSERNAME',
     default: defaultSettings.hideUsername,
-    type: 'boolean'
+    type: 'boolean',
   },
   {
     local: 'slPlayerQuality',
     env: 'SLPLAYERQUALITY',
     default: defaultSettings.slPlayerQuality,
-    type: 'string'
-  }
+    type: 'string',
+  },
+  {
+    // Valid values are in the range [0, 1]
+    local: 'slPlayerVolume',
+    env: 'SLPLAYERVOLUME',
+    default: defaultSettings.slPlayerVolume,
+    type: 'number',
+  },
 ];
-
 
 // Returns the parsed setting or default value if wrong type or unable to be parsed
 const parseSetting = (value, setting) => {
@@ -158,7 +163,7 @@ const parseSetting = (value, setting) => {
 
   console.error(`Error parsing [${setting.type}]: ${e.message} Reverting to default. Value: '${value}'`);
   return setting.default;
-}
+};
 
 module.exports = {
   readSettings() {
@@ -170,41 +175,62 @@ module.exports = {
       // console.log(`Args: '${args[setting.env]}'; '${args[setting.local]}'`);
       // console.log(`ENV: '${process.env[setting.env]}'; '${process.env[setting.local]}'`);
       // console.log(`Settings: '${settings[setting.local]}'; '${setting.default}'`);
-      const value = coalesce(args[setting.env], args[setting.local], process.env[setting.env], process.env[setting.local], settings[setting.env], settings[setting.local], setting.default);
+      const value = coalesce(
+        args[setting.env],
+        args[setting.local],
+        process.env[setting.env],
+        process.env[setting.local],
+        settings[setting.env],
+        settings[setting.local],
+        setting.default,
+      );
       output[setting.local] = parseSetting(value, setting);
 
       // Backwards compatibilty for PORT ENV setting
       if (setting.local == 'webapp_port' && output[setting.local] == 8088) {
-        let port = args['PORT'] || process.env['PORT'] || settings['PORT'];
+        const port = args.PORT || process.env.PORT || settings.PORT;
         if (port && port !== 8088) {
-          console.log(`Please change 'PORT' to 'WEB_PORT'. Setting WEB_PORT to '${port}'`)
+          console.log(`Please change 'PORT' to 'WEB_PORT'. Setting WEB_PORT to '${port}'`);
           output[setting.local] = port;
         }
       }
 
       // Remove trailing slashes, if they exist
-      if ((setting.local == 'webroot' || setting.local == 'accessUrl') && output[setting.local].endsWith("/")) {
+      if (
+        (setting.local == 'webroot' || setting.local == 'accessUrl') &&
+        output[setting.local].endsWith('/')
+      ) {
         console.log(`${setting.local}/${setting.env} should not end in '/'. Removing trailing slash(es) for you.`);
-        output[setting.local] = output[setting.local].replace(/\/+$/, "");
-        console.log(`- Done.`);
+        output[setting.local] = output[setting.local].replace(/\/+$/, '');
+        console.log('- Done.');
       }
       // Add leading slash, if not provided
-      if (setting.local == 'webroot' && output[setting.local].length > 1 && !output[setting.local].startsWith("/")) {
+      if (
+        setting.local == 'webroot' &&
+        output[setting.local].length > 1 &&
+        !output[setting.local].startsWith('/')
+      ) {
         console.log(`${setting.local}/${setting.env} should always start with '/'. Adding the leading slash for you.`);
         // Make sure it starts with one leading slash
         output[setting.local] = `/${output[setting.local]}`;
-        console.log(`- Done.`);
+        console.log('- Done.');
       }
       // Make sure 'webroot' and 'serverroot' aren't set to '/'. Revert to default if they do.
-      if ((setting.local == 'webroot' || setting.local == 'serverroot') && output[setting.local] == '/') {
+      if (
+        (setting.local == 'webroot' || setting.local == 'serverroot') &&
+        output[setting.local] == '/'
+      ) {
         console.log(`${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${setting.default}'`);
         output[setting.local] = setting.default;
-        console.log(`- Done.`);
+        console.log('- Done.');
       }
-      process.env[setting.env] = typeof output[setting.local] === 'object' ? JSON.stringify(output[setting.local]) : output[setting.local];
+      process.env[setting.env] =
+        typeof output[setting.local] === 'object'
+          ? JSON.stringify(output[setting.local])
+          : output[setting.local];
     }
 
-    //console.log('Our settings are', output)
+    // console.log('Our settings are', output)
     return output;
-  }
+  },
 };

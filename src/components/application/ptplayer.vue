@@ -315,11 +315,6 @@ export default {
     chosenServer() {
       this.changedPlaying(true);
     },
-    chosenQuality() {
-      this.changedPlaying(false);
-      // console.log('Our new preferred quality is now ' + this.chosenQuality )
-      this.$store.commit('setSettingPTPLAYERQUALITY', this.chosenQuality);
-    },
     chosenMediaIndex() {
       this.chosenSubtitleIndex = 0;
       this.chosenAudioTrackIndex = 0;
@@ -364,7 +359,7 @@ export default {
       if (this.chosenSubtitleIndex > -1) {
         subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].id;
       }
-      const baseparams = this.getSourceByLabel(this.chosenQuality).params;
+      const baseparams = this.getSourceByLabel(this.slPlayerQuality).params;
       const params = {
         subtitleStreamID,
         'X-Plex-Product': baseparams['X-Plex-Product'],
@@ -499,6 +494,10 @@ export default {
     ...mapMutations('settings', [
       'SET_SLPLAYERQUALITY',
     ]),
+    changeQuality(quality) {
+      this.changedPlaying(false);
+      this.SET_SLPLAYERQUALITY(quality);
+    },
     playerMounted() {
       // console.log('Child player said it is mounted')
     },
