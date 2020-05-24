@@ -638,6 +638,11 @@ export default {
         return;
       }
 
+      if (!changeItem) {
+        // Update offset to current time to resume where we were
+        this.offset = this.playertime;
+      }
+
       const req = () => {
         this.sources = this.generateSources();
         request(this.getSourceByLabel(this.chosenQuality).initUrl, (error, response, body) => {
@@ -767,6 +772,8 @@ export default {
         offset: 0,
         // offset: Math.round(this.playertime / 1000),
         subtitles: 'auto',
+        time: Math.round(this.playertime / 1000),
+        subtitles: 'burn',
         copyts: 1,
         'Accept-Language': 'en',
         'X-Plex-Client-Profile-Extra': 'append-transcode-target-codec(type=videoProfile&context=streaming&videoCodec=h264&container=mpegts&audioCodec=aac,ac3,mp3&protocol=hls&subtitleCodec=text,webvtt)+add-transcode-target(type=subtitleProfile&context=streaming&protocol=hls&container=webvtt&subtitleCodec=webvtt)+add-limitation(scope=VideoAudioCodec&scopeName=aac&type=upperBound&name=audio.channels&value=2)+add-limitation(scope=VideoAudioCodec&scopeName=ac3&type=upperBound&name=audio.channels&value=2)+add-limitation(scope=VideoAudioCodec&scopeName=mp3&type=upperBound&name=audio.channels&value=2)',

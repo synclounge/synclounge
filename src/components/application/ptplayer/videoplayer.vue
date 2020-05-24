@@ -147,7 +147,7 @@ export default {
 
         fluid: true,
         preload: 'auto',
-        volume: 0.5,
+        volume: 1,
         aspectRatio: '16:9',
         autoplay: true,
         width: '100%',
@@ -316,9 +316,6 @@ export default {
     },
     onPlayerLoadeddata(player) {
       const that = this;
-      this.$nextTick(() => {
-        this.player.currentTime(this.initialOffset / 1000);
-      });
 
       // Show subtitles
       let tracks = this.player.textTracks();
@@ -432,8 +429,9 @@ export default {
       });
     },
     playerReadied(player) {
-      // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME )
-      this.player.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 0);
+      // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME)
+      this.player.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
+      this.player.currentTime(this.initialOffset / 1000);
     },
 
   },
