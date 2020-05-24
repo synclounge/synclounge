@@ -17,7 +17,6 @@ const state = () => ({
   },
   customServerUserInputtedUrl: 'http://',
   blockedServers: [],
-  homeInit: false,
   slPlayerQuality: null,
   slPlayerVolume: null,
   slPlayerForceTranscode: null,
@@ -48,7 +47,6 @@ const getters = {
   GET_CUSTOMSERVER: (state, getters, rootState, rootGetters) =>
     coalesce(state.customServer, rootGetters['config/GET_CONFIG'].customServer),
   GET_BLOCKEDSERVERS: state => state.blockedServers,
-  GET_HOMEINIT: state => state.homeInit,
   GET_SLPLAYERQUALITY: (state, getters, rootState, rootGetters) =>
     coalesce(
       state.slPlayerQuality,
@@ -92,7 +90,6 @@ const mutations = {
   SET_SLPLAYERQUALITY: (state, quality) => (state.slPlayerQuality = quality),
   SET_LASTSERVER: (state, server) => (state.lastServer = server),
   SET_SLPLAYERVOLUME: (state, volume) => (state.slPlayerVolume = volume),
-  SET_HOMEINIT: (state, homeInit) => (state.homeInit = homeInit),
 };
 
 export default {

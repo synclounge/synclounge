@@ -20,7 +20,6 @@ module.exports = function PlexServer() {
   this.owned = '';
   this.httpsRequired = '';
   this.ownerId = '';
-  this.home = '';
   this.accessToken = '';
   this.sourceTitle = '';
   this.synced = '';
@@ -48,10 +47,11 @@ module.exports = function PlexServer() {
           }
         }
         const options = PlexAuth.getApiOptions('', this.accessToken, 15000, 'GET');
-        axios.get(this.chosenConnection.uri + command, {
-          params,
-          headers: options.headers,
-        })
+        axios
+          .get(this.chosenConnection.uri + command, {
+            params,
+            headers: options.headers,
+          })
           .then((response) => {
             this.handleMetadata(response.data);
             resolve(response.data);
@@ -93,22 +93,22 @@ module.exports = function PlexServer() {
 
     return new Promise(async (resolve, reject) => {
       await Promise.all(this.plexConnections.map(async (connection, index) =>
-        /*eslint-disable */
-         new Promise(async (_resolve, _reject) => {
-          try {
-            let result = await this.hitApiTestConnection('', connection)
-            if (result) {
-              resolved = true
-              // console.log('Succesfully connected to', server, 'via', connection)
-              this.setValue('chosenConnection', connection)
-              resolve(true)
-            }
-            _resolve(false)
-          } catch (e) {
-            _resolve(false)
-          }
-        })
-        /* eslint-enable */
+      /*eslint-disable */
+            new Promise(async (_resolve, _reject) => {
+              try {
+                let result = await this.hitApiTestConnection('', connection);
+                if (result) {
+                  resolved = true;
+                  // console.log('Succesfully connected to', server, 'via', connection)
+                  this.setValue('chosenConnection', connection);
+                  resolve(true);
+                }
+                _resolve(false);
+              } catch (e) {
+                _resolve(false);
+              }
+            }),
+          /* eslint-enable */
       ));
       if (!resolved) {
         reject(new Error('Unable to find a connection'));
@@ -138,7 +138,11 @@ module.exports = function PlexServer() {
     try {
       const data = await this.hitApi(`/library/metadata/${ratingKey}`, {});
       if (data && data.MediaContainer.librarySectionID) {
-        this.commit('SET_LIBRARYCACHE', [data.MediaContainer.librarySectionID, this.clientIdentifier, data.MediaContainer.librarySectionTitle]);
+        this.commit('SET_LIBRARYCACHE', [
+          data.MediaContainer.librarySectionID,
+          this.clientIdentifier,
+          data.MediaContainer.librarySectionTitle,
+        ]);
       }
       this.getPostplay(ratingKey);
       return data;
@@ -155,18 +159,20 @@ module.exports = function PlexServer() {
     });
   };
   this.getPostplay = function (ratingKey) {
-    return this.hitApi(`/hubs/metadata/${ratingKey}/postplay`, { 'X-Plex-Token': this.accessToken });
+    return this.hitApi(`/hubs/metadata/${ratingKey}/postplay`, {
+      'X-Plex-Token': this.accessToken,
+    });
   };
   this.getUrlForLibraryLoc = function (location, width, height, blur) {
     if (!(blur > 0)) {
       blur = 0;
     }
-    if(this.chosenConnection) {
-      return `${this.chosenConnection.uri}/photo/:/transcode?url=${location}&X-Plex-Token=${this.accessToken}&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
+    if (this.chosenConnection) {
+      return `${this.chosenConnection.uri}/photo/:/transcode?url=${location}&X-Plex-Token=${
+        this.accessToken
+      }&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
     }
-    else {
-      return ``;
-    }
+    return '';
   };
   this.getRandomItem = async function () {
     try {
@@ -274,20 +280,31 @@ module.exports = function PlexServer() {
   this.handleMetadata = function (result) {
     // This data is used in our router breadcrumbs
     if (result) {
-      if (result.MediaContainer && result.MediaContainer.Metadata && result.MediaContainer.Metadata.length > 0) {
+      if (
+        result.MediaContainer &&
+        result.MediaContainer.Metadata &&
+        result.MediaContainer.Metadata.length > 0
+      ) {
         for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
           result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier;
           const item = result.MediaContainer.Metadata[i];
           if (result.MediaContainer.Metadata[i].ratingKey) {
-            this.commit('SET_ITEMCACHE', [result.MediaContainer.Metadata[i].ratingKey,
+            this.commit('SET_ITEMCACHE', [
+              result.MediaContainer.Metadata[i].ratingKey,
               result.MediaContainer.Metadata[i],
             ]);
           }
           if (item.grandparentRatingKey) {
-            this.commit('SET_ITEMCACHE', [item.grandparentRatingKey, { title: item.grandparentTitle, machineIdentifier: this.clientIdentifier }]);
+            this.commit('SET_ITEMCACHE', [
+              item.grandparentRatingKey,
+              { title: item.grandparentTitle, machineIdentifier: this.clientIdentifier },
+            ]);
           }
           if (item.parentRatingKey) {
-            this.commit('SET_ITEMCACHE', [item.parentRatingKey, { title: item.parentTitle, machineIdentifier: this.clientIdentifier }]);
+            this.commit('SET_ITEMCACHE', [
+              item.parentRatingKey,
+              { title: item.parentTitle, machineIdentifier: this.clientIdentifier },
+            ]);
           }
         }
       } else {
@@ -295,10 +312,19 @@ module.exports = function PlexServer() {
           this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer]);
         }
         if (result.MediaContainer.grandparentRatingKey) {
-          this.commit('SET_ITEMCACHE', [result.MediaContainer.grandparentRatingKey, { title: result.MediaContainer.grandparentTitle, machineIdentifier: this.clientIdentifier }]);
+          this.commit('SET_ITEMCACHE', [
+            result.MediaContainer.grandparentRatingKey,
+            {
+              title: result.MediaContainer.grandparentTitle,
+              machineIdentifier: this.clientIdentifier,
+            },
+          ]);
         }
         if (result.MediaContainer.parentRatingKey) {
-          this.commit('SET_ITEMCACHE', [result.MediaContainer.parentRatingKey, { title: result.MediaContainer.parentTitle, machineIdentifier: this.clientIdentifier }]);
+          this.commit('SET_ITEMCACHE', [
+            result.MediaContainer.parentRatingKey,
+            { title: result.MediaContainer.parentTitle, machineIdentifier: this.clientIdentifier },
+          ]);
         }
       }
       return result.MediaContainer.Metadata;
