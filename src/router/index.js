@@ -9,125 +9,122 @@ Vue.use(Router);
 
 // ==================== Router registration ====================
 export default new Router({
-  base: process.env.VUE_APP_BASE_URL,
+  base: process.env.webroot,
   mode: 'hash',
-  routes: [{
-    path: '/',
-    meta: {
-      protected: true,
+  routes: [
+    {
+      path: '/',
+      meta: {
+        protected: true,
+      },
     },
-  },
-  {
-    path: '/signin',
-    meta: {
+    {
+      path: '/signin',
+      meta: {},
+      component: signin,
     },
-    component: signin,
-  },
-  {
-    path: '/signout',
-    meta: {
+    {
+      path: '/signout',
+      meta: {},
+      component: signout,
     },
-    component: signout,
-  },
-  {
-    path: '/join',
-    meta: {
-      protected: false,
+    {
+      path: '/join',
+      meta: {
+        protected: false,
+      },
+      component: join,
     },
-    component: join,
-  },
-  {
-    path: '/clientselect',
-    meta: {
+    {
+      path: '/clientselect',
+      meta: {},
+      component: require('../components/application/walkthrough.vue'),
     },
-    component: require('../components/application/walkthrough.vue'),
-  },
-  {
-    path: '/joinroom',
-    meta: {
+    {
+      path: '/joinroom',
+      meta: {},
+      component: require('../components/application/joinroom.vue'),
     },
-    component: require('../components/application/joinroom.vue'),
-  },
 
-  {
-    path: '/player',
-    meta: {
-      protected: true,
+    {
+      path: '/player',
+      meta: {
+        protected: true,
+      },
+      component: require('../components/application/ptplayer.vue'),
     },
-    component: require('../components/application/ptplayer.vue'),
-  },
-  {
-    path: '/nowplaying/:machineIdentifier/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/nowplaying/:machineIdentifier/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'nowplaying',
+      component: require('../components/application/plexbrowser/plexcontent.vue'),
     },
-    name: 'nowplaying',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
 
-  {
-    path: '/browse',
-    meta: {
-      protected: true,
+    {
+      path: '/browse',
+      meta: {
+        protected: true,
+      },
+      name: 'browse',
+      component: require('../components/application/plexbrowser.vue'),
     },
-    name: 'browse',
-    component: require('../components/application/plexbrowser.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier',
+      meta: {
+        protected: true,
+      },
+      name: 'server',
+      component: require('../components/application/plexbrowser/plexserver.vue'),
     },
-    name: 'server',
-    component: require('../components/application/plexbrowser/plexserver.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId',
+      meta: {
+        protected: true,
+      },
+      name: 'library',
+      component: require('../components/application/plexbrowser/plexlibrary.vue'),
     },
-    name: 'library',
-    component: require('../components/application/plexbrowser/plexlibrary.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'content',
+      component: require('../components/application/plexbrowser/plexcontent.vue'),
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'series',
+      component: require('../components/application/plexbrowser/plexseries.vue'),
     },
-    name: 'series',
-    component: require('../components/application/plexbrowser/plexseries.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'season',
+      component: require('../components/application/plexbrowser/plexseason.vue'),
     },
-    name: 'season',
-    component: require('../components/application/plexbrowser/plexseason.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:grandparentKey/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId/tv/:grandparentKey/:parentKey/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'content',
+      component: require('../components/application/plexbrowser/plexcontent.vue'),
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'content',
+      component: require('../components/application/plexbrowser/plexcontent.vue'),
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
   ],
 });

@@ -124,6 +124,12 @@ const fields = [
     default: defaultSettings.slPlayerVolume,
     type: 'number',
   },
+  {
+    local: 'slPlayerForceTranscode',
+    env: 'SLPLAYERFORCETRANSCODE',
+    default: defaultSettings.slPlayerForceTranscode,
+    type: 'boolean',
+  },
 ];
 
 // Returns the parsed setting or default value if wrong type or unable to be parsed
@@ -200,7 +206,9 @@ module.exports = {
         (setting.local == 'webroot' || setting.local == 'accessUrl') &&
         output[setting.local].endsWith('/')
       ) {
-        console.log(`${setting.local}/${setting.env} should not end in '/'. Removing trailing slash(es) for you.`);
+        console.log(`${setting.local}/${
+          setting.env
+        } should not end in '/'. Removing trailing slash(es) for you.`);
         output[setting.local] = output[setting.local].replace(/\/+$/, '');
         console.log('- Done.');
       }
@@ -210,7 +218,9 @@ module.exports = {
         output[setting.local].length > 1 &&
         !output[setting.local].startsWith('/')
       ) {
-        console.log(`${setting.local}/${setting.env} should always start with '/'. Adding the leading slash for you.`);
+        console.log(`${setting.local}/${
+          setting.env
+        } should always start with '/'. Adding the leading slash for you.`);
         // Make sure it starts with one leading slash
         output[setting.local] = `/${output[setting.local]}`;
         console.log('- Done.');
@@ -220,7 +230,9 @@ module.exports = {
         (setting.local == 'webroot' || setting.local == 'serverroot') &&
         output[setting.local] == '/'
       ) {
-        console.log(`${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${setting.default}'`);
+        console.log(`${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${
+          setting.default
+        }'`);
         output[setting.local] = setting.default;
         console.log('- Done.');
       }

@@ -1,10 +1,6 @@
-var merge = require('webpack-merge')
-var prodEnv = require('./prod.env')
-var git = require('git-rev-sync')
-
+const merge = require('webpack-merge');
+const prodEnv = require('./prod.env');
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  gitHash: '"' + git.short() + '"',
-  gitDate: '"' + git.date() + '"'
-})
+});

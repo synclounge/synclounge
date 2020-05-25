@@ -19,7 +19,7 @@ function sendNotification(message) {
 
 const state = () => ({
   appTitle: 'SyncLounge',
-  appVersion: '2.0.0',
+  appVersion: process.env.npm_package_version,
   background: null,
   shownChat: false,
   chosenClient: null,
@@ -363,7 +363,7 @@ const actions = {
       }
       state.synclounge._socket.emit('poll', endObj);
     }
-  }
+  },
 };
 
 const persistedState = createPersistedState({
