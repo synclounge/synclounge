@@ -234,16 +234,6 @@ export default {
       }
     }
 
-    // Get other settings in order of importance: config -> settings
-    // Authentication Mechanism setting
-    if (this.config && this.config.authentication) {
-      this.$store.commit('SET_AUTHENTICATION', this.config.authentication);
-    } else {
-      this.$store.commit('SET_AUTHENTICATION', {
-        type: 'none',
-      });
-    }
-
     // Auto-join if a single server is provided and autoJoinServer is not
     if (this.syncloungeServers.length == 1 && !this.$store.autoJoinServer) {
       const server = this.syncloungeServers[0];

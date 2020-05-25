@@ -70,7 +70,7 @@
 
 <script>
 import axios from 'axios';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'signin',
@@ -98,6 +98,9 @@ export default {
     };
   },
   methods: {
+    ...mapActions({
+      'plexCheckAuth': 'PLEX_CHECK_AUTH'
+    }),
     ...mapMutations('settings', [
       'SET_HIDEUSERNAME',
       'SET_ALTUSERNAME',
@@ -143,72 +146,8 @@ export default {
     },
     async checkAuth(authToken) {
       this.checkingAuth = true;
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
-      // Get stored authentication settings
-      const authentication = { ...this.$store.state.authentication };
-      // Authentication defaults to false
-      let authenticationPassed = false;
-
-      if (authentication) {
-        // Authenication via Plex mechanism
-        if (authentication.mechanism === 'plex') {
-          // Server authorization using server data
-          if (authentication.type.includes('server')) {
-            try {
-              // Retrieve and store the user's servers
-              await this.$store.dispatch('PLEX_GET_DEVICES', true);
-              // Get the user's servers
-              const servers = { ...this.$store.state.plex.servers };
-
-              // Compare servers against the authorized list
-              for (const id in servers) {
-                const server = servers[id];
-                if (authentication.authorized.includes(server.clientIdentifier)) {
-                  authenticationPassed = true;
-                }
-              }
-            } catch (e) {
-              console.error('An error occurred when authenticating with Plex: ', e);
-            }
-          }
-          // Authorization using user data
-          if (authentication.type.includes('user')) {
-            // Get the user object
-            const user = this.$store.state.plex.user;
-            // Compare the user's email against the authorized list
-            if (authentication.authorized.includes(user.email)) {
-              authenticationPassed = true;
-            }
-            // Compare the user's name against the authorized list
-            if (authentication.authorized.includes(user.username)) {
-              authenticationPassed = true;
-            }
-          }
-        }
-        // New authentication mechanisms can be added here
-        // else if (authentication.mechanism == 'new_mech' ) {
-        // }
-        // Authenication via an unsupported mechanism
-        else if (authentication.mechanism != 'none') {
-          console.error(
-            `Invalid authentication mechanism provided: '${
-              authentication.mechanism
-            }'. Reverting to default.`,
-          );
-          this.$store.state.authentication = {
-            mechanism: 'none',
-          };
-          authenticationPassed = true;
-        }
-        // Authenication mechanism isn't set. This should only happen when authentication mechanism is set to 'none'.
-        else {
-          console.log('No authentication set');
-          authenticationPassed = true;
-        }
-        this.checkingAuth = false;
-        return authenticationPassed;
-      }
-
+      await plexCheckAuth(authToken);
+      this.checkingAuth = false;
       return null;
     },
   },
@@ -269,7 +208,7 @@ export default {
           console.log('--- Check Auth mounted ---')
           const authenticated = await this.checkAuth(authToken);
           if (authenticated != null) {
-            if (authenticated == true) {
+            if (authenticated === true) {
               await this.setAuth(authToken);
               this.letsGo();
             } else {
