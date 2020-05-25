@@ -83,9 +83,9 @@ export default {
         'X-Plex-Device': 'Web',
         'X-Plex-Device-Name': 'SyncLounge',
         'X-Plex-Product': 'SyncLounge',
-        'X-Plex-Version': this.$store.state.appVersion,
+        'X-Plex-Version': this.getAppVersion,
         'X-Plex-Platform-Version': '',
-        'X-Plex-Client-Identifier': this.$store.state.settings.CLIENTIDENTIFIER,
+        'X-Plex-Client-Identifier': this.GET_CLIENTIDENTIFIER
       },
       code: null,
       preAuth: false,
@@ -152,11 +152,13 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('settings', [
-      'GET_HIDEUSERNAME',
-      'GET_ALTUSERNAME',
-      'GET_PLEX_AUTH_TOKEN'
-    ]),
+    ...mapGetters({
+      'GET_HIDEUSERNAME': 'settings/GET_HIDEUSERNAME',
+      'GET_ALTUSERNAME': 'settings/GET_ALTUSERNAME',
+      'GET_PLEX_AUTH_TOKEN': 'settings/GET_PLEX_AUTH_TOKEN',
+      'GET_CLIENTIDENTIFIER': 'settings/GET_CLIENTIDENTIFIER',
+      'getAppVersion': 'getAppVersion'
+    }),
     HIDEUSERNAME: {
       get() {
         return this.GET_HIDEUSERNAME;

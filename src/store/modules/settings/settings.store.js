@@ -23,7 +23,7 @@ const state = () => ({
   slPlayerForceTranscode: null,
   hideUsername: null,
   altUsername: null,
-  CLIENTIDENTIFIER: `${generateGuid()}-${generateGuid()}`,
+  clientIdentifier: `${generateGuid()}-${generateGuid()}`,
   lastServer: null,
   plexAuthToken: null,
   recentRooms: [],
@@ -75,7 +75,7 @@ const getters = {
       defaultSettings.hideUsername,
     ),
   GET_ALTUSERNAME: state => state.altUsername,
-  GET_CLIENTIDENTIFIER: state => state.CLIENTIDENTIFIER,
+  GET_CLIENTIDENTIFIER: state => state.clientIdentifier,
   GET_LASTSERVER: state => state.lastServer,
   GET_CUSTOM_SERVER_USER_INPUTTED_URL: state => state.customServerUserInputtedUrl,
   GET_PLEX_AUTH_TOKEN: state => state.plexAuthToken,
@@ -100,21 +100,11 @@ const mutations = {
 };
 
 const actions = {
-  ADD_RECENT_ROOM: ({ commit, getters }, newRoom) => {
-    console.log('first filter');
-    const lol = Array.of(newRoom).concat(getters.GET_RECENT_ROOMS.filter((room) => {
-      console.log(`${room.server} !== ${newRoom.server}: ${room.server !== newRoom.server}`);
-      console.log(`${room.room} !== ${newRoom.room}: ${room.room !== newRoom.room}`);
-      console.log(`${room.server !== newRoom.server && room.room !== newRoom.room}`);
-      return room.server !== newRoom.server || room.room !== newRoom.room;
-    }));
-    console.log('new rooms');
-    console.log(lol);
+  ADD_RECENT_ROOM: ({ commit, getters }, newRoom) =>
     commit(
       'SET_RECENT_ROOMS',
       Array.of(newRoom).concat(getters.GET_RECENT_ROOMS.filter(room => room.server !== newRoom.server || room.room !== newRoom.room)),
-    );
-  },
+    ),
 
   REMOVE_RECENT_ROOM: ({ commit, getters }, roomToRemove) =>
     commit(
