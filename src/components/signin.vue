@@ -159,7 +159,7 @@ export default {
     ]),
     HIDEUSERNAME: {
       get() {
-        return this.GET_HIDEUSERNAMEl
+        return this.GET_HIDEUSERNAME;
       },
       set(value) {
          this.SET_HIDEUSERNAME(value);
