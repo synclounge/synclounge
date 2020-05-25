@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 import moment from 'moment';
+
 const EventEmitter = require('events');
 
 function sendNotification(message) {
@@ -82,7 +83,7 @@ export default {
 
   actions: {
     async autoJoin({
-      state, commit, rootState, dispatch
+      state, commit, rootState, dispatch,
     }, data) {
       await dispatch('socketConnect', {
         address: data.server,
@@ -141,7 +142,9 @@ export default {
         });
       });
     },
-    joinRoom({ state, commit, rootState, rootGetters }, data) {
+    joinRoom({
+      state, commit, dispatch, rootState, rootGetters,
+    }, data) {
       return new Promise(async (resolve, reject) => {
         if (!state._socket || !state.connected) {
           throw new Error('Not connected to a server!');
@@ -155,7 +158,7 @@ export default {
         let username = data.user.username;
 
         if (rootGetters['settings/GET_HIDEUSERNAME']) {
-          username = rootGetters['settings/GET_ALTUSERNAME']
+          username = rootGetters['settings/GET_ALTUSERNAME'];
         }
         state._socket.emit(
           'join',
@@ -174,22 +177,20 @@ export default {
 
               sendNotification(`Joined room: ${_data.room}`);
               // Add this item to our recently-connected list
-              let recents = window.localStorage.getItem('recentrooms');
-              if (!recents) {
-                recents = {};
-              } else {
-                recents = JSON.parse(recents);
-              }
-              recents[`${state.server}/${state.room}`] = {
-                server: state.server,
-                room: state.room,
-                password: state.password,
-                time: new Date().getTime(),
-              };
-              window.localStorage.setItem('recentrooms', JSON.stringify(recents));
+              dispatch(
+                'settings/ADD_RECENT_ROOM',
+                {
+                  server: state.server,
+                  room: state.room,
+                  password: state.password,
+                  time: new Date().getTime(),
+                },
+                { root: true },
+              );
 
               // Generate our short url/invite link
-              let urlOrigin = window.location.origin + (rootGetters['config/GET_CONFIG'].webroot || '');
+              let urlOrigin =
+                window.location.origin + (rootGetters['config/GET_CONFIG'].webroot || '');
               if (process.env.NODE_ENV === 'development') {
                 urlOrigin = 'http://app.synclounge.tv';
               }
@@ -301,8 +302,9 @@ export default {
                     }
                     // Check if we need to autoplay
                     if (
-                      (ourTimeline.state === 'stopped' || !ourTimeline.state) &&
-                      hostTimeline.playerState !== 'stopped' || rootState.rawTitle !== hostTimeline.rawTitle
+                      ((ourTimeline.state === 'stopped' || !ourTimeline.state) &&
+                        hostTimeline.playerState !== 'stopped') ||
+                      rootState.rawTitle !== hostTimeline.rawTitle
                     ) {
                       if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
                         return resolve();
@@ -332,7 +334,9 @@ export default {
                         .catch(async (e) => {
                           const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
                           if (hostServer && hostTimeline.key) {
-                            if (!rootGetters['settings/GET_BLOCKEDSERVERS'].includes(hostTimeline.machineIdentifier)) {
+                            if (
+                              !rootGetters['settings/GET_BLOCKEDSERVERS'].includes(hostTimeline.machineIdentifier)
+                            ) {
                               try {
                                 await rootState.chosenClient.playMedia({
                                   ratingKey: hostTimeline.key,
@@ -344,12 +348,12 @@ export default {
                                   rootState.blockAutoPlay = false;
                                 }, 15000);
                                 return resolve();
-                              } catch (e) { }
+                              } catch (e) {}
                             }
                           }
                           sendNotification(`Failed to find a compatible copy of ${
                             hostTimeline.rawTitle
-                            }. If you have access to the content try manually playing it.`);
+                          }. If you have access to the content try manually playing it.`);
                           setTimeout(() => {
                             rootState.blockAutoPlay = false;
                           }, 15000);
@@ -541,6 +545,5 @@ export default {
         });
       }
     },
-    getServerList() { },
   },
 };

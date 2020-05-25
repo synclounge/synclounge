@@ -217,8 +217,6 @@ const actions = {
       // Playing something different!
       const server = state.plex.servers[mediaContainer.machineIdentifier];
       commit('settings/SET_LASTSERVER', mediaContainer.machineIdentifier);
-      // state.settings.LASTSERVER = mediaContainer.machineIdentifier;
-      // window.localStorage.setItem('LASTSERVER', mediaContainer.machineIdentifier);
       if (!server) {
         return;
       }

@@ -30,13 +30,13 @@
           <v-flex
             xs12
             class="nicelist pa-4"
-            v-if="!context.getters.getConnected && recents && Object.keys(recents).length > 0"
+            v-if="!context.getters.getConnected && this.recentRooms.length > 0"
             style="color:white !important;"
           >
             <v-subheader>Recent Rooms</v-subheader>
             <v-list class="pa-0">
-              <template v-for="(item, index) in recentsSorted">
-                <v-list-tile :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
+              <template v-for="(item, index) in this.recentRooms.slice(0, 3)">
+                <v-list-tile :key="index" avatar @click="recentConnect(item)">
                   <v-list-tile-avatar>
                     <img :src="logos.light.small" style="width: 32px; height: auto" />
                   </v-list-tile-avatar>
@@ -53,7 +53,7 @@
                         color="white"
                         dark
                         slot="activator"
-                        @click.stop="removeHistoryItem(item)"
+                        @click.stop="REMOVE_RECENT_ROOM(item)"
                       >close</v-icon>Remove
                     </v-tooltip>
                   </v-list-tile-action>
@@ -211,7 +211,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 export default {
   props: ['object'],
@@ -251,21 +251,14 @@ export default {
     if (this.slRoom && this.slConnected && this.slServer) {
       this.$router.push('/browse');
     }
-    this.getRecents();
   },
   methods: {
     ...mapMutations('settings', [
       'SET_CUSTOM_SERVER_USER_INPUTTED_URL'
     ]),
-    getRecents() {
-      this.recents = JSON.parse(window.localStorage.getItem('recentrooms'));
-    },
-    removeHistoryItem(item) {
-      const recents = JSON.parse(window.localStorage.getItem('recentrooms'));
-      delete recents[`${item.server}/${item.room}`];
-      window.localStorage.setItem('recentrooms', JSON.stringify(recents));
-      return this.getRecents();
-    },
+    ...mapActions('settings', [
+      'REMOVE_RECENT_ROOM'
+    ]),
     connectionQualityClass(value) {
       if (value < 50) {
         return ['green--text', 'text--lighten-1'];
@@ -419,7 +412,8 @@ export default {
   computed: {
     ...mapGetters({
       'syncloungeServers': 'GET_SYNCLOUNGE_SERVERS',
-      'GET_CUSTOM_SERVER_USER_INPUTTED_URL': 'settings/GET_CUSTOM_SERVER_USER_INPUTTED_URL'
+      'GET_CUSTOM_SERVER_USER_INPUTTED_URL': 'settings/GET_CUSTOM_SERVER_USER_INPUTTED_URL',
+      'recentRooms': 'settings/GET_RECENT_ROOMS'
     }),
     plex() {
       return this.$store.state.plex;
@@ -429,22 +423,10 @@ export default {
     },
     context() {
       return this.$store;
-    },
-    recentsSorted() {
-      if (!this.recents) {
-        return [];
-      }
-      let arr = [];
-      for (const i in this.recents) {
-        const item = this.recents[i];
-        arr.push(item);
-      }
-      arr = arr.sort((a, b) => b.time - a.time);
-      if (arr.length > 3) {
-        return arr.slice(0, 3);
-      }
-      return arr;
     }
+  },
+  mounted() {
+    console.log(this.recentRooms)
   }
 };
 </script>

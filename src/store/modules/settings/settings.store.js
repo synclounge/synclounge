@@ -26,6 +26,7 @@ const state = () => ({
   CLIENTIDENTIFIER: `${generateGuid()}-${generateGuid()}`,
   lastServer: null,
   plexAuthToken: null,
+  recentRooms: [],
 });
 
 // Use stored value if not null, othewise fallback to config, then default values
@@ -78,6 +79,7 @@ const getters = {
   GET_LASTSERVER: state => state.lastServer,
   GET_CUSTOM_SERVER_USER_INPUTTED_URL: state => state.customServerUserInputtedUrl,
   GET_PLEX_AUTH_TOKEN: state => state.plexAuthToken,
+  GET_RECENT_ROOMS: state => state.recentRooms,
 };
 
 const mutations = {
@@ -94,6 +96,31 @@ const mutations = {
   SET_LASTSERVER: (state, server) => (state.lastServer = server),
   SET_SLPLAYERVOLUME: (state, volume) => (state.slPlayerVolume = volume),
   SET_PLEX_AUTH_TOKEN: (state, token) => (state.plexAuthToken = token),
+  SET_RECENT_ROOMS: (state, rooms) => (state.recentRooms = rooms),
+};
+
+const actions = {
+  ADD_RECENT_ROOM: ({ commit, getters }, newRoom) => {
+    console.log('first filter');
+    const lol = Array.of(newRoom).concat(getters.GET_RECENT_ROOMS.filter((room) => {
+      console.log(`${room.server} !== ${newRoom.server}: ${room.server !== newRoom.server}`);
+      console.log(`${room.room} !== ${newRoom.room}: ${room.room !== newRoom.room}`);
+      console.log(`${room.server !== newRoom.server && room.room !== newRoom.room}`);
+      return room.server !== newRoom.server || room.room !== newRoom.room;
+    }));
+    console.log('new rooms');
+    console.log(lol);
+    commit(
+      'SET_RECENT_ROOMS',
+      Array.of(newRoom).concat(getters.GET_RECENT_ROOMS.filter(room => room.server !== newRoom.server || room.room !== newRoom.room)),
+    );
+  },
+
+  REMOVE_RECENT_ROOM: ({ commit, getters }, roomToRemove) =>
+    commit(
+      'SET_RECENT_ROOMS',
+      getters.GET_RECENT_ROOMS.filter(room => room.server !== roomToRemove.server || room.room !== roomToRemove.room),
+    ),
 };
 
 export default {
@@ -101,4 +128,5 @@ export default {
   state,
   mutations,
   getters,
+  actions,
 };
