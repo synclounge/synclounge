@@ -424,9 +424,6 @@ export default {
     context() {
       return this.$store;
     }
-  },
-  mounted() {
-    console.log(this.recentRooms)
   }
 };
 </script>
