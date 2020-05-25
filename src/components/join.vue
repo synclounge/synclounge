@@ -1,10 +1,10 @@
 <template>
-    <v-layout wrap row class="text-xs-center" justify-center align-center>
+    <v-layout wrap row class="text-center" justify-center align-center>
       <v-flex v-if="!loading" xs12 md5>
         <v-card style="background: rgba(0,0,0,0.3)" class="pa-1">
           <v-container fill-height>
             <v-layout row wrap>
-              <v-flex xs12 md3 class="text-xs-center">
+              <v-flex xs12 md3 class="text-center">
                 <img :src="logos.light.small" style="width: 90%" />
               </v-flex>
               <v-flex md9>
@@ -16,7 +16,7 @@
                   </div>
                 </div>
                 <v-layout wrap row class="pa-4 pt-2" justify-center align-center>
-                  <v-flex xs12 md8 class="text-xs-center">
+                  <v-flex xs12 md8 class="text-center">
                     <v-btn class="center" style="background-color: #E5A00D" @click.native="letsGo()">Accept Invite</v-btn>
                   </v-flex>
                 </v-layout>
@@ -24,7 +24,7 @@
               </v-layout>
             </v-container>
             <v-divider></v-divider>
-            <p style="opacity:0.7" class="text-xs-center pt-3">
+            <p style="opacity:0.7" class="text-center pt-3">
               SyncLounge is a tool to sync Plex content with your family and friends. For more info click <a target="_blank" href="https://github.com/samcm/synclounge"> here</a>.
             </p>
         </v-card>

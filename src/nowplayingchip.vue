@@ -2,7 +2,7 @@
   <router-link :to="href">
     <v-card color="blue darken-4" hover style="height: 100%; width: 230px">
       <v-layout row wrap justify-center align-center>
-        <v-flex md2 class="hidden-xs-only text-xs-center">
+        <v-flex md2 class="hidden-xs-only text-center">
           <img :src="thumb" style="height: 52px; vertical-align: middle" />
         </v-flex>
         <v-flex md10 xs12 class="pl-3 pa-1 text-xs-left" style="overflow: hidden; white-space: nowrap; line-height: 24px">

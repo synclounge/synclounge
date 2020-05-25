@@ -1,101 +1,99 @@
 <template>
-  <v-container fill-height class="pa-0" style="height: 100%">
-    <v-layout row wrap justify-space-between>
-      <v-flex xs12>
-        <v-list class="pa-1 left-sidebar-list" dense style="background: none;">
-          <template>
-            <v-list-tile v-if="plex && plex.user">
-              <v-list-tile-avatar>
-                <img class="pa-1" :src="plex.user.thumb" />
-              </v-list-tile-avatar>
-              <v-list-tile-content>
-                <v-list-tile-title style="font-weight: bold">{{ plex.user.username }}</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-divider></v-divider>
-            <v-subheader>Preferences</v-subheader>
-            <v-list-tile @click.stop="ptsettingstoggle = !ptsettingstoggle" class="text-xs-center">
-              <v-list-tile-action>
-                <v-icon color="white">settings</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>SyncLounge Settings</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile
-              v-if="plex && plex.gotDevices"
-              @click.stop="plexsettingstoggle = !plexsettingstoggle"
-            >
-              <v-list-tile-action>
-                <v-icon color="white">settings</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Plex Settings</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-subheader v-if="plex && plex.gotDevices">Account</v-subheader>
-            <v-list-tile :router="true" to="/signout">
-              <v-list-tile-action>
-                <v-icon color="white">cancel</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Sign out</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-subheader>About</v-subheader>
-            <v-list-tile href="https://synclounge.tv/" target="_blank">
-              <v-list-tile-action>
-                <v-icon color="white">info</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>SyncLounge v{{appVersion}}</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile href="https://discord.gg/fKQB3yt" target="_blank">
-              <v-list-tile-action>
-                <v-icon color="white">chat</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Discord</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile href="https://github.com/samcm/synclounge" target="_blank">
-              <v-list-tile-action>
-                <v-icon color="white">code</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>GitHub</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile @click.stop="donateDialog = true">
-              <v-list-tile-action>
-                <v-icon color="white">favorite</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>Donate</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-          </template>
-        </v-list>
-      </v-flex>
+  <v-navigation-drawer app temporary v-model="drawer" disable-route-watcher>
+    <v-list-item v-if="plex && plex.user">
+      <v-list-item-avatar>
+        <img class="pa-1" :src="plex.user.thumb" />
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title style="font-weight: bold">{{ plex.user.username }}</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
+    <v-divider></v-divider>
+
+    <v-list dense nav>
+      <v-subheader>Preferences</v-subheader>
+      <v-list-item @click.stop="ptsettingstoggle = !ptsettingstoggle">
+        <v-list-item-icon>
+          <v-icon color="white">settings</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>SyncLounge Settings</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item
+        v-if="plex && plex.gotDevices"
+        @click.stop="plexsettingstoggle = !plexsettingstoggle"
+      >
+        <v-list-item-icon>
+          <v-icon color="white">settings</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Plex Settings</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-subheader v-if="plex && plex.gotDevices">Account</v-subheader>
+      <v-list-item :router="true" to="/signout">
+        <v-list-item-icon>
+          <v-icon color="white">cancel</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Sign out</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-subheader>About</v-subheader>
+      <v-list-item href="https://synclounge.tv/" target="_blank">
+        <v-list-item-icon>
+          <v-icon color="white">info</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>SyncLounge v{{appVersion}}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item href="https://discord.gg/fKQB3yt" target="_blank">
+        <v-list-item-icon>
+          <v-icon color="white">chat</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Discord</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item href="https://github.com/samcm/synclounge" target="_blank">
+        <v-list-item-icon>
+          <v-icon color="white">code</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>GitHub</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item @click.stop="donateDialog = true">
+        <v-list-item-icon>
+          <v-icon color="white">favorite</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Donate</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
 
       <v-spacer></v-spacer>
-      <v-flex xs12>
-        <v-layout row wrap justify-end align-end style="height: 100%">
-          <v-flex xs12>
-            <v-divider></v-divider>
-            <div class="text-xs-center pa-2" style="opacity: 0.7; font-size: 12px">
-              <div>Build #{{ hash }}</div>
-              <div>Last updated {{ updatedAt }}</div>
-            </div>
-          </v-flex>
-        </v-layout>
-      </v-flex>
-    </v-layout>
+    </v-list>
+
+    <template v-slot:append>
+      <v-divider></v-divider>
+      <div class="text-center pa-2" style="opacity: 0.7; font-size: 12px">
+        <div>Build #{{ hash }}</div>
+        <div>Last updated {{ updatedAt }}</div>
+      </div>
+    </template>
 
     <v-dialog v-model="ptsettingstoggle" width="350">
       <v-card style="background-color: #151924" class="pa-3">
-        <div class="text-xs-center">
+        <div class="text-center">
           <h2>SyncLounge Settings</h2>
         </div>
         <v-divider class="mt-2 mb-2"></v-divider>
@@ -104,7 +102,7 @@
     </v-dialog>
     <v-dialog v-model="plexsettingstoggle" width="350">
       <v-card style="background-color: #151924" class="pa-3">
-        <div class="text-xs-center">
+        <div class="text-center">
           <h2>Plex Settings</h2>
         </div>
         <v-divider class="mt-2 mb-2"></v-divider>
@@ -114,7 +112,7 @@
     <v-dialog v-model="donateDialog" max-width="650px">
       <donate :donateDialog="donateDialog" :onClose="() => this.donateDialog = false"></donate>
     </v-dialog>
-  </v-container>
+  </v-navigation-drawer>
 </template>
 
 <script>
@@ -129,6 +127,9 @@ export default {
     ptsettings,
     plexsettings,
     donate
+  },
+  props: {
+    drawer: Boolean
   },
   data() {
     return {

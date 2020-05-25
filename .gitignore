@@ -10,3 +10,7 @@ ptinvites.json
 db.sqlite
 .tmp
 .vscode
+
+# local env files
+.env.local
+.env.*.local

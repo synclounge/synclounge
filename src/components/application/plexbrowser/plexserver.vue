@@ -12,11 +12,11 @@
         <h4> Libraries </h4>
         <v-layout row wrap v-if="libraries && !browsingLibrary">
           <v-flex xs12 md3 xl2 lg2  v-for="library in filteredLibraries" class="pa-1" :key="library.name">
-            <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" flat class="clickable text-xs-center" style="max-width:100%; cursor: pointer; border-radius: 0px !important">
+            <v-card v-on:click.native="setLibrary(library)" :img="getArtLibrary(library)" flat class="clickable text-center" style="max-width:100%; cursor: pointer; border-radius: 0px !important">
               <div style="position:relative; width:100%; background: rgba(0,0,0,0.4); height:8em" class="hidden-xs-only">
                 <img style="height: 70%; display: block; margin-left: auto; margin-right: auto " :src="getThumb(library)" />
               </div>
-              <div style="background: rgba(0,0,0,0.7); position:relative; width:100%;" class="text-xs-center pa-1">
+              <div style="background: rgba(0,0,0,0.7); position:relative; width:100%;" class="text-center pa-1">
                 <h2 class="truncate text-xs-left text-sm-center">{{ library.title }}</h2>
               </div>
             </v-card>

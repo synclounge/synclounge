@@ -36,18 +36,18 @@
             <v-subheader>Recent Rooms</v-subheader>
             <v-list class="pa-0">
               <template v-for="(item, index) in recentsSorted">
-                <v-list-tile :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
-                  <v-list-tile-avatar>
+                <v-list-item :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
+                  <v-list-item-avatar>
                     <img :src="logos.light.small" style="width: 32px; height: auto" />
-                  </v-list-tile-avatar>
-                  <v-list-tile-content>
-                    <v-list-tile-title>{{ item.name || item.server || 'Custom' }}</v-list-tile-title>
-                    <v-list-tile-sub-title>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ item.name || item.server || 'Custom' }}</v-list-item-title>
+                    <v-list-item-subtitle>
                       <b>{{ item.room }}</b>
                       <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span>
-                    </v-list-tile-sub-title>
-                  </v-list-tile-content>
-                  <v-list-tile-action>
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action>
                     <v-tooltip top color="light-blue darken-4">
                       <v-icon
                         color="white"
@@ -56,8 +56,8 @@
                         @click.stop="removeHistoryItem(item)"
                       >close</v-icon>Remove
                     </v-tooltip>
-                  </v-list-tile-action>
-                </v-list-tile>
+                  </v-list-item-action>
+                </v-list-item>
               </template>
             </v-list>
           </v-flex>
@@ -79,17 +79,17 @@
               >
                 <v-card height="300px" style="border-radius: 20px">
                   <v-layout row wrap justify-start align-center style="height: 100%">
-                    <v-flex xs12 class="text-xs-center pa-2" style="height: 80px">
+                    <v-flex xs12 class="text-center pa-2" style="height: 80px">
                       <img
                         :src="server.image"
                         style="max-height: 100%; vertical-align: middle; max-width: 80%; border-radius: 7px"
                       />
                     </v-flex>
-                    <v-flex xs12 class="text-xs-center">
+                    <v-flex xs12 class="text-center">
                       <h2>{{ server.name }}</h2>
                       <h4>{{ server.location }}</h4>
                     </v-flex>
-                    <v-flex xs12 class="text-xs-center" v-if="server.url !== 'custom'">
+                    <v-flex xs12 class="text-center" v-if="server.url !== 'custom'">
                       <div v-if="results[server.url]">
                         <div v-if="results[server.url].alive">
                           Ping:
@@ -98,10 +98,10 @@
                             :class="connectionQualityClass(results[server.url].latency)"
                           >{{ results[server.url].latency }}ms</span>
                         </div>
-                        <div v-else class="text-xs-center red--text">error</div>
+                        <div v-else class="text-center red--text">error</div>
                         </div>
                     </v-flex>
-                    <v-flex xs12 class="text-xs-center">
+                    <v-flex xs12 class="text-center">
                       <div v-if="server.url !== 'custom'">
                         <div v-if="results[server.url]">
                           <div v-if="results[server.url].alive">
@@ -113,12 +113,12 @@
                               >{{ results[server.url].result || 'Unknown' }}</span>
                             </div>
                           </div>
-                          <div v-else class="text-xs-center red--text">error</div>
+                          <div v-else class="text-center red--text">error</div>
                         </div>
                       </div>
                     </v-flex>
 
-                    <v-flex xs12 class="text-xs-center pt-1 mt-4">
+                    <v-flex xs12 class="text-center pt-1 mt-4">
                       <v-btn
                         color="primary"
                         :disabled="connectionPending"
@@ -160,14 +160,14 @@
                 </div>
               </v-flex>
             </v-layout>
-            <v-layout class="pt-3 text-xs-center" row wrap v-if="serverError">
+            <v-layout class="pt-3 text-center" row wrap v-if="serverError">
               <v-flex xs12 class="red--text">
                 <v-icon class="red--text">info</v-icon>
                 {{ serverError }}
               </v-flex>
             </v-layout>
           </v-flex>
-          <v-flex xs12 v-if="context.getters.getConnected" class="text-xs-center">
+          <v-flex xs12 v-if="context.getters.getConnected" class="text-center">
             <v-layout row wrap>
               <v-flex xs12 md6 offset-md3>
                 <v-text-field
@@ -193,7 +193,7 @@
               <v-flex xs12 md6 offset-md3>
                 <v-btn block color="primary" v-on:click.native="joinRoom()">Join</v-btn>
               </v-flex>
-              <v-layout class="pt-3 text-xs-center" row wrap v-if="roomError">
+              <v-layout class="pt-3 text-center" row wrap v-if="roomError">
                 <v-flex xs12 class="red--text">
                   <v-icon class="red--text">info</v-icon>
                   {{ roomError }}

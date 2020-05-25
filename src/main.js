@@ -1,48 +1,31 @@
 import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
-import Vuetify from 'vuetify';
-import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visibility';
+import VueObserveVisibility from 'vue-observe-visibility';
 import VueVideoPlayer from 'vue-video-player';
-import VueResource from 'vue-resource';
-import VueClipboards from 'vue-clipboards';
-import VueCookies from 'vue-cookies'
+import VueClipboard from 'vue-clipboard2';
+import VueCookies from 'vue-cookies';
+import moment from 'moment';
 
-import App from './App';
+import vuetify from './plugins/vuetify';
+
+import App from './App.vue';
 import router from './router';
 import store from './store';
 
-require('videojs-contrib-hls/dist/videojs-contrib-hls.js');
-require('vanilla-tilt');
+// require('videojs-contrib-hls/dist/videojs-contrib-hls.js');
+// require('vanilla-tilt');
 
-const moment = require('moment');
 
 Vue.use(VueScrollTo);
-Vue.use(VueClipboards);
-Vue.use(VueResource);
-Vue.directive('observe-visibility', ObserveVisibility);
+Vue.use(VueClipboard);
+Vue.use(VueObserveVisibility);
 Vue.use(VueVideoPlayer);
 
-Vue.use(Vuetify, {
-  theme: {
-    primary: '#E5A00D',
-    secondary: '#b0bec5',
-    accent: '#E5A00D',
-    error: '#b71c1c',
-  },
-});
 Vue.config.productionTip = false;
 
 Vue.use(VueCookies);
 // set default config
 Vue.$cookies.config('7d');
-
-function nolog() {}
-
-if (process.env.NODE_ENV !== 'development') {
-  // console.log = nolog
-  // console.warn = nolog
-  // console.error = nolog
-}
 
 // Our Event bus
 window.EventBus = new Vue();
@@ -80,7 +63,7 @@ Vue.mixin({
     sinceNow(x) {
       const time = moment(x);
       return time.fromNow();
-    },
+    }
   },
   computed: {
     appVersion() {
@@ -117,39 +100,41 @@ Vue.mixin({
       return this.$route;
     },
     fontSizes() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      const w = Math.round(
+        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+      );
       const maxPx = 94;
       const maxRes = 3000;
       return {
         largest: {
-          'font-size': `${(w / maxRes) * maxPx}px`,
+          'font-size': `${(w / maxRes) * maxPx}px`
         },
         medium: {
-          'font-size': `${(w / maxRes) * maxPx * 0.6}px`,
-        },
+          'font-size': `${(w / maxRes) * maxPx * 0.6}px`
+        }
       };
-    },
-  },
+    }
+  }
 });
 
 router.beforeEach((to, from, next) => {
   // console.log('Route change', to, this, store)
-  if (to.matched.some(record => record.meta.protected)) {
+  if (to.matched.some((record) => record.meta.protected)) {
     // this route requires us to be in a room with a client selected
     // if not, redirect to the needed stage
     if (!store.getters.getChosenClient) {
       return next({
-        path: '/clientselect',
+        path: '/clientselect'
       });
     }
     if (!store.getters.getRoom) {
       return next({
-        path: '/joinroom',
+        path: '/joinroom'
       });
     }
     if (!store.getters.getServer) {
       return next({
-        path: '/joinroom',
+        path: '/joinroom'
       });
     }
     next();
@@ -161,20 +146,15 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-/* eslint-disable no-new */
 new Vue({
-  el: '#app',
   router,
   store,
-  template: '<App/>',
-  components: {
-    App,
-  },
+  vuetify,
+  render: (h) => h(App),
+}).$mount('#app');
+
+global.waitFor = async (ms) => new Promise((resolve) => {
+  setTimeout(() => resolve, ms);
 });
 
-global.waitFor = async ms =>
-  new Promise((resolve) => {
-    setTimeout(() => resolve, ms);
-  });
-
-global.to = promise => promise.then(data => [null, data]).catch(err => [err]);
+global.to = (promise) => promise.then((data) => [null, data]).catch((err) => [err]);

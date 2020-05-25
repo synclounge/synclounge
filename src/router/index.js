@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 // ===================== Pages Components ======================
-import signin from '../components/signin';
-import signout from '../components/signout';
-import join from '../components/join';
+import signin from '../components/signin.vue';
+import signout from '../components/signout.vue';
+import join from '../components/join.vue';
 
 const SettingsHelper = require('../../SettingsHelper.js');
 
@@ -15,128 +15,131 @@ Vue.use(Router);
 export default new Router({
   mode: 'hash',
   base: settings.webroot || '/',
-  routes: [{
-    path: '/',
-    meta: {
-      protected: true,
+  routes: [
+    {
+      path: '/',
+      meta: {
+        protected: true,
+      },
     },
-  },
-  {
-    path: '/signin',
-    meta: {
-      noload: true,
+    {
+      path: '/signin',
+      meta: {
+        noload: true,
+      },
+      component: signin,
     },
-    component: signin,
-  },
-  {
-    path: '/signout',
-    meta: {
-      noload: true,
+    {
+      path: '/signout',
+      meta: {
+        noload: true,
+      },
+      component: signout,
     },
-    component: signout,
-  },
-  {
-    path: '/join',
-    meta: {
-      noload: true,
-      protected: false,
+    {
+      path: '/join',
+      meta: {
+        noload: true,
+        protected: false,
+      },
+      component: join,
     },
-    component: join,
-  },
-  {
-    path: '/clientselect',
-    meta: {
-      noload: false,
+    {
+      path: '/clientselect',
+      meta: {
+        noload: false,
+      },
+      component: () => import('../components/application/walkthrough.vue'),
     },
-    component: require('../components/application/walkthrough.vue'),
-  },
-  {
-    path: '/joinroom',
-    meta: {
-      noload: false,
+    {
+      path: '/joinroom',
+      meta: {
+        noload: false,
+      },
+      component: () => import('../components/application/joinroom.vue'),
     },
-    component: require('../components/application/joinroom.vue'),
-  },
 
-  {
-    path: '/player',
-    meta: {
-      protected: true,
+    {
+      path: '/player',
+      meta: {
+        protected: true,
+      },
+      component: () => import('../components/application/ptplayer.vue'),
     },
-    component: require('../components/application/ptplayer.vue'),
-  },
-  {
-    path: '/nowplaying/:machineIdentifier/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/nowplaying/:machineIdentifier/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'nowplaying',
+      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
-    name: 'nowplaying',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
 
-  {
-    path: '/browse',
-    meta: {
-      protected: true,
+    {
+      path: '/browse',
+      meta: {
+        protected: true,
+      },
+      name: 'browse',
+      component: () => import('../components/application/plexbrowser.vue'),
     },
-    name: 'browse',
-    component: require('../components/application/plexbrowser.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier',
+      meta: {
+        protected: true,
+      },
+      name: 'server',
+      component: () => import('../components/application/plexbrowser/plexserver.vue'),
     },
-    name: 'server',
-    component: require('../components/application/plexbrowser/plexserver.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId',
+      meta: {
+        protected: true,
+      },
+      name: 'library',
+      component: () => import('../components/application/plexbrowser/plexlibrary.vue'),
     },
-    name: 'library',
-    component: require('../components/application/plexbrowser/plexlibrary.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'content',
+      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'series',
+      component: () => import('../components/application/plexbrowser/plexseries.vue'),
     },
-    name: 'series',
-    component: require('../components/application/plexbrowser/plexseries.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'season',
+      component: () => import('../components/application/plexbrowser/plexseason.vue'),
     },
-    name: 'season',
-    component: require('../components/application/plexbrowser/plexseason.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:grandparentKey/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path:
+        '/browse/:machineIdentifier/:sectionId/tv/:grandparentKey/:parentKey/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'content',
+      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+    {
+      path:
+        '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'content',
+      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
   ],
 });

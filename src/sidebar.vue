@@ -14,9 +14,9 @@
                     <v-icon>more_vert</v-icon>
                   </v-btn>
                   <v-list>
-                    <v-list-tile @click="handleDisconnect()">
-                      <v-list-tile-title class="user-menu-list">Leave Room</v-list-tile-title>
-                    </v-list-tile>
+                    <v-list-item @click="handleDisconnect()">
+                      <v-list-item-title class="user-menu-list">Leave Room</v-list-item-title>
+                    </v-list-item>
                   </v-list>
                 </v-menu>
               </v-flex>
@@ -62,7 +62,7 @@
           </v-card>
           <v-card style="background: #E5A00D; border-radius: 7px" class="pa-2 ma-3" v-if="me.role !== 'host' && this.$route.path.indexOf('/player') === -1">
             <v-layout row wrap justify-space-between="" align-center>
-              <v-flex xs12 class="text-xs-center">
+              <v-flex xs12 class="text-center">
                 <span class="mb-0 pb-0 pa-0" style="color: rgb(44, 44, 49); "> Waiting for {{ hostUser().username }} to start</span>
               </v-flex>
             </v-layout>
@@ -70,33 +70,33 @@
         </v-flex>
         <v-list dense two-line style="overflow: auto; max-height: calc(50vh - 154px); background: none">
           <v-card style="background: linear-gradient(180deg,#1f1c2c,#182848)!important; border-radius: 7px" class="pa-1 ml-3 mr-3">
-            <v-list-tile avatar style="height:4em" class="pl-1 pr-1 mb-0" tag="div">
-              <v-list-tile-avatar>
+            <v-list-item avatar style="height:4em" class="pl-1 pr-1 mb-0" tag="div">
+              <v-list-item-avatar>
                 <img v-bind:src="hostUser().avatarUrl" :style="getImgStyle(hostUser())">
                   <v-icon v-if="hostUser().playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.5)">
                     {{ playerState(hostUser()) }}
                   </v-icon>
                 </img>
-              </v-list-tile-avatar>
-              <v-list-tile-content>
+              </v-list-item-avatar>
+              <v-list-item-content>
                 <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
                   <span slot="activator">
-                    <v-list-tile-title> {{ hostUser().username }} <span style="opacity: 0.6" v-if="hostUser().uuid === me.uuid"> (you) </span></v-list-tile-title>
-                    <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(hostUser()) }}</v-list-tile-sub-title>
+                    <v-list-item-title> {{ hostUser().username }} <span style="opacity: 0.6" v-if="hostUser().uuid === me.uuid"> (you) </span></v-list-item-title>
+                    <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">{{ getTitle(hostUser()) }}</v-list-item-subtitle>
                   </span>
                   Watching on {{ hostUser().playerProduct || 'Unknown Plex Client' }}
                   <span v-if="plex.servers[hostUser().machineIdentifier]">
                     <br />via {{ plex.servers[hostUser().machineIdentifier].name }}
                   </span>
                 </v-tooltip>
-              </v-list-tile-content>
-              <v-list-tile-action>
+              </v-list-item-content>
+              <v-list-item-action>
                 <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
                   <v-icon style="color: #E5A00D" slot="activator">star</v-icon>
                   Host
                 </v-tooltip>
-              </v-list-tile-action>
-            </v-list-tile>
+              </v-list-item-action>
+            </v-list-item>
             <div class="pl-1 pr-1 pt-1 mt-0 pb-0 mb-0">
               <span style="float: left; font-size:70%" class="ptuser-time pl-1">{{ getCurrent(hostUser()) }}</span>
               <span style="float: right; font-size:70%" class="ptuser-maxTime pr-1">{{ getMax(hostUser()) }}</span>
@@ -105,27 +105,27 @@
           </v-card>
           <div v-for="user in ptUsers" v-bind:key="user.username">
             <div class="pa-1 ml-3 mr-3" v-if="!isHost(user)">
-              <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
-                <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
+              <v-list-item avatar style="height:4em" class="pb-0 mb-0" tag="div">
+                <v-list-item-avatar v-on:dblclick="transferHost(user.username)">
                   <img v-bind:src="user.avatarUrl"  :style="getImgStyle(user)">
                     <v-icon v-if="user.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)">
                       {{ playerState(user) }}
                     </v-icon>
                   </img>
-                </v-list-tile-avatar>
-                <v-list-tile-content>
+                </v-list-item-avatar>
+                <v-list-item-content>
                   <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
                     <span slot="activator">
-                      <v-list-tile-title> {{ user.username }} <span style="opacity: 0.6" v-if="user.uuid === me.uuid"> (you) </span></v-list-tile-title>
-                      <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-tile-sub-title>
+                      <v-list-item-title> {{ user.username }} <span style="opacity: 0.6" v-if="user.uuid === me.uuid"> (you) </span></v-list-item-title>
+                      <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">{{ getTitle(user) }}</v-list-item-subtitle>
                     </span>
                     Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
                     <span v-if="plex.servers[user.machineIdentifier]">
                       <br />via {{ plex.servers[user.machineIdentifier].name }}
                     </span>
                   </v-tooltip>
-                </v-list-tile-content>
-                <v-list-tile-action>
+                </v-list-item-content>
+                <v-list-item-action>
                   <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
                     <v-icon v-if="isHost(user)" style="color: #E5A00D" slot="activator">star</v-icon>
                     Host
@@ -135,16 +135,16 @@
                         <v-icon>more_vert</v-icon>
                       </v-btn>
                     <v-list>
-                      <v-list-tile @click="transferHost(user.username)">
-                        <v-list-tile-title class="user-menu-list">Make Host</v-list-tile-title>
-                      </v-list-tile>
-                      <!-- <v-list-tile @click.stop="openInviteDialog(user)">
-                        <v-list-tile-title class="user-menu-list">Invite to a Plex Server</v-list-tile-title>
-                      </v-list-tile> -->
+                      <v-list-item @click="transferHost(user.username)">
+                        <v-list-item-title class="user-menu-list">Make Host</v-list-item-title>
+                      </v-list-item>
+                      <!-- <v-list-item @click.stop="openInviteDialog(user)">
+                        <v-list-item-title class="user-menu-list">Invite to a Plex Server</v-list-item-title>
+                      </v-list-item> -->
                     </v-list>
                   </v-menu>
-                </v-list-tile-action>
-              </v-list-tile>
+                </v-list-item-action>
+              </v-list-item>
               <div class="pl-0 pr-0 pt-1 mt-0 pb-0 mb-0">
                 <span style="float: left; font-size:70%" class="ptuser-time pl-1">{{ getCurrent(user) }}</span>
                 <span style="float: right; font-size:70%" class="ptuser-maxTime pr-1">{{ getMax(user) }}</span>

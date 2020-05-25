@@ -4,7 +4,7 @@
       <v-card style="background: rgba(0,0,0,0.3)" class="pa-4">
         <v-layout row wrap justify-center align-center v-if="ready">
           <v-flex xs12 sm8 lg4>
-            <h1 class="text-xs-center pa-2">
+            <h1 class="text-center pa-2">
               Hello
               <span style="font-weight: 700">{{ plex.user.username }}</span>!
             </h1>
@@ -39,13 +39,13 @@
               </v-flex>
             </v-layout>
           </div>
-          <div v-if="preAuth && !checkingAuth && !authError" class="text-xs-center">
+          <div v-if="preAuth && !checkingAuth && !authError" class="text-center">
             <v-btn
               class="primary"
               @click="openPopup()"
             >Sign in with Plex</v-btn>
           </div>
-          <div v-if="authError" class="text-xs-center error">
+          <div v-if="authError" class="text-center error">
             <p>You are not authorized to access this server</p>
           </div>
           <v-layout wrap row class="pt-4 pa-2">

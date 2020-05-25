@@ -1,13 +1,13 @@
 <template>
-  <v-list-tile avatar :style="styleObj" class="pa-1">
-    <v-list-tile-avatar>
+  <v-list-item avatar :style="styleObj" class="pa-1">
+    <v-list-item-avatar>
       <img class="clientLogo" :class="platformClass" :src="url">
-    </v-list-tile-avatar>
-    <v-list-tile-content>
-      <v-list-tile-title>{{ object.name }}<v-chip v-for="label in object.labels" :key="label[0]" :color="label[1]" small label>{{ label[0] }}</v-chip></v-list-tile-title>
-      <v-list-tile-sub-title>{{ object.product }} - last seen {{ lastSeenAgo }}</v-list-tile-sub-title>
-    </v-list-tile-content>
-  </v-list-tile>
+    </v-list-item-avatar>
+    <v-list-item-content>
+      <v-list-item-title>{{ object.name }}<v-chip v-for="label in object.labels" :key="label[0]" :color="label[1]" small label>{{ label[0] }}</v-chip></v-list-item-title>
+      <v-list-item-subtitle>{{ object.product }} - last seen {{ lastSeenAgo }}</v-list-item-subtitle>
+    </v-list-item-content>
+  </v-list-item>
 </template>
 
 <script>

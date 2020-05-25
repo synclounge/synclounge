@@ -19,7 +19,7 @@
                         contain
                       ></v-img>
                     </v-flex>
-                    <v-flex xs8 md12 class="text-xs-center hidden-sm-and-down ">
+                    <v-flex xs8 md12 class="text-center hidden-sm-and-down ">
                       <div v-if="playable">
                         <v-btn block v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
                           <v-icon> play_arrow </v-icon>
@@ -47,12 +47,12 @@
                           <v-icon>more_vert</v-icon>
                         </v-btn>
                         <v-list>
-                          <v-list-tile @click="markWatched(contents)">
-                            <v-list-tile-title>Mark as played</v-list-tile-title>
-                          </v-list-tile>
-                          <v-list-tile :href="'https://app.plex.tv/desktop#!/server/' + contents.machineIdentifier + '/details?key=' + contents.key" target="_blank">
-                            <v-list-tile-title>Open in Plex Web</v-list-tile-title>
-                          </v-list-tile>
+                          <v-list-item @click="markWatched(contents)">
+                            <v-list-item-title>Mark as played</v-list-item-title>
+                          </v-list-item>
+                          <v-list-item :href="'https://app.plex.tv/desktop#!/server/' + contents.machineIdentifier + '/details?key=' + contents.key" target="_blank">
+                            <v-list-item-title>Open in Plex Web</v-list-item-title>
+                          </v-list-item>
                         </v-list>
                       </v-menu>
                     </span>
@@ -71,7 +71,7 @@
                         <v-chip v-if="contents.studio" color="grey darken-2" small label> {{ contents.studio }}</v-chip>
                       </div>
                     </v-flex>
-                    <v-flex xs12 class="text-xs-center hidden-md-and-up ">
+                    <v-flex xs12 class="text-center hidden-md-and-up ">
                       <div v-if="playable">
                         <v-btn block v-if="playable && contents.Media.length == 1 && (contents.viewOffset == 0 || !contents.viewOffset)"  v-on:click.native="playMedia(contents)" class="primary white--text">
                           <v-icon> play_arrow </v-icon>

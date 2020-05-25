@@ -88,6 +88,10 @@ html {
   background: #353e58
 }
 
+.v-navigation-drawer .theme--dark.v-list--nav.v-list {
+  background: inherit;
+}
+
 main {
   /*background: #272c38;*/
   background: #2b5876;

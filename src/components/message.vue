@@ -5,7 +5,7 @@
           <!-- <v-flex><span style="opacity:0.6;font-size:60%; float:right"> {{ message.time}}</span></v-flex> -->
             <div class="pt-1 pb-1 pl-2 pr-2 messageBubble me" style="">{{ message.msg }}</div>
       </v-flex>
-      <v-flex xs1 class="text-xs-center pt-1">
+      <v-flex xs1 class="text-center pt-1">
         <v-tooltip bottom color="rgb(44, 44, 49)" multi-line>
           <span slot="activator">
             <img :src="message.user.thumb || message.user.avatarUrl" class="mt-2 messageAvatar" />
@@ -15,7 +15,7 @@
       </v-flex>
     </v-layout>
     <v-layout row wrap justify-start align-center v-else>
-      <v-flex xs1 class="text-xs-center pt-1 mr-2 ml-2">
+      <v-flex xs1 class="text-center pt-1 mr-2 ml-2">
         <v-tooltip bottom color="rgb(44, 44, 49)" multi-line>
           <span slot="activator">
             <img :src="message.user.thumb || message.user.avatarUrl" class="mt-2 messageAvatar" />

@@ -24,7 +24,7 @@
             Choose a client from the list below. Once you've found the client you would like to use, click the connect button. SyncLounge will test to see if it can connect with the client and will let you know if it cannot.
           </v-flex>
         </v-layout>
-        <div v-if="plex && !plex.gotDevices" class="text-xs-center pa-4">
+        <div v-if="plex && !plex.gotDevices" class="text-center pa-4">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </div>
         <v-layout v-else row wrap justify-center class="ml-4 mr-4">
@@ -42,7 +42,7 @@
                 Selected Player
               </v-subheader>
               <v-layout row wrap>
-                <v-flex md3 class="text-xs-center" style="position: relative">
+                <v-flex md3 class="text-center" style="position: relative">
                   <img :src="url" style="height: 100px; width: auto; vertical-align: middle" />
                 </v-flex>
                 <v-flex xs12 md9>
