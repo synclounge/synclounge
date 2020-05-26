@@ -1,6 +1,6 @@
 <template>
-  <v-layout wrap row ckass="pt-2 pa-4" justify-center>
-    <v-flex xs12 md8>
+  <v-row class="pt-2 pa-4" justify="center">
+    <v-col md="8">
       <v-card style="background: rgba(0,0,0,0.3)" class="pa-4">
         <v-layout row wrap justify-center align-center v-if="ready">
           <v-flex xs12 sm8 lg4>
@@ -40,16 +40,13 @@
             </v-layout>
           </div>
           <div v-if="preAuth && !checkingAuth && !authError" class="text-center">
-            <v-btn
-              class="primary"
-              @click="openPopup()"
-            >Sign in with Plex</v-btn>
+            <v-btn class="primary" @click="openPopup()">Sign in with Plex</v-btn>
           </div>
           <div v-if="authError" class="text-center error">
             <p>You are not authorized to access this server</p>
           </div>
-          <v-layout wrap row class="pt-4 pa-2">
-            <v-flex xs12 md8 offset-md2 class="center-text">
+          <v-row justify="center" class="pt-4 pa-2">
+            <v-col md="8" class="center-text">
               <p style="opacity:0.7">
                 Your Plex account is used to fetch the details of your Plex devices. None of your private details are sent to our servers. If you would like to install and run SyncLounge yourself
                 have a look
@@ -59,32 +56,32 @@
                 >here</a>
                 for details.
               </p>
-            </v-flex>
-          </v-layout>
+            </v-col>
+          </v-row>
         </div>
       </v-card>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
-const axios = require('axios');
+const axios = require("axios");
 
 export default {
-  name: 'signin',
+  name: "signin",
   data() {
     return {
       pin: null,
       ID: null,
       token: null,
-      status: 'startup',
+      status: "startup",
       headers: {
-        'X-Plex-Device': 'Web',
-        'X-Plex-Device-Name': 'SyncLounge',
-        'X-Plex-Product': 'SyncLounge',
-        'X-Plex-Version': this.$store.state.appVersion,
-        'X-Plex-Platform-Version': '',
-        'X-Plex-Client-Identifier': this.$store.state.settings.CLIENTIDENTIFIER,
+        "X-Plex-Device": "Web",
+        "X-Plex-Device-Name": "SyncLounge",
+        "X-Plex-Product": "SyncLounge",
+        "X-Plex-Version": this.$store.state.appVersion,
+        "X-Plex-Platform-Version": "",
+        "X-Plex-Client-Identifier": this.$store.state.settings.CLIENTIDENTIFIER
       },
       code: null,
       preAuth: false,
@@ -93,16 +90,16 @@ export default {
       openedWindow: null,
       authError: null,
       interval: 2000,
-      id: '',
+      id: ""
     };
   },
   methods: {
     async openPopup() {
-      this.openedWindow = window.open(this.url, '_blank');
+      this.openedWindow = window.open(this.url, "_blank");
       this.ticker = setInterval(async () => {
-        console.log('ticker');
+        console.log("ticker");
         const result = await axios(`https://plex.tv/api/v2/pins/${this.id}`, {
-          headers: { ...this.headers },
+          headers: { ...this.headers }
         });
         if (result && result.data && result.data.authToken) {
           if (this.openedWindow) {
@@ -113,31 +110,31 @@ export default {
             await this.setAuth(result.data.authToken);
             this.letsGo();
           } else {
-            this.authError = 'You are not authorized to access this server.';
+            this.authError = "You are not authorized to access this server.";
           }
           clearInterval(this.ticker);
         }
       }, this.interval);
     },
     async setAuth(authToken) {
-      window.localStorage.setItem('plexuser', JSON.stringify({ authToken }));
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
+      window.localStorage.setItem("plexuser", JSON.stringify({ authToken }));
+      await this.$store.dispatch("PLEX_LOGIN_TOKEN", authToken);
       this.token = authToken;
       this.ready = true;
     },
     async letsGo() {
       if (this.$store.state.autoJoin) {
-        this.$store.dispatch('autoJoin', {
+        this.$store.dispatch("autoJoin", {
           server: this.$store.state.autoJoinUrl,
           password: this.$store.state.autoJoinPassword,
-          room: this.$store.state.autoJoinRoom,
+          room: this.$store.state.autoJoinRoom
         });
       }
-      this.$router.push('/browse');
+      this.$router.push("/browse");
     },
     async checkAuth(authToken) {
       this.checkingAuth = true;
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
+      await this.$store.dispatch("PLEX_LOGIN_TOKEN", authToken);
       // Get stored authentication settings
       const authentication = { ...this.$store.state.authentication };
       // Authentication defaults to false
@@ -145,28 +142,33 @@ export default {
 
       if (authentication) {
         // Authenication via Plex mechanism
-        if (authentication.mechanism === 'plex') {
+        if (authentication.mechanism === "plex") {
           // Server authorization using server data
-          if (authentication.type.includes('server')) {
+          if (authentication.type.includes("server")) {
             try {
               // Retrieve and store the user's servers
-              await this.$store.dispatch('PLEX_GET_DEVICES', true);
+              await this.$store.dispatch("PLEX_GET_DEVICES", true);
               // Get the user's servers
               const servers = { ...this.$store.state.plex.servers };
 
               // Compare servers against the authorized list
               for (const id in servers) {
                 const server = servers[id];
-                if (authentication.authorized.includes(server.clientIdentifier)) {
+                if (
+                  authentication.authorized.includes(server.clientIdentifier)
+                ) {
                   authenticationPassed = true;
                 }
               }
             } catch (e) {
-              console.error('An error occurred when authenticating with Plex: ', e);
+              console.error(
+                "An error occurred when authenticating with Plex: ",
+                e
+              );
             }
           }
           // Authorization using user data
-          if (authentication.type.includes('user')) {
+          if (authentication.type.includes("user")) {
             // Get the user object
             const user = this.$store.state.plex.user;
             // Compare the user's email against the authorized list
@@ -183,20 +185,18 @@ export default {
         // else if (authentication.mechanism == 'new_mech' ) {
         // }
         // Authenication via an unsupported mechanism
-        else if (authentication.mechanism != 'none') {
+        else if (authentication.mechanism != "none") {
           console.error(
-            `Invalid authentication mechanism provided: '${
-              authentication.mechanism
-            }'. Reverting to default.`,
+            `Invalid authentication mechanism provided: '${authentication.mechanism}'. Reverting to default.`
           );
           this.$store.state.authentication = {
-            mechanism: 'none',
+            mechanism: "none"
           };
           authenticationPassed = true;
         }
         // Authenication mechanism isn't set. This should only happen when authentication mechanism is set to 'none'.
         else {
-          console.log('No authentication set');
+          console.log("No authentication set");
           authenticationPassed = true;
         }
         this.checkingAuth = false;
@@ -204,7 +204,7 @@ export default {
       }
 
       return null;
-    },
+    }
   },
   computed: {
     store() {
@@ -215,43 +215,41 @@ export default {
         return this.$store.getters.getSettings.HIDEUSERNAME;
       },
       set(value) {
-        this.$store.commit('setSetting', ['HIDEUSERNAME', value]);
-      },
+        this.$store.commit("setSetting", ["HIDEUSERNAME", value]);
+      }
     },
     ALTUSERNAME: {
       get() {
         return this.$store.getters.getSettings.ALTUSERNAME;
       },
       set(value) {
-        this.$store.commit('setSetting', ['ALTUSERNAME', value]);
-      },
+        this.$store.commit("setSetting", ["ALTUSERNAME", value]);
+      }
     },
     sBrowser() {
       let sBrowser;
       const sUsrAg = navigator.userAgent;
 
-      if (sUsrAg.indexOf('Chrome') > -1) {
-        sBrowser = 'Google Chrome';
-      } else if (sUsrAg.indexOf('Safari') > -1) {
-        sBrowser = 'Apple Safari';
+      if (sUsrAg.indexOf("Chrome") > -1) {
+        sBrowser = "Google Chrome";
+      } else if (sUsrAg.indexOf("Safari") > -1) {
+        sBrowser = "Apple Safari";
         // this.openPopup();
-      } else if (sUsrAg.indexOf('Opera') > -1) {
-        sBrowser = 'Opera';
-      } else if (sUsrAg.indexOf('Firefox') > -1) {
-        sBrowser = 'Mozilla Firefox';
-      } else if (sUsrAg.indexOf('MSIE') > -1) {
-        sBrowser = 'Microsoft Internet Explorer';
+      } else if (sUsrAg.indexOf("Opera") > -1) {
+        sBrowser = "Opera";
+      } else if (sUsrAg.indexOf("Firefox") > -1) {
+        sBrowser = "Mozilla Firefox";
+      } else if (sUsrAg.indexOf("MSIE") > -1) {
+        sBrowser = "Microsoft Internet Explorer";
       }
       return sBrowser;
     },
     url() {
       if (this.code) {
-        return `https://app.plex.tv/auth/#!?clientID=${
-          this.headers['X-Plex-Client-Identifier']
-        }&code=${this.code}`;
+        return `https://app.plex.tv/auth/#!?clientID=${this.headers["X-Plex-Client-Identifier"]}&code=${this.code}`;
       }
-      return '';
-    },
+      return "";
+    }
   },
   beforeDestroy() {
     clearInterval(this.ticker);
@@ -259,24 +257,23 @@ export default {
   async mounted() {
     let authToken = null;
     // Check for PlexToken set via SyncLounge or Plex
-    if (window.localStorage.getItem('myPlexAccessToken')) {
-      authToken = window.localStorage.getItem('myPlexAccessToken');
-    }
-    else if($cookies.get('mpt')) {
-      authToken = $cookies.get('mpt');
+    if (window.localStorage.getItem("myPlexAccessToken")) {
+      authToken = window.localStorage.getItem("myPlexAccessToken");
+    } else if ($cookies.get("mpt")) {
+      authToken = $cookies.get("mpt");
     }
 
     if (authToken) {
       this.ticker = setInterval(async () => {
         try {
-          console.log('--- Check Auth mounted ---')
+          console.log("--- Check Auth mounted ---");
           const authenticated = await this.checkAuth(authToken);
           if (authenticated != null) {
             if (authenticated == true) {
               await this.setAuth(authToken);
               this.letsGo();
             } else {
-              this.authError = 'You are not authorized to access this server.';
+              this.authError = "You are not authorized to access this server.";
             }
             this.preAuth = true;
             clearInterval(this.ticker);
@@ -286,12 +283,16 @@ export default {
     } else {
       const { data } = await axios
         .create()
-        .post('https://plex.tv/api/v2/pins?strong=true', {}, { headers: { ...this.headers } });
+        .post(
+          "https://plex.tv/api/v2/pins?strong=true",
+          {},
+          { headers: { ...this.headers } }
+        );
       this.code = data.code;
       this.id = data.id;
-      this.headers['X-Plex-Platform'] = this.sBrowser;
+      this.headers["X-Plex-Platform"] = this.sBrowser;
       this.preAuth = true;
     }
-  },
+  }
 };
 </script>

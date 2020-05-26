@@ -1,5 +1,11 @@
 <template>
-  <v-navigation-drawer app temporary v-model="drawer" disable-route-watcher>
+  <v-navigation-drawer
+    app
+    temporary
+    :value="isLeftSidebarOpen"
+    @input="TOGGLE_LEFT_SIDEBAR_OPEN"
+    disable-route-watcher
+  >
     <v-list-item v-if="plex && plex.user">
       <v-list-item-avatar>
         <img class="pa-1" :src="plex.user.thumb" />
@@ -116,29 +122,29 @@
 </template>
 
 <script>
-import ptsettings from "./components/application/settings";
-import plexsettings from "./components/application/plexsettings";
-import donate from "./donate";
+import { mapActions, mapState } from 'vuex';
 
-const moment = require("moment");
+import ptsettings from './components/application/settings.vue';
+import plexsettings from './components/application/plexsettings.vue';
+import donate from './donate.vue';
+
+const moment = require('moment');
 
 export default {
   components: {
     ptsettings,
     plexsettings,
-    donate
-  },
-  props: {
-    drawer: Boolean
+    donate,
   },
   data() {
     return {
       ptsettingstoggle: false,
       plexsettingstoggle: false,
-      donateDialog: false
+      donateDialog: false,
     };
   },
   computed: {
+    ...mapState(['isLeftSidebarOpen']),
     plex() {
       return this.$store.getters.getPlex;
     },
@@ -170,17 +176,10 @@ export default {
       return this.plex.gotDevices;
     },
     showBrowser() {
-      return (
-        this.chosenClient &&
-        !this.chosenClient.clientPlayingMetadata &&
-        this.ptRoom
-      );
+      return this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom;
     },
     isPTPlayer() {
-      return (
-        this.chosenClient &&
-        this.chosenClient.clientIdentifier === "PTPLAYER9PLUS10"
-      );
+      return this.chosenClient && this.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10';
     },
     showMetadata() {
       return (
@@ -222,27 +221,28 @@ export default {
       if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
         return `(${this.$store.state.plex.clients.length})`;
       }
-      return "";
+      return '';
     },
     servercount() {
       if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
         return `(${this.$store.state.plex.servers.length})`;
       }
-      return "";
+      return '';
     },
     showChatValue() {
       if (this.$store.getters.getShownChat) {
-        return "block";
+        return 'block';
       }
-      return "none";
+      return 'none';
     },
     messages() {
       return this.$store.getters.getMessages;
-    }
+    },
   },
   methods: {
+    ...mapActions(['TOGGLE_LEFT_SIDEBAR_OPEN']),
     isHost(user) {
-      return user.role === "host";
+      return user.role === 'host';
     },
     percent(user) {
       let perc = (parseInt(user.time) / parseInt(user.maxTime)) * 100;
@@ -267,22 +267,22 @@ export default {
       if (user.title && user.title.length > 0) {
         return user.title;
       }
-      return "Nothing";
+      return 'Nothing';
     },
     sendMessage() {
-      this.$store.dispatch("sendNewMessage", this.messageToBeSent);
-      this.messageToBeSent = "";
+      this.$store.dispatch('sendNewMessage', this.messageToBeSent);
+      this.messageToBeSent = '';
     },
     playerState(user) {
       if (user.playerState) {
-        if (user.playerState === "stopped") {
-          return "pause";
+        if (user.playerState === 'stopped') {
+          return 'pause';
         }
-        if (user.playerState === "paused") {
-          return "pause";
+        if (user.playerState === 'paused') {
+          return 'pause';
         }
-        if (user.playerState === "playing") {
-          return "play_arrow";
+        if (user.playerState === 'playing') {
+          return 'play_arrow';
         }
       }
       return false;
@@ -298,8 +298,8 @@ export default {
       const absoluteSeconds = Math.floor(seconds);
       const s = absoluteSeconds > 9 ? absoluteSeconds : `0${absoluteSeconds}`;
       return `${h}:${m}:${s}`;
-    }
-  }
+    },
+  },
 };
 </script>
 

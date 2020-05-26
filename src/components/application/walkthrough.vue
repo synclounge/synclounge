@@ -1,12 +1,16 @@
 <template>
-  <v-layout row wrap justify-center>
-    <v-flex xs12 lg8 style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
-      <v-layout row wrap justify-center>
-        <v-flex xs12 md8 lg4 xl6>
-          <img style="width:100%" :src="logo">
-        </v-flex>
-      </v-layout>
-      <v-stepper style="background: rgba(0,0,0,0.3); color: white !important; border-radius: 20px" v-model="e1" class="ma-4">
+  <v-row justify="center">
+    <v-col lg="8" style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
+      <v-row justify="center">
+        <v-col md="8" lg="4">
+          <img style="width:100%" :src="logo" />
+        </v-col>
+      </v-row>
+      <v-stepper
+        style="background: rgba(0,0,0,0.3); color: white !important; border-radius: 20px"
+        v-model="e1"
+        class="ma-4"
+      >
         <v-stepper-header dark>
           <v-stepper-step step="1" dark :complete="true">Select a client</v-stepper-step>
           <v-divider></v-divider>
@@ -16,101 +20,147 @@
         </v-stepper-header>
       </v-stepper>
       <div v-if="!chosenClient">
-        <v-layout row wrap justify-center mb-2>
-          <v-flex xs12 class="ml-4">
+        <v-row class="ml-4">
+          <v-col class="pb-0">
             <h2>Choose your Plex player</h2>
-          </v-flex>
-          <v-flex xs12 class="ml-4">
-            Choose a client from the list below. Once you've found the client you would like to use, click the connect button. SyncLounge will test to see if it can connect with the client and will let you know if it cannot.
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
+        <v-row class="ml-4">
+          <v-col
+            class="pt-0"
+          >Choose a client from the list below. Once you've found the client you would like to use, click the connect button. SyncLounge will test to see if it can connect with the client and will let you know if it cannot.</v-col>
+        </v-row>
         <div v-if="plex && !plex.gotDevices" class="text-center pa-4">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </div>
-        <v-layout v-else row wrap justify-center class="ml-4 mr-4">
-          <v-flex xs10 md6 lg6 v-if="!doReverse">
-            <v-subheader>Plex Players {{ playercount }}
+        <v-row v-else justify="center" class="ml-4 mr-4">
+          <v-col md="6" lg="6" v-if="!doReverse">
+            <v-subheader>
+              Plex Players {{ playercount }}
               <v-icon @click="PLEX_GET_DEVICES()" class="pl-2" small>refresh</v-icon>
             </v-subheader>
             <v-list dense style="background: none">
-              <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
+              <plexclient
+                v-for="i in recentClients"
+                :key="i.clientIdentifier"
+                @click.native="previewClient(i); gotResponse = true"
+                :selected="isClientSelected(i)"
+                :object="i"
+                style="cursor: pointer"
+              ></plexclient>
             </v-list>
-          </v-flex>
-          <v-flex xs10 md6 lg6>
+          </v-col>
+          <v-col md="6" lg="6">
             <div v-if="testClient" class="pa-2">
-              <v-subheader>
-                Selected Player
-              </v-subheader>
-              <v-layout row wrap>
-                <v-flex md3 class="text-center" style="position: relative">
+              <v-subheader>Selected Player</v-subheader>
+              <v-row>
+                <v-col md="3" class="text-center" style="position: relative">
                   <img :src="url" style="height: 100px; width: auto; vertical-align: middle" />
-                </v-flex>
-                <v-flex xs12 md9>
-                  <div class="pl-1">
+                </v-col>
+                <v-col md="9">
+                  <div class="selected-player-details pl-1">
                     <h3>{{ testClient.name }}</h3>
                     <div>
-                      <label>Last seen</label><span style="opacity:0.8">  {{ lastSeenAgo(testClient.lastSeenAt) }}</span>
+                      <label>Last seen</label>
+                      <span style="opacity:0.8">{{ lastSeenAgo(testClient.lastSeenAt) }}</span>
                     </div>
                     <div>
-                      <label>Device</label><span style="opacity:0.8">  {{ testClient.device }}</span>
+                      <label>Device</label>
+                      <span style="opacity:0.8">{{ testClient.device }}</span>
                     </div>
                     <div>
-                      <label>Running</label><span style="opacity:0.8">  {{ testClient.product }} </span>
+                      <label>Running</label>
+                      <span style="opacity:0.8">{{ testClient.product }}</span>
                     </div>
                     <div class="pb-2">
-                      <label>Platform</label><span style="opacity:0.8">  {{ testClient.platform }} </span>
+                      <label>Platform</label>
+                      <span style="opacity:0.8">{{ testClient.platform }}</span>
                     </div>
-                    <div class="red--text text--lighten-1" v-if="testClientErrorMsg">
-                      {{ testClientErrorMsg }}
-                    </div>
-                    </div>
-                </v-flex>
-              </v-layout>
-              <v-layout row wrap class="pt-2">
-                <v-flex xs12>
+                    <div
+                      class="red--text text--lighten-1"
+                      v-if="testClientErrorMsg"
+                    >{{ testClientErrorMsg }}</div>
+                  </div>
+                </v-col>
+              </v-row>
+              <v-row class="pt-2">
+                <v-col>
                   <div v-if="!gotResponse" class="center spinner-orange">
-                      <div style="width:100%;text-align:center">
-                        <v-progress-circular indeterminate v-bind:size="50" class="amber--text" style="display:inline-block"></v-progress-circular>
-                      </div>
+                    <div style="width:100%;text-align:center">
+                      <v-progress-circular
+                        indeterminate
+                        v-bind:size="50"
+                        class="amber--text"
+                        style="display:inline-block"
+                      ></v-progress-circular>
                     </div>
-                    <div v-if="gotResponse">
-                      <v-btn block color="primary" v-on:click.native="clientClicked()">Connect</v-btn>
-                    </div>
-                    <div v-if="testClient.product.indexOf('Web') > -1" class="warning--text">
-                      Note: Plex Web is currently not supported.
-                    </div>
-                    <div v-if="testClient.product.indexOf('Plex for Android') > -1" class="warning--text">
-                      Note: Plex for Android applications may not work properly. See "What clients are supported?" in the <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
-                    </div>
-                    <div v-if="testClient.product.indexOf('Plex for Windows') > -1" class="warning--text">
-                      Note: Plex Desktop applications may not work properly. See "What clients are supported?" in the <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
-                    </div>
-                    <div v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'" class="warning--text">
-                      Note: You may not be able to connect to external Plex Clients while loading the page via HTTPS. 
-                      Click <a :href="nohttpslink">here</a> to load the page via HTTP. 
-                      See "My client isn't working!" in the <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
-                    </div>
-                </v-flex>
-              </v-layout>
+                  </div>
+                  <div v-if="gotResponse">
+                    <v-btn block color="primary" v-on:click.native="clientClicked()">Connect</v-btn>
+                  </div>
+                  <div
+                    v-if="testClient.product.indexOf('Web') > -1"
+                    class="warning--text"
+                  >Note: Plex Web is currently not supported.</div>
+                  <div
+                    v-if="testClient.product.indexOf('Plex for Android') > -1"
+                    class="warning--text"
+                  >
+                    Note: Plex for Android applications may not work properly. See "What clients are supported?" in the
+                    <a
+                      href="http://docs.synclounge.tv/faq/"
+                    >FAQ</a> for more details.
+                  </div>
+                  <div
+                    v-if="testClient.product.indexOf('Plex for Windows') > -1"
+                    class="warning--text"
+                  >
+                    Note: Plex Desktop applications may not work properly. See "What clients are supported?" in the
+                    <a
+                      href="http://docs.synclounge.tv/faq/"
+                    >FAQ</a> for more details.
+                  </div>
+                  <div
+                    v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'"
+                    class="warning--text"
+                  >
+                    Note: You may not be able to connect to external Plex Clients while loading the page via HTTPS.
+                    Click
+                    <a
+                      :href="nohttpslink"
+                    >here</a> to load the page via HTTP.
+                    See "My client isn't working!" in the
+                    <a
+                      href="http://docs.synclounge.tv/faq/"
+                    >FAQ</a> for more details.
+                  </div>
+                </v-col>
+              </v-row>
             </div>
-          </v-flex>
-          <v-flex xs12 md6 lg7 v-if="doReverse">
+          </v-col>
+          <v-col md="6" lg="7" v-if="doReverse">
             <v-subheader>Plex Players {{ playercount }}</v-subheader>
             <v-list dense style="background: none">
-              <plexclient v-for="i in recentClients" :key="i.clientIdentifier" @click.native="previewClient(i); ; gotResponse = true" :selected="isClientSelected(i)" :object="i" style="cursor: pointer"></plexclient>
+              <plexclient
+                v-for="i in recentClients"
+                :key="i.clientIdentifier"
+                @click.native="previewClient(i); ; gotResponse = true"
+                :selected="isClientSelected(i)"
+                :object="i"
+                style="cursor: pointer"
+              ></plexclient>
             </v-list>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </div>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
-import plexclient from './plexclient';
-import joinroom from './joinroom';
-
 import { mapState, mapActions } from 'vuex';
+
+import plexclient from './plexclient.vue';
 
 const moment = require('moment');
 
@@ -165,7 +215,6 @@ export default {
   },
   components: {
     plexclient,
-    joinroom,
   },
   computed: {
     ...mapState(['plex']),
@@ -224,9 +273,7 @@ export default {
       }
       let url = `http:${window.location.href.substring(window.location.protocol.length)}`;
       if (this.$store.state.autoJoin) {
-        url = `${url}?server=${this.$store.state.autoJoinUrl}&room=${
-          this.$store.state.autoJoinRoom
-        }&autojoin=true&owner=${this.$store.state.autoJoinOwner}`;
+        url = `${url}?server=${this.$store.state.autoJoinUrl}&room=${this.$store.state.autoJoinRoom}&autojoin=true&owner=${this.$store.state.autoJoinOwner}`;
         if (this.$store.state.autoJoinPassword) {
           url = `${url}&password=${this.$store.state.autoJoinPassword}`;
         }
@@ -264,16 +311,13 @@ export default {
           this.$store.commit('SET_CHOSENCLIENT', client);
           this.gotResponse = true;
         })
-        .catch((e) => {
+        .catch(e => {
           if (client.clientIdentifier !== this.testClient.clientIdentifier) {
             return;
           }
           this.gotResponse = true;
           this.testClientErrorMsg = 'Unable to connect to client';
         });
-    },
-    openJoinRoomModal() {
-      return this.$parent.$refs.joinroomModal.open();
     },
     isClientSelected(client) {
       if (client === this.testClient) {
@@ -294,3 +338,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+.selected-player-details label + span {
+  margin-left: 5px;
+}
+</style>

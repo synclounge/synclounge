@@ -1,10 +1,19 @@
 <template>
-  <v-list-item avatar :style="styleObj" class="pa-1">
+  <v-list-item :style="styleObj" class="pa-1">
     <v-list-item-avatar>
-      <img class="clientLogo" :class="platformClass" :src="url">
+      <img class="clientLogo" :class="platformClass" :src="url" />
     </v-list-item-avatar>
     <v-list-item-content>
-      <v-list-item-title>{{ object.name }}<v-chip v-for="label in object.labels" :key="label[0]" :color="label[1]" small label>{{ label[0] }}</v-chip></v-list-item-title>
+      <v-list-item-title>
+        {{ object.name }}
+        <v-chip
+          v-for="label in object.labels"
+          :key="label[0]"
+          :color="label[1]"
+          small
+          label
+        >{{ label[0] }}</v-chip>
+      </v-list-item-title>
       <v-list-item-subtitle>{{ object.product }} - last seen {{ lastSeenAgo }}</v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
@@ -19,27 +28,19 @@ export default {
   methods: {},
   computed: {
     tooltipMsg() {
-      return (`${this.object.name} running ${this.object.product} on ${this.object.device}`);
+      return `${this.object.name} running ${this.object.product} on ${this.object.device}`;
     },
     connection_success() {
-      if (this.object.connectedstatus === 'connected') {
-        return true;
-      }
+      return  this.object.connectedstatus === 'connected';
     },
     connection_wait() {
-      if (this.object.connectedstatus === 'waiting') {
-        return true;
-      }
+      return this.object.connectedstatus === 'waiting';
     },
     connection_failed() {
-      if (this.object.connectedstatus === 'failed') {
-        return true;
-      }
+     return  this.object.connectedstatus === 'failed';
     },
     connection_fresh() {
-      if (this.object.connectedstatus === 'fresh') {
-        return true;
-      }
+      return this.object.connectedstatus === 'fresh';
     },
     isTrunc() {
       if (this.sidebar) {
@@ -54,7 +55,10 @@ export default {
       return `${difference.humanize()} ago`;
     },
     platform() {
-      return this.platformMap[this.object.platform.toLowerCase()] || this.platformMap[this.object.product.toLowerCase()];
+      return (
+        this.platformMap[this.object.platform.toLowerCase()] ||
+        this.platformMap[this.object.product.toLowerCase()]
+      );
     },
     platformClass() {
       return [`platform-${this.platform}`];

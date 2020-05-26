@@ -56,6 +56,7 @@ window.EventBus.$on('command', (data) => {
     });
     return data.callback(true);
   }
+  return null;
 });
 
 Vue.mixin({
@@ -63,7 +64,7 @@ Vue.mixin({
     sinceNow(x) {
       const time = moment(x);
       return time.fromNow();
-    }
+    },
   },
   computed: {
     appVersion() {
@@ -101,20 +102,20 @@ Vue.mixin({
     },
     fontSizes() {
       const w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+        Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
       );
       const maxPx = 94;
       const maxRes = 3000;
       return {
         largest: {
-          'font-size': `${(w / maxRes) * maxPx}px`
+          'font-size': `${(w / maxRes) * maxPx}px`,
         },
         medium: {
-          'font-size': `${(w / maxRes) * maxPx * 0.6}px`
-        }
+          'font-size': `${(w / maxRes) * maxPx * 0.6}px`,
+        },
       };
-    }
-  }
+    },
+  },
 });
 
 router.beforeEach((to, from, next) => {
@@ -124,17 +125,17 @@ router.beforeEach((to, from, next) => {
     // if not, redirect to the needed stage
     if (!store.getters.getChosenClient) {
       return next({
-        path: '/clientselect'
+        path: '/clientselect',
       });
     }
     if (!store.getters.getRoom) {
       return next({
-        path: '/joinroom'
+        path: '/joinroom',
       });
     }
     if (!store.getters.getServer) {
       return next({
-        path: '/joinroom'
+        path: '/joinroom',
       });
     }
     next();
@@ -144,6 +145,8 @@ router.beforeEach((to, from, next) => {
     }
     router.push('/browse');
   }
+
+  return null;
 });
 
 new Vue({
