@@ -1,8 +1,19 @@
+const { fs } = require('fs');
+
 const args = require('args-parser')(process.argv);
-const settings = require('./settings.json');
 
 const { coalesce } = require('./src/utils/helpers');
 const { defaultSettings } = require('./src/default-settings');
+
+const readSettingsFile = (file) => {
+  try {
+    return require(file);
+  } catch (e) {
+    return {};
+  }
+};
+
+const settings = readSettingsFile('./settings.json');
 
 const fields = [
   // Webapp settings
