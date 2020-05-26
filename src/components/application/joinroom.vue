@@ -344,7 +344,6 @@ export default {
             })
             .catch((e) => {
               this.connectionPending = false;
-              console.log(this.selectedServer);
               this.serverError = `Failed to connect to ${this.selectedServer.url}`;
               reject(e);
             });
@@ -356,11 +355,9 @@ export default {
     attemptConnectCustom() {
       this.connectionPending = true;
       this.serverError = null;
-      console.log("OMFGSDJFLOJKLF");
       this.$store
         .dispatch('socketConnect', { address: this.GET_CUSTOM_SERVER_USER_INPUTTED_URL })
         .then((result) => {
-          console.log("CONNNECTED MAYBEEEEEEEEEE???????????")
           this.connectionPending = false;
           if (result) {
             this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
