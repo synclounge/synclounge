@@ -50,7 +50,7 @@ const bootstrap = () =>
       }
 
       const query = Object.entries(params)
-        .map((key, value) => `${encodeURIComponent(key)}=${value}`)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${value}`)
         .join('&');
 
       const fullUrl = `${settings.accessUrl}/#/join?${query}`;

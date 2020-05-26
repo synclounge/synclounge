@@ -101,7 +101,6 @@ export default {
     this.eventbus.$off('player-seek');
     this.eventbus.$off('ptplayer-poll');
 
-    let query = '';
     const params = {
       hasMDE: 1,
       ratingKey: this.metadata.ratingKey,
@@ -120,9 +119,10 @@ export default {
       'X-Plex-Token': this.params['X-Plex-Token'],
       'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
     };
-    for (const key in params) {
-      query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-    }
+
+    const query = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
     const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
     request(url, (error, response, body) => {
       if (!error) {

@@ -389,7 +389,7 @@ export default {
       }
       try {
         await this.$store.dispatch('joinRoom', {
-          user: this.plex.user,
+          user: this.getPlex.user,
           roomName: this.room,
           password: this.password,
         });
@@ -411,14 +411,11 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['GET_SYNCLOUNGE_SERVERS', 'getConnected']),
+    ...mapGetters(['GET_SYNCLOUNGE_SERVERS', 'getConnected', 'getPlex']),
     ...mapGetters('settings', [
       'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
       'GET_RECENT_ROOMS',
     ]),
-    plex() {
-      return this.$store.state.plex;
-    },
     logo() {
       return this.logos.light.long;
     },

@@ -98,9 +98,10 @@ export default {
     };
   },
   methods: {
-    ...mapActions({
-      'plexCheckAuth': 'PLEX_CHECK_AUTH'
-    }),
+    ...mapActions([
+      'PLEX_CHECK_AUTH',
+      'PLEX_LOGIN_TOKEN'
+    ]),
     ...mapMutations('settings', [
       'SET_HIDEUSERNAME',
       'SET_ALTUSERNAME',
@@ -130,7 +131,7 @@ export default {
     },
     async setAuth(authToken) {
       this.SET_PLEX_AUTH_TOKEN(authToken);
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
+      await this.PLEX_LOGIN_TOKEN(authToken);
       this.token = authToken;
       this.ready = true;
     },
@@ -146,19 +147,19 @@ export default {
     },
     async checkAuth(authToken) {
       this.checkingAuth = true;
-      const result = await this.plexCheckAuth(authToken);
+      const result = await this.PLEX_CHECK_AUTH(authToken);
       this.checkingAuth = false;
       return result;
     },
   },
   computed: {
-    ...mapGetters({
-      'GET_HIDEUSERNAME': 'settings/GET_HIDEUSERNAME',
-      'GET_ALTUSERNAME': 'settings/GET_ALTUSERNAME',
-      'GET_PLEX_AUTH_TOKEN': 'settings/GET_PLEX_AUTH_TOKEN',
-      'GET_CLIENTIDENTIFIER': 'settings/GET_CLIENTIDENTIFIER',
-      'getAppVersion': 'getAppVersion'
-    }),
+    ...mapGetters([ 'getAppVersion']),
+    ...mapGetters('settings', [
+      'GET_HIDEUSERNAME',
+      'GET_ALTUSERNAME',
+      'GET_PLEX_AUTH_TOKEN',
+      'GET_CLIENTIDENTIFIER',
+    ]),
     HIDEUSERNAME: {
       get() {
         return this.GET_HIDEUSERNAME;

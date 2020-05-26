@@ -107,8 +107,8 @@
 </template>
 
 <script>
-import plexclient from './plexclient';
-import joinroom from './joinroom';
+import plexclient from './plexclient.vue';
+import joinroom from './joinroom.vue';
 
 import { mapState, mapActions, mapGetters } from 'vuex';
 

@@ -166,6 +166,8 @@ const getters = {
     }
     return defaultSyncloungeServers.concat([getters['settings/GET_CUSTOMSERVER']]);
   },
+  GET_MANUAL_SYNC_QUEUED: (state) => state.manualSyncQueued,
+  GET_ME: (state) => state.me
 };
 
 const actions = {
@@ -386,6 +388,10 @@ const actions = {
     state.chosenClientTimeSet = new Date().getTime();
     clientPoller(state.chosenClientTimeSet);
     state.chosenClient.getTimeline((timeline) => {});
+  },
+
+  TRIGGER_MANUAL_SYNC: ({ commit }) => {
+    commit('SET_MANUAL_SYNC_QUEUED', true);
   },
 };
 

@@ -43,8 +43,8 @@
           color="primary"
           dark
           raised
-          v-if="shortUrl != null"
-          v-clipboard="shortUrl"
+          v-if="getShortLink != null"
+          v-clipboard="getShortLink"
           @success="sendNotification()"
         >Invite</v-btn>
         <v-btn dark @click="goFullscreen" class="hidden-lg-and-up" icon>
@@ -84,7 +84,7 @@
             class="mt-0"
           >{{ configError }}</v-alert>
         </v-flex>
-        <v-flex xs12 v-if="(loading || (plex && !plex.gotDevices)) && route.protected">
+        <v-flex xs12 v-if="(loading || (getPlex && !getPlex.gotDevices)) && route.protected">
           <v-container fill-height>
             <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
               <v-flex xs8 md4>
@@ -193,7 +193,7 @@ export default {
     },
     goFullscreen() {
       fscreen.requestFullscreen(document.body);
-    }
+    },
   },
   created() {
     this.configFetchPromise = this.fetchConfig();
@@ -204,7 +204,7 @@ export default {
     } catch (e) {
       this.configError = `Failed to fetch config: ${e}`;
     }
-    // 
+    //
     //  Settings
     //
     // Set AutoJoin information in order of importance: query -> config -> settings
@@ -212,31 +212,22 @@ export default {
       this.$store.commit('SET_AUTOJOIN', true);
       this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
       this.$store.commit('SET_AUTOJOINURL', this.$route.query.server);
-      this.$store.commit('SET_VALUE', [
-        'autoJoinOwner',
-        this.$route.query.owner,
-      ]);
+      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner]);
       if (this.$route.query.password) {
         this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
       }
-    } else if (this.config) {
-      if (
-        this.config.autoJoin &&
-        (this.config.autoJoin === true || this.config.autoJoin === 'true')
-      ) {
+    } else if (this.GET_CONFIG) {
+      if (this.GET_CONFIG.autoJoin && this.GET_CONFIG.autoJoin === true) {
         this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', this.config.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', this.config.autoJoinServer);
-        this.$store.commit(
-          'SET_AUTOJOINPASSWORD',
-          this.config.autoJoinPassword,
-        );
+        this.$store.commit('SET_AUTOJOINROOM', this.GET_CONFIG.autoJoinRoom);
+        this.$store.commit('SET_AUTOJOINURL', this.GET_CONFIG.autoJoinServer);
+        this.$store.commit('SET_AUTOJOINPASSWORD', this.GET_CONFIG.autoJoinPassword);
       }
     }
 
     // Auto-join if a single server is provided and autoJoinServer is not
-    if (this.syncloungeServers.length == 1 && !this.$store.autoJoinServer) {
-      const server = this.syncloungeServers[0];
+    if (this.GET_SYNCLOUNGE_SERVERS.length === 1 && !this.$store.autoJoinServer) {
+      const server = this.GET_SYNCLOUNGE_SERVERS[0];
       this.$store.commit('SET_AUTOJOIN', true);
       this.$store.commit('SET_AUTOJOINURL', server.url);
       if (!this.$store.autoJoinRoom && server.defaultRoom) {
@@ -257,21 +248,22 @@ export default {
         room: this.$store.state.autoJoinRoom,
       });
     }
-    
 
     window.EventBus.$on('notification', (msg) => {
       this.snackbarMsg = msg;
       this.snackbar = true;
     });
+    
     window.EventBus.$on('NEW_TIMELINE', (timeline) => {
       this.$store.dispatch('NEW_TIMELINE', timeline);
     });
+
     window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
-      if (this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
+      if (this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
         this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
       }
       if (
-        this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' &&
+        this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' &&
         !data[1] &&
         this.$route.fullPath.indexOf('/nowplaying') > -1
       ) {
@@ -279,7 +271,8 @@ export default {
       }
       this.$store.dispatch('PLAYBACK_CHANGE', data);
     });
-    if (!this.plexAuthToken) {
+
+    if (!this.GET_PLEX_AUTH_TOKEN) {
       this.$router.push('/signin');
       this.loading = false;
       return;
@@ -289,7 +282,7 @@ export default {
     }
 
     try {
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', this.plexAuthToken);
+      await this.$store.dispatch('PLEX_LOGIN_TOKEN', this.GET_PLEX_AUTH_TOKEN);
     } catch (e) {
       this.$router.push('/signin');
       return;
@@ -308,23 +301,12 @@ export default {
       if (this.showRightDrawerButton) {
         this.drawerRight = true;
       }
-    }
+    },
   },
   computed: {
-    ...mapGetters({
-      config: 'config/GET_CONFIG',
-      syncloungeServers: 'GET_SYNCLOUNGE_SERVERS',
-      plexAuthToken: 'settings/GET_PLEX_AUTH_TOKEN'
-    }),
-    plex() {
-      return this.$store.getters.getPlex;
-    },
-    itemCache() {
-      return this.$store.getters.getItemCache;
-    },
-    libraryCache() {
-      return this.$store.getters.getLibraryCache;
-    },
+    ...mapGetters(['getPlex', 'getItemCache', 'getLibraryCache', 'getChosenClient', 'getConnected', 'getRoom', 'getServer', 'getShortLink', 'GET_SYNCLOUNGE_SERVERS']),
+    ...mapGetters('config', ['GET_CONFIG']),
+    ...mapGetters('settings', ['GET_PLEX_AUTH_TOKEN']),
     extAvailable() {
       return this.$store.getters.getExtAvailable;
     },
@@ -337,14 +319,14 @@ export default {
       }
       const getTitle = (id) => {
         try {
-          return this.itemCache[this.$route.params.machineIdentifier][id].title;
+          return this.getItemCache[this.$route.params.machineIdentifier][id].title;
         } catch (e) {
           return 'Loading..';
         }
       };
       const getLibrary = (id) => {
         try {
-          return this.libraryCache[this.$route.params.machineIdentifier][id];
+          return this.getLibraryCache[this.$route.params.machineIdentifier][id];
         } catch (e) {
           return 'Library';
         }
@@ -357,7 +339,7 @@ export default {
       ];
       const map = {
         machineIdentifier: () => ({
-          text: this.plex.servers[this.$route.params.machineIdentifier].name,
+          text: this.getPlex.servers[this.$route.params.machineIdentifier].name,
           to: `/browse/${this.$route.params.machineIdentifier}`,
         }),
         sectionId: () => ({
@@ -395,54 +377,20 @@ export default {
     },
     showNowPlaying() {
       return (
-        this.chosenClient &&
-        this.chosenClient.clientPlayingMetadata &&
+        this.getChosenClient &&
+        this.getChosenClient.clientPlayingMetadata &&
         this.$route.name === 'browse'
       );
     },
     showRightDrawerButton() {
-      return this.ptConnected && this.chosenClient && this.ptRoom;
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
-    plexthumb() {
-      return this.$store.state.plex.user.thumb;
+      return this.getConnected && this.getChosenClient && this.getRoom;
     },
     logo() {
       return this.logos.light.small;
     },
-    isPlayer() {
-      if (this.$route.path === '/') {
-        return true;
-      }
-      return false;
-    },
-    validDevices() {
-      if (!this.plex) {
-        return false;
-      }
-      return this.plex.gotDevices;
-    },
-    ptConnected() {
-      return this.$store.getters.getConnected;
-    },
-    ptServer() {
-      return this.$store.getters.getServer;
-    },
-    ptRoom() {
-      return this.$store.getters.getRoom;
-    },
-    ptPassword() {
-      return this.$store.getters.getPassword;
-    },
     showLinkShortener() {
-      return this.ptConnected && this.ptServer && this.ptRoom && this.shortUrl;
+      return this.getConnected && this.getServer && this.getRoom && this.getShortLink;
     },
-    shortUrl() {
-      return this.$store.getters.getShortLink;
-    },
-
     mainStyle() {
       if (this.$store.getters.getBackground !== null) {
         return {
