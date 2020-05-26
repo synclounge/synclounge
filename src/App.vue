@@ -1,20 +1,10 @@
 <template>
   <v-app dark style="height:100%">
     <leftsidebar></leftsidebar>
-    <v-navigation-drawer
-      v-if="showRightDrawerButton"
-      style="padding: 0; z-index: 6"
-      app
-      persistent
-      v-model="drawerRight"
-      right
-      enable-resize-watcher
-    >
-      <drawerright></drawerright>
-    </v-navigation-drawer>
+    <rightsidebar></rightsidebar>
 
-    <v-app-bar fixed scroll-off-screen :scroll-threshold="1" style="z-index: 5">
-      <v-app-bar-nav-icon @click="TOGGLE_LEFT_SIDEBAR_OPEN"></v-app-bar-nav-icon>
+    <v-app-bar app scroll-off-screen :scroll-threshold="1" style="z-index: 5">
+      <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN"></v-app-bar-nav-icon>
       <a href="https://synclounge.tv" target="_blank">
         <img
           class="ma-1 hidden-xs-only"
@@ -54,9 +44,9 @@
         <v-btn small tag="a" class="hidden-sm-and-down" text @click="donateDialog = true">Donate ♥</v-btn>
         <v-icon
           v-if="showRightDrawerButton"
-          @click="toggleDrawerRight"
+          @click="TOGGLE_RIGHT_SIDEBAR_OPEN"
           class="clickable"
-        >{{ drawerRight ? 'last_page' : 'first_page' }}</v-icon>
+        >{{ isRightSidebarOpen ? 'last_page' : 'first_page' }}</v-icon>
       </v-toolbar-items>
     </v-app-bar>
     <v-content v-bind:style="mainStyle" app>
@@ -114,7 +104,7 @@ import './assets/css/style.css';
 import fscreen from 'fscreen';
 
 import { mapActions, mapState } from 'vuex';
-import drawerright from './sidebar.vue';
+import rightsidebar from './sidebar.vue';
 import leftsidebar from './leftsidebar.vue';
 import upnext from './upnext.vue';
 import nowplayingchip from './nowplayingchip.vue';
@@ -126,7 +116,7 @@ const settings = new SettingsHelper();
 
 export default {
   components: {
-    drawerright,
+    rightsidebar,
     upnext,
     nowplayingchip,
     leftsidebar,
@@ -134,9 +124,6 @@ export default {
   },
   data() {
     return {
-      mini: false,
-      drawerRight: false,
-      right: null,
       fixed: false,
       initialized: false,
       donateDialog: false,
@@ -172,12 +159,9 @@ export default {
   },
   methods: {
     ...mapActions('config', ['fetchConfig']),
-    ...mapActions(['TOGGLE_LEFT_SIDEBAR_OPEN']),
+    ...mapActions(['SET_LEFT_SIDEBAR_OPEN', 'SET_RIGHT_SIDEBAR_OPEN', 'TOGGLE_RIGHT_SIDEBAR_OPEN']),
     sendNotification() {
       window.EventBus.$emit('notification', 'Copied to clipboard');
-    },
-    toggleDrawerRight() {
-      this.drawerRight = !this.drawerRight;
     },
     goFullscreen() {
       fscreen.requestFullscreen(document.body);
@@ -367,8 +351,9 @@ export default {
   },
   watch: {
     showRightDrawerButton() {
+      // TODO: fix this is hacky
       if (this.showRightDrawerButton) {
-        this.drawerRight = true;
+        this.SET_RIGHT_SIDEBAR_OPEN(true);
       }
     },
   },
@@ -376,6 +361,7 @@ export default {
     ...mapState('config', {
       config: state => state.configuration,
     }),
+    ...mapState(['isRightSidebarOpen']),
     plex() {
       return this.$store.getters.getPlex;
     },

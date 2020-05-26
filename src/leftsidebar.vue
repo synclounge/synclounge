@@ -3,7 +3,7 @@
     app
     temporary
     :value="isLeftSidebarOpen"
-    @input="TOGGLE_LEFT_SIDEBAR_OPEN"
+    @input="SET_LEFT_SIDEBAR_OPEN"
     disable-route-watcher
   >
     <v-list-item v-if="plex && plex.user">
@@ -240,7 +240,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['TOGGLE_LEFT_SIDEBAR_OPEN']),
+    ...mapActions(['SET_LEFT_SIDEBAR_OPEN']),
     isHost(user) {
       return user.role === 'host';
     },

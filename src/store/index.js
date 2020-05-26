@@ -44,6 +44,7 @@ const state = {
   stats: {},
   me: {},
   isLeftSidebarOpen: false,
+  isRightSidebarOpen: false,
 };
 
 const mutations = {
@@ -152,7 +153,9 @@ const mutations = {
     const [key, value] = data;
     Vue.set(state, key, value);
   },
-  TOGGLE_LEFT_SIDEBAR_OPEN: (state, open) => { state.isLeftSidebarOpen = open; },
+  SET_LEFT_SIDEBAR_OPEN: (state, open) => { state.isLeftSidebarOpen = open; },
+  SET_RIGHT_SIDEBAR_OPEN: (state, open) => { state.isRightSidebarOpen = open; },
+  TOGGLE_RIGHT_SIDEBAR_OPEN: (state) => { state.isRightSidebarOpen = !state.isRightSidebarOpen; },
 };
 const getters = {
   getAppVersion: state => state.appVersion,
@@ -345,8 +348,14 @@ const actions = {
       state.synclounge._socket.emit('poll', endObj);
     }
   },
-  TOGGLE_LEFT_SIDEBAR_OPEN: ({ commit }, open) => {
-    commit('TOGGLE_LEFT_SIDEBAR_OPEN', open);
+  SET_LEFT_SIDEBAR_OPEN: ({ commit }, open) => {
+    commit('SET_LEFT_SIDEBAR_OPEN', open);
+  },
+  SET_RIGHT_SIDEBAR_OPEN: ({ commit }, open) => {
+    commit('SET_RIGHT_SIDEBAR_OPEN', open);
+  },
+  TOGGLE_RIGHT_SIDEBAR_OPEN: ({ commit }) => {
+    commit('TOGGLE_RIGHT_SIDEBAR_OPEN');
   },
 };
 
