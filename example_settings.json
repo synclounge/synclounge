@@ -47,7 +47,6 @@
   "clientPollInterval": 1000,
   "syncMode": "cleanseek",
   "syncFlexibility": 3000,
-  "hideUsername": false,
   "slPlayerQuality": "Original",
   "slPlayerVolume": 1,
   "slPlayerForceTranscode": true

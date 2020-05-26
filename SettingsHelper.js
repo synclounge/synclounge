@@ -117,12 +117,6 @@ const fields = [
     type: 'number',
   },
   {
-    local: 'hideUsername',
-    env: 'HIDEUSERNAME',
-    default: defaultSettings.hideUsername,
-    type: 'boolean',
-  },
-  {
     local: 'slPlayerQuality',
     env: 'SLPLAYERQUALITY',
     default: defaultSettings.slPlayerQuality,

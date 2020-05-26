@@ -4,7 +4,7 @@ import createPersistedState from 'vuex-persistedstate';
 
 import { generateGuid } from '@/utils/helpers';
 import config from './store/modules/config/config.store';
-import settings from './store/modules/settings/settings.store';
+import settings from './store/modules/settings';
 
 const plex = require('./store/modules/plex/').default;
 const syncLounge = require('./store/modules/synclounge.js').default;
@@ -167,7 +167,7 @@ const getters = {
     return defaultSyncloungeServers.concat([getters['settings/GET_CUSTOMSERVER']]);
   },
   GET_MANUAL_SYNC_QUEUED: (state) => state.manualSyncQueued,
-  GET_ME: (state) => state.me
+  GET_ME: (state) => state.me,
 };
 
 const actions = {

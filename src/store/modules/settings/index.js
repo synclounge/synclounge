@@ -21,7 +21,7 @@ const defaultState = () => ({
   slPlayerQuality: null,
   slPlayerVolume: null,
   slPlayerForceTranscode: null,
-  hideUsername: null,
+  hideUsername: false,
   altUsername: null,
   clientIdentifier: `${generateGuid()}-${generateGuid()}`,
   lastServer: null,
@@ -68,12 +68,7 @@ const moduleGetters = {
       rootGetters['config/GET_CONFIG'].slPlayerForceTranscode,
       defaultSettings.slPlayerForceTranscode,
     ),
-  GET_HIDEUSERNAME: (state, getters, rootState, rootGetters) =>
-    coalesce(
-      state.hideUsername,
-      rootGetters['config/GET_CONFIG'].hideUsername,
-      defaultSettings.hideUsername,
-    ),
+  GET_HIDEUSERNAME: (state) => state.hideUsername,
   GET_ALTUSERNAME: (state) => state.altUsername,
   GET_CLIENTIDENTIFIER: (state) => state.clientIdentifier,
   GET_LASTSERVER: (state) => state.lastServer,
