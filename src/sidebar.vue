@@ -1,12 +1,12 @@
 <template>
   <v-container class="pa-0 pb-0" fill-height>
-    <v-layout v-if="ptRoom" row wrap style="background: rgba(30, 31, 50,0.6)">
+    <v-layout v-if="getRoom" row wrap style="background: rgba(30, 31, 50,0.6)">
       <v-flex xs12 style="height: 50vh">
         <v-flex xs12>
           <v-card style="background: linear-gradient(180deg,#1f1c2c,#182848); border-radius: 7px" class="pa-2 ma-3">
             <v-layout row wrap justify-space-between="" align-center>
               <v-flex xs6>
-                <h3 class="mb-0 pb-0 pa-0"> {{ ptRoom }}</h3>
+                <h3 class="mb-0 pb-0 pa-0"> {{ getRoom }}</h3>
               </v-flex>
               <v-flex xs2>
                 <v-menu>
@@ -21,8 +21,8 @@
                 </v-menu>
               </v-flex>
               <v-flex xs12>
-                <div v-if="ptUsers.length != 1" class="participant-count">
-                  {{ ptUsers.length }} people
+                <div v-if="getUsers.length != 1" class="participant-count">
+                  {{ getUsers.length }} people
                 </div>
                 <div v-else class="participant-count">
                   It's just you, invite some friends
@@ -103,7 +103,7 @@
               <v-progress-linear class="pt-content-progress " :height="2" :value="percent(hostUser())"></v-progress-linear>
             </div>
           </v-card>
-          <div v-for="user in ptUsers" v-bind:key="user.username">
+          <div v-for="user in getUsers" v-bind:key="user.username">
             <div class="pa-1 ml-3 mr-3" v-if="!isHost(user)">
               <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
                 <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
@@ -162,7 +162,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 import messages from '@/components/messages.vue';
 
@@ -184,7 +184,7 @@ export default {
     }, 250);
   },
   watch: {
-    ptUsers: {
+    getUsers: {
       deep: true,
       handler() {
         this.lastRecievedUpdate = new Date().getTime();
@@ -192,21 +192,11 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['getPartyPausing']),
-    plex() {
-      return this.$store.getters.getPlex;
-    },
-    me() {
-      return this.$store.state.me;
-    },
+    ...mapState(['me']),
+    ...mapGetters(['getPartyPausing', 'getUsers', 'getRoom']),
+    ...mapGetters({plex: 'getPlex'}),
     host() {
       return this.$store.getters.getUsers.find(user => user.role === 'host');
-    },
-    ptRoom() {
-      return this.$store.getters.getRoom;
-    },
-    ptUsers() {
-      return this.$store.getters.getUsers;
     },
     serverDelay() {
       return Math.round(this.$store.state.synclounge.commands[
@@ -227,12 +217,12 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['updatePartyPausing', 'sendPartyPause']),
+    ...mapActions(['updatePartyPausing', 'sendPartyPause', 'transferHost']),
     isHost(user) {
       return user.role === 'host';
     },
     hostUser() {
-      return this.ptUsers.find(u => u.role === 'host');
+      return this.getUsers.find(u => u.role === 'host');
     },
     sendPartyPauseLocal(isPause) {
       this.localPauseTimeout = true;
@@ -262,9 +252,6 @@ export default {
         },
       ];
       return arr;
-    },
-    transferHost(username) {
-      this.$store.dispatch('transferHost', username);
     },
     async handleDisconnect() {
       await this.$store.dispatch('disconnectServer');

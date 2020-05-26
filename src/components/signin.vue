@@ -146,9 +146,9 @@ export default {
     },
     async checkAuth(authToken) {
       this.checkingAuth = true;
-      await plexCheckAuth(authToken);
+      const result = await this.plexCheckAuth(authToken);
       this.checkingAuth = false;
-      return null;
+      return result;
     },
   },
   computed: {

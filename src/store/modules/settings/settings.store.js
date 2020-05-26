@@ -5,7 +5,7 @@ const { defaultSettings } = require('@/default-settings');
 // to make the module reusable.
 // See: https://vuex.vuejs.org/en/modules.html#module-reuse
 // All of these settings are stored in localStorage and are persistent across reloads
-const state = () => ({
+const defaultState = () => ({
   autoplay: null,
   clientPollInterval: null,
   syncMode: null,
@@ -30,7 +30,7 @@ const state = () => ({
 });
 
 // Use stored value if not null, othewise fallback to config, then default values
-const getters = {
+const moduleGetters = {
   GET_AUTOPLAY: (state, getters, rootState, rootGetters) =>
     coalesce(state.autoplay, rootGetters['config/GET_CONFIG'].autoplay, defaultSettings.autoplay),
   GET_CLIENTPOLLINTERVAL: (state, getters, rootState, rootGetters) =>
@@ -83,40 +83,42 @@ const getters = {
 };
 
 const mutations = {
-  SET_AUTOPLAY: (state, autoplay) => (state.autoplay = autoplay),
-  SET_SLPLAYERFORCETRANSCODE: (state, force) => (state.slPlayerForceTranscode = force),
-  SET_CLIENTPOLLINTERVAL: (state, interval) => (state.clientPollInterval = interval),
-  SET_SYNCFLEXIBILITY: (state, flexibility) => (state.syncFlexibility = flexibility),
-  SET_SYNCMODE: (state, mode) => (state.syncMode = mode),
-  SET_HIDEUSERNAME: (state, hide) => (state.hideUsername = hide),
-  SET_ALTUSERNAME: (state, alt) => (state.altUsername = alt),
-  SET_BLOCKEDSERVERS: (state, blocked) => (state.blockedServers = blocked),
-  SET_CUSTOM_SERVER_USER_INPUTTED_URL: (state, url) => (state.customServerUserInputtedUrl = url),
-  SET_SLPLAYERQUALITY: (state, quality) => (state.slPlayerQuality = quality),
-  SET_LASTSERVER: (state, server) => (state.lastServer = server),
-  SET_SLPLAYERVOLUME: (state, volume) => (state.slPlayerVolume = volume),
-  SET_PLEX_AUTH_TOKEN: (state, token) => (state.plexAuthToken = token),
-  SET_RECENT_ROOMS: (state, rooms) => (state.recentRooms = rooms),
+  SET_AUTOPLAY: (state, autoplay) => { state.autoplay = autoplay; },
+  SET_SLPLAYERFORCETRANSCODE: (state, force) => { state.slPlayerForceTranscode = force; },
+  SET_CLIENTPOLLINTERVAL: (state, interval) => { state.clientPollInterval = interval; },
+  SET_SYNCFLEXIBILITY: (state, flexibility) => { state.syncFlexibility = flexibility; },
+  SET_SYNCMODE: (state, mode) => { state.syncMode = mode; },
+  SET_HIDEUSERNAME: (state, hide) => { state.hideUsername = hide; },
+  SET_ALTUSERNAME: (state, alt) => { state.altUsername = alt; },
+  SET_BLOCKEDSERVERS: (state, blocked) => { state.blockedServers = blocked; },
+  SET_CUSTOM_SERVER_USER_INPUTTED_URL: (state, url) => { state.customServerUserInputtedUrl = url; },
+  SET_SLPLAYERQUALITY: (state, quality) => { state.slPlayerQuality = quality; },
+  SET_LASTSERVER: (state, server) => { state.lastServer = server; },
+  SET_SLPLAYERVOLUME: (state, volume) => { state.slPlayerVolume = volume; },
+  SET_PLEX_AUTH_TOKEN: (state, token) => { state.plexAuthToken = token; },
+  SET_RECENT_ROOMS: (state, rooms) => { state.recentRooms = rooms; },
 };
 
 const actions = {
   ADD_RECENT_ROOM: ({ commit, getters }, newRoom) =>
     commit(
       'SET_RECENT_ROOMS',
-      Array.of(newRoom).concat(getters.GET_RECENT_ROOMS.filter(room => room.server !== newRoom.server || room.room !== newRoom.room)),
+      Array.of(newRoom).concat(getters.GET_RECENT_ROOMS.filter(room =>
+        room.server !== newRoom.server || room.room !== newRoom.room)),
     ),
 
   REMOVE_RECENT_ROOM: ({ commit, getters }, roomToRemove) =>
     commit(
       'SET_RECENT_ROOMS',
-      getters.GET_RECENT_ROOMS.filter(room => room.server !== roomToRemove.server || room.room !== roomToRemove.room),
+      getters.GET_RECENT_ROOMS.filter(room => room.server !== roomToRemove.server
+        || room.room !== roomToRemove.room),
     ),
 };
 
 export default {
   namespaced: true,
-  state,
+  state: defaultState,
   mutations,
-  getters,
+  getters: moduleGetters,
   actions,
 };
