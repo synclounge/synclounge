@@ -286,7 +286,7 @@ export default {
       return `${difference.humanize()} ago`;
     },
     refreshPlexDevices() {
-      this.chooseClient(null);
+      this.CHOOSE_CLIENT(null);
       this.$store.commit('REFRESH_PLEXDEVICES');
     },
   },

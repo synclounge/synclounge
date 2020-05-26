@@ -100,12 +100,12 @@ export default {
   methods: {
     ...mapActions([
       'PLEX_CHECK_AUTH',
-      'PLEX_LOGIN_TOKEN'
+      'PLEX_LOGIN_TOKEN',
     ]),
     ...mapMutations('settings', [
       'SET_HIDEUSERNAME',
       'SET_ALTUSERNAME',
-      'SET_PLEX_AUTH_TOKEN'
+      'SET_PLEX_AUTH_TOKEN',
     ]),
     async openPopup() {
       this.openedWindow = window.open(this.url, '_blank');
