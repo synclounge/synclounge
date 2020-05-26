@@ -245,6 +245,7 @@ module.exports = function PlexClient() {
     return this.seekTo(time);
   };
   this.sync = function sync(hostTimeline, SYNCFLEXIBILITY, SYNCMODE, POLLINTERVAL) {
+    console.log("SYNC CALLEd");
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         await this.getTimeline();

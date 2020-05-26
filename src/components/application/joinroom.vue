@@ -30,12 +30,12 @@
           <v-flex
             xs12
             class="nicelist pa-4"
-            v-if="!context.getters.getConnected && this.recentRooms.length > 0"
+            v-if="!getConnected && this.GET_RECENT_ROOMS.length > 0"
             style="color:white !important;"
           >
             <v-subheader>Recent Rooms</v-subheader>
             <v-list class="pa-0">
-              <template v-for="(item, index) in this.recentRooms.slice(0, 3)">
+              <template v-for="(item, index) in this.GET_RECENT_ROOMS.slice(0, 3)">
                 <v-list-tile :key="index" avatar @click="recentConnect(item)">
                   <v-list-tile-avatar>
                     <img :src="logos.light.small" style="width: 32px; height: auto" />
@@ -64,7 +64,7 @@
           <v-flex
             xs12
             class="nicelist pa-4"
-            v-if="!context.getters.getConnected"
+            v-if="!getConnected"
             style="color:white !important"
           >
             <v-subheader>Select a server</v-subheader>
@@ -74,7 +74,7 @@
                 xs12
                 md3
                 lg2
-                v-for="server in syncloungeServers"
+                v-for="server in GET_SYNCLOUNGE_SERVERS"
                 :key="server.url"
               >
                 <v-card height="300px" style="border-radius: 20px">
@@ -168,7 +168,7 @@
               </v-flex>
             </v-layout>
           </v-flex>
-          <v-flex xs12 v-if="context.getters.getConnected" class="text-xs-center">
+          <v-flex xs12 v-if="getConnected" class="text-xs-center">
             <v-layout row wrap>
               <v-flex xs12 md6 offset-md3>
                 <v-text-field
@@ -259,6 +259,9 @@ export default {
     ...mapActions('settings', [
       'REMOVE_RECENT_ROOM'
     ]),
+    ...mapActions([
+      'socketConnect',
+    ]),
     connectionQualityClass(value) {
       if (value < 50) {
         return ['green--text', 'text--lighten-1'];
@@ -297,7 +300,7 @@ export default {
       }
     },
     async testConnections() {
-      this.syncloungeServers.map((server) => {
+      this.GET_SYNCLOUNGE_SERVERS.map((server) => {
         if (server.url !== 'custom') {
           const start = new Date().getTime();
           axios.get(`${server.url}/health`)
@@ -324,8 +327,7 @@ export default {
         this.serverError = null;
         if (this.selectedServer.url !== 'custom') {
           this.connectionPending = true;
-          this.$store
-            .dispatch('socketConnect', { address: this.selectedServer.url })
+          this.socketConnect({ address: this.selectedServer.url })
             .then((result) => {
               this.connectionPending = false;
               if (result) {
@@ -354,9 +356,11 @@ export default {
     attemptConnectCustom() {
       this.connectionPending = true;
       this.serverError = null;
+      console.log("OMFGSDJFLOJKLF");
       this.$store
         .dispatch('socketConnect', { address: this.GET_CUSTOM_SERVER_USER_INPUTTED_URL })
         .then((result) => {
+          console.log("CONNNECTED MAYBEEEEEEEEEE???????????")
           this.connectionPending = false;
           if (result) {
             this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
@@ -379,7 +383,7 @@ export default {
       await this.attemptConnect();
     },
     async joinRoom() {
-      if (!this.context.getters.getConnected) {
+      if (!this.getConnected) {
         throw new Error('not connected to a server');
       }
       if (this.room === '' || this.room == null) {
@@ -410,20 +414,17 @@ export default {
     },
   },
   computed: {
-    ...mapGetters({
-      'syncloungeServers': 'GET_SYNCLOUNGE_SERVERS',
-      'GET_CUSTOM_SERVER_USER_INPUTTED_URL': 'settings/GET_CUSTOM_SERVER_USER_INPUTTED_URL',
-      'recentRooms': 'settings/GET_RECENT_ROOMS'
-    }),
+    ...mapGetters(['GET_SYNCLOUNGE_SERVERS', 'getConnected']),
+    ...mapGetters('settings', [
+      'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
+      'GET_RECENT_ROOMS',
+    ]),
     plex() {
       return this.$store.state.plex;
     },
     logo() {
       return this.logos.light.long;
     },
-    context() {
-      return this.$store;
-    }
-  }
+  },
 };
 </script>
