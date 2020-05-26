@@ -133,7 +133,6 @@ const actions = {
             new HandshakeUser(rootState.plex.user, state.room, state.password),
           );
         }
-        console.log("OIKAYYYYY THIS SHOULD RESOLVE NOW")
         return resolve(true, result);
       });
       state.socket.on('connect_error', (result) => {

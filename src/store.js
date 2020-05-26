@@ -44,54 +44,7 @@ const state = () => ({
 
 const mutations = {
   SET_CHOSENCLIENT(state, client) {
-    // Set up our client poller
-    let commandInProgress = false;
-    function clientPoller(time) {
-      if (!state.chosenClient) {
-        return;
-      }
-      if (state.chosenClientTimeSet !== time) {
-        // We have a new chosen client, we need to stop
-        return;
-      }
-      if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
-        if (!commandInProgress) {
-          state.chosenClient
-            .getTimeline()
-            .then(() => {
-              commandInProgress = false;
-            })
-            .catch((e) => {
-              commandInProgress = false;
-            });
-          commandInProgress = true;
-        }
-      } else {
-        state.chosenClient.getTimeline();
-      }
-      let interval = state.getters['settings/GET_CLIENTPOLLINTERVAL'];
-      if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-        interval = 500;
-      }
-      setTimeout(() => {
-        clientPoller(time);
-      }, interval);
-    }
-
-    // Check if we need to remove old handlers
-    if (state.chosenClient) {
-      state.chosenClient.events.removeAllListeners();
-    }
     state.chosenClient = client;
-    if (state.chosenClient && state.chosenClient.lastTimelineObject) {
-      state.chosenClient.lastTimelineObject.ratingKey = -1;
-    }
-    if (state.chosenClient == null) {
-      return;
-    }
-    state.chosenClientTimeSet = new Date().getTime();
-    clientPoller(state.chosenClientTimeSet);
-    state.chosenClient.getTimeline((timeline) => {});
   },
   SET_PLEX(state, value) {
     state.plex = value;
@@ -350,7 +303,7 @@ const actions = {
       endObj.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
       endObj.key = state.chosenClient.lastTimelineObject.key;
     }
-    if (state.synclounge._socket) {
+    if (state.synclounge.socket) {
       const commandId = Object.keys(state.synclounge.commands).length + 1;
       state.synclounge.commands[commandId] = {
         start: new Date().getTime(),
@@ -361,8 +314,64 @@ const actions = {
           state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1].difference;
         endObj.latency = latency;
       }
-      state.synclounge._socket.emit('poll', endObj);
+      state.synclounge.socket.emit('poll', endObj);
     }
+  },
+
+  CHOOSE_CLIENT({ commit, state, getters }, client) {
+    // Set up our client poller
+    let commandInProgress = false;
+
+    function clientPoller(time) {
+      if (!state.chosenClient) {
+        return;
+      }
+
+      if (state.chosenClientTimeSet !== time) {
+        // We have a new chosen client, we need to stop
+        return;
+      }
+
+      if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
+        if (!commandInProgress) {
+          state.chosenClient
+            .getTimeline()
+            .then(() => {
+              commandInProgress = false;
+            })
+            .catch(() => {
+              commandInProgress = false;
+            });
+          commandInProgress = true;
+        }
+      } else {
+        state.chosenClient.getTimeline();
+      }
+
+      let interval = getters['settings/GET_CLIENTPOLLINTERVAL'];
+      if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+        interval = 500;
+      }
+      setTimeout(() => {
+        clientPoller(time);
+      }, interval);
+    }
+
+    // Check if we need to remove old handlers
+    if (state.chosenClient) {
+      state.chosenClient.events.removeAllListeners();
+    }
+
+    commit('SET_CHOSENCLIENT', client);
+    if (state.chosenClient && state.chosenClient.lastTimelineObject) {
+      state.chosenClient.lastTimelineObject.ratingKey = -1;
+    }
+    if (state.chosenClient == null) {
+      return;
+    }
+    state.chosenClientTimeSet = new Date().getTime();
+    clientPoller(state.chosenClientTimeSet);
+    state.chosenClient.getTimeline((timeline) => {});
   },
 };
 
