@@ -13,11 +13,12 @@ module.exports = {
     // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
     'plugin:vue/essential', 
     'airbnb-base',
-
+    'prettier'
   ],
   // required to lint *.vue files
   plugins: [
-    'vue'
+    'vue',
+    'prettier'
   ],
   // add your custom rules here
   rules: {

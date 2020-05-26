@@ -17,7 +17,7 @@ function sendNotification(message) {
 
 // Set up out web app socket for fetching short urls
 
-const state = () => ({
+const initialState = () => ({
   appTitle: 'SyncLounge',
   appVersion: process.env.npm_package_version,
   background: null,
@@ -82,6 +82,12 @@ const mutations = {
     const [key, value] = data;
     Vue.set(state, key, value);
   },
+  SET_BLOCK_AUTOPLAY(state, block) {
+    state.blockAutoPlay = block;
+  },
+  SET_MANUAL_SYNC_QUEUED(state, queued) {
+    state.manualSyncQueued = queued;
+  },
 };
 
 // Custom Servers list settings
@@ -119,21 +125,21 @@ const defaultSyncloungeServers = [
 ];
 
 const getters = {
-  getAppVersion: state => state.appVersion,
-  getPlex: state => state.plex,
-  getBackground: state => state.background,
-  getChosenClient: state => state.chosenClient,
-  getShownChat: state => state.shownChat,
-  getStats: state => state.stats,
-  getBlockAutoPlay: state => state.blockAutoPlay,
-  getAutoJoin: state => state.autoJoin,
-  getAutoJoinRoom: state => state.autoJoinRoom,
-  getAutoJoinPassword: state => state.autoJoinPassword,
-  getAutoJoinUrl: state => state.autoJoinUrl,
-  getShortLink: state => state.shortLink,
+  getAppVersion: (state) => state.appVersion,
+  getPlex: (state) => state.plex,
+  getBackground: (state) => state.background,
+  getChosenClient: (state) => state.chosenClient,
+  getShownChat: (state) => state.shownChat,
+  getStats: (state) => state.stats,
+  getBlockAutoPlay: (state) => state.blockAutoPlay,
+  getAutoJoin: (state) => state.autoJoin,
+  getAutoJoinRoom: (state) => state.autoJoinRoom,
+  getAutoJoinPassword: (state) => state.autoJoinPassword,
+  getAutoJoinUrl: (state) => state.autoJoinUrl,
+  getShortLink: (state) => state.shortLink,
 
   // SETTINGS
-  getExtAvailable: state => state.extAvailable,
+  getExtAvailable: (state) => state.extAvailable,
   getLogos: () => ({
     light: {
       long: 'logo-long-light.png',
@@ -150,7 +156,9 @@ const getters = {
   GET_SYNCLOUNGE_SERVERS: (state, getters) => {
     if (getters['config/GET_CONFIG'].servers && getters['config/GET_CONFIG'].servers.length > 0) {
       if (getters['config/GET_CONFIG'].customServer) {
-        console.error("'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.");
+        console.error(
+          "'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.",
+        );
       }
       return getters['config/GET_CONFIG'].servers;
     } else if (getters['config/GET_CONFIG'].customServer) {
@@ -161,7 +169,7 @@ const getters = {
 };
 
 const actions = {
-  async PLAYBACK_CHANGE({ commit, state, dispatch }, data) {
+  async PLAYBACK_CHANGE({ commit, state }, data) {
     const [client, ratingKey, mediaContainer] = data;
     if (ratingKey) {
       // Playing something different!
@@ -178,18 +186,26 @@ const actions = {
           return;
         }
         if (metadata.type === 'movie') {
-          sendNotification(`Now Playing: ${metadata.title} from ${
-            state.plex.servers[metadata.machineIdentifier].name
-          }`);
+          sendNotification(
+            `Now Playing: ${metadata.title} from ${
+              state.plex.servers[metadata.machineIdentifier].name
+            }`,
+          );
         }
         if (metadata.type === 'episode') {
-          sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
-            metadata.index
-          } from ${state.plex.servers[metadata.machineIdentifier].name}`);
+          sendNotification(
+            `Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
+              metadata.index
+            } from ${state.plex.servers[metadata.machineIdentifier].name}`,
+          );
         }
         state.chosenClient.clientPlayingMetadata = metadata;
-        const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        const w = Math.round(
+          Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+        );
+        const h = Math.round(
+          Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
+        );
         state.background = state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(
           metadata.thumb,
           w / 4,
@@ -205,9 +221,7 @@ const actions = {
       }
     }
   },
-  NEW_TIMELINE({
-    commit, state, dispatch, getters,
-  }, data) {
+  NEW_TIMELINE({ commit, state, dispatch, getters }, data) {
     // return true
     const timeline = data;
     const client = state.chosenClient;
@@ -380,7 +394,7 @@ const persistedState = createPersistedState({
 });
 
 const store = new Vuex.Store({
-  state,
+  state: initialState,
   mutations,
   actions,
   getters,

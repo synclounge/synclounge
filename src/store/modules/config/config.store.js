@@ -1,17 +1,21 @@
 import axios from 'axios';
 
-const state = () => ({
+const initialState = () => ({
   configuration: {},
 });
 
 const getters = {
-  GET_CONFIG: state => state.configuration,
-  GET_AUTHENTICATION: state => state.configuration.authentication,
+  GET_CONFIG: (state) => state.configuration,
+  GET_AUTHENTICATION: (state) => state.configuration.authentication,
 };
 
 const mutations = {
-  SET_CONFIG: (state, data) => (state.configuration = data),
-  SET_AUTHENTICATION: (state, auth) => (state.configuration.authentication = auth),
+  SET_CONFIG: (state, data) => {
+    state.configuration = data;
+  },
+  SET_AUTHENTICATION: (state, auth) => {
+    state.configuration.authentication = auth;
+  },
 };
 
 const actions = {
@@ -25,7 +29,7 @@ const actions = {
 
 export default {
   namespaced: true,
-  state,
+  state: initialState,
   mutations,
   actions,
   getters,

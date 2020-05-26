@@ -167,7 +167,9 @@ const parseSetting = (value, setting) => {
     }
   }
 
-  console.error(`Error parsing [${setting.type}]: ${e.message} Reverting to default. Value: '${value}'`);
+  console.error(
+    `Error parsing [${setting.type}]: ${e.message} Reverting to default. Value: '${value}'`,
+  );
   return setting.default;
 };
 
@@ -206,9 +208,9 @@ module.exports = {
         (setting.local == 'webroot' || setting.local == 'accessUrl') &&
         output[setting.local].endsWith('/')
       ) {
-        console.log(`${setting.local}/${
-          setting.env
-        } should not end in '/'. Removing trailing slash(es) for you.`);
+        console.log(
+          `${setting.local}/${setting.env} should not end in '/'. Removing trailing slash(es) for you.`,
+        );
         output[setting.local] = output[setting.local].replace(/\/+$/, '');
         console.log('- Done.');
       }
@@ -218,9 +220,9 @@ module.exports = {
         output[setting.local].length > 1 &&
         !output[setting.local].startsWith('/')
       ) {
-        console.log(`${setting.local}/${
-          setting.env
-        } should always start with '/'. Adding the leading slash for you.`);
+        console.log(
+          `${setting.local}/${setting.env} should always start with '/'. Adding the leading slash for you.`,
+        );
         // Make sure it starts with one leading slash
         output[setting.local] = `/${output[setting.local]}`;
         console.log('- Done.');
@@ -230,9 +232,9 @@ module.exports = {
         (setting.local == 'webroot' || setting.local == 'serverroot') &&
         output[setting.local] == '/'
       ) {
-        console.log(`${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${
-          setting.default
-        }'`);
+        console.log(
+          `${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${setting.default}'`,
+        );
         output[setting.local] = setting.default;
         console.log('- Done.');
       }

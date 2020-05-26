@@ -12,65 +12,70 @@ const WaterlineMysql = require('waterline-mysql');
 const SailsDisk = require('sails-disk');
 
 const { readSettings } = require('./SettingsHelper');
+
 const settings = readSettings();
 
 let PORT = 8088;
 
-const bootstrap = () => new Promise(async (resolve, reject) => {
-  if (!settings.accessUrl) {
-    console.log('Missing required argument `accessUrl`. This URL is used for redirecting invite links. See documentation for how to set this');
-    return reject(new Error('Missing URL for invite links'));
-  }
-  if (!settings.webapp_port) {
-    console.log('Defaulting webapp to port 8088');
-  }
-  else {
-    PORT = settings.webapp_port;
-  }
-  PORT = parseInt(PORT);
-  const baseSettings = require('./waterline_settings.json');
-  //console.log('Basesettings', baseSettings);
-  baseSettings.waterline.adapters = {
-    'waterline-mysql': WaterlineMysql,
-    'sails-disk': SailsDisk,
-  };
-  baseSettings.waterline.datastores = baseSettings.database.datastores;
-  baseSettings.waterline.models.invite.beforeCreate = async (data, cb) => {
-    console.log('Creating Invite', data);
-    let fullUrl;
-    const params = {
-      server: data.server,
-      room: data.room,
-      owner: data.owner,
+const bootstrap = () =>
+  new Promise(async (resolve, reject) => {
+    if (!settings.accessUrl) {
+      console.log(
+        'Missing required argument `accessUrl`. This URL is used for redirecting invite links. See documentation for how to set this',
+      );
+      return reject(new Error('Missing URL for invite links'));
+    }
+    if (!settings.webapp_port) {
+      console.log('Defaulting webapp to port 8088');
+    } else {
+      PORT = settings.webapp_port;
+    }
+    PORT = parseInt(PORT, 10);
+    const baseSettings = require('./waterline_settings.json');
+    // console.log('Basesettings', baseSettings);
+    baseSettings.waterline.adapters = {
+      'waterline-mysql': WaterlineMysql,
+      'sails-disk': SailsDisk,
     };
-    if (data.password) {
-      params.password = data.password;
-    }
-    let query = '';
-    for (const key in params) {
-      query += `${encodeURIComponent(key)}=${params[key]}&`;
-    }
-    fullUrl = `${settings.accessUrl}/#/join?${query}`;
-    data.fullUrl = fullUrl;
-    data.code = (0 | Math.random() * 9e6).toString(36);
-    cb();
-  };
-  Waterline.start(baseSettings.waterline, (err, orm) => {
-    if (err) {
-      return reject(err);
-    }
-    resolve(orm);
+    baseSettings.waterline.datastores = baseSettings.database.datastores;
+    baseSettings.waterline.models.invite.beforeCreate = async (data, cb) => {
+      console.log('Creating Invite', data);
+      const params = {
+        server: data.server,
+        room: data.room,
+        owner: data.owner,
+      };
+      if (data.password) {
+        params.password = data.password;
+      }
+
+      const query = Object.entries(params)
+        .map((key, value) => `${encodeURIComponent(key)}=${value}`)
+        .join('&');
+
+      const fullUrl = `${settings.accessUrl}/#/join?${query}`;
+      data.fullUrl = fullUrl;
+      data.code = (0 | (Math.random() * 9e6)).toString(36);
+      cb();
+    };
+    Waterline.start(baseSettings.waterline, (err, orm) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(orm);
+    });
   });
-});
 
 const app = async (orm) => {
   const root = express();
   // Setup our web app
   root.use(cors());
   root.use(bodyParser.json());
-  root.use(bodyParser.urlencoded({
-    extended: true
-  }));
+  root.use(
+    bodyParser.urlencoded({
+      extended: true,
+    }),
+  );
   root.use(`${settings.webroot}/`, express.static(path.join(__dirname, 'dist')));
   // Invite handling
   root.get(`${settings.webroot}/invite/:id`, async (req, res) => {
@@ -86,30 +91,38 @@ const app = async (orm) => {
   root.post(`${settings.webroot}/invite`, async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     if (!req.body) {
-      return res.send({
-        success: false,
-        msg: 'ERR: You did not send any POST data',
-      }).end();
+      return res
+        .send({
+          success: false,
+          msg: 'ERR: You did not send any POST data',
+        })
+        .end();
     }
     const data = {};
     const fields = ['server', 'room', 'password', 'owner'];
     for (let i = 0; i < fields.length; i++) {
       if (req.body[fields[i]] === undefined) {
-        return res.send({
-          success: false,
-          msg: `ERR: You did not specify ${fields[i]}`,
-          field: fields[i],
-        }).end();
+        return res
+          .send({
+            success: false,
+            msg: `ERR: You did not specify ${fields[i]}`,
+            field: fields[i],
+          })
+          .end();
       }
       data[fields[i]] = req.body[fields[i]];
     }
-    const result = await Waterline.getModel('invite', orm).create({ ...data }).fetch();
-    return res.send({
-      url: `${settings.accessUrl}/invite/${result.code}`,
-      success: true,
-      generatedAt: new Date().getTime(),
-      details: result,
-    }).end();
+    const result = await Waterline.getModel('invite', orm)
+      .create({ ...data })
+      .fetch();
+    return res
+      .send({
+        url: `${settings.accessUrl}/invite/${result.code}`,
+        success: true,
+        generatedAt: new Date().getTime(),
+        details: result,
+      })
+      .end();
   });
   // Config handling
   root.get(`${settings.webroot}/config`, (req, res) => {
@@ -133,7 +146,9 @@ const app = async (orm) => {
   if (settings.accessUrl) {
     console.log(`Access URL is ${settings.accessUrl}`);
     if (settings.webroot && !settings.accessUrl.includes(settings.webroot)) {
-      console.log(`- WARNING: Your Access URL does not contain your webroot/WEBROOT setting: '${settings.webroot}'. Invite URLs may not work properly.`)
+      console.log(
+        `- WARNING: Your Access URL does not contain your webroot/WEBROOT setting: '${settings.webroot}'. Invite URLs may not work properly.`,
+      );
     }
   }
   if (settings.authentication && settings.authentication.mechanism != 'none') {
@@ -141,14 +156,15 @@ const app = async (orm) => {
   }
   if (settings.servers) {
     console.log('Servers List:', settings.servers);
-  }
-  else if (settings.custom_server) {
+  } else if (settings.custom_server) {
     console.log('Custom Server List:', settings.custom_server);
   }
 };
 
-bootstrap().then((orm) => {
-  app(orm);
-}).catch((e) => {
-  console.log('Error bootstrapping webapp:', e);
-});
+bootstrap()
+  .then((orm) => {
+    app(orm);
+  })
+  .catch((e) => {
+    console.log('Error bootstrapping webapp:', e);
+  });

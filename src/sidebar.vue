@@ -35,7 +35,8 @@
                       class="pa-0 mt-2 party-pausing-label"
                       label="Party Pausing"
                       v-if="isHost(me)"
-                      v-model="partyPausing"
+                      :input-value="getPartyPausing"
+                      @change="updatePartyPausing"
                     ></v-switch>
                     <v-tooltip
                       bottom
@@ -45,15 +46,15 @@
                       <v-btn
                         color="primary"
                         slot="activator"
-                        :disabled="!partyPausing"
+                        :disabled="!canPause"
                         style="min-width: 0; float: right;"
-                        @click="sendPartyPauseLocal(playerState(host) === 'play_arrow')"
-                        v-if="playerState(host) !== 'stop'"
+                        @click="sendPartyPauseLocal(playerState(getHostUser) === 'play_arrow')"
+                        v-if="playerState(getHostUser) !== 'stop'"
                       >
-                        <v-icon v-if="playerState(host) === 'play_arrow'">pause</v-icon>
+                        <v-icon v-if="playerState(getHostUser) === 'play_arrow'">pause</v-icon>
                         <v-icon v-else>play_arrow</v-icon>
                       </v-btn>
-                      <span> Party Pausing is currently {{ partyPausing ? 'enabled' : 'disabled' }} by the host </span>
+                      <span> Party Pausing is currently {{ canPause ? 'enabled' : 'disabled' }} by the host </span>
                     </v-tooltip>
                   </v-flex>
                 </v-layout>
@@ -63,7 +64,7 @@
           <v-card style="background: #E5A00D; border-radius: 7px" class="pa-2 ma-3" v-if="me.role !== 'host' && this.$route.path.indexOf('/player') === -1">
             <v-layout row wrap justify-space-between="" align-center>
               <v-flex xs12 class="text-xs-center">
-                <span class="mb-0 pb-0 pa-0" style="color: rgb(44, 44, 49); "> Waiting for {{ hostUser().username }} to start</span>
+                <span class="mb-0 pb-0 pa-0" style="color: rgb(44, 44, 49); "> Waiting for {{ getHostUser.username }} to start</span>
               </v-flex>
             </v-layout>
           </v-card>
@@ -72,21 +73,21 @@
           <v-card style="background: linear-gradient(180deg,#1f1c2c,#182848)!important; border-radius: 7px" class="pa-1 ml-3 mr-3">
             <v-list-tile avatar style="height:4em" class="pl-1 pr-1 mb-0" tag="div">
               <v-list-tile-avatar>
-                <img v-bind:src="hostUser().avatarUrl" :style="getImgStyle(hostUser())">
-                  <v-icon v-if="hostUser().playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.5)">
-                    {{ playerState(hostUser()) }}
+                <img v-bind:src="getHostUser.avatarUrl" :style="getImgStyle(getHostUser)">
+                  <v-icon v-if="getHostUser.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.5)">
+                    {{ playerState(getHostUser) }}
                   </v-icon>
                 </img>
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
                   <span slot="activator">
-                    <v-list-tile-title> {{ hostUser().username }} <span style="opacity: 0.6" v-if="hostUser().uuid === me.uuid"> (you) </span></v-list-tile-title>
-                    <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(hostUser()) }}</v-list-tile-sub-title>
+                    <v-list-tile-title> {{ getHostUser.username }} <span style="opacity: 0.6" v-if="getHostUser.uuid === me.uuid"> (you) </span></v-list-tile-title>
+                    <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(getHostUser) }}</v-list-tile-sub-title>
                   </span>
-                  Watching on {{ hostUser().playerProduct || 'Unknown Plex Client' }}
-                  <span v-if="plex.servers[hostUser().machineIdentifier]">
-                    <br />via {{ plex.servers[hostUser().machineIdentifier].name }}
+                  Watching on {{ getHostUser.playerProduct || 'Unknown Plex Client' }}
+                  <span v-if="plex.servers[getHostUser.machineIdentifier]">
+                    <br />via {{ plex.servers[getHostUser.machineIdentifier].name }}
                   </span>
                 </v-tooltip>
               </v-list-tile-content>
@@ -98,9 +99,9 @@
               </v-list-tile-action>
             </v-list-tile>
             <div class="pl-1 pr-1 pt-1 mt-0 pb-0 mb-0">
-              <span style="float: left; font-size:70%" class="ptuser-time pl-1">{{ getCurrent(hostUser()) }}</span>
-              <span style="float: right; font-size:70%" class="ptuser-maxTime pr-1">{{ getMax(hostUser()) }}</span>
-              <v-progress-linear class="pt-content-progress " :height="2" :value="percent(hostUser())"></v-progress-linear>
+              <span style="float: left; font-size:70%" class="ptuser-time pl-1">{{ getCurrent(getHostUser) }}</span>
+              <span style="float: right; font-size:70%" class="ptuser-maxTime pr-1">{{ getMax(getHostUser) }}</span>
+              <v-progress-linear class="pt-content-progress " :height="2" :value="percent(getHostUser)"></v-progress-linear>
             </div>
           </v-card>
           <div v-for="user in getUsers" v-bind:key="user.username">
@@ -175,7 +176,7 @@ export default {
       lastRecievedUpdate: new Date().getTime(),
       now: new Date().getTime(),
 
-      localPauseTimeout: false,
+      partyPauseCooldownRunning: false,
     };
   },
   mounted() {
@@ -193,11 +194,8 @@ export default {
   },
   computed: {
     ...mapState(['me']),
-    ...mapGetters(['getPartyPausing', 'getUsers', 'getRoom']),
+    ...mapGetters(['getPartyPausing', 'getUsers', 'getRoom', 'getHostUser']),
     ...mapGetters({plex: 'getPlex'}),
-    host() {
-      return this.$store.getters.getUsers.find(user => user.role === 'host');
-    },
     serverDelay() {
       return Math.round(this.$store.state.synclounge.commands[
         Object.keys(this.$store.state.synclounge.commands).length - 1
@@ -206,14 +204,8 @@ export default {
     difference() {
       return Math.abs(this.now - this.lastRecievedUpdate);
     },
-    partyPausing: {
-      get() {
-        if (this.localPauseTimeout) return false;
-        return this.getPartyPausing();
-      },
-      set(value) {
-        this.updatePartyPausing(value);
-      },
+    canPause() {
+      return !this.partyPauseCooldownRunning && this.getPartyPausing;
     },
   },
   methods: {
@@ -221,13 +213,10 @@ export default {
     isHost(user) {
       return user.role === 'host';
     },
-    hostUser() {
-      return this.getUsers.find(u => u.role === 'host');
-    },
     sendPartyPauseLocal(isPause) {
-      this.localPauseTimeout = true;
+      this.partyPauseCooldownRunning = true;
       setTimeout(() => {
-        this.localPauseTimeout = false;
+        this.partyPauseCooldownRunning = false;
       }, 3000);
       this.sendPartyPause(isPause);
     },

@@ -9,9 +9,7 @@ const PlexClient = require('./helpers/PlexClient.js');
 const PlexAuth = new _PlexAuth();
 
 export default {
-  PLEX_LOGIN_TOKEN: ({
-    commit, dispatch, rootState, rootGetters,
-  }, token) =>
+  PLEX_LOGIN_TOKEN: ({ commit, dispatch, rootGetters }, token) =>
     new Promise((resolve, reject) => {
       const options = PlexAuth.getApiOptions(
         'https://plex.tv/users/sign_in.json',
@@ -111,9 +109,7 @@ export default {
                   if (connection.local === '1' && connection.uri.indexOf('plex') > -1) {
                     const rawConnection = new PlexConnection();
                     Object.assign(rawConnection, connection);
-                    rawConnection.uri = `${connection.protocol}://${connection.address}:${
-                      connection.port
-                    }`;
+                    rawConnection.uri = `${connection.protocol}://${connection.address}:${connection.port}`;
                     rawConnection.isManual = true;
                     tempConnectionsArray.push(rawConnection);
                   }
@@ -223,7 +219,7 @@ export default {
       let rootResolve = resolve;
       try {
         await Promise.all(
-          client.plexConnections.map(connection => {
+          client.plexConnections.map((connection) => {
             return new Promise(async (resolve, reject) => {
               try {
                 try {
@@ -342,9 +338,9 @@ export default {
       // }
       // Authenication via an unsupported mechanism
       else if (authentication.mechanism !== 'none') {
-        console.error(`Invalid authentication mechanism provided: '${
-          authentication.mechanism
-        }'. Reverting to default.`);
+        console.error(
+          `Invalid authentication mechanism provided: '${authentication.mechanism}'. Reverting to default.`,
+        );
         authenticationPassed = true;
       }
       // Authenication mechanism isn't set. This should only happen when authentication mechanism is set to 'none'.

@@ -60,9 +60,11 @@ const staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.asset
 
 // handle fallback for HTML5 history API
 const indexPath = path.posix.join(staticPath, 'index.html');
-app.use(history({
-  index: indexPath,
-}));
+app.use(
+  history({
+    index: indexPath,
+  }),
+);
 
 // serve webpack bundle output
 app.use(devMiddleware);

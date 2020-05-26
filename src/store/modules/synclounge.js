@@ -32,21 +32,23 @@ const initialState = () => ({
   messages: [],
   partyPausing: false,
   me: '',
-  decisionBlocked: 0,
+  decisionBlockedTime: 0,
   lastHostTimeline: {},
   commands: {},
+  rawTitle: null,
 });
 
 const getters = {
-  getServer: state => state.server,
-  getMe: state => state.me,
-  getRoom: state => state.room,
-  getPassword: state => state.password,
-  getUsers: state => state.users,
-  getConnected: state => state.connected,
-  getMessages: state => state.messages,
-  getSocket: state => state.socket,
-  getPartyPausing: state => () => state.partyPausing,
+  getServer: (state) => state.server,
+  getMe: (state) => state.me,
+  getRoom: (state) => state.room,
+  getPassword: (state) => state.password,
+  getUsers: (state) => state.users,
+  getConnected: (state) => state.connected,
+  getMessages: (state) => state.messages,
+  getSocket: (state) => state.socket,
+  getPartyPausing: (state) => state.partyPausing,
+  getHostUser: (state) => state.users.find((u) => u.role === 'host'),
 };
 
 const mutations = {
@@ -81,6 +83,12 @@ const mutations = {
   CLEAR_MESSAGES(state) {
     state.messages = [];
   },
+  SET_RAW_TITLE(state, title) {
+    state.rawTitle = title;
+  },
+  SET_DECISION_BLOCKED_TIME(state, time) {
+    state.decisionBlockedTime = time;
+  },
 };
 
 const actions = {
@@ -113,14 +121,11 @@ const actions = {
       if (path) {
         ext = `/${path}`;
       }
-      state.socket = io.connect(
-        addressCopy,
-        {
-          forceNew: true,
-          'connect timeout': 7000,
-          path: `${ext}/socket.io`,
-        },
-      );
+      state.socket = io.connect(addressCopy, {
+        forceNew: true,
+        'connect timeout': 7000,
+        path: `${ext}/socket.io`,
+      });
       state.socket.on('connect', (result) => {
         // Good connection
         sendNotification(`Connected to ${address}`);
@@ -144,9 +149,7 @@ const actions = {
     });
   },
 
-  joinRoom({
-    state, commit, dispatch, rootState, rootGetters,
-  }, data) {
+  joinRoom({ state, commit, dispatch, rootState, rootGetters }, data) {
     return new Promise(async (resolve) => {
       if (!state.socket || !state.connected) {
         throw new Error('Not connected to a server!');
@@ -167,256 +170,259 @@ const actions = {
         'join',
         new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid, username),
       );
-      state.socket.on(
-        'join-result',
-        async (result, _data, details, currentUsers, partyPausing) => {
-          console.log('Got join result', result);
-          commit('CLEAR_MESSAGES');
-          if (result) {
-            commit('SET_ROOM', _data.room);
-            commit('SET_USERS', currentUsers);
-            commit('SET_ME', _data.username);
-            commit('SET_PARTYPAUSING', partyPausing);
+      state.socket.on('join-result', async (result, _data, details, currentUsers, partyPausing) => {
+        console.log('Got join result', result);
+        commit('CLEAR_MESSAGES');
+        if (result) {
+          commit('SET_ROOM', _data.room);
+          commit('SET_USERS', currentUsers);
+          commit('SET_ME', _data.username);
+          commit('SET_PARTYPAUSING', partyPausing);
 
-            sendNotification(`Joined room: ${_data.room}`);
-            // Add this item to our recently-connected list
-            dispatch(
-              'settings/ADD_RECENT_ROOM',
-              {
-                server: state.server,
-                room: state.room,
-                password: state.password,
-                time: new Date().getTime(),
-              },
-              { root: true },
-            );
-
-            // Generate our short url/invite link
-            let urlOrigin =
-              window.location.origin + (rootGetters['config/GET_CONFIG'].webroot || '');
-            if (process.env.NODE_ENV === 'development') {
-              urlOrigin = 'http://app.synclounge.tv';
-            }
-
-            const data = {
-              urlOrigin,
-              owner: rootState.plex.user.username || rootState.plex.user.title,
+          sendNotification(`Joined room: ${_data.room}`);
+          // Add this item to our recently-connected list
+          dispatch(
+            'settings/ADD_RECENT_ROOM',
+            {
               server: state.server,
               room: state.room,
-              password: state.password || '',
-            };
-            // if (settings.webroot) urlOrigin = urlOrigin + settings.webroot
-            axios.post(`${urlOrigin}/invite`, data).then((res) => {
-              commit('SET_SHORTLINK', res.data.url);
-            });
+              password: state.password,
+              time: new Date().getTime(),
+            },
+            { root: true },
+          );
 
-            // Now we need to setup events for dealing with the PTServer.
-            // We will regularly be recieving and sending data to and from the server.
-            // We want to make sure we are listening for all the server events
-            state.socket.on('poll-result', (users, me, commandId) => {
-              commit('SET_VALUE', ['me', me]);
-              commit('SET_USERS', users);
-              if (state.commands[commandId]) {
-                state.commands[commandId].end = new Date().getTime();
-                state.commands[commandId].difference = Math.abs(state.commands[commandId].end - state.commands[commandId].start);
+          // Generate our short url/invite link
+          let urlOrigin = window.location.origin + (rootGetters['config/GET_CONFIG'].webroot || '');
+          if (process.env.NODE_ENV === 'development') {
+            urlOrigin = 'http://app.synclounge.tv';
+          }
+
+          const data = {
+            urlOrigin,
+            owner: rootState.plex.user.username || rootState.plex.user.title,
+            server: state.server,
+            room: state.room,
+            password: state.password || '',
+          };
+          // if (settings.webroot) urlOrigin = urlOrigin + settings.webroot
+          axios.post(`${urlOrigin}/invite`, data).then((res) => {
+            commit('SET_SHORTLINK', res.data.url);
+          });
+
+          // Now we need to setup events for dealing with the PTServer.
+          // We will regularly be recieving and sending data to and from the server.
+          // We want to make sure we are listening for all the server events
+          state.socket.on('poll-result', (users, me, commandId) => {
+            commit('SET_VALUE', ['me', me]);
+            commit('SET_USERS', users);
+            if (state.commands[commandId]) {
+              state.commands[commandId].end = new Date().getTime();
+              state.commands[commandId].difference = Math.abs(
+                state.commands[commandId].end - state.commands[commandId].start,
+              );
+            }
+          });
+
+          state.socket.on('party-pausing-changed', ({ value, user }) => {
+            commit('ADD_MESSAGE', {
+              msg: `Party Pausing has been turned ${value ? 'on' : 'off'}`,
+              user,
+              type: 'alert',
+            });
+            commit('SET_PARTYPAUSING', value);
+          });
+
+          state.socket.on('party-pausing-pause', ({ isPause, user }) => {
+            const messageText = `${user.username} pressed ${isPause ? 'pause' : 'play'}`;
+            commit('ADD_MESSAGE', {
+              msg: messageText,
+              user,
+              type: 'alert',
+            });
+            sendNotification(messageText);
+            if (rootState.chosenClient) {
+              if (isPause) {
+                rootState.chosenClient.pressPause();
+              } else {
+                rootState.chosenClient.pressPlay();
               }
+            }
+          });
+
+          state.socket.on('user-joined', (users, user) => {
+            commit('SET_USERS', users);
+            commit('ADD_MESSAGE', {
+              msg: `${user.username} joined`,
+              user,
+              type: 'alert',
             });
+          });
 
-            state.socket.on('party-pausing-changed', ({ value, user }) => {
-              commit('ADD_MESSAGE', {
-                msg: `Party Pausing has been turned ${value ? 'on' : 'off'}`,
-                user,
-                type: 'alert',
-              });
-              commit('SET_PARTYPAUSING', value);
+          state.socket.on('user-left', (users, user) => {
+            commit('SET_USERS', users);
+            commit('ADD_MESSAGE', {
+              msg: `${user.username} left the room`,
+              user,
+              type: 'alert',
             });
+          });
 
-            state.socket.on('party-pausing-pause', ({ isPause, user }) => {
-              const messageText = `${user.username} pressed ${isPause ? 'pause' : 'play'}`;
-              commit('ADD_MESSAGE', {
-                msg: messageText,
-                user,
-                type: 'alert',
-              });
-              sendNotification(messageText);
-              if (rootState.chosenClient) {
-                if (isPause) {
-                  rootState.chosenClient.pressPause();
-                } else {
-                  rootState.chosenClient.pressPlay();
-                }
-              }
+          state.socket.on('host-swap', (user) => {
+            if (!user) {
+              return;
+            }
+            commit('ADD_MESSAGE', {
+              msg: `${user.username} is now the host`,
+              user,
+              type: 'alert',
             });
+          });
 
-            state.socket.on('user-joined', (users, user) => {
-              commit('SET_USERS', users);
-              commit('ADD_MESSAGE', {
-                msg: `${user.username} joined`,
-                user,
-                type: 'alert',
-              });
-            });
-
-            state.socket.on('user-left', (users, user) => {
-              commit('SET_USERS', users);
-              commit('ADD_MESSAGE', {
-                msg: `${user.username} left the room`,
-                user,
-                type: 'alert',
-              });
-            });
-
-            state.socket.on('host-swap', (user) => {
-              if (!user) {
-                return;
-              }
-              commit('ADD_MESSAGE', {
-                msg: `${user.username} is now the host`,
-                user,
-                type: 'alert',
-              });
-            });
-
-            state.socket.on('host-update', async (data) => {
-              data.recievedAt = new Date().getTime();
-              const hostTimeline = data;
-              if (
-                !state.lastHostTimeline ||
-                state.lastHostTimeline.playerState !== data.playerState
-              ) {
-                window.EventBus.$emit('host-playerstate-change');
-              }
-              const diffBetweenLastUpdate = Math.abs(state.lastHostTimeline.time - data.time);
-              if (diffBetweenLastUpdate > 5000) {
-                window.EventBus.$emit('host-playerstate-change');
-              }
-              state.lastHostTimeline = data;
-              const decisionMaker = (timelineAge) => {
-                const ourTimeline = rootState.chosenClient.lastTimelineObject;
-                return new Promise(async (resolve, reject) => {
-                  if (ourTimeline.playerState === 'buffering') {
-                    return resolve();
-                  }
-                  if (
-                    (hostTimeline.playerState === 'stopped' || !hostTimeline.playerState) &&
-                    ourTimeline.state !== 'stopped'
-                  ) {
-                    sendNotification('The host pressed stop');
-                    await rootState.chosenClient.pressStop();
-                    return resolve();
-                  }
-
-                  if (hostTimeline.playerState === 'stopped') {
-                    return resolve();
-                  }
-                  // Check if we need to autoplay
-                  if (
-                    ((ourTimeline.state === 'stopped' || !ourTimeline.state) &&
-                      hostTimeline.playerState !== 'stopped') ||
-                    rootState.rawTitle !== hostTimeline.rawTitle
-                  ) {
-                    if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
-                      return resolve();
-                    }
-                    // We need to autoplay!
-                    if (!rootGetters['settings/GET_AUTOPLAY']) {
-                      return resolve();
-                    }
-                    rootState.blockAutoPlay = true;
-
-                    const servers = Object.assign({}, rootState.plex.servers);
-                    rootGetters['settings/GET_BLOCKEDSERVERS'].forEach((id) => {
-                      if (rootState.plex.servers[id]) {
-                        delete servers[id];
-                      }
-                    });
-
-                    rootState.rawTitle = hostTimeline.rawTitle;
-                    sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
-                    const result = await rootState.chosenClient
-                      .playContentAutomatically(
-                        rootState.chosenClient,
-                        hostTimeline,
-                        servers,
-                        hostTimeline.time,
-                      )
-                      .catch(async (e) => {
-                        const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
-                        if (hostServer && hostTimeline.key) {
-                          if (
-                            !rootGetters['settings/GET_BLOCKEDSERVERS'].includes(hostTimeline.machineIdentifier)
-                          ) {
-                            try {
-                              await rootState.chosenClient.playMedia({
-                                ratingKey: hostTimeline.key,
-                                mediaIndex: null,
-                                server: rootState.plex.servers[hostTimeline.machineIdentifier],
-                                offset: hostTimeline.time || 0,
-                              });
-                              setTimeout(() => {
-                                rootState.blockAutoPlay = false;
-                              }, 15000);
-                              return resolve();
-                            } catch (e) {}
-                          }
-                        }
-                        sendNotification(`Failed to find a compatible copy of ${
-                          hostTimeline.rawTitle
-                        }. If you have access to the content try manually playing it.`);
-                        setTimeout(() => {
-                          rootState.blockAutoPlay = false;
-                        }, 15000);
-                      });
-                    await new Promise((resolve, reject) => {
-                      setTimeout(() => resolve(), 1000);
-                    });
-                    setTimeout(() => {
-                      rootState.blockAutoPlay = false;
-                    }, 10000);
-                    return resolve();
-                  }
-
-                  if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
-                    sendNotification('Resuming..');
-                    return resolve(await rootState.chosenClient.pressPlay());
-                  }
-                  if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
-                    sendNotification('Pausing..');
-                    return resolve(await rootState.chosenClient.pressPause());
-                  }
-                  if (hostTimeline.playerState === 'playing') {
-                    // Add on the delay between us and the SLServer plus the delay between the server and the host
-                    try {
-                      const ourLastDelay = Math.round(state.commands[Object.keys(state.commands).length - 1].difference);
-                      const hostLastDelay = Math.round(hostTimeline.latency);
-                      console.log('adding delays', { ourLastDelay, hostLastDelay });
-                      if (ourLastDelay && hostLastDelay) {
-                        console.log(
-                          'Adding host delay',
-                          hostLastDelay,
-                          'and our lastDelay',
-                          ourLastDelay,
-                        );
-                        data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0);
-                      }
-                    } catch (e) {
-                      console.log('Failed to add extra lag time');
-                    }
-                  }
-                  try {
-                    await rootState.chosenClient.sync(
-                      data,
-                      rootGetters['settings/GET_SYNCFLEXIBILITY'],
-                      rootGetters['settings/GET_SYNCMODE'],
-                      rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
-                    );
-                  } catch (e) {
-                    return resolve();
-                  }
+          state.socket.on('host-update', async (data) => {
+            data.recievedAt = new Date().getTime();
+            const hostTimeline = data;
+            if (
+              !state.lastHostTimeline ||
+              state.lastHostTimeline.playerState !== data.playerState
+            ) {
+              window.EventBus.$emit('host-playerstate-change');
+            }
+            const diffBetweenLastUpdate = Math.abs(state.lastHostTimeline.time - data.time);
+            if (diffBetweenLastUpdate > 5000) {
+              window.EventBus.$emit('host-playerstate-change');
+            }
+            state.lastHostTimeline = data;
+            const decisionMaker = (timelineAge) => {
+              const ourTimeline = rootState.chosenClient.lastTimelineObject;
+              return new Promise(async (resolve, reject) => {
+                if (ourTimeline.playerState === 'buffering') {
                   return resolve();
-                });
-              };
-              /* This is data from the host, we should react to this data by potentially changing
+                }
+                if (
+                  (hostTimeline.playerState === 'stopped' || !hostTimeline.playerState) &&
+                  ourTimeline.state !== 'stopped'
+                ) {
+                  sendNotification('The host pressed stop');
+                  await rootState.chosenClient.pressStop();
+                  return resolve();
+                }
+
+                if (hostTimeline.playerState === 'stopped') {
+                  return resolve();
+                }
+                // Check if we need to autoplay
+                if (
+                  ((ourTimeline.state === 'stopped' || !ourTimeline.state) &&
+                    hostTimeline.playerState !== 'stopped') ||
+                  state.rawTitle !== hostTimeline.rawTitle
+                ) {
+                  if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
+                    return resolve();
+                  }
+                  // We need to autoplay!
+                  if (!rootGetters['settings/GET_AUTOPLAY']) {
+                    return resolve();
+                  }
+                  commit('SET_BLOCK_AUTOPLAY', true, { root: true });
+
+                  const servers = Object.assign({}, rootState.plex.servers);
+                  rootGetters['settings/GET_BLOCKEDSERVERS'].forEach((id) => {
+                    if (rootState.plex.servers[id]) {
+                      delete servers[id];
+                    }
+                  });
+
+                  commit('SET_RAW_TITLE', hostTimeline.rawTitle);
+                  sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
+                  const result = await rootState.chosenClient
+                    .playContentAutomatically(
+                      rootState.chosenClient,
+                      hostTimeline,
+                      servers,
+                      hostTimeline.time,
+                    )
+                    .catch(async (e) => {
+                      const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
+                      if (hostServer && hostTimeline.key) {
+                        if (
+                          !rootGetters['settings/GET_BLOCKEDSERVERS'].includes(
+                            hostTimeline.machineIdentifier,
+                          )
+                        ) {
+                          try {
+                            await rootState.chosenClient.playMedia({
+                              ratingKey: hostTimeline.key,
+                              mediaIndex: null,
+                              server: rootState.plex.servers[hostTimeline.machineIdentifier],
+                              offset: hostTimeline.time || 0,
+                            });
+                            setTimeout(() => {
+                              commit('SET_BLOCK_AUTOPLAY', false, { root: true });
+                            }, 15000);
+                            return resolve();
+                          } catch (e) {}
+                        }
+                      }
+                      sendNotification(
+                        `Failed to find a compatible copy of ${hostTimeline.rawTitle}. If you have access to the content try manually playing it.`,
+                      );
+                      setTimeout(() => {
+                        commit('SET_BLOCK_AUTOPLAY', false, { root: true });
+                      }, 15000);
+                    });
+                  await new Promise((resolve, reject) => {
+                    setTimeout(() => resolve(), 1000);
+                  });
+                  setTimeout(() => {
+                    commit('SET_BLOCK_AUTOPLAY', false, { root: true });
+                  }, 10000);
+                  return resolve();
+                }
+
+                if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
+                  sendNotification('Resuming..');
+                  return resolve(await rootState.chosenClient.pressPlay());
+                }
+                if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
+                  sendNotification('Pausing..');
+                  return resolve(await rootState.chosenClient.pressPause());
+                }
+                if (hostTimeline.playerState === 'playing') {
+                  // Add on the delay between us and the SLServer plus the delay between the server and the host
+                  try {
+                    const ourLastDelay = Math.round(
+                      state.commands[Object.keys(state.commands).length - 1].difference,
+                    );
+                    const hostLastDelay = Math.round(hostTimeline.latency);
+                    // console.log('adding delays', { ourLastDelay, hostLastDelay });
+                    if (ourLastDelay && hostLastDelay) {
+                      console.log(
+                        'Adding host delay',
+                        hostLastDelay,
+                        'and our lastDelay',
+                        ourLastDelay,
+                      );
+                      data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0);
+                    }
+                  } catch (e) {
+                    console.log('Failed to add extra lag time');
+                  }
+                }
+                try {
+                  await rootState.chosenClient.sync(
+                    data,
+                    rootGetters['settings/GET_SYNCFLEXIBILITY'],
+                    rootGetters['settings/GET_SYNCMODE'],
+                    rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
+                  );
+                } catch (e) {
+                  return resolve();
+                }
+                return resolve();
+              });
+            };
+            /* This is data from the host, we should react to this data by potentially changing
               what we're playing or seeking to get back in sync with the host.
 
               We need to limit how ourself to make sure we dont hit the client too hard.
@@ -424,81 +430,83 @@ const actions = {
               If we need to fetch new data, we'll do that and then decide
               if we need to seek or start playing something.
             */
-              rootState.hostClientResponseTime = data.clientResponseTime;
-              if (rootState.manualSyncQueued) {
-                state.decisionBlocked = new Date().getTime();
-                window.EventBus.$emit('host-playerstate-change');
-                await rootState.chosenClient.seekTo(hostTimeline.time);
-                rootState.manualSyncQueued = false;
-                state.decisionBlocked = 0;
-                return;
-              }
-              if (Math.abs(state.decisionBlocked - new Date().getTime()) < 180000) {
-                console.log('We are not going to make a decision from the host data because a command is already running');
-                return;
-              }
-              // console.log('Decision isnt blocked');
-              if (!rootState.chosenClient) {
-                console.log('We dont have a client chosen yet!');
-                return;
-              }
-              if (!rootState.chosenClient.lastTimelineObject) {
-                console.log('Dont have our first timeline data yet.');
-                if (rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-                  rootState.chosenClient.lastTimelineObject = {
-                    playerState: 'stopped',
-                  };
-                } else {
-                  return;
-                }
-              }
-              // Check previous timeline data age
-              state.decisionBlocked = new Date().getTime();
-              const timelineAge = Math.abs(new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt);
-              console.log('Timeline age is', timelineAge);
-              try {
-                // if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-                //   await rootState.chosenClient.getTimeline()
-                //   await decisionMaker(0)
-                // } else {
-                await decisionMaker(timelineAge);
-                // }
-              } catch (e) {
-                console.log('Error caught in sync logic', e);
-                state.decisionBlocked = 0;
-              }
-              state.decisionBlocked = 0;
-            });
 
-            state.socket.on('disconnect', (data) => {
-              sendNotification('Disconnected from the SyncLounge server');
-              console.log('Disconnect data', data);
-              if (data === 'io client disconnect') {
-                console.log('We disconnected from the server');
-                commit('SET_ROOM', null);
-                commit('SET_PASSWORD', null);
-                commit('SET_USERS', []);
-                commit('SET_CONNECTED', false);
-                commit('SET_SERVER', null);
-                state.serverError = null;
+            if (rootState.manualSyncQueued) {
+              commit('SET_DECISION_BLOCKED_TIME', new Date().getTime());
+              window.EventBus.$emit('host-playerstate-change');
+              await rootState.chosenClient.seekTo(hostTimeline.time);
+              commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
+              commit('SET_DECISION_BLOCKED_TIME', 0);
+              return;
+            }
+            if (Math.abs(state.decisionBlockedTime - new Date().getTime()) < 180000) {
+              console.log(
+                'We are not going to make a decision from the host data because a command is already running',
+              );
+              return;
+            }
+            // console.log('Decision isnt blocked');
+            if (!rootState.chosenClient) {
+              console.log('We dont have a client chosen yet!');
+              return;
+            }
+            if (!rootState.chosenClient.lastTimelineObject) {
+              console.log('Dont have our first timeline data yet.');
+              if (rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+                rootState.chosenClient.lastTimelineObject = {
+                  playerState: 'stopped',
+                };
+              } else {
+                return;
               }
-              if (data === 'transport close') {
-                console.log('The server disconnected on us');
-              }
-            });
+            }
+            // Check previous timeline data age
+            commit('SET_DECISION_BLOCKED_TIME', new Date().getTime());
+            const timelineAge = Math.abs(
+              new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt,
+            );
+            // console.log('Timeline age is', timelineAge);
+            try {
+              // if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+              //   await rootState.chosenClient.getTimeline()
+              //   await decisionMaker(0)
+              // } else {
+              await decisionMaker(timelineAge);
+              // }
+            } catch (e) {
+              console.log('Error caught in sync logic', e);
+              commit('SET_DECISION_BLOCKED_TIME', 0);
+            }
+            commit('SET_DECISION_BLOCKED_TIME', 0);
+          });
 
-            state.socket.on('new_message', (msgObj) => {
-              commit('ADD_MESSAGE', msgObj);
-            });
-          } else {
-            commit('SET_ME', null);
-            commit('SET_ROOM', null);
-            commit('SET_PASSWORD', null);
-            commit('SET_USERS', []);
-          }
-          return resolve(result);
-        },
-      );
+          state.socket.on('disconnect', (data) => {
+            sendNotification('Disconnected from the SyncLounge server');
+            console.log('Disconnect data', data);
+            if (data === 'io client disconnect') {
+              console.log('We disconnected from the server');
+              commit('SET_ROOM', null);
+              commit('SET_PASSWORD', null);
+              commit('SET_USERS', []);
+              commit('SET_CONNECTED', false);
+              commit('SET_SERVER', null);
+            }
+            if (data === 'transport close') {
+              console.log('The server disconnected on us');
+            }
+          });
+
+          state.socket.on('new_message', (msgObj) => {
+            commit('ADD_MESSAGE', msgObj);
+          });
+        } else {
+          commit('SET_ME', null);
+          commit('SET_ROOM', null);
+          commit('SET_PASSWORD', null);
+          commit('SET_USERS', []);
+        }
+        return resolve(result);
+      });
     });
   },
 
@@ -514,7 +522,7 @@ const actions = {
       resolve();
     });
   },
-  
+
   sendNewMessage({ state, commit, rootState }, msg) {
     commit('ADD_MESSAGE', {
       msg,
