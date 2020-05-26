@@ -245,7 +245,6 @@ module.exports = function PlexClient() {
     return this.seekTo(time);
   };
   this.sync = function sync(hostTimeline, SYNCFLEXIBILITY, SYNCMODE, POLLINTERVAL) {
-    console.log("SYNC CALLEd");
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         await this.getTimeline();
@@ -261,7 +260,7 @@ module.exports = function PlexClient() {
       const timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt;
       const ourTime = parseInt(this.lastTimelineObject.time) + parseInt(timelineAge);
       const difference = Math.abs((parseInt(ourTime)) - parseInt(hostTimeline.time));
-      console.log('Difference with host is', difference);
+      // console.log('Difference with host is', difference);
       const bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused';
 
       if (parseInt(difference) > parseInt(SYNCFLEXIBILITY) || (bothPaused && difference > 10)) {
