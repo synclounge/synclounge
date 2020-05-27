@@ -98,7 +98,7 @@
           <v-card-text>
             <v-select
               :value="GET_SLPLAYERQUALITY"
-              @input="SET_SLPLAYERQUALITY"
+              @input="changeQuality"
               :items="qualitiesSelect"
               item-text="text"
               item-value="id"
