@@ -1,13 +1,53 @@
 {
-    "webroot": "",
-    "webapp_port": "8088",
-    "accessUrl": "",
-    "serverroot": "",
-    "server_port": "8089",
-    "autoJoin": "false",
-    "autoJoinServer": "",
-    "autoJoinRoom": "",
-    "autoJoinPassword": "",
-    "servers": "",
-    "customServer": ""
+  "webroot": "",
+  "webapp_port": 8088,
+  "accessUrl": "http://mysynclounge.com",
+
+  "autoJoin": false,
+  "autoJoinServer": "",
+  "autoJoinRoom": "",
+  "autoJoinPassword": "",
+
+  "authentication": {
+    "mechanism": "plex",
+    "type": ["server", "user"],
+    "authorized": ["MY_PLEX_SERVER_MACHINE_ID", "MY_PLEX_USER_EMAIL", "MY_PLEX_USER_NAME"]
+  },
+
+  "customServer": "",
+
+  "servers": [
+    {
+      "name": "Custom Server 1",
+      "location": "Custom Location",
+      "url": "https://1.mycustomserver.com/slserver",
+      "image": "https://mycustomserver.com/logo.png"
+    },
+    {
+      "name": "Custom Server 2",
+      "location": "Custom Location",
+      "url": "https://2.mycustomserver.com/slserver",
+      "image": "https://mycustomserver.com/logo-2.png",
+      "defaultRoom": "DefaultRoom"
+    },
+    {
+      "name": "Custom Server 3",
+      "location": "Custom Location",
+      "url": "https://3.mycustomserver.com/slserver",
+      "image": "https://mycustomserver.com/logo-3.png",
+      "defaultRoom": "DefaultRoom",
+      "defaultPassword": "DefaultPassword123"
+    }
+  ],
+
+  "serverroot": "/slserver",
+  "server_port": 8089,
+
+  "autoplay": true,
+  "clientPollInterval": 1000,
+  "syncMode": "cleanseek",
+  "syncFlexibility": 3000,
+  "slPlayerQuality": "Original",
+  "slPlayerVolume": 1,
+  "slPlayerForceTranscode": true
 }

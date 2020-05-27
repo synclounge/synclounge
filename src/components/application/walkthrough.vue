@@ -19,16 +19,18 @@
           <v-stepper-step step="3">Sync</v-stepper-step>
         </v-stepper-header>
       </v-stepper>
-      <div v-if="!chosenClient">
+      <div v-if="!getChosenClient">
         <v-row class="ml-4">
           <v-col class="pb-0">
             <h2>Choose your Plex player</h2>
           </v-col>
         </v-row>
         <v-row class="ml-4">
-          <v-col
-            class="pt-0"
-          >Choose a client from the list below. Once you've found the client you would like to use, click the connect button. SyncLounge will test to see if it can connect with the client and will let you know if it cannot.</v-col>
+          <v-col class="pt-0"
+            >Choose a client from the list below. Once you've found the client you would like to
+            use, click the connect button. SyncLounge will test to see if it can connect with the
+            client and will let you know if it cannot.</v-col
+          >
         </v-row>
         <div v-if="plex && !plex.gotDevices" class="text-center pa-4">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -43,7 +45,10 @@
               <plexclient
                 v-for="i in recentClients"
                 :key="i.clientIdentifier"
-                @click.native="previewClient(i); gotResponse = true"
+                @click.native="
+                  previewClient(i);
+                  gotResponse = true;
+                "
                 :selected="isClientSelected(i)"
                 :object="i"
                 style="cursor: pointer"
@@ -76,10 +81,9 @@
                       <label>Platform</label>
                       <span style="opacity:0.8">{{ testClient.platform }}</span>
                     </div>
-                    <div
-                      class="red--text text--lighten-1"
-                      v-if="testClientErrorMsg"
-                    >{{ testClientErrorMsg }}</div>
+                    <div class="red--text text--lighten-1" v-if="testClientErrorMsg">
+                      {{ testClientErrorMsg }}
+                    </div>
                   </div>
                 </v-col>
               </v-row>
@@ -98,41 +102,34 @@
                   <div v-if="gotResponse">
                     <v-btn block color="primary" v-on:click.native="clientClicked()">Connect</v-btn>
                   </div>
-                  <div
-                    v-if="testClient.product.indexOf('Web') > -1"
-                    class="warning--text"
-                  >Note: Plex Web is currently not supported.</div>
+                  <div v-if="testClient.product.indexOf('Web') > -1" class="warning--text">
+                    Note: Plex Web is currently not supported.
+                  </div>
                   <div
                     v-if="testClient.product.indexOf('Plex for Android') > -1"
                     class="warning--text"
                   >
-                    Note: Plex for Android applications may not work properly. See "What clients are supported?" in the
-                    <a
-                      href="http://docs.synclounge.tv/faq/"
-                    >FAQ</a> for more details.
+                    Note: Plex for Android applications may not work properly. See "What clients are
+                    supported?" in the
+                    <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
                   </div>
                   <div
                     v-if="testClient.product.indexOf('Plex for Windows') > -1"
                     class="warning--text"
                   >
-                    Note: Plex Desktop applications may not work properly. See "What clients are supported?" in the
-                    <a
-                      href="http://docs.synclounge.tv/faq/"
-                    >FAQ</a> for more details.
+                    Note: Plex Desktop applications may not work properly. See "What clients are
+                    supported?" in the
+                    <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
                   </div>
                   <div
                     v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'"
                     class="warning--text"
                   >
-                    Note: You may not be able to connect to external Plex Clients while loading the page via HTTPS.
-                    Click
-                    <a
-                      :href="nohttpslink"
-                    >here</a> to load the page via HTTP.
-                    See "My client isn't working!" in the
-                    <a
-                      href="http://docs.synclounge.tv/faq/"
-                    >FAQ</a> for more details.
+                    Note: You may not be able to connect to external Plex Clients while loading the
+                    page via HTTPS. Click
+                    <a :href="nohttpslink">here</a> to load the page via HTTP. See "My client isn't
+                    working!" in the <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more
+                    details.
                   </div>
                 </v-col>
               </v-row>
@@ -144,7 +141,10 @@
               <plexclient
                 v-for="i in recentClients"
                 :key="i.clientIdentifier"
-                @click.native="previewClient(i); ; gotResponse = true"
+                @click.native="
+                  previewClient(i);
+                  gotResponse = true;
+                "
                 :selected="isClientSelected(i)"
                 :object="i"
                 style="cursor: pointer"
@@ -158,11 +158,10 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import moment from 'moment';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 import plexclient from './plexclient.vue';
-
-const moment = require('moment');
 
 export default {
   props: ['object'],
@@ -218,6 +217,7 @@ export default {
   },
   computed: {
     ...mapState(['plex']),
+    ...mapGetters(['getChosenClient']),
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':
@@ -227,9 +227,6 @@ export default {
         default:
           return false;
       }
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
     },
     isHttps() {
       return location.protocol === 'https:';
@@ -289,14 +286,14 @@ export default {
     },
   },
   watch: {
-    chosenClient(to, from) {
-      if (this.chosenClient && !from) {
+    getChosenClient(to, from) {
+      if (this.getChosenClient && !from) {
         this.$router.push('/joinroom');
       }
     },
   },
   methods: {
-    ...mapActions(['PLEX_GET_DEVICES']),
+    ...mapActions(['PLEX_GET_DEVICES', 'CHOOSE_CLIENT']),
     previewClient(client) {
       this.testClient = client;
       this.testClientErrorMsg = null;
@@ -308,10 +305,10 @@ export default {
       this.$store
         .dispatch('PLEX_CLIENT_FINDCONNECTION', client)
         .then(() => {
-          this.$store.commit('SET_CHOSENCLIENT', client);
+          this.CHOOSE_CLIENT(client);
           this.gotResponse = true;
         })
-        .catch(e => {
+        .catch((e) => {
           if (client.clientIdentifier !== this.testClient.clientIdentifier) {
             return;
           }
@@ -332,7 +329,7 @@ export default {
       return `${difference.humanize()} ago`;
     },
     refreshPlexDevices() {
-      this.$store.commit('SET_CHOSENCLIENT', null);
+      this.CHOOSE_CLIENT(null);
       this.$store.commit('REFRESH_PLEXDEVICES');
     },
   },

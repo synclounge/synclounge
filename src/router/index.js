@@ -5,16 +5,12 @@ import signin from '../components/signin.vue';
 import signout from '../components/signout.vue';
 import join from '../components/join.vue';
 
-const SettingsHelper = require('../../SettingsHelper.js');
-
-const settings = new SettingsHelper();
-
 Vue.use(Router);
 
 // ==================== Router registration ====================
 export default new Router({
+  base: process.env.webroot,
   mode: 'hash',
-  base: settings.webroot || '/',
   routes: [
     {
       path: '/',
@@ -24,22 +20,17 @@ export default new Router({
     },
     {
       path: '/signin',
-      meta: {
-        noload: true,
-      },
+      meta: {},
       component: signin,
     },
     {
       path: '/signout',
-      meta: {
-        noload: true,
-      },
+      meta: {},
       component: signout,
     },
     {
       path: '/join',
       meta: {
-        noload: true,
         protected: false,
       },
       component: join,
@@ -47,14 +38,12 @@ export default new Router({
     {
       path: '/clientselect',
       meta: {
-        noload: false,
       },
       component: () => import('../components/application/walkthrough.vue'),
     },
     {
       path: '/joinroom',
       meta: {
-        noload: false,
       },
       component: () => import('../components/application/joinroom.vue'),
     },

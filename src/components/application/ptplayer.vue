@@ -1,24 +1,33 @@
 <template>
   <div style="width:100%; position: relative">
     <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
-      <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
+      <videoplayer
+        v-if="playingMetadata && chosenServer && GET_SLPLAYERQUALITY && ready"
         @playerMounted="playerMounted()"
         @timelineUpdate="timelineUpdate"
         @playbackEnded="stopPlayback()"
-
         :metadata="playingMetadata"
         :server="chosenServer"
-        :src="getSourceByLabel(chosenQuality)"
-        :initUrl="getSourceByLabel(chosenQuality).initUrl"
-        :params="getSourceByLabel(chosenQuality).params"
+        :src="getSourceByLabel(GET_SLPLAYERQUALITY)"
+        :initUrl="getSourceByLabel(GET_SLPLAYERQUALITY).initUrl"
+        :params="getSourceByLabel(GET_SLPLAYERQUALITY).params"
         :initialOffset="offset"
         :createdAt="playerCreatedAt"
       ></videoplayer>
       <div v-if="playingMetadata && chosenServer">
         <transition name="fade">
           <div v-show="hovered">
-            <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 2" class="pa-3 hidden-xs-only">
-              <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;" />
+            <v-layout
+              row
+              wrap
+              style="position: absolute; top: 0; left: 0; z-index: 2"
+              class="pa-3 hidden-xs-only"
+            >
+              <img
+                :src="thumbUrl"
+                class="elevation-20"
+                style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;"
+              />
               <v-flex class="pl-3">
                 <v-container class="pa-0" fill-height>
                   <v-layout column wrap justify-space-apart>
@@ -29,29 +38,53 @@
                       <h3>{{ getUnder(playingMetadata) }}</h3>
                     </v-flex>
                     <v-flex>
-                      <h5>Playing from {{ chosenServer.name  }}</h5>
+                      <h5>Playing from {{ chosenServer.name }}</h5>
                     </v-flex>
                   </v-layout>
                 </v-container>
               </v-flex>
             </v-layout>
-            <v-layout row wrap style="position: absolute; top: 0; right: 0; z-index: 2" class="pa-3 hidden-xs-only">
+            <v-layout
+              row
+              wrap
+              style="position: absolute; top: 0; right: 0; z-index: 2"
+              class="pa-3 hidden-xs-only"
+            >
               <v-flex class="text-xs-right pa-1">
                 <div class="hidden-xs-only">
-                  <v-tooltip bottom color="accent" v-if="me && me.role !== 'host'">
-                    <v-icon slot="activator" color="white" class="clickable" :disabled="manualSyncQueued" v-on:click="doManualSync">compare_arrows</v-icon>
+                  <v-tooltip bottom color="accent" v-if="GET_ME && GET_ME.role !== 'host'">
+                    <v-icon
+                      slot="activator"
+                      color="white"
+                      class="clickable"
+                      :disabled="GET_MANUAL_SYNC_QUEUED"
+                      v-on:click="TRIGGER_MANUAL_SYNC"
+                      >compare_arrows</v-icon
+                    >
                     Manual Sync
                   </v-tooltip>
-                  <v-icon slot="activator" color="white" class="clickable pl-3" v-on:click="dialog = !dialog">settings</v-icon>
-                  <router-link to="/browse"  slot="activator">
-                    <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()">close</v-icon>
+                  <v-icon
+                    slot="activator"
+                    color="white"
+                    class="clickable pl-3"
+                    v-on:click="dialog = !dialog"
+                    >settings</v-icon
+                  >
+                  <router-link to="/browse" slot="activator">
+                    <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()"
+                      >close</v-icon
+                    >
                   </router-link>
                 </div>
               </v-flex>
             </v-layout>
-            <v-layout row wrap class="hoverBar" style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;">
-              <v-flex xs12>
-              </v-flex>
+            <v-layout
+              row
+              wrap
+              class="hoverBar"
+              style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;"
+            >
+              <v-flex xs12> </v-flex>
             </v-layout>
           </div>
         </transition>
@@ -64,7 +97,8 @@
           <v-card-title>Playback Settings </v-card-title>
           <v-card-text>
             <v-select
-              v-model="chosenQuality"
+              :value="GET_SLPLAYERQUALITY"
+              @input="SET_SLPLAYERQUALITY"
               :items="qualitiesSelect"
               item-text="text"
               item-value="id"
@@ -108,10 +142,19 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-layout v-if="playingMetadata && chosenServer" justify-center row class="pa-3 hidden-sm-and-up">
+      <v-layout
+        v-if="playingMetadata && chosenServer"
+        justify-center
+        row
+        class="pa-3 hidden-sm-and-up"
+      >
         <v-flex xs12>
           <v-layout row wrap>
-            <img :src="thumbUrl" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto" />
+            <img
+              :src="thumbUrl"
+              class="elevation-20"
+              style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"
+            />
             <v-flex class="pl-2">
               <v-container class="pa-0" fill-height>
                 <v-layout column wrap justify-space-apart>
@@ -122,21 +165,32 @@
                     <h3>{{ getUnder(playingMetadata) }}</h3>
                   </v-flex>
                   <v-flex>
-                    <h5>Playing from {{ chosenServer.name  }}</h5>
+                    <h5>Playing from {{ chosenServer.name }}</h5>
                   </v-flex>
                 </v-layout>
               </v-container>
             </v-flex>
             <v-layout row wrap class="">
               <v-flex xs12>
-                <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+                <v-btn
+                  block
+                  :disabled="GET_MANUAL_SYNC_QUEUED"
+                  color="blue"
+                  v-on:click.native="TRIGGER_MANUAL_SYNC"
+                  v-if="GET_ME.role !== 'host'"
+                  >Manual sync</v-btn
+                >
               </v-flex>
               <v-flex xs12>
-                <v-btn block color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
+                <v-btn block color="primary" v-on:click.native="dialog = !dialog"
+                  >Playback Settings</v-btn
+                >
               </v-flex>
               <v-flex xs12>
                 <router-link to="/browse">
-                  <v-btn block color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+                  <v-btn block color="error" v-on:click.native="stopPlayback()"
+                    >Stop playback</v-btn
+                  >
                 </router-link>
               </v-flex>
             </v-layout>
@@ -148,19 +202,20 @@
 </template>
 
 <style scoped>
-  .messages-wrapper {
-    height: calc(100vh - (0.5625 * 100vw) - 150px);
-  }
-  .is-fullscreen .messages-wrapper {
-    height: calc(100vh - (0.5625 * 100vw));
-  }
+.messages-wrapper {
+  height: calc(100vh - (0.5625 * 100vw) - 150px);
+}
+.is-fullscreen .messages-wrapper {
+  height: calc(100vh - (0.5625 * 100vw));
+}
 </style>
 
 <script>
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import videoplayer from './ptplayer/videoplayer.vue';
 import messages from '@/components/messages';
 
-const plexthumb = require('./plexbrowser/plexthumb.vue');
+import plexthumb from './plexbrowser/plexthumb.vue';
 
 const request = require('request');
 const parseXMLString = require('xml2js').parseString;
@@ -168,7 +223,9 @@ const parseXMLString = require('xml2js').parseString;
 export default {
   name: 'ptplayer',
   components: {
-    videoplayer, plexthumb, messages,
+    videoplayer,
+    plexthumb,
+    messages,
   },
   mounted() {
     // Check if we have params
@@ -177,7 +234,7 @@ export default {
       const query = this.$route.query;
       this.chosenKey = query.key.replace('/library/metadata/', '');
       this.chosenMediaIndex = query.mediaIndex || 0;
-      this.chosenServer = this.plex.servers[query.chosenServer];
+      this.chosenServer = this.getPlex.servers[query.chosenServer];
       this.offset = query.playertime;
     }
 
@@ -224,17 +281,17 @@ export default {
         return;
       }
       if (data.command === '/player/playback/play') {
-        this.eventbus.$emit('player-press-play', res => data.callback(res));
+        this.eventbus.$emit('player-press-play', (res) => data.callback(res));
         return;
       }
       if (data.command === '/player/playback/pause') {
-        this.eventbus.$emit('player-press-pause', res => data.callback(res));
+        this.eventbus.$emit('player-press-pause', (res) => data.callback(res));
         return;
       }
       if (data.command === '/player/playback/playMedia') {
         this.chosenKey = data.params.key.replace('/library/metadata/', '');
         this.chosenMediaIndex = data.params.mediaIndex || 0;
-        this.chosenServer = this.plex.servers[data.params.machineIdentifier];
+        this.chosenServer = this.getPlex.servers[data.params.machineIdentifier];
         this.playertime = data.params.offset || this.$route.query.playertime || 0;
         this.offset = this.playertime;
         this.$nextTick(() => {
@@ -280,7 +337,6 @@ export default {
       // Content can have multiple copies
       // Below are options chosen for each copy
       chosenMediaIndex: 0, // The index of the item we want to play
-      chosenQuality: JSON.parse(window.localStorage.getItem('PTPLAYERQUALITY')) || 'Original', // The quality profile
       chosenSubtitleIndex: 0, // Subtitle track index
       chosenAudioTrackIndex: 0, // Audio track index
       sources: [],
@@ -313,11 +369,6 @@ export default {
     chosenServer() {
       this.changedPlaying(true);
     },
-    chosenQuality() {
-      this.changedPlaying(false);
-      // console.log('Our new preferred quality is now ' + this.chosenQuality )
-      this.$store.commit('setSettingPTPLAYERQUALITY', this.chosenQuality);
-    },
     chosenMediaIndex() {
       this.chosenSubtitleIndex = 0;
       this.chosenAudioTrackIndex = 0;
@@ -325,7 +376,9 @@ export default {
     },
     chosenAudioTrackIndex() {
       // console.log('Audio track change')
-      const audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenAudioTrackIndex].id;
+      const audioStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[
+        this.chosenAudioTrackIndex
+      ].id;
       const baseparams = this.getSourceByLabel(this.chosenQuality).params;
       const params = {
         audioStreamID,
@@ -343,7 +396,9 @@ export default {
       for (const key in params) {
         query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
       }
-      const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id}?${query}`;
+      const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${
+        this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id
+      }?${query}`;
       this.ready = false;
       const options = {
         method: 'PUT',
@@ -360,9 +415,11 @@ export default {
       // console.log('Subtitle track change')
       let subtitleStreamID = 0;
       if (this.chosenSubtitleIndex > -1) {
-        subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[this.chosenSubtitleIndex].id;
+        subtitleStreamID = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[
+          this.chosenSubtitleIndex
+        ].id;
       }
-      const baseparams = this.getSourceByLabel(this.chosenQuality).params;
+      const baseparams = this.getSourceByLabel(this.GET_SLPLAYERQUALITY).params;
       const params = {
         subtitleStreamID,
         'X-Plex-Product': baseparams['X-Plex-Product'],
@@ -375,11 +432,13 @@ export default {
         'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
         'X-Plex-Token': baseparams['X-Plex-Token'],
       };
-      let query = '';
-      for (const key in params) {
-        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-      }
-      const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id}?${query}`;
+
+      const query = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${
+        this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id
+      }?${query}`;
       this.ready = false;
       const options = {
         method: 'PUT',
@@ -394,24 +453,11 @@ export default {
     },
   },
   computed: {
-    plex() {
-      return this.$store.getters.getPlex;
-    },
-    me() {
-      return this.$store.state.me;
-    },
-    manualSyncQueued() {
-      return this.$store.state.manualSyncQueued;
-    },
+    ...mapGetters(['getPlex', 'getChosenClient', 'GET_MANUAL_SYNC_QUEUED', 'GET_ME']),
+    ...mapGetters('settings', ['GET_SLPLAYERQUALITY', 'GET_SLPLAYERFORCETRANSCODE']),
     chosenCombo() {
       // Helper for our watch chosenCombo
       return this.chosenKey || this.chosenServer;
-    },
-    settings() {
-      return this.$store.state.settings;
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
     },
     mediaIndexSelect() {
       const mediaDone = [];
@@ -432,12 +478,14 @@ export default {
       if (!this.playingMetadata) {
         return audioTracks;
       }
-      if (
-        this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length === 1
-      ) {
+      if (this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length === 1) {
         return audioTracks;
       }
-      for (let i = 0; i < this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length; i++) {
+      for (
+        let i = 0;
+        i < this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length;
+        i++
+      ) {
         const current = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[i];
         if (current.streamType === 2) {
           audioTracks.push({
@@ -460,7 +508,11 @@ export default {
         id: -1,
         text: 'None',
       });
-      for (let i = 0; i < this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length; i++) {
+      for (
+        let i = 0;
+        i < this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream.length;
+        i++
+      ) {
         const current = this.playingMetadata.Media[this.chosenMediaIndex].Part[0].Stream[i];
         if (current.streamType === 3) {
           subtitleTracks.push({
@@ -486,13 +538,23 @@ export default {
       if (!this.playingMetadata) {
         return;
       }
-      return this.plex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(this.playingMetadata.grandparentThumb || this.playingMetadata.thumb, 200, 200);
+      return this.getPlex.servers[this.$route.query.chosenServer].getUrlForLibraryLoc(
+        this.playingMetadata.grandparentThumb || this.playingMetadata.thumb,
+        200,
+        200,
+      );
     },
   },
   beforeDestroy() {
     this.destroyed = true;
   },
   methods: {
+    ...mapActions(['TRIGGER_MANUAL_SYNC']),
+    ...mapMutations('settings', ['SET_SLPLAYERQUALITY']),
+    changeQuality(quality) {
+      this.changedPlaying(false);
+      this.SET_SLPLAYERQUALITY(quality);
+    },
     playerMounted() {
       // console.log('Child player said it is mounted')
     },
@@ -504,9 +566,6 @@ export default {
         }
       }
       return null;
-    },
-    doManualSync() {
-      this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
     },
     openModal() {
       return this.$refs.playersettingsModal.open();
@@ -561,24 +620,17 @@ export default {
           if (this.fullTitle !== undefined) {
             return `Episode ${content.index}`;
           }
-          return (
-            ` S${
-              content.parentIndex
-            }E${
-              content.index
-            } - ${
-              content.title}`
-          );
+          return ` S${content.parentIndex}E${content.index} - ${content.title}`;
         default:
           return content.title;
       }
     },
     generateSources() {
       const that = this;
-      const QualityTemplate = function (label, resolution, bitrate, videoQuality) {
+      const QualityTemplate = function(label, resolution, bitrate, videoQuality) {
         const session = that.generateGuid();
         this.label = label;
-        this.initUrl = that.initTranscodeSessionUrl({
+        this.initUrl = that.makeTranscodeSessionUrl({
           maxVideoBitrate: bitrate,
           videoResolution: resolution,
           videoQuality,
@@ -622,11 +674,11 @@ export default {
     stopPlayback() {
       console.log('Stopped Playback');
       this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
-      request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {});
+      request(this.getSourceByLabel(this.GET_SLPLAYERQUALITY).stopUrl, () => {});
       this.playerstatus = 'stopped';
       this.sessionId = this.generateGuid();
       this.xplexsession = this.generateGuid();
-      this.chosenClient.pressStop(() => {});
+      this.getChosenClient.pressStop(() => {});
     },
     changedPlaying(changeItem) {
       this.ready = false;
@@ -645,19 +697,22 @@ export default {
 
       const req = () => {
         this.sources = this.generateSources();
-        request(this.getSourceByLabel(this.chosenQuality).initUrl, (error, response, body) => {
-          parseXMLString(body, (err, result) => {
-            if (err) {
-              this.ready = false;
-            }
-            this.ready = true;
-            this.transcodeSessionMetadata = result;
-          });
-        });
+        request(
+          this.getSourceByLabel(this.GET_SLPLAYERQUALITY).initUrl,
+          (error, response, body) => {
+            parseXMLString(body, (err, result) => {
+              if (err) {
+                this.ready = false;
+              }
+              this.ready = true;
+              this.transcodeSessionMetadata = result;
+            });
+          },
+        );
       };
 
       if (this.playingMetadata) {
-        request(this.getSourceByLabel(this.chosenQuality).stopUrl, () => {
+        request(this.getSourceByLabel(this.GET_SLPLAYERQUALITY).stopUrl, () => {
           // We dont need to know what this resulted in
         });
       }
@@ -677,7 +732,10 @@ export default {
       this.bufferedTill = data.bufferedTill;
       this.playerduration = data.duration;
 
-      if (this.lastSentTimeline.state !== data.status || this.chosenKey !== this.lastSentTimeline.key) {
+      if (
+        this.lastSentTimeline.state !== data.status ||
+        this.chosenKey !== this.lastSentTimeline.key
+      ) {
         const key = this.chosenKey;
         let ratingKey = null;
         if (key) {
@@ -697,18 +755,16 @@ export default {
           state: this.playerstatus,
         };
         this.lastSentTimeline = playerdata;
-        this.chosenClient.updateTimelineObject(playerdata);
+        this.getChosenClient.updateTimelineObject(playerdata);
       }
     },
     playerSeekDone(data) {},
     generateTranscodeUrl(overrideparams) {
       const params = this.getBaseParams(overrideparams);
 
-      let query = '';
-      for (const key in params) {
-        query +=
-          `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-      }
+      const query = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/start.m3u8?${query}`;
       // console.log(url)
       return url;
@@ -732,28 +788,29 @@ export default {
           params[key] = overrideparams[key];
         }
       }
-      let query = '';
-      for (const key in params) {
-        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-      }
+
+      const query = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/stop?${query}`;
       // console.log(url)
       return url;
     },
-    initTranscodeSessionUrl(overrideparams) {
+    makeTranscodeSessionUrl(overrideparams) {
       // We need to tell the Plex Server to start transcoding
       const params = this.getBaseParams(overrideparams);
 
-      let query = '';
-      for (const key in params) {
-        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-      }
+      const query = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/decision?${query}`;
       return url;
     },
     getBaseParams(overrideparams) {
       let location = 'wan';
-      if (this.plex.servers[this.playingMetadata.machineIdentifier].publicAddressMatches === '1') {
+      if (
+        this.getPlex.servers[this.playingMetadata.machineIdentifier].publicAddressMatches === '1'
+      ) {
         location = 'lan';
       }
       const params = {
@@ -787,7 +844,7 @@ export default {
         'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight}`,
         'X-Plex-Token': this.chosenServer.accessToken,
       };
-      if (JSON.parse(this.settings.SLPLAYERFORCETRANSCODE)) {
+      if (this.GET_SLPLAYERFORCETRANSCODE) {
         params.directStream = 0;
         params['X-Plex-Device'] = 'HTML TV App';
       }
@@ -799,8 +856,6 @@ export default {
         }
       }
       return params;
-    },
-    sendPMSPoll() {
     },
     generateGuid() {
       function s4() {
@@ -831,16 +886,25 @@ export default {
 </script>
 
 <style>
-  .hoverBar {
-    position: absolute;
-    background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),color-stop(60%,rgba(0,0,0,.35)),to(transparent));
-    background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent)
-  }
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.25s ease-out;
-  }
+.hoverBar {
+  position: absolute;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(rgba(0, 0, 0, 0.8)),
+    color-stop(60%, rgba(0, 0, 0, 0.35)),
+    to(transparent)
+  );
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0.35) 60%, transparent);
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease-out;
+}
 
-  .fade-enter, .fade-leave-to {
-    opacity: 0;
-  }
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

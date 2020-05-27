@@ -53,6 +53,7 @@
     "vue-template-compiler": "^2.6.11",
     "vue-video-player": "^5.0.2",
     "vuetify-loader": "^1.4.4",
+    "vuex-persistedstate": "^3.0.1",
     "xml2js": "^0.4.23"
   }
 }

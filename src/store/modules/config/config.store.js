@@ -1,26 +1,36 @@
 import axios from 'axios';
-import Vue from 'vue';
 
-export default {
-  namespaced: true,
-  state: {
-    configuration: null,
+const initialState = () => ({
+  configuration: {},
+});
+
+const getters = {
+  GET_CONFIG: (state) => state.configuration,
+  GET_AUTHENTICATION: (state) => state.configuration.authentication,
+};
+
+const mutations = {
+  SET_CONFIG: (state, data) => {
+    state.configuration = data;
   },
-  mutations: {
-    setConfig(state, data) {
-      Vue.set(state, 'configuration', data);
-    },
-  },
-  actions: {
-    async fetchConfig({ commit }) {
-      const url = window.location.origin + window.location.pathname.replace(/\/+$/, "");
-      const { data } = await axios.get(`${url}/config`);
-      commit('setConfig', data);
-      return data;
-    },
-  },
-  getters: {
-    getConfig: () => state => state.configuration,
+  SET_AUTHENTICATION: (state, auth) => {
+    state.configuration.authentication = auth;
   },
 };
 
+const actions = {
+  fetchConfig: async ({ commit }) => {
+    const url = window.location.origin + window.location.pathname.replace(/\/+$/, '');
+    return axios.get(`${url}/config`).then(({ data }) => {
+      commit('SET_CONFIG', data);
+    });
+  },
+};
+
+export default {
+  namespaced: true,
+  state: initialState,
+  mutations,
+  actions,
+  getters,
+};

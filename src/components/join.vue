@@ -35,7 +35,7 @@
     </v-layout>
 </template>
 <script>
-// CSS imports
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'join',
@@ -63,6 +63,9 @@ export default {
     },
   },
   computed: {
+    ...mapGetters('settings', [
+      'GET_PLEX_AUTH_TOKEN'
+    ]),
     logo() {
       return this.$store.getters.logos.light.short;
     },
@@ -70,7 +73,7 @@ export default {
       return this.$store.state.plex.gotDevices;
     },
     loading() {
-      if (!window.localStorage.getItem('plexuser')) {
+      if (!this.GET_PLEX_AUTH_TOKEN) {
         return false;
       }
       return !this.$store.state.plex.gotDevices;
@@ -83,7 +86,7 @@ export default {
       this.$store.commit('SET_AUTOJOINPASSWORD', this.password);
       this.$store.commit('SET_VALUE', ['autoJoinOwner', this.owner]);
       this.$store.commit('SET_AUTOJOINURL', this.server);
-      if (window.localStorage.getItem('plexuser')) {
+      if (this.GET_PLEX_AUTH_TOKEN) {
         await this.$store.dispatch('autoJoin', {
           server: this.server,
           password: this.password,

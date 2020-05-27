@@ -17,7 +17,6 @@
       @seeked="onPlayerSeeked($event)"
       @statechanged="playerStateChanged($event)"
 
-      @ready="playerReadied"
       style="background-color:transparent !important;"
       class="ptplayer"
 >
@@ -29,6 +28,7 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex';
 const request = require('request');
 
 export default {
@@ -101,7 +101,6 @@ export default {
     this.eventbus.$off('player-seek');
     this.eventbus.$off('ptplayer-poll');
 
-    let query = '';
     const params = {
       hasMDE: 1,
       ratingKey: this.metadata.ratingKey,
@@ -120,9 +119,10 @@ export default {
       'X-Plex-Token': this.params['X-Plex-Token'],
       'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
     };
-    for (const key in params) {
-      query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-    }
+
+    const query = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
     const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
     request(url, (error, response, body) => {
       if (!error) {
@@ -131,6 +131,10 @@ export default {
     });
   },
   computed: {
+    ...mapGetters('settings', [
+      'GET_AUTOPLAY',
+      'GET_SLPLAYERVOLUME'
+    ]),
     player() {
       if (this.$refs && this.$refs.videoPlayer) {
         return this.$refs.videoPlayer.player;
@@ -147,9 +151,10 @@ export default {
 
         fluid: true,
         preload: 'auto',
+        // TODO: this volume doesn't seem to do anything
         volume: 1,
         aspectRatio: '16:9',
-        autoplay: true,
+        autoplay: this.GET_AUTOPLAY,
         width: '100%',
         language: 'en',
 
@@ -185,7 +190,9 @@ export default {
 
   },
   methods: {
-
+    ...mapMutations('settings', [
+      'SET_SLPLAYERVOLUME'
+    ]),
     // Player events
     closingPlayer() {
     },
@@ -393,8 +400,11 @@ export default {
       });
     },
     playerStateChanged(playerCurrentState) {
-      // console.log("Setting volume to " + this.player.volume() || 0)
-      this.$store.commit('setSetting', ['PTPLAYERVOLUME', this.player.volume() || 0]);
+      // TODO: move this volume setting to an actual volume change event handler
+      if (this.player.volume() !== this.GET_SLPLAYERVOLUME) {
+        this.SET_SLPLAYERVOLUME(this.player.volume());
+      }
+
       this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000);
       this.duration = Math.round(this.player.duration() * 1000);
       this.bufferStart = Math.round(this.player.buffered().start(0) * 1000);
@@ -420,12 +430,10 @@ export default {
       });
     },
     playerReadied(player) {
-      // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME)
-      this.player.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
+      this.player.volume(this.GET_SLPLAYERVOLUME);
       this.player.currentTime(this.initialOffset / 1000);
     },
-
-  },
+  }
 };
 </script>
 <style scoped>

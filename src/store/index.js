@@ -1,12 +1,12 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
 
-import { get, set } from '@/utils/storage';
 import { generateGuid } from '@/utils/helpers';
-import { getAll } from '@/utils/settings';
 import config from './modules/config/config.store';
+import settings from './modules/settings';
 
-const plex = require('./modules/plex/').default;
+const plex = require('./modules/plex').default;
 const syncLounge = require('./modules/synclounge.js').default;
 
 Vue.use(Vuex);
@@ -15,17 +15,15 @@ function sendNotification(message) {
   return window.EventBus.$emit('notification', message);
 }
 
-console.log('Got settings', getAll());
 // Set up out web app socket for fetching short urls
 
-const state = {
+const initialState = () => ({
   appTitle: 'SyncLounge',
-  appVersion: '2.0.0',
+  appVersion: process.env.npm_package_version,
   background: null,
   shownChat: false,
   chosenClient: null,
   chosenClientTimeSet: new Date().getTime(),
-  plexuser: JSON.parse(window.localStorage.getItem('plexuser')),
   blockAutoPlay: false,
   autoJoin: false,
   autoJoinUrl: null,
@@ -40,69 +38,18 @@ const state = {
   upNextCache: {},
 
   // SETTINGS
-  settings: getAll(),
   stats: {},
   me: {},
   isLeftSidebarOpen: false,
   isRightSidebarOpen: false,
-};
+});
 
 const mutations = {
   SET_CHOSENCLIENT(state, client) {
-    // Set up our client poller
-    let commandInProgress = false;
-    function clientPoller(time) {
-      if (!state.chosenClient) {
-        return;
-      }
-      if (state.chosenClientTimeSet !== time) {
-        // We have a new chosen client, we need to stop
-        return;
-      }
-      if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
-        if (!commandInProgress) {
-          state.chosenClient
-            .getTimeline()
-            .then(() => {
-              commandInProgress = false;
-            })
-            .catch((e) => {
-              commandInProgress = false;
-            });
-          commandInProgress = true;
-        }
-      } else {
-        state.chosenClient.getTimeline();
-      }
-      let interval = state.settings.CLIENTPOLLINTERVAL;
-      if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-        interval = 500;
-      }
-      setTimeout(() => {
-        clientPoller(time);
-      }, interval);
-    }
-
-    // Check if we need to remove old handlers
-    if (state.chosenClient) {
-      state.chosenClient.events.removeAllListeners();
-    }
     state.chosenClient = client;
-    if (state.chosenClient && state.chosenClient.lastTimelineObject) {
-      state.chosenClient.lastTimelineObject.ratingKey = -1;
-    }
-    if (state.chosenClient == null) {
-      return;
-    }
-    state.chosenClientTimeSet = new Date().getTime();
-    clientPoller(state.chosenClientTimeSet);
-    state.chosenClient.getTimeline((timeline) => { });
   },
   SET_PLEX(state, value) {
     state.plex = value;
-  },
-  SET_AUTHENTICATION(state, value) {
-    state.authentication = value;
   },
   SET_AUTOJOIN(state, value) {
     state.autoJoin = value;
@@ -122,24 +69,8 @@ const mutations = {
   SET_SHORTLINK(state, value) {
     state.shortLink = value;
   },
-  setSetting(state, data) {
-    Vue.set(state.settings, data[0], data[1]);
-    set(data[0], data[1]);
-  },
-  setSettingPTPLAYERQUALITY(state, data) {
-    window.localStorage.setItem('PTPLAYERQUALITY', JSON.stringify(data));
-    state.PTPLAYERQUALITY = data;
-  },
-  setSettingPTPLAYERVOLUME(state, data) {
-    window.localStorage.setItem('PTPLAYERVOLUME', JSON.stringify(data));
-    state.PTPLAYERVOLUME = data;
-  },
-  setSettingHOMEINIT(state, data) {
-    set('HOMEINIT', data);
-    state.HOMEINIT = data;
-  },
-  REFRESH_PLEXDEVICES() {
-    store.state.plex.getDevices(() => { });
+  REFRESH_PLEXDEVICES(state) {
+    state.plex.getDevices(() => {});
   },
   SET_RANDOMBACKROUND(state) {
     state.plex.getRandomThumb((result) => {
@@ -156,28 +87,64 @@ const mutations = {
   SET_LEFT_SIDEBAR_OPEN: (state, open) => { state.isLeftSidebarOpen = open; },
   SET_RIGHT_SIDEBAR_OPEN: (state, open) => { state.isRightSidebarOpen = open; },
   TOGGLE_RIGHT_SIDEBAR_OPEN: (state) => { state.isRightSidebarOpen = !state.isRightSidebarOpen; },
+  SET_BLOCK_AUTOPLAY: (state, block) => {
+    state.blockAutoPlay = block;
+  },
+  SET_MANUAL_SYNC_QUEUED: (state, queued) => {
+    state.manualSyncQueued = queued;
+  },
 };
+
+// Custom Servers list settings
+const defaultSyncloungeServers = [
+  {
+    name: 'SyncLounge AU1',
+    location: 'Sydney, Australia',
+    url: 'https://v3au1.synclounge.tv/slserver',
+    image: 'flags/au.png',
+  },
+  {
+    name: 'SyncLounge EU1',
+    location: 'Amsterdam, Netherlands',
+    url: 'https://v2eu1.synclounge.tv/server',
+    image: 'flags/eu.png',
+  },
+  {
+    name: 'SyncLounge US1',
+    location: 'Miami, United States',
+    url: 'https://v2us1.synclounge.tv/server',
+    image: 'flags/us.png',
+  },
+  {
+    name: 'SyncLounge US2',
+    location: 'Miami, United States',
+    url: 'https://v3us1.synclounge.tv/slserver',
+    image: 'flags/us.png',
+  },
+  {
+    name: 'SyncLounge US3',
+    location: 'Miami, United States',
+    url: 'https://v3us2.synclounge.tv/slserver',
+    image: 'flags/us.png',
+  },
+];
+
 const getters = {
-  getAppVersion: state => state.appVersion,
-  getPlex: state => state.plex,
-  getPlexUser: state => state.plexuser,
-  getBackground: state => state.background,
-  getChosenClient: state => state.chosenClient,
-  getShownChat: state => state.shownChat,
-  getStats: state => state.stats,
-  getBlockAutoPlay: state => state.blockAutoPlay,
-  getAutoJoin: state => state.autoJoin,
-  getAutoJoinRoom: state => state.autoJoinRoom,
-  getAutoJoinPassword: state => state.autoJoinPassword,
-  getAutoJoinUrl: state => state.autoJoinUrl,
-  getShortLink: state => state.shortLink,
+  getAppVersion: (state) => state.appVersion,
+  getPlex: (state) => state.plex,
+  getBackground: (state) => state.background,
+  getChosenClient: (state) => state.chosenClient,
+  getShownChat: (state) => state.shownChat,
+  getStats: (state) => state.stats,
+  getBlockAutoPlay: (state) => state.blockAutoPlay,
+  getAutoJoin: (state) => state.autoJoin,
+  getAutoJoinRoom: (state) => state.autoJoinRoom,
+  getAutoJoinPassword: (state) => state.autoJoinPassword,
+  getAutoJoinUrl: (state) => state.autoJoinUrl,
+  getShortLink: (state) => state.shortLink,
 
   // SETTINGS
-  getSettings: state => state.settings,
-  getSettingHOMEINIT: state => state.HOMEINIT,
-  getSettingPTPLAYERQUALITY: state => state.PTPLAYERQUALITY,
-  getSettingPTPLAYERVOLUME: state => state.PTPLAYERVOLUME,
-  getExtAvailable: state => state.extAvailable,
+  getExtAvailable: (state) => state.extAvailable,
   getLogos: () => ({
     light: {
       long: 'logo-long-light.png',
@@ -190,16 +157,34 @@ const getters = {
       standard: 'plexlogo.png',
     },
   }),
+
+  GET_SYNCLOUNGE_SERVERS: (state, getters) => {
+    if (getters['config/GET_CONFIG'].servers && getters['config/GET_CONFIG'].servers.length > 0) {
+      if (getters['config/GET_CONFIG'].customServer) {
+        console.error(
+          "'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.",
+        );
+      }
+      return getters['config/GET_CONFIG'].servers;
+    }
+
+    if (getters['config/GET_CONFIG'].customServer) {
+      return defaultSyncloungeServers.concat([getters['config/GET_CONFIG'].customServer]);
+    }
+
+    return defaultSyncloungeServers.concat([getters['settings/GET_CUSTOMSERVER']]);
+  },
+  GET_MANUAL_SYNC_QUEUED: (state) => state.manualSyncQueued,
+  GET_ME: (state) => state.me,
 };
+
 const actions = {
-  async PLAYBACK_CHANGE({ commit, state, dispatch }, data) {
+  async PLAYBACK_CHANGE({ commit, state }, data) {
     const [client, ratingKey, mediaContainer] = data;
     if (ratingKey) {
       // Playing something different!
       const server = state.plex.servers[mediaContainer.machineIdentifier];
-      commit('setSetting', ['LASTSERVER', mediaContainer.machineIdentifier]);
-      // state.settings.LASTSERVER = mediaContainer.machineIdentifier;
-      // window.localStorage.setItem('LASTSERVER', mediaContainer.machineIdentifier);
+      commit('settings/SET_LASTSERVER', mediaContainer.machineIdentifier);
       if (!server) {
         return;
       }
@@ -213,16 +198,20 @@ const actions = {
         if (metadata.type === 'movie') {
           sendNotification(`Now Playing: ${metadata.title} from ${
             state.plex.servers[metadata.machineIdentifier].name
-            }`);
+          }`);
         }
         if (metadata.type === 'episode') {
           sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
             metadata.index
-            } from ${state.plex.servers[metadata.machineIdentifier].name}`);
+          } from ${state.plex.servers[metadata.machineIdentifier].name}`);
         }
         state.chosenClient.clientPlayingMetadata = metadata;
-        const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-        const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+        const w = Math.round(
+          Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+        );
+        const h = Math.round(
+          Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
+        );
         state.background = state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(
           metadata.thumb,
           w / 4,
@@ -238,7 +227,9 @@ const actions = {
       }
     }
   },
-  NEW_TIMELINE({ commit, state, dispatch }, data) {
+  NEW_TIMELINE({
+    commit, state, dispatch, getters,
+  }, data) {
     // return true
     const timeline = data;
     const client = state.chosenClient;
@@ -256,10 +247,10 @@ const actions = {
     // Check if we need to activate the upnext feature
     if (state.me && state.me.role === 'host') {
       if (
-        timeline.duration &&
-        timeline.time &&
-        Math.abs(timeline.duration - timeline.time) < 10000 &&
-        metadata.type === 'episode'
+        timeline.duration
+        && timeline.time
+        && Math.abs(timeline.duration - timeline.time) < 10000
+        && metadata.type === 'episode'
       ) {
         console.log('Checking upnext');
         if (!state.upNextCache[timeline.machineIdentifier]) {
@@ -293,9 +284,8 @@ const actions = {
     if (state.chosenClient.clientPlayingMetadata) {
       rawTitle = metadata.title;
       if (metadata.type === 'episode') {
-        title =
-          `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-` +
-          `E${metadata.index}`;
+        title = `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-`
+          + `E${metadata.index}`;
         showName = metadata.grandparentTitle;
       } else {
         title = metadata.title;
@@ -312,7 +302,7 @@ const actions = {
         hostTime = parseInt(hostTime) + parseInt(hostAge);
       }
       const difference = Math.abs(data.time - hostTime);
-      if (difference > state.settings.SYNCFLEXABILITY) {
+      if (difference > getters['settings/GET_SYNCFLEXIBILITY']) {
         status = 'notok';
       }
     }
@@ -334,18 +324,17 @@ const actions = {
       endObj.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
       endObj.key = state.chosenClient.lastTimelineObject.key;
     }
-    if (state.synclounge._socket) {
+    if (state.synclounge.socket) {
       const commandId = Object.keys(state.synclounge.commands).length + 1;
       state.synclounge.commands[commandId] = {
         start: new Date().getTime(),
       };
       endObj.commandId = commandId;
       if (Object.keys(state.synclounge.commands).length > 1) {
-        const latency =
-          state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1].difference;
+        const latency = state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1].difference;
         endObj.latency = latency;
       }
-      state.synclounge._socket.emit('poll', endObj);
+      state.synclounge.socket.emit('poll', endObj);
     }
   },
   SET_LEFT_SIDEBAR_OPEN: ({ commit }, open) => {
@@ -357,10 +346,74 @@ const actions = {
   TOGGLE_RIGHT_SIDEBAR_OPEN: ({ commit }) => {
     commit('TOGGLE_RIGHT_SIDEBAR_OPEN');
   },
+
+  CHOOSE_CLIENT: ({ commit, state, getters }, client) => {
+    // Set up our client poller
+    let commandInProgress = false;
+
+    function clientPoller(time) {
+      if (!state.chosenClient) {
+        return;
+      }
+
+      if (state.chosenClientTimeSet !== time) {
+        // We have a new chosen client, we need to stop
+        return;
+      }
+
+      if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
+        if (!commandInProgress) {
+          state.chosenClient
+            .getTimeline()
+            .then(() => {
+              commandInProgress = false;
+            })
+            .catch(() => {
+              commandInProgress = false;
+            });
+          commandInProgress = true;
+        }
+      } else {
+        state.chosenClient.getTimeline();
+      }
+
+      let interval = getters['settings/GET_CLIENTPOLLINTERVAL'];
+      if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+        interval = 500;
+      }
+      setTimeout(() => {
+        clientPoller(time);
+      }, interval);
+    }
+
+    // Check if we need to remove old handlers
+    if (state.chosenClient) {
+      state.chosenClient.events.removeAllListeners();
+    }
+
+    commit('SET_CHOSENCLIENT', client);
+    if (state.chosenClient && state.chosenClient.lastTimelineObject) {
+      state.chosenClient.lastTimelineObject.ratingKey = -1;
+    }
+    if (state.chosenClient == null) {
+      return;
+    }
+    state.chosenClientTimeSet = new Date().getTime();
+    clientPoller(state.chosenClientTimeSet);
+    state.chosenClient.getTimeline((timeline) => {});
+  },
+
+  TRIGGER_MANUAL_SYNC: ({ commit }) => {
+    commit('SET_MANUAL_SYNC_QUEUED', true);
+  },
 };
 
+const persistedState = createPersistedState({
+  paths: ['settings'],
+});
+
 const store = new Vuex.Store({
-  state,
+  state: initialState,
   mutations,
   actions,
   getters,
@@ -368,7 +421,9 @@ const store = new Vuex.Store({
     synclounge: syncLounge,
     plex,
     config,
+    settings,
   },
+  plugins: [persistedState],
 });
 
 export default store;
