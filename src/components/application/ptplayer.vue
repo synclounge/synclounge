@@ -215,8 +215,6 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import videoplayer from './ptplayer/videoplayer.vue';
 import messages from '@/components/messages.vue';
 
-import plexthumb from './plexbrowser/plexthumb.vue';
-
 const request = require('request');
 const parseXMLString = require('xml2js').parseString;
 
@@ -224,7 +222,6 @@ export default {
   name: 'ptplayer',
   components: {
     videoplayer,
-    plexthumb,
     messages,
   },
   mounted() {
@@ -315,7 +312,7 @@ export default {
           time: data.params.offset,
           soft: data.params.softSeek,
           callback: async (promise) => {
-            await promise.catch((e) => {
+            await promise.catch(() => {
               data.callback(false);
             });
             data.callback(true);
@@ -393,7 +390,7 @@ export default {
         'X-Plex-Token': baseparams['X-Plex-Token'],
       };
 
-      const query = encodeUrlParams(params);
+      const query = this.encodeUrlParams(params);
 
       const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${
         this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id
@@ -403,7 +400,7 @@ export default {
         method: 'PUT',
         url,
       };
-      request(options, (error, response, body) => {
+      request(options, (error) => {
         if (!error) {
           this.changedPlaying(false);
         }
@@ -432,7 +429,7 @@ export default {
         'X-Plex-Token': baseparams['X-Plex-Token'],
       };
 
-      const query = encodeUrlParams(params);
+      const query = this.encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${
         this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id
       }?${query}`;
@@ -441,7 +438,7 @@ export default {
         method: 'PUT',
         url,
       };
-      request(options, (error, response, body) => {
+      request(options, (error) => {
         if (!error) {
           this.changedPlaying(false);
         }
@@ -669,7 +666,6 @@ export default {
       return qualities.reverse();
     },
     stopPlayback() {
-      console.log('Stopped Playback');
       this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
       request(this.getSourceByLabel(this.GET_SLPLAYERQUALITY).stopUrl, () => {});
       this.playerstatus = 'stopped';
@@ -680,7 +676,6 @@ export default {
     changedPlaying(changeItem) {
       this.ready = false;
       this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
-      console.log('Changed what we are meant to be playing!', changeItem);
       if (!this.chosenKey || !this.chosenServer) {
         this.playerstatus = 'stopped';
         this.playerMetadata = null;
@@ -755,11 +750,10 @@ export default {
         this.getChosenClient.updateTimelineObject(playerdata);
       }
     },
-    playerSeekDone(data) {},
     generateTranscodeUrl(overrideparams) {
       const params = this.getBaseParams(overrideparams);
 
-      const query = encodeUrlParams(params);
+      const query = this.encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/start.m3u8?${query}`;
       // console.log(url)
       return url;
@@ -784,7 +778,7 @@ export default {
         }
       }
 
-      const query = encodeUrlParams(params);
+      const query = this.encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/stop?${query}`;
       // console.log(url)
       return url;
@@ -793,7 +787,7 @@ export default {
       // We need to tell the Plex Server to start transcoding
       const params = this.getBaseParams(overrideparams);
 
-      const query = encodeUrlParams(params);
+      const query = this.encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/decision?${query}`;
       return url;
     },

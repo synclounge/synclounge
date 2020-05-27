@@ -118,7 +118,7 @@ export default {
       'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
     };
 
-    const query = encodeUrlParams(params);
+    const query = this.encodeUrlParams(params);
     const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
     request(url, (error, response, body) => {
       if (!error) {
@@ -353,7 +353,7 @@ export default {
           'X-Plex-Session-Identifier': that.params['X-Plex-Session-Identifier'],
         };
 
-        const query = encodeUrlParams(params);
+        const query = this.encodeUrlParams(params);
         const url = `${that.server.chosenConnection.uri}/:/timeline?${query}`;
         request(url, (error, response, body) => {
           if (!error) {
