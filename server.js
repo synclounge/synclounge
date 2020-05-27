@@ -144,7 +144,7 @@ socketServer.on('connection', (socket) => {
       const foundUser = socketServer.sockets.adapter.rooms[room].users
         .find((user) => user.username === username);
 
-      if (typeof foundUser !== 'undefined') {
+      if (foundUser !== undefined) {
         // This is our user
         foundUser.time = userData.time;
         foundUser.maxTime = userData.maxTime;
@@ -176,7 +176,7 @@ socketServer.on('connection', (socket) => {
 
   function getValidUsername(usersarray, wantedname) {
     const userSameName = usersarray.find((user) => user.username === wantedname);
-    if (typeof userSameName === 'undefined') {
+    if (userSameName === undefined) {
       return wantedname;
     }
 
