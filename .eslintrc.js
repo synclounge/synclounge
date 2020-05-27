@@ -17,6 +17,7 @@ module.exports = {
         code: 100,
         ignoreComments: true,
         ignoreUrls: true,
+        ignoreStrings: true
       },
     ],
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
