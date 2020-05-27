@@ -133,7 +133,7 @@
             ></v-select>
           </v-card-text>
           <v-card-actions>
-            <v-btn class="blue--text darken-1" flat @click.native="dialog = false">Close</v-btn>
+            <v-btn class="blue--text darken-1" text @click.native="dialog = false">Close</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -207,6 +207,8 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { encodeUrlParams } from '@/utils/encoder';
+
 import videoplayer from './ptplayer/videoplayer.vue';
 import messages from '@/components/messages.vue';
 

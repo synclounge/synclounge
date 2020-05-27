@@ -29,13 +29,9 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex';
-
-
 import { encodeUrlParams } from '@/utils/encoder';
 
-
 const request = require('request');
-
 
 export default {
   props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],
