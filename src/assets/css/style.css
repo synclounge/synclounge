@@ -303,7 +303,7 @@ span {
   padding-top: 0;
 }
 
-.ptplayer .video-js {
+.ptplayer div.video-js {
   height: calc(100vh - 64px);
   padding-top: 0px;
 }
@@ -311,7 +311,7 @@ span {
 /* Make player 16x9 relative to viewport width on mobile */
 
 @media screen and (max-width: 1264px) {
-  .ptplayer .video-js {
+  .ptplayer div.video-js {
     height: calc(0.5625 * 100vw);
   }
 }
@@ -336,7 +336,7 @@ span {
   width: 5em
 }
 
-.ptplayer .video-js .vjs-volume-control {
+.ptplayer .video-js .vjs-volume-control.vjs-volume-horizontal {
   width: 10em;
 }
 
@@ -375,6 +375,10 @@ span {
   line-height: 3em
 }
 
+.ptplayer .video-js .vjs-icon-placeholder {
+  line-height: normal;
+}
+
 .ptplayer .video-js.vjs-fullscreen, .video-js.vjs-fullscreen .vjs-tech {
   width: 100% !important;
   height: 100% !important;
@@ -402,7 +406,7 @@ span {
   text-shadow: 0 0 1em #fff, 0 0 1em #fff, 0 0 1em #fff
 }
 
-.ptplayer .video-js .vjs-spacer, .video-js .vjs-time-control {
+.ptplayer .video-js .vjs-spacer, .ptplayer .video-js .vjs-time-control {
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
@@ -623,6 +627,19 @@ span {
 .vjs-fullscreen-control {
   position: absolute !important;
   right: 0px;
+}
+
+.hoverBar {
+  position: absolute;
+  background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),color-stop(60%,rgba(0,0,0,.35)),to(transparent));
+  background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent)
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.25s ease-out;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
 /* Scrollbar */

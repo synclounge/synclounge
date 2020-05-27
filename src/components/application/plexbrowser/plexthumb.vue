@@ -1,7 +1,18 @@
 <template>
-  <div class="portrait" ref="root" style="cursor: pointer" @mouseover="hovering = true" @mouseout="hovering = false">
+  <div
+    class="portrait"
+    ref="root"
+    style="cursor: pointer"
+    @mouseover="hovering = true"
+    @mouseout="hovering = false"
+  >
     <router-link :to="link">
-      <v-card  flat v-on:click.native="emitContentClicked(content)" class="grey darken-4 elevation-20" style="border-radius: 0px !important">
+      <v-card
+        flat
+        v-on:click.native="emitContentClicked(content)"
+        class="grey darken-4 elevation-20"
+        style="border-radius: 0px !important"
+      >
         <v-img
           data-tilt
           class="white--text"
@@ -12,15 +23,27 @@
           <v-container class="pa-0 ma-0" fill-height fluid style="position:relative">
             <v-layout>
               <v-flex xs12>
-                <small class="ma-1" v-if="showServer !== undefined" style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"> {{ server.name }}</small>
-                <div class="pt-content-unwatched pt-orange unwatched" v-if="showUnwatchedFlag && showServer == undefined">
+                <small
+                  class="ma-1"
+                  v-if="showServer !== undefined"
+                  style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"
+                >
+                  {{ server.name }}</small
+                >
+                <div
+                  class="pt-content-unwatched pt-orange unwatched"
+                  v-if="showUnwatchedFlag && showServer == undefined"
+                >
                   <span class="pa-2 black--text">
                     <span>
                       {{ unwatchedCount }}
                     </span>
                   </span>
                 </div>
-                <div style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)" v-if="content.Media && content.Media.length != 1 && showServer == undefined">
+                <div
+                  style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)"
+                  v-if="content.Media && content.Media.length != 1 && showServer == undefined"
+                >
                   <span class="pa-2 black--text">
                     <span>
                       {{ content.Media.length }}
@@ -30,7 +53,13 @@
                 <v-container fill-height fluid class="pa-0" style="max-width:100%">
                   <v-layout row wrap justify-end align-end>
                     <v-flex xs12>
-                      <v-progress-linear style="width:100%" class="pa-0 mb-0 ma-0 pt-content-progress" v-if="showProgressBar" height="1" :value="unwatchedPercent"></v-progress-linear>
+                      <v-progress-linear
+                        style="width:100%"
+                        class="pa-0 mb-0 ma-0 pt-content-progress"
+                        v-if="showProgressBar"
+                        height="1"
+                        :value="unwatchedPercent"
+                      ></v-progress-linear>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -52,6 +81,8 @@
 </template>
 
 <script>
+import VanillaTilt from 'vanilla-tilt';
+
 export default {
   props: [
     'library',
@@ -92,7 +123,7 @@ export default {
       this.bottomtextheight = this.$refs.bottomText.offsetHeight;
     }
     if (this.type === 'thumb') {
-      window.VanillaTilt.init(this.$refs.root, {
+      VanillaTilt.init(this.$refs.root, {
         reverse: true, // reverse the tilt direction
         max: 7, // max tilt rotation (degrees)
         perspective: 1000, // Transform perspective, the lower the more extreme the tilt gets.
@@ -116,7 +147,11 @@ export default {
       return this.$store.getters.getPlex;
     },
     serverId() {
-      return (this.$route.params.machineIdentifier || this.server.clientIdentifier || this.$route.params.clientIdentifier);
+      return (
+        this.$route.params.machineIdentifier ||
+        this.server.clientIdentifier ||
+        this.$route.params.clientIdentifier
+      );
     },
     link() {
       if (this.content.type === 'episode') {
@@ -125,58 +160,27 @@ export default {
         if (exists) {
           final = `${final}/${this.content.librarySectionID}`;
         }
-        final = `${final
-        }/tv/${
-          this.content.grandparentRatingKey
-        }/${
-          this.content.parentRatingKey
-        }/${
-          this.content.ratingKey}`;
+        final = `${final}/tv/${this.content.grandparentRatingKey}/${this.content.parentRatingKey}/${this.content.ratingKey}`;
         return final;
       }
       if (this.content.type === 'season') {
-        return `/browse/${
-          this.serverId
-        }/${
-          this.content.librarySectionID
-        }/tv/${
-          this.content.parentRatingKey
-        }/${
-          this.content.ratingKey}`;
+        return `/browse/${this.serverId}/${this.content.librarySectionID}/tv/${this.content.parentRatingKey}/${this.content.ratingKey}`;
       }
       if (this.content.type === 'series' || this.content.type === 'show') {
-        return `/browse/${
-          this.serverId
-        }/${
-          this.content.librarySectionID
-        }/tv/${
-          this.content.ratingKey}`;
+        return `/browse/${this.serverId}/${this.content.librarySectionID}/tv/${this.content.ratingKey}`;
       }
-      return (
-        `/browse/${
-          this.serverId
-        }/${
-          this.content.librarySectionID
-        }/${
-          this.content.ratingKey}`
-      );
+      return `/browse/${this.serverId}/${this.content.librarySectionID}/${this.content.ratingKey}`;
     },
     showUnwatchedFlag() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
-        if (
-          (!this.content.viewCount || this.content.viewCount === 0) &&
-          !this.showProgressBar
-        ) {
-          return true;
-        }
-        return false;
+        return (!this.content.viewCount || this.content.viewCount === 0) && !this.showProgressBar;
       }
+
       if (this.content.type === 'season' || this.content.type === 'show') {
-        if (this.content.leafCount !== this.content.viewedLeafCount) {
-          return true;
-        }
-        return false;
+        return this.content.leafCount !== this.content.viewedLeafCount;
       }
+
+      return false;
     },
     fontSizeTop() {
       let size = this.toptextheight * 0.7;
@@ -260,17 +264,17 @@ export default {
     },
     showProgressBar() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
-        if (this.content.viewOffset && this.content.viewOffset > 0) {
-          return true;
-        }
-        return false;
+        return this.content.viewOffset && this.content.viewOffset > 0;
       }
+
       if (this.content.type === 'season' || this.content.type === 'show') {
-        if (this.content.leafCount !== this.content.viewedLeafCount && this.content.viewedLeafCount !== 0) {
-          return true;
-        }
-        return false;
+        return (
+          this.content.leafCount !== this.content.viewedLeafCount &&
+          this.content.viewedLeafCount !== 0
+        );
       }
+
+      return false;
     },
     topTextStyle() {
       if (this.onlyBottom) {
@@ -295,11 +299,10 @@ export default {
     },
     unwatched() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
-        if (this.content.viewCount && this.content.viewCount > 0) {
-          return false;
-        }
-        return true;
+        return !(this.content.viewCount && this.content.viewCount > 0);
       }
+
+      return false;
     },
     unfinished() {
       // Lol
@@ -328,9 +331,9 @@ export default {
     },
     unwatchedPercent() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
-        return this.content.viewOffset / this.content.duration * 100;
+        return (this.content.viewOffset / this.content.duration) * 100;
       }
-      return this.content.viewedLeafCount / this.content.leafCount * 100;
+      return (this.content.viewedLeafCount / this.content.leafCount) * 100;
     },
   },
   methods: {
@@ -397,14 +400,7 @@ export default {
           if (this.fullTitle !== undefined) {
             return `Episode ${content.index}`;
           }
-          return (
-            ` S${
-              content.parentIndex
-            }E${
-              content.index
-            } - ${
-              content.title}`
-          );
+          return ` S${content.parentIndex}E${content.index} - ${content.title}`;
         default:
           return content.title;
       }
@@ -414,7 +410,11 @@ export default {
       if (this.type === 'thumb') {
         return this.server.getUrlForLibraryLoc(object.thumb, w, 1000);
       }
-      if (!this.hovering && this.hideThumb && (!this.content.viewCount || this.content.viewCount === 0)) {
+      if (
+        !this.hovering &&
+        this.hideThumb &&
+        (!this.content.viewCount || this.content.viewCount === 0)
+      ) {
         return this.server.getUrlForLibraryLoc(object.art, w, 1000);
       }
       if (this.img) {

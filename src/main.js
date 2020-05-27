@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
 import VueObserveVisibility from 'vue-observe-visibility';
-import VueVideoPlayer from 'vue-video-player';
+import VideojsPlayer from 'vue-videojs-player';
 import VueClipboard from 'vue-clipboard2';
 import VueCookies from 'vue-cookies';
 import moment from 'moment';
@@ -12,14 +12,13 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 
-// require('videojs-contrib-hls/dist/videojs-contrib-hls.js');
-// require('vanilla-tilt');
+require('vanilla-tilt');
 
 
 Vue.use(VueScrollTo);
 Vue.use(VueClipboard);
 Vue.use(VueObserveVisibility);
-Vue.use(VueVideoPlayer);
+Vue.use(VideojsPlayer);
 
 Vue.config.productionTip = false;
 
@@ -64,6 +63,11 @@ Vue.mixin({
     sinceNow(x) {
       const time = moment(x);
       return time.fromNow();
+    },
+    encodeUrlParams(params) {
+      return Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
     },
   },
   computed: {

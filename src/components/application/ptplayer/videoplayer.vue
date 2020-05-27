@@ -1,9 +1,8 @@
 <template>
   <div v-if="source && initReqSent">
-    <video-player
+    <videojs-player
       ref="videoPlayer"
       :options="playerOptions"
-
       @play="onPlayerPlay($event)"
       @pause="onPlayerPause($event)"
       @loadeddata="onPlayerLoadeddata($event)"
@@ -16,11 +15,12 @@
       @seeking="onPlayerSeeking($event)"
       @seeked="onPlayerSeeked($event)"
       @statechanged="playerStateChanged($event)"
-
+      @volumechange="volumeChange($event)"
+      @ready="playerReadied($event)"
       style="background-color:transparent !important;"
       class="ptplayer"
->
-    </video-player>
+    >
+    </videojs-player>
     <div class="center" v-if="!src">
       Waiting...
     </div>
@@ -33,9 +33,7 @@ const request = require('request');
 
 export default {
   props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],
-  created() {
-
-  },
+  created() {},
   data() {
     return {
       eventbus: window.EventBus,
@@ -120,9 +118,7 @@ export default {
       'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
     };
 
-    const query = Object.entries(params)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
+    const query = encodeUrlParams(params);
     const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
     request(url, (error, response, body) => {
       if (!error) {
@@ -131,10 +127,7 @@ export default {
     });
   },
   computed: {
-    ...mapGetters('settings', [
-      'GET_AUTOPLAY',
-      'GET_SLPLAYERVOLUME'
-    ]),
+    ...mapGetters('settings', ['GET_AUTOPLAY', 'GET_SLPLAYERVOLUME']),
     player() {
       if (this.$refs && this.$refs.videoPlayer) {
         return this.$refs.videoPlayer.player;
@@ -151,19 +144,12 @@ export default {
 
         fluid: true,
         preload: 'auto',
-        // TODO: this volume doesn't seem to do anything
-        volume: 1,
         aspectRatio: '16:9',
         autoplay: this.GET_AUTOPLAY,
         width: '100%',
         language: 'en',
 
-        bufferStart: 0,
-        bufferEnd: 0,
-
-        sources: [
-          this.source,
-        ],
+        sources: [this.source],
         controlBar: {
           children: {
             playToggle: {},
@@ -184,34 +170,26 @@ export default {
 
     metadataImage() {
       const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const h = Math.round(
+        Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
+      );
       return this.server.getUrlForLibraryLoc(this.metadata.thumb, w / 12, h / 4);
     },
-
   },
   methods: {
-    ...mapMutations('settings', [
-      'SET_SLPLAYERVOLUME'
-    ]),
+    ...mapMutations('settings', ['SET_SLPLAYERVOLUME']),
     // Player events
-    closingPlayer() {
-    },
-    onPlayerPlay(player) {
-    },
-    onPlayerPause(player) {
-    },
-    onPlayerLoaded(player) {
-    },
+    closingPlayer() {},
+    onPlayerPlay(player) {},
+    onPlayerPause(player) {},
+    onPlayerLoaded(player) {},
     onPlayerEnded(player) {
       this.$router.push('/browse');
       this.$emit('playbackEnded');
     },
-    onPlayerCanplay(player) {
-    },
-    onPlayerCanplaythrough(player) {
-    },
-    onPlayerTimeupdate(player) {
-    },
+    onPlayerCanplay(player) {},
+    onPlayerCanplaythrough(player) {},
+    onPlayerTimeupdate(player) {},
     seekMethod(data) {
       return new Promise((resolve, reject) => {
         const seekTo = data.time;
@@ -238,14 +216,24 @@ export default {
           return reject(new Error('Soft seek requested but not within buffered range'));
         }
 
-        if (((Math.abs(seekTo - this.lastTime) < 3000) && (!this.blockedSpeedChanges) && (this.$store.state.synclounge.lastHostTimeline.playerState === 'playing'))) {
+        if (
+          Math.abs(seekTo - this.lastTime) < 3000 &&
+          !this.blockedSpeedChanges &&
+          this.$store.state.synclounge.lastHostTimeline.playerState === 'playing'
+        ) {
           const oldSources = this.player.options_.sources;
           let cancelled = false;
           window.EventBus.$once('host-playerstate-change', () => {
             cancelled = true;
           });
           const clicker = setInterval(() => {
-            if (cancelled || !this.player || this.isPlaying === 'paused' || this.isPlaying === 'buffering' || oldSources !== this.player.options_.sources) {
+            if (
+              cancelled ||
+              !this.player ||
+              this.isPlaying === 'paused' ||
+              this.isPlaying === 'buffering' ||
+              oldSources !== this.player.options_.sources
+            ) {
               clearInterval(clicker);
               this.player.playbackRate(1.0);
               return reject(new Error('Slow seek was stop due to buffering or pausing'));
@@ -265,22 +253,25 @@ export default {
               reject(new Error('Failed to slow seek as the playback rate did not want to change'));
               return clearInterval(clicker);
             }
-            if (this.isPlaying === 'paused' || (lastPlayerTime === this.player.currentTime() * 1000)) {
+            if (
+              this.isPlaying === 'paused' ||
+              lastPlayerTime === this.player.currentTime() * 1000
+            ) {
               return;
             }
             lastPlayerTime = this.player.currentTime * 1000;
-            const slidingTime = seekTo + (25 * iterations);
+            const slidingTime = seekTo + 25 * iterations;
             const current = Math.round(this.player.currentTime() * 1000);
-            const difference = Math.abs(current - (slidingTime));
+            const difference = Math.abs(current - slidingTime);
             if (current < slidingTime) {
-            // Speed up
+              // Speed up
               playbackSpeed += 0.0001;
               if (this.player.playbackRate() < 1.02) {
                 this.player.playbackRate(playbackSpeed);
               }
             }
             if (current > slidingTime) {
-            // Slow down
+              // Slow down
               playbackSpeed -= 0.0001;
               if (this.player.playbackRate() > 0.98) {
                 this.player.playbackRate(playbackSpeed);
@@ -308,7 +299,7 @@ export default {
           this.player.currentTime(seekTo / 1000);
           let ticks = 0;
           const ticker = setInterval(() => {
-            if (!this.player || oldTime !== this.lastTime || (this.lastTime === (seekTo))) {
+            if (!this.player || oldTime !== this.lastTime || this.lastTime === seekTo) {
               clearInterval(ticker);
               return resolve('Directly seeked');
             }
@@ -343,7 +334,6 @@ export default {
         if (!that.player || !that.metadata) {
           return;
         }
-        let query = '';
         const params = {
           hasMDE: 1,
           ratingKey: that.metadata.ratingKey,
@@ -362,9 +352,8 @@ export default {
           'X-Plex-Token': that.params['X-Plex-Token'],
           'X-Plex-Session-Identifier': that.params['X-Plex-Session-Identifier'],
         };
-        for (const key in params) {
-          query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-        }
+
+        const query = encodeUrlParams(params);
         const url = `${that.server.chosenConnection.uri}/:/timeline?${query}`;
         request(url, (error, response, body) => {
           if (!error) {
@@ -379,10 +368,8 @@ export default {
       }, 10000);
       send();
     },
-    onPlayerPlaying(player) {
-    },
-    onPlayerWaiting(player) {
-    },
+    onPlayerPlaying(player) {},
+    onPlayerWaiting(player) {},
     onPlayerSeeking(player) {
       this.$emit('timelineUpdate', {
         time: this.player.currentTime() * 1000,
@@ -399,12 +386,10 @@ export default {
         duration: this.duration,
       });
     },
+    volumeChange(event) {
+      this.SET_SLPLAYERVOLUME(this.player.volume());
+    },
     playerStateChanged(playerCurrentState) {
-      // TODO: move this volume setting to an actual volume change event handler
-      if (this.player.volume() !== this.GET_SLPLAYERVOLUME) {
-        this.SET_SLPLAYERVOLUME(this.player.volume());
-      }
-
       this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000);
       this.duration = Math.round(this.player.duration() * 1000);
       this.bufferStart = Math.round(this.player.buffered().start(0) * 1000);
@@ -433,9 +418,8 @@ export default {
       this.player.volume(this.GET_SLPLAYERVOLUME);
       this.player.currentTime(this.initialOffset / 1000);
     },
-  }
+  },
 };
 </script>
 <style scoped>
-
 </style>

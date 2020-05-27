@@ -213,7 +213,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import videoplayer from './ptplayer/videoplayer.vue';
-import messages from '@/components/messages';
+import messages from '@/components/messages.vue';
 
 import plexthumb from './plexbrowser/plexthumb.vue';
 
@@ -392,10 +392,9 @@ export default {
         'X-Plex-Device-Screen-Resolution': baseparams['X-Plex-Device-Screen-Resolution'],
         'X-Plex-Token': baseparams['X-Plex-Token'],
       };
-      let query = '';
-      for (const key in params) {
-        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-      }
+
+      const query = encodeUrlParams(params);
+
       const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${
         this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id
       }?${query}`;
@@ -433,9 +432,7 @@ export default {
         'X-Plex-Token': baseparams['X-Plex-Token'],
       };
 
-      const query = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
+      const query = encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${
         this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id
       }?${query}`;
@@ -762,9 +759,7 @@ export default {
     generateTranscodeUrl(overrideparams) {
       const params = this.getBaseParams(overrideparams);
 
-      const query = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
+      const query = encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/start.m3u8?${query}`;
       // console.log(url)
       return url;
@@ -789,9 +784,7 @@ export default {
         }
       }
 
-      const query = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
+      const query = encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/stop?${query}`;
       // console.log(url)
       return url;
@@ -800,9 +793,7 @@ export default {
       // We need to tell the Plex Server to start transcoding
       const params = this.getBaseParams(overrideparams);
 
-      const query = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
+      const query = encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/decision?${query}`;
       return url;
     },
@@ -886,25 +877,4 @@ export default {
 </script>
 
 <style>
-.hoverBar {
-  position: absolute;
-  background: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(rgba(0, 0, 0, 0.8)),
-    color-stop(60%, rgba(0, 0, 0, 0.35)),
-    to(transparent)
-  );
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0.35) 60%, transparent);
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s ease-out;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
 </style>
