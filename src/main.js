@@ -64,11 +64,6 @@ Vue.mixin({
       const time = moment(x);
       return time.fromNow();
     },
-    encodeUrlParams(params) {
-      return Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
-    },
   },
   computed: {
     appVersion() {

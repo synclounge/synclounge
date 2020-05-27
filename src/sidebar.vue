@@ -51,10 +51,10 @@
                           color="primary"
                           :disabled="!canPause"
                           style="min-width: 0; float: right;"
-                          @click="sendPartyPauseLocal(playerState(host) === 'play_arrow')"
-                          v-if="playerState(host) !== 'stop'"
+                          @click="sendPartyPauseLocal(playerState(getHostUser) === 'play_arrow')"
+                          v-if="playerState(getHostUser) !== 'stop'"
                         >
-                          <v-icon v-if="playerState(host) === 'play_arrow'">pause</v-icon>
+                          <v-icon v-if="playerState(getHostUser) === 'play_arrow'">pause</v-icon>
                           <v-icon v-else>play_arrow</v-icon>
                         </v-btn>
                         <span
@@ -90,7 +90,7 @@
               style="background: linear-gradient(180deg,#1f1c2c,#182848)!important; border-radius: 7px"
               class="pa-1 ml-3 mr-3"
             >
-              <v-list-item avatar style="height:4em" class="pl-1 pr-1 mb-0" tag="div">
+              <v-list-item style="height:4em" class="pl-1 pr-1 mb-0" tag="div">
                 <v-list-item-avatar>
                   <img v-bind:src="getHostUser.avatarUrl" :style="getImgStyle(getHostUser)" />
                   <v-icon
@@ -139,7 +139,7 @@
             </v-card>
             <div v-for="user in getUsers" v-bind:key="user.username">
               <div class="pa-1 ml-3 mr-3" v-if="!isHost(user)">
-                <v-list-item avatar style="height:4em" class="pb-0 mb-0" tag="div">
+                <v-list-item style="height:4em" class="pb-0 mb-0" tag="div">
                   <v-list-item-avatar v-on:dblclick="transferHost(user.username)">
                     <img v-bind:src="user.avatarUrl" :style="getImgStyle(user)" />
                     <v-icon

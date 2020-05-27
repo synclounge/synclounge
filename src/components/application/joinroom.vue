@@ -40,7 +40,7 @@
           <v-subheader>Recent Rooms</v-subheader>
           <v-list class="pa-0">
             <template v-for="(item, index) in GET_RECENT_ROOMS.slice(0, 3)">
-              <v-list-item :key="index" avatar @click="recentConnect(item)">
+              <v-list-item :key="index" @click="recentConnect(item)">
                 <v-list-item-avatar>
                   <img :src="logos.light.small" style="width: 32px; height: auto" />
                 </v-list-item-avatar>
@@ -53,12 +53,7 @@
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-tooltip top color="light-blue darken-4">
-                    <v-icon
-                      color="white"
-                      dark
-                      slot="activator"
-                      @click.stop="REMOVE_RECENT_ROOM(item)"
-                      >close</v-icon
+                    <v-icon color="white" dark @click.stop="REMOVE_RECENT_ROOM(item)">close</v-icon>
                     >Remove
                   </v-tooltip>
                 </v-list-item-action>

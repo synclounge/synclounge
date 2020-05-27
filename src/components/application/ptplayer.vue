@@ -54,7 +54,6 @@
                 <div class="hidden-xs-only">
                   <v-tooltip bottom color="accent" v-if="GET_ME && GET_ME.role !== 'host'">
                     <v-icon
-                      slot="activator"
                       color="white"
                       class="clickable"
                       :disabled="GET_MANUAL_SYNC_QUEUED"
@@ -63,14 +62,10 @@
                     >
                     Manual Sync
                   </v-tooltip>
-                  <v-icon
-                    slot="activator"
-                    color="white"
-                    class="clickable pl-3"
-                    v-on:click="dialog = !dialog"
+                  <v-icon color="white" class="clickable pl-3" v-on:click="dialog = !dialog"
                     >settings</v-icon
                   >
-                  <router-link to="/browse" slot="activator">
+                  <router-link to="/browse">
                     <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()"
                       >close</v-icon
                     >
@@ -214,6 +209,7 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import videoplayer from './ptplayer/videoplayer.vue';
 import messages from '@/components/messages.vue';
+
 
 const request = require('request');
 const parseXMLString = require('xml2js').parseString;
@@ -390,7 +386,7 @@ export default {
         'X-Plex-Token': baseparams['X-Plex-Token'],
       };
 
-      const query = this.encodeUrlParams(params);
+      const query = encodeUrlParams(params);
 
       const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${
         this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id
@@ -429,7 +425,7 @@ export default {
         'X-Plex-Token': baseparams['X-Plex-Token'],
       };
 
-      const query = this.encodeUrlParams(params);
+      const query = encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/library/parts/${
         this.playingMetadata.Media[this.chosenMediaIndex].Part[0].id
       }?${query}`;
@@ -753,7 +749,7 @@ export default {
     generateTranscodeUrl(overrideparams) {
       const params = this.getBaseParams(overrideparams);
 
-      const query = this.encodeUrlParams(params);
+      const query = encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/start.m3u8?${query}`;
       // console.log(url)
       return url;
@@ -778,7 +774,7 @@ export default {
         }
       }
 
-      const query = this.encodeUrlParams(params);
+      const query = encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/stop?${query}`;
       // console.log(url)
       return url;
@@ -787,7 +783,7 @@ export default {
       // We need to tell the Plex Server to start transcoding
       const params = this.getBaseParams(overrideparams);
 
-      const query = this.encodeUrlParams(params);
+      const query = encodeUrlParams(params);
       const url = `${this.chosenServer.chosenConnection.uri}/video/:/transcode/universal/decision?${query}`;
       return url;
     },

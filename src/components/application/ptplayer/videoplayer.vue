@@ -29,7 +29,13 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex';
+
+
+import { encodeUrlParams } from '@/utils/encoder';
+
+
 const request = require('request');
+
 
 export default {
   props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],
@@ -118,9 +124,9 @@ export default {
       'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
     };
 
-    const query = this.encodeUrlParams(params);
+    const query = encodeUrlParams(params);
     const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
-    request(url, (error, response, body) => {
+    request(url, (error) => {
       if (!error) {
         // console.log('Succesfully sent Player status to PMS')
       }
@@ -132,6 +138,8 @@ export default {
       if (this.$refs && this.$refs.videoPlayer) {
         return this.$refs.videoPlayer.player;
       }
+
+      return null;
     },
 
     playerOptions() {
@@ -353,7 +361,7 @@ export default {
           'X-Plex-Session-Identifier': that.params['X-Plex-Session-Identifier'],
         };
 
-        const query = this.encodeUrlParams(params);
+        const query = encodeUrlParams(params);
         const url = `${that.server.chosenConnection.uri}/:/timeline?${query}`;
         request(url, (error, response, body) => {
           if (!error) {
