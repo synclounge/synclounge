@@ -307,7 +307,7 @@ export default {
               clearInterval(ticker);
               return resolve('Directly seeked');
             }
-            ticks++;
+            ticks += 1;
             if (ticks > 150) {
               clearInterval(ticker);
               return reject(new Error('Timed out'));
@@ -420,7 +420,7 @@ export default {
     },
     playerReadied(player) {
       this.player.volume(this.GET_SLPLAYERVOLUME);
-      this.player.currentTime(this.initialOffset / 1000);
+      this.player.currentTime(Math.round(this.initialOffset / 1000));
     },
   },
 };
