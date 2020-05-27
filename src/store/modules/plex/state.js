@@ -11,7 +11,7 @@ export default {
 
   chosenClient: null,
 
-  getRandomThumb: state => new Promise(async (resolve, reject) => {
+  getRandomThumb: (state) => new Promise(async (resolve, reject) => {
     const validServers = {};
     for (const id in state.servers) {
       const server = state.servers[id];

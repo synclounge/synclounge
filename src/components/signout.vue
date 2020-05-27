@@ -21,8 +21,8 @@ export default {
   },
   methods: {
     ...mapMutations('settings', [
-      'SET_PLEX_AUTH_TOKEN'
+      'SET_PLEX_AUTH_TOKEN',
     ]),
-  }
+  },
 };
 </script>

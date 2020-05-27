@@ -31,13 +31,13 @@ module.exports = function PlexServer() {
 
   this.commit = null;
 
-  this.setValue = function(key, value) {
+  this.setValue = function (key, value) {
     this[key] = value;
     this.commit('PLEX_SERVER_SET_VALUE', [this, key, value]);
   };
 
   // Functions
-  this.hitApi = function(command, params) {
+  this.hitApi = function (command, params) {
     return new Promise(async (resolve, reject) => {
       try {
         if (!this.chosenConnection) {
@@ -64,7 +64,7 @@ module.exports = function PlexServer() {
       }
     });
   };
-  this.hitApiTestConnection = async function(command, connection) {
+  this.hitApiTestConnection = async function (command, connection) {
     return new Promise(async (resolve, reject) => {
       const _url = connection.uri + command;
       const options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET');
@@ -82,10 +82,10 @@ module.exports = function PlexServer() {
       });
     });
   };
-  this.setChosenConnection = function(con) {
+  this.setChosenConnection = function (con) {
     this.chosenConnection = con;
   };
-  this.findConnection = function() {
+  this.findConnection = function () {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
@@ -120,7 +120,7 @@ module.exports = function PlexServer() {
   };
 
   // Functions for dealing with media
-  this.search = async function(searchTerm) {
+  this.search = async function (searchTerm) {
     // This function hits the PMS using the /search endpoint and returns what the server returns if valid
     return new Promise(async (resolve, reject) => {
       const result = await this.hitApi('/search', { query: searchTerm });
@@ -136,7 +136,7 @@ module.exports = function PlexServer() {
     });
   };
 
-  this.getMediaByRatingKey = async function(ratingKey) {
+  this.getMediaByRatingKey = async function (ratingKey) {
     // This function hits the PMS and returns the item at the ratingKey
     try {
       const data = await this.hitApi(`/library/metadata/${ratingKey}`, {});
@@ -155,18 +155,18 @@ module.exports = function PlexServer() {
     }
     // return this.handleMetadata(data)
   };
-  this.markWatchedByRatingKey = function(ratingKey) {
+  this.markWatchedByRatingKey = function (ratingKey) {
     return this.hitApi('/:/scrobble', {
       identifier: 'com.plexapp.plugins.library',
       key: ratingKey,
     });
   };
-  this.getPostplay = function(ratingKey) {
+  this.getPostplay = function (ratingKey) {
     return this.hitApi(`/hubs/metadata/${ratingKey}/postplay`, {
       'X-Plex-Token': this.accessToken,
     });
   };
-  this.getUrlForLibraryLoc = function(location, width, height, blur) {
+  this.getUrlForLibraryLoc = function (location, width, height, blur) {
     if (!(blur > 0)) {
       blur = 0;
     }
@@ -177,7 +177,7 @@ module.exports = function PlexServer() {
     }
     return '';
   };
-  this.getRandomItem = async function() {
+  this.getRandomItem = async function () {
     try {
       const data = await this.getAllLibraries();
       if (!data || !data.MediaContainer || !data.MediaContainer.Directory) {
@@ -197,7 +197,7 @@ module.exports = function PlexServer() {
       throw new Error(e);
     }
   };
-  this.getAllLibraries = async function() {
+  this.getAllLibraries = async function () {
     try {
       const data = await this.hitApi('/library/sections', {});
       if (data && data.MediaContainer) {
@@ -210,7 +210,7 @@ module.exports = function PlexServer() {
       return false;
     }
   };
-  this.getLibraryContents = async function(key, start, size) {
+  this.getLibraryContents = async function (key, start, size) {
     try {
       const data = await this.hitApi(`/library/sections/${key}/all`, {
         'X-Plex-Container-Start': start,
@@ -227,28 +227,28 @@ module.exports = function PlexServer() {
       return false;
     }
   };
-  this.getRelated = function(key, count) {
+  this.getRelated = function (key, count) {
     return this.hitApi(`/hubs/metadata/${key}/related`, {
       count: count || 10,
     });
   };
-  this.getRecentlyAddedAll = function(start, size) {
+  this.getRecentlyAddedAll = function (start, size) {
     return this.hitApi('/library/recentlyAdded', {});
   };
-  this.getOnDeck = function(start, size) {
+  this.getOnDeck = function (start, size) {
     return this.hitApi('/library/onDeck', {
       'X-Plex-Container-Start': start,
       'X-Plex-Container-Size': size,
     });
   };
-  this.getRelated = function(ratingKey, size) {
+  this.getRelated = function (ratingKey, size) {
     ratingKey = ratingKey.replace('/library/metadata/', '');
     return this.hitApi(`/hubs/metadata/${ratingKey}/related`, {
       excludeFields: 'summary',
       count: 12,
     });
   };
-  this.getSeriesData = function(ratingKey) {
+  this.getSeriesData = function (ratingKey) {
     return this.hitApi(`/library/metadata/${ratingKey}`, {
       includeConcerts: 1,
       includeExtras: 1,
@@ -260,7 +260,7 @@ module.exports = function PlexServer() {
     });
   };
 
-  this.getSeriesChildren = async function(ratingKey, start, size, excludeAllLeaves, library) {
+  this.getSeriesChildren = async function (ratingKey, start, size, excludeAllLeaves, library) {
     try {
       const data = await this.hitApi(`/library/metadata/${ratingKey}/children`, {
         'X-Plex-Container-Start': start,
@@ -280,13 +280,13 @@ module.exports = function PlexServer() {
     }
   };
 
-  this.handleMetadata = function(result) {
+  this.handleMetadata = function (result) {
     // This data is used in our router breadcrumbs
     if (result) {
       if (
-        result.MediaContainer &&
-        result.MediaContainer.Metadata &&
-        result.MediaContainer.Metadata.length > 0
+        result.MediaContainer
+        && result.MediaContainer.Metadata
+        && result.MediaContainer.Metadata.length > 0
       ) {
         for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
           result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier;

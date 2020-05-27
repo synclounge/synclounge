@@ -31,13 +31,13 @@ export default {
       return `${this.object.name} running ${this.object.product} on ${this.object.device}`;
     },
     connection_success() {
-      return  this.object.connectedstatus === 'connected';
+      return this.object.connectedstatus === 'connected';
     },
     connection_wait() {
       return this.object.connectedstatus === 'waiting';
     },
     connection_failed() {
-     return  this.object.connectedstatus === 'failed';
+      return this.object.connectedstatus === 'failed';
     },
     connection_fresh() {
       return this.object.connectedstatus === 'fresh';
@@ -56,8 +56,8 @@ export default {
     },
     platform() {
       return (
-        this.platformMap[this.object.platform.toLowerCase()] ||
-        this.platformMap[this.object.product.toLowerCase()]
+        this.platformMap[this.object.platform.toLowerCase()]
+        || this.platformMap[this.object.product.toLowerCase()]
       );
     },
     platformClass() {

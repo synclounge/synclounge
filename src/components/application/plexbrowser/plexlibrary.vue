@@ -127,7 +127,7 @@ export default {
       this.server.getLibraryContents(this.$route.params.sectionId, this.startingIndex, this.size).then((result) => {
         if (result && result.MediaContainer && result.MediaContainer.Metadata) {
           this.libraryTotalSize = result.MediaContainer.totalSize;
-          this.startingIndex = this.startingIndex + 100;
+          this.startingIndex += 100;
           if (this.contents) {
             for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
               const media = result.MediaContainer.Metadata[i];

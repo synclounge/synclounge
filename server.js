@@ -10,12 +10,11 @@
 const express = require('express');
 const cors = require('cors');
 
-const SettingsHelper = require('./SettingsHelper');
 
 const settings = new SettingsHelper();
 
 const root = express();
-root.options('*', cors()) // enable pre-flight across-the-board
+root.options('*', cors()); // enable pre-flight across-the-board
 root.use(cors({ credentials: false }));
 root.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', false);
@@ -57,15 +56,16 @@ const rootserver = require('http').createServer(root);
 const ptserver_io = require('socket.io')(rootserver, {
   path: `${serverRoot}/socket.io`,
   handlePreflightRequest: (req, res) => {
-    var headers = {
+    const headers = {
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Allow-Origin': req.headers.origin || '*',
-      'Access-Control-Allow-Credentials': true
+      'Access-Control-Allow-Credentials': true,
     };
     res.writeHead(200, headers);
     res.end();
-  }
+  },
 });
+const SettingsHelper = require('./SettingsHelper');
 
 ptserver_io.on('connection', (socket) => {
   console.log('Someone connected to the SyncLounge server socket');
@@ -236,7 +236,7 @@ ptserver_io.on('connection', (socket) => {
       socket.emit('rejoin');
       return;
     }
-    transferHost(socket.selfUser, user => user.username === data.username);
+    transferHost(socket.selfUser, (user) => user.username === data.username);
   });
   socket.on('connect_timeout', () => {
     // console.log('timeout')
@@ -250,7 +250,7 @@ ptserver_io.on('connection', (socket) => {
       return;
     }
     // console.log('User left: ' + socket.selfUser.username)
-    transferHost(socket.selfUser, user => user !== socket.selfUser);
+    transferHost(socket.selfUser, (user) => user !== socket.selfUser);
     removeUser(socket.selfUser.room, socket.selfUser.username);
     if (ptserver_io.sockets.adapter.rooms[socket.selfUser.room]) {
       socket.broadcast.to(socket.selfUser.room).emit('user-left', ptserver_io.sockets.adapter.rooms[socket.selfUser.room].users, socket.selfUser);
@@ -365,4 +365,3 @@ ptserver_io.on('connection', (socket) => {
 rootserver.listen(PORT);
 console.log(`SyncLounge Server successfully started on port ${PORT}`);
 console.log(`Running with base URL: ${serverRoot}`);
-

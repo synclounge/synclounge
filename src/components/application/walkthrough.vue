@@ -236,8 +236,8 @@ export default {
         return;
       }
       return (
-        this.platformMap[this.testClient.platform.toLowerCase()] ||
-        this.platformMap[this.testClient.product.toLowerCase()]
+        this.platformMap[this.testClient.platform.toLowerCase()]
+        || this.platformMap[this.testClient.product.toLowerCase()]
       );
     },
     platformClass() {

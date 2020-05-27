@@ -221,9 +221,9 @@ export default {
         }
 
         if (
-          Math.abs(seekTo - this.lastTime) < 3000 &&
-          !this.blockedSpeedChanges &&
-          this.$store.state.synclounge.lastHostTimeline.playerState === 'playing'
+          Math.abs(seekTo - this.lastTime) < 3000
+          && !this.blockedSpeedChanges
+          && this.$store.state.synclounge.lastHostTimeline.playerState === 'playing'
         ) {
           const oldSources = this.player.options_.sources;
           let cancelled = false;
@@ -232,11 +232,11 @@ export default {
           });
           const clicker = setInterval(() => {
             if (
-              cancelled ||
-              !this.player ||
-              this.isPlaying === 'paused' ||
-              this.isPlaying === 'buffering' ||
-              oldSources !== this.player.options_.sources
+              cancelled
+              || !this.player
+              || this.isPlaying === 'paused'
+              || this.isPlaying === 'buffering'
+              || oldSources !== this.player.options_.sources
             ) {
               clearInterval(clicker);
               this.player.playbackRate(1.0);
@@ -258,8 +258,8 @@ export default {
               return clearInterval(clicker);
             }
             if (
-              this.isPlaying === 'paused' ||
-              lastPlayerTime === this.player.currentTime() * 1000
+              this.isPlaying === 'paused'
+              || lastPlayerTime === this.player.currentTime() * 1000
             ) {
               return;
             }

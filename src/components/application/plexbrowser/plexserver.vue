@@ -58,9 +58,9 @@
 </template>
 
 <script>
+const _ = require('lodash');
 const plexthumb = require('./plexthumb.vue');
 
-const _ = require('lodash');
 
 export default {
   components: {
@@ -131,10 +131,10 @@ export default {
       return this.$store.getters.getPlex;
     },
     filteredLibraries() {
-      let data = [];
+      const data = [];
       if (this.libraries) {
         this.libraries.MediaContainer.Directory.forEach((library) => {
-          if(library.type != 'artist' || library.agent != 'tv.plex.agents.music') {
+          if (library.type != 'artist' || library.agent != 'tv.plex.agents.music') {
             data.push(library);
           }
         });
@@ -193,7 +193,7 @@ export default {
       if (this.onDeckOffset - this.onDeckItemsPer < 0) {
         this.onDeckOffset = 0;
       } else {
-        this.onDeckOffset = this.onDeckOffset - 4;
+        this.onDeckOffset -= 4;
       }
     },
     onDeckUp() {
@@ -203,7 +203,7 @@ export default {
       if (this.onDeckOffset + this.onDeckItemsPer >= this.onDeck.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
-        this.onDeckOffset = this.onDeckOffset + this.onDeckItemsPer;
+        this.onDeckOffset += this.onDeckItemsPer;
       }
     },
     recentlyAddedUp() {
@@ -213,7 +213,7 @@ export default {
       if (this.recentlyAddedOffset + this.recentItemsPer >= this.recentlyAdded.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
-        this.recentlyAddedOffset = this.recentlyAddedOffset + this.recentItemsPer;
+        this.recentlyAddedOffset += this.recentItemsPer;
       }
     },
     recentlyAddedDown() {
@@ -223,7 +223,7 @@ export default {
       if (this.recentlyAddedOffset - this.recentItemsPer < 0) {
         this.recentlyAddedOffset = 0;
       } else {
-        this.recentlyAddedOffset = this.recentlyAddedOffset - this.recentItemsPer;
+        this.recentlyAddedOffset -= this.recentItemsPer;
       }
     },
     setBackground() {

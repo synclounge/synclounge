@@ -183,10 +183,10 @@ export default {
     },
     showMetadata() {
       return (
-        !this.isPTPlayer &&
-        !this.showBrowser &&
-        this.chosenClient &&
-        this.chosenClient.clientPlayingMetadata
+        !this.isPTPlayer
+        && !this.showBrowser
+        && this.chosenClient
+        && this.chosenClient.clientPlayingMetadata
       );
     },
     ptConnected() {

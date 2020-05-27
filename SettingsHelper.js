@@ -143,7 +143,7 @@ const parseSetting = (value, setting) => {
     // If setting is array. (Have to treat arrays differently since typeof array is 'object')
     if (Array.isArray(value)) {
       return value;
-    } else if (typeof value === 'string') {
+    } if (typeof value === 'string') {
       // If setting is string, we have a chance to parse it and it might become an array
       try {
         const parsed = JSON.parse(value);
@@ -159,7 +159,7 @@ const parseSetting = (value, setting) => {
     // If setting is not array
     if (typeof value === setting.type) {
       return value;
-    } else if (typeof value === 'string') {
+    } if (typeof value === 'string') {
       // If setting is string, we have a chance to parse it and it might become an array
       try {
         const parsed = JSON.parse(value);
@@ -210,8 +210,8 @@ module.exports = {
 
       // Remove trailing slashes, if they exist
       if (
-        (setting.local == 'webroot' || setting.local == 'accessUrl') &&
-        output[setting.local].endsWith('/')
+        (setting.local == 'webroot' || setting.local == 'accessUrl')
+        && output[setting.local].endsWith('/')
       ) {
         console.log(
           `${setting.local}/${setting.env} should not end in '/'. Removing trailing slash(es) for you.`,
@@ -221,9 +221,9 @@ module.exports = {
       }
       // Add leading slash, if not provided
       if (
-        setting.local == 'webroot' &&
-        output[setting.local].length > 1 &&
-        !output[setting.local].startsWith('/')
+        setting.local == 'webroot'
+        && output[setting.local].length > 1
+        && !output[setting.local].startsWith('/')
       ) {
         console.log(
           `${setting.local}/${setting.env} should always start with '/'. Adding the leading slash for you.`,
@@ -234,8 +234,8 @@ module.exports = {
       }
       // Make sure 'webroot' and 'serverroot' aren't set to '/'. Revert to default if they do.
       if (
-        (setting.local == 'webroot' || setting.local == 'serverroot') &&
-        output[setting.local] == '/'
+        (setting.local == 'webroot' || setting.local == 'serverroot')
+        && output[setting.local] == '/'
       ) {
         console.log(
           `${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${setting.default}'`,
@@ -243,10 +243,9 @@ module.exports = {
         output[setting.local] = setting.default;
         console.log('- Done.');
       }
-      process.env[setting.env] =
-        typeof output[setting.local] === 'object'
-          ? JSON.stringify(output[setting.local])
-          : output[setting.local];
+      process.env[setting.env] = typeof output[setting.local] === 'object'
+        ? JSON.stringify(output[setting.local])
+        : output[setting.local];
     }
 
     // console.log('Our settings are', output)

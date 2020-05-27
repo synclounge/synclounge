@@ -522,9 +522,9 @@ export default {
 
     subsetParentData(size) {
       if (
-        !this.parentData ||
-        !this.parentData.MediaContainer ||
-        !this.parentData.MediaContainer.Metadata
+        !this.parentData
+        || !this.parentData.MediaContainer
+        || !this.parentData.MediaContainer.Metadata
       ) {
         return [];
       }
@@ -539,7 +539,7 @@ export default {
       });
     },
     async playMedia(content, mediaIndex) {
-      const callback = function() {};
+      const callback = function () {};
       let offset = 0;
       if (this.resumeFrom) {
         offset = this.contents.viewOffset;

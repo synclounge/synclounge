@@ -149,7 +149,9 @@ const actions = {
     });
   },
 
-  joinRoom({ state, commit, dispatch, rootState, rootGetters }, data) {
+  joinRoom({
+    state, commit, dispatch, rootState, rootGetters,
+  }, data) {
     return new Promise(async (resolve) => {
       if (!state.socket || !state.connected) {
         throw new Error('Not connected to a server!');
@@ -160,7 +162,7 @@ const actions = {
       console.log('Joining room', data.roomName);
       data.password = data.password || '';
       commit('SET_PASSWORD', data.password);
-      let username = data.user.username;
+      let { username } = data.user;
 
       if (rootGetters['settings/GET_HIDEUSERNAME']) {
         username = rootGetters['settings/GET_ALTUSERNAME'];
@@ -283,8 +285,8 @@ const actions = {
             data.recievedAt = new Date().getTime();
             const hostTimeline = data;
             if (
-              !state.lastHostTimeline ||
-              state.lastHostTimeline.playerState !== data.playerState
+              !state.lastHostTimeline
+              || state.lastHostTimeline.playerState !== data.playerState
             ) {
               window.EventBus.$emit('host-playerstate-change');
             }
@@ -300,8 +302,8 @@ const actions = {
                   return resolve();
                 }
                 if (
-                  (hostTimeline.playerState === 'stopped' || !hostTimeline.playerState) &&
-                  ourTimeline.state !== 'stopped'
+                  (hostTimeline.playerState === 'stopped' || !hostTimeline.playerState)
+                  && ourTimeline.state !== 'stopped'
                 ) {
                   sendNotification('The host pressed stop');
                   await rootState.chosenClient.pressStop();
@@ -313,9 +315,9 @@ const actions = {
                 }
                 // Check if we need to autoplay
                 if (
-                  ((ourTimeline.state === 'stopped' || !ourTimeline.state) &&
-                    hostTimeline.playerState !== 'stopped') ||
-                  state.rawTitle !== hostTimeline.rawTitle
+                  ((ourTimeline.state === 'stopped' || !ourTimeline.state)
+                    && hostTimeline.playerState !== 'stopped')
+                  || state.rawTitle !== hostTimeline.rawTitle
                 ) {
                   if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
                     return resolve();
@@ -326,7 +328,7 @@ const actions = {
                   }
                   commit('SET_BLOCK_AUTOPLAY', true, { root: true });
 
-                  const servers = Object.assign({}, rootState.plex.servers);
+                  const servers = { ...rootState.plex.servers };
                   rootGetters['settings/GET_BLOCKEDSERVERS'].forEach((id) => {
                     if (rootState.plex.servers[id]) {
                       delete servers[id];

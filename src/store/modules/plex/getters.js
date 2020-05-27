@@ -1,6 +1,6 @@
 export default {
-  getItemCache: state => state.itemCache,
-  getLibraryCache: state => state.libraryCache,
+  getItemCache: (state) => state.itemCache,
+  getLibraryCache: (state) => state.libraryCache,
   recentClients: (state) => {
     let clients = [];
     for (const client in state.clients) clients.push(state.clients[client]);

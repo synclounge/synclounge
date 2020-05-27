@@ -148,9 +148,9 @@ export default {
     },
     serverId() {
       return (
-        this.$route.params.machineIdentifier ||
-        this.server.clientIdentifier ||
-        this.$route.params.clientIdentifier
+        this.$route.params.machineIdentifier
+        || this.server.clientIdentifier
+        || this.$route.params.clientIdentifier
       );
     },
     link() {
@@ -269,8 +269,8 @@ export default {
 
       if (this.content.type === 'season' || this.content.type === 'show') {
         return (
-          this.content.leafCount !== this.content.viewedLeafCount &&
-          this.content.viewedLeafCount !== 0
+          this.content.leafCount !== this.content.viewedLeafCount
+          && this.content.viewedLeafCount !== 0
         );
       }
 
@@ -411,9 +411,9 @@ export default {
         return this.server.getUrlForLibraryLoc(object.thumb, w, 1000);
       }
       if (
-        !this.hovering &&
-        this.hideThumb &&
-        (!this.content.viewCount || this.content.viewCount === 0)
+        !this.hovering
+        && this.hideThumb
+        && (!this.content.viewCount || this.content.viewCount === 0)
       ) {
         return this.server.getUrlForLibraryLoc(object.art, w, 1000);
       }

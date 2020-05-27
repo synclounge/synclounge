@@ -64,7 +64,7 @@ export default {
   },
   computed: {
     ...mapGetters('settings', [
-      'GET_PLEX_AUTH_TOKEN'
+      'GET_PLEX_AUTH_TOKEN',
     ]),
     logo() {
       return this.$store.getters.logos.light.short;

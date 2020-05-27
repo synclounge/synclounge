@@ -209,8 +209,8 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { encodeUrlParams } from '@/utils/encoder';
 
-import videoplayer from './ptplayer/videoplayer.vue';
 import messages from '@/components/messages.vue';
+import videoplayer from './ptplayer/videoplayer.vue';
 
 
 const request = require('request');
@@ -226,7 +226,7 @@ export default {
     // Check if we have params
     if (this.$route.query.start) {
       // We need to auto play
-      const query = this.$route.query;
+      const { query } = this.$route;
       this.chosenKey = query.key.replace('/library/metadata/', '');
       this.chosenMediaIndex = query.mediaIndex || 0;
       this.chosenServer = this.getPlex.servers[query.chosenServer];
@@ -619,7 +619,7 @@ export default {
     },
     generateSources() {
       const that = this;
-      const QualityTemplate = function(label, resolution, bitrate, videoQuality) {
+      const QualityTemplate = function (label, resolution, bitrate, videoQuality) {
         const session = that.generateGuid();
         this.label = label;
         this.initUrl = that.makeTranscodeSessionUrl({
@@ -723,8 +723,8 @@ export default {
       this.playerduration = data.duration;
 
       if (
-        this.lastSentTimeline.state !== data.status ||
-        this.chosenKey !== this.lastSentTimeline.key
+        this.lastSentTimeline.state !== data.status
+        || this.chosenKey !== this.lastSentTimeline.key
       ) {
         const key = this.chosenKey;
         let ratingKey = null;

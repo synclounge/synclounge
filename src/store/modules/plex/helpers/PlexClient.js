@@ -205,7 +205,7 @@ module.exports = function PlexClient() {
   };
   this.seekTo = function (time, params) {
     // Seek to a time (in ms)
-    return this.hitApi('/player/playback/seekTo', Object.assign({ wait: 0, offset: Math.round(time) }, params));
+    return this.hitApi('/player/playback/seekTo', { wait: 0, offset: Math.round(time), ...params });
   };
   this.waitForMovement = function (startTime) {
     return new Promise((resolve, reject) => {
@@ -411,7 +411,7 @@ module.exports = function PlexClient() {
       for (const i in servers) {
         serversArr.push(servers[i]);
       }
-      await Promise.all(serversArr.map(async server => new Promise(async (resolve, reject) => {
+      await Promise.all(serversArr.map(async (server) => new Promise(async (resolve, reject) => {
         if (!server.chosenConnection) {
           return resolve();
         }
@@ -434,8 +434,8 @@ module.exports = function PlexClient() {
         if (playables.length === 0 || index === playables.length) {
           return reject(new Error('Didnt find any playable items'));
         }
-        const server = playables[index].server;
-        const ratingKey = playables[index].result.ratingKey;
+        const { server } = playables[index];
+        const { ratingKey } = playables[index].result;
         const data = {
           ratingKey,
           mediaIndex: null,
@@ -485,7 +485,7 @@ module.exports = function PlexClient() {
       }
     });
   };
-  const wait = ms => new Promise((resolve, reject) => {
+  const wait = (ms) => new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(ms);
     }, ms);

@@ -137,7 +137,7 @@ module.exports = function () {
         if (failures === 10) {
           return callback(false);
         }
-        const validServers = this.servers.filter(server => server.chosenConnection);
+        const validServers = this.servers.filter((server) => server.chosenConnection);
         if (validServers.length > 1) {
           const randomServer = validServers[Math.floor(Math.random() * validServers.length)];
           randomServer.getRandomItem((result) => {
@@ -212,8 +212,8 @@ module.exports = function () {
       if (playables.length == 0) {
         return callback(false);
       }
-      const server = playables[index].server;
-      const ratingKey = playables[index].result.ratingKey;
+      const { server } = playables[index];
+      const { ratingKey } = playables[index].result;
       const data = {
         ratingKey,
         mediaIndex: null,

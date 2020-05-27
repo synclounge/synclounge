@@ -186,21 +186,21 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import plexthumb from "./plexbrowser/plexthumb.vue";
+import { mapGetters, mapActions } from 'vuex';
+import plexthumb from './plexbrowser/plexthumb.vue';
 
-const _ = require("lodash");
+const _ = require('lodash');
 
 export default {
   components: {
-    plexthumb
+    plexthumb,
   },
-  name: "plexbrowser",
+  name: 'plexbrowser',
   mounted() {
     this.updateOnDeck();
   },
   methods: {
-    ...mapActions(["PLEX_GET_DEVICES"]),
+    ...mapActions(['PLEX_GET_DEVICES']),
     setContent(content) {
       this.selectedItem = content;
     },
@@ -209,8 +209,8 @@ export default {
     },
     isConnectable(server) {
       return (
-        this.getPlex.servers[server.clientIdentifier] &&
-        this.getPlex.servers[server.clientIdentifier].chosenConnection
+        this.getPlex.servers[server.clientIdentifier]
+        && this.getPlex.servers[server.clientIdentifier].chosenConnection
       );
     },
     async updateOnDeck() {
@@ -220,15 +220,15 @@ export default {
     },
     subsetOnDeck(size) {
       if (
-        !this.onDeck ||
-        !this.onDeck.MediaContainer ||
-        !this.onDeck.MediaContainer.Metadata
+        !this.onDeck
+        || !this.onDeck.MediaContainer
+        || !this.onDeck.MediaContainer.Metadata
       ) {
         return [];
       }
       return this.onDeck.MediaContainer.Metadata.slice(
         this.onDeckOffset,
-        this.onDeckOffset + this.onDeckItemsPer
+        this.onDeckOffset + this.onDeckItemsPer,
       );
     },
     reset() {
@@ -236,42 +236,42 @@ export default {
       this.browsingServer = false;
       this.selectedItem = false;
       this.results = [];
-      this.searchWord = "";
+      this.searchWord = '';
       this.searching = false;
       this.setBackground();
       // this.$store.commit('SET_BACKGROUND',null)
     },
     onDeckDown() {
       if (
-        !this.onDeck ||
-        !this.onDeck.MediaContainer ||
-        !this.onDeck.MediaContainer.Metadata
+        !this.onDeck
+        || !this.onDeck.MediaContainer
+        || !this.onDeck.MediaContainer.Metadata
       ) {
         return false;
       }
       if (this.onDeckOffset - 4 < 0) {
         this.onDeckOffset = 0;
       } else {
-        this.onDeckOffset = this.onDeckOffset - 4;
+        this.onDeckOffset -= 4;
       }
     },
     onDeckUp() {
       if (
-        !this.onDeck ||
-        !this.onDeck.MediaContainer ||
-        !this.onDeck.MediaContainer.Metadata
+        !this.onDeck
+        || !this.onDeck.MediaContainer
+        || !this.onDeck.MediaContainer.Metadata
       ) {
         return false;
       }
       if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
-        this.onDeckOffset = this.onDeckOffset + 4;
+        this.onDeckOffset += 4;
       }
     },
     ownerOfServer(server) {
-      if (server.owned === "1") {
-        return "you";
+      if (server.owned === '1') {
+        return 'you';
       }
       return server.sourceTitle;
     },
@@ -281,19 +281,19 @@ export default {
     },
     getThumb(object) {
       const w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+        Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
       );
       const h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+        Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
       );
       return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4);
     },
     getArt(object) {
       const w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+        Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
       );
       const h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+        Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
       );
       return object.server.getUrlForLibraryLoc(object.art, w / 4, h / 4);
     },
@@ -312,10 +312,10 @@ export default {
       }
       return false;
     },
-    searchAllServers: _.debounce(function() {
-      if (this.searchWord === "") {
+    searchAllServers: _.debounce(function () {
+      if (this.searchWord === '') {
         this.results = [];
-        this.searchStatus = "Search your available Plex Media Servers";
+        this.searchStatus = 'Search your available Plex Media Servers';
         return;
       }
       this.searching = true;
@@ -324,7 +324,7 @@ export default {
       const storedWord = this.searchWord;
       for (const i in this.getPlex.servers) {
         const server = this.getPlex.servers[i];
-        server.search(this.searchWord).then(serverSearchResults => {
+        server.search(this.searchWord).then((serverSearchResults) => {
           if (storedWord !== this.searchWord) {
             // Old data
             return;
@@ -345,7 +345,7 @@ export default {
           }
         });
       }
-    }, 1000)
+    }, 1000),
   },
   data() {
     return {
@@ -356,40 +356,40 @@ export default {
       results: [],
       onDeckOffset: 0,
       onDeck: null,
-      searchWord: "",
-      searchStatus: "Search your available Plex Media Servers",
+      searchWord: '',
+      searchStatus: 'Search your available Plex Media Servers',
       searching: false,
-      serversHeardBack: []
+      serversHeardBack: [],
     };
   },
   watch: {
     searchWord() {
-      if (this.searchWord === "") {
+      if (this.searchWord === '') {
         this.results = [];
-        this.searchStatus = "Search your available Plex Media Servers";
+        this.searchStatus = 'Search your available Plex Media Servers';
         return;
       }
       this.searchAllServers();
-    }
+    },
   },
   computed: {
     ...mapGetters(['GET_LASTSERVER', 'getPlex']),
     onDeckItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
-        case "xs":
+        case 'xs':
           return 1;
-        case "sm":
+        case 'sm':
           return 2;
-        case "md":
+        case 'md':
           return 4;
-        case "lg":
+        case 'lg':
           return 4;
-        case "xl":
+        case 'xl':
           return 4;
       }
     },
     availableServers() {
-      const servers = this.getPlex.servers.filter(server => {
+      const servers = this.getPlex.servers.filter((server) => {
         if (server.chosenConnection) {
           return true;
         }
@@ -400,61 +400,61 @@ export default {
     onDeckUpStyle() {
       if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length) {
         return {
-          opacity: 0.5
+          opacity: 0.5,
         };
       }
     },
     onDeckDownStyle() {
       if (this.onDeckOffset === 0) {
         return {
-          opacity: 0.5
+          opacity: 0.5,
         };
       }
     },
     filteredShows() {
-      return this.results.filter(item => {
+      return this.results.filter((item) => {
         if (!item) {
           return false;
         }
-        if (item.type === "show") {
+        if (item.type === 'show') {
           return true;
         }
         return false;
       });
     },
     filteredEpisodes() {
-      return this.results.filter(item => {
+      return this.results.filter((item) => {
         if (!item) {
           return false;
         }
-        if (item.type === "episode") {
+        if (item.type === 'episode') {
           return true;
         }
         return false;
       });
     },
     filteredMovies() {
-      return this.results.filter(item => {
+      return this.results.filter((item) => {
         if (!item) {
           return false;
         }
-        if (item.type === "movie") {
+        if (item.type === 'movie') {
           return true;
         }
         return false;
       });
     },
     filteredSeasons() {
-      return this.results.filter(item => {
+      return this.results.filter((item) => {
         if (!item) {
           return false;
         }
-        if (item.type === "series") {
+        if (item.type === 'series') {
           return true;
         }
         return false;
       });
-    }
-  }
+    },
+  },
 };
 </script>

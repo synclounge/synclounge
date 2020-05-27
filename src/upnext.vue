@@ -85,7 +85,7 @@ export default {
       this.sheet = true;
       const ticker = setInterval(() => {
         console.log('tick');
-        this.timer = this.timer - 30;
+        this.timer -= 30;
         if (this.timer < 1) {
           if (this.sheet) {
             this.pressPlay(data.item);

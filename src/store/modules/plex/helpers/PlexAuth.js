@@ -30,8 +30,8 @@ module.exports = function PlexAuth() {
    * @returns {{url: *, time: boolean, headers: {X-Plex-Device-Name: string, X-Plex-Client-Identifier: string, X-Plex-Provides: string, X-Plex-Target-Client-Identifier: *}, timeout: *, method: string}}
    */
   this.getClientApiOptions = function (url, clientIdentifier, uuid, timeout, token) {
-    let sBrowser,
-      sUsrAg = navigator.userAgent;
+    let sBrowser;
+    const sUsrAg = navigator.userAgent;
     if (sUsrAg.indexOf('Chrome') > -1) {
       sBrowser = 'Chrome';
     } else if (sUsrAg.indexOf('Safari') > -1) {

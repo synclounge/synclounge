@@ -17,54 +17,53 @@ const settings = readSettings();
 
 let PORT = 8088;
 
-const bootstrap = () =>
-  new Promise(async (resolve, reject) => {
-    if (!settings.accessUrl) {
-      console.log(
-        'Missing required argument `accessUrl`. This URL is used for redirecting invite links. See documentation for how to set this',
-      );
-      return reject(new Error('Missing URL for invite links'));
-    }
-    if (!settings.webapp_port) {
-      console.log('Defaulting webapp to port 8088');
-    } else {
-      PORT = settings.webapp_port;
-    }
-    PORT = parseInt(PORT, 10);
-    const baseSettings = require('./waterline_settings.json');
-    // console.log('Basesettings', baseSettings);
-    baseSettings.waterline.adapters = {
-      'waterline-mysql': WaterlineMysql,
-      'sails-disk': SailsDisk,
+const bootstrap = () => new Promise(async (resolve, reject) => {
+  if (!settings.accessUrl) {
+    console.log(
+      'Missing required argument `accessUrl`. This URL is used for redirecting invite links. See documentation for how to set this',
+    );
+    return reject(new Error('Missing URL for invite links'));
+  }
+  if (!settings.webapp_port) {
+    console.log('Defaulting webapp to port 8088');
+  } else {
+    PORT = settings.webapp_port;
+  }
+  PORT = parseInt(PORT, 10);
+  const baseSettings = require('./waterline_settings.json');
+  // console.log('Basesettings', baseSettings);
+  baseSettings.waterline.adapters = {
+    'waterline-mysql': WaterlineMysql,
+    'sails-disk': SailsDisk,
+  };
+  baseSettings.waterline.datastores = baseSettings.database.datastores;
+  baseSettings.waterline.models.invite.beforeCreate = async (data, cb) => {
+    console.log('Creating Invite', data);
+    const params = {
+      server: data.server,
+      room: data.room,
+      owner: data.owner,
     };
-    baseSettings.waterline.datastores = baseSettings.database.datastores;
-    baseSettings.waterline.models.invite.beforeCreate = async (data, cb) => {
-      console.log('Creating Invite', data);
-      const params = {
-        server: data.server,
-        room: data.room,
-        owner: data.owner,
-      };
-      if (data.password) {
-        params.password = data.password;
-      }
+    if (data.password) {
+      params.password = data.password;
+    }
 
-      const query = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${value}`)
-        .join('&');
+    const query = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${value}`)
+      .join('&');
 
-      const fullUrl = `${settings.accessUrl}/#/join?${query}`;
-      data.fullUrl = fullUrl;
-      data.code = (0 | (Math.random() * 9e6)).toString(36);
-      cb();
-    };
-    Waterline.start(baseSettings.waterline, (err, orm) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(orm);
-    });
+    const fullUrl = `${settings.accessUrl}/#/join?${query}`;
+    data.fullUrl = fullUrl;
+    data.code = (0 | (Math.random() * 9e6)).toString(36);
+    cb();
+  };
+  Waterline.start(baseSettings.waterline, (err, orm) => {
+    if (err) {
+      return reject(err);
+    }
+    resolve(orm);
   });
+});
 
 const app = async (orm) => {
   const root = express();

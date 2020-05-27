@@ -62,16 +62,16 @@ export default {
       'GET_SLPLAYERFORCETRANSCODE',
       'GET_CLIENTPOLLINTERVAL',
       'GET_SYNCFLEXIBILITY',
-      'GET_SYNCMODE'
+      'GET_SYNCMODE',
     ]),
     syncmode: {
       get() {
         return this.GET_SYNCMODE;
       },
-      set(value){
+      set(value) {
         this.SET_SYNCMODE(value);
       },
-    }
+    },
   },
   methods: {
     ...mapMutations('settings', [
@@ -79,8 +79,8 @@ export default {
       'SET_SLPLAYERFORCETRANSCODE',
       'SET_CLIENTPOLLINTERVAL',
       'SET_SYNCFLEXIBILITY',
-      'SET_SYNCMODE'
-    ])
-  }
+      'SET_SYNCMODE',
+    ]),
+  },
 };
 </script>

@@ -233,7 +233,7 @@ export default {
       this.snackbarMsg = msg;
       this.snackbar = true;
     });
-    
+
     window.EventBus.$on('NEW_TIMELINE', (timeline) => {
       this.$store.dispatch('NEW_TIMELINE', timeline);
     });
@@ -243,9 +243,9 @@ export default {
         this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
       }
       if (
-        this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' &&
-        !data[1] &&
-        this.$route.fullPath.indexOf('/nowplaying') > -1
+        this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10'
+        && !data[1]
+        && this.$route.fullPath.indexOf('/nowplaying') > -1
       ) {
         this.$router.push('/browse/');
       }
@@ -285,7 +285,17 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['getPlex', 'getItemCache', 'getLibraryCache', 'getChosenClient', 'getConnected', 'getRoom', 'getServer', 'getShortLink', 'GET_SYNCLOUNGE_SERVERS']),
+    ...mapGetters([
+      'getPlex',
+      'getItemCache',
+      'getLibraryCache',
+      'getChosenClient',
+      'getConnected',
+      'getRoom',
+      'getServer',
+      'getShortLink',
+      'GET_SYNCLOUNGE_SERVERS',
+    ]),
     ...mapGetters('config', ['GET_CONFIG']),
     ...mapGetters('settings', ['GET_PLEX_AUTH_TOKEN']),
     ...mapState(['isRightSidebarOpen']),
@@ -294,19 +304,19 @@ export default {
     },
     crumbs() {
       if (
-        this.$route.path.indexOf('browse') === -1 &&
-        this.$route.path.indexOf('nowplaying') === -1
+        this.$route.path.indexOf('browse') === -1
+        && this.$route.path.indexOf('nowplaying') === -1
       ) {
         return [];
       }
-      const getTitle = id => {
+      const getTitle = (id) => {
         try {
           return this.getItemCache[this.$route.params.machineIdentifier][id].title;
         } catch (e) {
           return 'Loading..';
         }
       };
-      const getLibrary = id => {
+      const getLibrary = (id) => {
         try {
           return this.getLibraryCache[this.$route.params.machineIdentifier][id];
         } catch (e) {
@@ -349,7 +359,7 @@ export default {
           to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/${this.$route.params.ratingKey}`,
         }),
       };
-      Object.keys(this.$route.params).forEach(param => {
+      Object.keys(this.$route.params).forEach((param) => {
         const link = map[param]();
         if (link) {
           data.push(link);
@@ -359,9 +369,9 @@ export default {
     },
     showNowPlaying() {
       return (
-        this.getChosenClient &&
-        this.getChosenClient.clientPlayingMetadata &&
-        this.$route.name === 'browse'
+        this.getChosenClient
+        && this.getChosenClient.clientPlayingMetadata
+        && this.$route.name === 'browse'
       );
     },
     showRightDrawerButton() {
