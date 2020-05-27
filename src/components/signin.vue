@@ -1,65 +1,116 @@
 <template>
-  <v-row class="pt-2 pa-4" justify="center">
+  <v-row
+    class="pt-2 pa-4"
+    justify="center"
+  >
     <v-col md="8">
-      <v-card style="background: rgba(0,0,0,0.3)" class="pa-4">
-        <v-layout row wrap justify-center align-center v-if="ready">
-          <v-flex xs12 sm8 lg4>
+      <v-card
+        style="background: rgba(0,0,0,0.3)"
+        class="pa-4"
+      >
+        <v-layout
+          v-if="ready"
+          row
+          wrap
+          justify-center
+          align-center
+        >
+          <v-flex
+            xs12
+            sm8
+            lg4
+          >
             <h1 class="text-center pa-2">
               Hello
-              <span style="font-weight: 700">{{ plex.user.username }}</span
-              >!
+              <span style="font-weight: 700">{{ plex.user.username }}</span>!
             </h1>
             <p>
               Would you like to change your display name when using SyncLounge? By default your
               Plex.tv username will be used. You can always change this setting later.
             </p>
             <v-checkbox
+              v-model="HIDEUSERNAME"
               class="pt-2"
               label="Change my display name"
-              v-model="HIDEUSERNAME"
-            ></v-checkbox>
+            />
             <v-text-field
               v-if="HIDEUSERNAME"
               :value="GET_ALTUSERNAME"
-              @change="SET_ALTUSERNAME"
               label="Alternative display name"
-            ></v-text-field>
+              @change="SET_ALTUSERNAME"
+            />
             <div class="text-xs-right">
-              <v-btn @click="letsGo" color="primary">Get started</v-btn>
+              <v-btn
+                color="primary"
+                @click="letsGo"
+              >
+                Get started
+              </v-btn>
             </div>
           </v-flex>
         </v-layout>
         <div v-else>
-          <h1 v-if="!GET_PLEX_AUTH_TOKEN" class="center-text pa-4">
+          <h1
+            v-if="!GET_PLEX_AUTH_TOKEN"
+            class="center-text pa-4"
+          >
             To use SyncLounge you need to sign in with your Plex account.
           </h1>
           <div v-if="!preAuth || checkingAuth">
-            <v-layout wrap row style="position:relative">
-              <v-flex xs12 md4 offset-md4>
+            <v-layout
+              wrap
+              row
+              style="position:relative"
+            >
+              <v-flex
+                xs12
+                md4
+                offset-md4
+              >
                 <div style="width:100%;text-align:center">
                   <v-progress-circular
                     indeterminate
-                    v-bind:size="50"
+                    :size="50"
                     class="amber--text"
                     style="display:inline-block"
-                  ></v-progress-circular>
+                  />
                 </div>
               </v-flex>
             </v-layout>
           </div>
-          <div v-if="preAuth && !checkingAuth && !authError" class="text-center">
-            <v-btn class="primary" @click="openPopup()">Sign in with Plex</v-btn>
+          <div
+            v-if="preAuth && !checkingAuth && !authError"
+            class="text-center"
+          >
+            <v-btn
+              class="primary"
+              @click="openPopup()"
+            >
+              Sign in with Plex
+            </v-btn>
           </div>
-          <div v-if="authError" class="text-center error">
+          <div
+            v-if="authError"
+            class="text-center error"
+          >
             <p>You are not authorized to access this server</p>
           </div>
-          <v-row justify="center" class="pt-4 pa-2">
-            <v-col md="8" class="center-text">
+          <v-row
+            justify="center"
+            class="pt-4 pa-2"
+          >
+            <v-col
+              md="8"
+              class="center-text"
+            >
               <p style="opacity:0.7">
                 Your Plex account is used to fetch the details of your Plex devices. None of your
                 private details are sent to our servers. If you would like to install and run
                 SyncLounge yourself have a look
-                <a target="_blank" href="https://github.com/samcm/SyncLounge">here</a>
+                <a
+                  target="_blank"
+                  href="https://github.com/samcm/SyncLounge"
+                >here</a>
                 for details.
               </p>
             </v-col>
@@ -75,7 +126,7 @@ import axios from 'axios';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
-  name: 'signin',
+  name: 'Signin',
   data() {
     return {
       pin: null,

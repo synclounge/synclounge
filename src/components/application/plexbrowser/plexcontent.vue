@@ -1,13 +1,22 @@
 <template>
-  <div ref="root" class="slcontent">
-    <v-layout v-if="!contents" row>
-      <v-flex xs12 style="position:relative">
+  <div
+    ref="root"
+    class="slcontent"
+  >
+    <v-layout
+      v-if="!contents"
+      row
+    >
+      <v-flex
+        xs12
+        style="position:relative"
+      >
         <v-progress-circular
           style="left: 50%; top:50%"
-          v-bind:size="60"
+          :size="60"
           indeterminate
           class="amber--text"
-        ></v-progress-circular>
+        />
       </v-flex>
     </v-layout>
     <div v-if="contents">
@@ -19,65 +28,101 @@
         class="darken-2 white--text"
       >
         <div style=" height: 100%">
-          <v-container style="background-color: rgba(0, 0, 0, 0.8); height: 100%" fluid>
-            <v-layout row wrap>
-              <v-flex xs12 md3>
-                <v-layout row wrap>
-                  <v-flex md12 class="pa-2">
-                    <v-img :src="thumb" height="30vh" contain></v-img>
+          <v-container
+            style="background-color: rgba(0, 0, 0, 0.8); height: 100%"
+            fluid
+          >
+            <v-layout
+              row
+              wrap
+            >
+              <v-flex
+                xs12
+                md3
+              >
+                <v-layout
+                  row
+                  wrap
+                >
+                  <v-flex
+                    md12
+                    class="pa-2"
+                  >
+                    <v-img
+                      :src="thumb"
+                      height="30vh"
+                      contain
+                    />
                   </v-flex>
-                  <v-flex xs8 md12 class="text-center hidden-sm-and-down ">
+                  <v-flex
+                    xs8
+                    md12
+                    class="text-center hidden-sm-and-down "
+                  >
                     <div v-if="playable">
                       <v-btn
-                        block
                         v-if="
                           playable &&
                             contents.Media.length == 1 &&
                             (contents.viewOffset == 0 || !contents.viewOffset)
                         "
-                        v-on:click.native="playMedia(contents)"
+                        block
                         class="primary white--text"
+                        @click.native="playMedia(contents)"
                       >
                         <v-icon> play_arrow </v-icon>
                       </v-btn>
                       <v-btn
-                        block
                         v-else
-                        @click.native.stop="dialog = true"
+                        block
                         class="primary white--text"
+                        @click.native.stop="dialog = true"
                       >
                         <v-icon> play_arrow </v-icon>
                       </v-btn>
                     </div>
-                    <div v-if="!playable" class="pa-2">
+                    <div
+                      v-if="!playable"
+                      class="pa-2"
+                    >
                       Now playing on {{ chosenClient.name }} from {{ server.name }}
                     </div>
                     <v-btn
                       v-if="!playable"
                       style="background-color: #cc3f3f"
-                      v-on:click.native="pressStop()"
                       class="white--text"
+                      @click.native="pressStop()"
                     >
-                      <v-icon></v-icon> Stop
+                      <v-icon /> Stop
                     </v-btn>
                     <div v-if="!playable">
                       <v-btn
+                        v-if="me.role !== 'host'"
                         :disabled="manualSyncQueued"
                         color="blue"
-                        v-on:click.native="doManualSync"
-                        v-if="me.role !== 'host'"
-                        >Manual sync</v-btn
+                        @click.native="doManualSync"
                       >
+                        Manual sync
+                      </v-btn>
                     </div>
                   </v-flex>
                 </v-layout>
               </v-flex>
-              <v-flex xs12 md9 sm12 class="pa-2">
+              <v-flex
+                xs12
+                md9
+                sm12
+                class="pa-2"
+              >
                 <h1>
                   {{ title }}
                   <span style="float: right">
                     <v-menu>
-                      <v-btn icon class="ma-0 pa-0" dark>
+                      <v-btn
+                        icon
+                        class="ma-0 pa-0"
+                        dark
+                      >
                         <v-icon>more_vert</v-icon>
                       </v-btn>
                       <v-list>
@@ -104,13 +149,27 @@
                     contents.year
                   }})
                 </h4>
-                <h2 v-if="contents.type === 'episode'">{{ contents.title }}</h2>
-                <h3 v-else>{{ contents.year }}</h3>
-                <v-layout row wrap>
-                  <v-flex xs12 md6 style="opacity:0.5">
+                <h2 v-if="contents.type === 'episode'">
+                  {{ contents.title }}
+                </h2>
+                <h3 v-else>
+                  {{ contents.year }}
+                </h3>
+                <v-layout
+                  row
+                  wrap
+                >
+                  <v-flex
+                    xs12
+                    md6
+                    style="opacity:0.5"
+                  >
                     {{ length }}
                   </v-flex>
-                  <v-flex xs12 sm6>
+                  <v-flex
+                    xs12
+                    sm6
+                  >
                     <div class="text-xs-right">
                       <v-chip
                         v-if="
@@ -120,41 +179,57 @@
                         outlined
                         left
                       >
-                        {{ contents.Media[0].videoResolution.toUpperCase() }}</v-chip
+                        {{ contents.Media[0].videoResolution.toUpperCase() }}
+                      </v-chip>
+                      <v-chip
+                        v-if="contents.contentRating"
+                        color="grey darken-2"
+                        small
+                        label
                       >
-                      <v-chip v-if="contents.contentRating" color="grey darken-2" small label>
-                        {{ contents.contentRating }}</v-chip
+                        {{ contents.contentRating }}
+                      </v-chip>
+                      <v-chip
+                        v-if="contents.studio"
+                        color="grey darken-2"
+                        small
+                        label
                       >
-                      <v-chip v-if="contents.studio" color="grey darken-2" small label>
-                        {{ contents.studio }}</v-chip
-                      >
+                        {{ contents.studio }}
+                      </v-chip>
                     </div>
                   </v-flex>
-                  <v-flex xs12 class="text-center hidden-md-and-up ">
+                  <v-flex
+                    xs12
+                    class="text-center hidden-md-and-up "
+                  >
                     <div v-if="playable">
                       <v-btn
-                        block
                         v-if="
                           playable &&
                             contents.Media.length == 1 &&
                             (contents.viewOffset == 0 || !contents.viewOffset)
                         "
-                        v-on:click.native="playMedia(contents)"
+                        block
                         class="primary white--text"
+                        @click.native="playMedia(contents)"
                       >
                         <v-icon> play_arrow </v-icon>
                       </v-btn>
                       <v-btn
-                        block
                         v-else
-                        @click.native.stop="dialog = true"
+                        block
                         class="primary white--text"
+                        @click.native.stop="dialog = true"
                       >
                         <v-icon> play_arrow </v-icon>
                       </v-btn>
                     </div>
                     <div v-else>
-                      <v-layout row wrap>
+                      <v-layout
+                        row
+                        wrap
+                      >
                         <v-flex xs12>
                           <div class="pa-2">
                             Now playing on {{ chosenClient.name }} from {{ server.name }}
@@ -164,66 +239,109 @@
                           <v-btn
                             block
                             style="background-color: #cc3f3f"
-                            v-on:click.native="pressStop()"
                             class="white--text"
+                            @click.native="pressStop()"
                           >
-                            <v-icon></v-icon> Stop
+                            <v-icon /> Stop
                           </v-btn>
                         </v-flex>
                         <v-flex xs12>
                           <v-btn
+                            v-if="me.role !== 'host'"
                             block
                             :disabled="manualSyncQueued"
                             color="blue"
-                            v-on:click.native="doManualSync"
-                            v-if="me.role !== 'host'"
-                            >Manual sync</v-btn
+                            @click.native="doManualSync"
                           >
+                            Manual sync
+                          </v-btn>
                         </v-flex>
                       </v-layout>
                     </div>
                   </v-flex>
                   <div style="width: 100%">
                     <p
+                      v-if="hidden"
                       class="pt-3"
                       style="font-style: italic"
-                      v-if="hidden"
-                      v-on:click="hiddenOverride = true"
+                      @click="hiddenOverride = true"
                     >
                       Summary automatically hidden for unwatched content. Click to unhide.
                     </p>
-                    <p class="pt-3" style="font-style: italic" v-else>{{ contents.summary }}</p>
+                    <p
+                      v-else
+                      class="pt-3"
+                      style="font-style: italic"
+                    >
+                      {{ contents.summary }}
+                    </p>
                   </div>
                   <v-layout
+                    v-if="contents.type === 'movie'"
                     row
                     wrap
                     class="hidden-sm-and-down"
                     justify-start
                     align-start
-                    v-if="contents.type === 'movie'"
                   >
-                    <v-flex lg3 xl2 v-if="contents.Role && contents.Role.length > 0">
-                      <v-subheader class="white--text"> Featuring </v-subheader>
-                      <div v-for="actor in contents.Role.slice(0, 6)" :key="actor.tag">
+                    <v-flex
+                      v-if="contents.Role && contents.Role.length > 0"
+                      lg3
+                      xl2
+                    >
+                      <v-subheader class="white--text">
+                        Featuring
+                      </v-subheader>
+                      <div
+                        v-for="actor in contents.Role.slice(0, 6)"
+                        :key="actor.tag"
+                      >
                         {{ actor.tag }}
                         <span style="opacity:0.7;font-size:80%"> {{ actor.role }} </span>
                       </div>
                     </v-flex>
-                    <v-flex lg3 xl2 v-if="contents.Director && contents.Director.length > 0">
-                      <v-subheader class="white--text"> Director </v-subheader>
-                      <div v-for="director in contents.Director.slice(0, 3)" :key="director.tag">
+                    <v-flex
+                      v-if="contents.Director && contents.Director.length > 0"
+                      lg3
+                      xl2
+                    >
+                      <v-subheader class="white--text">
+                        Director
+                      </v-subheader>
+                      <div
+                        v-for="director in contents.Director.slice(0, 3)"
+                        :key="director.tag"
+                      >
                         {{ director.tag }}
                       </div>
                     </v-flex>
-                    <v-flex lg3 xl2 v-if="contents.Producer && contents.Producer.length > 0">
-                      <v-subheader class="white--text"> Producers </v-subheader>
-                      <div v-for="producer in contents.Producer.slice(0, 3)" :key="producer.tag">
+                    <v-flex
+                      v-if="contents.Producer && contents.Producer.length > 0"
+                      lg3
+                      xl2
+                    >
+                      <v-subheader class="white--text">
+                        Producers
+                      </v-subheader>
+                      <div
+                        v-for="producer in contents.Producer.slice(0, 3)"
+                        :key="producer.tag"
+                      >
                         {{ producer.tag }}
                       </div>
                     </v-flex>
-                    <v-flex lg3 xl2 v-if="contents.Writer && contents.Writer.length > 0">
-                      <v-subheader class="white--text"> Writers </v-subheader>
-                      <div v-for="writer in contents.Writer.slice(0, 3)" :key="writer.tag">
+                    <v-flex
+                      v-if="contents.Writer && contents.Writer.length > 0"
+                      lg3
+                      xl2
+                    >
+                      <v-subheader class="white--text">
+                        Writers
+                      </v-subheader>
+                      <div
+                        v-for="writer in contents.Writer.slice(0, 3)"
+                        :key="writer.tag"
+                      >
                         {{ writer.tag }}
                       </div>
                     </v-flex>
@@ -231,49 +349,68 @@
                 </v-layout>
               </v-flex>
             </v-layout>
-            <v-divider></v-divider>
+            <v-divider />
             <div
               v-if="subsetParentData(6).length >= 0 && contents.type == 'episode'"
               class="hidden-xs-only"
             >
-              <v-subheader
-                >Also in Season {{ contents.parentIndex }} of
-                {{ contents.grandparentTitle }}</v-subheader
+              <v-subheader>
+                Also in Season {{ contents.parentIndex }} of
+                {{ contents.grandparentTitle }}
+              </v-subheader>
+              <v-layout
+                v-if="parentData"
+                row
+                wrap
+                justify-start
               >
-              <v-layout v-if="parentData" row wrap justify-start>
                 <v-flex
+                  v-for="ep in subsetParentData(6)"
+                  :key="ep.key"
                   xs6
                   md2
                   xl2
                   lg2
                   class="pb-3"
-                  v-for="ep in subsetParentData(6)"
-                  :key="ep.key"
                 >
                   <plexthumb
-                    bottomOnly
+                    bottom-only
                     :content="ep"
                     :img="getLittleThumb(ep)"
                     :class="{ highlightBorder: ep.index === contents.index }"
                     style="margin:3%"
                     :server="server"
-                    spoilerFilter
-                  ></plexthumb>
+                    spoiler-filter
+                  />
                 </v-flex>
               </v-layout>
             </div>
             <div v-if="relatedItems.length > 0">
               <v-subheader>Related Movies</v-subheader>
-              <v-container fill-height fluid>
-                <v-layout row wrap justify-space-around align-center>
-                  <v-flex xs4 md1 class="ma-1" v-for="movie in relatedItems" :key="movie.key">
+              <v-container
+                fill-height
+                fluid
+              >
+                <v-layout
+                  row
+                  wrap
+                  justify-space-around
+                  align-center
+                >
+                  <v-flex
+                    v-for="movie in relatedItems"
+                    :key="movie.key"
+                    xs4
+                    md1
+                    class="ma-1"
+                  >
                     <plexthumb
                       :content="movie"
                       :img="getLittleThumb(movie)"
                       style="margin:3%"
                       :server="server"
                       type="thumb"
-                    ></plexthumb>
+                    />
                   </v-flex>
                 </v-layout>
               </v-container>
@@ -289,18 +426,29 @@
       width="500px"
     >
       <v-card style="overflow: hidden">
-        <v-card-title class="headline">Playback Settings</v-card-title>
+        <v-card-title class="headline">
+          Playback Settings
+        </v-card-title>
         <v-checkbox
           v-if="contents.viewOffset && contents.viewOffset > 0"
-          v-bind:label="'Resume from ' + getDuration(contents.viewOffset)"
+          v-model="resumeFrom"
+          :label="'Resume from ' + getDuration(contents.viewOffset)"
           color="orange lighten-2"
           class="pa-0 ma-0 ml-3"
-          v-model="resumeFrom"
-        ></v-checkbox>
-        <div v-for="(media, index) in contents.Media" :key="media.Part[0].key">
-          <v-layout row wrap class="pa-2">
+        />
+        <div
+          v-for="(media, index) in contents.Media"
+          :key="media.Part[0].key"
+        >
+          <v-layout
+            row
+            wrap
+            class="pa-2"
+          >
             <v-flex xs8>
-              <div class="pl-2">{{ media.videoResolution }}p {{ getDuration(media.duration) }}</div>
+              <div class="pl-2">
+                {{ media.videoResolution }}p {{ getDuration(media.duration) }}
+              </div>
               <div class="pl-4 soft-text">
                 <div>Video Codec: {{ media.videoCodec }} ({{ media.bitrate }}kbps)</div>
                 <div>Audio Streams: {{ audioStreams(media.Part[0].Stream) }}</div>
@@ -308,7 +456,10 @@
               </div>
             </v-flex>
             <v-flex xs4>
-              <v-btn class="primary white--text" @click.native.stop="playMedia(contents, index)">
+              <v-btn
+                class="primary white--text"
+                @click.native.stop="playMedia(contents, index)"
+              >
                 Play
               </v-btn>
             </v-flex>
@@ -328,7 +479,6 @@ export default {
   components: {
     plexthumb,
   },
-  created() {},
   data() {
     return {
       browsingContent: null,
@@ -348,17 +498,6 @@ export default {
 
       eventbus: window.eventbus,
     };
-  },
-  mounted() {
-    this.getNewData();
-    this.fullheight = this.$refs.root.offsetHeight;
-    this.fullwidth = this.$refs.root.offsetWidth;
-  },
-  beforeDestroy() {},
-  watch: {
-    ratingKey() {
-      this.getNewData();
-    },
   },
   computed: {
     plex() {
@@ -471,6 +610,18 @@ export default {
       );
     },
   },
+  watch: {
+    ratingKey() {
+      this.getNewData();
+    },
+  },
+  created() {},
+  mounted() {
+    this.getNewData();
+    this.fullheight = this.$refs.root.offsetHeight;
+    this.fullwidth = this.$refs.root.offsetWidth;
+  },
+  beforeDestroy() {},
   methods: {
     getNewData() {
       this.server.getMediaByRatingKey(this.ratingKey).then(async (result) => {

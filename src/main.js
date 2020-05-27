@@ -59,12 +59,6 @@ window.EventBus.$on('command', (data) => {
 });
 
 Vue.mixin({
-  methods: {
-    sinceNow(x) {
-      const time = moment(x);
-      return time.fromNow();
-    },
-  },
   computed: {
     appVersion() {
       return this.$store.getters.appVersion;
@@ -113,6 +107,12 @@ Vue.mixin({
           'font-size': `${(w / maxRes) * maxPx * 0.6}px`,
         },
       };
+    },
+  },
+  methods: {
+    sinceNow(x) {
+      const time = moment(x);
+      return time.fromNow();
     },
   },
 });

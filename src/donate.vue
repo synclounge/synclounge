@@ -2,39 +2,85 @@
   <v-card>
     <v-card-title class="title">
       Donate
-      <v-spacer></v-spacer>
-      <img :src="logos.light.small" style="height: 50px"/>
+      <v-spacer />
+      <img
+        :src="logos.light.small"
+        style="height: 50px"
+      >
     </v-card-title>
-    <v-divider></v-divider>
+    <v-divider />
     <v-card-text>
-      <p class="pa-2"> All donations to SyncLounge go directly towards running the SyncLounge public servers and the continued development of the application. </p>
+      <p class="pa-2">
+        All donations to SyncLounge go directly towards running the SyncLounge public servers and the continued development of the application.
+      </p>
       <v-subheader> How to donate </v-subheader>
-      <v-layout row justify-center align-center class="pa-0 ma-1">
-          <v-flex xs4 class="text-center">
-            <v-btn block color="primary" class="white--text" target="_blank" href="https://paypal.me/PlexTogether">
-              Paypal
-            </v-btn>
-          </v-flex>
-        </v-layout>
+      <v-layout
+        row
+        justify-center
+        align-center
+        class="pa-0 ma-1"
+      >
+        <v-flex
+          xs4
+          class="text-center"
+        >
+          <v-btn
+            block
+            color="primary"
+            class="white--text"
+            target="_blank"
+            href="https://paypal.me/PlexTogether"
+          >
+            Paypal
+          </v-btn>
+        </v-flex>
+      </v-layout>
       <div class="text-center pa-2">
-        <v-layout row justify-center align-center v-for="(address, coin) in addresses" :key="coin" class="pa-0 ma-1">
-          <v-flex xs2 style="font-weight: 600">
+        <v-layout
+          v-for="(address, coin) in addresses"
+          :key="coin"
+          row
+          justify-center
+          align-center
+          class="pa-0 ma-1"
+        >
+          <v-flex
+            xs2
+            style="font-weight: 600"
+          >
             {{ coin }}
           </v-flex>
           <v-flex xs8>
             {{ address }}
           </v-flex>
-          <v-flex xs2 class="text-center">
-            <v-icon v-clipboard="address" v-on:click.native="sendNotification()" class="mr-2 primary--text click-cursor">content_copy</v-icon>
+          <v-flex
+            xs2
+            class="text-center"
+          >
+            <v-icon
+              v-clipboard="address"
+              class="mr-2 primary--text click-cursor"
+              @click.native="sendNotification()"
+            >
+              content_copy
+            </v-icon>
           </v-flex>
         </v-layout>
       </div>
-      <v-divider></v-divider>
-      <p class="pa-2 soft-text mb-0 pb-0" >If you make a donation, stop by the Discord and message samcm#2715 to get your Donator role. Thankyou!</p>
+      <v-divider />
+      <p class="pa-2 soft-text mb-0 pb-0">
+        If you make a donation, stop by the Discord and message samcm#2715 to get your Donator role. Thankyou!
+      </p>
     </v-card-text>
     <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn color="primary" flat @click.stop="onClose()">Close</v-btn>
+      <v-spacer />
+      <v-btn
+        color="primary"
+        flat
+        @click.stop="onClose()"
+      >
+        Close
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>

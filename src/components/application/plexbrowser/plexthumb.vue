@@ -1,7 +1,7 @@
 <template>
   <div
-    class="portrait"
     ref="root"
+    class="portrait"
     style="cursor: pointer"
     @mouseover="hovering = true"
     @mouseout="hovering = false"
@@ -9,9 +9,9 @@
     <router-link :to="link">
       <v-card
         flat
-        v-on:click.native="emitContentClicked(content)"
         class="grey darken-4 elevation-20"
         style="border-radius: 0px !important"
+        @click.native="emitContentClicked(content)"
       >
         <v-img
           data-tilt
@@ -20,19 +20,23 @@
           :height="calculatedHeight"
           :src="getImg(content)"
         >
-          <v-container class="pa-0 ma-0" fill-height fluid style="position:relative">
+          <v-container
+            class="pa-0 ma-0"
+            fill-height
+            fluid
+            style="position:relative"
+          >
             <v-layout>
               <v-flex xs12>
                 <small
-                  class="ma-1"
                   v-if="showServer !== undefined"
+                  class="ma-1"
                   style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"
                 >
-                  {{ server.name }}</small
-                >
+                  {{ server.name }}</small>
                 <div
-                  class="pt-content-unwatched pt-orange unwatched"
                   v-if="showUnwatchedFlag && showServer == undefined"
+                  class="pt-content-unwatched pt-orange unwatched"
                 >
                   <span class="pa-2 black--text">
                     <span>
@@ -41,8 +45,8 @@
                   </span>
                 </div>
                 <div
-                  style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)"
                   v-if="content.Media && content.Media.length != 1 && showServer == undefined"
+                  style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)"
                 >
                   <span class="pa-2 black--text">
                     <span>
@@ -50,16 +54,26 @@
                     </span>
                   </span>
                 </div>
-                <v-container fill-height fluid class="pa-0" style="max-width:100%">
-                  <v-layout row wrap justify-end align-end>
+                <v-container
+                  fill-height
+                  fluid
+                  class="pa-0"
+                  style="max-width:100%"
+                >
+                  <v-layout
+                    row
+                    wrap
+                    justify-end
+                    align-end
+                  >
                     <v-flex xs12>
                       <v-progress-linear
+                        v-if="showProgressBar"
                         style="width:100%"
                         class="pa-0 mb-0 ma-0 pt-content-progress"
-                        v-if="showProgressBar"
                         height="1"
                         :value="unwatchedPercent"
-                      ></v-progress-linear>
+                      />
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -68,12 +82,33 @@
           </v-container>
         </v-img>
       </v-card>
-      <v-layout align-end row wrap class="text-xs-left pa-1 white--text" style="max-width: 100%">
-        <v-flex xs12 v-if="!bottomOnly" style="max-width: 100%">
-          <div class="truncate" style="font-size:1rem">{{ getTitle(content) }}</div>
+      <v-layout
+        align-end
+        row
+        wrap
+        class="text-xs-left pa-1 white--text"
+        style="max-width: 100%"
+      >
+        <v-flex
+          v-if="!bottomOnly"
+          xs12
+          style="max-width: 100%"
+        >
+          <div
+            class="truncate"
+            style="font-size:1rem"
+          >
+            {{ getTitle(content) }}
+          </div>
         </v-flex>
-        <v-flex xs12 style="font-size:0.8rem" ref="bottomText">
-          <div class="truncate soft-text">{{ getUnder(content) }}</div>
+        <v-flex
+          ref="bottomText"
+          xs12
+          style="font-size:0.8rem"
+        >
+          <div class="truncate soft-text">
+            {{ getUnder(content) }}
+          </div>
         </v-flex>
       </v-layout>
     </router-link>
@@ -84,6 +119,7 @@
 import VanillaTilt from 'vanilla-tilt';
 
 export default {
+  components: {},
   props: [
     'library',
     'showServer',
@@ -98,10 +134,6 @@ export default {
     'bottomOnly',
     'spoilerFilter',
   ],
-  components: {},
-  created() {
-    window.addEventListener('resize', this.handleResize);
-  },
   data() {
     return {
       fullheight: null,
@@ -111,36 +143,6 @@ export default {
 
       hovering: false,
     };
-  },
-  mounted() {
-    this.fullheight = this.$refs.root.offsetHeight;
-    // console.log(this.$refs)
-    this.fullwidth = this.$refs.root.offsetWidth;
-    if (this.$refs.topText) {
-      this.toptextheight = this.$refs.topText.offsetHeight;
-    }
-    if (this.$refs.bottomText) {
-      this.bottomtextheight = this.$refs.bottomText.offsetHeight;
-    }
-    if (this.type === 'thumb') {
-      VanillaTilt.init(this.$refs.root, {
-        reverse: true, // reverse the tilt direction
-        max: 7, // max tilt rotation (degrees)
-        perspective: 1000, // Transform perspective, the lower the more extreme the tilt gets.
-        scale: 1.01, // 2 = 200%, 1.5 = 150%, etc..
-        speed: 100, // Speed of the enter/exit transition
-        transition: true, // Set a transition on enter/exit.
-        axis: null, // What axis should be disabled. Can be X or Y.
-        reset: true, // If the tilt effect has to be reset on exit.
-        easing: 'cubic-bezier(.03,.98,.52,.99)', // Easing on enter/exit.
-        glare: false, // if it should have a "glare" effect
-        'max-glare': 0.15, // the maximum "glare" opacity (1 = 100%, 0.5 = 50%)
-        'glare-prerender': false, // false = VanillaTilt creates the glare elements for you, otherwise
-      });
-    }
-  },
-  beforeDestroy() {
-    window.removeEventListener('resize', this.handleResize);
   },
   computed: {
     plex() {
@@ -335,6 +337,39 @@ export default {
       }
       return (this.content.viewedLeafCount / this.content.leafCount) * 100;
     },
+  },
+  created() {
+    window.addEventListener('resize', this.handleResize);
+  },
+  mounted() {
+    this.fullheight = this.$refs.root.offsetHeight;
+    // console.log(this.$refs)
+    this.fullwidth = this.$refs.root.offsetWidth;
+    if (this.$refs.topText) {
+      this.toptextheight = this.$refs.topText.offsetHeight;
+    }
+    if (this.$refs.bottomText) {
+      this.bottomtextheight = this.$refs.bottomText.offsetHeight;
+    }
+    if (this.type === 'thumb') {
+      VanillaTilt.init(this.$refs.root, {
+        reverse: true, // reverse the tilt direction
+        max: 7, // max tilt rotation (degrees)
+        perspective: 1000, // Transform perspective, the lower the more extreme the tilt gets.
+        scale: 1.01, // 2 = 200%, 1.5 = 150%, etc..
+        speed: 100, // Speed of the enter/exit transition
+        transition: true, // Set a transition on enter/exit.
+        axis: null, // What axis should be disabled. Can be X or Y.
+        reset: true, // If the tilt effect has to be reset on exit.
+        easing: 'cubic-bezier(.03,.98,.52,.99)', // Easing on enter/exit.
+        glare: false, // if it should have a "glare" effect
+        'max-glare': 0.15, // the maximum "glare" opacity (1 = 100%, 0.5 = 50%)
+        'glare-prerender': false, // false = VanillaTilt creates the glare elements for you, otherwise
+      });
+    }
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize);
   },
   methods: {
     emitContentClicked(content) {

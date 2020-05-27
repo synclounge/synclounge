@@ -3,28 +3,42 @@
     <div>
       <h4>Search</h4>
       <div>
-        <v-layout class="mb-3" v-if="!selectedItem && !browsingServer" row wrap>
-          <v-flex xs10 lg4>
+        <v-layout
+          v-if="!selectedItem && !browsingServer"
+          class="mb-3"
+          row
+          wrap
+        >
+          <v-flex
+            xs10
+            lg4
+          >
             <v-text-field
+              id="testing"
+              v-model="searchWord"
               name="searchInput"
               label="Search"
               :hint="searchStatus"
-              id="testing"
               persistent-hint
               single-line
               prepend-icon="search"
-              v-model="searchWord"
-            ></v-text-field>
+            />
           </v-flex>
           <v-flex xs2>
             <v-icon
               v-if="results.length > 0"
-              v-on:click="results = []; searchWord = ''; searching = false"
               class="clickable red--text pt-3"
-            >clear</v-icon>
+              @click="results = []; searchWord = ''; searching = false"
+            >
+              clear
+            </v-icon>
           </v-flex>
         </v-layout>
-        <v-layout row wrap v-if="searching || results.length > 0">
+        <v-layout
+          v-if="searching || results.length > 0"
+          row
+          wrap
+        >
           <v-chip
             v-for="server in getPlex.servers"
             :key="server.machineIdentifier"
@@ -32,120 +46,190 @@
             class="green darken-3 white--text"
           >
             <v-avatar>
-              <v-icon v-if="!heardBack(server)">clear</v-icon>
-              <v-icon v-if="heardBack(server)">check_circle</v-icon>
+              <v-icon v-if="!heardBack(server)">
+                clear
+              </v-icon>
+              <v-icon v-if="heardBack(server)">
+                check_circle
+              </v-icon>
             </v-avatar>
             {{ server.name }}
           </v-chip>
         </v-layout>
-        <v-progress-circular v-if="searching" indeterminate class="amber--text"></v-progress-circular>
+        <v-progress-circular
+          v-if="searching"
+          indeterminate
+          class="amber--text"
+        />
         <div v-if="results.length > 0">
-          <v-layout v-if="filteredMovies && filteredMovies.length > 0" row wrap>
+          <v-layout
+            v-if="filteredMovies && filteredMovies.length > 0"
+            row
+            wrap
+          >
             <!--Movies-->
-            <v-flex xs12 lg12>
+            <v-flex
+              xs12
+              lg12
+            >
               <v-subheader>Movies ({{ filteredMovies.length }})</v-subheader>
             </v-flex>
             <v-flex
+              v-for="movie in filteredMovies"
+              :key="movie.key"
               xs6
               md3
               xl1
               lg1
               class="pb-3 ma-2"
-              v-for="movie in filteredMovies"
-              :key="movie.key"
             >
               <plexthumb
                 :content="movie"
                 :server="movie.server"
-                showServer
+                show-server
                 search
                 @contentSet="setContent(movie)"
-              ></plexthumb>
+              />
             </v-flex>
           </v-layout>
-          <v-layout v-if="filteredShows && filteredShows.length > 0" row wrap>
+          <v-layout
+            v-if="filteredShows && filteredShows.length > 0"
+            row
+            wrap
+          >
             <!--Shows-->
-            <v-flex xs12 lg12>
+            <v-flex
+              xs12
+              lg12
+            >
               <v-subheader>TV Shows ({{ filteredShows.length }})</v-subheader>
             </v-flex>
-            <v-flex xs6 md3 xl1 lg1 class="pb-3 ma-2" v-for="show in filteredShows" :key="show.key">
+            <v-flex
+              v-for="show in filteredShows"
+              :key="show.key"
+              xs6
+              md3
+              xl1
+              lg1
+              class="pb-3 ma-2"
+            >
               <plexthumb
                 :content="show"
                 :server="show.server"
-                showServer
+                show-server
                 search
                 @contentSet="setContent(show)"
-              ></plexthumb>
+              />
             </v-flex>
           </v-layout>
-          <v-layout v-if="filteredEpisodes && filteredEpisodes.length > 0" row wrap>
+          <v-layout
+            v-if="filteredEpisodes && filteredEpisodes.length > 0"
+            row
+            wrap
+          >
             <!--Episodes-->
-            <v-flex xs12 lg12>
+            <v-flex
+              xs12
+              lg12
+            >
               <v-subheader>TV Episodes ({{ filteredEpisodes.length }})</v-subheader>
             </v-flex>
             <v-flex
+              v-for="episode in filteredEpisodes"
+              :key="episode.key"
               xs6
               md3
               xl2
               lg2
               class="pb-3 ma-2"
-              v-for="episode in filteredEpisodes"
-              :key="episode.key"
             >
               <plexthumb
                 :content="episode"
                 :server="episode.server"
-                showServer
+                show-server
                 type="art"
                 search
                 @contentSet="setContent(episode)"
-              ></plexthumb>
+              />
             </v-flex>
           </v-layout>
         </div>
       </div>
-      <v-divider></v-divider>
-      <div class="pt-4" v-if="GET_LASTSERVER && results.length == 0">
+      <v-divider />
+      <div
+        v-if="GET_LASTSERVER && results.length == 0"
+        class="pt-4"
+      >
         <h4 v-if="subsetOnDeck().length > 0">
           Continue watching from {{ GET_LASTSERVER.name }}
           <span
             style="float:right; font-size:5rem; user-select: none;"
           >
             <v-icon
-              @click="onDeckDown"
               style="margin-right: 15px;cursor: pointer"
               :style="onDeckDownStyle"
+              @click="onDeckDown"
             >angle-left</v-icon>
-            <v-icon @click="onDeckUp" :style="onDeckUpStyle" style="cursor: pointer">angle-right</v-icon>
+            <v-icon
+              :style="onDeckUpStyle"
+              style="cursor: pointer"
+              @click="onDeckUp"
+            >angle-right</v-icon>
           </span>
         </h4>
-        <v-layout v-if="onDeck" row justify-center>
-          <v-flex xs12 md3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key">
+        <v-layout
+          v-if="onDeck"
+          row
+          justify-center
+        >
+          <v-flex
+            v-for="content in subsetOnDeck()"
+            :key="content.key"
+            xs12
+            md3
+            class="pb-3 pa-2"
+          >
             <plexthumb
               :content="content"
               :server="GET_LASTSERVER"
               type="art"
               @contentSet="setContent(content)"
-            ></plexthumb>
+            />
           </v-flex>
         </v-layout>
       </div>
-      <v-divider></v-divider>
-      <div class="pt-4" v-if="results.length == 0">
-        <h4>Browse
-          <v-icon @click="PLEX_GET_DEVICES(true)" class="pl-2" small>refresh</v-icon>
+      <v-divider />
+      <div
+        v-if="results.length == 0"
+        class="pt-4"
+      >
+        <h4>
+          Browse
+          <v-icon
+            class="pl-2"
+            small
+            @click="PLEX_GET_DEVICES(true)"
+          >
+            refresh
+          </v-icon>
         </h4>
-        <v-layout row wrap>
-          <v-flex xs12 v-if="Object.keys(getPlex.servers).length === 0">
+        <v-layout
+          row
+          wrap
+        >
+          <v-flex
+            v-if="Object.keys(getPlex.servers).length === 0"
+            xs12
+          >
             <h5>No Plex Media Servers found. Make sure your server owner has shared their libraries with you!</h5>
           </v-flex>
           <v-flex
+            v-for="server in getPlex.servers"
+            :key="server.clientIdentifier"
             xs12
             lg4
             md6
             xl3
-            v-for="server in getPlex.servers"
-            :key="server.clientIdentifier"
             class="pa-2"
           >
             <router-link :to="'/browse/' + server.clientIdentifier">
@@ -157,21 +241,43 @@
                 :title="server.name"
               >
                 <v-container fill-height>
-                  <v-layout row justify-center align-center>
+                  <v-layout
+                    row
+                    justify-center
+                    align-center
+                  >
                     <v-flex xs4>
-                      <v-img :src="logos.plex.standard" height="110px" contain></v-img>
+                      <v-img
+                        :src="logos.plex.standard"
+                        height="110px"
+                        contain
+                      />
                     </v-flex>
-                    <v-flex xs8 class="pl-2">
+                    <v-flex
+                      xs8
+                      class="pl-2"
+                    >
                       <div>
-                        <h1 style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ server.name }}</h1>
-                        <h4 style="opacity: 0.9">v{{ server.productVersion }}</h4>
+                        <h1 style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                          {{ server.name }}
+                        </h1>
+                        <h4 style="opacity: 0.9">
+                          v{{ server.productVersion }}
+                        </h4>
                         <div>Owned by {{ ownerOfServer(server) }}</div>
-                        <div v-if="!isConnectable(server)" class="red--text">Unable to connect</div>
+                        <div
+                          v-if="!isConnectable(server)"
+                          class="red--text"
+                        >
+                          Unable to connect
+                        </div>
                         <div
                           v-if="!isConnectable(server)"
                           class="red--text"
                           style="font-size: 10px"
-                        >Try disabling your adblocker</div>
+                        >
+                          Try disabling your adblocker
+                        </div>
                       </div>
                     </v-flex>
                   </v-layout>
@@ -192,10 +298,10 @@ import plexthumb from './plexbrowser/plexthumb.vue';
 const _ = require('lodash');
 
 export default {
+  name: 'Plexbrowser',
   components: {
     plexthumb,
   },
-  name: 'plexbrowser',
   mounted() {
     this.updateOnDeck();
   },

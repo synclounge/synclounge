@@ -1,57 +1,93 @@
 <template>
-  <v-app dark style="height:100%">
-    <leftsidebar></leftsidebar>
-    <rightsidebar></rightsidebar>
+  <v-app
+    dark
+    style="height:100%"
+  >
+    <leftsidebar />
+    <rightsidebar />
 
-    <v-app-bar app scroll-off-screen :scroll-threshold="1" style="z-index: 5">
-      <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN"></v-app-bar-nav-icon>
-      <a href="https://synclounge.tv" target="_blank">
+    <v-app-bar
+      app
+      scroll-off-screen
+      :scroll-threshold="1"
+      style="z-index: 5"
+    >
+      <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN" />
+      <a
+        href="https://synclounge.tv"
+        target="_blank"
+      >
         <img
           class="ma-1 hidden-xs-only"
           style="height: 42px; width: auto; vertical-align: middle"
-          v-bind:src="logos.light.long"
-        />
+          :src="logos.light.long"
+        >
         <img
           class="ma-1 hidden-sm-and-up"
           style="height: 42px; width: auto; vertical-align: middle"
-          v-bind:src="logo"
-        />
+          :src="logo"
+        >
       </a>
-      <nowplayingchip class="pl-4" v-if="showNowPlaying"></nowplayingchip>
-      <v-spacer></v-spacer>
+      <nowplayingchip
+        v-if="showNowPlaying"
+        class="pl-4"
+      />
+      <v-spacer />
       <v-toolbar-items>
         <v-btn
+          v-if="getShortLink != null"
+          v-clipboard="getShortLink"
           color="primary"
           dark
           raised
-          v-if="getShortLink != null"
-          v-clipboard="getShortLink"
           @success="sendNotification()"
-          >Invite</v-btn
         >
-        <v-btn dark @click="goFullscreen" class="hidden-lg-and-up" icon>
+          Invite
+        </v-btn>
+        <v-btn
+          dark
+          class="hidden-lg-and-up"
+          icon
+          @click="goFullscreen"
+        >
           <v-icon>fullscreen</v-icon>
+        </v-btn>
+        <v-btn
+          v-for="item in links"
+          :key="item.title"
+          small
+          tag="a"
+          class="hidden-sm-and-down"
+          text
+          :href="item.href"
+          :target="item.target"
+        >
+          {{ item.title }}
         </v-btn>
         <v-btn
           small
           tag="a"
           class="hidden-sm-and-down"
           text
-          v-for="item in links"
-          :key="item.title"
-          :href="item.href"
-          :target="item.target"
-          >{{ item.title }}</v-btn
+          @click="donateDialog = true"
         >
-        <v-btn small tag="a" class="hidden-sm-and-down" text @click="donateDialog = true"
-          >Donate ♥</v-btn
+          Donate ♥
+        </v-btn>
+        <v-icon
+          v-if="showRightDrawerButton"
+          class="clickable"
+          @click="TOGGLE_RIGHT_SIDEBAR_OPEN"
         >
-        <v-icon v-if="showRightDrawerButton" @click="TOGGLE_RIGHT_SIDEBAR_OPEN" class="clickable">{{
-          isRightSidebarOpen ? 'last_page' : 'first_page'
-        }}</v-icon>
+          {{
+            isRightSidebarOpen ? 'last_page' : 'first_page'
+          }}
+        </v-icon>
       </v-toolbar-items>
     </v-app-bar>
-    <v-content v-bind:style="mainStyle" app>
+    <v-content
+      :style="mainStyle"
+      app
+    >
       <v-container
         class="ma-0 pa-0"
         align-start
@@ -59,26 +95,50 @@
         style="height: 100%; z-index: 250"
         fluid
       >
-        <v-flex xs12 v-if="configError">
-          <v-alert :dismissible="true" type="error" class="mt-0">{{ configError }}</v-alert>
+        <v-flex
+          v-if="configError"
+          xs12
+        >
+          <v-alert
+            :dismissible="true"
+            type="error"
+            class="mt-0"
+          >
+            {{ configError }}
+          </v-alert>
         </v-flex>
-        <v-flex xs12 v-if="(loading || (getPlex && !getPlex.gotDevices)) && route.protected">
+        <v-flex
+          v-if="(loading || (getPlex && !getPlex.gotDevices)) && route.protected"
+          xs12
+        >
           <v-container fill-height>
-            <v-layout justify-center align-center wrap row class="pt-4 text-center">
-              <v-flex xs8 md4>
+            <v-layout
+              justify-center
+              align-center
+              wrap
+              row
+              class="pt-4 text-center"
+            >
+              <v-flex
+                xs8
+                md4
+              >
                 <v-progress-circular
                   indeterminate
-                  v-bind:size="60"
+                  :size="60"
                   class="amber--text"
-                ></v-progress-circular>
+                />
               </v-flex>
             </v-layout>
           </v-container>
         </v-flex>
-        <div v-else :style="paddingStyle">
+        <div
+          v-else
+          :style="paddingStyle"
+        >
           <v-breadcrumbs
-            :items="crumbs"
             v-if="crumbs && crumbs.length > 0"
+            :items="crumbs"
             class="text-xs-left"
             style="justify-content: left"
           >
@@ -86,22 +146,37 @@
               <v-icon>chevron_right</v-icon>
             </template>
             <template v-slot:item="props">
-              <v-breadcrumbs-item :to="props.item.to" :exact="true">{{
-                props.item.text
-              }}</v-breadcrumbs-item>
+              <v-breadcrumbs-item
+                :to="props.item.to"
+                :exact="true"
+              >
+                {{
+                  props.item.text
+                }}
+              </v-breadcrumbs-item>
             </template>
           </v-breadcrumbs>
-          <router-view></router-view>
+          <router-view />
         </div>
-        <v-snackbar color="green darken-2" bottom :timeout="4000" v-model="snackbar">
-          <div style="text-align:center; width:100%">{{ snackbarMsg }}</div>
+        <v-snackbar
+          v-model="snackbar"
+          color="green darken-2"
+          bottom
+          :timeout="4000"
+        >
+          <div style="text-align:center; width:100%">
+            {{ snackbarMsg }}
+          </div>
         </v-snackbar>
-        <upnext></upnext>
-        <v-dialog v-model="donateDialog" max-width="650px">
+        <upnext />
+        <v-dialog
+          v-model="donateDialog"
+          max-width="650px"
+        >
           <donate
-            :donateDialog="donateDialog"
-            :onClose="() => (this.donateDialog = false)"
-          ></donate>
+            :donate-dialog="donateDialog"
+            :on-close="() => (this.donateDialog = false)"
+          />
         </v-dialog>
       </v-container>
     </v-content>
@@ -173,6 +248,14 @@ export default {
     },
     goFullscreen() {
       fscreen.requestFullscreen(document.body);
+    },
+  },
+  watch: {
+    showRightDrawerButton() {
+      // TODO: fix this is hacky
+      if (this.showRightDrawerButton) {
+        this.SET_RIGHT_SIDEBAR_OPEN(true);
+      }
     },
   },
   created() {
@@ -275,14 +358,6 @@ export default {
     });
 
     this.loading = false;
-  },
-  watch: {
-    showRightDrawerButton() {
-      // TODO: fix this is hacky
-      if (this.showRightDrawerButton) {
-        this.SET_RIGHT_SIDEBAR_OPEN(true);
-      }
-    },
   },
   computed: {
     ...mapGetters([

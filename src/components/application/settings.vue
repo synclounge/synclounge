@@ -1,51 +1,88 @@
 <template>
   <div>
     <div style="text-align:center">
-      <h4 style="text-align:initial">Plex Client Polling Interval</h4>
+      <h4 style="text-align:initial">
+        Plex Client Polling Interval
+      </h4>
       <div> {{ GET_CLIENTPOLLINTERVAL }}</div>
-      <v-slider class="pa-0 ma-0" :value="GET_CLIENTPOLLINTERVAL" @change="SET_CLIENTPOLLINTERVAL" :min="100" :max="10000"
+      <v-slider
+        class="pa-0 ma-0"
+        :value="GET_CLIENTPOLLINTERVAL"
+        :min="100"
+        :max="10000"
         hint="Sets how frequently SyncLounge will poll external plex clients for new information in milliseconds. Default is 1000ms (1 second)"
         persistent-hint
-      >
-      </v-slider>
+        @change="SET_CLIENTPOLLINTERVAL"
+      />
     </div>
-    <v-divider></v-divider>
-    <div style="text-align:center" class="pt-4">
-      <h4 style="text-align:initial">Sync Flexibility</h4>
+    <v-divider />
+    <div
+      style="text-align:center"
+      class="pt-4"
+    >
+      <h4 style="text-align:initial">
+        Sync Flexibility
+      </h4>
       <div> {{ GET_SYNCFLEXIBILITY }}</div>
-      <v-slider class="pa-0 ma-0" :value="GET_SYNCFLEXIBILITY" @change="SET_SYNCFLEXIBILITY" :min="0" :max="10000"
+      <v-slider
+        class="pa-0 ma-0"
+        :value="GET_SYNCFLEXIBILITY"
+        :min="0"
+        :max="10000"
         hint="Sets the acceptable distance away from the host in milliseconds. Default is 3000ms (3 seconds)."
         persistent-hint
-      >
-      </v-slider>
+        @change="SET_SYNCFLEXIBILITY"
+      />
     </div>
-    <v-divider></v-divider>
-    <div style="text-align:center" class="pt-4">
-      <h4 style="text-align:initial">Syncing Method</h4>
+    <v-divider />
+    <div
+      style="text-align:center"
+      class="pt-4"
+    >
+      <h4 style="text-align:initial">
+        Syncing Method
+      </h4>
       <v-radio-group v-model="syncmode">
-        <v-radio label="Clean Seek" class="pa-0 ma-0" value="cleanseek"></v-radio>
-        <v-radio label="Skip Ahead" class="pa-0 ma-0" value="skipahead"
-        persistent-hint
-        hint="Sets the syncing method used when we need to get back in line with the host."
-      ></v-radio>
+        <v-radio
+          label="Clean Seek"
+          class="pa-0 ma-0"
+          value="cleanseek"
+        />
+        <v-radio
+          label="Skip Ahead"
+          class="pa-0 ma-0"
+          value="skipahead"
+          persistent-hint
+          hint="Sets the syncing method used when we need to get back in line with the host."
+        />
       </v-radio-group>
     </div>
-    <div style="text-align:center" class="pt-4">
-      <h4 style="text-align:initial">Autoplay</h4>
+    <div
+      style="text-align:center"
+      class="pt-4"
+    >
+      <h4 style="text-align:initial">
+        Autoplay
+      </h4>
       <v-switch
         label="Enabled"
         hint="If enabled SyncLounge will attempt to automatically play the same content as the host."
         :input-value="GET_AUTOPLAY"
         @change="SET_AUTOPLAY"
-      ></v-switch>
+      />
     </div>
-    <div style="text-align:center" class="pt-4">
-      <h4 style="text-align:initial">SLPlayer Force Transcode</h4>
-        <v-switch
-          label="Enabled"
-          :input-value="GET_SLPLAYERFORCETRANSCODE"
-          @change="SET_SLPLAYERFORCETRANSCODE"
-        ></v-switch>
+    <div
+      style="text-align:center"
+      class="pt-4"
+    >
+      <h4 style="text-align:initial">
+        SLPlayer Force Transcode
+      </h4>
+      <v-switch
+        label="Enabled"
+        :input-value="GET_SLPLAYERFORCETRANSCODE"
+        @change="SET_SLPLAYERFORCETRANSCODE"
+      />
       <small>WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.</small>
     </div>
   </div>
@@ -55,7 +92,7 @@
 import { mapGetters, mapMutations } from 'vuex';
 
 export default {
-  name: 'settings',
+  name: 'Settings',
   computed: {
     ...mapGetters('settings', [
       'GET_AUTOPLAY',

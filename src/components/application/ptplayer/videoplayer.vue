@@ -3,6 +3,8 @@
     <videojs-player
       ref="videoPlayer"
       :options="playerOptions"
+      style="background-color:transparent !important;"
+      class="ptplayer"
       @play="onPlayerPlay($event)"
       @pause="onPlayerPause($event)"
       @loadeddata="onPlayerLoadeddata($event)"
@@ -17,11 +19,11 @@
       @statechanged="playerStateChanged($event)"
       @volumechange="volumeChange($event)"
       @ready="playerReadied($event)"
-      style="background-color:transparent !important;"
-      class="ptplayer"
+    />
+    <div
+      v-if="!src"
+      class="center"
     >
-    </videojs-player>
-    <div class="center" v-if="!src">
       Waiting...
     </div>
   </div>
@@ -35,7 +37,6 @@ const request = require('request');
 
 export default {
   props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],
-  created() {},
   data() {
     return {
       eventbus: window.EventBus,
@@ -56,6 +57,7 @@ export default {
       playbackRate: 1,
     };
   },
+  created() {},
   mounted() {
     this.source = this.src;
     this.initReqSent = true;

@@ -1,7 +1,5 @@
 <template>
-    <span ref="root">
-
-    </span>
+  <span ref="root" />
 </template>
 
 <script>
@@ -16,6 +14,16 @@ export default {
     plexseason,
     plexseries,
     plexcontent,
+  },
+  data() {
+    return {
+      contents: null,
+    };
+  },
+  computed: {
+    ratingKey() {
+      return this.$route.params.ratingKey;
+    },
   },
   created() {
     this.server.getMediaByRatingKey(this.content.ratingKey).then((result) => {
@@ -34,20 +42,10 @@ export default {
       }
     });
   },
-  data() {
-    return {
-      contents: null,
-    };
-  },
   mounted() {
   },
   beforeDestroy() {
 
-  },
-  computed: {
-    ratingKey() {
-      return this.$route.params.ratingKey;
-    },
   },
   methods: {
 

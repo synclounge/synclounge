@@ -1,12 +1,34 @@
 <template>
   <router-link :to="href">
-    <v-card color="blue darken-4" hover style="height: 100%; width: 230px">
-      <v-layout row wrap justify-center align-center>
-        <v-flex md2 class="hidden-xs-only text-center">
-          <img :src="thumb" style="height: 52px; vertical-align: middle" />
+    <v-card
+      color="blue darken-4"
+      hover
+      style="height: 100%; width: 230px"
+    >
+      <v-layout
+        row
+        wrap
+        justify-center
+        align-center
+      >
+        <v-flex
+          md2
+          class="hidden-xs-only text-center"
+        >
+          <img
+            :src="thumb"
+            style="height: 52px; vertical-align: middle"
+          >
         </v-flex>
-        <v-flex md10 xs12 class="pl-3 pa-1 text-xs-left" style="overflow: hidden; white-space: nowrap; line-height: 24px">
-          <div style="font-size: 18px">Now Playing</div>
+        <v-flex
+          md10
+          xs12
+          class="pl-3 pa-1 text-xs-left"
+          style="overflow: hidden; white-space: nowrap; line-height: 24px"
+        >
+          <div style="font-size: 18px">
+            Now Playing
+          </div>
           <div><small><b>{{ getTitle }}</b> - {{ getUnder }}</small></div>
           <!-- <div class="hidden-xs-only soft-text" style="font-size: 12px">Click for more info</div> -->
         </v-flex>
@@ -24,15 +46,6 @@ export default {
     return {
 
     };
-  },
-  async mounted() {
-
-  },
-  watch: {
-
-  },
-  methods: {
-
   },
   computed: {
     item() {
@@ -113,6 +126,15 @@ export default {
           return this.item.title;
       }
     },
+  },
+  watch: {
+
+  },
+  async mounted() {
+
+  },
+  methods: {
+
   },
 };
 </script>

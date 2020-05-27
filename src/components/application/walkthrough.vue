@@ -1,22 +1,46 @@
 <template>
   <v-row justify="center">
-    <v-col lg="8" style="background: rgba(0,0,0,0.1); border-radius: 10px" class="pa-4">
+    <v-col
+      lg="8"
+      style="background: rgba(0,0,0,0.1); border-radius: 10px"
+      class="pa-4"
+    >
       <v-row justify="center">
-        <v-col md="8" lg="4">
-          <img style="width:100%" :src="logo" />
+        <v-col
+          md="8"
+          lg="4"
+        >
+          <img
+            style="width:100%"
+            :src="logo"
+          >
         </v-col>
       </v-row>
       <v-stepper
-        style="background: rgba(0,0,0,0.3); color: white !important; border-radius: 20px"
         v-model="e1"
+        style="background: rgba(0,0,0,0.3); color: white !important; border-radius: 20px"
         class="ma-4"
       >
         <v-stepper-header dark>
-          <v-stepper-step step="1" dark :complete="true">Select a client</v-stepper-step>
-          <v-divider></v-divider>
-          <v-stepper-step step="2" dark :complete="false">Join a room</v-stepper-step>
-          <v-divider></v-divider>
-          <v-stepper-step step="3">Sync</v-stepper-step>
+          <v-stepper-step
+            step="1"
+            dark
+            :complete="true"
+          >
+            Select a client
+          </v-stepper-step>
+          <v-divider />
+          <v-stepper-step
+            step="2"
+            dark
+            :complete="false"
+          >
+            Join a room
+          </v-stepper-step>
+          <v-divider />
+          <v-stepper-step step="3">
+            Sync
+          </v-stepper-step>
         </v-stepper-header>
       </v-stepper>
       <div v-if="!getChosenClient">
@@ -26,41 +50,79 @@
           </v-col>
         </v-row>
         <v-row class="ml-4">
-          <v-col class="pt-0"
-            >Choose a client from the list below. Once you've found the client you would like to
-            use, click the connect button. SyncLounge will test to see if it can connect with the
-            client and will let you know if it cannot.</v-col
+          <v-col
+            class="pt-0"
           >
+            Choose a client from the list below. Once you've found the client you would like to
+            use, click the connect button. SyncLounge will test to see if it can connect with the
+            client and will let you know if it cannot.
+          </v-col>
         </v-row>
-        <div v-if="plex && !plex.gotDevices" class="text-center pa-4">
-          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        <div
+          v-if="plex && !plex.gotDevices"
+          class="text-center pa-4"
+        >
+          <v-progress-circular
+            indeterminate
+            color="primary"
+          />
         </div>
-        <v-row v-else justify="center" class="ml-4 mr-4">
-          <v-col md="6" lg="6" v-if="!doReverse">
+        <v-row
+          v-else
+          justify="center"
+          class="ml-4 mr-4"
+        >
+          <v-col
+            v-if="!doReverse"
+            md="6"
+            lg="6"
+          >
             <v-subheader>
               Plex Players {{ playercount }}
-              <v-icon @click="PLEX_GET_DEVICES()" class="pl-2" small>refresh</v-icon>
+              <v-icon
+                class="pl-2"
+                small
+                @click="PLEX_GET_DEVICES()"
+              >
+                refresh
+              </v-icon>
             </v-subheader>
-            <v-list dense style="background: none">
+            <v-list
+              dense
+              style="background: none"
+            >
               <plexclient
                 v-for="i in recentClients"
                 :key="i.clientIdentifier"
+                :selected="isClientSelected(i)"
+                :object="i"
+                style="cursor: pointer"
                 @click.native="
                   previewClient(i);
                   gotResponse = true;
                 "
-                :selected="isClientSelected(i)"
-                :object="i"
-                style="cursor: pointer"
-              ></plexclient>
+              />
             </v-list>
           </v-col>
-          <v-col md="6" lg="6">
-            <div v-if="testClient" class="pa-2">
+          <v-col
+            md="6"
+            lg="6"
+          >
+            <div
+              v-if="testClient"
+              class="pa-2"
+            >
               <v-subheader>Selected Player</v-subheader>
               <v-row>
-                <v-col md="3" class="text-center" style="position: relative">
-                  <img :src="url" style="height: 100px; width: auto; vertical-align: middle" />
+                <v-col
+                  md="3"
+                  class="text-center"
+                  style="position: relative"
+                >
+                  <img
+                    :src="url"
+                    style="height: 100px; width: auto; vertical-align: middle"
+                  >
                 </v-col>
                 <v-col md="9">
                   <div class="selected-player-details pl-1">
@@ -81,7 +143,10 @@
                       <label>Platform</label>
                       <span style="opacity:0.8">{{ testClient.platform }}</span>
                     </div>
-                    <div class="red--text text--lighten-1" v-if="testClientErrorMsg">
+                    <div
+                      v-if="testClientErrorMsg"
+                      class="red--text text--lighten-1"
+                    >
                       {{ testClientErrorMsg }}
                     </div>
                   </div>
@@ -89,20 +154,32 @@
               </v-row>
               <v-row class="pt-2">
                 <v-col>
-                  <div v-if="!gotResponse" class="center spinner-orange">
+                  <div
+                    v-if="!gotResponse"
+                    class="center spinner-orange"
+                  >
                     <div style="width:100%;text-align:center">
                       <v-progress-circular
                         indeterminate
-                        v-bind:size="50"
+                        :size="50"
                         class="amber--text"
                         style="display:inline-block"
-                      ></v-progress-circular>
+                      />
                     </div>
                   </div>
                   <div v-if="gotResponse">
-                    <v-btn block color="primary" v-on:click.native="clientClicked()">Connect</v-btn>
+                    <v-btn
+                      block
+                      color="primary"
+                      @click.native="clientClicked()"
+                    >
+                      Connect
+                    </v-btn>
                   </div>
-                  <div v-if="testClient.product.indexOf('Web') > -1" class="warning--text">
+                  <div
+                    v-if="testClient.product.indexOf('Web') > -1"
+                    class="warning--text"
+                  >
                     Note: Plex Web is currently not supported.
                   </div>
                   <div
@@ -135,20 +212,27 @@
               </v-row>
             </div>
           </v-col>
-          <v-col md="6" lg="7" v-if="doReverse">
+          <v-col
+            v-if="doReverse"
+            md="6"
+            lg="7"
+          >
             <v-subheader>Plex Players {{ playercount }}</v-subheader>
-            <v-list dense style="background: none">
+            <v-list
+              dense
+              style="background: none"
+            >
               <plexclient
                 v-for="i in recentClients"
                 :key="i.clientIdentifier"
+                :selected="isClientSelected(i)"
+                :object="i"
+                style="cursor: pointer"
                 @click.native="
                   previewClient(i);
                   gotResponse = true;
                 "
-                :selected="isClientSelected(i)"
-                :object="i"
-                style="cursor: pointer"
-              ></plexclient>
+              />
             </v-list>
           </v-col>
         </v-row>
@@ -164,8 +248,11 @@ import { mapActions, mapGetters, mapState } from 'vuex';
 import plexclient from './plexclient.vue';
 
 export default {
+  name: 'Walkthrough',
+  components: {
+    plexclient,
+  },
   props: ['object'],
-  name: 'walkthrough',
   data() {
     return {
       testClient: null,
@@ -211,9 +298,6 @@ export default {
         xbox: 'xbox',
       },
     };
-  },
-  components: {
-    plexclient,
   },
   computed: {
     ...mapState(['plex']),

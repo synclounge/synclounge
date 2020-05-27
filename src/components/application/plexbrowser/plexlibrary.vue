@@ -1,18 +1,58 @@
 <template>
   <span style="max-height: 90%">
-    <v-layout v-if="!contents && !browsingContent" row justify-center align-start>
-      <v-flex xs12 style="position:relative">
-        <v-progress-circular style="left: 50%; top:50%" v-bind:size="60" indeterminate class="amber--text"></v-progress-circular>
+    <v-layout
+      v-if="!contents && !browsingContent"
+      row
+      justify-center
+      align-start
+    >
+      <v-flex
+        xs12
+        style="position:relative"
+      >
+        <v-progress-circular
+          style="left: 50%; top:50%"
+          :size="60"
+          indeterminate
+          class="amber--text"
+        />
       </v-flex>
     </v-layout>
-    <div v-if="!browsingContent && contents" class="mt-3" style="height:90vh; overflow-y: auto">
-      <v-layout class="row" row wrap>
-        <v-flex xs3 sm3 md1 lg1  class="ma-1"  v-for="content in contents.MediaContainer.Metadata" :key="content.key">
-          <plexthumb :content="content" :server="server" type="thumb" style="margin:7%" @contentSet="setContent(content)"></plexthumb>
+    <div
+      v-if="!browsingContent && contents"
+      class="mt-3"
+      style="height:90vh; overflow-y: auto"
+    >
+      <v-layout
+        class="row"
+        row
+        wrap
+      >
+        <v-flex
+          v-for="content in contents.MediaContainer.Metadata"
+          :key="content.key"
+          xs3
+          sm3
+          md1
+          lg1
+          class="ma-1"
+        >
+          <plexthumb
+            :content="content"
+            :server="server"
+            type="thumb"
+            style="margin:7%"
+            @contentSet="setContent(content)"
+          />
         </v-flex>
       </v-layout>
       <v-layout row>
-        <v-flex xs12 v-if="contents && !browsingContent && !stopNewContent" v-observe-visibility="getMoreContent" justify-center>
+        <v-flex
+          v-if="contents && !browsingContent && !stopNewContent"
+          v-observe-visibility="getMoreContent"
+          xs12
+          justify-center
+        >
           Loading...
         </v-flex>
       </v-layout>
@@ -30,7 +70,6 @@ import plexartist from './plexartist';
 const _ = require('lodash');
 
 export default {
-  props: ['library'],
   components: {
     plexcontent,
     plexseries,
@@ -38,10 +77,7 @@ export default {
     plexalbum,
     plexartist,
   },
-  created() {
-    // Hit the PMS endpoing /library/sections
-    this.getMoreContent();
-  },
+  props: ['library'],
   data() {
     return {
       browsingContent: null,
@@ -56,15 +92,19 @@ export default {
       searchPhrase: null,
     };
   },
-  mounted() {
-  },
-  beforeDestroy() {
-
-  },
   computed: {
     server() {
       return this.plex.servers[this.$route.params.machineIdentifier];
     },
+  },
+  created() {
+    // Hit the PMS endpoing /library/sections
+    this.getMoreContent();
+  },
+  mounted() {
+  },
+  beforeDestroy() {
+
   },
   methods: {
     setContent(content) {

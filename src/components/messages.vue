@@ -1,23 +1,43 @@
 <template>
-  <v-layout row wrap style="height: 100%;">
-    <v-flex xs12 style="height: calc(100% - 96px)">
-      <v-divider class="hidden-md-and-down"></v-divider>
-      <v-subheader class="md-4">Chat</v-subheader>
-      <v-layout row wrap id="chatbox" v-if="messages.length > 0" style="max-height: calc(100% - 32px); overflow-y: scroll">
-        <message :message="msg" :id="getMsgId(msg)" v-for="(msg, index) in messages" :key="index"></message>
+  <v-layout
+    row
+    wrap
+    style="height: 100%;"
+  >
+    <v-flex
+      xs12
+      style="height: calc(100% - 96px)"
+    >
+      <v-divider class="hidden-md-and-down" />
+      <v-subheader class="md-4">
+        Chat
+      </v-subheader>
+      <v-layout
+        v-if="messages.length > 0"
+        id="chatbox"
+        row
+        wrap
+        style="max-height: calc(100% - 32px); overflow-y: scroll"
+      >
+        <message
+          v-for="(msg, index) in messages"
+          :id="getMsgId(msg)"
+          :key="index"
+          :message="msg"
+        />
       </v-layout>
     </v-flex>
     <v-flex xs12>
       <v-text-field
+        v-model="messageToBeSent"
         append-outer-icon="send"
-        @click:append-outer="sendMessage()"
         :label="chatboxLabel"
         hide-details
         single-line
         class="ml-2 mr-2 pr-1"
-        v-on:keyup.enter.native="sendMessage()"
-        v-model="messageToBeSent"
-      ></v-text-field>
+        @click:append-outer="sendMessage()"
+        @keyup.enter.native="sendMessage()"
+      />
       <!-- <v-btn block color="primary" @click="sendMessage()" :disabled="messageToBeSent.length === 0">Send<v-icon right>send</v-icon></v-btn> -->
     </v-flex>
   </v-layout>
@@ -38,6 +58,14 @@ export default {
       messageToBeSent: '',
     };
   },
+  computed: {
+    messages() {
+      return this.$store.getters.getMessages;
+    },
+    chatboxLabel() {
+      return 'Message';
+    },
+  },
   watch: {
     messages() {
       const options = {
@@ -48,14 +76,6 @@ export default {
       };
       console.info(this.$vuetify.breakpoint);
       this.$scrollTo('#lastMessage', 5, options);
-    },
-  },
-  computed: {
-    messages() {
-      return this.$store.getters.getMessages;
-    },
-    chatboxLabel() {
-      return 'Message';
     },
   },
   methods: {

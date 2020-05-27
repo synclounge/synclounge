@@ -1,19 +1,23 @@
 <template>
   <div style="width:100%; position: relative">
-    <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
+    <div
+      style="position: relative"
+      @mouseover="hovered = true"
+      @mouseout="hovered = false"
+    >
       <videoplayer
         v-if="playingMetadata && chosenServer && GET_SLPLAYERQUALITY && ready"
-        @playerMounted="playerMounted()"
-        @timelineUpdate="timelineUpdate"
-        @playbackEnded="stopPlayback()"
         :metadata="playingMetadata"
         :server="chosenServer"
         :src="getSourceByLabel(GET_SLPLAYERQUALITY)"
-        :initUrl="getSourceByLabel(GET_SLPLAYERQUALITY).initUrl"
+        :init-url="getSourceByLabel(GET_SLPLAYERQUALITY).initUrl"
         :params="getSourceByLabel(GET_SLPLAYERQUALITY).params"
-        :initialOffset="offset"
-        :createdAt="playerCreatedAt"
-      ></videoplayer>
+        :initial-offset="offset"
+        :created-at="playerCreatedAt"
+        @playerMounted="playerMounted()"
+        @timelineUpdate="timelineUpdate"
+        @playbackEnded="stopPlayback()"
+      />
       <div v-if="playingMetadata && chosenServer">
         <transition name="fade">
           <div v-show="hovered">
@@ -27,10 +31,17 @@
                 :src="thumbUrl"
                 class="elevation-20"
                 style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;"
-              />
+              >
               <v-flex class="pl-3">
-                <v-container class="pa-0" fill-height>
-                  <v-layout column wrap justify-space-apart>
+                <v-container
+                  class="pa-0"
+                  fill-height
+                >
+                  <v-layout
+                    column
+                    wrap
+                    justify-space-apart
+                  >
                     <v-flex>
                       <h1>{{ getTitle(playingMetadata) }}</h1>
                     </v-flex>
@@ -52,23 +63,36 @@
             >
               <v-flex class="text-xs-right pa-1">
                 <div class="hidden-xs-only">
-                  <v-tooltip bottom color="accent" v-if="GET_ME && GET_ME.role !== 'host'">
+                  <v-tooltip
+                    v-if="GET_ME && GET_ME.role !== 'host'"
+                    bottom
+                    color="accent"
+                  >
                     <v-icon
                       color="white"
                       class="clickable"
                       :disabled="GET_MANUAL_SYNC_QUEUED"
-                      v-on:click="TRIGGER_MANUAL_SYNC"
-                      >compare_arrows</v-icon
+                      @click="TRIGGER_MANUAL_SYNC"
                     >
+                      compare_arrows
+                    </v-icon>
                     Manual Sync
                   </v-tooltip>
-                  <v-icon color="white" class="clickable pl-3" v-on:click="dialog = !dialog"
-                    >settings</v-icon
+                  <v-icon
+                    color="white"
+                    class="clickable pl-3"
+                    @click="dialog = !dialog"
                   >
+                    settings
+                  </v-icon>
                   <router-link to="/browse">
-                    <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()"
-                      >close</v-icon
+                    <v-icon
+                      color="white"
+                      class="pl-3"
+                      @click.native="stopPlayback()"
                     >
+                      close
+                    </v-icon>
                   </router-link>
                 </div>
               </v-flex>
@@ -79,28 +103,34 @@
               class="hoverBar"
               style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;"
             >
-              <v-flex xs12> </v-flex>
+              <v-flex xs12 />
             </v-layout>
           </div>
         </transition>
       </div>
-      <div class="messages-wrapper" v-if="$vuetify.breakpoint.mdAndDown">
-        <messages></messages>
+      <div
+        v-if="$vuetify.breakpoint.mdAndDown"
+        class="messages-wrapper"
+      >
+        <messages />
       </div>
-      <v-dialog v-model="dialog" width="350">
+      <v-dialog
+        v-model="dialog"
+        width="350"
+      >
         <v-card>
           <v-card-title>Playback Settings </v-card-title>
           <v-card-text>
             <v-select
               :value="GET_SLPLAYERQUALITY"
-              @input="changeQuality"
               :items="qualitiesSelect"
               item-text="text"
               item-value="id"
               persistent-hint
               label="Quality"
               hint="Select a different quality"
-            ></v-select>
+              @input="changeQuality"
+            />
             <v-select
               v-model="chosenAudioTrackIndex"
               :select-text="'Default'"
@@ -110,30 +140,36 @@
               persistent-hint
               hint="Select a different audio track"
               :items="audioTrackSelect"
-            ></v-select>
+            />
             <v-select
+              v-model="chosenSubtitleIndex"
               persistent-hint
               label="Subtitles"
               item-text="text"
               item-value="id"
               hint="Select a different subtitle track"
-              v-model="chosenSubtitleIndex"
               :select-text="'Default'"
               :items="subtitleTrackSelect"
-            ></v-select>
+            />
             <v-select
               v-if="mediaIndexSelect.length > 1"
+              v-model="chosenMediaIndex"
               persistent-hint
               item-text="text"
               item-value="id"
               hint="Select a different version of the content you're playing"
-              v-model="chosenMediaIndex"
               label="Version"
               :items="mediaIndexSelect"
-            ></v-select>
+            />
           </v-card-text>
           <v-card-actions>
-            <v-btn class="blue--text darken-1" text @click.native="dialog = false">Close</v-btn>
+            <v-btn
+              class="blue--text darken-1"
+              text
+              @click.native="dialog = false"
+            >
+              Close
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -144,15 +180,25 @@
         class="pa-3 hidden-sm-and-up"
       >
         <v-flex xs12>
-          <v-layout row wrap>
+          <v-layout
+            row
+            wrap
+          >
             <img
               :src="thumbUrl"
               class="elevation-20"
               style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"
-            />
+            >
             <v-flex class="pl-2">
-              <v-container class="pa-0" fill-height>
-                <v-layout column wrap justify-space-apart>
+              <v-container
+                class="pa-0"
+                fill-height
+              >
+                <v-layout
+                  column
+                  wrap
+                  justify-space-apart
+                >
                   <v-flex>
                     <h1>{{ getTitle(playingMetadata) }}</h1>
                   </v-flex>
@@ -165,27 +211,40 @@
                 </v-layout>
               </v-container>
             </v-flex>
-            <v-layout row wrap class="">
+            <v-layout
+              row
+              wrap
+              class=""
+            >
               <v-flex xs12>
                 <v-btn
+                  v-if="GET_ME.role !== 'host'"
                   block
                   :disabled="GET_MANUAL_SYNC_QUEUED"
                   color="blue"
-                  v-on:click.native="TRIGGER_MANUAL_SYNC"
-                  v-if="GET_ME.role !== 'host'"
-                  >Manual sync</v-btn
+                  @click.native="TRIGGER_MANUAL_SYNC"
                 >
+                  Manual sync
+                </v-btn>
               </v-flex>
               <v-flex xs12>
-                <v-btn block color="primary" v-on:click.native="dialog = !dialog"
-                  >Playback Settings</v-btn
+                <v-btn
+                  block
+                  color="primary"
+                  @click.native="dialog = !dialog"
                 >
+                  Playback Settings
+                </v-btn>
               </v-flex>
               <v-flex xs12>
                 <router-link to="/browse">
-                  <v-btn block color="error" v-on:click.native="stopPlayback()"
-                    >Stop playback</v-btn
+                  <v-btn
+                    block
+                    color="error"
+                    @click.native="stopPlayback()"
                   >
+                    Stop playback
+                  </v-btn>
                 </router-link>
               </v-flex>
             </v-layout>
@@ -217,107 +276,10 @@ const request = require('request');
 const parseXMLString = require('xml2js').parseString;
 
 export default {
-  name: 'ptplayer',
+  name: 'Ptplayer',
   components: {
     videoplayer,
     messages,
-  },
-  mounted() {
-    // Check if we have params
-    if (this.$route.query.start) {
-      // We need to auto play
-      const { query } = this.$route;
-      this.chosenKey = query.key.replace('/library/metadata/', '');
-      this.chosenMediaIndex = query.mediaIndex || 0;
-      this.chosenServer = this.getPlex.servers[query.chosenServer];
-      this.offset = query.playertime;
-    }
-
-    // Similuate a real plex client
-    this.commandListener = this.eventbus.$on('command', (data) => {
-      if (this.destroyed) {
-        return;
-      }
-      if (data.command === '/player/timeline/poll') {
-        const key = this.chosenKey;
-        let ratingKey = null;
-        if (key) {
-          ratingKey = `/library/metadata/${key}`;
-        }
-
-        let machineIdentifier = null;
-        if (this.chosenServer) {
-          machineIdentifier = this.chosenServer.clientIdentifier;
-        }
-        const playerdata = {
-          key,
-          ratingKey,
-          time: this.playertime,
-          type: 'video',
-          machineIdentifier,
-          duration: this.playerduration,
-          state: this.playerstatus,
-        };
-        this.lastSentTimeline = playerdata;
-        if (this.playertime) {
-          this.eventbus.$emit('ptplayer-poll', (err, time) => {
-            if (err) {
-              return data.callback(this.playertime);
-            }
-            // let difference = Math.abs(time - this.playertime)
-            // console.log('Poll time was out by', difference)
-            playerdata.time = time;
-            this.playertime = time;
-            data.callback(playerdata);
-          });
-        } else {
-          data.callback(playerdata);
-        }
-        return;
-      }
-      if (data.command === '/player/playback/play') {
-        this.eventbus.$emit('player-press-play', (res) => data.callback(res));
-        return;
-      }
-      if (data.command === '/player/playback/pause') {
-        this.eventbus.$emit('player-press-pause', (res) => data.callback(res));
-        return;
-      }
-      if (data.command === '/player/playback/playMedia') {
-        this.chosenKey = data.params.key.replace('/library/metadata/', '');
-        this.chosenMediaIndex = data.params.mediaIndex || 0;
-        this.chosenServer = this.getPlex.servers[data.params.machineIdentifier];
-        this.playertime = data.params.offset || this.$route.query.playertime || 0;
-        this.offset = this.playertime;
-        this.$nextTick(() => {
-          this.changedPlaying(true);
-        });
-        return true;
-      }
-      if (data.command === '/player/playback/stop') {
-        this.ready = false;
-        this.chosenKey = null;
-        this.chosenServer = null;
-        this.playerduration = null;
-        this.playertime = 0;
-        this.bufferedTile = null;
-        this.playingMetadata = null;
-        this.$router.push('/browse');
-        return data.callback(true);
-      }
-      if (data.command === '/player/playback/seekTo') {
-        this.eventbus.$emit('player-seek', {
-          time: data.params.offset,
-          soft: data.params.softSeek,
-          callback: async (promise) => {
-            await promise.catch(() => {
-              data.callback(false);
-            });
-            data.callback(true);
-          },
-        });
-      }
-    });
   },
   data() {
     return {
@@ -443,6 +405,103 @@ export default {
         // console.log(error)
       });
     },
+  },
+  mounted() {
+    // Check if we have params
+    if (this.$route.query.start) {
+      // We need to auto play
+      const { query } = this.$route;
+      this.chosenKey = query.key.replace('/library/metadata/', '');
+      this.chosenMediaIndex = query.mediaIndex || 0;
+      this.chosenServer = this.getPlex.servers[query.chosenServer];
+      this.offset = query.playertime;
+    }
+
+    // Similuate a real plex client
+    this.commandListener = this.eventbus.$on('command', (data) => {
+      if (this.destroyed) {
+        return;
+      }
+      if (data.command === '/player/timeline/poll') {
+        const key = this.chosenKey;
+        let ratingKey = null;
+        if (key) {
+          ratingKey = `/library/metadata/${key}`;
+        }
+
+        let machineIdentifier = null;
+        if (this.chosenServer) {
+          machineIdentifier = this.chosenServer.clientIdentifier;
+        }
+        const playerdata = {
+          key,
+          ratingKey,
+          time: this.playertime,
+          type: 'video',
+          machineIdentifier,
+          duration: this.playerduration,
+          state: this.playerstatus,
+        };
+        this.lastSentTimeline = playerdata;
+        if (this.playertime) {
+          this.eventbus.$emit('ptplayer-poll', (err, time) => {
+            if (err) {
+              return data.callback(this.playertime);
+            }
+            // let difference = Math.abs(time - this.playertime)
+            // console.log('Poll time was out by', difference)
+            playerdata.time = time;
+            this.playertime = time;
+            data.callback(playerdata);
+          });
+        } else {
+          data.callback(playerdata);
+        }
+        return;
+      }
+      if (data.command === '/player/playback/play') {
+        this.eventbus.$emit('player-press-play', (res) => data.callback(res));
+        return;
+      }
+      if (data.command === '/player/playback/pause') {
+        this.eventbus.$emit('player-press-pause', (res) => data.callback(res));
+        return;
+      }
+      if (data.command === '/player/playback/playMedia') {
+        this.chosenKey = data.params.key.replace('/library/metadata/', '');
+        this.chosenMediaIndex = data.params.mediaIndex || 0;
+        this.chosenServer = this.getPlex.servers[data.params.machineIdentifier];
+        this.playertime = data.params.offset || this.$route.query.playertime || 0;
+        this.offset = this.playertime;
+        this.$nextTick(() => {
+          this.changedPlaying(true);
+        });
+        return true;
+      }
+      if (data.command === '/player/playback/stop') {
+        this.ready = false;
+        this.chosenKey = null;
+        this.chosenServer = null;
+        this.playerduration = null;
+        this.playertime = 0;
+        this.bufferedTile = null;
+        this.playingMetadata = null;
+        this.$router.push('/browse');
+        return data.callback(true);
+      }
+      if (data.command === '/player/playback/seekTo') {
+        this.eventbus.$emit('player-seek', {
+          time: data.params.offset,
+          soft: data.params.softSeek,
+          callback: async (promise) => {
+            await promise.catch(() => {
+              data.callback(false);
+            });
+            data.callback(true);
+          },
+        });
+      }
+    });
   },
   computed: {
     ...mapGetters(['getPlex', 'getChosenClient', 'GET_MANUAL_SYNC_QUEUED', 'GET_ME']),
