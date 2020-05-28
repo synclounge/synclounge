@@ -250,7 +250,7 @@ export default {
     return true;
   },
 
-  getRandomThumb: async ({ state, getters }) => {
+  getRandomThumb: async ({ getters }) => {
     const validServers = getters.GET_VALID_SERVERS;
 
     if (Object.keys(validServers).length > 1) {

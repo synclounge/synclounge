@@ -31,7 +31,8 @@
                 <small
                   v-if="showServer !== undefined"
                   class="ma-1"
-                  style="position:absolute; top:0;text-align:right;right:0;background: rgba(0, 0, 0, .5)"
+                  style="position:absolute; top:0;text-align:right;right:0;
+                  background: rgba(0, 0, 0, .5)"
                 >
                   {{ server.name }}</small>
                 <div

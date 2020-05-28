@@ -22,6 +22,7 @@
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "lodash": "^4.17.15",
     "sails-disk": "^2.1.0",
     "sails-mysql": "^1.0.1",
     "socket.io": "^2.3.0",

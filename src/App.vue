@@ -193,19 +193,13 @@ import './assets/css/style.css';
 import { mapActions, mapGetters, mapState } from 'vuex';
 import fscreen from 'fscreen';
 
-import rightsidebar from './sidebar.vue';
-import leftsidebar from './leftsidebar.vue';
-import upnext from './upnext.vue';
-import nowplayingchip from './nowplayingchip.vue';
-import donate from './donate.vue';
-
 export default {
   components: {
-    rightsidebar,
-    upnext,
-    nowplayingchip,
-    leftsidebar,
-    donate,
+    rightsidebar: () => import('./sidebar.vue'),
+    upnext: () => import('./upnext.vue'),
+    nowplayingchip: () => import('./nowplayingchip.vue'),
+    leftsidebar: () => import('./leftsidebar.vue'),
+    donate: () => import('./donate.vue'),
   },
   data() {
     return {

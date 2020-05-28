@@ -174,8 +174,9 @@
 </template>
 
 <script>
+import plexthumb from './plexthumb.vue';
+
 const _ = require('lodash');
-const plexthumb = require('./plexthumb.vue');
 
 
 export default {
@@ -229,7 +230,7 @@ export default {
       const data = [];
       if (this.libraries) {
         this.libraries.MediaContainer.Directory.forEach((library) => {
-          if (library.type != 'artist' || library.agent != 'tv.plex.agents.music') {
+          if (library.type !== 'artist' || library.agent !== 'tv.plex.agents.music') {
             data.push(library);
           }
         });

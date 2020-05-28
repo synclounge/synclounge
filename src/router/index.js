@@ -1,9 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 // ===================== Pages Components ======================
-import signin from '../components/signin.vue';
-import signout from '../components/signout.vue';
-import join from '../components/join.vue';
 
 Vue.use(Router);
 
@@ -21,19 +18,19 @@ export default new Router({
     {
       path: '/signin',
       meta: {},
-      component: signin,
+      component: () => import('../components/signin.vue'),
     },
     {
       path: '/signout',
       meta: {},
-      component: signout,
+      component: () => import('../components/signout.vue'),
     },
     {
       path: '/join',
       meta: {
         protected: false,
       },
-      component: join,
+      component: () => import('../components/join.vue'),
     },
     {
       path: '/clientselect',

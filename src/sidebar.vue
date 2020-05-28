@@ -116,7 +116,8 @@
             >
             <v-icon
               v-if="getHostUser.playerState !== 'playing'"
-              style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.5)"
+              style="font-size: 26px; opacity: 0.8; position: absolute;
+              background-color: rgba(0,0,0,0.5)"
             >
               {{ playerState(getHostUser) }}
             </v-icon>
@@ -205,7 +206,8 @@
               >
               <v-icon
                 v-if="user.playerState !== 'playing'"
-                style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.7)"
+                style="font-size: 26px; opacity: 0.8; position: absolute;
+                background-color: rgba(0,0,0,0.7)"
               >
                 {{ playerState(user) }}
               </v-icon>
@@ -270,9 +272,6 @@
                       Make Host
                     </v-list-item-title>
                   </v-list-item>
-                  <!-- <v-list-item @click.stop="openInviteDialog(user)">
-                        <v-list-item-title class="user-menu-list">Invite to a Plex Server</v-list-item-title>
-                        </v-list-item>-->
                 </v-list>
               </v-menu>
             </v-list-item-action>

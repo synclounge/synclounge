@@ -3,8 +3,7 @@ function sendNotification(message) {
 }
 
 export default {
-  async PLAYBACK_CHANGE({ commit, state, dispatch }, data) {
-    const [client, ratingKey, mediaContainer] = data;
+  async PLAYBACK_CHANGE({ commit, state, dispatch }, [, ratingKey, mediaContainer]) {
     if (ratingKey) {
       // Playing something different!
       const server = state.plex.servers[mediaContainer.machineIdentifier];
@@ -53,9 +52,8 @@ export default {
   },
   NEW_TIMELINE({
     commit, state, dispatch, getters,
-  }, data) {
+  }, timeline) {
     // return true
-    const timeline = data;
     const client = state.chosenClient;
     const metadata = state.chosenClient.clientPlayingMetadata || {};
     // console.log(state)
@@ -85,6 +83,7 @@ export default {
             loading: true,
           };
           state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.key).then((data) => {
+            // eslint-disable-next-line no-param-reassign
             data.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
             state.upNextCache[timeline.machineIdentifier][timeline.key] = data;
             // Only proc upnext if the item upnext is from the same show
@@ -117,23 +116,24 @@ export default {
       type = metadata.type;
     }
     let status = 'good';
-    if (!state.synclounge.lastHostTimeline || isNaN(state.synclounge.lastHostTimeline.time)) {
+    if (!state.synclounge.lastHostTimeline
+      || Number.isNaN(state.synclounge.lastHostTimeline.time)) {
       status = 'error';
     } else {
       const hostAge = Math.abs(new Date().getTime() - state.synclounge.lastHostTimeline.recievedAt);
       let hostTime = 0 + state.synclounge.lastHostTimeline.time;
       if (state.synclounge.lastHostTimeline.playerState === 'playing') {
-        hostTime = parseInt(hostTime) + parseInt(hostAge);
+        hostTime = parseInt(hostTime, 10) + parseInt(hostAge, 10);
       }
-      const difference = Math.abs(data.time - hostTime);
+      const difference = Math.abs(timeline.time - hostTime);
       if (difference > getters['settings/GET_SYNCFLEXIBILITY']) {
         status = 'notok';
       }
     }
 
     const endObj = {
-      time: parseInt(timeline.time),
-      maxTime: parseInt(timeline.duration),
+      time: parseInt(timeline.time, 10),
+      maxTime: parseInt(timeline.duration, 10),
       title,
       rawTitle,
       playerState: timeline.state,
@@ -155,11 +155,14 @@ export default {
       };
       endObj.commandId = commandId;
       if (Object.keys(state.synclounge.commands).length > 1) {
-        const latency = state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1].difference;
+        const latency = state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1]
+          .difference;
         endObj.latency = latency;
       }
       state.synclounge.socket.emit('poll', endObj);
     }
+
+    return true;
   },
   SET_LEFT_SIDEBAR_OPEN: ({ commit }, open) => {
     commit('SET_LEFT_SIDEBAR_OPEN', open);
@@ -232,7 +235,7 @@ export default {
   },
 
   SET_RANDOMBACKROUND: async ({ dispatch, commit }) => {
-    const result = await dispatch('getRandomThumb');
+    const result = await dispatch('getRandomThumb').catch(() => { });
     if (result) {
       commit('SET_BACKGROUND', result);
     }
