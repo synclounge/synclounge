@@ -29,7 +29,7 @@
     "sails-mysql": "^1.0.1",
     "socket.io": "^2.3.0",
     "vue": "^2.6.11",
-    "vue-router": "^3.2.0",
+    "vue-router": "^3.3.1",
     "vuetify": "^2.2.30",
     "vuex": "^3.4.0",
     "waterline": "^0.13.6"
