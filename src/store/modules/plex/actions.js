@@ -48,7 +48,7 @@ export default {
       // Exclude local IPs starting with 169.254
         const tempConnectionsArray = connections
           .filter(({ $: connection }) => !connection.address.startsWith('169.254'))
-          .map(({ $: connection }) => {
+          .flatMap(({ $: connection }) => {
             const tempConnection = new PlexConnection();
             Object.assign(tempConnection, connection);
 
