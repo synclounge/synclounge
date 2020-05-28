@@ -1,6 +1,11 @@
 const path = require('path');
 
+const { readSettings } = require('./SettingsHelper');
+
+const settings = readSettings();
+
 module.exports = {
+  publicPath: settings.webroot,
   lintOnSave: process.env.NODE_ENV !== 'production',
   productionSourceMap: false,
   transpileDependencies: ['vuetify'],
