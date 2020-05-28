@@ -50,6 +50,7 @@
     "fscreen": "^1.0.2",
     "humanize-duration": "^3.23.0",
     "moment": "^2.26.0",
+    "request": "^2.88.2",
     "safe-json-parse": "^4.0.0",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
