@@ -252,7 +252,6 @@ export default {
 
   getRandomThumb: async ({ state, getters }) => {
     const validServers = getters.GET_VALID_SERVERS;
-    console.log(validServers);
 
     if (Object.keys(validServers).length > 1) {
       const keys = Object.keys(validServers);
@@ -264,6 +263,7 @@ export default {
 
       return randomServer.getUrlForLibraryLoc(result.thumb, 900, 900, 8);
     }
-    return Promise.reject(new Error('No valid servers found'));
+
+    throw new Error('No valid servers found');
   },
 };

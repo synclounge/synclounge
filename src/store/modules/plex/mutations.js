@@ -32,23 +32,19 @@ export default {
     Vue.set(state.servers, server.clientIdentifier, server);
   },
 
-  PLEX_SERVER_SET_CONNECTION: (state, data) => {
-    const { server, connection } = data;
+  PLEX_SERVER_SET_CONNECTION: (state, { server, connection }) => {
     state.servers[server.clientIdentifier].chosenConnection = connection;
   },
-  PLEX_CLIENT_SET_CONNECTION: (state, data) => {
-    const { client, connection } = data;
+  PLEX_CLIENT_SET_CONNECTION: (state, { client, connection }) => {
     state.clients[client.clientIdentifier].chosenConnection = connection;
   },
-  SET_ITEMCACHE: (state, data) => {
-    const [ratingKey, newData] = data;
+  SET_ITEMCACHE: (state, [ratingKey, newData]) => {
     if (!state.itemCache[newData.machineIdentifier]) {
       state.itemCache[newData.machineIdentifier] = {};
     }
     Vue.set(state.itemCache[newData.machineIdentifier], ratingKey, newData);
   },
-  SET_LIBRARYCACHE: (state, data) => {
-    const [id, machineIdentifier, newData] = data;
+  SET_LIBRARYCACHE: (state, [id, machineIdentifier, newData]) => {
     if (!state.libraryCache[machineIdentifier]) {
       state.libraryCache[machineIdentifier] = {};
     }
