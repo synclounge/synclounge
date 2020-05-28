@@ -157,12 +157,14 @@ const parseSetting = (value, setting) => {
     }
   } else {
     // If setting is not array
+    // eslint-disable-next-line valid-typeof
     if (typeof value === setting.type) {
       return value;
     } if (typeof value === 'string') {
       // If setting is string, we have a chance to parse it and it might become an array
       try {
         const parsed = JSON.parse(value);
+        // eslint-disable-next-line valid-typeof
         if (typeof parsed === setting.type) {
           return parsed;
         }
@@ -172,9 +174,12 @@ const parseSetting = (value, setting) => {
     }
   }
 
-  console.error(
-    `Error parsing [${setting.type}]: ${e.message} Reverting to default. Value: '${value}'`,
-  );
+  if (value !== undefined) {
+    console.error(
+      `Error parsing [${setting.local}]: Reverting to default. Value: '${value}'`,
+    );
+  }
+
   return setting.default;
 };
 
@@ -182,6 +187,7 @@ module.exports = {
   readSettings() {
     // Load and export our settings in preference of Args -> ENV -> Settings file -> Default
     const output = {};
+    // eslint-disable-next-line no-plusplus
     for (let i = 0; i < fields.length; i++) {
       const setting = fields[i];
       // console.log('Processing setting', setting);
@@ -200,7 +206,7 @@ module.exports = {
       output[setting.local] = parseSetting(value, setting);
 
       // Backwards compatibilty for PORT ENV setting
-      if (setting.local == 'webapp_port' && output[setting.local] == 8088) {
+      if (setting.local === 'webapp_port' && output[setting.local] === 8088) {
         const port = args.PORT || process.env.PORT || settings.PORT;
         if (port && port !== 8088) {
           console.log(`Please change 'PORT' to 'WEB_PORT'. Setting WEB_PORT to '${port}'`);
@@ -210,7 +216,7 @@ module.exports = {
 
       // Remove trailing slashes, if they exist
       if (
-        (setting.local == 'webroot' || setting.local == 'accessUrl')
+        (setting.local === 'webroot' || setting.local === 'accessUrl')
         && output[setting.local].endsWith('/')
       ) {
         console.log(
@@ -221,7 +227,7 @@ module.exports = {
       }
       // Add leading slash, if not provided
       if (
-        setting.local == 'webroot'
+        setting.local === 'webroot'
         && output[setting.local].length > 1
         && !output[setting.local].startsWith('/')
       ) {
@@ -234,8 +240,8 @@ module.exports = {
       }
       // Make sure 'webroot' and 'serverroot' aren't set to '/'. Revert to default if they do.
       if (
-        (setting.local == 'webroot' || setting.local == 'serverroot')
-        && output[setting.local] == '/'
+        (setting.local === 'webroot' || setting.local === 'serverroot')
+        && output[setting.local] === '/'
       ) {
         console.log(
           `${setting.local}/${setting.env} cannot be set to '/'. Reverting to default: '${setting.default}'`,

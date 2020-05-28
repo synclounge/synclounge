@@ -80,7 +80,7 @@ const webApp = async (orm) => {
     }),
   );
 
-  app.use(settings.serverroot, router);
+  app.use(settings.webroot, router);
 
   router.use('/', express.static(path.join(__dirname, 'dist')));
 
