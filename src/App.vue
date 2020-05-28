@@ -175,7 +175,7 @@
         >
           <donate
             :donate-dialog="donateDialog"
-            :on-close="() => (this.donateDialog = false)"
+            :on-close="() => (donateDialog = false)"
           />
         </v-dialog>
       </v-container>
@@ -239,125 +239,6 @@ export default {
       ],
       appIsFullscreen: false,
     };
-  },
-  methods: {
-    ...mapActions('config', ['fetchConfig']),
-    ...mapActions(['SET_LEFT_SIDEBAR_OPEN', 'SET_RIGHT_SIDEBAR_OPEN', 'TOGGLE_RIGHT_SIDEBAR_OPEN']),
-    sendNotification() {
-      window.EventBus.$emit('notification', 'Copied to clipboard');
-    },
-    goFullscreen() {
-      fscreen.requestFullscreen(document.body);
-    },
-  },
-  watch: {
-    showRightDrawerButton() {
-      // TODO: fix this is hacky
-      if (this.showRightDrawerButton) {
-        this.SET_RIGHT_SIDEBAR_OPEN(true);
-      }
-    },
-  },
-  created() {
-    this.configFetchPromise = this.fetchConfig();
-  },
-  async mounted() {
-    try {
-      await this.configFetchPromise;
-    } catch (e) {
-      this.configError = `Failed to fetch config: ${e}`;
-    }
-    //
-    //  Settings
-    //
-    // Set AutoJoin information in order of importance: query -> config -> settings
-    if (this.$route.query.autojoin) {
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
-      this.$store.commit('SET_AUTOJOINURL', this.$route.query.server);
-      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner]);
-      if (this.$route.query.password) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
-      }
-    } else if (this.GET_CONFIG) {
-      if (this.GET_CONFIG.autoJoin && this.GET_CONFIG.autoJoin === true) {
-        this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', this.GET_CONFIG.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', this.GET_CONFIG.autoJoinServer);
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.GET_CONFIG.autoJoinPassword);
-      }
-    }
-
-    // Auto-join if a single server is provided and autoJoinServer is not
-    if (this.GET_SYNCLOUNGE_SERVERS.length === 1 && !this.$store.autoJoinServer) {
-      const server = this.GET_SYNCLOUNGE_SERVERS[0];
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINURL', server.url);
-      if (!this.$store.autoJoinRoom && server.defaultRoom) {
-        this.$store.commit('SET_AUTOJOINROOM', server.defaultRoom);
-      }
-      if (!this.$store.autoJoinPassword && server.defaultPassword) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', server.defaultPassword);
-      }
-    }
-    //
-    // End Settings
-    //
-
-    if (this.$store.state.autoJoin) {
-      this.$store.dispatch('autoJoin', {
-        server: this.$store.state.autoJoinUrl,
-        password: this.$store.state.autoJoinPassword,
-        room: this.$store.state.autoJoinRoom,
-      });
-    }
-
-    window.EventBus.$on('notification', (msg) => {
-      this.snackbarMsg = msg;
-      this.snackbar = true;
-    });
-
-    window.EventBus.$on('NEW_TIMELINE', (timeline) => {
-      this.$store.dispatch('NEW_TIMELINE', timeline);
-    });
-
-    window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
-      if (this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
-        this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
-      }
-      if (
-        this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10'
-        && !data[1]
-        && this.$route.fullPath.indexOf('/nowplaying') > -1
-      ) {
-        this.$router.push('/browse/');
-      }
-      this.$store.dispatch('PLAYBACK_CHANGE', data);
-    });
-
-    if (!this.GET_PLEX_AUTH_TOKEN) {
-      this.$router.push('/signin');
-      this.loading = false;
-      return;
-    }
-    if (this.$route.path === '/') {
-      this.$router.push('/clientselect');
-    }
-
-    try {
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', this.GET_PLEX_AUTH_TOKEN);
-    } catch (e) {
-      // this.$router.push('/signin');
-      return;
-    }
-
-    fscreen.addEventListener('fullscreenchange', () => {
-      const isFullscreen = fscreen.fullscreenElement !== null;
-      this.appIsFullscreen = isFullscreen;
-      document.body.classList.toggle('is-fullscreen', isFullscreen);
-    });
-
-    this.loading = false;
   },
   computed: {
     ...mapGetters([
@@ -486,6 +367,125 @@ export default {
         });
       }
       return arr;
+    },
+  },
+  watch: {
+    showRightDrawerButton() {
+      // TODO: fix this is hacky
+      if (this.showRightDrawerButton) {
+        this.SET_RIGHT_SIDEBAR_OPEN(true);
+      }
+    },
+  },
+  async mounted() {
+    try {
+      await this.configFetchPromise;
+    } catch (e) {
+      this.configError = `Failed to fetch config: ${e}`;
+    }
+    //
+    //  Settings
+    //
+    // Set AutoJoin information in order of importance: query -> config -> settings
+    if (this.$route.query.autojoin) {
+      this.$store.commit('SET_AUTOJOIN', true);
+      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
+      this.$store.commit('SET_AUTOJOINURL', this.$route.query.server);
+      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner]);
+      if (this.$route.query.password) {
+        this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
+      }
+    } else if (this.GET_CONFIG) {
+      if (this.GET_CONFIG.autoJoin && this.GET_CONFIG.autoJoin === true) {
+        this.$store.commit('SET_AUTOJOIN', true);
+        this.$store.commit('SET_AUTOJOINROOM', this.GET_CONFIG.autoJoinRoom);
+        this.$store.commit('SET_AUTOJOINURL', this.GET_CONFIG.autoJoinServer);
+        this.$store.commit('SET_AUTOJOINPASSWORD', this.GET_CONFIG.autoJoinPassword);
+      }
+    }
+
+    // Auto-join if a single server is provided and autoJoinServer is not
+    if (this.GET_SYNCLOUNGE_SERVERS.length === 1 && !this.$store.autoJoinServer) {
+      const server = this.GET_SYNCLOUNGE_SERVERS[0];
+      this.$store.commit('SET_AUTOJOIN', true);
+      this.$store.commit('SET_AUTOJOINURL', server.url);
+      if (!this.$store.autoJoinRoom && server.defaultRoom) {
+        this.$store.commit('SET_AUTOJOINROOM', server.defaultRoom);
+      }
+      if (!this.$store.autoJoinPassword && server.defaultPassword) {
+        this.$store.commit('SET_AUTOJOINPASSWORD', server.defaultPassword);
+      }
+    }
+    //
+    // End Settings
+    //
+
+    if (this.$store.state.autoJoin) {
+      this.$store.dispatch('autoJoin', {
+        server: this.$store.state.autoJoinUrl,
+        password: this.$store.state.autoJoinPassword,
+        room: this.$store.state.autoJoinRoom,
+      });
+    }
+
+    window.EventBus.$on('notification', (msg) => {
+      this.snackbarMsg = msg;
+      this.snackbar = true;
+    });
+
+    window.EventBus.$on('NEW_TIMELINE', (timeline) => {
+      this.$store.dispatch('NEW_TIMELINE', timeline);
+    });
+
+    window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
+      if (this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
+        this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
+      }
+      if (
+        this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10'
+        && !data[1]
+        && this.$route.fullPath.indexOf('/nowplaying') > -1
+      ) {
+        this.$router.push('/browse/');
+      }
+      this.$store.dispatch('PLAYBACK_CHANGE', data);
+    });
+
+    if (!this.GET_PLEX_AUTH_TOKEN) {
+      this.$router.push('/signin');
+      this.loading = false;
+      return;
+    }
+    if (this.$route.path === '/') {
+      this.$router.push('/clientselect');
+    }
+
+    try {
+      await this.$store.dispatch('PLEX_LOGIN_TOKEN', this.GET_PLEX_AUTH_TOKEN);
+    } catch (e) {
+      // this.$router.push('/signin');
+      return;
+    }
+
+    fscreen.addEventListener('fullscreenchange', () => {
+      const isFullscreen = fscreen.fullscreenElement !== null;
+      this.appIsFullscreen = isFullscreen;
+      document.body.classList.toggle('is-fullscreen', isFullscreen);
+    });
+
+    this.loading = false;
+  },
+  created() {
+    this.configFetchPromise = this.fetchConfig();
+  },
+  methods: {
+    ...mapActions('config', ['fetchConfig']),
+    ...mapActions(['SET_LEFT_SIDEBAR_OPEN', 'SET_RIGHT_SIDEBAR_OPEN', 'TOGGLE_RIGHT_SIDEBAR_OPEN']),
+    sendNotification() {
+      window.EventBus.$emit('notification', 'Copied to clipboard');
+    },
+    goFullscreen() {
+      fscreen.requestFullscreen(document.body);
     },
   },
 };

@@ -1,8 +1,5 @@
 import axios from 'axios';
-import moment from 'moment';
 import io from 'socket.io-client';
-
-const EventEmitter = require('events');
 
 function sendNotification(message) {
   console.log(message);
@@ -20,78 +17,7 @@ function HandshakeUser(user, room, password, uuid, username) {
   return tempUser;
 }
 
-const initialState = () => ({
-  socket: null,
-  ptevents: new EventEmitter(),
-  ptservers: [],
-  connected: false,
-  server: false,
-  room: false,
-  password: false,
-  users: [],
-  messages: [],
-  partyPausing: false,
-  me: '',
-  decisionBlockedTime: 0,
-  lastHostTimeline: {},
-  commands: {},
-  rawTitle: null,
-});
-
-const getters = {
-  getServer: (state) => state.server,
-  getMe: (state) => state.me,
-  getRoom: (state) => state.room,
-  getPassword: (state) => state.password,
-  getUsers: (state) => state.users,
-  getConnected: (state) => state.connected,
-  getMessages: (state) => state.messages,
-  getSocket: (state) => state.socket,
-  getPartyPausing: (state) => state.partyPausing,
-  getHostUser: (state) => state.users.find((u) => u.role === 'host'),
-};
-
-const mutations = {
-  SET_CONNECTED(state, value) {
-    state.connected = value;
-  },
-  SET_ME(state, value) {
-    state.me = value;
-  },
-  SET_USERS(state, value) {
-    state.users = value;
-  },
-  SET_ROOM(state, value) {
-    state.room = value;
-  },
-  SET_PASSWORD(state, value) {
-    state.password = value;
-  },
-  SET_SERVERS(state, value) {
-    state.servers = value;
-  },
-  SET_SERVER(state, value) {
-    state.server = value;
-  },
-  SET_PARTYPAUSING(state, value) {
-    state.partyPausing = value;
-  },
-  ADD_MESSAGE(state, msg) {
-    msg.time = moment().format('h:mm A');
-    state.messages.push(msg);
-  },
-  CLEAR_MESSAGES(state) {
-    state.messages = [];
-  },
-  SET_RAW_TITLE(state, title) {
-    state.rawTitle = title;
-  },
-  SET_DECISION_BLOCKED_TIME(state, time) {
-    state.decisionBlockedTime = time;
-  },
-};
-
-const actions = {
+export default {
   async autoJoin({ rootState, dispatch }, data) {
     await dispatch('socketConnect', {
       address: data.server,
@@ -571,11 +497,4 @@ const actions = {
       });
     }
   },
-};
-
-export default {
-  state: initialState,
-  getters,
-  mutations,
-  actions,
 };

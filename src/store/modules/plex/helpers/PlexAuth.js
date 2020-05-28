@@ -21,6 +21,17 @@ module.exports = function PlexAuth() {
     };
   };
 
+  this.getRequestConfig = function (accessToken, timeout) {
+    return {
+      headers: {
+        'X-Plex-Client-Identifier': 'SyncLounge',
+        Accept: 'application/json',
+        'X-Plex-Token': accessToken,
+      },
+      timeout,
+    };
+  };
+
   /**
    *
    * @param url

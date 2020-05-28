@@ -8,13 +8,5 @@ module.exports = {
     return `${s4() + s4()}-${s4()}${s4()}`;
   },
 
-  coalesce: (...arr) => {
-    const len = arr.length;
-    for (let i = 0; i < len; i++) {
-      if (arr[i] !== null && arr[i] !== undefined) {
-        return arr[i];
-      }
-    }
-    return null;
-  },
+  coalesce: (...arr) => arr.find((element) => element !== null && element !== undefined),
 };

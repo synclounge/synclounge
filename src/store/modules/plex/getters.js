@@ -8,4 +8,9 @@ export default {
     return clients;
   },
   GET_LASTSERVER: (state, getters) => state.servers[getters['settings/GET_LASTSERVER']],
+  GET_VALID_SERVERS: (state) => Object.fromEntries(
+    Object.entries(state.servers).filter(
+      ([, server]) => server.chosenConnection,
+    ),
+  ),
 };

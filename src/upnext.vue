@@ -100,7 +100,6 @@
           class="primary"
           style="height: 3px"
         />
-        <!-- <v-progress-linear :value="percent" class="pa-0 ma-0" height="3"></v-progress-linear> -->
       </v-container>
     </v-card>
   </v-bottom-sheet>
@@ -133,7 +132,7 @@ export default {
     },
     plexserver() {
       if (!this.content) {
-        return;
+        return null;
       }
       return this.plex.servers[this.content.machineIdentifier];
     },
@@ -142,7 +141,7 @@ export default {
     },
     item() {
       if (!this.content || this.content.loading) {
-        return;
+        return null;
       }
       return this.content.MediaContainer.Hub[0].Metadata[0];
     },
