@@ -28,11 +28,14 @@
           :src="logo"
         >
       </a>
+
       <nowplayingchip
         v-if="showNowPlaying"
         class="pl-4"
       />
+
       <v-spacer />
+
       <v-toolbar-items>
         <v-btn
           v-if="getShortLink != null"
