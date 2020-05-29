@@ -171,7 +171,7 @@
                           v-if="!isConnectable(server)"
                           class="red--text"
                           style="font-size: 10px"
-                        >Try disabling your adblocker</div>
+                        >See <a href="http://docs.synclounge.tv/faq/#unable-to-connect-to-plex-server">"Unable to connect to Plex Server"</a> in the <a href="http://docs.synclounge.tv/faq/">FAQ</a> for information</div>
                       </div>
                     </v-flex>
                   </v-layout>
