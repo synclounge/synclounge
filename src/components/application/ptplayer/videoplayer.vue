@@ -1,26 +1,29 @@
 <template>
-  <div v-if="source && initReqSent">
+  <div v-if="src" class="ptplayer">
     <videojs-player
       ref="videoPlayer"
-      :options="playerOptions"
+      autoplay="true"
+      controls="true"
+      preload="auto"
 
-      @play="onPlayerPlay($event)"
-      @pause="onPlayerPause($event)"
-      @loadeddata="onPlayerLoadeddata($event)"
-      @ended="onPlayerEnded($event)"
-      @waiting="onPlayerWaiting($event)"
-      @playing="onPlayerPlaying($event)"
-      @timeupdate="onPlayerTimeupdate($event)"
-      @canplay.once="onPlayerCanplay($event)"
-      @canplaythrough="onPlayerCanplaythrough($event)"
-      @seeking="onPlayerSeeking($event)"
-      @seeked="onPlayerSeeked($event)"
-      @statechanged="playerStateChanged($event)"
-      @volumechange="volumeChange($event)"
+      :initial-options="initialOptions"
+      :src="[src]"
 
-      @ready="playerReadied($event)"
+      @pause="onPlayerPause"
+      @loadeddata="onPlayerLoadeddata"
+      @ended="onPlayerEnded"
+      @waiting="onPlayerWaiting"
+      @playing="onPlayerPlaying"
+      @timeupdate="sendTimelineUpdateEvent"
+      @seeking="sendTimelineUpdateEvent"
+      @seeked="sendTimelineUpdateEvent"
+      @volumechange="volumeChange"
+      @error="onPlayerError"
+
+
+      @ready="playerReadied"
       style="background-color:transparent !important;"
-      class="ptplayer"
+      class="video-js"
 >
     </videojs-player>
     <div class="center" v-if="!src">
@@ -30,7 +33,7 @@
 </template>
 
 <script>
-const request = require('request');
+import axios from 'axios';
 
 export default {
   props: ['server', 'metadata', 'initialOffset', 'src', 'initUrl', 'stopUrl', 'params', 'sources'],
@@ -40,122 +43,20 @@ export default {
   data() {
     return {
       eventbus: window.EventBus,
-
+      destroyed: false,
       offset: this.initialOffset,
-      initReqSent: false,
-      source: null,
-
-      isPlaying: 'buffering',
+      playerState: 'buffering',
       lastTime: 0,
-      duration: 0,
-      bufferedTill: 0,
 
-      decisionResult: null,
       blockedSpeedChanges: false,
       ticker: null,
 
-      playbackRate: 1,
-    };
-  },
-  mounted() {
-    this.source = this.src;
-    this.initReqSent = true;
-    this.$emit('playerMounted');
-
-    // Events from the parent component
-    this.eventbus.$on('player-press-pause', (callback) => {
-      if (this.isPlaying === 'paused') {
-        return callback();
-      }
-      if (this.player) {
-        this.player.pause();
-      }
-      return callback();
-    });
-
-    this.eventbus.$on('player-press-play', (callback) => {
-      if (this.isPlaying === 'playing') {
-        return callback();
-      }
-      if (this.player) {
-        this.player.play();
-      }
-      return callback();
-    });
-
-    this.eventbus.$on('player-seek', async (data) => {
-      // Return a promise through the callback
-      data.callback(this.seekMethod(data));
-    });
-    this.eventbus.$on('ptplayer-poll', (callback) => {
-      try {
-        callback(null, this.player.currentTime() * 1000);
-      } catch (e) {
-        return callback(e, -1);
-      }
-    });
-  },
-  beforeDestroy() {
-    clearInterval(this.ticker);
-    this.eventbus.$off('player-press-pause');
-    this.eventbus.$off('player-press-play');
-    this.eventbus.$off('player-seek');
-    this.eventbus.$off('ptplayer-poll');
-
-    let query = '';
-    const params = {
-      hasMDE: 1,
-      ratingKey: this.metadata.ratingKey,
-      key: this.metadata.key,
-      state: 'stopped',
-      time: this.lastTime,
-      duration: Math.round(this.player.duration() * 1000),
-      'X-Plex-Product': this.params['X-Plex-Product'],
-      'X-Plex-Version': this.params['X-Plex-Version'],
-      'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
-      'X-Plex-Platform': this.params['X-Plex-Platform'],
-      'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
-      'X-Plex-Device': this.params['X-Plex-Device'],
-      'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
-      'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
-      'X-Plex-Token': this.params['X-Plex-Token'],
-      'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
-    };
-    for (const key in params) {
-      query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-    }
-    const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
-    request(url, (error, response, body) => {
-      if (!error) {
-        // console.log('Succesfully sent Player status to PMS')
-      }
-    });
-  },
-  computed: {
-    player() {
-      if (this.$refs && this.$refs.videoPlayer) {
-        return this.$refs.videoPlayer.player;
-      }
-    },
-
-    playerOptions() {
-      // component options
-      return {
-        playsinline: true,
-
-        // videojs options
-        plugins: {},
-
-        fluid: true,
-        preload: 'auto',
-        aspectRatio: '16:9',
-        autoplay: true,
-        width: '100%',
+      initialOptions: {
         language: 'en',
+        inactivityTimeout: 2000,
+        fluid: true,
+        aspectRatio: '16:9',
 
-        sources: [
-          this.source,
-        ],
         controlBar: {
           children: {
             playToggle: {},
@@ -171,36 +72,121 @@ export default {
             fullscreenToggle: {},
           },
         },
-      };
+      },
+    };
+  },
+
+  mounted() {
+    // Events from the parent component
+    this.eventbus.$on('player-press-pause', (callback) => {
+      if (this.playerState === 'paused') {
+        return callback();
+      }
+      if (this.player) {
+        this.player.pause();
+      }
+      return callback();
+    });
+
+    this.eventbus.$on('player-press-play', (callback) => {
+      if (this.playerState === 'playing') {
+        return callback();
+      }
+      if (this.player) {
+        this.player.play();
+      }
+      return callback();
+    });
+
+    this.eventbus.$on('player-seek', async (data) => {
+      // Return a promise through the callback
+      data.callback(this.seekMethod(data));
+    });
+    this.eventbus.$on('ptplayer-poll', (callback) => {
+      try {
+        return callback(null, this.playerCurrentTime);
+      } catch (e) {
+        return callback(e, -1);
+      }
+    });
+  },
+
+  beforeDestroy() {
+    this.destroyed = true;
+    clearInterval(this.ticker);
+    this.eventbus.$off('player-press-pause');
+    this.eventbus.$off('player-press-play');
+    this.eventbus.$off('player-seek');
+    this.eventbus.$off('ptplayer-poll');
+
+    const params = {
+      hasMDE: 1,
+      ratingKey: this.metadata.ratingKey,
+      key: this.metadata.key,
+      state: 'stopped',
+      time: this.playerCurrentTime,
+      duration: this.playerDuration,
+      'X-Plex-Product': this.params['X-Plex-Product'],
+      'X-Plex-Version': this.params['X-Plex-Version'],
+      'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
+      'X-Plex-Platform': this.params['X-Plex-Platform'],
+      'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
+      'X-Plex-Device': this.params['X-Plex-Device'],
+      'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
+      'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
+      'X-Plex-Token': this.params['X-Plex-Token'],
+      'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
+    };
+    const query = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+
+    const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
+    return axios.get(url);
+  },
+
+  computed: {
+    player() {
+      if (this.$refs && this.$refs.videoPlayer) {
+        return this.$refs.videoPlayer.player;
+      }
+
+      return null;
     },
 
     metadataImage() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(
+        document.documentElement.clientWidth,
+        window.innerWidth || 0,
+      ));
+      const h = Math.round(Math.max(
+        document.documentElement.clientHeight,
+        window.innerHeight || 0,
+      ));
+
       return this.server.getUrlForLibraryLoc(this.metadata.thumb, w / 12, h / 4);
     },
 
-  },
-  methods: {
+    playerCurrentTime() {
+      return this.player.currentTime() * 1000;
+    },
 
-    // Player events
-    closingPlayer() {
+    playerDuration() {
+      return this.player.duration() * 1000;
     },
-    onPlayerPlay(player) {
+  },
+
+  methods: {
+    onPlayerPause() {
+      this.playerState = 'paused';
+      this.sendTimelineUpdateEvent();
     },
-    onPlayerPause(player) {
-    },
-    onPlayerLoaded(player) {
-    },
-    onPlayerEnded(player) {
+    onPlayerEnded(event) {
       this.$router.push('/browse');
-      this.$emit('playbackEnded');
+      this.$emit('playbackEnded', event);
     },
-    onPlayerCanplay(player) {
-    },
-    onPlayerCanplaythrough(player) {
-    },
-    onPlayerTimeupdate(player) {
+    onPlayerError(event) {
+      this.$emit('playerError', event);
     },
     seekMethod(data) {
       return new Promise((resolve, reject) => {
@@ -235,7 +221,7 @@ export default {
             cancelled = true;
           });
           const clicker = setInterval(() => {
-            if (cancelled || !this.player || this.isPlaying === 'paused' || this.isPlaying === 'buffering' || oldSources !== this.player.options_.sources) {
+            if (cancelled || !this.player || this.playerState === 'paused' || this.playerState === 'buffering' || oldSources !== this.player.options_.sources) {
               clearInterval(clicker);
               this.player.playbackRate(1.0);
               return reject(new Error('Slow seek was stop due to buffering or pausing'));
@@ -255,7 +241,7 @@ export default {
               reject(new Error('Failed to slow seek as the playback rate did not want to change'));
               return clearInterval(clicker);
             }
-            if (this.isPlaying === 'paused' || (lastPlayerTime === this.player.currentTime() * 1000)) {
+            if (this.playerState === 'paused' || (lastPlayerTime === this.player.currentTime() * 1000)) {
               return;
             }
             lastPlayerTime = this.player.currentTime * 1000;
@@ -311,123 +297,80 @@ export default {
         }
       });
     },
-    onPlayerLoadeddata(player) {
-      const that = this;
 
-      player.on(['pause'], () => {
-        this.isPlaying = 'paused';
-      });
-      player.on(['waiting'], () => {
-        this.isPlaying = 'buffering';
-      });
-      player.on('playing', () => {
-        this.isPlaying = 'playing';
-      });
-
-      // Setup our intervals for pinging the transcoder and timelines
-      function send() {
-        // console.log('Sending timeline')
-        if (!that || !that.player) {
-          return clearInterval(that.ticker);
+    onPlayerLoadeddata() {
+      return this.periodicPlexTimelineUpdate();
+    },
+    async periodicPlexTimelineUpdate() {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        if (this.destroyed) {
+          return Promise.resolve();
         }
-        if (!that.player || !that.metadata) {
-          return;
-        }
-        let query = '';
-        const params = {
-          hasMDE: 1,
-          ratingKey: that.metadata.ratingKey,
-          key: that.metadata.key,
-          state: that.isPlaying,
-          time: that.lastTime,
-          duration: Math.round(that.player.duration() * 1000),
-          'X-Plex-Product': that.params['X-Plex-Product'],
-          'X-Plex-Version': that.params['X-Plex-Version'],
-          'X-Plex-Client-Identifier': that.params['X-Plex-Client-Identifier'],
-          'X-Plex-Platform': that.params['X-Plex-Platform'],
-          'X-Plex-Platform-Version': that.params['X-Plex-Platform-Version'],
-          'X-Plex-Device': that.params['X-Plex-Device'],
-          'X-Plex-Device-Name': that.params['X-Plex-Device-Name'],
-          'X-Plex-Device-Screen-Resolution': that.params['X-Plex-Device-Screen-Resolution'],
-          'X-Plex-Token': that.params['X-Plex-Token'],
-          'X-Plex-Session-Identifier': that.params['X-Plex-Session-Identifier'],
-        };
-        for (const key in params) {
-          query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-        }
-        const url = `${that.server.chosenConnection.uri}/:/timeline?${query}`;
-        request(url, (error, response, body) => {
-          if (!error) {
-            // console.log('Succesfully sent Player status to PMS')
-          }
-        });
+        const delayPromise = this.delay(10000);
+        // eslint-disable-next-line no-await-in-loop
+        await this.sendPlexTimelineUpdate().catch(e => e);
+        // eslint-disable-next-line no-await-in-loop
+        await delayPromise;
       }
-
-      this.ticker = setInterval(() => {
-        // Tell the PMS instance of our status
-        send();
-      }, 10000);
-      send();
     },
-    onPlayerPlaying(player) {
+    onPlayerPlaying() {
+      this.playerState = 'playing';
     },
-    onPlayerWaiting(player) {
+    onPlayerWaiting() {
+      this.playerState = 'buffering';
+      this.sendTimelineUpdateEvent();
     },
-    onPlayerSeeking(player) {
-      this.$emit('timelineUpdate', {
-        time: this.player.currentTime() * 1000,
-        status: this.isPlaying,
-        bufferedTill: this.bufferedTill,
-        duration: this.duration,
-      });
-    },
-    onPlayerSeeked(player) {
-      this.$emit('timelineUpdate', {
-        time: this.player.currentTime() * 1000,
-        status: this.isPlaying,
-        bufferedTill: this.bufferedTill,
-        duration: this.duration,
-      });
-    },
-    volumeChange(event) {
-      // console.log("Setting volume to " + this.player.volume() || 0)
+    volumeChange() {
       this.$store.commit('setSetting', ['PTPLAYERVOLUME', this.player.volume() || 0]);
     },
-    playerStateChanged(playerCurrentState) {
-
-      this.bufferedTill = Math.round(this.player.buffered().end(0) * 1000);
-      this.duration = Math.round(this.player.duration() * 1000);
-      this.bufferStart = Math.round(this.player.buffered().start(0) * 1000);
-      this.bufferEnd = Math.round(this.player.buffered().end(0) * 1000);
-      if (this.player.error_) {
-        this.$emit('playerError');
-      }
-      if (playerCurrentState.timeupdate) {
-        this.lastTime = Math.round(playerCurrentState.timeupdate * 1000);
-      }
-      if (playerCurrentState.pause) {
-        this.isPlaying = 'paused';
-      }
-      if (playerCurrentState.playing) {
-        this.isPlaying = 'playing';
-      }
-      this.playbackRate = this.player.playbackRate();
-      this.$emit('timelineUpdate', {
-        time: this.lastTime,
-        status: this.isPlaying,
-        bufferedTill: this.bufferedTill,
-        duration: this.duration,
-      });
-    },
-    playerReadied(player) {
-      // console.log('Setting volume to ' + this.$store.getters.getSettingPTPLAYERVOLUME)
+    playerReadied() {
       this.player.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
       this.player.currentTime(this.initialOffset / 1000);
     },
+    sendTimelineUpdateEvent() {
+      this.$emit('timelineUpdate', {
+        time: this.playerCurrentTime,
+        duration: this.playerDuration,
+        status: this.playerState,
+      });
+    },
 
+    sendPlexTimelineUpdate() {
+      if (!this || !this.player || !this.metadata) {
+        clearInterval(this.ticker);
+        return Promise.reject();
+      }
+
+      const params = {
+        hasMDE: 1,
+        ratingKey: this.metadata.ratingKey,
+        key: this.metadata.key,
+        state: this.playerState,
+        time: this.playerCurrentTime,
+        duration: this.playerDuration,
+        'X-Plex-Product': this.params['X-Plex-Product'],
+        'X-Plex-Version': this.params['X-Plex-Version'],
+        'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
+        'X-Plex-Platform': this.params['X-Plex-Platform'],
+        'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
+        'X-Plex-Device': this.params['X-Plex-Device'],
+        'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
+        'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
+        'X-Plex-Token': this.params['X-Plex-Token'],
+        'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
+      };
+
+      const query = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+
+      const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
+      return axios.get(url, { timeout: 10000 });
+    },
+    delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    },
   },
 };
 </script>
-<style scoped>
-
-</style>

@@ -2,7 +2,6 @@
   <div style="width:100%; position: relative">
     <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
       <videoplayer v-if="playingMetadata && chosenServer && chosenQuality && ready"
-        @playerMounted="playerMounted()"
         @timelineUpdate="timelineUpdate"
         @playbackEnded="stopPlayback()"
 
@@ -56,9 +55,11 @@
           </div>
         </transition>
       </div>
+
       <div class="messages-wrapper" v-if="$vuetify.breakpoint.mdAndDown">
         <messages></messages>
       </div>
+
       <v-dialog v-model="dialog" width="350">
         <v-card>
           <v-card-title>Playback Settings </v-card-title>
@@ -108,6 +109,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
       <v-layout v-if="playingMetadata && chosenServer" justify-center row class="pa-3 hidden-sm-and-up">
         <v-flex xs12>
           <v-layout row wrap>
@@ -174,7 +176,7 @@ export default {
     // Check if we have params
     if (this.$route.query.start) {
       // We need to auto play
-      const query = this.$route.query;
+      const { query } = this.$route;
       this.chosenKey = query.key.replace('/library/metadata/', '');
       this.chosenMediaIndex = query.mediaIndex || 0;
       this.chosenServer = this.plex.servers[query.chosenServer];
@@ -248,7 +250,6 @@ export default {
         this.chosenServer = null;
         this.playerduration = null;
         this.playertime = 0;
-        this.bufferedTile = null;
         this.playingMetadata = null;
         this.$router.push('/browse');
         return data.callback(true);
@@ -289,7 +290,6 @@ export default {
       playertime: 0,
       playerstatus: 'stopped',
       playerduration: 0,
-      bufferedTill: 0,
       playerCreatedAt: new Date().getTime(),
 
       // These are changed by the watched functions
@@ -493,9 +493,6 @@ export default {
     this.destroyed = true;
   },
   methods: {
-    playerMounted() {
-      // console.log('Child player said it is mounted')
-    },
     getSourceByLabel(label) {
       for (let i = 0; i < this.sources.length; i++) {
         const source = this.sources[i];
@@ -674,7 +671,6 @@ export default {
     timelineUpdate(data) {
       this.playertime = data.time;
       this.playerstatus = data.status;
-      this.bufferedTill = data.bufferedTill;
       this.playerduration = data.duration;
 
       if (this.lastSentTimeline.state !== data.status || this.chosenKey !== this.lastSentTimeline.key) {
