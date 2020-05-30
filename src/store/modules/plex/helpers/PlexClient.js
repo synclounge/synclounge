@@ -260,7 +260,7 @@ module.exports = function PlexClient() {
       const timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt;
       const ourTime = parseInt(this.lastTimelineObject.time) + parseInt(timelineAge);
       const difference = Math.abs((parseInt(ourTime)) - parseInt(hostTimeline.time));
-      console.log('Difference with host is', difference);
+      // console.log('Difference with host is', difference);
       const bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused';
 
       if (parseInt(difference) > parseInt(SYNCFLEXABILITY) || (bothPaused && difference > 10)) {
@@ -306,9 +306,9 @@ module.exports = function PlexClient() {
       const mediaId = `/library/metadata/${data.ratingKey}`;
       const offset = Math.round(data.offset) || 0;
       const serverId = data.server.clientIdentifier;
-      const uri =  new URL(data.server.chosenConnection.uri);
+      const uri = new URL(data.server.chosenConnection.uri);
       const address = uri.hostname;
-      const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443':'80'); // port not specified if standard
+      const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443' : '80'); // port not specified if standard
       const protocol = uri.protocol.replace(':', ''); // remove extra colon
       const path = data.server.chosenConnection.uri + mediaId;
 
@@ -344,9 +344,9 @@ module.exports = function PlexClient() {
     const command = '/player/mirror/details';
     const mediaId = `/library/metadata/${key}`;
     const serverId = serverObject.clientIdentifier;
-    const uri =  new URL(data.server.chosenConnection.uri);
+    const uri = new URL(data.server.chosenConnection.uri);
     const address = uri.hostname;
-    const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443':'80'); // port not specified if standard
+    const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443' : '80'); // port not specified if standard
     const protocol = uri.protocol.replace(':', ''); // remove extra colon
     const path = serverObject.chosenConnection.uri + mediaId;
 

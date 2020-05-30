@@ -50,6 +50,7 @@ export default {
     getMessages: state => state.messages,
     getSocket: state => state._socket,
     getPartyPausing: state => () => state.partyPausing,
+    GET_HOST_PLAYER_STATE: state => state.lastHostTimeline.playerState,
   },
   mutations: {
     SET_CONNECTED(state, value) {
@@ -397,14 +398,14 @@ export default {
                       try {
                         const ourLastDelay = Math.round(state.commands[Object.keys(state.commands).length - 1].difference);
                         const hostLastDelay = Math.round(hostTimeline.latency);
-                        console.log('adding delays', { ourLastDelay, hostLastDelay });
+                        // console.log('adding delays', { ourLastDelay, hostLastDelay });
                         if (ourLastDelay && hostLastDelay) {
-                          console.log(
-                            'Adding host delay',
-                            hostLastDelay,
-                            'and our lastDelay',
-                            ourLastDelay,
-                          );
+                          // console.log(
+                          //   'Adding host delay',
+                          //   hostLastDelay,
+                          //   'and our lastDelay',
+                          //   ourLastDelay,
+                          // );
                           data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0);
                         }
                       } catch (e) {
@@ -434,6 +435,7 @@ export default {
               */
                 rootState.hostClientResponseTime = data.clientResponseTime;
                 if (rootState.manualSyncQueued) {
+                  console.log('manualSyncQueued');
                   state.decisionBlocked = new Date().getTime();
                   window.EventBus.$emit('host-playerstate-change');
                   await rootState.chosenClient.seekTo(hostTimeline.time);
@@ -445,7 +447,7 @@ export default {
                   console.log('We are not going to make a decision from the host data because a command is already running');
                   return;
                 }
-                console.log('Decision isnt blocked');
+                // console.log('Decision isnt blocked');
                 if (!rootState.chosenClient) {
                   console.log('We dont have a client chosen yet!');
                   return;
@@ -463,7 +465,7 @@ export default {
                 // Check previous timeline data age
                 state.decisionBlocked = new Date().getTime();
                 const timelineAge = Math.abs(new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt);
-                console.log('Timeline age is', timelineAge);
+                // console.log('Timeline age is', timelineAge);
                 try {
                   // if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
                   //   await rootState.chosenClient.getTimeline()

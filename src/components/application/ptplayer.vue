@@ -8,7 +8,6 @@
         :metadata="playingMetadata"
         :server="chosenServer"
         :src="getSourceByLabel(chosenQuality)"
-        :initUrl="getSourceByLabel(chosenQuality).initUrl"
         :params="getSourceByLabel(chosenQuality).params"
         :initialOffset="offset"
         :createdAt="playerCreatedAt"
@@ -770,6 +769,7 @@ export default {
         time: Math.round(this.playertime / 1000),
         subtitles: 'burn',
         copyts: 1,
+        mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
         'Accept-Language': 'en',
         'X-Plex-Session-Identifier': this.xplexsession,
         'X-Plex-Chunked': 1,

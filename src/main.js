@@ -2,10 +2,9 @@ import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
 import Vuetify from 'vuetify';
 import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visibility';
-import VideojsPlayer from 'vue-videojs-player';
 import VueResource from 'vue-resource';
 import VueClipboards from 'vue-clipboards';
-import VueCookies from 'vue-cookies'
+import VueCookies from 'vue-cookies';
 
 import App from './App';
 import router from './router';
@@ -19,7 +18,6 @@ Vue.use(VueScrollTo);
 Vue.use(VueClipboards);
 Vue.use(VueResource);
 Vue.directive('observe-visibility', ObserveVisibility);
-Vue.use(VideojsPlayer);
 
 Vue.use(Vuetify, {
   theme: {

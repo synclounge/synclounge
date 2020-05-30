@@ -279,7 +279,7 @@ span {
 
 /* PTPlayer */
 
-.video-js.vjs-fluid, .video-js.vjs-16-9, .video-js.vjs-4-3, video.video-js, video.vjs-tech, {
+.video-js.vjs-fluid, .video-js.vjs-16-9, .video-js.vjs-4-3, video.video-js, video.vjs-tech {
   /* max-height: calc(100vh - 64px); */
   position: relative !important;
   width: 100%;
