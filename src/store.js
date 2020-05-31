@@ -5,7 +5,6 @@ import { get, set } from '@/utils/storage';
 import { generateGuid } from '@/utils/helpers';
 import { getAll } from '@/utils/settings';
 import config from './store/modules/config/config.store';
-import slplayer from './store/modules/slplayer';
 
 const plex = require('./store/modules/plex/').default;
 const syncLounge = require('./store/modules/synclounge.js').default;
@@ -355,7 +354,6 @@ const store = new Vuex.Store({
     synclounge: syncLounge,
     plex,
     config,
-    slplayer,
   },
 });
 

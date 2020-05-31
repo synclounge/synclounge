@@ -178,6 +178,7 @@
 import axios from 'axios';
 import videojs from 'video.js';
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+import slplayer from '@/store/modules/slplayer';
 
 import messages from '@/components/messages.vue';
 
@@ -224,6 +225,10 @@ export default {
   },
 
   created() {
+    if (!this.$store.hasModule('slplayer')) {
+      this.$store.registerModule('slplayer', slplayer);
+    }
+
     this.metadataLoadedPromise = this.FETCH_METADATA();
   },
 
