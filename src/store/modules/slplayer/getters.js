@@ -20,7 +20,7 @@ export default {
 
   GET_ALL_PARAMS: (state, getters, rootState, rootGetters) => {
     const params = {
-      // maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE,
+      maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE,
       hasMDE: 1,
       path: getters.GET_KEY,
       mediaIndex: getters.GET_MEDIA_INDEX,
@@ -45,7 +45,7 @@ export default {
       'X-Plex-Session-Identifier': state.xplexsessionId,
     };
 
-    return { ...getters.GET_BASE_PARAMS, ...params };
+    return { ...params, ...getters.GET_BASE_PARAMS };
   },
 
   GET_PLEX_SERVER_ID: (state, getters, rootState) =>
