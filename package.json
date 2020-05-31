@@ -86,6 +86,7 @@
     "vue-scrollto": "^2.6.10",
     "vue-style-loader": "^2.0.5",
     "vue-template-compiler": "^2.6.11",
+    "vuex-router-sync": "^5.0.0",
     "webpack": "^2.3.3",
     "webpack-bundle-analyzer": "^2.2.1",
     "webpack-dev-middleware": "^1.10.0",

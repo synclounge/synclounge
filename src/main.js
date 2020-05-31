@@ -5,6 +5,7 @@ import { ObserveVisibility } from 'vue-observe-visibility/dist/vue-observe-visib
 import VueResource from 'vue-resource';
 import VueClipboards from 'vue-clipboards';
 import VueCookies from 'vue-cookies';
+import { sync } from 'vuex-router-sync';
 
 import App from './App';
 import router from './router';
@@ -13,6 +14,8 @@ import store from './store';
 require('vanilla-tilt');
 
 const moment = require('moment');
+
+sync(store, router);
 
 Vue.use(VueScrollTo);
 Vue.use(VueClipboards);
