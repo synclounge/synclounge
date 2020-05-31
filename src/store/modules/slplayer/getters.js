@@ -56,7 +56,7 @@ export default {
 
   GET_PLEX_SERVER_URL: (state, getters) => getters.GET_PLEX_SERVER.chosenConnection.uri,
 
-  GET_PART_ID: (state, getters) => state.metadata.Media[state.mediaIndex].Part[0].id,
+  GET_PART_ID: (state, getters) => getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
 
   GET_SRC_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.m3u8?${encodeUrlParams(getters.GET_ALL_PARAMS)}`,
 
@@ -68,20 +68,20 @@ export default {
 
   GET_SUBTITLE_STREAM_CHANGE_URL: (state, getters) => `${getters.GET_PART_URL}?${encodeUrlParams({ ...getters.GET_BASE_PARAMS, subtitleStreamID: state.subtitleStreamID })}`,
 
-  GET_SUBTITLE_STREAMS: state => Array.of(({
+  GET_SUBTITLE_STREAMS: (state, getters) => Array.of(({
     id: -1,
     text: 'None',
-  })).concat(state.metadata.Media[state.mediaIndex].Part[0].Stream
+  })).concat(getters.GET_METADATA.Media[state.mediaIndex].Part[0].Stream
     .filter(({ streamType }) => streamType === 3) // Subtitles are type 3
     .map(({ id, language, codec }) => ({ id, text: `${language} (${codec})` }))),
 
-  GET_AUDIO_STREAMS: state => state.metadata.Media[state.mediaIndex].Part[0].Stream
+  GET_AUDIO_STREAMS: (state, getters) => getters.GET_METADATA.Media[state.mediaIndex].Part[0].Stream
     .filter(({ streamType }) => streamType === 2) // Audio streams are type 2
     .map(({
       id, language, codec, audioChannelLayout,
     }) => ({ id, text: `${language} (${codec} ${audioChannelLayout})` })),
 
-  GET_MEDIA_LIST: state => state.metadata.Media.map(({
+  GET_MEDIA_LIST: (state, getters) => getters.GET_METADATA.Media.map(({
     id, videoResolution, videoCodec, bitrate,
   }) => ({
     id,
@@ -94,8 +94,8 @@ export default {
   GET_SUBTITLE_STREAM_ID: state => state.subtitleStreamID,
   GET_MEDIA_INDEX: state => state.mediaIndex,
 
-  GET_RELATIVE_THUMB_URL: state =>
-    state.metadata.grandparentThumb || state.metadata.thumb,
+  GET_RELATIVE_THUMB_URL: (state, getters) =>
+    getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb,
 
   GET_THUMB_URL: (state, getters) =>
     getters.GET_PLEX_SERVER.getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200),
@@ -105,42 +105,44 @@ export default {
   GET_OFFSET: (state, getters, rootState) => state.offset || rootState.route.query.playertime,
 
   GET_METADATA: state => state.metadata,
+  GET_PLAYER_STATE: state => state.playerState,
+  GET_PLAYER: state => state.player,
 
-  GET_TITLE: (state) => {
-    switch (state.metadata.type) {
+  GET_TITLE: (state, getters) => {
+    switch (getters.GET_METADATA.type) {
       case 'movie':
-        return state.metadata.title;
+        return getters.GET_METADATA.title;
 
       case 'show':
-        return state.metadata.title;
+        return getters.GET_METADATA.title;
 
       case 'season':
-        return state.metadata.title;
+        return getters.GET_METADATA.title;
 
       case 'episode':
-        return state.metadata.grandparentTitle;
+        return getters.GET_METADATA.grandparentTitle;
 
       default:
-        return state.metadata.title;
+        return getters.GET_METADATA.title;
     }
   },
 
 
-  GET_SUBTITLE: (state) => {
-    switch (state.metadata.type) {
+  GET_SUBTITLE: (state, getters) => {
+    switch (getters.GET_METADATA.type) {
       case 'movie':
-        return state.metadata.year ? state.metadata.year : ' ';
+        return getters.GET_METADATA.year ? state.metadata.year : ' ';
 
       case 'show':
-        return state.metadata.childCount === 1
-          ? `${state.metadata.childCount} season`
-          : `${state.metadata.childCount} seasons`;
+        return getters.GET_METADATA.childCount === 1
+          ? `${getters.GET_METADATA.childCount} season`
+          : `${getters.GET_METADATA.childCount} seasons`;
 
       case 'season':
-        return `${state.metadata.leafCount} episodes`;
+        return `${getters.GET_METADATA.leafCount} episodes`;
 
       case 'album':
-        return state.metadata.year;
+        return getters.GET_METADATA.year;
 
       case 'artist':
         return '';
@@ -148,15 +150,15 @@ export default {
       case 'episode':
         return (
           ` S${
-            state.metadata.parentIndex
+            getters.GET_METADATA.parentIndex
           }E${
-            state.metadata.index
+            getters.GET_METADATA.index
           } - ${
-            state.metadata.title}`
+            getters.GET_METADATA.title}`
         );
 
       default:
-        return state.metadata.title;
+        return getters.GET_METADATA.title;
     }
   },
 };

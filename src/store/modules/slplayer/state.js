@@ -13,6 +13,8 @@ const state = () => ({
   maxVideoBitrate: null,
 
   offset: 0,
+  playerState: 'buffering',
+  player: null,
 });
 
 

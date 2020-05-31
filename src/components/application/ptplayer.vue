@@ -1,13 +1,30 @@
 <template>
   <div  v-if="GET_METADATA" style="width:100%; position: relative">
     <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
-      <videoplayer
-        @timelineUpdate="timelineUpdate"
-        @playbackEnded="stopPlayback()"
+      <div class="ptplayer">
+        <video
+          ref="videoPlayer"
+          autoplay="true"
+          controls="true"
+          preload="auto"
+          playsinline="true"
 
-        :server="GET_PLEX_SERVER"
-        :src="GET_SRC_URL"
-      ></videoplayer>
+          @pause="onPlayerPause"
+          @loadeddata="onPlayerLoadeddata"
+          @ended="onPlayerEnded"
+          @waiting="onPlayerWaiting"
+          @playing="onPlayerPlaying"
+          @timeupdate="onPlayerTimeUpdate"
+          @seeking="onPlayerSeeking"
+          @seeked="onPlayerSeeked"
+          @volumechange="onPlayerVolumeChange"
+          @error="onPlayerError"
+
+          style="background-color:transparent !important;"
+          class="video-js"
+        >
+        </video>
+      </div>
 
       <div>
         <transition name="fade">
@@ -157,19 +174,11 @@
   </div>
 </template>
 
-<style scoped>
-  .messages-wrapper {
-    height: calc(100vh - (0.5625 * 100vw) - 150px);
-  }
-  .is-fullscreen .messages-wrapper {
-    height: calc(100vh - (0.5625 * 100vw));
-  }
-</style>
-
 <script>
 import axios from 'axios';
-import { mapActions, mapGetters, mapState } from 'vuex';
-import videoplayer from './ptplayer/videoplayer.vue';
+import videojs from 'video.js';
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+
 import messages from '@/components/messages.vue';
 
 import plexthumb from './plexbrowser/plexthumb.vue';
@@ -177,15 +186,53 @@ import plexthumb from './plexbrowser/plexthumb.vue';
 export default {
   name: 'ptplayer',
   components: {
-    videoplayer, plexthumb, messages,
+    plexthumb, messages,
+  },
+
+  data() {
+    return {
+      hovered: false,
+      eventbus: window.EventBus,
+      dialog: false,
+      destroyed: false,
+      lastSentTimeline: {},
+      metadataLoadedPromise: null,
+
+      videoOptions: {
+        language: 'en',
+        inactivityTimeout: 2000,
+        fluid: true,
+        aspectRatio: '16:9',
+
+        controlBar: {
+          children: {
+            playToggle: {},
+            muteToggle: {},
+            volumeControl: {},
+            currentTimeDisplay: {},
+
+            flexibleWidthSpacer: {},
+            progressControl: {},
+            timeDivider: {},
+            liveDisplay: {},
+            durationDisplay: {},
+            fullscreenToggle: {},
+          },
+        },
+      },
+    };
   },
 
   created() {
-    this.FETCH_METADATA();
+    this.metadataLoadedPromise = this.FETCH_METADATA();
   },
 
-  mounted() {
+  async mounted() {
     console.log('UHHH PTPLAYER MOUNTED');
+
+    await this.metadataLoadedPromise;
+    this.mountVideojs();
+
     // Similuate a real plex client
     this.commandListener = this.eventbus.$on('command', (data) => {
       if (this.destroyed) {
@@ -283,20 +330,46 @@ export default {
     });
   },
 
-  data() {
-    return {
-      hovered: false,
-      eventbus: window.EventBus,
+  beforeDestroy() {
+    this.destroyed = true;
 
-      dialog: false,
-      destroyed: false,
+    this.eventbus.$off('player-press-pause');
+    this.eventbus.$off('player-press-play');
+    this.eventbus.$off('player-seek');
+    this.eventbus.$off('ptplayer-poll');
 
-      lastSentTimeline: {},
+    const params = {
+      hasMDE: 1,
+      ratingKey: this.metadata.ratingKey,
+      key: this.metadata.key,
+      state: 'stopped',
+      time: Math.floor(this.playerCurrentTimeMs()),
+      duration: Math.floor(this.playerDurationMs()),
+      'X-Plex-Product': this.params['X-Plex-Product'],
+      'X-Plex-Version': this.params['X-Plex-Version'],
+      'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
+      'X-Plex-Platform': this.params['X-Plex-Platform'],
+      'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
+      'X-Plex-Device': this.params['X-Plex-Device'],
+      'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
+      'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
+      'X-Plex-Token': this.params['X-Plex-Token'],
+      'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
     };
+    const query = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+
+    const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
+
+    this.player = null;
+
+    return axios.get(url);
   },
 
   computed: {
     ...mapState(['manualSyncQueued', 'me']),
+    ...mapGetters(['GET_HOST_PLAYER_STATE']),
     ...mapGetters('slplayer', [
       'GET_METADATA',
       'GET_SUBTITLE_STREAMS',
@@ -313,15 +386,28 @@ export default {
       'GET_PLEX_SERVER',
       'GET_TITLE',
       'GET_SUBTITLE',
+      'GET_PLAYER_STATE',
+      'GET_OFFSET',
+      'GET_PLAYER',
     ]),
 
     chosenClient() {
       return this.$store.getters.getChosenClient;
     },
-  },
 
-  beforeDestroy() {
-    this.destroyed = true;
+
+    metadataImage() {
+      const w = Math.round(Math.max(
+        document.documentElement.clientWidth,
+        window.innerWidth || 0,
+      ));
+      const h = Math.round(Math.max(
+        document.documentElement.clientHeight,
+        window.innerHeight || 0,
+      ));
+
+      return this.server.getUrlForLibraryLoc(this.metadata.thumb, w / 12, h / 4);
+    },
   },
 
   methods: {
@@ -331,7 +417,273 @@ export default {
       'CHANGE_AUDIO_STREAM',
       'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
+      'CHANGE_PLAYER_SRC',
     ]),
+
+    ...mapMutations('slplayer', [
+      'SET_PLAYER_STATE',
+      'SET_PLAYER',
+    ]),
+
+    mountVideojs() {
+      this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
+    },
+
+    onPlayerReady() {
+      this.CHANGE_PLAYER_SRC();
+
+      this.GET_PLAYER.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
+      this.GET_PLAYER.currentTime(this.GET_OFFSET / 1000);
+
+      // Events from the parent component
+      this.eventbus.$on('player-press-pause', (callback) => {
+        if (this.GET_PLAYER_STATE !== 'paused') {
+          this.GET_PLAYER.pause();
+        }
+        return callback();
+      });
+
+      this.eventbus.$on('player-press-play', (callback) => {
+        if (this.GET_PLAYER_STATE !== 'playing') {
+          this.GET_PLAYER.play();
+        }
+        return callback();
+      });
+
+      this.eventbus.$on('player-seek', async (data) => {
+      // Return a promise through the callback
+        data.callback(this.seekMethod(data));
+      });
+
+      this.eventbus.$on('ptplayer-poll', (callback) => {
+        try {
+          return callback(null, this.playerCurrentTimeMs());
+        } catch (e) {
+          return callback(e, -1);
+        }
+      });
+    },
+
+    onPlayerLoadeddata() {
+      return this.periodicPlexTimelineUpdate();
+    },
+
+    onPlayerPause() {
+      console.log('pause');
+      this.SET_PLAYER_STATE('paused');
+      this.timelineUpdate();
+    },
+
+    onPlayerEnded(event) {
+      this.$router.push('/browse');
+      this.$emit('playbackEnded', event);
+    },
+
+    onPlayerError(event) {
+      this.$emit('playerError', event);
+    },
+
+    onPlayerSeeking() {
+      console.log('Seeking');
+      this.SET_PLAYER_STATE('buffering');
+      this.timelineUpdate();
+    },
+
+    onPlayerSeeked() {
+      console.log('Seeked');
+      this.SET_PLAYER_STATE(this.GET_PLAYER.paused() ? 'paused' : 'playing');
+      this.timelineUpdate();
+    },
+
+    onPlayerTimeUpdate() {
+      if (!this.destroyed) {
+        this.timelineUpdate();
+      }
+    },
+
+    onPlayerPlaying() {
+      console.log('playing');
+      this.SET_PLAYER_STATE('playing');
+    },
+
+    onPlayerWaiting() {
+      console.log('WAITINGGGG');
+      this.SET_PLAYER_STATE('buffering');
+      this.timelineUpdate();
+    },
+
+    onPlayerVolumeChange() {
+      this.$store.commit('setSetting', ['PTPLAYERVOLUME', this.GET_PLAYER.volume() || 0]);
+    },
+
+    async periodicPlexTimelineUpdate() {
+      // Send out a timeline update to plex periodically.
+
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        if (this.destroyed) {
+          return true;
+        }
+
+        const delayPromise = this.delay(10000);
+        // eslint-disable-next-line no-await-in-loop
+        await this.sendPlexTimelineUpdate().catch(e => e);
+        // eslint-disable-next-line no-await-in-loop
+        await delayPromise;
+      }
+    },
+
+    isTimeInBufferedRange(time) {
+      const bufferedTimeRange = this.GET_PLAYER.buffered();
+
+      // There can be multiple ranges
+      for (let i = 0; i < bufferedTimeRange.length; ++i) {
+        if (time >= bufferedTimeRange.start(i) * 1000 && time <= bufferedTimeRange.end(i) * 1000) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+
+    async seekMethod({ soft, time: seekToMs }) {
+      console.log('Seeking: ', seekToMs);
+      console.log('Currentime: ', this.playerCurrentTimeMs());
+      // Parent will only send this command if we are within 10s,
+      // lets change playback speed to 3x to catch up
+
+      // eslint-disable-next-line no-underscore-dangle
+      if (Number.isNaN(this.playerDurationMs())) {
+        throw new Error('Player is not ready');
+      }
+
+      if (soft) {
+        return this.softSeek(seekToMs);
+      }
+
+      return this.normalSeek(seekToMs);
+    },
+
+    softSeek(seekToMs) {
+      if (!this.isTimeInBufferedRange(seekToMs)) {
+        throw new Error('Soft seek requested but not within buffered range');
+      }
+
+      this.GET_PLAYER.currentTime(seekToMs / 1000);
+      return true;
+    },
+
+    promiseWithTimeout(timeoutMs, promise) {
+      return Promise.race([
+        promise(),
+        new Promise((resolve, reject) => setTimeout(() => reject(new Error('Timed out')), timeoutMs)),
+      ]);
+    },
+
+    seekedPromise() {
+      return new Promise((resolve) => {
+        this.GET_PLAYER.one('seeked', (e) => {
+          resolve(e.data);
+        });
+      });
+    },
+
+    async normalSeek(seekToMs) {
+      if ((Math.abs(seekToMs - this.lastTime) < 3000 && this.GET_HOST_PLAYER_STATE === 'playing')) {
+        let cancelled = false;
+
+        window.EventBus.$once('host-playerstate-change', () => {
+          cancelled = true;
+        });
+
+        let iterations = 0;
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          // eslint-disable-next-line no-underscore-dangle
+          if (cancelled || this.GET_PLAYER_STATE !== 'playing') {
+            this.GET_PLAYER.playbackRate(1.0);
+            throw new Error('Slow seek was stop due to buffering or pausing');
+          }
+
+          const delayPromise = this.delay(25);
+
+          // 25 here because interval is 25ms
+          const expectedHostTimeMs = seekToMs + (25 * iterations);
+
+          const difference = expectedHostTimeMs - this.playerCurrentTimeMs();
+          const absDifference = Math.abs(difference);
+
+          if (absDifference < 30) {
+            this.GET_PLAYER.playbackRate(1.0);
+            return true;
+          }
+
+          if (absDifference > 5000) {
+            this.GET_PLAYER.playbackRate(1.0);
+            throw new Error('Slow seek was stopped as we are beyond 5000ms');
+          }
+
+          if (difference > 0) {
+            if (this / player.playbackRate() < 1.02) {
+              // Speed up
+              this.GET_PLAYER.playbackRate(this.GET_PLAYER.playbackRate() + 0.0001);
+            }
+          } else if (this.GET_PLAYER.playbackRate() > 0.98) {
+            // Slow down
+            this.GET_PLAYER.playbackRate(this.GET_PLAYER.playbackRate() - 0.0001);
+          }
+
+          // eslint-disable-next-line no-await-in-loop
+          await delayPromise;
+
+          iterations += 1;
+        }
+      } else {
+        this.GET_PLAYER.currentTime(seekToMs / 1000);
+        return this.promiseWithTimeout(this.seekedPromise(), 15000);
+      }
+    },
+
+    sendPlexTimelineUpdate() {
+      const params = {
+        hasMDE: 1,
+        ratingKey: this.metadata.ratingKey,
+        key: this.metadata.key,
+        state: this.GET_PLAYER_STATE,
+        time: Math.floor(this.playerCurrentTimeMs()),
+        duration: Math.floor(this.playerDurationMs()),
+        'X-Plex-Product': this.params['X-Plex-Product'],
+        'X-Plex-Version': this.params['X-Plex-Version'],
+        'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
+        'X-Plex-Platform': this.params['X-Plex-Platform'],
+        'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
+        'X-Plex-Device': this.params['X-Plex-Device'],
+        'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
+        'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
+        'X-Plex-Token': this.params['X-Plex-Token'],
+        'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
+      };
+
+      const query = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+
+      const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
+      return axios.get(url, { timeout: 10000 });
+    },
+
+    delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    },
+
+    playerCurrentTimeMs() {
+      return this.GET_PLAYER.currentTime() * 1000;
+    },
+
+    playerDurationMs() {
+      return this.GET_PLAYER.duration() * 1000;
+    },
 
     doManualSync() {
       this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
@@ -348,12 +700,16 @@ export default {
       this.chosenClient.pressStop(() => {});
     },
 
-    timelineUpdate(data) {
-      this.playertime = data.time;
-      this.playerstatus = data.status;
-      this.playerduration = data.duration;
+    timelineUpdate() {
+      const time = this.playerCurrentTimeMs();
+      const duration = this.playerDurationMs();
+      const status = this.GET_PLAYER_STATE;
 
-      if (this.lastSentTimeline.state !== data.status || this.chosenKey !== this.lastSentTimeline.key) {
+      this.playertime = time;
+      this.playerstatus = status;
+      this.playerduration = duration;
+
+      if (this.lastSentTimeline.state !== this.playerstatus || this.chosenKey !== this.lastSentTimeline.key) {
         const key = this.chosenKey;
         let ratingKey = null;
         if (key) {
@@ -379,3 +735,16 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .messages-wrapper {
+    height: calc(100vh - (0.5625 * 100vw) - 150px);
+  }
+  .is-fullscreen .messages-wrapper {
+    height: calc(100vh - (0.5625 * 100vw));
+  }
+</style>
+
+
+<style src="video.js/dist/video-js.css" scoped>
+</style>

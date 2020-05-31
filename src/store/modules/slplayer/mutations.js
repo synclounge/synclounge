@@ -14,4 +14,12 @@ export default {
   SET_SUBTITLE_STREAM_ID: (state, subtitleStreamID) => {
     state.subtitleStreamID = subtitleStreamID;
   },
+
+  SET_PLAYER_STATE: (state, playerState) => {
+    state.playerState = playerState;
+  },
+
+  SET_PLAYER: (state, player) => {
+    state.player = player;
+  },
 };
