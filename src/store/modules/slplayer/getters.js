@@ -113,6 +113,9 @@ export default {
   GET_PLAYER_STATE: state => state.playerState,
   GET_PLAYER: state => state.player,
 
+  // eslint-disable-next-line no-underscore-dangle
+  GET_USERACTIVE: (state, getters) => (getters.GET_PLAYER ? getters.GET_PLAYER.userActive_ : true),
+
   GET_TITLE: (state, getters) => {
     switch (getters.GET_METADATA.type) {
       case 'movie':
@@ -133,7 +136,7 @@ export default {
   },
 
 
-  GET_SUBTITLE: (state, getters) => {
+  GET_SECONDARY_TITLE: (state, getters) => {
     switch (getters.GET_METADATA.type) {
       case 'movie':
         return getters.GET_METADATA.year ? state.metadata.year : ' ';

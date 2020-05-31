@@ -1,6 +1,6 @@
 <template>
   <div  v-if="GET_METADATA" style="width:100%; position: relative">
-    <div style="position: relative" @mouseover="hovered = true" @mouseout="hovered = false">
+    <div style="position: relative">
       <div class="ptplayer">
         <video
           ref="videoPlayer"
@@ -28,7 +28,7 @@
 
       <div>
         <transition name="fade">
-          <div v-show="hovered">
+          <div v-show="GET_USERACTIVE">
             <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 2" class="pa-3 hidden-xs-only">
               <img :src="GET_THUMB_URL" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;" />
               <v-flex class="pl-3">
@@ -39,7 +39,7 @@
                     </v-flex>
 
                     <v-flex>
-                      <h3>{{ GET_SUBTITLE }}</h3>
+                      <h3>{{ GET_SECONDARY_TITLE }}</h3>
                     </v-flex>
 
                     <v-flex>
@@ -146,7 +146,7 @@
                     <h1>{{ GET_TITLE }}</h1>
                   </v-flex>
                   <v-flex>
-                    <h3>{{ GET_SUBTITLE }}</h3>
+                    <h3>{{ GET_SECONDARY_TITLE }}</h3>
                   </v-flex>
                   <v-flex>
                     <h5>Playing from {{ GET_PLEX_SERVER.name  }}</h5>
@@ -192,7 +192,6 @@ export default {
 
   data() {
     return {
-      hovered: false,
       eventbus: window.EventBus,
       dialog: false,
       destroyed: false,
@@ -225,7 +224,7 @@ export default {
   },
 
   created() {
-    if (!this.$store.hasModule('slplayer')) {
+    if (!this.$store.state.slplayer) {
       this.$store.registerModule('slplayer', slplayer);
     }
 
@@ -233,10 +232,8 @@ export default {
   },
 
   async mounted() {
-    console.log('UHHH PTPLAYER MOUNTED');
-
     await this.metadataLoadedPromise;
-    this.mountVideojs();
+    this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
 
     // Similuate a real plex client
     this.commandListener = this.eventbus.$on('command', (data) => {
@@ -365,10 +362,11 @@ export default {
       'GET_THUMB_URL',
       'GET_PLEX_SERVER',
       'GET_TITLE',
-      'GET_SUBTITLE',
+      'GET_SECONDARY_TITLE',
       'GET_PLAYER_STATE',
       'GET_OFFSET',
       'GET_PLAYER',
+      'GET_USERACTIVE',
     ]),
 
     chosenClient() {
@@ -405,11 +403,6 @@ export default {
     ...mapMutations('slplayer', [
       'SET_PLAYER',
     ]),
-
-    mountVideojs() {
-      console.log('MOUNTING VIDEOJS');
-      this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
-    },
 
     onPlayerReady() {
       console.log('PLAYER READY');
