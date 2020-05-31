@@ -56,13 +56,16 @@ export default {
 
   GET_PLEX_SERVER_URL: (state, getters) => getters.GET_PLEX_SERVER.chosenConnection.uri,
 
-  GET_PART_ID: (state, getters) => getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
+  GET_PART_ID: (state, getters) =>
+    getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
 
   GET_SRC_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.m3u8?${encodeUrlParams(getters.GET_ALL_PARAMS)}`,
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
 
   GET_PART_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/library/parts/${getters.GET_PART_ID}`,
+
+  GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline?`,
 
   GET_AUDIO_STREAM_CHANGE_URL: (state, getters) => `${getters.GET_PART_URL}?${encodeUrlParams({ ...getters.GET_BASE_PARAMS, audioStreamID: state.audioStreamID })}`,
 
@@ -100,7 +103,9 @@ export default {
   GET_THUMB_URL: (state, getters) =>
     getters.GET_PLEX_SERVER.getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200),
 
-  GET_KEY: (state, getters, rootState) => state.key || rootState.route.query.key.replace('/library/metadata/', ''),
+  GET_RATING_KEY: (state, getters, rootState) => state.ratingKey || rootState.route.query.key,
+
+  GET_KEY: (state, getters) => getters.GET_METADATA.key,
 
   GET_OFFSET: (state, getters, rootState) => state.offset || rootState.route.query.playertime,
 

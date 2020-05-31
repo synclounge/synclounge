@@ -3,7 +3,7 @@ const state = () => ({
   // TODO: find out why we need 2 session ids
   xplexsessionId: null,
 
-  key: null,
+  ratingKey: null,
   metadata: null,
   plexServerId: null,
 

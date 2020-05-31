@@ -338,33 +338,8 @@ export default {
     this.eventbus.$off('player-seek');
     this.eventbus.$off('ptplayer-poll');
 
-    const params = {
-      hasMDE: 1,
-      ratingKey: this.metadata.ratingKey,
-      key: this.metadata.key,
-      state: 'stopped',
-      time: Math.floor(this.playerCurrentTimeMs()),
-      duration: Math.floor(this.playerDurationMs()),
-      'X-Plex-Product': this.params['X-Plex-Product'],
-      'X-Plex-Version': this.params['X-Plex-Version'],
-      'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
-      'X-Plex-Platform': this.params['X-Plex-Platform'],
-      'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
-      'X-Plex-Device': this.params['X-Plex-Device'],
-      'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
-      'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
-      'X-Plex-Token': this.params['X-Plex-Token'],
-      'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
-    };
-    const query = Object.entries(params)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
-
-    const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
-
-    this.player = null;
-
-    return axios.get(url);
+    this.SET_PLAYER_STATE('stopped');
+    this.SEND_PLEX_TIMELINE_UPDATE();
   },
 
   computed: {
@@ -418,6 +393,7 @@ export default {
       'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
+      'SEND_PLEX_TIMELINE_UPDATE',
     ]),
 
     ...mapMutations('slplayer', [
@@ -426,10 +402,12 @@ export default {
     ]),
 
     mountVideojs() {
+      console.log('MOUNTING VIDEOJS');
       this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
     },
 
     onPlayerReady() {
+      console.log('PLAYER READY');
       this.CHANGE_PLAYER_SRC();
 
       this.GET_PLAYER.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
@@ -527,7 +505,7 @@ export default {
 
         const delayPromise = this.delay(10000);
         // eslint-disable-next-line no-await-in-loop
-        await this.sendPlexTimelineUpdate().catch(e => e);
+        await this.SEND_PLEX_TIMELINE_UPDATE().catch(e => e);
         // eslint-disable-next-line no-await-in-loop
         await delayPromise;
       }
@@ -625,7 +603,7 @@ export default {
           }
 
           if (difference > 0) {
-            if (this / player.playbackRate() < 1.02) {
+            if (this / this.GET_PLAYER.playbackRate() < 1.02) {
               // Speed up
               this.GET_PLAYER.playbackRate(this.GET_PLAYER.playbackRate() + 0.0001);
             }
@@ -643,34 +621,6 @@ export default {
         this.GET_PLAYER.currentTime(seekToMs / 1000);
         return this.promiseWithTimeout(this.seekedPromise(), 15000);
       }
-    },
-
-    sendPlexTimelineUpdate() {
-      const params = {
-        hasMDE: 1,
-        ratingKey: this.metadata.ratingKey,
-        key: this.metadata.key,
-        state: this.GET_PLAYER_STATE,
-        time: Math.floor(this.playerCurrentTimeMs()),
-        duration: Math.floor(this.playerDurationMs()),
-        'X-Plex-Product': this.params['X-Plex-Product'],
-        'X-Plex-Version': this.params['X-Plex-Version'],
-        'X-Plex-Client-Identifier': this.params['X-Plex-Client-Identifier'],
-        'X-Plex-Platform': this.params['X-Plex-Platform'],
-        'X-Plex-Platform-Version': this.params['X-Plex-Platform-Version'],
-        'X-Plex-Device': this.params['X-Plex-Device'],
-        'X-Plex-Device-Name': this.params['X-Plex-Device-Name'],
-        'X-Plex-Device-Screen-Resolution': this.params['X-Plex-Device-Screen-Resolution'],
-        'X-Plex-Token': this.params['X-Plex-Token'],
-        'X-Plex-Session-Identifier': this.params['X-Plex-Session-Identifier'],
-      };
-
-      const query = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
-
-      const url = `${this.server.chosenConnection.uri}/:/timeline?${query}`;
-      return axios.get(url, { timeout: 10000 });
     },
 
     delay(ms) {
@@ -746,5 +696,5 @@ export default {
 </style>
 
 
-<style src="video.js/dist/video-js.css" scoped>
+<style src="video.js/dist/video-js.css">
 </style>
