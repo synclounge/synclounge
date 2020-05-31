@@ -22,4 +22,8 @@ export default {
   SET_PLAYER: (state, player) => {
     state.player = player;
   },
+
+  SET_SESSION: (state, session) => {
+    state.session = session;
+  },
 };

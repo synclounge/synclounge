@@ -338,7 +338,7 @@ export default {
     this.eventbus.$off('player-seek');
     this.eventbus.$off('ptplayer-poll');
 
-    this.SET_PLAYER_STATE('stopped');
+    this.CHANGE_PLAYER_STATE('stopped');
     this.SEND_PLEX_TIMELINE_UPDATE();
   },
 
@@ -394,10 +394,10 @@ export default {
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
       'SEND_PLEX_TIMELINE_UPDATE',
+      'CHANGE_PLAYER_STATE',
     ]),
 
     ...mapMutations('slplayer', [
-      'SET_PLAYER_STATE',
       'SET_PLAYER',
     ]),
 
@@ -448,7 +448,7 @@ export default {
 
     onPlayerPause() {
       console.log('pause');
-      this.SET_PLAYER_STATE('paused');
+      this.CHANGE_PLAYER_STATE('paused');
       this.timelineUpdate();
     },
 
@@ -463,13 +463,13 @@ export default {
 
     onPlayerSeeking() {
       console.log('Seeking');
-      this.SET_PLAYER_STATE('buffering');
+      this.CHANGE_PLAYER_STATE('buffering');
       this.timelineUpdate();
     },
 
     onPlayerSeeked() {
       console.log('Seeked');
-      this.SET_PLAYER_STATE(this.GET_PLAYER.paused() ? 'paused' : 'playing');
+      this.CHANGE_PLAYER_STATE(this.GET_PLAYER.paused() ? 'paused' : 'playing');
       this.timelineUpdate();
     },
 
@@ -481,12 +481,12 @@ export default {
 
     onPlayerPlaying() {
       console.log('playing');
-      this.SET_PLAYER_STATE('playing');
+      this.CHANGE_PLAYER_STATE('playing');
     },
 
     onPlayerWaiting() {
       console.log('WAITINGGGG');
-      this.SET_PLAYER_STATE('buffering');
+      this.CHANGE_PLAYER_STATE('buffering');
       this.timelineUpdate();
     },
 

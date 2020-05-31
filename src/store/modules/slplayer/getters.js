@@ -65,7 +65,7 @@ export default {
 
   GET_PART_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/library/parts/${getters.GET_PART_ID}`,
 
-  GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline?`,
+  GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline`,
 
   GET_AUDIO_STREAM_CHANGE_URL: (state, getters) => `${getters.GET_PART_URL}?${encodeUrlParams({ ...getters.GET_BASE_PARAMS, audioStreamID: state.audioStreamID })}`,
 

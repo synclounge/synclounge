@@ -1,7 +1,10 @@
+
+import generateGuid from '@/utils/guid';
+
 const state = () => ({
   session: null,
   // TODO: find out why we need 2 session ids
-  xplexsessionId: null,
+  xplexsessionId: generateGuid(),
 
   ratingKey: null,
   metadata: null,

@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import generateGuid from '@/utils/guid';
+
 export default {
   SEND_PLEX_DECISION_REQUEST: ({ getters }) =>
     axios.get(getters.GET_DECISION_URL, {
@@ -38,7 +40,7 @@ export default {
   FETCH_METADATA: async ({ commit, getters }) => {
     const result = await getters.GET_PLEX_SERVER.getMediaByRatingKey(getters.GET_RATING_KEY);
     // Always media 0
-    console.log(result);
+
     commit('SET_METADATA', result.MediaContainer.Metadata[0]);
     return true;
   },
@@ -47,20 +49,17 @@ export default {
 
   },
 
-  CHANGE_PLAYER_SRC: async ({ getters, dispatch }) => {
-    console.log('CHANGE PLAYER SRC');
+  CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
+    commit('SET_SESSION', generateGuid());
     await dispatch('SEND_PLEX_DECISION_REQUEST');
-    console.log('AFTER PLEX DECISION WHAT....');
     getters.GET_PLAYER.src(getters.GET_SRC_URL);
-    console.log(getters.GET_SRC_URL);
   },
-
 
   SEND_PLEX_TIMELINE_UPDATE: ({ getters }) => axios.get(getters.GET_TIMELINE_URL, {
     params: {
       hasMDE: 1,
       ratingKey: getters.GET_RATING_KEY,
-      key: getters.GET_RATING_KEY,
+      key: getters.GET_KEY,
       state: getters.GET_PLAYER_STATE,
       time: Math.floor(getters.GET_PLAYER.currentTime() * 1000),
       duration: Math.floor(getters.GET_PLAYER.duration() * 1000),
@@ -69,4 +68,8 @@ export default {
     timeout: 10000,
   }),
 
+  CHANGE_PLAYER_STATE: ({ commit, dispatch }, playerState) => {
+    commit('SET_PLAYER_STATE', playerState);
+    return dispatch('SEND_PLEX_TIMELINE_UPDATE');
+  },
 };
