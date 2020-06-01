@@ -136,7 +136,6 @@ module.exports = function PlexClient() {
   };
 
   this.getTimeline = function () {
-    console.log('getTimeline');
     return new Promise(async (resolve, reject) => {
       let data;
       try {
@@ -153,7 +152,6 @@ module.exports = function PlexClient() {
   };
 
   this.updateTimelineObject = function (result) {
-    console.log('Update timeline obj');
     // Check if we are the SLPlayer
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // SLPLAYER

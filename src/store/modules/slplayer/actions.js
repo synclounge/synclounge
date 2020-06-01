@@ -66,6 +66,7 @@ export default {
 
   CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
     commit('SET_SESSION', generateGuid());
+    dispatch('SAVE_OFFSET');
     await dispatch('SEND_PLEX_DECISION_REQUEST');
     getters.GET_PLAYER.src(getters.GET_SRC_URL);
   },
@@ -83,25 +84,16 @@ export default {
     timeout: 10000,
   }),
 
-  HANDLE_PLAYER_PLAYING: ({ commit }) => {
-    commit('SET_PLAYER_STATE', 'playing');
-  },
+  HANDLE_PLAYER_PLAYING: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'playing'),
 
-  HANDLE_PLAYER_PAUSE: ({ commit }) => {
-    commit('SET_PLAYER_STATE', 'paused');
-  },
+  HANDLE_PLAYER_PAUSE: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'paused'),
 
-  HANDLE_PLAYER_SEEKING: ({ commit }) => {
-    commit('SET_PLAYER_STATE', 'buffering');
-  },
+  HANDLE_PLAYER_SEEKING: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'buffering'),
 
-  HANDLE_PLAYER_SEEKED: ({ getters, commit }) => {
-    commit('SET_PLAYER_STATE', getters.GET_PLAYER.paused() ? 'paused' : 'playing');
-  },
+  HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) =>
+    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER.paused() ? 'paused' : 'playing'),
 
-  HANDLE_PLAYER_WAITING: ({ commit }) => {
-    commit('SET_PLAYER_STATE', 'buffering');
-  },
+  HANDLE_PLAYER_WAITING: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'buffering'),
 
   HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
     commit('setSetting', ['PTPLAYERVOLUME', getters.GET_PLAYER.volume() || 0], { root: true });
@@ -109,8 +101,10 @@ export default {
 
 
   // Command handlers
-  HANDLE_COMMAND: ({ dispatch }, { command, params, callback }) => {
-    dispatch('DO_COMMAND_DISPATCH', { action: commandActions(command), params }).then(callback);
+  HANDLE_COMMAND: async ({ dispatch }, { command, params, callback }) => {
+    const result = await dispatch('DO_COMMAND_DISPATCH', { action: commandActions(command), params })
+      .catch(console.warn);
+    callback(result);
   },
 
   DO_COMMAND_DISPATCH: async ({ dispatch }, { action, params }) =>
@@ -139,21 +133,16 @@ export default {
     commit('SET_OFFSET', offset);
   },
 
-  DO_COMMAND_STOP: ({ getters }, { callback }) => {
-    this.chosenKey = null;
-    this.chosenServer = null;
-    this.playerduration = null;
-    this.playertime = 0;
-    this.playingMetadata = null;
-    this.$router.push('/browse');
-    return data.callback(true);
-  },
+  DO_COMMAND_STOP: ({ dispatch }) =>
+    dispatch('CHANGE_PLAYER_STATE', 'stopped'), // TODO: fix thisss...
+  // this.$router.push('/browse');
+
 
   DO_COMMAND_SEEK_TO: async ({ getters, dispatch }, { offset: seekToMs, softSeek }) => {
     console.log('Seeking: ', seekToMs);
     console.log('Currentime: ', getters.GET_PLAYER_CURRENT_TIME_MS);
 
-    if (Number.isNaN(getters.GET_PLAYER_DURATION_MS())) {
+    if (Number.isNaN(getters.GET_PLAYER_DURATION_MS)) {
       throw new Error('Player is not ready');
     }
 
@@ -242,7 +231,7 @@ export default {
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      if (!getters.GET_METADATA) {
+      if (!getters.GET_PLAYER) {
         return true;
       }
 
@@ -252,5 +241,25 @@ export default {
       // eslint-disable-next-line no-await-in-loop
       await delayPromise;
     }
+  },
+
+  UPDATE_CLIENT_TIMELINE: ({ getters, rootGetters }) => {
+    rootGetters.getChosenClient.updateTimelineObject(getters.GET_POLL_RESPONSE);
+  },
+
+  CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {
+    commit('SET_PLAYER_STATE', state);
+    const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
+    dispatch('UPDATE_CLIENT_TIMELINE');
+    return result;
+  },
+
+  SAVE_OFFSET: ({ getters, commit }) => {
+    commit('SET_OFFSET', getters.GET_PLAYER_CURRENT_TIME_MS);
+  },
+
+  DISPOSE_PLAYER: ({ getters, commit }) => {
+    getters.GET_PLAYER.dispose();
+    commit('SET_PLAYER', null);
   },
 };

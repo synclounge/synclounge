@@ -47,7 +47,6 @@ const state = {
 
 const mutations = {
   SET_CHOSENCLIENT(state, client) {
-    console.log('SET_CHOSENCLIENT');
     // Set up our client poller
     let commandInProgress = false;
 

@@ -1,5 +1,5 @@
 <template>
-  <div  v-if="GET_METADATA" style="width:100%; position: relative">
+  <div v-if="GET_METADATA" style="width:100%; position: relative">
     <div style="position: relative">
       <div class="ptplayer">
         <video
@@ -57,7 +57,7 @@
                   </v-tooltip>
                   <v-icon slot="activator" color="white" class="clickable pl-3" v-on:click="dialog = !dialog">settings</v-icon>
                   <router-link to="/browse"  slot="activator">
-                    <v-icon color="white" class="pl-3" v-on:click.native="stopPlayback()">close</v-icon>
+                    <v-icon color="white" class="pl-3" v-on:click.native="DO_COMMAND_STOP">close</v-icon>
                   </router-link>
                 </div>
               </v-flex>
@@ -161,7 +161,7 @@
               </v-flex>
               <v-flex xs12>
                 <router-link to="/browse">
-                  <v-btn block color="error" v-on:click.native="stopPlayback()">Stop playback</v-btn>
+                  <v-btn block color="error" v-on:click.native="DO_COMMAND_STOP">Stop playback</v-btn>
                 </router-link>
               </v-flex>
             </v-layout>
@@ -192,7 +192,6 @@ export default {
     return {
       eventbus: window.EventBus,
       dialog: false,
-      destroyed: false,
       lastSentTimeline: {},
       metadataLoadedPromise: null,
 
@@ -221,15 +220,18 @@ export default {
     };
   },
 
-  created() {
+  beforeCreate() {
     if (!this.$store.state.slplayer) {
       this.$store.registerModule('slplayer', slplayer);
     }
+  },
 
+  created() {
     this.metadataLoadedPromise = this.FETCH_METADATA();
   },
 
   async mounted() {
+    console.log('PTPLAYER MOUNTED');
     await this.metadataLoadedPromise;
     this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
 
@@ -239,12 +241,9 @@ export default {
   },
 
   beforeDestroy() {
-    this.destroyed = true;
-
-    this.CHANGE_PLAYER_STATE('stopped');
-    this.SEND_PLEX_TIMELINE_UPDATE();
-
     this.eventbus.$off('command', this.HANDLE_COMMAND);
+    this.DISPOSE_PLAYER();
+    this.$store.unregisterModule('slplayer');
   },
 
   computed: {
@@ -254,7 +253,6 @@ export default {
       'GET_SUBTITLE_STREAMS',
       'GET_AUDIO_STREAMS',
       'GET_QUALITIES',
-      'GET_INIT_URL',
       'GET_MAX_VIDEO_BITRATE',
       'GET_SRC_URL',
       'GET_AUDIO_STREAM_ID',
@@ -270,24 +268,6 @@ export default {
       'GET_PLAYER',
       'GET_USERACTIVE',
     ]),
-
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
-
-
-    metadataImage() {
-      const w = Math.round(Math.max(
-        document.documentElement.clientWidth,
-        window.innerWidth || 0,
-      ));
-      const h = Math.round(Math.max(
-        document.documentElement.clientHeight,
-        window.innerHeight || 0,
-      ));
-
-      return this.server.getUrlForLibraryLoc(this.metadata.thumb, w / 12, h / 4);
-    },
   },
 
   methods: {
@@ -308,6 +288,9 @@ export default {
       'HANDLE_PLAYER_VOLUME_CHANGE',
 
       'HANDLE_COMMAND',
+      'DO_COMMAND_STOP',
+      'SEND_PLEX_TIMELINE_UPDATE',
+      'DISPOSE_PLAYER',
     ]),
 
     ...mapMutations('slplayer', [
@@ -323,32 +306,18 @@ export default {
     },
 
     onPlayerLoadeddata() {
+
       return this.PERIODIC_PLEX_TIMELINE_UPDATE_STARTER();
     },
 
     onPlayerEnded(event) {
+      console.log('ENDED');
       this.$router.push('/browse');
       this.$emit('playbackEnded', event);
     },
 
-    onPlayerTimeUpdate() {
-      if (!this.destroyed) {
-        // this.timelineUpdate();
-      }
-    },
-
     doManualSync() {
       this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
-    },
-
-    stopPlayback() {
-      console.log('Stopped Playback');
-      this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
-
-      this.playerstatus = 'stopped';
-      this.sessionId = this.generateGuid();
-      this.xplexsession = this.generateGuid();
-      this.chosenClient.pressStop(() => {});
     },
   },
 };
