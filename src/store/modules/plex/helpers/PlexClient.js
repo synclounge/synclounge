@@ -136,6 +136,7 @@ module.exports = function PlexClient() {
   };
 
   this.getTimeline = function () {
+    console.log('getTimeline');
     return new Promise(async (resolve, reject) => {
       let data;
       try {
@@ -152,6 +153,7 @@ module.exports = function PlexClient() {
   };
 
   this.updateTimelineObject = function (result) {
+    console.log('Update timeline obj');
     // Check if we are the SLPlayer
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // SLPLAYER
@@ -162,7 +164,7 @@ module.exports = function PlexClient() {
       };
       result = tempObj;
       if (!previousTimeline.MediaContainer || result.MediaContainer.Timeline[0].ratingKey !== previousTimeline.MediaContainer.Timeline[0].ratingKey) {
-        // console.log('Before playback change', result, previousTimeline)
+        console.log('Before playback change', result, previousTimeline);
         window.EventBus.$emit('PLAYBACK_CHANGE', [this, result.MediaContainer.Timeline[0].ratingKey, result.MediaContainer.Timeline[0]]);
       }
       previousTimeline = tempObj;
@@ -245,6 +247,7 @@ module.exports = function PlexClient() {
     return this.seekTo(time);
   };
   this.sync = function sync(hostTimeline, SYNCFLEXABILITY, SYNCMODE, POLLINTERVAL) {
+    console.log('sync()');
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         await this.getTimeline();

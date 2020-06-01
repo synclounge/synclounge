@@ -47,8 +47,10 @@ const state = {
 
 const mutations = {
   SET_CHOSENCLIENT(state, client) {
+    console.log('SET_CHOSENCLIENT');
     // Set up our client poller
     let commandInProgress = false;
+
     function clientPoller(time) {
       if (!state.chosenClient) {
         return;
@@ -72,30 +74,31 @@ const mutations = {
       } else {
         state.chosenClient.getTimeline();
       }
-      let interval = state.settings.CLIENTPOLLINTERVAL;
-      if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-        interval = 500;
-      }
+
       setTimeout(() => {
         clientPoller(time);
-      }, interval);
+      }, state.settings.CLIENTPOLLINTERVAL);
     }
 
     // Check if we need to remove old handlers
     if (state.chosenClient) {
       state.chosenClient.events.removeAllListeners();
     }
+
     state.chosenClient = client;
     if (state.chosenClient && state.chosenClient.lastTimelineObject) {
       state.chosenClient.lastTimelineObject.ratingKey = -1;
     }
+
     if (state.chosenClient == null) {
       return;
     }
+
     state.chosenClientTimeSet = new Date().getTime();
     clientPoller(state.chosenClientTimeSet);
     state.chosenClient.getTimeline((timeline) => { });
   },
+
   SET_PLEX(state, value) {
     state.plex = value;
   },

@@ -26,4 +26,24 @@ export default {
   SET_SESSION: (state, session) => {
     state.session = session;
   },
+
+  SET_OFFSET: (state, offset) => {
+    state.offset = offset;
+  },
+
+  SET_PLEX_SERVER_ID: (state, id) => {
+    state.plexServerId = id;
+  },
+
+  SET_MEDIA_INDEX: (state, index) => {
+    state.mediaIndex = index;
+  },
+
+  SET_RATING_KEY: (state, ratingKey) => {
+    state.ratingKey = ratingKey;
+  },
+
+  SET_PLEX_DECISION: (state, decision) => {
+    state.plexDecision = decision;
+  },
 };

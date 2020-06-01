@@ -48,6 +48,8 @@ export default {
     return { ...params, ...getters.GET_BASE_PARAMS };
   },
 
+  GET_PLEX_DECISION: state => state.plexDecision,
+
   GET_PLEX_SERVER_ID: (state, getters, rootState) =>
     state.plexServerId || rootState.route.query.chosenServer,
 
@@ -71,14 +73,18 @@ export default {
 
   GET_SUBTITLE_STREAM_CHANGE_URL: (state, getters) => `${getters.GET_PART_URL}?${encodeUrlParams({ ...getters.GET_BASE_PARAMS, subtitleStreamID: state.subtitleStreamID })}`,
 
+  GET_STREAMS: (state, getters) => getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].Stream,
+
+  GET_DECISION_STREAMS: (state, getters) => getters.GET_PLEX_DECISION.MediaContainer.Metadata[0].Media[0].Part[0].Stream,
+
   GET_SUBTITLE_STREAMS: (state, getters) => Array.of(({
-    id: -1,
+    id: 0,
     text: 'None',
-  })).concat(getters.GET_METADATA.Media[state.mediaIndex].Part[0].Stream
+  })).concat(getters.GET_STREAMS
     .filter(({ streamType }) => streamType === 3) // Subtitles are type 3
     .map(({ id, language, codec }) => ({ id, text: `${language} (${codec})` }))),
 
-  GET_AUDIO_STREAMS: (state, getters) => getters.GET_METADATA.Media[state.mediaIndex].Part[0].Stream
+  GET_AUDIO_STREAMS: (state, getters) => getters.GET_STREAMS
     .filter(({ streamType }) => streamType === 2) // Audio streams are type 2
     .map(({
       id, language, codec, audioChannelLayout,
@@ -93,8 +99,23 @@ export default {
 
   GET_QUALITIES: () => qualities,
   GET_MAX_VIDEO_BITRATE: state => state.maxVideoBitrate,
-  GET_AUDIO_STREAM_ID: state => state.audioStreamID,
-  GET_SUBTITLE_STREAM_ID: state => state.subtitleStreamID,
+
+  GET_AUDIO_STREAM_ID: (state, getters) => {
+    if (!getters.GET_PLEX_DECISION) {
+      return 0;
+    }
+    const selectedAudioStream = getters.GET_DECISION_STREAMS.find(stream => stream.streamType === '2' && stream.selected === '1');
+    return selectedAudioStream ? parseInt(selectedAudioStream.id, 10) : 0;
+  },
+
+  GET_SUBTITLE_STREAM_ID: (state, getters) => {
+    if (!getters.GET_PLEX_DECISION) {
+      return 0;
+    }
+    const selectedSubtitleStream = getters.GET_DECISION_STREAMS.find(stream => stream.streamType === '3' && stream.selected === '1');
+    return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
+  },
+
   GET_MEDIA_INDEX: state => state.mediaIndex,
 
   GET_RELATIVE_THUMB_URL: (state, getters) =>
@@ -105,7 +126,7 @@ export default {
 
   GET_RATING_KEY: (state, getters, rootState) => state.ratingKey || rootState.route.query.key,
 
-  GET_KEY: (state, getters) => getters.GET_METADATA.key,
+  GET_KEY: (state, getters) => `/library/metadata/${getters.GET_RATING_KEY}`,
 
   GET_OFFSET: (state, getters, rootState) => state.offset || rootState.route.query.playertime,
 
@@ -115,6 +136,33 @@ export default {
 
   // eslint-disable-next-line no-underscore-dangle
   GET_USERACTIVE: (state, getters) => (getters.GET_PLAYER ? getters.GET_PLAYER.userActive_ : true),
+
+  GET_PLAYER_CURRENT_TIME_MS: (state, getters) => getters.GET_PLAYER.currentTime() * 1000,
+
+  GET_PLAYER_DURATION_MS: (state, getters) => getters.GET_PLAYER.duration() * 1000,
+
+  IS_TIME_IN_BUFFERED_RANGE: (state, getters) => (time) => {
+    const bufferedTimeRange = getters.GET_PLAYER.buffered();
+
+    // There can be multiple ranges
+    for (let i = 0; i < bufferedTimeRange.length; ++i) {
+      if (time >= bufferedTimeRange.start(i) * 1000 && time <= bufferedTimeRange.end(i) * 1000) {
+        return true;
+      }
+    }
+
+    return false;
+  },
+
+  GET_POLL_RESPONSE: (state, getters) => ({
+    ratingKey: getters.GET_RATING_KEY,
+    key: getters.GET_KEY,
+    time: getters.GET_PLAYER_CURRENT_TIME_MS,
+    duration: getters.GET_PLAYER_DURATION_MS,
+    type: 'video',
+    machineIdentifier: getters.GET_PLEX_SERVER_ID,
+    state: getters.GET_PLAYER_STATE,
+  }),
 
   GET_TITLE: (state, getters) => {
     switch (getters.GET_METADATA.type) {

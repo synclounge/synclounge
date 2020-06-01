@@ -8,11 +8,10 @@ const state = () => ({
 
   ratingKey: null,
   metadata: null,
+  plexDecision: null,
   plexServerId: null,
 
   mediaIndex: 0,
-  subtitleStreamID: -1,
-  audioStreamID: null,
   maxVideoBitrate: null,
 
   offset: 0,

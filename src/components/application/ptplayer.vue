@@ -9,16 +9,14 @@
           preload="auto"
           playsinline="true"
 
-          @pause="onPlayerPause"
+          @pause="HANDLE_PLAYER_PAUSE"
           @loadeddata="onPlayerLoadeddata"
           @ended="onPlayerEnded"
-          @waiting="onPlayerWaiting"
-          @playing="onPlayerPlaying"
-          @timeupdate="onPlayerTimeUpdate"
-          @seeking="onPlayerSeeking"
-          @seeked="onPlayerSeeked"
-          @volumechange="onPlayerVolumeChange"
-          @error="onPlayerError"
+          @waiting="HANDLE_PLAYER_WAITING"
+          @playing="HANDLE_PLAYER_PLAYING"
+          @seeking="HANDLE_PLAYER_SEEKING"
+          @seeked="HANDLE_PLAYER_SEEKED"
+          @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
 
           style="background-color:transparent !important;"
           class="video-js"
@@ -82,8 +80,8 @@
           <v-card-title>Playback Settings </v-card-title>
           <v-card-text>
             <v-select
-              :value="GET_MAX_VIDEO_BITRATE"
               :items="GET_QUALITIES"
+              :value="GET_MAX_VIDEO_BITRATE"
               item-text="label"
               item-value="maxVideoBitrate"
               persistent-hint
@@ -236,117 +234,21 @@ export default {
     this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
 
     // Similuate a real plex client
-    this.commandListener = this.eventbus.$on('command', (data) => {
-      if (this.destroyed) {
-        return;
-      }
-
-      const { command } = data;
-
-      switch (command) {
-        case '/player/timeline/poll': {
-          const key = this.chosenKey;
-          let ratingKey = null;
-          if (key) {
-            ratingKey = `/library/metadata/${key}`;
-          }
-
-          let machineIdentifier = null;
-          if (this.chosenServer) {
-            machineIdentifier = this.chosenServer.clientIdentifier;
-          }
-          const playerdata = {
-            key,
-            ratingKey,
-            time: this.playertime,
-            type: 'video',
-            machineIdentifier,
-            duration: this.playerduration,
-            state: this.playerstatus,
-          };
-          this.lastSentTimeline = playerdata;
-          if (this.playertime) {
-            this.eventbus.$emit('ptplayer-poll', (err, time) => {
-              if (err) {
-                return data.callback(this.playertime);
-              }
-              // let difference = Math.abs(time - this.playertime)
-              // console.log('Poll time was out by', difference)
-              playerdata.time = time;
-              this.playertime = time;
-              data.callback(playerdata);
-            });
-          } else {
-            data.callback(playerdata);
-          }
-          return;
-        }
-
-        case '/player/playback/play': {
-          return this.eventbus.$emit('player-press-play', res => data.callback(res));
-        }
-
-        case '/player/playback/pause': {
-          return this.eventbus.$emit('player-press-pause', res => data.callback(res));
-        }
-
-        case '/player/playback/playMedia': {
-          this.chosenKey = data.params.key.replace('/library/metadata/', '');
-          this.chosenMediaIndex = data.params.mediaIndex || 0;
-          this.chosenServer = this.plex.servers[data.params.machineIdentifier];
-          this.playertime = data.params.offset || this.$route.query.playertime || 0;
-          this.offset = this.playertime;
-          this.$nextTick(() => {
-            this.changedPlaying(true);
-          });
-          return true;
-        }
-
-        case '/player/playback/stop': {
-          this.chosenKey = null;
-          this.chosenServer = null;
-          this.playerduration = null;
-          this.playertime = 0;
-          this.playingMetadata = null;
-          this.$router.push('/browse');
-          return data.callback(true);
-        }
-
-        case '/player/playback/seekTo': {
-          return this.eventbus.$emit('player-seek', {
-            time: data.params.offset,
-            soft: data.params.softSeek,
-            callback: async (promise) => {
-              await promise.catch((e) => {
-                data.callback(false);
-              });
-              data.callback(true);
-            },
-          });
-        }
-
-        default: {
-          return '';
-        }
-      }
-    });
+    // TODO: remove this in beforeDestroy
+    this.eventbus.$on('command', this.HANDLE_COMMAND);
   },
 
   beforeDestroy() {
     this.destroyed = true;
 
-    this.eventbus.$off('player-press-pause');
-    this.eventbus.$off('player-press-play');
-    this.eventbus.$off('player-seek');
-    this.eventbus.$off('ptplayer-poll');
-
     this.CHANGE_PLAYER_STATE('stopped');
     this.SEND_PLEX_TIMELINE_UPDATE();
+
+    this.eventbus.$off('command', this.HANDLE_COMMAND);
   },
 
   computed: {
     ...mapState(['manualSyncQueued', 'me']),
-    ...mapGetters(['GET_HOST_PLAYER_STATE']),
     ...mapGetters('slplayer', [
       'GET_METADATA',
       'GET_SUBTITLE_STREAMS',
@@ -396,8 +298,16 @@ export default {
       'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
-      'SEND_PLEX_TIMELINE_UPDATE',
+      'PERIODIC_PLEX_TIMELINE_UPDATE_STARTER',
       'CHANGE_PLAYER_STATE',
+      'HANDLE_PLAYER_PLAYING',
+      'HANDLE_PLAYER_PAUSE',
+      'HANDLE_PLAYER_SEEKING',
+      'HANDLE_PLAYER_SEEKED',
+      'HANDLE_PLAYER_WAITING',
+      'HANDLE_PLAYER_VOLUME_CHANGE',
+
+      'HANDLE_COMMAND',
     ]),
 
     ...mapMutations('slplayer', [
@@ -410,44 +320,10 @@ export default {
 
       this.GET_PLAYER.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
       this.GET_PLAYER.currentTime(this.GET_OFFSET / 1000);
-
-      // Events from the parent component
-      this.eventbus.$on('player-press-pause', (callback) => {
-        if (this.GET_PLAYER_STATE !== 'paused') {
-          this.GET_PLAYER.pause();
-        }
-        return callback();
-      });
-
-      this.eventbus.$on('player-press-play', (callback) => {
-        if (this.GET_PLAYER_STATE !== 'playing') {
-          this.GET_PLAYER.play();
-        }
-        return callback();
-      });
-
-      this.eventbus.$on('player-seek', async (data) => {
-      // Return a promise through the callback
-        data.callback(this.seekMethod(data));
-      });
-
-      this.eventbus.$on('ptplayer-poll', (callback) => {
-        try {
-          return callback(null, this.playerCurrentTimeMs());
-        } catch (e) {
-          return callback(e, -1);
-        }
-      });
     },
 
     onPlayerLoadeddata() {
-      return this.periodicPlexTimelineUpdate();
-    },
-
-    onPlayerPause() {
-      console.log('pause');
-      this.CHANGE_PLAYER_STATE('paused');
-      this.timelineUpdate();
+      return this.PERIODIC_PLEX_TIMELINE_UPDATE_STARTER();
     },
 
     onPlayerEnded(event) {
@@ -455,182 +331,10 @@ export default {
       this.$emit('playbackEnded', event);
     },
 
-    onPlayerError(event) {
-      this.$emit('playerError', event);
-    },
-
-    onPlayerSeeking() {
-      console.log('Seeking');
-      this.CHANGE_PLAYER_STATE('buffering');
-      this.timelineUpdate();
-    },
-
-    onPlayerSeeked() {
-      console.log('Seeked');
-      this.CHANGE_PLAYER_STATE(this.GET_PLAYER.paused() ? 'paused' : 'playing');
-      this.timelineUpdate();
-    },
-
     onPlayerTimeUpdate() {
       if (!this.destroyed) {
-        this.timelineUpdate();
+        // this.timelineUpdate();
       }
-    },
-
-    onPlayerPlaying() {
-      console.log('playing');
-      this.CHANGE_PLAYER_STATE('playing');
-    },
-
-    onPlayerWaiting() {
-      console.log('WAITINGGGG');
-      this.CHANGE_PLAYER_STATE('buffering');
-      this.timelineUpdate();
-    },
-
-    onPlayerVolumeChange() {
-      this.$store.commit('setSetting', ['PTPLAYERVOLUME', this.GET_PLAYER.volume() || 0]);
-    },
-
-    async periodicPlexTimelineUpdate() {
-      // Send out a timeline update to plex periodically.
-
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        if (this.destroyed) {
-          return true;
-        }
-
-        const delayPromise = this.delay(10000);
-        // eslint-disable-next-line no-await-in-loop
-        await this.SEND_PLEX_TIMELINE_UPDATE().catch(e => e);
-        // eslint-disable-next-line no-await-in-loop
-        await delayPromise;
-      }
-    },
-
-    isTimeInBufferedRange(time) {
-      const bufferedTimeRange = this.GET_PLAYER.buffered();
-
-      // There can be multiple ranges
-      for (let i = 0; i < bufferedTimeRange.length; ++i) {
-        if (time >= bufferedTimeRange.start(i) * 1000 && time <= bufferedTimeRange.end(i) * 1000) {
-          return true;
-        }
-      }
-
-      return false;
-    },
-
-    async seekMethod({ soft, time: seekToMs }) {
-      console.log('Seeking: ', seekToMs);
-      console.log('Currentime: ', this.playerCurrentTimeMs());
-      // Parent will only send this command if we are within 10s,
-      // lets change playback speed to 3x to catch up
-
-      // eslint-disable-next-line no-underscore-dangle
-      if (Number.isNaN(this.playerDurationMs())) {
-        throw new Error('Player is not ready');
-      }
-
-      if (soft) {
-        return this.softSeek(seekToMs);
-      }
-
-      return this.normalSeek(seekToMs);
-    },
-
-    softSeek(seekToMs) {
-      if (!this.isTimeInBufferedRange(seekToMs)) {
-        throw new Error('Soft seek requested but not within buffered range');
-      }
-
-      this.GET_PLAYER.currentTime(seekToMs / 1000);
-      return true;
-    },
-
-    promiseWithTimeout(timeoutMs, promise) {
-      return Promise.race([
-        promise(),
-        new Promise((resolve, reject) => setTimeout(() => reject(new Error('Timed out')), timeoutMs)),
-      ]);
-    },
-
-    seekedPromise() {
-      return new Promise((resolve) => {
-        this.GET_PLAYER.one('seeked', (e) => {
-          resolve(e.data);
-        });
-      });
-    },
-
-    async normalSeek(seekToMs) {
-      if ((Math.abs(seekToMs - this.lastTime) < 3000 && this.GET_HOST_PLAYER_STATE === 'playing')) {
-        let cancelled = false;
-
-        window.EventBus.$once('host-playerstate-change', () => {
-          cancelled = true;
-        });
-
-        let iterations = 0;
-
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-          // eslint-disable-next-line no-underscore-dangle
-          if (cancelled || this.GET_PLAYER_STATE !== 'playing') {
-            this.GET_PLAYER.playbackRate(1.0);
-            throw new Error('Slow seek was stop due to buffering or pausing');
-          }
-
-          const delayPromise = this.delay(25);
-
-          // 25 here because interval is 25ms
-          const expectedHostTimeMs = seekToMs + (25 * iterations);
-
-          const difference = expectedHostTimeMs - this.playerCurrentTimeMs();
-          const absDifference = Math.abs(difference);
-
-          if (absDifference < 30) {
-            this.GET_PLAYER.playbackRate(1.0);
-            return true;
-          }
-
-          if (absDifference > 5000) {
-            this.GET_PLAYER.playbackRate(1.0);
-            throw new Error('Slow seek was stopped as we are beyond 5000ms');
-          }
-
-          if (difference > 0) {
-            if (this / this.GET_PLAYER.playbackRate() < 1.02) {
-              // Speed up
-              this.GET_PLAYER.playbackRate(this.GET_PLAYER.playbackRate() + 0.0001);
-            }
-          } else if (this.GET_PLAYER.playbackRate() > 0.98) {
-            // Slow down
-            this.GET_PLAYER.playbackRate(this.GET_PLAYER.playbackRate() - 0.0001);
-          }
-
-          // eslint-disable-next-line no-await-in-loop
-          await delayPromise;
-
-          iterations += 1;
-        }
-      } else {
-        this.GET_PLAYER.currentTime(seekToMs / 1000);
-        return this.promiseWithTimeout(this.seekedPromise(), 15000);
-      }
-    },
-
-    delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    },
-
-    playerCurrentTimeMs() {
-      return this.GET_PLAYER.currentTime() * 1000;
-    },
-
-    playerDurationMs() {
-      return this.GET_PLAYER.duration() * 1000;
     },
 
     doManualSync() {
@@ -640,45 +344,11 @@ export default {
     stopPlayback() {
       console.log('Stopped Playback');
       this.$store.commit('SET_VALUE', ['decisionBlocked', false]);
-      axios.get(this.getSourceByLabel(this.chosenQuality).stopUrl);
 
       this.playerstatus = 'stopped';
       this.sessionId = this.generateGuid();
       this.xplexsession = this.generateGuid();
       this.chosenClient.pressStop(() => {});
-    },
-
-    timelineUpdate() {
-      const time = this.playerCurrentTimeMs();
-      const duration = this.playerDurationMs();
-      const status = this.GET_PLAYER_STATE;
-
-      this.playertime = time;
-      this.playerstatus = status;
-      this.playerduration = duration;
-
-      if (this.lastSentTimeline.state !== this.playerstatus || this.chosenKey !== this.lastSentTimeline.key) {
-        const key = this.chosenKey;
-        let ratingKey = null;
-        if (key) {
-          ratingKey = `/library/metadata/${key}`;
-        }
-        let machineIdentifier = null;
-        if (this.chosenServer) {
-          machineIdentifier = this.chosenServer.clientIdentifier;
-        }
-        const playerdata = {
-          key,
-          ratingKey,
-          time: this.playertime,
-          type: 'video',
-          machineIdentifier,
-          duration: this.playerduration,
-          state: this.playerstatus,
-        };
-        this.lastSentTimeline = playerdata;
-        this.chosenClient.updateTimelineObject(playerdata);
-      }
     },
   },
 };
