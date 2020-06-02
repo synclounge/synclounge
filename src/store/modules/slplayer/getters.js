@@ -204,7 +204,7 @@ export default {
     'X-Plex-Device': browser.os,
     'X-Plex-Device-Name': capitalizeFirstLetter(browser.name),
     // TODO: fix and get stuff ugh below
-    'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight}`,
+    'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
     'X-Plex-Token': getters.GET_PLEX_SERVER_ACCESS_TOKEN,
     'X-Plex-Language': 'en',
   }),
