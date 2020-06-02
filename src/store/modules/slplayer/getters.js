@@ -161,7 +161,7 @@ export default {
   GET_SECONDARY_TITLE: (state, getters) => {
     switch (getters.GET_METADATA.type) {
       case 'movie':
-        return getters.GET_METADATA.year ? state.metadata.year : ' ';
+        return getters.GET_METADATA.year ? getters.GET_METADATA.year : ' ';
 
       case 'show':
         return getters.GET_METADATA.childCount === 1
@@ -200,7 +200,7 @@ export default {
     'X-Plex-Platform-Version': browser.version,
     // 'X-Plex-Sync-Version': 2,
     // 'X-Plex-Features': 'external-media,indirect-media',
-    // 'X-Plex-Model': 'hosted',
+    'X-Plex-Model': 'hosted',
     'X-Plex-Device': browser.os,
     'X-Plex-Device-Name': capitalizeFirstLetter(browser.name),
     // TODO: fix and get stuff ugh below
@@ -236,7 +236,7 @@ export default {
     location: getters.GET_PLEX_SERVER_LOCATION,
     ...getters.GET_MAX_VIDEO_BITRATE && { maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE }, // only include if not null
     addDebugOverlay: 0,
-    // autoAdjustQuality: 1
+    autoAdjustQuality: 1,
     directStreamAudio: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
@@ -244,7 +244,7 @@ export default {
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': state.xplexsessionId,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
-    // 'X-Plex-Incomplete-Segments': 1,
+    'X-Plex-Incomplete-Segments': 1,
     ...getters.GET_BASE_PARAMS,
   }),
 
