@@ -61,12 +61,11 @@ export default {
       id, language, codec, audioChannelLayout,
     }) => ({ id, text: `${language} (${codec} ${audioChannelLayout})` })),
 
-  GET_MEDIA_LIST: (state, getters) => getters.GET_METADATA.Media.map(({
-    id, videoResolution, videoCodec, bitrate,
-  }) => ({
-    id,
-    text: `${videoResolution}p  (${videoCodec} ${bitrate}kbps)`,
-  })),
+  GET_MEDIA_LIST: (state, getters) =>
+    getters.GET_METADATA.Media.map(({ videoResolution, videoCodec, bitrate }, index) => ({
+      index,
+      text: `${videoResolution}p  (${videoCodec} ${bitrate}kbps)`,
+    })),
 
   GET_QUALITIES: () => qualities,
   GET_MAX_VIDEO_BITRATE: state => state.maxVideoBitrate,

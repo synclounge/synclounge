@@ -60,8 +60,9 @@ export default {
     return true;
   },
 
-  CHANGE_MEDIA_INDEX: () => {
-
+  CHANGE_MEDIA_INDEX: ({ commit, dispatch }, index) => {
+    commit('SET_MEDIA_INDEX', index);
+    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   // Changes the player src to the new one and restores the time afterwards

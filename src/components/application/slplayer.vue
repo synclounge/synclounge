@@ -119,7 +119,7 @@
               :value="GET_MEDIA_INDEX"
               persistent-hint
               item-text="text"
-              item-value="id"
+              item-value="index"
               hint="Select a different version of the content you're playing"
               label="Version"
               @input="CHANGE_MEDIA_INDEX"
