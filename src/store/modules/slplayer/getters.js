@@ -35,8 +35,8 @@ export default {
     getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
 
   GET_SRC_OBJECT: (state, getters) => ({
-    src: `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.m3u8?${encodeUrlParams(getters.GET_DECISION_AND_START_PARAMS)}`,
-    type: 'application/x-mpegURL',
+    src: `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd?${encodeUrlParams(getters.GET_DECISION_AND_START_PARAMS)}`,
+    type: 'application/dash+xml',
   }),
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
@@ -215,19 +215,26 @@ export default {
     ...getters.GET_BASE_PARAMS,
   }),
 
+  GET_PLEX_PROFILE_EXTRAS: (state, getters) => {
+    const base = 'append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)';
+    return getters.GET_MAX_VIDEO_BITRATE
+      ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${getters.GET_MAX_VIDEO_BITRATE}&replace=true)`
+      : base;
+  },
+
   GET_DECISION_AND_START_PARAMS: (state, getters, rootState, rootGetters) => ({
     hasMDE: 1,
     path: getters.GET_KEY,
     mediaIndex: getters.GET_MEDIA_INDEX,
     partIndex: 0,
-    protocol: 'hls',
+    protocol: 'dash',
     fastSeek: 1,
     directPlay: 0,
     directStream: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
     subtitleSize: 100,
     audioBoost: 100,
     location: getters.GET_PLEX_SERVER_LOCATION,
-    maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE,
+    ...getters.GET_MAX_VIDEO_BITRATE && { maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE }, // only include if not null
     addDebugOverlay: 0,
     // autoAdjustQuality: 1
     directStreamAudio: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
@@ -236,8 +243,8 @@ export default {
     subtitles: 'burn',
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': state.xplexsessionId,
-    // 'X-Plex-Client-Profile-Extra': 'append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)'
-    'X-Plex-Incomplete-Segments': 1,
+    'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
+    // 'X-Plex-Incomplete-Segments': 1,
     ...getters.GET_BASE_PARAMS,
   }),
 
