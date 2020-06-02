@@ -10,8 +10,7 @@
           playsinline="true"
 
           @pause="HANDLE_PLAYER_PAUSE"
-          @loadeddata="onPlayerLoadeddata"
-          @ended="onPlayerEnded"
+          @ended="DO_COMMAND_STOP"
           @waiting="HANDLE_PLAYER_WAITING"
           @playing="HANDLE_PLAYER_PLAYING"
           @seeking="HANDLE_PLAYER_SEEKING"
@@ -182,7 +181,7 @@ import plexthumb from './plexbrowser/plexthumb.vue';
 
 
 export default {
-  name: 'ptplayer',
+  name: 'slplayer',
   components: {
     plexthumb, messages,
   },
@@ -230,7 +229,6 @@ export default {
   },
 
   async mounted() {
-    console.log('PTPLAYER MOUNTED');
     await this.metadataLoadedPromise;
     this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
 
@@ -267,6 +265,14 @@ export default {
     ]),
   },
 
+  watch: {
+    GET_PLAYER_STATE(playerState) {
+      if (playerState === 'stopped') {
+        this.$router.push('/browse');
+      }
+    },
+  },
+
   methods: {
     ...mapActions('slplayer', [
       'FETCH_METADATA',
@@ -295,23 +301,9 @@ export default {
     ]),
 
     onPlayerReady() {
-      console.log('PLAYER READY');
       this.CHANGE_PLAYER_SRC();
-
       this.GET_PLAYER.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
-
-
       return this.PERIODIC_PLEX_TIMELINE_UPDATE_STARTER();
-    },
-
-    onPlayerLoadeddata() {
-      console.log('PLAYER LOADED DATA');
-    },
-
-    onPlayerEnded(event) {
-      console.log('ENDED');
-      this.$router.push('/browse');
-      this.$emit('playbackEnded', event);
     },
 
     doManualSync() {

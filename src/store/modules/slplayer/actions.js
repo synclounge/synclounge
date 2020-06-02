@@ -94,27 +94,20 @@ export default {
     timeout: 10000,
   }),
 
-  HANDLE_PLAYER_PLAYING: ({ dispatch }) => {
-    console.log('PLAYING');
-    return dispatch('CHANGE_PLAYER_STATE', 'playing');
-  },
+  HANDLE_PLAYER_PLAYING: ({ dispatch }) =>
+    dispatch('CHANGE_PLAYER_STATE', 'playing'),
 
-  HANDLE_PLAYER_PAUSE: ({ dispatch }) => {
-    console.log('pause');
-    return dispatch('CHANGE_PLAYER_STATE', 'paused');
-  },
+  HANDLE_PLAYER_PAUSE: ({ dispatch }) =>
+    dispatch('CHANGE_PLAYER_STATE', 'paused'),
 
-  HANDLE_PLAYER_SEEKING: ({ dispatch }) => { console.log('seeking'); return dispatch('CHANGE_PLAYER_STATE', 'buffering'); },
+  HANDLE_PLAYER_SEEKING: ({ dispatch }) =>
+    dispatch('CHANGE_PLAYER_STATE', 'buffering'),
 
-  HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) => {
-    console.log('seeked');
-    return dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER.paused() ? 'paused' : 'playing');
-  },
+  HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) =>
+    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER.paused() ? 'paused' : 'playing'),
 
-  HANDLE_PLAYER_WAITING: ({ dispatch }) => {
-    console.log('waiting');
-    return dispatch('CHANGE_PLAYER_STATE', 'buffering');
-  },
+  HANDLE_PLAYER_WAITING: ({ dispatch }) =>
+    dispatch('CHANGE_PLAYER_STATE', 'buffering'),
 
   HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
     commit('setSetting', ['PTPLAYERVOLUME', getters.GET_PLAYER.volume() || 0], { root: true });
@@ -123,7 +116,6 @@ export default {
 
   // Command handlers
   HANDLE_COMMAND: async ({ dispatch }, { command, params, callback }) => {
-    console.log('COMMAND: ', command);
     const result = await dispatch('DO_COMMAND_DISPATCH', { action: commandActions(command), params })
       .catch(console.warn);
     callback(result);
@@ -146,7 +138,7 @@ export default {
     }
   },
 
-  DO_COMMAND_PLAY_MEDIA: ({ commit }, {
+  DO_COMMAND_PLAY_MEDIA: ({ commit, dispatch }, {
     offset, machineIdentifier, mediaIndex, key,
   }) => {
     commit('SET_PLEX_SERVER_ID', machineIdentifier);
@@ -161,14 +153,10 @@ export default {
   },
 
   DO_COMMAND_STOP: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'stopped'), // TODO: fix thisss...
-  // this.$router.push('/browse');
+    dispatch('CHANGE_PLAYER_STATE', 'stopped'),
 
 
   DO_COMMAND_SEEK_TO: async ({ getters, dispatch }, { offset: seekToMs, softSeek }) => {
-    console.log('Seeking: ', seekToMs);
-    console.log('Currentime: ', getters.GET_PLAYER_CURRENT_TIME_MS);
-
     if (Number.isNaN(getters.GET_PLAYER_DURATION_MS)) {
       throw new Error('Player is not ready');
     }

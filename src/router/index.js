@@ -63,7 +63,7 @@ export default new Router({
     meta: {
       protected: true,
     },
-    component: require('../components/application/ptplayer.vue'),
+    component: require('../components/application/slplayer.vue'),
   },
   {
     path: '/nowplaying/:machineIdentifier/:ratingKey',
