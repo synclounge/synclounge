@@ -173,14 +173,13 @@
 </template>
 
 <script>
-import axios from 'axios';
 import videojs from 'video.js';
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
 import slplayer from '@/store/modules/slplayer';
 
 import messages from '@/components/messages.vue';
-
 import plexthumb from './plexbrowser/plexthumb.vue';
+
 
 export default {
   name: 'ptplayer',
@@ -236,7 +235,6 @@ export default {
     this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
 
     // Similuate a real plex client
-    // TODO: remove this in beforeDestroy
     this.eventbus.$on('command', this.HANDLE_COMMAND);
   },
 
@@ -254,7 +252,6 @@ export default {
       'GET_AUDIO_STREAMS',
       'GET_QUALITIES',
       'GET_MAX_VIDEO_BITRATE',
-      'GET_SRC_URL',
       'GET_AUDIO_STREAM_ID',
       'GET_SUBTITLE_STREAM_ID',
       'GET_MEDIA_LIST',
@@ -290,11 +287,11 @@ export default {
       'HANDLE_COMMAND',
       'DO_COMMAND_STOP',
       'SEND_PLEX_TIMELINE_UPDATE',
-      'DISPOSE_PLAYER',
     ]),
 
     ...mapMutations('slplayer', [
       'SET_PLAYER',
+      'DISPOSE_PLAYER',
     ]),
 
     onPlayerReady() {
@@ -302,12 +299,13 @@ export default {
       this.CHANGE_PLAYER_SRC();
 
       this.GET_PLAYER.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
-      this.GET_PLAYER.currentTime(this.GET_OFFSET / 1000);
+
+
+      return this.PERIODIC_PLEX_TIMELINE_UPDATE_STARTER();
     },
 
     onPlayerLoadeddata() {
-
-      return this.PERIODIC_PLEX_TIMELINE_UPDATE_STARTER();
+      console.log('PLAYER LOADED DATA');
     },
 
     onPlayerEnded(event) {
@@ -331,7 +329,6 @@ export default {
     height: calc(100vh - (0.5625 * 100vw));
   }
 </style>
-
 
 <style src="video.js/dist/video-js.css">
 </style>

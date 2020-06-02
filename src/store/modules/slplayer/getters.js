@@ -27,7 +27,10 @@ export default {
   GET_PART_ID: (state, getters) =>
     getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
 
-  GET_SRC_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.m3u8?${encodeUrlParams(getters.GET_ALL_PARAMS)}`,
+  GET_SRC_OBJECT: (state, getters) => ({
+    src: `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.m3u8?${encodeUrlParams(getters.GET_ALL_PARAMS)}`,
+    type: 'application/x-mpegURL',
+  }),
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
 
@@ -105,7 +108,8 @@ export default {
   // eslint-disable-next-line no-underscore-dangle
   GET_USERACTIVE: (state, getters) => (getters.GET_PLAYER ? getters.GET_PLAYER.userActive_ : true),
 
-  GET_PLAYER_CURRENT_TIME_MS: (state, getters) => (getters.GET_PLAYER ? getters.GET_PLAYER.currentTime() * 1000 : 0),
+  GET_PLAYER_CURRENT_TIME_MS: (state, getters) =>
+    (getters.GET_PLAYER ? getters.GET_PLAYER.currentTime() * 1000 : 0),
 
   GET_PLAYER_DURATION_MS: (state, getters) => getters.GET_PLAYER.duration() * 1000,
 
@@ -227,6 +231,7 @@ export default {
       // TODO: alter below
       // 'X-Plex-Client-Profile-Extra': 'add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=2000&replace=true)+append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)',
       'X-Plex-Session-Identifier': state.xplexsessionId,
+      // 'X-Plex-Incomplete-Segments': 1,
     };
 
     return { ...params, ...getters.GET_BASE_PARAMS };

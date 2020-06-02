@@ -46,7 +46,6 @@ export default {
         duration: 1,
         cancelable: false,
       };
-      console.info(this.$vuetify.breakpoint);
       this.$scrollTo('#lastMessage', 5, options);
     },
   },

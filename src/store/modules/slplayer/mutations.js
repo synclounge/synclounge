@@ -46,4 +46,29 @@ export default {
   SET_PLEX_DECISION: (state, decision) => {
     state.plexDecision = decision;
   },
+
+  SET_PLAYER_SRC: (state, src) => {
+    state.player.src(src);
+  },
+
+  PLAY: (state) => {
+    state.player.play();
+  },
+
+  PAUSE: (state) => {
+    state.player.pause();
+  },
+
+  SET_PLAYER_CURRENT_TIME_MS: (state, timeMs) => {
+    state.player.currentTime(timeMs / 1000);
+  },
+
+  SET_PLAYER_PLAYBACK_RATE: (state, rate) => {
+    state.player.playbackRate(rate);
+  },
+
+  DISPOSE_PLAYER: (state) => {
+    state.player.dispose();
+    state.player = null;
+  },
 };

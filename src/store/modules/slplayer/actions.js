@@ -26,7 +26,7 @@ export default {
   CHANGE_MAX_VIDEO_BITRATE: async ({ commit, dispatch }, maxVideoBitrate) => {
     // TODO: save to localStore persistently
     commit('SET_MAX_VIDEO_BITRATE', maxVideoBitrate);
-    return dispatch('CHANGE_PLAYER_SRC');
+    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   CHANGE_AUDIO_STREAM: async ({ getters, commit, dispatch }, audioStreamID) => {
@@ -36,7 +36,7 @@ export default {
     await axios.put(getters.GET_AUDIO_STREAM_CHANGE_URL);
 
     // Redo src
-    return dispatch('CHANGE_PLAYER_SRC');
+    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   CHANGE_SUBTITLE_STREAM: async ({ getters, commit, dispatch }, subtitleStreamID) => {
@@ -49,7 +49,7 @@ export default {
     await axios.put(getters.GET_SUBTITLE_STREAM_CHANGE_URL);
 
     // Redo src
-    return dispatch('CHANGE_PLAYER_SRC');
+    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   FETCH_METADATA: async ({ commit, getters }) => {
@@ -64,11 +64,21 @@ export default {
 
   },
 
+  // Changes the player src to the new one and restores the time afterwards
+  UPDATE_PLAYER_SRC_AND_KEEP_TIME: async ({ getters, commit, dispatch }) => {
+    commit('SET_OFFSET', getters.GET_PLAYER_CURRENT_TIME_MS);
+    await dispatch('CHANGE_PLAYER_SRC');
+  },
+
   CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
     commit('SET_SESSION', generateGuid());
-    dispatch('SAVE_OFFSET');
     await dispatch('SEND_PLEX_DECISION_REQUEST');
-    getters.GET_PLAYER.src(getters.GET_SRC_URL);
+    commit('SET_PLAYER_SRC', getters.GET_SRC_OBJECT);
+
+    // Using ready so it executes immediately after changing src.
+    getters.GET_PLAYER.ready(() => {
+      commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET);
+    });
   },
 
   SEND_PLEX_TIMELINE_UPDATE: ({ getters }) => axios.get(getters.GET_TIMELINE_URL, {
@@ -77,23 +87,34 @@ export default {
       ratingKey: getters.GET_RATING_KEY,
       key: getters.GET_KEY,
       state: getters.GET_PLAYER_STATE,
-      time: Math.floor(getters.GET_PLAYER.currentTime() * 1000),
-      duration: Math.floor(getters.GET_PLAYER.duration() * 1000),
+      time: Math.floor(getters.GET_PLAYER_CURRENT_TIME_MS),
+      duration: Math.floor(getters.GET_PLAYER_DURATION_MS),
       ...getters.GET_BASE_PARAMS,
     },
     timeout: 10000,
   }),
 
-  HANDLE_PLAYER_PLAYING: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'playing'),
+  HANDLE_PLAYER_PLAYING: ({ dispatch }) => {
+    console.log('PLAYING');
+    return dispatch('CHANGE_PLAYER_STATE', 'playing');
+  },
 
-  HANDLE_PLAYER_PAUSE: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'paused'),
+  HANDLE_PLAYER_PAUSE: ({ dispatch }) => {
+    console.log('pause');
+    return dispatch('CHANGE_PLAYER_STATE', 'paused');
+  },
 
-  HANDLE_PLAYER_SEEKING: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'buffering'),
+  HANDLE_PLAYER_SEEKING: ({ dispatch }) => { console.log('seeking'); return dispatch('CHANGE_PLAYER_STATE', 'buffering'); },
 
-  HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER.paused() ? 'paused' : 'playing'),
+  HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) => {
+    console.log('seeked');
+    return dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER.paused() ? 'paused' : 'playing');
+  },
 
-  HANDLE_PLAYER_WAITING: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'buffering'),
+  HANDLE_PLAYER_WAITING: ({ dispatch }) => {
+    console.log('waiting');
+    return dispatch('CHANGE_PLAYER_STATE', 'buffering');
+  },
 
   HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
     commit('setSetting', ['PTPLAYERVOLUME', getters.GET_PLAYER.volume() || 0], { root: true });
@@ -102,6 +123,7 @@ export default {
 
   // Command handlers
   HANDLE_COMMAND: async ({ dispatch }, { command, params, callback }) => {
+    console.log('COMMAND: ', command);
     const result = await dispatch('DO_COMMAND_DISPATCH', { action: commandActions(command), params })
       .catch(console.warn);
     callback(result);
@@ -112,15 +134,15 @@ export default {
 
   DO_COMMAND_POLL: ({ getters }) => getters.GET_POLL_RESPONSE,
 
-  DO_COMMAND_PLAY: ({ getters }) => {
+  DO_COMMAND_PLAY: ({ getters, commit }) => {
     if (getters.GET_PLAYER_STATE !== 'playing') {
-      getters.GET_PLAYER.play();
+      commit('PLAY');
     }
   },
 
-  DO_COMMAND_PAUSE: ({ getters }) => {
+  DO_COMMAND_PAUSE: ({ getters, commit }) => {
     if (getters.GET_PLAYER_STATE !== 'paused') {
-      getters.GET_PLAYER.pause();
+      commit('PAUSE');
     }
   },
 
@@ -131,6 +153,11 @@ export default {
     commit('SET_RATING_KEY', key.replace('/library/metadata/', ''));
     commit('SET_MEDIA_INDEX', mediaIndex);
     commit('SET_OFFSET', offset);
+
+    return Promise.all(
+      dispatch('CHANGE_PLAYER_SRC'),
+      dispatch('FETCH_METADATA'),
+    );
   },
 
   DO_COMMAND_STOP: ({ dispatch }) =>
@@ -153,16 +180,16 @@ export default {
     return dispatch('NORMAL_SEEK', seekToMs);
   },
 
-  SOFT_SEEK: ({ getters }, seekToMs) => {
+  SOFT_SEEK: ({ getters, commit }, seekToMs) => {
     if (!getters.IS_TIME_IN_BUFFERED_RANGE(seekToMs)) {
       throw new Error('Soft seek requested but not within buffered range');
     }
 
-    getters.GET_PLAYER.currentTime(seekToMs / 1000);
+    commit('SET_PLAYER_CURRENT_TIME_MS', seekToMs);
     return true;
   },
 
-  NORMAL_SEEK: async ({ getters, rootGetters }, seekToMs) => {
+  NORMAL_SEEK: async ({ getters, commit, rootGetters }, seekToMs) => {
     if ((Math.abs(seekToMs - getters.GET_PLAYER_CURRENT_TIME_MS) < 3000 && rootGetters.GET_HOST_PLAYER_STATE === 'playing')) {
       let cancelled = false;
 
@@ -176,7 +203,7 @@ export default {
       while (true) {
         // eslint-disable-next-line no-underscore-dangle
         if (cancelled || getters.GET_PLAYER_STATE !== 'playing') {
-          getters.GET_PLAYER.playbackRate(1.0);
+          commit('SET_PLAYER_PLAYBACK_RATE', 1.0);
           throw new Error('Slow seek was stop due to buffering or pausing');
         }
 
@@ -189,23 +216,23 @@ export default {
         const absDifference = Math.abs(difference);
 
         if (absDifference < 30) {
-          getters.GET_PLAYER.playbackRate(1.0);
+          commit('SET_PLAYER_PLAYBACK_RATE', 1.0);
           return true;
         }
 
         if (absDifference > 5000) {
-          getters.GET_PLAYER.playbackRate(1.0);
+          commit('SET_PLAYER_PLAYBACK_RATE', 1.0);
           throw new Error('Slow seek was stopped as we are beyond 5000ms');
         }
 
         if (difference > 0) {
           if (getters.GET_PLAYER.playbackRate() < 1.02) {
             // Speed up
-            getters.GET_PLAYER.playbackRate(getters.GET_PLAYER.playbackRate() + 0.0001);
+            commit('SET_PLAYER_PLAYBACK_RATE', getters.GET_PLAYER.playbackRate() + 0.0001);
           }
         } else if (getters.GET_PLAYER.playbackRate() > 0.98) {
           // Slow down
-          getters.GET_PLAYER.playbackRate(getters.GET_PLAYER.playbackRate() - 0.0001);
+          commit('SET_PLAYER_PLAYBACK_RATE', getters.GET_PLAYER.playbackRate() - 0.0001);
         }
 
         // eslint-disable-next-line no-await-in-loop
@@ -214,7 +241,7 @@ export default {
         iterations += 1;
       }
     } else {
-      getters.GET_PLAYER.currentTime(seekToMs / 1000);
+      commit('SET_PLAYER_CURRENT_TIME_MS', seekToMs);
 
       const seekedPromise = new Promise((resolve) => {
         getters.GET_PLAYER.one('seeked', (e) => {
@@ -252,14 +279,5 @@ export default {
     const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     dispatch('UPDATE_CLIENT_TIMELINE');
     return result;
-  },
-
-  SAVE_OFFSET: ({ getters, commit }) => {
-    commit('SET_OFFSET', getters.GET_PLAYER_CURRENT_TIME_MS);
-  },
-
-  DISPOSE_PLAYER: ({ getters, commit }) => {
-    getters.GET_PLAYER.dispose();
-    commit('SET_PLAYER', null);
   },
 };
