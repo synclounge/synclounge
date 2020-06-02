@@ -7,14 +7,6 @@ export default {
     state.metadata = metadata;
   },
 
-  SET_AUDIO_STREAM_ID: (state, audioStreamID) => {
-    state.audioStreamID = audioStreamID;
-  },
-
-  SET_SUBTITLE_STREAM_ID: (state, subtitleStreamID) => {
-    state.subtitleStreamID = subtitleStreamID;
-  },
-
   SET_PLAYER_STATE: (state, playerState) => {
     state.playerState = playerState;
   },

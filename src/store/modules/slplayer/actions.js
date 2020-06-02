@@ -18,7 +18,7 @@ const commandActions = command => ({
 export default {
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
     const { data } = await axios.get(getters.GET_DECISION_URL, {
-      params: getters.GET_ALL_PARAMS,
+      params: getters.GET_DECISION_AND_START_PARAMS,
     });
     commit('SET_PLEX_DECISION', data);
   },
@@ -29,24 +29,25 @@ export default {
     return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
-  CHANGE_AUDIO_STREAM: async ({ getters, commit, dispatch }, audioStreamID) => {
-    commit('SET_AUDIO_STREAM_ID', audioStreamID);
-
-    // Send put
-    await axios.put(getters.GET_AUDIO_STREAM_CHANGE_URL);
+  CHANGE_AUDIO_STREAM: async ({ getters, dispatch }, audioStreamID) => {
+    await axios.put(getters.GET_PART_URL, null, {
+      params: {
+        audioStreamID,
+        ...getters.GET_PART_PARAMS,
+      },
+    });
 
     // Redo src
     return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   CHANGE_SUBTITLE_STREAM: async ({ getters, commit, dispatch }, subtitleStreamID) => {
-    commit('SET_SUBTITLE_STREAM_ID', subtitleStreamID);
-
-
-    // TODO: investigate if I really need to do this if the subtitles aren't burned
-
-    // Send put
-    await axios.put(getters.GET_SUBTITLE_STREAM_CHANGE_URL);
+    await axios.put(getters.GET_PART_URL, null, {
+      params: {
+        subtitleStreamID,
+        ...getters.GET_PART_PARAMS,
+      },
+    });
 
     // Redo src
     return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
@@ -83,15 +84,7 @@ export default {
   },
 
   SEND_PLEX_TIMELINE_UPDATE: ({ getters }) => axios.get(getters.GET_TIMELINE_URL, {
-    params: {
-      hasMDE: 1,
-      ratingKey: getters.GET_RATING_KEY,
-      key: getters.GET_KEY,
-      state: getters.GET_PLAYER_STATE,
-      time: Math.floor(getters.GET_PLAYER_CURRENT_TIME_MS),
-      duration: Math.floor(getters.GET_PLAYER_DURATION_MS),
-      ...getters.GET_BASE_PARAMS,
-    },
+    params: getters.GET_TIMELINE_PARAMS,
     timeout: 10000,
   }),
 

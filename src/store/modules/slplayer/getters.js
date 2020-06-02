@@ -1,5 +1,12 @@
 import { encodeUrlParams } from '@/utils/encoder';
 import { qualities } from './qualities';
+import { detect } from 'detect-browser';
+
+function capitalizeFirstLetter(string) {
+  return string[0].toUpperCase() + string.slice(1);
+}
+
+const browser = detect();
 
 export default {
   GET_PLEX_DECISION: state => state.plexDecision,
@@ -28,7 +35,7 @@ export default {
     getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
 
   GET_SRC_OBJECT: (state, getters) => ({
-    src: `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.m3u8?${encodeUrlParams(getters.GET_ALL_PARAMS)}`,
+    src: `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.m3u8?${encodeUrlParams(getters.GET_DECISION_AND_START_PARAMS)}`,
     type: 'application/x-mpegURL',
   }),
 
@@ -37,10 +44,6 @@ export default {
   GET_PART_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/library/parts/${getters.GET_PART_ID}`,
 
   GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline`,
-
-  GET_AUDIO_STREAM_CHANGE_URL: (state, getters) => `${getters.GET_PART_URL}?${encodeUrlParams({ ...getters.GET_BASE_PARAMS, audioStreamID: state.audioStreamID })}`,
-
-  GET_SUBTITLE_STREAM_CHANGE_URL: (state, getters) => `${getters.GET_PART_URL}?${encodeUrlParams({ ...getters.GET_BASE_PARAMS, subtitleStreamID: state.subtitleStreamID })}`,
 
   GET_STREAMS: (state, getters) =>
     getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].Stream,
@@ -189,50 +192,65 @@ export default {
     }
   },
 
-  GET_BASE_PARAMS: (state, getters, rootState, rootGetters) => ({
+  GET_BASE_PARAMS: (state, getters) => ({
     'X-Plex-Product': 'SyncLounge',
     'X-Plex-Version': '4.34.3',
-    'X-Plex-Client-Identifier': 'SyncLounge',
-    // TODO: replace with browser
-    'X-Plex-Platform': 'SyncLounge',
-    // TODO: replace with browser version
-    'X-Plex-Platform-Version': '81.0',
-    'X-Plex-Device': JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 'HTML TV App' : 'Web',
-    'X-Plex-Language': 'en',
-    'X-Plex-Device-Name': 'SyncLounge',
-    'X-Plex-Provider-Version': '1.3',
+    'X-Plex-Client-Identifier': state.xPlexClientIdentifier,
+    'X-Plex-Platform': capitalizeFirstLetter(browser.name),
+    'X-Plex-Platform-Version': browser.version,
+    // 'X-Plex-Sync-Version': 2,
+    // 'X-Plex-Features': 'external-media,indirect-media',
+    // 'X-Plex-Model': 'hosted',
+    'X-Plex-Device': browser.os,
+    'X-Plex-Device-Name': capitalizeFirstLetter(browser.name),
+    // TODO: fix and get stuff ugh below
     'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight}`,
     'X-Plex-Token': getters.GET_PLEX_SERVER_ACCESS_TOKEN,
+    'X-Plex-Language': 'en',
   }),
 
-  GET_ALL_PARAMS: (state, getters, rootState, rootGetters) => {
-    const params = {
-      maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE,
-      hasMDE: 1,
-      path: getters.GET_KEY,
-      mediaIndex: getters.GET_MEDIA_INDEX,
-      partIndex: 0,
-      // TODO: make protocol configurable (add dash support)
-      protocol: 'hls',
-      fastSeek: 1,
-      directPlay: 0,
-      directStream: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
-      directStreamAudio: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
-      subtitleSize: 100,
-      audioBoost: 100,
-      location: getters.GET_PLEX_SERVER_LOCATION,
-      // sessionId changes when you change anything about the playback
-      session: state.session,
-      subtitles: 'burn',
-      copyts: 1,
-      mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
-      'Accept-Language': 'en',
-      // TODO: alter below
-      // 'X-Plex-Client-Profile-Extra': 'add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=2000&replace=true)+append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)',
-      'X-Plex-Session-Identifier': state.xplexsessionId,
-      // 'X-Plex-Incomplete-Segments': 1,
-    };
+  GET_PART_PARAMS: (state, getters) => ({
+    'X-Plex-Text-Format': 'plain',
+    'X-Plex-Provider-Version': 1.3,
+    ...getters.GET_BASE_PARAMS,
+  }),
 
-    return { ...params, ...getters.GET_BASE_PARAMS };
-  },
+  GET_DECISION_AND_START_PARAMS: (state, getters, rootState, rootGetters) => ({
+    hasMDE: 1,
+    path: getters.GET_KEY,
+    mediaIndex: getters.GET_MEDIA_INDEX,
+    partIndex: 0,
+    protocol: 'hls',
+    fastSeek: 1,
+    directPlay: 0,
+    directStream: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
+    subtitleSize: 100,
+    audioBoost: 100,
+    location: getters.GET_PLEX_SERVER_LOCATION,
+    maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE,
+    addDebugOverlay: 0,
+    // autoAdjustQuality: 1
+    directStreamAudio: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
+    mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
+    session: state.session,
+    subtitles: 'burn',
+    'Accept-Language': 'en',
+    'X-Plex-Session-Identifier': state.xplexsessionId,
+    // 'X-Plex-Client-Profile-Extra': 'append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)'
+    'X-Plex-Incomplete-Segments': 1,
+    ...getters.GET_BASE_PARAMS,
+  }),
+
+  GET_TIMELINE_PARAMS: (state, getters) => ({
+    ratingKey: getters.GET_RATING_KEY,
+    key: getters.GET_KEY,
+    // playbackTime: 591
+    // playQueueItemID: 19037144
+    state: getters.GET_PLAYER_STATE,
+    hasMDE: 1,
+    time: Math.floor(getters.GET_PLAYER_CURRENT_TIME_MS),
+    duration: Math.floor(getters.GET_PLAYER_DURATION_MS),
+    'X-Plex-Session-Identifier': state.xplexsessionId,
+    ...getters.GET_PART_PARAMS,
+  }),
 };
