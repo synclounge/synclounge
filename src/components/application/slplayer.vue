@@ -1,7 +1,7 @@
 <template>
-  <div v-if="GET_METADATA" style="width:100%; position: relative">
+  <div style="width:100%; position: relative"   v-if="GET_METADATA">
     <div style="position: relative">
-      <div class="ptplayer">
+      <div ref="videoPlayerContainer" class="ptplayer">
         <video
           ref="videoPlayer"
           autoplay="true"
@@ -16,6 +16,7 @@
           @seeking="HANDLE_PLAYER_SEEKING"
           @seeked="HANDLE_PLAYER_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
+          @bitratechanged="CHANGE_MAX_VIDEO_BITRATE"
 
           style="background-color:transparent !important;"
           class="video-js"
@@ -25,7 +26,7 @@
 
       <div>
         <transition name="fade">
-          <div v-show="GET_USERACTIVE">
+          <div v-show="ARE_PLAYER_CONTROLS_SHOWN">
             <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 2" class="pa-3 hidden-xs-only">
               <img :src="GET_THUMB_URL" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;" />
               <v-flex class="pl-3">
@@ -172,13 +173,19 @@
 </template>
 
 <script>
-import videojs from 'video.js';
+import shaka from 'shaka-player/dist/shaka-player.ui';
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
 import slplayer from '@/store/modules/slplayer';
 
 import messages from '@/components/messages.vue';
 import plexthumb from './plexbrowser/plexthumb.vue';
 
+import 'shaka-player/dist/controls.css';
+
+import BitrateSelectionFactory from '@/player/ui/bitrateselection';
+
+
+shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory());
 
 export default {
   name: 'slplayer',
@@ -215,6 +222,34 @@ export default {
           },
         },
       },
+
+      playerConfig: {
+        streaming: {
+          bufferingGoal: 120,
+        },
+      },
+
+      playerUiOptions: {
+        controlPanelElements: [
+          'play_pause',
+          'mute',
+          'volume',
+          'time_and_duration',
+          'fullscreen',
+          'overflow_menu',
+        ],
+
+        overflowMenuButtons: [
+          'picture_in_picture',
+          'quality',
+          'cast',
+          'captions',
+          'language',
+          'bitrate',
+        ],
+        bitrates: this.GET_QUALITIES,
+        initialBitrate: this.GET_MAX_VIDEO_BITRATE,
+      },
     };
   },
 
@@ -225,12 +260,17 @@ export default {
   },
 
   created() {
+    shaka.polyfill.installAll();
     this.metadataLoadedPromise = this.FETCH_METADATA();
   },
 
   async mounted() {
     await this.metadataLoadedPromise;
-    this.SET_PLAYER(videojs(this.$refs.videoPlayer, this.videoOptions, this.onPlayerReady));
+    this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
+    this.SET_PLAYER_CONFIGURATION(this.playerConfig);
+    this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer, this.$refs.videoPlayer));
+    this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
+
 
     // Similuate a real plex client
     this.eventbus.$on('command', this.HANDLE_COMMAND);
@@ -261,7 +301,7 @@ export default {
       'GET_PLAYER_STATE',
       'GET_OFFSET',
       'GET_PLAYER',
-      'GET_USERACTIVE',
+      'ARE_PLAYER_CONTROLS_SHOWN',
     ]),
   },
 
@@ -297,6 +337,9 @@ export default {
 
     ...mapMutations('slplayer', [
       'SET_PLAYER',
+      'SET_PLAYER_CONFIGURATION',
+      'SET_PLAYER_UI',
+      'SET_PLAYER_UI_CONFIGURATION',
       'DISPOSE_PLAYER',
     ]),
 
@@ -320,7 +363,4 @@ export default {
   .is-fullscreen .messages-wrapper {
     height: calc(100vh - (0.5625 * 100vw));
   }
-</style>
-
-<style src="video.js/dist/video-js.css">
 </style>

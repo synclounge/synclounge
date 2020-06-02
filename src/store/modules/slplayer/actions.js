@@ -41,7 +41,7 @@ export default {
     return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
-  CHANGE_SUBTITLE_STREAM: async ({ getters, commit, dispatch }, subtitleStreamID) => {
+  CHANGE_SUBTITLE_STREAM: async ({ getters, dispatch }, subtitleStreamID) => {
     await axios.put(getters.GET_PART_URL, null, {
       params: {
         subtitleStreamID,
@@ -68,19 +68,14 @@ export default {
 
   // Changes the player src to the new one and restores the time afterwards
   UPDATE_PLAYER_SRC_AND_KEEP_TIME: async ({ getters, commit, dispatch }) => {
-    commit('SET_OFFSET', getters.GET_PLAYER_CURRENT_TIME_MS);
+    commit('SET_OFFSET_MS', getters.GET_PLAYER_CURRENT_TIME_MS);
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
-  CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
+  CHANGE_PLAYER_SRC: async ({ commit, dispatch }) => {
     commit('SET_SESSION', generateGuid());
     await dispatch('SEND_PLEX_DECISION_REQUEST');
-    commit('SET_PLAYER_SRC', getters.GET_SRC_OBJECT);
-
-    // Using ready so it executes immediately after changing src.
-    getters.GET_PLAYER.ready(() => {
-      commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET);
-    });
+    return dispatch('LOAD_PLAYER_SRC');
   },
 
   SEND_PLEX_TIMELINE_UPDATE: ({ getters }) => axios.get(getters.GET_TIMELINE_URL, {
@@ -138,7 +133,7 @@ export default {
     commit('SET_PLEX_SERVER_ID', machineIdentifier);
     commit('SET_RATING_KEY', key.replace('/library/metadata/', ''));
     commit('SET_MEDIA_INDEX', mediaIndex);
-    commit('SET_OFFSET', offset);
+    commit('SET_OFFSET_MS', offset);
 
     return Promise.all(
       dispatch('CHANGE_PLAYER_SRC'),
@@ -261,5 +256,9 @@ export default {
     const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     dispatch('UPDATE_CLIENT_TIMELINE');
     return result;
+  },
+
+  LOAD_PLAYER_SRC: ({ getters }) => {
+    return getters.GET_PLAYER.load(getters.GET_SRC_URL, getters.GET_OFFSET_MS);
   },
 };

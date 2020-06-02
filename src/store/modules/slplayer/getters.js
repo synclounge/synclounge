@@ -34,10 +34,8 @@ export default {
   GET_PART_ID: (state, getters) =>
     getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
 
-  GET_SRC_OBJECT: (state, getters) => ({
-    src: `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd?${encodeUrlParams(getters.GET_DECISION_AND_START_PARAMS)}`,
-    type: 'application/dash+xml',
-  }),
+  GET_SRC_URL: (state, getters) =>
+    `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd?${encodeUrlParams(getters.GET_DECISION_AND_START_PARAMS)}`,
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
 
@@ -101,22 +99,19 @@ export default {
 
   GET_KEY: (state, getters) => `/library/metadata/${getters.GET_RATING_KEY}`,
 
-  GET_OFFSET: (state, getters, rootState) => state.offset || rootState.route.query.playertime,
+  GET_OFFSET_MS: (state, getters, rootState) => state.offsetMs || rootState.route.query.playertime,
 
   GET_METADATA: state => state.metadata,
   GET_PLAYER_STATE: state => state.playerState,
   GET_PLAYER: state => state.player,
 
-  // eslint-disable-next-line no-underscore-dangle
-  GET_USERACTIVE: (state, getters) => (getters.GET_PLAYER ? getters.GET_PLAYER.userActive_ : true),
-
   GET_PLAYER_CURRENT_TIME_MS: (state, getters) =>
-    (getters.GET_PLAYER ? getters.GET_PLAYER.currentTime() * 1000 : 0),
+    (getters.GET_PLAYER ? getters.GET_PLAYER.currentTime * 1000 : 0),
 
-  GET_PLAYER_DURATION_MS: (state, getters) => getters.GET_PLAYER.duration() * 1000,
+  GET_PLAYER_DURATION_MS: (state, getters) => getters.GET_PLAYER.duration * 1000,
 
   IS_TIME_IN_BUFFERED_RANGE: (state, getters) => (time) => {
-    const bufferedTimeRange = getters.GET_PLAYER.buffered();
+    const bufferedTimeRange = getters.GET_PLAYER.buffered;
 
     // There can be multiple ranges
     for (let i = 0; i < bufferedTimeRange.length; ++i) {
@@ -260,4 +255,7 @@ export default {
     'X-Plex-Session-Identifier': state.xplexsessionId,
     ...getters.GET_PART_PARAMS,
   }),
+
+  // eslint-disable-next-line no-underscore-dangle
+  ARE_PLAYER_CONTROLS_SHOWN: state => (state.playerUi ? state.playerUi.isOpaque_() : true),
 };

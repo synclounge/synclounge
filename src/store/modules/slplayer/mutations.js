@@ -15,12 +15,24 @@ export default {
     state.player = player;
   },
 
+  SET_PLAYER_CONFIGURATION: (state, config) => {
+    state.player.configure(config);
+  },
+
+  SET_PLAYER_UI: (state, ui) => {
+    state.playerUi = ui;
+  },
+
+  SET_PLAYER_UI_CONFIGURATION: (state, config) => {
+    state.playerUi.configure(config);
+  },
+
   SET_SESSION: (state, session) => {
     state.session = session;
   },
 
-  SET_OFFSET: (state, offset) => {
-    state.offset = offset;
+  SET_OFFSET_MS: (state, offset) => {
+    state.offsetMs = offset;
   },
 
   SET_PLEX_SERVER_ID: (state, id) => {
@@ -39,10 +51,6 @@ export default {
     state.plexDecision = decision;
   },
 
-  SET_PLAYER_SRC: (state, src) => {
-    state.player.src(src);
-  },
-
   PLAY: (state) => {
     state.player.play();
   },
@@ -52,15 +60,17 @@ export default {
   },
 
   SET_PLAYER_CURRENT_TIME_MS: (state, timeMs) => {
-    state.player.currentTime(timeMs / 1000);
+    state.player.currentTime = timeMs / 1000;
   },
 
   SET_PLAYER_PLAYBACK_RATE: (state, rate) => {
-    state.player.playbackRate(rate);
+    state.player.setPlaybackRate(rate);
   },
 
   DISPOSE_PLAYER: (state) => {
-    state.player.dispose();
+    state.player.destroy();
+    state.playerUi.destroy();
     state.player = null;
+    state.playerUi = null;
   },
 };
