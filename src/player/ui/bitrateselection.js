@@ -1,4 +1,5 @@
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
+import ShakaUtils from '@/player/ui/utils';
 
 class BitrateSelection extends shaka.ui.SettingsMenu {
   constructor(parent, controls, bitrates, initialBitrate) {
@@ -40,19 +41,9 @@ class BitrateSelection extends shaka.ui.SettingsMenu {
     //shaka.ui.Utils.focusOnTheChosenItem(this.menu);
   }
 
-  static checkmarkIcon() {
-    const icon = document.createElement('i');
-    icon.classList.add('material-icons');
-    icon.classList.add('shaka-chosen-item');
-    icon.textContent = 'done';
-    // Screen reader should ignore icon text.
-    icon.setAttribute('aria-hidden', 'true');
-    return icon;
-  }
-
   selectBitrateElements(button, span) {
     button.setAttribute('aria-selected', 'true');
-    const icon = BitrateSelection.checkmarkIcon();
+    const icon = ShakaUtils.checkmarkIcon();
     button.appendChild(icon);
     span.classList.add('shaka-chosen-item');
     this.currentSelection.textContent = span.textContent;

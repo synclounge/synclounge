@@ -184,6 +184,7 @@ import plexthumb from './plexbrowser/plexthumb.vue';
 import 'shaka-player/dist/controls.css';
 
 import BitrateSelectionFactory from '@/player/ui/bitrateselection';
+import SubtitleSelectionFactory from '@/player/ui/subtitleselection';
 
 export default {
   name: 'slplayer',
@@ -219,6 +220,7 @@ export default {
           'picture_in_picture',
           'cast',
           'bitrate',
+          'subtitle',
         ],
       },
     };
@@ -231,27 +233,45 @@ export default {
   },
 
   created() {
+    shaka.log.setLevel(shaka.log.Level.WARNING);
     shaka.polyfill.installAll();
     this.metadataLoadedPromise = this.FETCH_METADATA();
     shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.GET_QUALITIES, this.GET_MAX_VIDEO_BITRATE));
+    shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
   },
 
   async mounted() {
     await this.metadataLoadedPromise;
     this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
-    this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer, this.$refs.videoPlayer));
+    this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
+      this.$refs.videoPlayer,
+    ));
+
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
 
+    this.eventbus.$on('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
+
     this.INIT_PLAYER_STATE();
+    this.applyPlayerWatchers();
     // Similuate a real plex client
     this.eventbus.$on('command', this.HANDLE_COMMAND);
   },
 
   beforeDestroy() {
     this.eventbus.$off('command', this.HANDLE_COMMAND);
+    this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
+    this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
     this.$store.unregisterModule('slplayer');
+  },
+
+  watch: {
+    GET_PLAYER_STATE(playerState) {
+      if (playerState === 'stopped') {
+        this.$router.push('/browse');
+      }
+    },
   },
 
   computed: {
@@ -277,14 +297,6 @@ export default {
     ]),
   },
 
-  watch: {
-    GET_PLAYER_STATE(playerState) {
-      if (playerState === 'stopped') {
-        this.$router.push('/browse');
-      }
-    },
-  },
-
   methods: {
     ...mapActions('slplayer', [
       'FETCH_METADATA',
@@ -303,7 +315,7 @@ export default {
       'HANDLE_COMMAND',
       'DO_COMMAND_STOP',
       'INIT_PLAYER_STATE',
-      'DESTROY_SLPLAYER_STATE',
+      'DESTROY_PLAYER_STATE',
     ]),
 
     ...mapMutations('slplayer', [
@@ -315,6 +327,20 @@ export default {
 
     doManualSync() {
       this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
+    },
+
+    applyPlayerWatchers() {
+      this.$watch('GET_SUBTITLE_STREAMS', (newStreams) => {
+        this.eventbus.$emit('subtitlestreamschanged', newStreams);
+      }, {
+        immediate: true,
+      });
+
+      this.$watch('GET_SUBTITLE_STREAM_ID', (newId) => {
+        this.eventbus.$emit('subtitlestreamidchanged', newId);
+      }, {
+        immediate: true,
+      });
     },
   },
 };
@@ -335,7 +361,6 @@ export default {
       height: calc(0.5625 * 100vw);
     }
   }
-
 
   .hoverBar {
     position: absolute;

@@ -43,11 +43,13 @@ export default {
 
   GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline`,
 
-  GET_STREAMS: (state, getters) =>
-    getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].Stream,
+  GET_STREAMS: (state, getters) => (getters.GET_METADATA
+    ? getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].Stream
+    : []),
 
-  GET_DECISION_STREAMS: (state, getters) =>
-    getters.GET_PLEX_DECISION.MediaContainer.Metadata[0].Media[0].Part[0].Stream,
+  GET_DECISION_STREAMS: (state, getters) => (getters.GET_PLEX_DECISION
+    ? getters.GET_PLEX_DECISION.MediaContainer.Metadata[0].Media[0].Part[0].Stream
+    : []),
 
   GET_SUBTITLE_STREAMS: (state, getters) => Array.of(({
     id: 0,
@@ -72,17 +74,11 @@ export default {
   GET_MAX_VIDEO_BITRATE: state => state.maxVideoBitrate,
 
   GET_AUDIO_STREAM_ID: (state, getters) => {
-    if (!getters.GET_PLEX_DECISION) {
-      return 0;
-    }
     const selectedAudioStream = getters.GET_DECISION_STREAMS.find(stream => stream.streamType === '2' && stream.selected === '1');
     return selectedAudioStream ? parseInt(selectedAudioStream.id, 10) : 0;
   },
 
   GET_SUBTITLE_STREAM_ID: (state, getters) => {
-    if (!getters.GET_PLEX_DECISION) {
-      return 0;
-    }
     const selectedSubtitleStream = getters.GET_DECISION_STREAMS.find(stream => stream.streamType === '3' && stream.selected === '1');
     return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
   },

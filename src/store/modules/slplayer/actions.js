@@ -333,7 +333,7 @@ export default {
     return result;
   },
 
-  DESTROY_SLPLAYER_STATE: ({ commit }) => {
+  DESTROY_PLAYER_STATE: ({ commit }) => {
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     commit('DESTROY_PLAYER');
   },
