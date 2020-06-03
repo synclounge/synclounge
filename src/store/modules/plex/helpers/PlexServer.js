@@ -1,10 +1,8 @@
-const request = require('request');
-const safeParse = require('safe-json-parse/callback');
+import axios from 'axios';
 const _PlexAuth = require('./PlexAuth.js');
 
 const PlexAuth = new _PlexAuth();
 
-const axios = require('axios');
 
 module.exports = function PlexServer() {
   this.name = '';
@@ -65,22 +63,10 @@ module.exports = function PlexServer() {
     });
   };
   this.hitApiTestConnection = async function (command, connection) {
-    return new Promise(async (resolve, reject) => {
-      const _url = connection.uri + command;
-      const options = PlexAuth.getApiOptions(_url, this.accessToken, 7500, 'GET');
-      request(options, (error, response, body) => {
-        if (!error) {
-          safeParse(body, (err, json) => {
-            if (err) {
-              return reject(err);
-            }
-            return resolve(json);
-          });
-        } else {
-          return reject(error);
-        }
-      });
-    });
+    const _url = connection.uri + command;
+    const config = PlexAuth.getRequestConfig(this.accessToken, 7500);
+    const { data } = await axios.get(_url, config);
+    return data;
   };
   this.setChosenConnection = function (con) {
     this.chosenConnection = con;
