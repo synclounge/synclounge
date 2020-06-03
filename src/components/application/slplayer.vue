@@ -185,6 +185,8 @@ import 'shaka-player/dist/controls.css';
 
 import BitrateSelectionFactory from '@/player/ui/bitrateselection';
 import SubtitleSelectionFactory from '@/player/ui/subtitleselection';
+import AudioSelectionFactory from '@/player/ui/audioselection';
+import MediaSelectionFactory from '@/player/ui/mediaselection';
 
 export default {
   name: 'slplayer',
@@ -221,6 +223,8 @@ export default {
           'cast',
           'bitrate',
           'subtitle',
+          'audio',
+          'media',
         ],
       },
     };
@@ -238,6 +242,8 @@ export default {
     this.metadataLoadedPromise = this.FETCH_METADATA();
     shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.GET_QUALITIES, this.GET_MAX_VIDEO_BITRATE));
     shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
+    shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
+    shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
   },
 
   async mounted() {
@@ -251,6 +257,8 @@ export default {
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
 
     this.eventbus.$on('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
+    this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
+    this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
 
     this.INIT_PLAYER_STATE();
     this.applyPlayerWatchers();
@@ -261,6 +269,8 @@ export default {
   beforeDestroy() {
     this.eventbus.$off('command', this.HANDLE_COMMAND);
     this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
+    this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
+    this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
     this.$store.unregisterModule('slplayer');
@@ -338,6 +348,30 @@ export default {
 
       this.$watch('GET_SUBTITLE_STREAM_ID', (newId) => {
         this.eventbus.$emit('subtitlestreamidchanged', newId);
+      }, {
+        immediate: true,
+      });
+
+      this.$watch('GET_AUDIO_STREAMS', (newStreams) => {
+        this.eventbus.$emit('audiotreamschanged', newStreams);
+      }, {
+        immediate: true,
+      });
+
+      this.$watch('GET_AUDIO_STREAM_ID', (newId) => {
+        this.eventbus.$emit('audiotreamidchanged', newId);
+      }, {
+        immediate: true,
+      });
+
+      this.$watch('GET_MEDIA_LIST', (newList) => {
+        this.eventbus.$emit('medialistchanged', newList);
+      }, {
+        immediate: true,
+      });
+
+      this.$watch('GET_MEDIA_INDEX', (newIndex) => {
+        this.eventbus.$emit('mediaindexchanged', newIndex);
       }, {
         immediate: true,
       });

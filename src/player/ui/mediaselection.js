@@ -1,21 +1,21 @@
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 import ShakaUtils from '@/player/ui/utils';
 
-class SubtitleSelection extends shaka.ui.SettingsMenu {
+class MediaSelection extends shaka.ui.SettingsMenu {
   constructor(parent, controls, eventBus) {
-    super(parent, controls, 'subtitles');
+    super(parent, controls, 'view_list');
     this.eventBus = eventBus;
-    this.selectedSubtitleId = 0;
-    this.subtitleStreams = [];
+    this.selectedMediaIndex = 0;
+    this.mediaList = [];
     this.eventListeners = [
       {
-        event: 'subtitlestreamschanged',
-        fn: this.onSubtitleStreamsChanged.bind(this),
+        event: 'medialistchanged',
+        fn: this.onMediaListChanged.bind(this),
       },
       {
-        event: 'subtitlestreamidchanged',
-        fn: this.onSubtitleStreamIdChanged.bind(this),
-      },
+        event: 'mediaindexchanged',
+        fn: this.onMediaIndexChanged.bind(this),
+      },	
     ];
 
     ShakaUtils.addEventListeners(this.eventListeners, this.eventBus);
@@ -24,30 +24,30 @@ class SubtitleSelection extends shaka.ui.SettingsMenu {
       () => ShakaUtils.removeEventListeners(this.eventListeners, this.eventBus),
     );
 
-    this.button.classList.add('shaka-subtitles-button');
-    this.menu.classList.add('shaka-subtitles');
+    this.button.classList.add('shaka-media-button');
+    this.menu.classList.add('shaka-media');
 
-    this.backSpan.textContent = 'Subtitles';
-    this.nameSpan.textContent = 'Subtitles';
+    this.backSpan.textContent = 'Version';
+    this.nameSpan.textContent = 'Version';
 
-    this.updateSubtitleSelection();
+    this.updateMediaSelection();
   }
 
-  onSubtitleStreamsChanged(streams) {
-    this.subtitleStreams = streams;
-    this.updateSubtitleSelection();
+  onMediaListChanged(streams) {
+    this.mediaList = streams;
+    this.updateMediaSelection();
   }
 
-  onSubtitleStreamIdChanged(id) {
-    if (id !== this.selectedSubtitleId) {
-      this.selectedSubtitleId = id;
-      this.updateSubtitleSelection();
+  onMediaIndexChanged(index) {
+    if (index !== this.selectedMediaIndex) {
+      this.selectedMediaIndex = index;
+      this.updateMediaSelection();
     }
   }
 
-  updateSubtitleSelection() {
-    // Hide menu if there is only the None subtitle option
-    if (this.subtitleStreams.length <= 1) {
+  updateMediaSelection() {
+    // Hide menu if there is only the one version
+    if (this.mediaList.length <= 1) {
       ShakaUtils.setDisplay(this.menu, false);
       ShakaUtils.setDisplay(this.button, false);
       return;
@@ -66,27 +66,27 @@ class SubtitleSelection extends shaka.ui.SettingsMenu {
     // 3. Add the backTo Menu button back
     this.menu.appendChild(backButton);
 
-    this.addSubtitleSelection();
+    this.addMediaSelection();
 
     ShakaUtils.focusOnTheChosenItem(this.menu);
   }
 
-  addSubtitleSelection() {
-    this.subtitleStreams.forEach((subtitle) => {
+  addMediaSelection() {
+    this.mediaList.forEach((media) => {
       const button = document.createElement('button');
-      button.classList.add('explicit-subtitle');
+      button.classList.add('explicit-media');
 
       const span = document.createElement('span');
-      span.textContent = subtitle.text;
+      span.textContent = media.text;
       button.appendChild(span);
 
       this.eventManager.listen(
         button,
         'click',
-        () => this.onSubtitleClicked(subtitle.id),
+        () => this.onMediaClicked(media.index),
       );
 
-      if (subtitle.id === this.selectedSubtitleId) {
+      if (media.index === this.selectedMediaIndex) {
         button.setAttribute('aria-selected', 'true');
         button.appendChild(ShakaUtils.checkmarkIcon());
         span.classList.add('shaka-chosen-item');
@@ -97,18 +97,18 @@ class SubtitleSelection extends shaka.ui.SettingsMenu {
     });
   }
 
-  onSubtitleClicked(subtitleId) {
-    this.eventBus.$emit('subtitlestreamselectionchanged', subtitleId);
+  onMediaClicked(index) {
+    this.eventBus.$emit('mediaindexselectionchanged', index);
   }
 };
 
-class SubtitleSelectionFactory {
+class MediaSelectionFactory {
   constructor(eventBus) {
     this.eventBus = eventBus;
   }
   create(rootElement, controls) {
-    return new SubtitleSelection(rootElement, controls, this.eventBus);
+    return new MediaSelection(rootElement, controls, this.eventBus);
   }
 };
 
-export default SubtitleSelectionFactory;
+export default MediaSelectionFactory;
