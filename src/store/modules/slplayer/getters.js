@@ -104,6 +104,7 @@ export default {
   GET_METADATA: state => state.metadata,
   GET_PLAYER_STATE: state => state.playerState,
   GET_PLAYER: state => state.player,
+  GET_PLAYER_UI: state => state.playerUi,
 
   GET_TITLE: (state, getters) => {
     switch (getters.GET_METADATA.type) {
@@ -215,9 +216,7 @@ export default {
     ...getters.GET_BASE_PARAMS,
   }),
 
-  // eslint-disable-next-line no-underscore-dangle
-  //ARE_PLAYER_CONTROLS_SHOWN: state => (state.playerUi ? state.playerUi.isOpaque_() : true),
-  ARE_PLAYER_CONTROLS_SHOWN: state => true,
+  ARE_PLAYER_CONTROLS_SHOWN: state => state.playerControlsShown,
 
   GET_PLAYER_MEDIA_ELEMENT: state => state.player.getMediaElement(),
 

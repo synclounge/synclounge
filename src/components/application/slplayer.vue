@@ -205,7 +205,6 @@ export default {
       },
 
       playerUiOptions: {
-        addBigPlayButton: false,
         controlPanelElements: [
           'time_and_duration',
           'spacer',
@@ -243,16 +242,15 @@ export default {
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer, this.$refs.videoPlayer));
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
-    this.onPlayerReady();
 
-
+    this.INIT_PLAYER_STATE();
     // Similuate a real plex client
     this.eventbus.$on('command', this.HANDLE_COMMAND);
   },
 
   beforeDestroy() {
     this.eventbus.$off('command', this.HANDLE_COMMAND);
-    this.DISPOSE_PLAYER();
+    this.DESTROY_PLAYER_STATE();
     this.$store.unregisterModule('slplayer');
   },
 
@@ -295,8 +293,6 @@ export default {
       'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
-      'PERIODIC_PLEX_TIMELINE_UPDATE_STARTER',
-      'CHANGE_PLAYER_STATE',
       'HANDLE_PLAYER_PLAYING',
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_SEEKING',
@@ -306,6 +302,8 @@ export default {
 
       'HANDLE_COMMAND',
       'DO_COMMAND_STOP',
+      'INIT_PLAYER_STATE',
+      'DESTROY_SLPLAYER_STATE',
     ]),
 
     ...mapMutations('slplayer', [
@@ -313,14 +311,7 @@ export default {
       'SET_PLAYER_CONFIGURATION',
       'SET_PLAYER_UI',
       'SET_PLAYER_UI_CONFIGURATION',
-      'DISPOSE_PLAYER',
     ]),
-
-    async onPlayerReady() {
-      await this.CHANGE_PLAYER_SRC();
-      this.GET_PLAYER.volume = this.$store.getters.getSettings.PTPLAYERVOLUME || 100;
-      return this.PERIODIC_PLEX_TIMELINE_UPDATE_STARTER();
-    },
 
     doManualSync() {
       this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
@@ -340,11 +331,12 @@ export default {
   .messages-wrapper {
     height: calc(100vh - (0.5625 * 100vw) - 150px);
   }
+
   .is-fullscreen .messages-wrapper {
     height: calc(100vh - (0.5625 * 100vw));
   }
 
-  .slplayer span{
+  .slplayer span {
     color: black;
   }
 </style>

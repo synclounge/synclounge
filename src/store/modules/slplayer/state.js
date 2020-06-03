@@ -20,6 +20,8 @@ const state = () => ({
   playerState: 'buffering',
   player: null,
   playerUi: null,
+  playerControlsShown: true,
+  playerControlsShownInterval: null,
 });
 
 

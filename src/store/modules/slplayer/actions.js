@@ -57,6 +57,18 @@ const isTimeInBufferedRange = (getters, timeMs) => {
   return false;
 };
 
+const arePlayerControlsShown = (getters) => {
+  // eslint-disable-next-line no-underscore-dangle
+  if (!getters.GET_PLAYER_UI.getControls().enabled_) {
+    return false;
+  }
+
+  // eslint-disable-next-line no-underscore-dangle
+  return getters.GET_PLAYER_UI.getControls().getControlsContainer().getAttribute('shown') != null
+    // eslint-disable-next-line no-underscore-dangle
+    || getters.GET_PLAYER_UI.getControls().getControlsContainer().getAttribute('casting') != null;
+};
+
 export default {
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
     const { data } = await axios.get(getters.GET_DECISION_URL, {
@@ -264,7 +276,6 @@ export default {
       commit('SET_PLAYER_CURRENT_TIME_MS', seekToMs);
 
       const seekedPromise = new Promise((resolve) => {
-        // TODO: fix this
         getters.GET_PLAYER_MEDIA_ELEMENT.addEventListener('seeked', (e) => {
           resolve(e.data);
         }, { once: true });
@@ -274,7 +285,7 @@ export default {
     }
   },
 
-  PERIODIC_PLEX_TIMELINE_UPDATE_STARTER: async ({ getters, dispatch }) => {
+  START_PERIODIC_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch }) => {
     // Send out a timeline update to plex periodically.
 
     // eslint-disable-next-line no-constant-condition
@@ -289,6 +300,12 @@ export default {
       // eslint-disable-next-line no-await-in-loop
       await delayPromise;
     }
+  },
+
+  START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL: ({ commit, getters }) => {
+    commit('SET_PLAYER_CONTROLS_SHOWN_INTERVAL', setInterval(() => {
+      commit('UPDATE_PLAYER_CONTROLS_SHOWN', arePlayerControlsShown(getters));
+    }, 500));
   },
 
   UPDATE_CLIENT_TIMELINE: ({ getters, rootGetters }) => {
@@ -306,5 +323,18 @@ export default {
     const result = await getters.GET_PLAYER.load(getters.GET_SRC_URL);
     commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET_MS);
     return result;
+  },
+
+  INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
+    commit('SET_PLAYER_VOLUME', rootGetters.getSettings.PTPLAYERVOLUME || 100);
+    const result = await dispatch('CHANGE_PLAYER_SRC');
+    dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    return result;
+  },
+
+  DESTROY_SLPLAYER_STATE: ({ commit }) => {
+    commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    commit('DESTROY_PLAYER');
   },
 };
