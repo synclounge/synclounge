@@ -15,10 +15,6 @@ export default {
     state.player = player;
   },
 
-  SET_PLAYER_VIDEO_ELEMENT: (state, element) => {
-    state.playerVideoElement = element;
-  },
-
   SET_PLAYER_CONFIGURATION: (state, config) => {
     state.player.configure(config);
   },
@@ -64,7 +60,7 @@ export default {
   },
 
   SET_PLAYER_CURRENT_TIME_MS: (state, timeMs) => {
-    state.player.currentTime = timeMs / 1000;
+    state.player.getMediaElement().currentTime = timeMs / 1000;
   },
 
   SET_PLAYER_PLAYBACK_RATE: (state, rate) => {

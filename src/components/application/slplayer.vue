@@ -1,6 +1,6 @@
 <template>
-  <div style="width:100%; position: relative"   v-if="GET_METADATA">
-    <div style="position: relative">
+  <div style="width:100%; position: relative">
+    <div style="position: relative" v-if="GET_METADATA">
       <div
         ref="videoPlayerContainer"
         class="slplayer"
@@ -254,10 +254,12 @@ export default {
   async mounted() {
     await this.metadataLoadedPromise;
     this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
-    this.SET_PLAYER_VIDEO_ELEMENT(this.$refs.videoPlayer);
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer, this.$refs.videoPlayer));
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
+
+    this.GET_PLAYER.addEventListener('loaded', this.HANDLE_PLAYER_MANIFEST_PARSED);
+
     this.onPlayerReady();
 
 
@@ -318,23 +320,22 @@ export default {
       'HANDLE_PLAYER_SEEKED',
       'HANDLE_PLAYER_WAITING',
       'HANDLE_PLAYER_VOLUME_CHANGE',
+      'HANDLE_PLAYER_MANIFEST_PARSED',
 
       'HANDLE_COMMAND',
       'DO_COMMAND_STOP',
-      'SEND_PLEX_TIMELINE_UPDATE',
     ]),
 
     ...mapMutations('slplayer', [
       'SET_PLAYER',
-      'SET_PLAYER_VIDEO_ELEMENT',
       'SET_PLAYER_CONFIGURATION',
       'SET_PLAYER_UI',
       'SET_PLAYER_UI_CONFIGURATION',
       'DISPOSE_PLAYER',
     ]),
 
-    onPlayerReady() {
-      this.CHANGE_PLAYER_SRC();
+    async onPlayerReady() {
+      await this.CHANGE_PLAYER_SRC();
       this.GET_PLAYER.volume = this.$store.getters.getSettings.PTPLAYERVOLUME || 100;
       return this.PERIODIC_PLEX_TIMELINE_UPDATE_STARTER();
     },

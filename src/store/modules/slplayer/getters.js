@@ -106,7 +106,7 @@ export default {
   GET_PLAYER: state => state.player,
 
   IS_TIME_IN_BUFFERED_RANGE: (state, getters) => (time) => {
-    const bufferedTimeRange = getters.GET_PLAYER_VIDEO_ELEMENT.buffered;
+    const bufferedTimeRange = getters.GET_PLAYER_MEDIA_ELEMENT.buffered;
 
     // There can be multiple ranges
     for (let i = 0; i < bufferedTimeRange.length; ++i) {
@@ -232,7 +232,7 @@ export default {
   //ARE_PLAYER_CONTROLS_SHOWN: state => (state.playerUi ? state.playerUi.isOpaque_() : true),
   ARE_PLAYER_CONTROLS_SHOWN: state => true,
 
-  GET_PLAYER_VIDEO_ELEMENT: state => state.playerVideoElement,
+  GET_PLAYER_MEDIA_ELEMENT: state => state.player.getMediaElement(),
 
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
 };

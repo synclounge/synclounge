@@ -19,7 +19,6 @@ const state = () => ({
   offsetMs: 0,
   playerState: 'buffering',
   player: null,
-  playerVideoElement: null,
   playerUi: null,
 });
 
