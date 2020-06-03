@@ -14,6 +14,32 @@ const commandActions = command => ({
   '/player/playback/seekTo': 'DO_COMMAND_SEEK_TO',
 })[command];
 
+// These functions are a bit special since they use currentTime and duration, which can't
+// be tracked by vuex, so the cache isn't updated correctly
+const getPlayerCurrentTimeMs = (getters) => getters.GET_PLAYER_VIDEO_ELEMENT.currentTime * 1000;
+const getPlayerDurationMs = (getters) => getters.GET_PLAYER_VIDEO_ELEMENT.duration * 1000;
+const makeTimelineParams = (getters) => ({
+  ratingKey: getters.GET_RATING_KEY,
+  key: getters.GET_KEY,
+  // playbackTime: 591
+  // playQueueItemID: 19037144
+  state: getters.GET_PLAYER_STATE,
+  hasMDE: 1,
+  time: Math.floor(getPlayerCurrentTimeMs(getters)),
+  duration: Math.floor(getPlayerDurationMs(getters)),
+  'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
+  ...getters.GET_PART_PARAMS,
+});
+
+const makePollResponse =  (getters) => ({
+  ratingKey: getters.GET_RATING_KEY,
+  key: getters.GET_KEY,
+  time: getPlayerCurrentTimeMs(getters),
+  duration: getPlayerDurationMs(getters),
+  type: 'video',
+  machineIdentifier: getters.GET_PLEX_SERVER_ID,
+  state: getters.GET_PLAYER_STATE,
+});
 
 export default {
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
@@ -68,7 +94,7 @@ export default {
 
   // Changes the player src to the new one and restores the time afterwards
   UPDATE_PLAYER_SRC_AND_KEEP_TIME: async ({ getters, commit, dispatch }) => {
-    commit('SET_OFFSET_MS', getters.GET_PLAYER_CURRENT_TIME_MS);
+    commit('SET_OFFSET_MS', getPlayerCurrentTimeMs(getters));
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
@@ -78,10 +104,11 @@ export default {
     return dispatch('LOAD_PLAYER_SRC');
   },
 
-  SEND_PLEX_TIMELINE_UPDATE: ({ getters }) => axios.get(getters.GET_TIMELINE_URL, {
-    params: getters.GET_TIMELINE_PARAMS,
-    timeout: 10000,
-  }),
+  SEND_PLEX_TIMELINE_UPDATE: ({ getters }) =>
+    axios.get(getters.GET_TIMELINE_URL, {
+      params: makeTimelineParams(getters),
+      timeout: 10000,
+    }),
 
   HANDLE_PLAYER_PLAYING: ({ dispatch }) =>
     dispatch('CHANGE_PLAYER_STATE', 'playing'),
@@ -93,13 +120,13 @@ export default {
     dispatch('CHANGE_PLAYER_STATE', 'buffering'),
 
   HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER.paused() ? 'paused' : 'playing'),
+    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER.paused ? 'paused' : 'playing'),
 
   HANDLE_PLAYER_WAITING: ({ dispatch }) =>
     dispatch('CHANGE_PLAYER_STATE', 'buffering'),
 
   HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
-    commit('setSetting', ['PTPLAYERVOLUME', getters.GET_PLAYER.volume() || 0], { root: true });
+    commit('setSetting', ['PTPLAYERVOLUME', getters.GET_PLAYER.volume || 0], { root: true });
   },
 
 
@@ -113,7 +140,7 @@ export default {
   DO_COMMAND_DISPATCH: async ({ dispatch }, { action, params }) =>
     dispatch(action, params),
 
-  DO_COMMAND_POLL: ({ getters }) => getters.GET_POLL_RESPONSE,
+  DO_COMMAND_POLL: ({ getters }) => makePollResponse(getters),
 
   DO_COMMAND_PLAY: ({ getters, commit }) => {
     if (getters.GET_PLAYER_STATE !== 'playing') {
@@ -146,7 +173,7 @@ export default {
 
 
   DO_COMMAND_SEEK_TO: async ({ getters, dispatch }, { offset: seekToMs, softSeek }) => {
-    if (Number.isNaN(getters.GET_PLAYER_DURATION_MS)) {
+    if (Number.isNaN(getPlayerDurationMs(getters))) {
       throw new Error('Player is not ready');
     }
 
@@ -167,7 +194,7 @@ export default {
   },
 
   NORMAL_SEEK: async ({ getters, commit, rootGetters }, seekToMs) => {
-    if ((Math.abs(seekToMs - getters.GET_PLAYER_CURRENT_TIME_MS) < 3000 && rootGetters.GET_HOST_PLAYER_STATE === 'playing')) {
+    if ((Math.abs(seekToMs - getPlayerCurrentTimeMs(getters)) < 3000 && rootGetters.GET_HOST_PLAYER_STATE === 'playing')) {
       let cancelled = false;
 
       window.EventBus.$once('host-playerstate-change', () => {
@@ -189,7 +216,7 @@ export default {
         // 25 here because interval is 25ms
         const expectedHostTimeMs = seekToMs + (25 * iterations);
 
-        const difference = expectedHostTimeMs - getters.GET_PLAYER_CURRENT_TIME_MS;
+        const difference = expectedHostTimeMs - getPlayerCurrentTimeMs(getters);
         const absDifference = Math.abs(difference);
 
         if (absDifference < 30) {
@@ -203,13 +230,13 @@ export default {
         }
 
         if (difference > 0) {
-          if (getters.GET_PLAYER.playbackRate() < 1.02) {
+          if (getters.GET_PLAYER.getPlaybackRate() < 1.02) {
             // Speed up
-            commit('SET_PLAYER_PLAYBACK_RATE', getters.GET_PLAYER.playbackRate() + 0.0001);
+            commit('SET_PLAYER_PLAYBACK_RATE', getters.GET_PLAYER.getPlaybackRate() + 0.0001);
           }
-        } else if (getters.GET_PLAYER.playbackRate() > 0.98) {
+        } else if (getters.GET_PLAYER.getPlaybackRate() > 0.98) {
           // Slow down
-          commit('SET_PLAYER_PLAYBACK_RATE', getters.GET_PLAYER.playbackRate() - 0.0001);
+          commit('SET_PLAYER_PLAYBACK_RATE', getters.GET_PLAYER.getPlaybackRate() - 0.0001);
         }
 
         // eslint-disable-next-line no-await-in-loop
@@ -221,6 +248,7 @@ export default {
       commit('SET_PLAYER_CURRENT_TIME_MS', seekToMs);
 
       const seekedPromise = new Promise((resolve) => {
+        // TODO: fix this
         getters.GET_PLAYER.one('seeked', (e) => {
           resolve(e.data);
         });
@@ -248,7 +276,7 @@ export default {
   },
 
   UPDATE_CLIENT_TIMELINE: ({ getters, rootGetters }) => {
-    rootGetters.getChosenClient.updateTimelineObject(getters.GET_POLL_RESPONSE);
+    rootGetters.getChosenClient.updateTimelineObject(makePollResponse(getters));
   },
 
   CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {

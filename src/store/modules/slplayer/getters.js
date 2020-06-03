@@ -105,13 +105,8 @@ export default {
   GET_PLAYER_STATE: state => state.playerState,
   GET_PLAYER: state => state.player,
 
-  GET_PLAYER_CURRENT_TIME_MS: (state, getters) =>
-    (getters.GET_PLAYER ? getters.GET_PLAYER.currentTime * 1000 : 0),
-
-  GET_PLAYER_DURATION_MS: (state, getters) => getters.GET_PLAYER.duration * 1000,
-
   IS_TIME_IN_BUFFERED_RANGE: (state, getters) => (time) => {
-    const bufferedTimeRange = getters.GET_PLAYER.buffered;
+    const bufferedTimeRange = getters.GET_PLAYER_VIDEO_ELEMENT.buffered;
 
     // There can be multiple ranges
     for (let i = 0; i < bufferedTimeRange.length; ++i) {
@@ -122,16 +117,6 @@ export default {
 
     return false;
   },
-
-  GET_POLL_RESPONSE: (state, getters) => ({
-    ratingKey: getters.GET_RATING_KEY,
-    key: getters.GET_KEY,
-    time: getters.GET_PLAYER_CURRENT_TIME_MS,
-    duration: getters.GET_PLAYER_DURATION_MS,
-    type: 'video',
-    machineIdentifier: getters.GET_PLEX_SERVER_ID,
-    state: getters.GET_PLAYER_STATE,
-  }),
 
   GET_TITLE: (state, getters) => {
     switch (getters.GET_METADATA.type) {
@@ -237,25 +222,17 @@ export default {
     session: state.session,
     subtitles: 'burn',
     'Accept-Language': 'en',
-    'X-Plex-Session-Identifier': state.xplexsessionId,
+    'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
     'X-Plex-Incomplete-Segments': 1,
     ...getters.GET_BASE_PARAMS,
   }),
 
-  GET_TIMELINE_PARAMS: (state, getters) => ({
-    ratingKey: getters.GET_RATING_KEY,
-    key: getters.GET_KEY,
-    // playbackTime: 591
-    // playQueueItemID: 19037144
-    state: getters.GET_PLAYER_STATE,
-    hasMDE: 1,
-    time: Math.floor(getters.GET_PLAYER_CURRENT_TIME_MS),
-    duration: Math.floor(getters.GET_PLAYER_DURATION_MS),
-    'X-Plex-Session-Identifier': state.xplexsessionId,
-    ...getters.GET_PART_PARAMS,
-  }),
-
   // eslint-disable-next-line no-underscore-dangle
-  ARE_PLAYER_CONTROLS_SHOWN: state => (state.playerUi ? state.playerUi.isOpaque_() : true),
+  //ARE_PLAYER_CONTROLS_SHOWN: state => (state.playerUi ? state.playerUi.isOpaque_() : true),
+  ARE_PLAYER_CONTROLS_SHOWN: state => true,
+
+  GET_PLAYER_VIDEO_ELEMENT: state => state.playerVideoElement,
+
+  GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
 };

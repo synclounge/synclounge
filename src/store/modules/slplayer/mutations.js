@@ -15,6 +15,10 @@ export default {
     state.player = player;
   },
 
+  SET_PLAYER_VIDEO_ELEMENT: (state, element) => {
+    state.playerVideoElement = element;
+  },
+
   SET_PLAYER_CONFIGURATION: (state, config) => {
     state.player.configure(config);
   },

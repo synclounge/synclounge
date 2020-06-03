@@ -1,11 +1,14 @@
 <template>
   <div style="width:100%; position: relative"   v-if="GET_METADATA">
     <div style="position: relative">
-      <div ref="videoPlayerContainer" class="ptplayer">
+      <div
+        ref="videoPlayerContainer"
+        class="slplayer"
+        @bitratechanged="CHANGE_MAX_VIDEO_BITRATE($event.detail)"
+      >
         <video
           ref="videoPlayer"
           autoplay="true"
-          controls="true"
           preload="auto"
           playsinline="true"
 
@@ -16,10 +19,8 @@
           @seeking="HANDLE_PLAYER_SEEKING"
           @seeked="HANDLE_PLAYER_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
-          @bitratechanged="CHANGE_MAX_VIDEO_BITRATE"
 
           style="background-color:transparent !important;"
-          class="video-js"
         >
         </video>
       </div>
@@ -173,7 +174,7 @@
 </template>
 
 <script>
-import shaka from 'shaka-player/dist/shaka-player.ui';
+import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
 import slplayer from '@/store/modules/slplayer';
 
@@ -183,9 +184,6 @@ import plexthumb from './plexbrowser/plexthumb.vue';
 import 'shaka-player/dist/controls.css';
 
 import BitrateSelectionFactory from '@/player/ui/bitrateselection';
-
-
-shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory());
 
 export default {
   name: 'slplayer',
@@ -230,25 +228,13 @@ export default {
       },
 
       playerUiOptions: {
-        controlPanelElements: [
-          'play_pause',
-          'mute',
-          'volume',
-          'time_and_duration',
-          'fullscreen',
-          'overflow_menu',
-        ],
+        addBigPlayButton: false,
 
         overflowMenuButtons: [
           'picture_in_picture',
-          'quality',
           'cast',
-          'captions',
-          'language',
           'bitrate',
         ],
-        bitrates: this.GET_QUALITIES,
-        initialBitrate: this.GET_MAX_VIDEO_BITRATE,
       },
     };
   },
@@ -262,14 +248,17 @@ export default {
   created() {
     shaka.polyfill.installAll();
     this.metadataLoadedPromise = this.FETCH_METADATA();
+    shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.GET_QUALITIES, this.GET_MAX_VIDEO_BITRATE));
   },
 
   async mounted() {
     await this.metadataLoadedPromise;
     this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
+    this.SET_PLAYER_VIDEO_ELEMENT(this.$refs.videoPlayer);
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer, this.$refs.videoPlayer));
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
+    this.onPlayerReady();
 
 
     // Similuate a real plex client
@@ -337,6 +326,7 @@ export default {
 
     ...mapMutations('slplayer', [
       'SET_PLAYER',
+      'SET_PLAYER_VIDEO_ELEMENT',
       'SET_PLAYER_CONFIGURATION',
       'SET_PLAYER_UI',
       'SET_PLAYER_UI_CONFIGURATION',
@@ -345,7 +335,7 @@ export default {
 
     onPlayerReady() {
       this.CHANGE_PLAYER_SRC();
-      this.GET_PLAYER.volume(this.$store.getters.getSettings.PTPLAYERVOLUME || 100);
+      this.GET_PLAYER.volume = this.$store.getters.getSettings.PTPLAYERVOLUME || 100;
       return this.PERIODIC_PLEX_TIMELINE_UPDATE_STARTER();
     },
 
@@ -357,10 +347,21 @@ export default {
 </script>
 
 <style scoped>
+  .slplayer video {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<style>
   .messages-wrapper {
     height: calc(100vh - (0.5625 * 100vw) - 150px);
   }
   .is-fullscreen .messages-wrapper {
     height: calc(100vh - (0.5625 * 100vw));
+  }
+
+  .slplayer span{
+    color: black;
   }
 </style>
