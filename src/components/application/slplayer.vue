@@ -329,6 +329,26 @@ export default {
   .slplayer {
     height: calc(100vh - 64px);
   }
+
+  @media screen and (max-width: 1264px) {
+    div.slplayer {
+      height: calc(0.5625 * 100vw);
+    }
+  }
+
+
+  .hoverBar {
+    position: absolute;
+    background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),color-stop(60%,rgba(0,0,0,.35)),to(transparent));
+    background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent)
+  }
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.25s ease-out;
+  }
+
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
 </style>
 
 <style>
