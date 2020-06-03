@@ -198,29 +198,6 @@ export default {
       lastSentTimeline: {},
       metadataLoadedPromise: null,
 
-      videoOptions: {
-        language: 'en',
-        inactivityTimeout: 2000,
-        fluid: true,
-        aspectRatio: '16:9',
-
-        controlBar: {
-          children: {
-            playToggle: {},
-            muteToggle: {},
-            volumeControl: {},
-            currentTimeDisplay: {},
-
-            flexibleWidthSpacer: {},
-            progressControl: {},
-            timeDivider: {},
-            liveDisplay: {},
-            durationDisplay: {},
-            fullscreenToggle: {},
-          },
-        },
-      },
-
       playerConfig: {
         streaming: {
           bufferingGoal: 120,
@@ -229,6 +206,15 @@ export default {
 
       playerUiOptions: {
         addBigPlayButton: false,
+        controlPanelElements: [
+          'time_and_duration',
+          'spacer',
+          'play_pause',
+          'mute',
+          'volume',
+          'fullscreen',
+          'overflow_menu',
+        ],
 
         overflowMenuButtons: [
           'picture_in_picture',

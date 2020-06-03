@@ -16,8 +16,11 @@ const commandActions = command => ({
 
 // These functions are a bit special since they use currentTime and duration, which can't
 // be tracked by vuex, so the cache isn't updated correctly
-const getPlayerCurrentTimeMs = (getters) => getters.GET_PLAYER_MEDIA_ELEMENT.currentTime * 1000;
+const getPlayerCurrentTimeMs = (getters) =>
+  (getters.GET_PLAYER_MEDIA_ELEMENT.currentTime * 1000) || getters.GET_OFFSET_MS;
+
 const getPlayerDurationMs = (getters) => getters.GET_PLAYER_MEDIA_ELEMENT.duration * 1000;
+
 const makeTimelineParams = (getters) => ({
   ratingKey: getters.GET_RATING_KEY,
   key: getters.GET_KEY,
