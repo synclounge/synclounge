@@ -243,9 +243,6 @@ export default {
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer, this.$refs.videoPlayer));
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
-
-    this.GET_PLAYER.addEventListener('loaded', this.HANDLE_PLAYER_MANIFEST_PARSED);
-
     this.onPlayerReady();
 
 
@@ -306,7 +303,6 @@ export default {
       'HANDLE_PLAYER_SEEKED',
       'HANDLE_PLAYER_WAITING',
       'HANDLE_PLAYER_VOLUME_CHANGE',
-      'HANDLE_PLAYER_MANIFEST_PARSED',
 
       'HANDLE_COMMAND',
       'DO_COMMAND_STOP',

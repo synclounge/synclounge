@@ -105,19 +105,6 @@ export default {
   GET_PLAYER_STATE: state => state.playerState,
   GET_PLAYER: state => state.player,
 
-  IS_TIME_IN_BUFFERED_RANGE: (state, getters) => (time) => {
-    const bufferedTimeRange = getters.GET_PLAYER_MEDIA_ELEMENT.buffered;
-
-    // There can be multiple ranges
-    for (let i = 0; i < bufferedTimeRange.length; ++i) {
-      if (time >= bufferedTimeRange.start(i) * 1000 && time <= bufferedTimeRange.end(i) * 1000) {
-        return true;
-      }
-    }
-
-    return false;
-  },
-
   GET_TITLE: (state, getters) => {
     switch (getters.GET_METADATA.type) {
       case 'movie':

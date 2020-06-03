@@ -44,6 +44,19 @@ const makePollResponse =  (getters) => ({
   state: getters.GET_PLAYER_STATE,
 });
 
+const isTimeInBufferedRange = (getters, timeMs) => {
+  const bufferedTimeRange = getters.GET_PLAYER_MEDIA_ELEMENT.buffered;
+
+  // There can be multiple ranges
+  for (let i = 0; i < bufferedTimeRange.length; ++i) {
+    if (timeMs >= bufferedTimeRange.start(i) * 1000 && timeMs <= bufferedTimeRange.end(i) * 1000) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export default {
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
     const { data } = await axios.get(getters.GET_DECISION_URL, {
@@ -123,13 +136,13 @@ export default {
     dispatch('CHANGE_PLAYER_STATE', 'buffering'),
 
   HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER.paused ? 'paused' : 'playing'),
+    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing'),
 
   HANDLE_PLAYER_WAITING: ({ dispatch }) =>
     dispatch('CHANGE_PLAYER_STATE', 'buffering'),
 
   HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
-    commit('setSetting', ['PTPLAYERVOLUME', getters.GET_PLAYER.volume || 0], { root: true });
+    commit('setSetting', ['PTPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume || 0], { root: true });
   },
 
 
@@ -188,7 +201,7 @@ export default {
   },
 
   SOFT_SEEK: ({ getters, commit }, seekToMs) => {
-    if (!getters.IS_TIME_IN_BUFFERED_RANGE(seekToMs)) {
+    if (!isTimeInBufferedRange(getters, seekToMs)) {
       throw new Error('Soft seek requested but not within buffered range');
     }
 
@@ -252,9 +265,9 @@ export default {
 
       const seekedPromise = new Promise((resolve) => {
         // TODO: fix this
-        getters.GET_PLAYER.one('seeked', (e) => {
+        getters.GET_PLAYER_MEDIA_ELEMENT.addEventListener('seeked', (e) => {
           resolve(e.data);
-        });
+        }, { once: true });
       });
 
       return timeoutPromise(seekedPromise, 15000);

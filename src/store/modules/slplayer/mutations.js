@@ -52,11 +52,11 @@ export default {
   },
 
   PLAY: (state) => {
-    state.player.play();
+    state.player.getMediaElement().play();
   },
 
   PAUSE: (state) => {
-    state.player.pause();
+    state.player.getMediaElement().pause();
   },
 
   SET_PLAYER_CURRENT_TIME_MS: (state, timeMs) => {
