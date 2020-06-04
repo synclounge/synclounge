@@ -250,7 +250,6 @@ export default {
       'GET_TITLE',
       'GET_SECONDARY_TITLE',
       'GET_PLAYER_STATE',
-      'GET_OFFSET',
       'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
     ]),
