@@ -87,6 +87,6 @@ export default {
   },
 
   SET_PLAYER_VOLUME: (state, volume) => {
-    state.player.volume = volume;
+    state.player.getMediaElement().volume = volume;
   },
 };
