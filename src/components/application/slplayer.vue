@@ -123,11 +123,14 @@ import messages from '@/components/messages.vue';
 import plexthumb from './plexbrowser/plexthumb.vue';
 
 import 'shaka-player/dist/controls.css';
+shaka.log.setLevel(shaka.log.Level.WARNING);
+shaka.polyfill.installAll();
 
 import BitrateSelectionFactory from '@/player/ui/bitrateselection';
 import SubtitleSelectionFactory from '@/player/ui/subtitleselection';
 import AudioSelectionFactory from '@/player/ui/audioselection';
 import MediaSelectionFactory from '@/player/ui/mediaselection';
+import CloseButtonFactory from '@/player/ui/closebutton';
 
 export default {
   name: 'slplayer',
@@ -150,13 +153,15 @@ export default {
 
       playerUiOptions: {
         controlPanelElements: [
-          'time_and_duration',
-          'spacer',
           'play_pause',
           'mute',
           'volume',
-          'fullscreen',
+          'close',
+          'time_and_duration',
+          'spacer',
+
           'overflow_menu',
+          'fullscreen',
         ],
 
         overflowMenuButtons: [
@@ -178,13 +183,12 @@ export default {
   },
 
   created() {
-    shaka.log.setLevel(shaka.log.Level.WARNING);
-    shaka.polyfill.installAll();
     this.metadataLoadedPromise = this.FETCH_METADATA();
     shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
+    shaka.ui.Controls.registerElement('close', new CloseButtonFactory(this.eventbus));
   },
 
   async mounted() {
@@ -201,6 +205,7 @@ export default {
     this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
     this.eventbus.$on('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
+    this.eventbus.$on('playerclosebuttonclicked', this.DO_COMMAND_STOP);
 
     this.INIT_PLAYER_STATE();
     this.applyPlayerWatchers();
@@ -214,6 +219,7 @@ export default {
     this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
     this.eventbus.$off('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
+    this.eventbus.$off('playerclosebuttonclicked', this.DO_COMMAND_STOP);
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
     this.$store.unregisterModule('slplayer');
