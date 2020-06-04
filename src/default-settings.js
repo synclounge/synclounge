@@ -4,8 +4,8 @@ module.exports = {
     clientPollInterval: 1000,
     syncMode: 'cleanseek',
     syncFlexibility: 3000,
-    slPlayerForceTranscode: true,
-    slPlayerQuality: 'Original',
+    slPlayerForceTranscode: false,
+    slPlayerQuality: null,
     slPlayerVolume: 1,
   },
 };
