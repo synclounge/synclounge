@@ -64,7 +64,6 @@
     "vue-observe-visibility": "^0.4.6",
     "vue-scrollto": "^2.18.1",
     "vue-template-compiler": "^2.6.11",
-    "vue-videojs-player": "^1.1.2",
     "vuetify-loader": "^1.4.4",
     "vuex-persistedstate": "^3.0.1",
     "vuex-router-sync": "^5.0.0",
