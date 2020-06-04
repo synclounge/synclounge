@@ -389,7 +389,8 @@ export default {
                       sendNotification('Resuming..');
                       return resolve(await rootState.chosenClient.pressPlay());
                     }
-                    if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
+                    if ((hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing')
+                      || (hostTimeline.playerState === 'buffering' && ourTimeline.state === 'playing')) {
                       sendNotification('Pausing..');
                       return resolve(await rootState.chosenClient.pressPause());
                     }
