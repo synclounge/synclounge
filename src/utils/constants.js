@@ -8,7 +8,7 @@ export const defaultSettings = {
   SYNCMODE: 'cleanseek',
   SYNCFLEXABILITY: 3000,
   CUSTOMSERVER: 'http://',
-  SLPLAYERFORCETRANSCODE: true,
+  SLPLAYERFORCETRANSCODE: false,
   CLIENTIDENTIFIER: `${generateGuid()}-${generateGuid()}`,
   blockedServers: [],
   LASTSERVER: '',
