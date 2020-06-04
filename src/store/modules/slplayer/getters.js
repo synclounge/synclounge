@@ -1,6 +1,7 @@
+import { detect } from 'detect-browser';
 import { encodeUrlParams } from '@/utils/encoder';
 import { qualities } from './qualities';
-import { detect } from 'detect-browser';
+import plexutils from '@/utils/plexutils';
 
 function capitalizeFirstLetter(string) {
   return string[0].toUpperCase() + string.slice(1);
@@ -89,7 +90,7 @@ export default {
     return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
   },
 
-  GET_MEDIA_INDEX: state => state.mediaIndex,
+  GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex || rootState.route.query.playertime,
 
   GET_RELATIVE_THUMB_URL: (state, getters) =>
     getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb,
@@ -108,59 +109,8 @@ export default {
   GET_PLAYER: state => state.player,
   GET_PLAYER_UI: state => state.playerUi,
 
-  GET_TITLE: (state, getters) => {
-    switch (getters.GET_METADATA.type) {
-      case 'movie':
-        return getters.GET_METADATA.title;
-
-      case 'show':
-        return getters.GET_METADATA.title;
-
-      case 'season':
-        return getters.GET_METADATA.title;
-
-      case 'episode':
-        return getters.GET_METADATA.grandparentTitle;
-
-      default:
-        return getters.GET_METADATA.title;
-    }
-  },
-
-
-  GET_SECONDARY_TITLE: (state, getters) => {
-    switch (getters.GET_METADATA.type) {
-      case 'movie':
-        return getters.GET_METADATA.year ? getters.GET_METADATA.year : ' ';
-
-      case 'show':
-        return getters.GET_METADATA.childCount === 1
-          ? `${getters.GET_METADATA.childCount} season`
-          : `${getters.GET_METADATA.childCount} seasons`;
-
-      case 'season':
-        return `${getters.GET_METADATA.leafCount} episodes`;
-
-      case 'album':
-        return getters.GET_METADATA.year;
-
-      case 'artist':
-        return '';
-
-      case 'episode':
-        return (
-          ` S${
-            getters.GET_METADATA.parentIndex
-          }E${
-            getters.GET_METADATA.index
-          } - ${
-            getters.GET_METADATA.title}`
-        );
-
-      default:
-        return getters.GET_METADATA.title;
-    }
-  },
+  GET_TITLE: (state, getters) => plexutils.getTitle(getters.GET_METADATA),
+  GET_SECONDARY_TITLE: (state, getters) => plexutils.getSecondaryTitle(getters.GET_METADATA),
 
   GET_BASE_PARAMS: (state, getters) => ({
     'X-Plex-Product': 'SyncLounge',

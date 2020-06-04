@@ -44,6 +44,15 @@ const state = {
   stats: {},
   me: {},
   PTPLAYERQUALITY: null,
+
+  // This tracks whether the upnext screen was triggered for this playback already.
+  // It is reset to false when the player gets out of the upNext time zone (at the end of episode)
+  upNextTriggered: false,
+
+  // This stores the postplay data and controls whether the upnext component is visible
+  upNextPostPlayData: null,
+
+  plexServerId: null,
 };
 
 const mutations = {
@@ -154,6 +163,18 @@ const mutations = {
     const [key, value] = data;
     Vue.set(state, key, value);
   },
+
+  SET_UP_NEXT_TRIGGERED: (state, triggered) => {
+    state.upNextTriggered = triggered;
+  },
+
+  SET_UP_NEXT_POST_PLAY_DATA: (state, data) => {
+    state.upNextPostPlayData = data;
+  },
+
+  SET_PLEX_SERVER_ID: (state, id) => {
+    state.plexServerId = id;
+  }
 };
 const getters = {
   getAppVersion: state => state.appVersion,
@@ -188,7 +209,12 @@ const getters = {
       standard: 'plexlogo.png',
     },
   }),
+
+  GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
+  GET_UP_NEXT_POST_PLAY_DATA: (state) => state.upNextPostPlayData,
+  GET_PLEX_SERVER_ID: (state) => state.plexServerId,
 };
+
 const actions = {
   async PLAYBACK_CHANGE({ commit, state, dispatch }, data) {
     const [client, ratingKey, mediaContainer] = data;
@@ -201,6 +227,7 @@ const actions = {
       if (!server) {
         return;
       }
+      commit('SET_PLEX_SERVER_ID', mediaContainer.machineIdentifier);
       // Fetch our metadata from this server
       // console.log('Loading content metadata from store ' + ratingKey)
       server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {
@@ -236,7 +263,7 @@ const actions = {
       }
     }
   },
-  NEW_TIMELINE({ commit, state, dispatch }, data) {
+  NEW_TIMELINE({ commit, state, dispatch, getters }, data) {
     // return true
     const timeline = data;
     const client = state.chosenClient;
@@ -259,27 +286,18 @@ const actions = {
         Math.abs(timeline.duration - timeline.time) < 10000 &&
         metadata.type === 'episode'
       ) {
-        console.log('Checking upnext');
-        if (!state.upNextCache[timeline.machineIdentifier]) {
-          state.upNextCache[timeline.machineIdentifier] = {};
-        }
-        if (!state.upNextCache[timeline.machineIdentifier][timeline.key]) {
-          state.upNextCache[timeline.machineIdentifier][timeline.key] = {
-            loading: true,
-          };
-          state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.key).then((data) => {
-            data.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
-            state.upNextCache[timeline.machineIdentifier][timeline.key] = data;
-            // Only proc upnext if the item upnext is from the same show
-            if (
-              data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle
-            ) {
-              window.EventBus.$emit('upnext', data);
+        if (!getters.GET_UP_NEXT_TRIGGERED) {
+          state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.ratingKey).then((data) => {
+            if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle) {
+              commit('SET_UP_NEXT_POST_PLAY_DATA', data);
             }
           });
-        } else {
-          console.log('Already procced an upnext for this item', timeline);
+
+          commit('SET_UP_NEXT_TRIGGERED', true);
         }
+      } else if (getters.GET_UP_NEXT_TRIGGERED) {
+        // If outside upnext period, reset triggered
+        commit('SET_UP_NEXT_TRIGGERED', false);
       }
     }
 

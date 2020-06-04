@@ -190,16 +190,16 @@ export default {
   }) => {
     commit('SET_PLEX_SERVER_ID', machineIdentifier);
     commit('SET_RATING_KEY', key.replace('/library/metadata/', ''));
-    commit('SET_MEDIA_INDEX', mediaIndex);
-    commit('SET_OFFSET_MS', offset);
+    commit('SET_MEDIA_INDEX', mediaIndex || 0);
+    commit('SET_OFFSET_MS', offset || 0);
 
-    return Promise.all(
+    return Promise.all([
       dispatch('CHANGE_PLAYER_SRC'),
       dispatch('FETCH_METADATA'),
-    );
+    ]);
   },
 
-  DO_COMMAND_STOP: ({ dispatch }) => 
+  DO_COMMAND_STOP: ({ dispatch }) =>
     dispatch('CHANGE_PLAYER_STATE', 'stopped'),
 
 

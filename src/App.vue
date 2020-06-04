@@ -112,7 +112,7 @@
         <v-snackbar color="green darken-2" bottom :timeout="4000" v-model="snackbar">
           <div style="text-align:center; width:100%">{{ snackbarMsg }}</div>
         </v-snackbar>
-        <upnext></upnext>
+        <upnext v-if="GET_UP_NEXT_POST_PLAY_DATA"></upnext>
         <v-dialog v-model="donateDialog" max-width="650px">
           <donate :donateDialog="donateDialog" :onClose="() => this.donateDialog = false"></donate>
         </v-dialog>
@@ -133,7 +133,7 @@ import upnext from './upnext';
 import nowplayingchip from './nowplayingchip';
 import donate from './donate';
 
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 const SettingsHelper = require('../SettingsHelper');
 
@@ -396,6 +396,9 @@ export default {
     ...mapState('config', {
       config: state => state.configuration,
     }),
+    ...mapGetters([
+      'GET_UP_NEXT_POST_PLAY_DATA',
+    ]),
     plex() {
       return this.$store.getters.getPlex;
     },
