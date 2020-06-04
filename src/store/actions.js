@@ -204,13 +204,9 @@ export default {
         state.chosenClient.getTimeline();
       }
 
-      let interval = getters['settings/GET_CLIENTPOLLINTERVAL'];
-      if (state.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-        interval = 500;
-      }
       setTimeout(() => {
         clientPoller(time);
-      }, interval);
+      }, getters['settings/GET_CLIENTPOLLINTERVAL']);
     }
 
     // Check if we need to remove old handlers

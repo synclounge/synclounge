@@ -1,10 +1,10 @@
-import Vue from 'vue';
+  import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
 import VueObserveVisibility from 'vue-observe-visibility';
-import VideojsPlayer from 'vue-videojs-player';
 import VueClipboard from 'vue-clipboard2';
 import VueCookies from 'vue-cookies';
 import moment from 'moment';
+import { sync } from 'vuex-router-sync';
 
 import vuetify from './plugins/vuetify';
 
@@ -15,10 +15,11 @@ import store from './store';
 require('vanilla-tilt');
 
 
+sync(store, router);
+
 Vue.use(VueScrollTo);
 Vue.use(VueClipboard);
 Vue.use(VueObserveVisibility);
-Vue.use(VideojsPlayer);
 
 Vue.config.productionTip = false;
 
