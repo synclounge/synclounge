@@ -123,6 +123,8 @@ export default {
 
   // Changes the player src to the new one and restores the time afterwards
   UPDATE_PLAYER_SRC_AND_KEEP_TIME: async ({ getters, commit, dispatch }) => {
+    // Set buffering on src change since player doesn't trigger it then
+    dispatch('CHANGE_PLAYER_STATE', 'buffering');
     commit('SET_OFFSET_MS', getPlayerCurrentTimeMs(getters));
     await dispatch('CHANGE_PLAYER_SRC');
   },
