@@ -56,18 +56,18 @@ export default {
     text: 'None',
   })).concat(getters.GET_STREAMS
     .filter(({ streamType }) => streamType === 3) // Subtitles are type 3
-    .map(({ id, language, codec }) => ({ id, text: `${language} (${codec})` }))),
+    .map(({ id, displayTitle }) => ({ id, text: displayTitle }))),
 
   GET_AUDIO_STREAMS: (state, getters) => getters.GET_STREAMS
     .filter(({ streamType }) => streamType === 2) // Audio streams are type 2
     .map(({
-      id, language, codec, audioChannelLayout,
-    }) => ({ id, text: `${language} (${codec} ${audioChannelLayout})` })),
+      id, displayTitle,
+    }) => ({ id, text: displayTitle })),
 
   GET_MEDIA_LIST: (state, getters) =>
-    getters.GET_METADATA.Media.map(({ videoResolution, videoCodec, bitrate }, index) => ({
+    getters.GET_METADATA.Media.map(({ videoResolution, bitrate }, index) => ({
       index,
-      text: `${videoResolution}p  (${videoCodec} ${bitrate}kbps)`,
+      text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
     })),
 
   GET_QUALITIES: () => qualities,
