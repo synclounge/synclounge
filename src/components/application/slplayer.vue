@@ -55,7 +55,7 @@
                     <v-icon slot="activator" color="white" class="clickable" :disabled="manualSyncQueued" v-on:click="doManualSync">compare_arrows</v-icon>
                     Manual Sync
                   </v-tooltip>
-                  <v-icon slot="activator" color="white" class="clickable pl-3" v-on:click="dialog = !dialog">settings</v-icon>
+
                   <router-link to="/browse"  slot="activator">
                     <v-icon color="white" class="pl-3" v-on:click.native="DO_COMMAND_STOP">close</v-icon>
                   </router-link>
@@ -74,64 +74,6 @@
       <div class="messages-wrapper" v-if="$vuetify.breakpoint.mdAndDown">
         <messages></messages>
       </div>
-
-      <v-dialog v-model="dialog" width="350">
-        <v-card>
-          <v-card-title>Playback Settings </v-card-title>
-          <v-card-text>
-            <v-select
-              :items="GET_QUALITIES"
-              :value="GET_MAX_VIDEO_BITRATE"
-              item-text="label"
-              item-value="maxVideoBitrate"
-              persistent-hint
-              label="Quality"
-              hint="Select a different quality"
-              @input="CHANGE_MAX_VIDEO_BITRATE"
-            ></v-select>
-
-            <v-select
-              :items="GET_AUDIO_STREAMS"
-              :value="GET_AUDIO_STREAM_ID"
-              :select-text="'Default'"
-              label="Audio track"
-              item-text="text"
-              item-value="id"
-              persistent-hint
-              hint="Select a different audio track"
-              @input="CHANGE_AUDIO_STREAM"
-            ></v-select>
-
-            <v-select
-              :items="GET_SUBTITLE_STREAMS"
-              :value="GET_SUBTITLE_STREAM_ID"
-              :select-text="'Default'"
-              persistent-hint
-              label="Subtitles"
-              item-text="text"
-              item-value="id"
-              hint="Select a different subtitle track"
-              @input="CHANGE_SUBTITLE_STREAM"
-            ></v-select>
-
-            <v-select
-              v-if="GET_MEDIA_LIST.length > 1"
-              :items="GET_MEDIA_LIST"
-              :value="GET_MEDIA_INDEX"
-              persistent-hint
-              item-text="text"
-              item-value="index"
-              hint="Select a different version of the content you're playing"
-              label="Version"
-              @input="CHANGE_MEDIA_INDEX"
-            ></v-select>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-btn class="blue--text darken-1" flat @click.native="dialog = false">Close</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
 
       <v-layout justify-center row class="pa-3 hidden-sm-and-up">
         <v-flex xs12>
