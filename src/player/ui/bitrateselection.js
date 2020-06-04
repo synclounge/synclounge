@@ -2,85 +2,112 @@ import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 import ShakaUtils from '@/player/ui/utils';
 
 class BitrateSelection extends shaka.ui.SettingsMenu {
-  constructor(parent, controls, bitrates, initialBitrate) {
+  constructor(parent, controls, eventBus) {
     super(parent, controls, 'settings');
-    this.bitrates = bitrates;
-    this.initialBitrate = initialBitrate;
+    this.eventBus = eventBus;
+    this.selectedBitrate = 0;
+    this.bitrates = [];
+    this.eventListeners = [
+      {
+        event: 'bitrateschanged',
+        fn: this.onBitratesChanged.bind(this),
+      },
+      {
+        event: 'bitratechanged',
+        fn: this.onBitrateChanged.bind(this),
+      },
+    ];
+
+    ShakaUtils.addEventListeners(this.eventListeners, this.eventBus);
+    this.eventBus.$once(
+      'slplayerdestroy',
+      () => ShakaUtils.removeEventListeners(this.eventListeners, this.eventBus),
+    );
 
     this.button.classList.add('shaka-bitrate-button');
-    this.menu.classList.add('shaka-bitrates');
+    this.menu.classList.add('shaka-bitrate');
 
-    this.backSpan.textContent = 'Bitrate';
-    this.nameSpan.textContent = 'Bitrate';
+    this.backSpan.textContent = 'Quality';
+    this.nameSpan.textContent = 'Quality';
 
-    this.addBitratesSelection();
+    this.updateBitrateSelection();
   }
 
-  addBitratesSelection() {
-    this.bitrates.forEach((bitrate) => {
+  onBitratesChanged(streams) {
+    this.bitrates = streams;
+    this.updateBitrateSelection();
+  }
+
+  onBitrateChanged(id) {
+    if (id !== this.selectedBitrate) {
+      this.selectedBitrate = id;
+      this.updateBitrateSelection();
+    }
+  }
+
+  updateBitrateSelection() {
+    // Hide menu if no bitrates
+    if (this.bitrates.length <= 0) {
+      ShakaUtils.setDisplay(this.menu, false);
+      ShakaUtils.setDisplay(this.button, false);
+      return;
+    }
+
+    // Otherwise, restore it.
+    ShakaUtils.setDisplay(this.button, true);
+
+    // Remove old shaka-resolutions
+    // 1. Save the back to menu button
+    const backButton = ShakaUtils.getFirstDescendantWithClassName(this.menu, 'shaka-back-to-overflow-button');
+
+    // 2. Remove everything
+    ShakaUtils.removeAllChildren(this.menu);
+
+    // 3. Add the backTo Menu button back
+    this.menu.appendChild(backButton);
+
+    this.addBitrateSelection();
+
+    ShakaUtils.focusOnTheChosenItem(this.menu);
+  }
+
+  addBitrateSelection() {
+    this.bitrates.forEach((bitrateOption) => {
       const button = document.createElement('button');
-      button.classList.add('explicit-resolution');
+      button.classList.add('explicit-bitrate');
 
       const span = document.createElement('span');
-      span.textContent = bitrate.label;
+      span.textContent = bitrateOption.label;
       button.appendChild(span);
 
       this.eventManager.listen(
         button,
         'click',
-        () => this.onBitrateSelected(bitrate.maxVideoBitrate, button, span),
+        () => this.onBitrateClicked(bitrateOption.maxVideoBitrate),
       );
 
-      if (bitrate.maxVideoBitrate === this.initialBitrate) {
-        // If abr is disabled, mark the selected track's resolution.
-        this.selectBitrateElements(button, span);
+      if (bitrateOption.maxVideoBitrate === this.selectedBitrate) {
+        button.setAttribute('aria-selected', 'true');
+        button.appendChild(ShakaUtils.checkmarkIcon());
+        span.classList.add('shaka-chosen-item');
+        this.currentSelection.textContent = span.textContent;
       }
+
       this.menu.appendChild(button);
     });
-
-    //shaka.ui.Utils.focusOnTheChosenItem(this.menu);
   }
 
-  selectBitrateElements(button, span) {
-    button.setAttribute('aria-selected', 'true');
-    const icon = ShakaUtils.checkmarkIcon();
-    button.appendChild(icon);
-    span.classList.add('shaka-chosen-item');
-    this.currentSelection.textContent = span.textContent;
-
-    this.selectedBitrateElements = {
-      button,
-      span,
-      icon,
-    };
-  }
-
-  removeCurrentBitrateSelected() {
-    this.selectedBitrateElements.button.removeAttribute('aria-selected');
-    this.selectedBitrateElements.icon.remove();
-    this.selectedBitrateElements.span.classList.remove('shaka-chosen-item');
-  }
-
-  onBitrateSelected(maxVideoBitrate, button, span) {
-    this.removeCurrentBitrateSelected();
-    this.selectBitrateElements(button, span);
-    // this.controls.dispatchEvent(new shaka.util.FakeEvent('bitratechanged', maxVideoBitrate));
-    // this.player.dispatchEvent(new Event('bitratechanged'));
-    this.controls.controlsContainer_.parentElement.dispatchEvent(new CustomEvent('bitratechanged', {
-      detail: maxVideoBitrate,
-    }));
-
-    console.log(this);
+  onBitrateClicked(bitrate) {
+    this.eventBus.$emit('bitrateselectionchanged', bitrate);
   }
 };
 
 class BitrateSelectionFactory {
-  constructor(bitrates, initialBitrate) {
-    this.bitrates = bitrates;
-    this.initialBitrate = initialBitrate;
+  constructor(eventBus) {
+    this.eventBus = eventBus;
   }
   create(rootElement, controls) {
-    return new BitrateSelection(rootElement, controls, this.bitrates, this.initialBitrate);
+    return new BitrateSelection(rootElement, controls, this.eventBus);
   }
 };
 

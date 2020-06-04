@@ -71,7 +71,13 @@ export default {
     })),
 
   GET_QUALITIES: () => qualities,
-  GET_MAX_VIDEO_BITRATE: state => state.maxVideoBitrate,
+
+  // TODO: fix this when the config PR is added
+  GET_MAX_VIDEO_BITRATE: (state, getters, rootState, rootGetters) => {
+    const qualityLabel = rootGetters.getSettingPTPLAYERQUALITY || JSON.parse(window.localStorage.getItem('PTPLAYERQUALITY'));
+    const quality = getters.GET_QUALITIES.find(({ label }) => label === qualityLabel);
+    return quality ? quality.maxVideoBitrate : null;
+  },
 
   GET_AUDIO_STREAM_ID: (state, getters) => {
     const selectedAudioStream = getters.GET_DECISION_STREAMS.find(stream => stream.streamType === '2' && stream.selected === '1');

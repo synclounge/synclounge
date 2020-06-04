@@ -4,7 +4,6 @@
       <div
         ref="videoPlayerContainer"
         class="slplayer"
-        @bitratechanged="CHANGE_MAX_VIDEO_BITRATE($event.detail)"
       >
         <video
           ref="videoPlayer"
@@ -240,7 +239,7 @@ export default {
     shaka.log.setLevel(shaka.log.Level.WARNING);
     shaka.polyfill.installAll();
     this.metadataLoadedPromise = this.FETCH_METADATA();
-    shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.GET_QUALITIES, this.GET_MAX_VIDEO_BITRATE));
+    shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
@@ -259,6 +258,7 @@ export default {
     this.eventbus.$on('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
+    this.eventbus.$on('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
 
     this.INIT_PLAYER_STATE();
     this.applyPlayerWatchers();
@@ -271,6 +271,7 @@ export default {
     this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
+    this.eventbus.$off('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
     this.$store.unregisterModule('slplayer');
@@ -372,6 +373,18 @@ export default {
 
       this.$watch('GET_MEDIA_INDEX', (newIndex) => {
         this.eventbus.$emit('mediaindexchanged', newIndex);
+      }, {
+        immediate: true,
+      });
+
+      this.$watch('GET_QUALITIES', (newList) => {
+        this.eventbus.$emit('bitrateschanged', newList);
+      }, {
+        immediate: true,
+      });
+
+      this.$watch('GET_MAX_VIDEO_BITRATE', (newBitrate) => {
+        this.eventbus.$emit('bitratechanged', newBitrate);
       }, {
         immediate: true,
       });

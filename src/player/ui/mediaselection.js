@@ -15,7 +15,7 @@ class MediaSelection extends shaka.ui.SettingsMenu {
       {
         event: 'mediaindexchanged',
         fn: this.onMediaIndexChanged.bind(this),
-      },	
+      },
     ];
 
     ShakaUtils.addEventListeners(this.eventListeners, this.eventBus);

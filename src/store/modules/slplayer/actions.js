@@ -77,9 +77,10 @@ export default {
     commit('SET_PLEX_DECISION', data);
   },
 
-  CHANGE_MAX_VIDEO_BITRATE: async ({ commit, dispatch }, maxVideoBitrate) => {
+  CHANGE_MAX_VIDEO_BITRATE: async ({ commit, getters, dispatch }, bitrate) => {
     // TODO: save to localStore persistently
-    commit('SET_MAX_VIDEO_BITRATE', maxVideoBitrate);
+    const quality = getters.GET_QUALITIES.find(({ maxVideoBitrate }) => maxVideoBitrate === bitrate);
+    commit('setSettingPTPLAYERQUALITY', quality.label, { root: true });
     return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 

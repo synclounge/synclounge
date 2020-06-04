@@ -43,6 +43,7 @@ const state = {
   settings: getAll(),
   stats: {},
   me: {},
+  PTPLAYERQUALITY: null,
 };
 
 const mutations = {

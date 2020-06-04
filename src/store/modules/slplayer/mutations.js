@@ -1,8 +1,4 @@
 export default {
-  SET_MAX_VIDEO_BITRATE: (state, maxVideoBitrate) => {
-    state.maxVideoBitrate = maxVideoBitrate;
-  },
-
   SET_METADATA: (state, metadata) => {
     state.metadata = metadata;
   },
