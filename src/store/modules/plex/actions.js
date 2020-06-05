@@ -1,4 +1,6 @@
+import axios from 'axios';
 const request = require('request');
+import xmlutils from '@/utils/xmlutils';
 const parseXMLString = require('xml2js').parseString;
 
 const _PlexAuth = require('./helpers/PlexAuth.js');
@@ -58,9 +60,9 @@ export default {
     });
   }),
 
-  PLEX_GET_DEVICES: ({ state, commit, dispatch }, dontDelete) => new Promise((resolve, reject) => {
+  PLEX_GET_DEVICES: async ({ state, commit, dispatch }, dontDelete) => {
     if (!state.user) {
-      return reject(new Error('Sign in before getting devices'));
+      throw new Error('Sign in before getting devices');
     }
 
     if (!dontDelete) {
@@ -68,112 +70,101 @@ export default {
       commit('PLEX_SET_VALUE', ['servers', {}]);
       commit('PLEX_SET_VALUE', ['clients', {}]);
     }
-    const options = PlexAuth.getApiOptions('https://plex.tv/api/resources?includeHttps=1', state.user.authToken, 5000, 'GET');
-    request(options, (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        // Valid response
-        parseXMLString(body, async (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          for (const index in result.MediaContainer.Device) {
-            // Handle the individual device
-            const device = result.MediaContainer.Device[index].$;
-            // Each device can have multiple network connections
-            // Any of them can be viable routes to interacting with the device
-            const connections = result.MediaContainer.Device[index].Connection;
-            const tempConnectionsArray = [];
-            // Create a temporary array of object:PlexConnection
-            for (const i in connections) {
-              const connection = connections[i].$;
-              // Exclude local IPs starting with 169.254
-              if (!connection.address.startsWith('169.254')) {
-                const tempConnection = new PlexConnection();
-                for (const key in connection) {
-                  tempConnection[key] = connection[key];
-                }
-                tempConnectionsArray.push(tempConnection);
-                if (connection.local === '1' && connection.uri.indexOf('plex') > -1) {
-                  const rawConnection = new PlexConnection();
-                  Object.assign(rawConnection, connection);
-                  rawConnection.uri = `${connection.protocol}://${connection.address}:${connection.port}`;
-                  rawConnection.isManual = true;
-                  tempConnectionsArray.push(rawConnection);
-                }
-              }
-            }
-            // If device is a player
-            if (device.provides.indexOf('player') !== -1) {
-              // If device is not Plex Web
-              if(device.product.indexOf('Plex Web') === -1) {
-                // This is a Client
-                // Create a new PlexClient object
-                const tempClient = new PlexClient();
-                for (const key in device) {
-                  tempClient[key] = device[key];
-                }
-                tempClient.accessToken = state.user.authToken;
-                tempClient.plexConnections = tempConnectionsArray;
-                dispatch('PLEX_ADD_CLIENT', tempClient);
-              }
-            // If device is a server
-            } else if (device.provides.indexOf('server') !== -1) {
-              // This is a Server
-              // Create a new PlexServer object
-              const tempServer = new PlexServer();
-              for (const key in device) {
-                tempServer[key] = device[key];
-              }
-              // Push a manual connection string for when DNS rebind doesnt work
-              tempServer.plexConnections = tempConnectionsArray;
-              if (tempServer.accessToken == null) {
-                tempServer.accessToken = state.user.authToken;
-              }
+    try {
+      const { data } = await axios.get('https://plex.tv/api/resources?includeHttps=1',
+        PlexAuth.getRequestConfig(state.user.authToken, 5000));
+      const result = xmlutils.parseXML(data);
 
-              dispatch('PLEX_ADD_SERVER', tempServer);
+      result.MediaContainer[0].Device.forEach((device) => {
+      // Create a temporary array of object:PlexConnection
+      // Exclude local IPs starting with 169.254
+        const tempConnectionsArray = device.Connection
+          .filter((connection) => !connection.address.startsWith('169.254'))
+          .flatMap((connection) => {
+            const tempConnection = new PlexConnection();
+            Object.assign(tempConnection, connection);
+            if (connection.local === '1' && connection.uri.indexOf('plex') > -1) {
+              const rawConnection = new PlexConnection();
+              Object.assign(rawConnection, connection);
+              rawConnection.uri = `${connection.protocol}://${connection.address}:${connection.port}`;
+              rawConnection.isManual = true;
+              // Return both
+              return [tempConnection, rawConnection];
             }
+
+            return [tempConnection];
+          });
+
+        tempConnectionsArray.sort((con1, con2) => parseInt(con1.port, 10) - parseInt(con2.port, 10));
+
+        // If device is a player
+        if (device.provides.indexOf('player') !== -1) {
+        // If device is not Plex Web
+          if (device.product.indexOf('Plex Web') === -1) {
+          // This is a Client
+          // Create a new PlexClient object
+            const tempClient = new PlexClient();
+            Object.assign(tempClient, device);
+
+            tempClient.accessToken = state.user.authToken;
+            tempClient.plexConnections = tempConnectionsArray;
+            dispatch('PLEX_ADD_CLIENT', tempClient);
           }
-          // Setup our slPlayer
-          const ptplayer = new PlexClient();
-          ptplayer.provides = 'player';
-          ptplayer.clientIdentifier = 'PTPLAYER9PLUS10';
-          ptplayer.platform = 'Web';
-          ptplayer.device = 'Web';
-          ptplayer.product = 'SyncLounge';
-          ptplayer.name = 'SyncLounge Player';
-          ptplayer.labels = [
-            ['Recommended', 'green'],
-          ];
-          ptplayer.lastSeenAt = Math.round((new Date()).getTime() / 1000);
-          for (const i in state.clients) {
-            const client = state.clients[i];
-            for (const j in client.plexConnections) {
-              const clientConnection = client.plexConnections[j];
-              // Check if this URL matches any server connections
-              for (const x in state.servers) {
-                const server = state.servers[x];
-                for (const y in server.plexConnections) {
-                  const serverConnection = server.plexConnections[y];
-                  if (serverConnection.uri === clientConnection.uri) {
-                    client.accessToken = server.accessToken;
-                  }
-                }
-              }
-            }
+        } else if (device.provides.indexOf('server') !== -1) {
+        // This is a Server
+        // Create a new PlexServer object
+          const tempServer = new PlexServer();
+          Object.assign(tempServer, device);
+          // Push a manual connection string for when DNS rebind doesnt work
+          tempServer.plexConnections = tempConnectionsArray;
+          if (tempServer.accessToken == null) {
+            tempServer.accessToken = state.user.authToken;
           }
 
-          dispatch('PLEX_ADD_CLIENT', ptplayer);
-          commit('PLEX_SET_VALUE', ['gotDevices', true]);
-          dispatch('PLEX_REFRESH_SERVER_CONNECTIONS');
-          return resolve(true);
+          dispatch('PLEX_ADD_SERVER', tempServer);
+        }
+      });
+
+      // Setup our slPlayer
+      const ptplayer = new PlexClient();
+      ptplayer.provides = 'player';
+      ptplayer.clientIdentifier = 'PTPLAYER9PLUS10';
+      ptplayer.platform = 'Web';
+      ptplayer.device = 'Web';
+      ptplayer.product = 'SyncLounge';
+      ptplayer.name = 'SyncLounge Player';
+      ptplayer.labels = [['Recommended', 'green']];
+      ptplayer.lastSeenAt = Math.round(new Date().getTime() / 1000);
+
+      // Get an array of {accessToken, uri} objects
+      const serverConnectionTokens = Object.entries(state.servers)
+        .flatMap(([, server]) => server.plexConnections
+          .map((serverConnection) => ({
+            accessToken: serverConnection.accessToken,
+            uri: serverConnection.uri,
+          })));
+
+      Object.entries(state.clients).forEach(([, client]) => {
+        client.plexConnections.forEach((clientConnection) => {
+          const match = serverConnectionTokens
+            .find((serverCon) => serverCon.uri === clientConnection.uri);
+          if (match !== undefined) {
+          // Yeah it would be better if I didn't have to mutate client but oh well
+          // eslint-disable-next-line no-param-reassign
+            client.accessToken = match.accessToken;
+          }
         });
-      } else {
-        // Invalid response
-        commit('PLEX_SET_VALUE', ['gotDevices', true]);
-        return reject(new Error('Invalid Response'));
-      }
-    });
-  }),
+      });
+
+      dispatch('PLEX_ADD_CLIENT', ptplayer);
+      commit('PLEX_SET_VALUE', ['gotDevices', true]);
+      dispatch('PLEX_REFRESH_SERVER_CONNECTIONS');
+    } catch (e) {
+      // Invalid response
+      commit('PLEX_SET_VALUE', ['gotDevices', true]);
+      throw e;
+    }
+  },
 
   PLEX_REFRESH_SERVER_CONNECTIONS: ({ state, dispatch }) => {
     for (const id in state.servers) {
