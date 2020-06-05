@@ -11,6 +11,7 @@ export default {
       if (!server) {
         return;
       }
+      commit('SET_PLEX_SERVER_ID', mediaContainer.machineIdentifier);
       // Fetch our metadata from this server
       // console.log('Loading content metadata from store ' + ratingKey)
       server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {
@@ -74,28 +75,18 @@ export default {
         && Math.abs(timeline.duration - timeline.time) < 10000
         && metadata.type === 'episode'
       ) {
-        console.log('Checking upnext');
-        if (!state.upNextCache[timeline.machineIdentifier]) {
-          state.upNextCache[timeline.machineIdentifier] = {};
-        }
-        if (!state.upNextCache[timeline.machineIdentifier][timeline.key]) {
-          state.upNextCache[timeline.machineIdentifier][timeline.key] = {
-            loading: true,
-          };
-          state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.key).then((data) => {
-            // eslint-disable-next-line no-param-reassign
-            data.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
-            state.upNextCache[timeline.machineIdentifier][timeline.key] = data;
-            // Only proc upnext if the item upnext is from the same show
-            if (
-              data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle
-            ) {
-              window.EventBus.$emit('upnext', data);
+        if (!getters.GET_UP_NEXT_TRIGGERED) {
+          state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.ratingKey).then((data) => {
+            if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle) {
+              commit('SET_UP_NEXT_POST_PLAY_DATA', data);
             }
           });
-        } else {
-          console.log('Already procced an upnext for this item', timeline);
+
+          commit('SET_UP_NEXT_TRIGGERED', true);
         }
+      } else if (getters.GET_UP_NEXT_TRIGGERED) {
+        // If outside upnext period, reset triggered
+        commit('SET_UP_NEXT_TRIGGERED', false);
       }
     }
 

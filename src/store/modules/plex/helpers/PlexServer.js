@@ -133,7 +133,6 @@ module.exports = function PlexServer() {
           data.MediaContainer.librarySectionTitle,
         ]);
       }
-      this.getPostplay(ratingKey);
       return data;
     } catch (e) {
       console.log(e);
@@ -213,11 +212,6 @@ module.exports = function PlexServer() {
       return false;
     }
   };
-  this.getRelated = function (key, count) {
-    return this.hitApi(`/hubs/metadata/${key}/related`, {
-      count: count || 10,
-    });
-  };
   this.getRecentlyAddedAll = function (start, size) {
     return this.hitApi('/library/recentlyAdded', {});
   };
@@ -231,7 +225,7 @@ module.exports = function PlexServer() {
     ratingKey = ratingKey.replace('/library/metadata/', '');
     return this.hitApi(`/hubs/metadata/${ratingKey}/related`, {
       excludeFields: 'summary',
-      count: 12,
+      count: size,
     });
   };
   this.getSeriesData = function (ratingKey) {

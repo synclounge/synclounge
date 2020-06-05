@@ -171,14 +171,14 @@
             {{ snackbarMsg }}
           </div>
         </v-snackbar>
-        <upnext />
+        <upnext v-if="GET_UP_NEXT_POST_PLAY_DATA" />
         <v-dialog
           v-model="donateDialog"
           max-width="650px"
         >
           <donate
             :donate-dialog="donateDialog"
-            :on-close="() => (donateDialog = false)"
+            :on-close="() => this.donateDialog = false"
           />
         </v-dialog>
       </v-container>
@@ -248,6 +248,7 @@ export default {
       'getServer',
       'getShortLink',
       'GET_SYNCLOUNGE_SERVERS',
+      'GET_UP_NEXT_POST_PLAY_DATA',
     ]),
     ...mapGetters('config', ['GET_CONFIG']),
     ...mapGetters('settings', ['GET_PLEX_AUTH_TOKEN']),

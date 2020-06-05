@@ -1,16 +1,15 @@
 <template>
   <v-bottom-sheet
-    v-model="sheet"
+    value="true"
+    persistent
     hide-overlay
   >
     <v-card
-      v-if="ready && content && !content.loading"
       style="max-width: 100%; margin-left: auto; margin-right: auto"
       class="white--text pa-0"
       :img="background"
     >
       <v-container
-        v-show="ready"
         fluid
         align-center
         justify-start
@@ -48,15 +47,15 @@
                     Coming up next<v-icon
                       style="float: right"
                       class="clickable ma-2"
-                      @click="sheet = false"
+                      @click="cancelPressed"
                     >
                       close
                     </v-icon>
                   </h2>
                   <div class="headline">
-                    {{ getTitle }}
+                    {{ title }}
                   </div>
-                  <div>{{ getUnder }}</div>
+                  <div>{{ secondaryTitle }}</div>
                   <v-layout
                     row
                     wrap
@@ -74,16 +73,15 @@
                       class="text-xs-right"
                     >
                       <div class="text-xs-right">
-                        <span>{{ (Math.round(timer / 1000) * 100) / 100 }}s</span>
                         <v-btn
                           color="primary"
-                          @click="pressPlay"
+                          @click="playPressed"
                         >
                           Play Now
                         </v-btn>
                         <v-btn
                           flat
-                          @click="sheet = false"
+                          @click="cancelPressed"
                         >
                           Cancel
                         </v-btn>
@@ -95,146 +93,164 @@
             </v-layout>
           </v-container>
         </v-layout>
-        <div
-          :style="{ width: percent + '%'}"
-          class="primary"
-          style="height: 3px"
-        />
+
+        <div class="c-timer">
+          <div clas="c-timebar">
+            <div class="c-timebar__background" />
+
+            <div
+              class="c-timebar__remaining primary"
+              :style="transitionBarWithStyle"
+            />
+          </div>
+        </div>
       </v-container>
     </v-card>
   </v-bottom-sheet>
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex';
+
+import plexutils from '@/utils/plexutils';
 
 export default {
-  components: {
-  },
   data() {
     return {
       sheet: true,
       maxTimer: 15000,
-      timer: 15000,
-      cache: {},
-      content: null,
-      ready: false,
+      transitionBarWithStyle: {},
+      timeoutId: null,
     };
   },
+
   computed: {
-    percent() {
-      return (this.timer / this.maxTimer) * 100;
-    },
+    ...mapGetters([
+      'GET_UP_NEXT_POST_PLAY_DATA',
+      'GET_PLEX_SERVER_ID',
+      'getPlex',
+      'getChosenClient',
+    ]),
+
     background() {
       return this.plexserver.getUrlForLibraryLoc(this.item.art, 1000, 450);
     },
-    plex() {
-      return this.$store.getters.getPlex;
-    },
+
     plexserver() {
-      if (!this.content) {
-        return null;
-      }
-      return this.plex.servers[this.content.machineIdentifier];
+      return this.getPlex.servers[this.GET_PLEX_SERVER_ID];
     },
+
     thumb() {
       return this.plexserver.getUrlForLibraryLoc(this.item.thumb || this.item.art, 1000, 450);
     },
-    item() {
-      if (!this.content || this.content.loading) {
-        return null;
-      }
-      return this.content.MediaContainer.Hub[0].Metadata[0];
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
-    getTitle() {
-      switch (this.item.type) {
-        case 'movie':
-          if (this.fullTitle !== undefined) {
-            if (this.item.year) {
-              return `${this.item.title} (${this.item.year})`;
-            }
-          }
-          return this.item.title;
-        case 'show':
-          return this.item.title;
-        case 'season':
-          return this.item.title;
-        case 'episode':
-          return this.item.grandparentTitle;
-        default:
-          return this.item.title;
-      }
-    },
-    getUnder() {
-      switch (this.item.type) {
-        case 'movie':
-          if (this.item.year) {
-            return this.item.year;
-          }
-          return ' ';
-        case 'show':
-          if (this.item.childCount === 1) {
-            return `${this.item.childCount} season`;
-          }
-          return `${this.item.childCount} seasons`;
-        case 'season':
-          return `${this.item.leafCount} episodes`;
-        case 'album':
-          return this.item.year;
-        case 'artist':
-          return '';
-        case 'episode':
-          return (
-            ` S${
-              this.item.parentIndex
-            }E${
-              this.item.index
-            } - ${
-              this.item.title}`
-          );
-        default:
-          return this.item.title;
-      }
-    },
-  },
-  watch: {
 
+    item() {
+      return this.GET_UP_NEXT_POST_PLAY_DATA.MediaContainer.Hub[0].Metadata[0];
+    },
+
+    title() {
+      return plexutils.getTitle(this.item);
+    },
+
+    secondaryTitle() {
+      return plexutils.getSecondaryTitle(this.item);
+    },
   },
-  async mounted() {
-    window.EventBus.$on('upnext', (data) => {
-      console.log('Upnext event', data);
-      this.content = data;
-      this.ready = true;
-      this.startTimer();
-    });
+
+  mounted() {
+    this.startTimer();
   },
+
   methods: {
-    pressPlay() {
-      this.chosenClient.playMedia({
+    ...mapMutations([
+      'SET_UP_NEXT_POST_PLAY_DATA',
+    ]),
+
+    playPressed() {
+      this.cancelTimer();
+      this.playMedia();
+    },
+
+    playMedia() {
+      this.transitionBarWithStyle = {};
+
+      this.getChosenClient.playMedia({
         ratingKey: this.item.ratingKey,
         mediaIndex: null,
         server: this.plexserver,
         offset: 0,
       });
+
+      this.SET_UP_NEXT_POST_PLAY_DATA(null);
     },
+
     startTimer() {
-      this.timer = this.maxTimer;
-      const data = this.item;
-      this.sheet = true;
-      const ticker = setInterval(() => {
-        console.log('tick');
-        this.timer -= 30;
-        if (this.timer < 1) {
-          if (this.sheet) {
-            this.pressPlay(data.item);
-          }
-          clearInterval(ticker);
-          this.sheet = false;
-        }
-      }, 30);
+      this.timeoutId = setTimeout(() => {
+        this.playMedia();
+      }, this.maxTimer);
+
+      this.transitionBarWithStyle = {
+        animationDuration: `${this.maxTimer / 1000}s`,
+        animationName: 'timebar_progress_x',
+      };
+    },
+
+    cancelPressed() {
+      this.cancelTimer();
+      this.SET_UP_NEXT_POST_PLAY_DATA(null);
+    },
+
+    cancelTimer() {
+      if (this.timeoutId > -1) {
+        clearTimeout(this.timeoutId);
+        this.transitionBarWithStyle = {};
+      }
     },
   },
 };
 </script>
+
+
+<style scoped>
+.c-timer {
+  height: 3px;
+  position: relative;
+}
+
+.c-timebar{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.c-timebar__background{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.c-timebar__remaining{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index:2;
+  transform-origin: 0 100%;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes timebar_progress_x{
+  from  { transform: scaleX(1) }
+  to    { transform: scaleX(0) }
+}
+
+@keyframes timebar_progress_y{
+  from  { transform: scaleY(1) }
+  to    { transform: scaleY(0) }
+}
+</style>
