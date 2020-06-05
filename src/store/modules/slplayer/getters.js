@@ -90,7 +90,7 @@ export default {
     return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
   },
 
-  GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex || rootState.route.query.playertime,
+  GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex || rootState.route.query.mediaIndex,
 
   GET_RELATIVE_THUMB_URL: (state, getters) =>
     getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb,

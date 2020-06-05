@@ -334,35 +334,6 @@ module.exports = function PlexClient() {
       resolve(true);
     });
   };
-  this.mirrorContent = function (key, serverObject, callback) {
-    // Mirror a media item given a mediaId key and a server to play from
-    // We need the following variables to build our paramaters:
-    // MediaId Key, Offset (0 for simplicity), server MachineId,
-    // Server Ip, Server Port, Server Protocol, Path
-
-    const command = '/player/mirror/details';
-    const mediaId = `/library/metadata/${key}`;
-    const serverId = serverObject.clientIdentifier;
-    const uri = new URL(data.server.chosenConnection.uri);
-    const address = uri.hostname;
-    const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443' : '80'); // port not specified if standard
-    const protocol = uri.protocol.replace(':', ''); // remove extra colon
-    const path = serverObject.chosenConnection.uri + mediaId;
-
-    const params = {
-      'X-Plex-Client-Identifier': 'SyncLounge',
-      key: mediaId,
-      machineIdentifier: serverId,
-      address,
-      port,
-      protocol,
-      path,
-      wait: 0,
-      token: serverObject.accessToken,
-    };
-    // Now that we've built our params, it's time to hit the client api
-    return this.hitApi(command, params, this.chosenConnection);
-  };
   this.subscribe = function (connection, commit) {
     return new Promise((resolve, reject) => {
       // Already have a valid http server running, lets send the request
