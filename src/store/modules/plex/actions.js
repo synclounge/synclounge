@@ -1,5 +1,5 @@
 import axios from 'axios';
-import xml2js from 'xml2js';
+import parser from 'fast-xml-parser';
 
 const PlexAuthMaker = require('./helpers/PlexAuth.js');
 const PlexConnection = require('./helpers/PlexConnection.js');
@@ -41,7 +41,7 @@ export default {
     try {
       const { data } = await axios.get('https://plex.tv/api/resources?includeHttps=1',
         PlexAuth.getRequestConfig(state.user.authToken, 5000));
-      const result = await xml2js.parseStringPromise(data);
+      const result = parser.parse(data);
 
       result.MediaContainer.Device.forEach(({ $: device, Connection: connections }) => {
       // Create a temporary array of object:PlexConnection
@@ -189,7 +189,7 @@ export default {
 
     const { data } = await axios.get('https://plex.tv/pms/servers.xml',
       PlexAuth.getRequestConfig(token, 5000));
-    const result = await xml2js.parseStringPromise(data);
+    const result = await parser.parse(data);
     state.user.servers = result.MediaContainer.Server;
   },
 

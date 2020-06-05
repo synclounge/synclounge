@@ -40,7 +40,7 @@ module.exports = function PlexAuth() {
    * @param timeout
    * @returns {{url: *, time: boolean, headers: {X-Plex-Device-Name: string, X-Plex-Client-Identifier: string, X-Plex-Provides: string, X-Plex-Target-Client-Identifier: *}, timeout: *, method: string}}
    */
-  this.getClientApiOptions = function (url, clientIdentifier, uuid, timeout, token) {
+  this.getClientApiOptions = function (clientIdentifier, timeout, token) {
     let sBrowser;
     const sUsrAg = navigator.userAgent;
     if (sUsrAg.indexOf('Chrome') > -1) {
@@ -55,7 +55,6 @@ module.exports = function PlexAuth() {
       sBrowser = 'Microsoft Internet Explorer';
     }
     return {
-      url,
       headers: {
         'X-Plex-Device-Name': sBrowser,
         'x-plex-client-identifier': 'SyncLounge',
@@ -74,7 +73,6 @@ module.exports = function PlexAuth() {
         'X-Plex-Token': token,
       },
       timeout,
-      method: 'GET',
     };
   };
 };

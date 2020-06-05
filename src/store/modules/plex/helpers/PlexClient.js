@@ -1,7 +1,6 @@
-const request = require('request');
-const axios = require('axios');
+import axios from 'axios';
 const EventEmitter = require('events');
-const parseXMLString = require('xml2js').parseString;
+import parser from 'fast-xml-parser'
 const _PlexAuth = require('./PlexAuth.js');
 
 const PlexAuth = new _PlexAuth();
@@ -66,9 +65,9 @@ module.exports = function PlexClient() {
   };
   this.uuid = this.generateGuid();
 
-  this.hitApi = function (command, params, connection, needResponse, dontSub) {
-    return new Promise(async (resolve, reject) => {
-      if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
+  this.hitApi = async function (command, params, connection, needResponse, dontSub) {
+    if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
+      return new Promise(async (resolve, reject) => {
         // We are using the SyncLounge Player
         const data = {
           command,
@@ -78,61 +77,36 @@ module.exports = function PlexClient() {
           },
         };
         this.eventbus.$emit('command', data);
-      } else {
-        const doRequest = () => {
-          if (!connection) {
-            connection = this.chosenConnection;
-          }
-          if (!connection) {
-            return reject(new Error('No connection specified'));
-          }
-          let query = '';
-          Object.assign(params, {
-            type: 'video',
-            commandID: this.commandId,
-          });
-          for (const key in params) {
-            query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-          }
-          query = query.substring(0, query.length - 1);
-          if (connection.uri.charAt(connection.uri.length - 1) === '/') {
-            // Remove a trailing / that some clients broadcast
-            connection.uri = connection.uri.slice(0, connection.uri.length - 1);
-          }
-          const _url = `${connection.uri + command}?${query}`;
-          this.setValue('commandId', this.commandId + 1);
-          const options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000, this.accessToken);
-          request(options, (error, response, body) => {
-            if (!error) {
-              if (needResponse) {
-                parseXMLString(body, (err, result) => {
-                  if (err) {
-                    return reject(new Error('Invalid XML on command', command));
-                  }
-                  return resolve(result);
-                });
-              } else {
-                return resolve(true);
-              }
-            } else {
-              return reject(error);
-            }
-          });
-        };
-        if (((new Date().getTime() - this.lastSubscribe) > 29000) && !dontSub) {
-          // We need to subscribe first!
-          try {
-            // This causes certain clients to crash and is unused(Fire Devices)
-            // await this.subscribe(connection);
-            doRequest();
-          } catch (e) {
-            doRequest();
-          }
-        } else {
-          doRequest();
-        }
-      }
+      });
+    }
+
+    if (!connection) {
+      connection = this.chosenConnection;
+    }
+    if (!connection) {
+      throw new Error('No connection specified');
+    }
+    let query = '';
+    Object.assign(params, {
+      type: 'video',
+      commandID: this.commandId,
     });
+    for (const key in params) {
+      query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
+    }
+    query = query.substring(0, query.length - 1);
+    if (connection.uri.charAt(connection.uri.length - 1) === '/') {
+      // Remove a trailing / that some clients broadcast
+      connection.uri = connection.uri.slice(0, connection.uri.length - 1);
+    }
+    const _url = `${connection.uri + command}?${query}`;
+    this.setValue('commandId', this.commandId + 1);
+    const options = PlexAuth.getClientApiOptions(this.clientIdentifier, 5000, this.accessToken);
+    const { data } = await axios.get(_url, options);
+    if (needResponse) {
+      return parser.parse(data);
+    }
+    return true;
   };
 
   this.getTimeline = function () {
@@ -363,44 +337,7 @@ module.exports = function PlexClient() {
     // Now that we've built our params, it's time to hit the client api
     return this.hitApi(command, params, this.chosenConnection);
   };
-  this.subscribe = function (connection, commit) {
-    return new Promise((resolve, reject) => {
-      // Already have a valid http server running, lets send the request
-      if (!connection) {
-        // It is possible to try to subscribe before we've found a working connection
-        connection = this.chosenConnection;
-      }
-      const command = '/player/timeline/subscribe';
-      const params = {
-        port: '8555',
-        protocol: 'http',
-        'X-Plex-Device-Name': 'SyncLounge',
-        commandID: this.commandId,
-      };
-      let query = '';
-      Object.assign(params, {
-        commandID: this.commandId,
-      });
-      for (const key in params) {
-        query += `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}&`;
-      }
-      query = query.substring(0, query.length - 1);
-      if (connection.uri.charAt(connection.uri.length - 1) === '/') {
-        // Remove a trailing / that some clients broadcast
-        connection.uri = connection.uri.slice(0, connection.uri.length - 1);
-      }
-      const _url = `${connection.uri + command}?${query}`;
-      this.setValue('commandId', this.commandId + 1);
-      const options = PlexAuth.getClientApiOptions(_url, this.clientIdentifier, null, 5000, this.accessToken);
-      request(options, (error, response, body) => {
-        if (!error) {
-          this.lastSubscribe = new Date().getTime();
-          return resolve(true);
-        }
-        return reject(error);
-      });
-    });
-  };
+
   this.playContentAutomatically = function (client, hostData, servers, offset) {
     // Automatically play content on the client searching all servers based on the title
     return new Promise(async (resolve, reject) => {
@@ -441,10 +378,7 @@ module.exports = function PlexClient() {
           server,
           offset: offset || 0,
         };
-        if (client.clientIdentifier !== 'PTPLAYER9PLUS10') {
-          // this causes certain clients to crash and is unused
-          // await client.subscribe();
-        }
+
         const res = await this.playMedia(data).catch(() => {
           start(parseInt(parseInt(index) + 1));
         });
