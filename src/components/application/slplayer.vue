@@ -4,6 +4,7 @@
       <div
         ref="videoPlayerContainer"
         class="slplayer"
+         :data-shaka-player-cast-receiver-id="getCastId"
       >
         <video
           ref="videoPlayer"
@@ -253,6 +254,10 @@ export default {
       'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
     ]),
+
+    getCastId() {
+      return window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID;
+    },
   },
 
   methods: {
