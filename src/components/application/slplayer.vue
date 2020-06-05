@@ -132,6 +132,8 @@ import SubtitleSelectionFactory from '@/player/ui/subtitleselection';
 import AudioSelectionFactory from '@/player/ui/audioselection';
 import MediaSelectionFactory from '@/player/ui/mediaselection';
 import CloseButtonFactory from '@/player/ui/closebutton';
+import Forward30ButtonFactory from '@/player/ui/forward30button';
+import Replay10ButtonFactory from '@/player/ui/replay10button';
 
 export default {
   name: 'slplayer',
@@ -154,7 +156,9 @@ export default {
 
       playerUiOptions: {
         controlPanelElements: [
+          'replay10',
           'play_pause',
+          'forward30',
           'mute',
           'volume',
           'close',
@@ -190,6 +194,8 @@ export default {
     shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
     shaka.ui.Controls.registerElement('close', new CloseButtonFactory(this.eventbus));
+    shaka.ui.Controls.registerElement('forward30', new Forward30ButtonFactory());
+    shaka.ui.Controls.registerElement('replay10', new Replay10ButtonFactory());
   },
 
   async mounted() {
@@ -384,7 +390,14 @@ export default {
     height: calc(100vh - (0.5625 * 100vw));
   }
 
+  /* Having to put shaka styling here since scoped rules don't seem to apply to them
+    likely because its added dynamically */
   .slplayer span {
     color: black;
+  }
+
+  .shaka-slplayer-button:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 </style>
