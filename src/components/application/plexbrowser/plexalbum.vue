@@ -157,8 +157,9 @@ export default {
         round: true,
       });
     },
+    // TODO: this is the wrong API but it's aparantly been wrong for a while?
     playMedia(content) {
-      this.chosenClient.playMedia(content.ratingKey, this.server, (result) => {
+      this.chosenClient.playMedia(content.key, this.server, (result) => {
       });
     },
   },

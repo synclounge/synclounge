@@ -302,18 +302,17 @@ module.exports = function PlexClient() {
     // First we will mirror the item so the user has an idea of what we're about to play
     return new Promise(async (resolve, reject) => {
       const command = '/player/playback/playMedia';
-      const mediaId = `/library/metadata/${data.ratingKey}`;
       const offset = Math.round(data.offset) || 0;
       const serverId = data.server.clientIdentifier;
       const uri = new URL(data.server.chosenConnection.uri);
       const address = uri.hostname;
       const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443' : '80'); // port not specified if standard
       const protocol = uri.protocol.replace(':', ''); // remove extra colon
-      const path = data.server.chosenConnection.uri + mediaId;
+      const path = data.server.chosenConnection.uri + data.key;
 
       const params = {
         'X-Plex-Client-Identifier': 'SyncLounge',
-        key: mediaId,
+        key: data.key,
         offset,
         machineIdentifier: serverId,
         address,
@@ -323,8 +322,6 @@ module.exports = function PlexClient() {
         wait: 0,
         token: data.server.accessToken,
       };
-
-      console.log('UGH IM HERE IN CLIENT: ', params)
 
       if (data.mediaIndex !== undefined || data.mediaIndex !== null) {
         params.mediaIndex = data.mediaIndex;
@@ -406,16 +403,14 @@ module.exports = function PlexClient() {
         if (playables.length === 0 || index === playables.length) {
           return reject(new Error('Didnt find any playable items'));
         }
-        console.log(playables[index].result);
         const server = playables[index].server;
-        const ratingKey = playables[index].result.ratingKey;
+        const key = playables[index].result.key;
         const data = {
-          ratingKey,
+          key,
           mediaIndex: 0,
           server,
           offset: offset || 0,
         };
-        console.log('IN THIS OTHER PLACE: ', data);
         if (client.clientIdentifier !== 'PTPLAYER9PLUS10') {
           // this causes certain clients to crash and is unused
           // await client.subscribe();
@@ -442,7 +437,6 @@ module.exports = function PlexClient() {
         }
         if (data.type === 'movie') {
           // We're good!
-          console.log('FOUND A PLAYABLE MOVIE');
           return true;
         }
         if (data.type === 'episode') {
@@ -452,7 +446,6 @@ module.exports = function PlexClient() {
         }
         if (data.type === 'track') {
           // We're good!
-          console.log('FOUND A PLAYABLE track');
           return true;
         }
         return false;

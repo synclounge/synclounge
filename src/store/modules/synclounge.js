@@ -331,8 +331,6 @@ export default {
 
                       rootState.rawTitle = hostTimeline.rawTitle;
                       sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
-                      console.log('gonna autoplay this ugh');
-                      console.log(hostTimeline);
                       const result = await rootState.chosenClient
                         .playContentAutomatically(
                           rootState.chosenClient,
@@ -360,8 +358,9 @@ export default {
                             if (!isBlocked) {
                               try {
                                 await rootState.chosenClient.playMedia({
-                                  ratingKey: hostTimeline.ratingKey,
-                                  mediaIndex: null,
+                                  // TODO: have timeline updates send out more info like mediaIdentifier etc
+                                  key: hostTimeline.key,
+                                  mediaIndex: 0,
                                   server: rootState.plex.servers[hostTimeline.machineIdentifier],
                                   offset: hostTimeline.time || 0,
                                 });
