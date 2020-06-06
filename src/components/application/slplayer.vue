@@ -175,7 +175,7 @@ export default {
           'media',
         ],
 
-        castReceiverAppId: this.GET_CAST_RECEIVER_APP_ID,
+        castReceiverAppId: 'CC1AD845',
       },
     };
   },
@@ -258,7 +258,6 @@ export default {
       'GET_PLAYER_STATE',
       'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
-      'GET_CAST_RECEIVER_APP_ID',
     ]),
   },
 

@@ -174,8 +174,4 @@ export default {
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
   GET_USER_TRIGGERD_PAUSE: (state) => state.userTriggeredPause,
   GET_USER_TRIGGERED_PLAY: (state) => state.userTriggeredPlay,
-  GET_CAST_RECEIVER_APP_ID: () =>
-    (window.chrome && window.chrome.cast && window.chrome.cast.media
-      ? window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID
-      : null),
 };

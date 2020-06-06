@@ -117,8 +117,6 @@ export default {
   },
 
   FETCH_METADATA: async ({ commit, getters }) => {
-    console.log('key: ', getters.GET_KEY);
-    console.log('ratingkey: ', getters.GET_RATING_KEY);
     const result = await getters.GET_PLEX_SERVER.getMediaByRatingKey(getters.GET_RATING_KEY);
     // Always media 0
 

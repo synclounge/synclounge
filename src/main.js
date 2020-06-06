@@ -59,7 +59,6 @@ window.EventBus.$on('command', (data) => {
         state: 'stopped',
       });
     } else if (data.command === '/player/playback/playMedia') {
-      console.log(data.params);
       router.push({
         path: '/player',
         query: {
