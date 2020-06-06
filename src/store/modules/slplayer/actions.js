@@ -159,10 +159,10 @@ export default {
 
   HANDLE_PLAYER_PLAYING: ({ commit, dispatch, getters, rootGetters }) => {
     if (isPlayerPlaying(getters)) {
-      if (!getters.GET_USER_TRIGGERED_PLAY && !rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
-        dispatch('sendPartyPause', false, { root: true });
-        console.log('party play');
-      }
+      // if (!getters.GET_USER_TRIGGERED_PLAY && !rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
+      //   dispatch('sendPartyPause', false, { root: true });
+      //   console.log('party play');
+      // }
 
       dispatch('CHANGE_PLAYER_STATE', 'playing');
     }
@@ -173,9 +173,9 @@ export default {
   HANDLE_PLAYER_PAUSE: ({ dispatch, commit, getters, rootGetters }) => {
     if (isPlayerPaused(getters)) {
       // If the player was actually paused (and not just paused for seeking)
-      if (getters.GET_USER_TRIGGERED_PAUSE && !rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
-        dispatch('sendPartyPause', true, { root: true });
-      }
+      // if (getters.GET_USER_TRIGGERED_PAUSE && !rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
+      //   dispatch('sendPartyPause', true, { root: true });
+      // }
 
       if (!getters.GET_PLAYER.isBuffering()) {
         dispatch('CHANGE_PLAYER_STATE', 'paused');
