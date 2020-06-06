@@ -4,20 +4,17 @@
       <div
         ref="videoPlayerContainer"
         class="slplayer"
-         :data-shaka-player-cast-receiver-id="getCastId"
       >
         <video
           ref="videoPlayer"
-          autoplay="true"
+          autoplay
           preload="auto"
           playsinline="true"
 
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="DO_COMMAND_STOP"
-          @waiting="HANDLE_PLAYER_WAITING"
+          @play="HANDLE_PLAYER_PLAY"
           @playing="HANDLE_PLAYER_PLAYING"
-          @seeking="HANDLE_PLAYER_SEEKING"
-          @seeked="HANDLE_PLAYER_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
 
           style="background-color:transparent !important;"
@@ -177,6 +174,8 @@ export default {
           'audio',
           'media',
         ],
+
+        castReceiverAppId: window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
       },
     };
   },
@@ -260,10 +259,6 @@ export default {
       'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
     ]),
-
-    getCastId() {
-      return window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID;
-    },
   },
 
   methods: {
@@ -274,11 +269,9 @@ export default {
       'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
+      'HANDLE_PLAYER_PLAY',
       'HANDLE_PLAYER_PLAYING',
       'HANDLE_PLAYER_PAUSE',
-      'HANDLE_PLAYER_SEEKING',
-      'HANDLE_PLAYER_SEEKED',
-      'HANDLE_PLAYER_WAITING',
       'HANDLE_PLAYER_VOLUME_CHANGE',
 
       'HANDLE_COMMAND',

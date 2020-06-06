@@ -47,8 +47,8 @@ if (process.env.NODE_ENV !== 'development') {
 // Our Event bus
 window.EventBus = new Vue();
 window.EventBus.$on('command', (data) => {
-  if (data.command === '/player/timeline/poll') {
-    if (router.app.route.fullPath.indexOf('/player') === -1) {
+  if (router.app.route.fullPath.indexOf('/player') === -1) {
+    if (data.command === '/player/timeline/poll') {
       return data.callback({
         key: null,
         ratingKey: null,
@@ -58,20 +58,19 @@ window.EventBus.$on('command', (data) => {
         duration: 0,
         state: 'stopped',
       });
+    } else if (data.command === '/player/playback/playMedia') {
+      console.log(data.params);
+      router.push({
+        path: '/player',
+        query: {
+          key: data.params.key,
+          mediaIndex: data.params.mediaIndex,
+          machineIdentifier: data.params.machineIdentifier,
+          offset: data.params.offset,
+        },
+      });
+      return data.callback(true);
     }
-  }
-  if (data.command === '/player/playback/playMedia') {
-    router.push({
-      path: '/player',
-      query: {
-        start: true,
-        key: data.params.key.replace('/library/metadata/', ''),
-        mediaIndex: data.params.mediaIndex || 0,
-        chosenServer: data.params.machineIdentifier,
-        playertime: data.params.offset,
-      },
-    });
-    return data.callback(true);
   }
 });
 

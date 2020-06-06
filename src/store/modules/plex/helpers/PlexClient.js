@@ -324,6 +324,8 @@ module.exports = function PlexClient() {
         token: data.server.accessToken,
       };
 
+      console.log('UGH IM HERE IN CLIENT: ', params)
+
       if (data.mediaIndex !== undefined || data.mediaIndex !== null) {
         params.mediaIndex = data.mediaIndex;
       }
@@ -404,14 +406,16 @@ module.exports = function PlexClient() {
         if (playables.length === 0 || index === playables.length) {
           return reject(new Error('Didnt find any playable items'));
         }
+        console.log(playables[index].result);
         const server = playables[index].server;
         const ratingKey = playables[index].result.ratingKey;
         const data = {
           ratingKey,
-          mediaIndex: null,
+          mediaIndex: 0,
           server,
           offset: offset || 0,
         };
+        console.log('IN THIS OTHER PLACE: ', data);
         if (client.clientIdentifier !== 'PTPLAYER9PLUS10') {
           // this causes certain clients to crash and is unused
           // await client.subscribe();

@@ -13,7 +13,7 @@ export default {
   GET_PLEX_DECISION: state => state.plexDecision,
 
   GET_PLEX_SERVER_ID: (state, getters, rootState) =>
-    state.plexServerId || rootState.route.query.chosenServer,
+    state.plexServerId || rootState.route.query.machineIdentifier,
 
   GET_PLEX_SERVER: (state, getters, rootState, rootGetters) =>
     rootGetters.getPlex.servers[getters.GET_PLEX_SERVER_ID],
@@ -98,11 +98,11 @@ export default {
   GET_THUMB_URL: (state, getters) =>
     getters.GET_PLEX_SERVER.getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200),
 
-  GET_RATING_KEY: (state, getters, rootState) => state.ratingKey || rootState.route.query.key,
+  GET_RATING_KEY: (state, getters) => getters.GET_KEY.replace('/library/metadata/', ''),
 
-  GET_KEY: (state, getters) => `/library/metadata/${getters.GET_RATING_KEY}`,
+  GET_KEY: (state, getters, rootState) => state.key || rootState.route.query.key,
 
-  GET_OFFSET_MS: (state, getters, rootState) => state.offsetMs || rootState.route.query.playertime,
+  GET_OFFSET_MS: (state, getters, rootState) => state.offsetMs || rootState.route.query.offset,
 
   GET_METADATA: state => state.metadata,
   GET_PLAYER_STATE: state => state.playerState,
@@ -172,4 +172,6 @@ export default {
   GET_PLAYER_MEDIA_ELEMENT: state => state.player.getMediaElement(),
 
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
+  GET_USER_TRIGGERD_PAUSE: (state) => state.userTriggeredPause,
+  GET_USER_TRIGGERED_PLAY: (state) => state.userTriggeredPlay,
 };

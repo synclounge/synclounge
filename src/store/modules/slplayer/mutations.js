@@ -39,8 +39,8 @@ export default {
     state.mediaIndex = index;
   },
 
-  SET_RATING_KEY: (state, ratingKey) => {
-    state.ratingKey = ratingKey;
+  SET_KEY: (state, key) => {
+    state.key = key;
   },
 
   SET_PLEX_DECISION: (state, decision) => {
@@ -88,5 +88,22 @@ export default {
 
   SET_PLAYER_VOLUME: (state, volume) => {
     state.player.getMediaElement().volume = volume;
+  },
+
+  SET_USER_TRIGGERED_PAUSE: (state, userTriggered) => {
+    state.userTriggeredPause = userTriggered;
+  },
+
+  SET_USER_TRIGGERED_PLAY: (state, userTriggered) => {
+    state.userTriggeredPlay = userTriggered;
+  },
+
+  ADD_BUFFERING_EVENT_LISTENER: (state, listener) => {
+    state.player.addEventListener('buffering', listener);
+    state.bufferingEventListener = listener;
+  },
+
+  REMOVE_BUFFERING_EVENT_LISTENER: (state) => {
+    state.player.removeEventListener('buffering', state.bufferingEventListener);
   },
 };

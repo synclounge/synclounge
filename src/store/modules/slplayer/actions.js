@@ -57,6 +57,14 @@ const isTimeInBufferedRange = (getters, timeMs) => {
   return false;
 };
 
+const isPlayerPaused = (getters) =>
+  getters.GET_PLAYER_MEDIA_ELEMENT.paused
+  && !getters.GET_PLAYER_UI.getControls().isSeeking();
+
+const isPlayerPlaying = (getters) =>
+  !getters.GET_PLAYER_MEDIA_ELEMENT.paused
+  && !getters.GET_PLAYER.isBuffering();
+
 const arePlayerControlsShown = (getters) => {
   // eslint-disable-next-line no-underscore-dangle
   if (!getters.GET_PLAYER_UI.getControls().enabled_) {
@@ -109,6 +117,8 @@ export default {
   },
 
   FETCH_METADATA: async ({ commit, getters }) => {
+    console.log('key: ', getters.GET_KEY);
+    console.log('ratingkey: ', getters.GET_RATING_KEY);
     const result = await getters.GET_PLEX_SERVER.getMediaByRatingKey(getters.GET_RATING_KEY);
     // Always media 0
 
@@ -141,20 +151,49 @@ export default {
       timeout: 10000,
     }),
 
-  HANDLE_PLAYER_PLAYING: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'playing'),
+  HANDLE_PLAYER_PLAY: ({ getters }) => {
+    if (isPlayerPlaying(getters)) {
+      console.log('play');
+    }
+  },
 
-  HANDLE_PLAYER_PAUSE: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'paused'),
+  HANDLE_PLAYER_PLAYING: ({ commit, dispatch, getters, rootGetters }) => {
+    if (isPlayerPlaying(getters)) {
+      if (!getters.GET_USER_TRIGGERED_PLAY && !rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
+        dispatch('sendPartyPause', false, { root: true });
+        console.log('party play');
+      }
 
-  HANDLE_PLAYER_SEEKING: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'buffering'),
+      dispatch('CHANGE_PLAYER_STATE', 'playing');
+    }
 
-  HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing'),
+    commit('SET_USER_TRIGGERED_PLAY', true);
+  },
 
-  HANDLE_PLAYER_WAITING: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'buffering'),
+  HANDLE_PLAYER_PAUSE: ({ dispatch, commit, getters, rootGetters }) => {
+    if (isPlayerPaused(getters)) {
+      // If the player was actually paused (and not just paused for seeking)
+      if (getters.GET_USER_TRIGGERED_PAUSE && !rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
+        dispatch('sendPartyPause', true, { root: true });
+      }
+
+      if (!getters.GET_PLAYER.isBuffering()) {
+        dispatch('CHANGE_PLAYER_STATE', 'paused');
+      }
+    }
+
+    // Reset remote pause flag to false
+    commit('SET_USER_TRIGGERED_PAUSE', true);
+  },
+
+  HANDLE_PLAYER_BUFFERING: ({ dispatch, getters }, event) => {
+    if (event.buffering) {
+      dispatch('CHANGE_PLAYER_STATE', 'buffering');
+    } else {
+      // Report back if player is playing
+      dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing');
+    }
+  },
 
   HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
     commit('setSettingPTPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
@@ -175,12 +214,14 @@ export default {
 
   DO_COMMAND_PLAY: ({ getters, commit }) => {
     if (getters.GET_PLAYER_STATE !== 'playing') {
+      commit('SET_USER_TRIGGERED_PLAY', false);
       commit('PLAY');
     }
   },
 
   DO_COMMAND_PAUSE: ({ getters, commit }) => {
     if (getters.GET_PLAYER_STATE !== 'paused') {
+      commit('SET_USER_TRIGGERED_PAUSE', false);
       commit('PAUSE');
     }
   },
@@ -188,10 +229,11 @@ export default {
   DO_COMMAND_PLAY_MEDIA: ({ commit, dispatch }, {
     offset, machineIdentifier, mediaIndex, key,
   }) => {
+    console.log("play media cmd");
     commit('SET_PLEX_SERVER_ID', machineIdentifier);
-    commit('SET_RATING_KEY', key.replace('/library/metadata/', ''));
-    commit('SET_MEDIA_INDEX', mediaIndex || 0);
-    commit('SET_OFFSET_MS', offset || 0);
+    commit('SET_KEY', key);
+    commit('SET_MEDIA_INDEX', mediaIndex);
+    commit('SET_OFFSET_MS', offset);
 
     return Promise.all([
       dispatch('CHANGE_PLAYER_SRC'),
@@ -316,6 +358,7 @@ export default {
   },
 
   CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {
+    console.log(state);
     commit('SET_PLAYER_STATE', state);
     const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     dispatch('UPDATE_CLIENT_TIMELINE');
@@ -329,6 +372,7 @@ export default {
   },
 
   INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
+    dispatch('REGISTER_PLAYER_EVENTS');
     const result = await dispatch('CHANGE_PLAYER_SRC');
     const volume = rootGetters.getSettingPTPLAYERVOLUME
       || parseFloat(JSON.parse(window.localStorage.getItem('PTPLAYERVOLUME')) || 1);
@@ -340,8 +384,17 @@ export default {
     return result;
   },
 
-  DESTROY_PLAYER_STATE: ({ commit }) => {
+  DESTROY_PLAYER_STATE: ({ commit, dispatch }) => {
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    dispatch('UNREGISTER_PLAYER_EVENTS');
     commit('DESTROY_PLAYER');
+  },
+
+  REGISTER_PLAYER_EVENTS: ({ commit, dispatch }) => {
+    commit('ADD_BUFFERING_EVENT_LISTENER', (e) => dispatch('HANDLE_PLAYER_BUFFERING', e));
+  },
+
+  UNREGISTER_PLAYER_EVENTS: ({ commit }) => {
+    commit('REMOVE_BUFFERING_EVENT_LISTENER');
   },
 };

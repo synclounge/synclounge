@@ -51,6 +51,7 @@ export default {
     getSocket: state => state._socket,
     getPartyPausing: state => () => state.partyPausing,
     GET_HOST_PLAYER_STATE: state => state.lastHostTimeline.playerState,
+    AM_I_HOST: state => state.me.role === 'host',
   },
   mutations: {
     SET_CONNECTED(state, value) {
@@ -306,8 +307,8 @@ export default {
                     }
                     // Check if we need to autoplay
                     if (
-                      (ourTimeline.state === 'stopped' || !ourTimeline.state) &&
-                      hostTimeline.playerState !== 'stopped' || rootState.rawTitle !== hostTimeline.rawTitle
+                      ((ourTimeline.state === 'stopped' || !ourTimeline.state) &&
+                      hostTimeline.playerState !== 'stopped') || rootState.rawTitle !== hostTimeline.rawTitle
                     ) {
                       if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
                         return resolve();
@@ -330,6 +331,8 @@ export default {
 
                       rootState.rawTitle = hostTimeline.rawTitle;
                       sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
+                      console.log('gonna autoplay this ugh');
+                      console.log(hostTimeline);
                       const result = await rootState.chosenClient
                         .playContentAutomatically(
                           rootState.chosenClient,
@@ -357,7 +360,7 @@ export default {
                             if (!isBlocked) {
                               try {
                                 await rootState.chosenClient.playMedia({
-                                  ratingKey: hostTimeline.key,
+                                  ratingKey: hostTimeline.ratingKey,
                                   mediaIndex: null,
                                   server: rootState.plex.servers[hostTimeline.machineIdentifier],
                                   offset: hostTimeline.time || 0,
