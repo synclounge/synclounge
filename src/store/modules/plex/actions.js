@@ -39,11 +39,13 @@ export default {
       commit('PLEX_SET_VALUE', ['clients', {}]);
     }
     try {
-      const { data } = await axios.get('https://plex.tv/api/resources?includeHttps=1',
-        PlexAuth.getRequestConfig(state.user.authToken, 5000));
-      const result = parser.parse(data);
+      const { data } = await axios.get('https://plex.tv/api/resources?includeHttps=1', {
+        ...PlexAuth.getRequestConfig(state.user.authToken, 5000),
+        transformResponse: parser.parse,
+      });
+      console.log(data);
 
-      result.MediaContainer.Device.forEach(({ $: device, Connection: connections }) => {
+      data.MediaContainer.Device.forEach(({ $: device, Connection: connections }) => {
       // Create a temporary array of object:PlexConnection
       // Exclude local IPs starting with 169.254
         const tempConnectionsArray = connections
