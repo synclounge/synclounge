@@ -90,14 +90,6 @@ export default {
     state.player.getMediaElement().volume = volume;
   },
 
-  SET_USER_TRIGGERED_PAUSE: (state, userTriggered) => {
-    state.userTriggeredPause = userTriggered;
-  },
-
-  SET_USER_TRIGGERED_PLAY: (state, userTriggered) => {
-    state.userTriggeredPlay = userTriggered;
-  },
-
   ADD_BUFFERING_EVENT_LISTENER: (state, listener) => {
     state.player.addEventListener('buffering', listener);
     state.bufferingEventListener = listener;

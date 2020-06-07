@@ -172,6 +172,4 @@ export default {
   GET_PLAYER_MEDIA_ELEMENT: state => state.player.getMediaElement(),
 
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
-  GET_USER_TRIGGERD_PAUSE: (state) => state.userTriggeredPause,
-  GET_USER_TRIGGERED_PLAY: (state) => state.userTriggeredPlay,
 };

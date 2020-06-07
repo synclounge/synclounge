@@ -4,6 +4,7 @@
       <div
         ref="videoPlayerContainer"
         class="slplayer"
+        @click="onClick"
       >
         <video
           ref="videoPlayer"
@@ -13,7 +14,6 @@
 
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="DO_COMMAND_STOP"
-          @play="HANDLE_PLAYER_PLAY"
           @playing="HANDLE_PLAYER_PLAYING"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
 
@@ -207,6 +207,9 @@ export default {
 
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
 
+    this.bigPlayButton.addEventListener('click', this.onClick);
+    this.smallPlayButton.addEventListener('click', this.onClick);
+
     this.eventbus.$on('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
@@ -217,9 +220,14 @@ export default {
     this.applyPlayerWatchers();
     // Similuate a real plex client
     this.eventbus.$on('command', this.HANDLE_COMMAND);
+
+    window.addEventListener('keyup', this.onKeyUp);
   },
 
   beforeDestroy() {
+    window.removeEventListener('keyup', this.onKeyUp);
+    this.bigPlayButton.removeEventListener('click', this.onClick);
+    this.smallPlayButton.removeEventListener('click', this.onClick);
     this.eventbus.$off('command', this.HANDLE_COMMAND);
     this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
@@ -258,7 +266,19 @@ export default {
       'GET_PLAYER_STATE',
       'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
+      'GET_PLAYER_UI',
     ]),
+
+    bigPlayButton() {
+      // eslint-disable-next-line no-underscore-dangle
+      return this.GET_PLAYER_UI.getControls().playButton_.button;
+    },
+
+    smallPlayButton() {
+      // eslint-disable-next-line no-underscore-dangle
+      return this.GET_PLAYER_UI.getControls().elements_
+        .find((element) => element instanceof shaka.ui.SmallPlayButton).button;
+    },
   },
 
   methods: {
@@ -269,7 +289,6 @@ export default {
       'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
-      'HANDLE_PLAYER_PLAY',
       'HANDLE_PLAYER_PLAYING',
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
@@ -278,6 +297,8 @@ export default {
       'DO_COMMAND_STOP',
       'INIT_PLAYER_STATE',
       'DESTROY_PLAYER_STATE',
+      'PLAY_PAUSE_VIDEO',
+      'SEND_PARTY_PLAY_PAUSE',
     ]),
 
     ...mapMutations('slplayer', [
@@ -339,6 +360,26 @@ export default {
       }, {
         immediate: true,
       });
+    },
+
+    onKeyUp(event) {
+      const { activeElement } = document;
+      const isSeekBar = activeElement && activeElement.classList
+        && activeElement.classList.contains('shaka-seek-bar');
+
+      if (event.key === ' ' && activeElement.tagName !== 'INPUT'
+        && activeElement.tagName !== 'BUTTON') {
+        if (!isSeekBar) {
+          // Make spacebar trigger play/pause in locations shaka normally doesn't
+          this.PLAY_PAUSE_VIDEO();
+        }
+
+        this.SEND_PARTY_PLAY_PAUSE();
+      }
+    },
+
+    onClick() {
+      this.SEND_PARTY_PLAY_PAUSE();
     },
   },
 };

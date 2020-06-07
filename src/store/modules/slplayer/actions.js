@@ -149,39 +149,18 @@ export default {
       timeout: 10000,
     }),
 
-  HANDLE_PLAYER_PLAY: ({ getters }) => {
+  HANDLE_PLAYER_PLAYING: ({ dispatch, getters }) => {
     if (isPlayerPlaying(getters)) {
-      console.log('play');
-    }
-  },
-
-  HANDLE_PLAYER_PLAYING: ({ commit, dispatch, getters, rootGetters }) => {
-    if (isPlayerPlaying(getters)) {
-      // if (!getters.GET_USER_TRIGGERED_PLAY && !rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
-      //   dispatch('sendPartyPause', false, { root: true });
-      //   console.log('party play');
-      // }
-
       dispatch('CHANGE_PLAYER_STATE', 'playing');
     }
-
-    commit('SET_USER_TRIGGERED_PLAY', true);
   },
 
-  HANDLE_PLAYER_PAUSE: ({ dispatch, commit, getters, rootGetters }) => {
+  HANDLE_PLAYER_PAUSE: ({ dispatch, getters }) => {
     if (isPlayerPaused(getters)) {
-      // If the player was actually paused (and not just paused for seeking)
-      // if (getters.GET_USER_TRIGGERED_PAUSE && !rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
-      //   dispatch('sendPartyPause', true, { root: true });
-      // }
-
       if (!getters.GET_PLAYER.isBuffering()) {
         dispatch('CHANGE_PLAYER_STATE', 'paused');
       }
     }
-
-    // Reset remote pause flag to false
-    commit('SET_USER_TRIGGERED_PAUSE', true);
   },
 
   HANDLE_PLAYER_BUFFERING: ({ dispatch, getters }, event) => {
@@ -212,14 +191,12 @@ export default {
 
   DO_COMMAND_PLAY: ({ getters, commit }) => {
     if (getters.GET_PLAYER_STATE !== 'playing') {
-      commit('SET_USER_TRIGGERED_PLAY', false);
       commit('PLAY');
     }
   },
 
   DO_COMMAND_PAUSE: ({ getters, commit }) => {
     if (getters.GET_PLAYER_STATE !== 'paused') {
-      commit('SET_USER_TRIGGERED_PAUSE', false);
       commit('PAUSE');
     }
   },
@@ -227,7 +204,6 @@ export default {
   DO_COMMAND_PLAY_MEDIA: ({ commit, dispatch }, {
     offset, machineIdentifier, mediaIndex, key,
   }) => {
-    console.log("play media cmd");
     commit('SET_PLEX_SERVER_ID', machineIdentifier);
     commit('SET_KEY', key);
     commit('SET_MEDIA_INDEX', mediaIndex);
@@ -356,7 +332,6 @@ export default {
   },
 
   CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {
-    console.log(state);
     commit('SET_PLAYER_STATE', state);
     const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     dispatch('UPDATE_CLIENT_TIMELINE');
@@ -394,5 +369,27 @@ export default {
 
   UNREGISTER_PLAYER_EVENTS: ({ commit }) => {
     commit('REMOVE_BUFFERING_EVENT_LISTENER');
+  },
+
+  PLAY_PAUSE_VIDEO: ({ getters, commit }) => {
+    if (!getPlayerDurationMs(getters)) {
+      // Can't play yet.  Ignore.
+      return;
+    }
+
+    getters.GET_PLAYER.cancelTrickPlay();
+
+    if (isPlayerPaused(getters)) {
+      commit('PLAY');
+    } else {
+      commit('PAUSE');
+    }
+  },
+
+  SEND_PARTY_PLAY_PAUSE: ({ dispatch, getters, rootGetters }) => {
+    // If the player was actually paused (and not just paused for seeking)
+    if (!rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
+      dispatch('sendPartyPause', isPlayerPaused(getters), { root: true });
+    }
   },
 };
