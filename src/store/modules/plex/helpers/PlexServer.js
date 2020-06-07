@@ -44,12 +44,13 @@ class PlexServer {
     }
 
     const options = plexauth.getApiOptions('', this.accessToken, 15000, 'GET');
-    const response = await axios.get(this.chosenConnection.uri + command, {
+    const { data } = await axios.get(this.chosenConnection.uri + command, {
       params,
       headers: options.headers,
     });
 
-    this.handleMetadata(response.data);
+    this.handleMetadata(data);
+    return data;
   }
 
   hitApiTestConnection(command, connection) {
@@ -95,18 +96,8 @@ class PlexServer {
   // Functions for dealing with media
   async search(searchTerm) {
     // This function hits the PMS using the /search endpoint and returns what the server returns if valid
-    return new Promise(async (resolve) => {
-      const result = await this.hitApi('/search', { query: searchTerm });
-      const validResults = [];
-      if (result && result.MediaContainer) {
-        if (result.MediaContainer.Metadata) {
-          for (let i = 0; i < result.MediaContainer.Metadata.length; i += 1) {
-            validResults.push(result.MediaContainer.Metadata[i]);
-          }
-        }
-      }
-      return resolve(validResults);
-    });
+    const result = await this.hitApi('/search', { query: searchTerm });
+    return result.MediaContainer.Metadata;
   }
 
   async getMediaByRatingKey(ratingKey) {
@@ -142,9 +133,6 @@ class PlexServer {
   }
 
   getUrlForLibraryLoc(location, width, height, blur) {
-    if (!(blur > 0)) {
-      blur = 0;
-    }
     if (this.chosenConnection) {
       return `${this.chosenConnection.uri}/photo/:/transcode?url=${location}&X-Plex-Token=${
         this.accessToken
@@ -195,7 +183,8 @@ class PlexServer {
         'X-Plex-Container-Size': size,
         excludeAllLeaves: 1,
       });
-      for (let i = 0; i < data.MediaContainer.Metadata.length; i++) {
+
+      for (let i = 0; i < data.MediaContainer.Metadata.length; i += 1) {
         data.MediaContainer.Metadata[i].librarySectionID = key;
         // this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey,
         // data.MediaContainer.Metadata[i]])
@@ -218,7 +207,6 @@ class PlexServer {
   }
 
   getRelated(ratingKey, size) {
-    ratingKey = ratingKey.replace('/library/metadata/', '');
     return this.hitApi(`/hubs/metadata/${ratingKey}/related`, {
       excludeFields: 'summary',
       count: size,
@@ -260,37 +248,40 @@ class PlexServer {
   handleMetadata(result) {
     // This data is used in our router breadcrumbs
     if (result) {
-      if (
-        result.MediaContainer
+      if (result.MediaContainer
         && result.MediaContainer.Metadata
         && result.MediaContainer.Metadata.length > 0
       ) {
-        for (let i = 0; i < result.MediaContainer.Metadata.length; i += 1) {
-          result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier;
-          const item = result.MediaContainer.Metadata[i];
-          if (result.MediaContainer.Metadata[i].ratingKey) {
+        result.MediaContainer.Metadata.forEach((item) => {
+          if (item.ratingKey) {
             this.commit('SET_ITEMCACHE', [
-              result.MediaContainer.Metadata[i].ratingKey,
-              result.MediaContainer.Metadata[i],
+              item.ratingKey,
+              {
+                ...item,
+                machineIdentifier: this.clientIdentifier,
+              },
             ]);
           }
+
           if (item.grandparentRatingKey) {
             this.commit('SET_ITEMCACHE', [
               item.grandparentRatingKey,
               { title: item.grandparentTitle, machineIdentifier: this.clientIdentifier },
             ]);
           }
+
           if (item.parentRatingKey) {
             this.commit('SET_ITEMCACHE', [
               item.parentRatingKey,
               { title: item.parentTitle, machineIdentifier: this.clientIdentifier },
             ]);
           }
-        }
+        });
       } else {
         if (result.MediaContainer.ratingKey) {
           this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer]);
         }
+
         if (result.MediaContainer.grandparentRatingKey) {
           this.commit('SET_ITEMCACHE', [
             result.MediaContainer.grandparentRatingKey,
@@ -300,6 +291,7 @@ class PlexServer {
             },
           ]);
         }
+
         if (result.MediaContainer.parentRatingKey) {
           this.commit('SET_ITEMCACHE', [
             result.MediaContainer.parentRatingKey,
@@ -307,7 +299,6 @@ class PlexServer {
           ]);
         }
       }
-      return result.MediaContainer.Metadata;
     }
   }
 }
