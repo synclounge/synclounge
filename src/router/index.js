@@ -1,8 +1,27 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-// ===================== Pages Components ======================
+import store from '@/store';
 
 Vue.use(Router);
+
+// Good guide: https://blog.sqreen.com/authentication-best-practices-vue/
+
+
+const ifNotAuthenticated = (to, from, next) => {
+  if (!store.getters.isAuthenticated) {
+    next();
+    return;
+  }
+  next('/');
+};
+
+const ifAuthenticated = (to, from, next) => {
+  if (store.getters.isAuthenticated) {
+    next();
+    return;
+  }
+  next('/login');
+};
 
 // ==================== Router registration ====================
 export default new Router({
@@ -17,6 +36,7 @@ export default new Router({
     },
     {
       path: '/signin',
+      name: 'Signin',
       meta: {},
       component: () => import('../components/signin.vue'),
     },

@@ -1,12 +1,9 @@
 
-import generateGuid from '@/utils/guid';
+import guid from '@/utils/guid';
 
 const state = () => ({
   session: null,
-  xplexsessionId: generateGuid(),
-
-  // Make persistent
-  xPlexClientIdentifier: generateGuid(),
+  xplexsessionId: guid(),
 
   key: null,
   metadata: null,

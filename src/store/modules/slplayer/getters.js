@@ -1,13 +1,7 @@
-import { detect } from 'detect-browser';
 import { encodeUrlParams } from '@/utils/encoder';
 import contenttitleutils from '@/utils/contenttitleutils';
 import { qualities } from './qualities';
 
-function capitalizeFirstLetter(string) {
-  return string[0].toUpperCase() + string.slice(1);
-}
-
-const browser = detect();
 
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
@@ -109,21 +103,6 @@ export default {
   GET_SECONDARY_TITLE: (state, getters) => contenttitleutils
     .getSecondaryTitle(getters.GET_METADATA),
 
-  GET_BASE_PARAMS: (state, getters) => ({
-    'X-Plex-Product': 'SyncLounge',
-    'X-Plex-Version': '4.34.3',
-    'X-Plex-Client-Identifier': state.xPlexClientIdentifier,
-    'X-Plex-Platform': capitalizeFirstLetter(browser.name),
-    'X-Plex-Platform-Version': browser.version,
-    // 'X-Plex-Sync-Version': 2,
-    // 'X-Plex-Features': 'external-media,indirect-media',
-    'X-Plex-Model': 'hosted',
-    'X-Plex-Device': browser.os,
-    'X-Plex-Device-Name': capitalizeFirstLetter(browser.name),
-    'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
-    'X-Plex-Token': getters.GET_PLEX_SERVER_ACCESS_TOKEN,
-    'X-Plex-Language': 'en',
-  }),
 
   GET_PART_PARAMS: (state, getters) => ({
     'X-Plex-Text-Format': 'plain',

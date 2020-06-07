@@ -1,6 +1,7 @@
 import axios from 'axios';
 import xmlutils from '@/utils/xmlutils';
 
+
 import plexauth from './helpers/PlexAuth';
 import PlexServer from './helpers/PlexServer';
 import PlexClient from './helpers/PlexClient';
@@ -9,23 +10,28 @@ const PlexConnection = require('./helpers/PlexConnection.js');
 
 
 export default {
-  PLEX_LOGIN_TOKEN: async ({ commit, dispatch, rootGetters }, token) => {
-    const config = plexauth.getRequestConfig(token, 5000);
-    config.headers['X-Plex-Client-Identifier'] = rootGetters['settings/GET_CLIENTIDENTIFIER'];
+  REQUEST_PLEX_INIT_AUTH: ({ getters }) => axios.post('https://plex.tv/api/v2/pins?strong=true', null, {
+    headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
+  }).then(({ data }) => data),
 
-    try {
-      const { data } = await axios.post('https://plex.tv/users/sign_in.json', {}, config);
-      if (!data) {
-        commit('PLEX_SET_VALUE', ['signedin', false]);
-        throw new Error('No response data from Plex');
-      }
-      commit('PLEX_SET_VALUE', ['user', data.user]);
-      commit('PLEX_SET_VALUE', ['signedin', true]);
-      dispatch('PLEX_GET_DEVICES');
-    } catch (e) {
-      commit('PLEX_SET_VALUE', ['signedin', false]);
-      throw e;
+  REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit }, id) => {
+    const { data } = await axios.get(`https://plex.tv/api/v2/pins/${id}`, {
+      headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
+    });
+
+    if (!data.authToken) {
+      throw new Error("Plex didn't give authToken");
     }
+
+    commit('settings/SET_PLEX_AUTH_TOKEN', data.authToken, { root: true });
+  },
+
+  FETCH_PLEX_USER: async ({ getters, commit }) => {
+    const { data } = await axios.get('https://plex.tv/users/account.json', {
+      headers: getters.GET_PLEX_BASE_PARAMS,
+    });
+
+    commit('settings/SET_PLEX_USER', data.user, { root: true });
   },
 
   PLEX_GET_DEVICES: async ({ state, commit, dispatch }, dontDelete) => {

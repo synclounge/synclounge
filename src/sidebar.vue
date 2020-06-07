@@ -5,6 +5,7 @@
     style="padding: 0; z-index: 6"
     app
     right
+    width="300"
     @input="SET_RIGHT_SIDEBAR_OPEN"
   >
     <template v-slot:prepend>

@@ -39,4 +39,5 @@ export default {
   GET_CUSTOM_SERVER_USER_INPUTTED_URL: (state) => state.customServerUserInputtedUrl,
   GET_PLEX_AUTH_TOKEN: (state) => state.plexAuthToken,
   GET_RECENT_ROOMS: (state) => state.recentRooms,
+  GET_PLEX_USER: (state) => state.plexUser,
 };

@@ -1,4 +1,4 @@
-import { generateGuid } from '@/utils/helpers';
+import guid from '@/utils/guid';
 
 const state = () => ({
   appTitle: 'SyncLounge',
@@ -17,7 +17,7 @@ const state = () => ({
   extAvailable: false,
   lastRatingKey: null,
   manualSyncQueued: false,
-  uuid: generateGuid(),
+  uuid: guid(),
   upNextCache: {},
 
   // SETTINGS

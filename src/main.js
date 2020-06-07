@@ -2,7 +2,6 @@ import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
 import VueObserveVisibility from 'vue-observe-visibility';
 import VueClipboard from 'vue-clipboard2';
-import VueCookies from 'vue-cookies';
 import { sync } from 'vuex-router-sync';
 
 import vuetify from './plugins/vuetify';
@@ -18,10 +17,6 @@ Vue.use(VueClipboard);
 Vue.use(VueObserveVisibility);
 
 Vue.config.productionTip = false;
-
-Vue.use(VueCookies);
-// set default config
-Vue.$cookies.config('7d');
 
 // Our Event bus
 window.EventBus = new Vue();
@@ -57,6 +52,7 @@ window.EventBus.$on('command', (data) => {
 router.beforeEach((to, from, next) => {
   // console.log('Route change', to, this, store)
   if (to.matched.some((record) => record.meta.protected)) {
+    console.log('protected route', to);
     // this route requires us to be in a room with a client selected
     // if not, redirect to the needed stage
     if (!store.getters.getChosenClient) {

@@ -1,7 +1,6 @@
 const state = () => ({
   user: {},
   username: null,
-  signedin: false,
 
   clients: {},
   servers: {},

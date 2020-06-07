@@ -87,6 +87,7 @@
         </v-icon>
       </v-toolbar-items>
     </v-app-bar>
+
     <v-content
       :style="mainStyle"
       app
@@ -98,43 +99,39 @@
         style="height: 100%; z-index: 250"
         fluid
       >
-        <v-flex
-          v-if="configError"
-          xs12
+        <v-alert
+          :dismissible="true"
+          type="error"
+          class="mt-0"
         >
-          <v-alert
-            :dismissible="true"
-            type="error"
-            class="mt-0"
-          >
-            {{ configError }}
-          </v-alert>
-        </v-flex>
-        <v-flex
+          {{ configError }}
+        </v-alert>
+
+
+        <v-container
           v-if="(loading || (getPlex && !getPlex.gotDevices)) && $route.protected"
-          xs12
+          fill-height
         >
-          <v-container fill-height>
-            <v-layout
-              justify-center
-              align-center
-              wrap
-              row
-              class="pt-4 text-center"
+          <v-layout
+            justify-center
+            align-center
+            wrap
+            row
+            class="pt-4 text-center"
+          >
+            <v-flex
+              xs8
+              md4
             >
-              <v-flex
-                xs8
-                md4
-              >
-                <v-progress-circular
-                  indeterminate
-                  :size="60"
-                  class="amber--text"
-                />
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-flex>
+              <v-progress-circular
+                indeterminate
+                :size="60"
+                class="amber--text"
+              />
+            </v-flex>
+          </v-layout>
+        </v-container>
+
         <div
           v-else
           :style="paddingStyle"
@@ -159,6 +156,7 @@
               </v-breadcrumbs-item>
             </template>
           </v-breadcrumbs>
+
           <router-view />
         </div>
         <v-snackbar
@@ -201,6 +199,7 @@ export default {
     leftsidebar: () => import('./leftsidebar.vue'),
     donate: () => import('./donate.vue'),
   },
+
   data() {
     return {
       fixed: false,
@@ -237,6 +236,7 @@ export default {
       appIsFullscreen: false,
     };
   },
+
   computed: {
     ...mapGetters([
       'getPlex',
@@ -252,11 +252,12 @@ export default {
       'getLogos',
     ]),
     ...mapGetters('config', ['GET_CONFIG']),
-    ...mapGetters('settings', ['GET_PLEX_AUTH_TOKEN']),
     ...mapState(['isRightSidebarOpen']),
+
     extAvailable() {
       return this.$store.getters.getExtAvailable;
     },
+
     crumbs() {
       if (
         this.$route.path.indexOf('browse') === -1
@@ -322,6 +323,7 @@ export default {
       });
       return data;
     },
+
     showNowPlaying() {
       return (
         this.getChosenClient
@@ -329,12 +331,15 @@ export default {
         && this.$route.name === 'browse'
       );
     },
+
     showRightDrawerButton() {
       return this.getConnected && this.getChosenClient && this.getRoom;
     },
+
     showLinkShortener() {
       return this.getConnected && this.getServer && this.getRoom && this.getShortLink;
     },
+
     mainStyle() {
       if (this.$store.getters.getBackground !== null) {
         return {
@@ -346,6 +351,7 @@ export default {
       }
       return {};
     },
+
     containerStyle() {
       const arr = [];
       if (this.$store.getters.getBackground !== null) {
@@ -355,6 +361,7 @@ export default {
       }
       return arr;
     },
+
     paddingStyle() {
       const arr = [];
       if (this.$route.path.indexOf('/player') === -1) {
@@ -365,6 +372,7 @@ export default {
       return arr;
     },
   },
+
   watch: {
     showRightDrawerButton() {
       // TODO: fix this is hacky
@@ -373,6 +381,7 @@ export default {
       }
     },
   },
+
   async mounted() {
     try {
       await this.configFetchPromise;
@@ -447,21 +456,6 @@ export default {
       this.$store.dispatch('PLAYBACK_CHANGE', data);
     });
 
-    if (!this.GET_PLEX_AUTH_TOKEN) {
-      this.$router.push('/signin');
-      this.loading = false;
-      return;
-    }
-    if (this.$route.path === '/') {
-      this.$router.push('/clientselect');
-    }
-
-    try {
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', this.GET_PLEX_AUTH_TOKEN);
-    } catch (e) {
-      // this.$router.push('/signin');
-      return;
-    }
 
     fscreen.addEventListener('fullscreenchange', () => {
       const isFullscreen = fscreen.fullscreenElement !== null;
@@ -471,9 +465,11 @@ export default {
 
     this.loading = false;
   },
+
   created() {
     this.configFetchPromise = this.fetchConfig();
   },
+
   methods: {
     ...mapActions('config', ['fetchConfig']),
     ...mapActions(['SET_LEFT_SIDEBAR_OPEN', 'SET_RIGHT_SIDEBAR_OPEN', 'TOGGLE_RIGHT_SIDEBAR_OPEN']),

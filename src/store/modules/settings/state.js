@@ -1,4 +1,4 @@
-const { generateGuid } = require('@/utils/helpers');
+import guid from '@/utils/guid';
 
 // The state must return a function
 // to make the module reusable.
@@ -22,10 +22,11 @@ const state = () => ({
   slPlayerForceTranscode: null,
   hideUsername: false,
   altUsername: null,
-  clientIdentifier: `${generateGuid()}-${generateGuid()}`,
+  clientIdentifier: guid(),
   lastServer: null,
   plexAuthToken: null,
   recentRooms: [],
+  plexUser: null,
 });
 
 export default state;
