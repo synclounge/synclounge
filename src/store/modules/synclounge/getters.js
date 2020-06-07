@@ -10,4 +10,6 @@ export default {
   getSocket: (state) => state.socket,
   getPartyPausing: (state) => state.partyPausing,
   getHostUser: (state) => state.users.find((u) => u.role === 'host'),
+  GET_HOST_PLAYER_STATE: state => state.lastHostTimeline.playerState,
+  AM_I_HOST: state => state.me.role === 'host',
 };

@@ -3,7 +3,7 @@ const { fs } = require('fs');
 const args = require('args-parser')(process.argv);
 
 const { coalesce } = require('./src/utils/helpers');
-const { defaultSettings } = require('./src/default-settings');
+const { defaultSettings } = require('./src/defaultsettings');
 
 const readSettingsFile = (file) => {
   try {
@@ -120,7 +120,9 @@ const fields = [
     local: 'slPlayerQuality',
     env: 'SLPLAYERQUALITY',
     default: defaultSettings.slPlayerQuality,
-    type: 'string',
+    type: 'number',
+    // null is allowed because null quality indicates Original
+    nullable: true,
   },
   {
     // Valid values are in the range [0, 1]
@@ -139,6 +141,10 @@ const fields = [
 
 // Returns the parsed setting or default value if wrong type or unable to be parsed
 const parseSetting = (value, setting) => {
+  if (setting.nullable && value === null || value === 'null') {
+    return null;
+  }
+
   if (setting.type === 'array') {
     // If setting is array. (Have to treat arrays differently since typeof array is 'object')
     if (Array.isArray(value)) {

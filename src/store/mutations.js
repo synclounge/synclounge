@@ -39,7 +39,20 @@ export default {
   SET_BLOCK_AUTOPLAY: (state, block) => {
     state.blockAutoPlay = block;
   },
+
   SET_MANUAL_SYNC_QUEUED: (state, queued) => {
     state.manualSyncQueued = queued;
+  },
+
+  SET_UP_NEXT_TRIGGERED: (state, triggered) => {
+    state.upNextTriggered = triggered;
+  },
+
+  SET_UP_NEXT_POST_PLAY_DATA: (state, data) => {
+    state.upNextPostPlayData = data;
+  },
+
+  SET_PLEX_SERVER_ID: (state, id) => {
+    state.plexServerId = id;
   },
 };

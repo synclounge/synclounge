@@ -44,7 +44,6 @@ export default new Router({
       },
       component: () => import('../components/application/joinroom.vue'),
     },
-
     {
       path: '/player',
       meta: {

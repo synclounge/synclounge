@@ -57,6 +57,14 @@ const isTimeInBufferedRange = (getters, timeMs) => {
   return false;
 };
 
+const isPlayerPaused = (getters) =>
+  getters.GET_PLAYER_MEDIA_ELEMENT.paused
+  && !getters.GET_PLAYER_UI.getControls().isSeeking();
+
+const isPlayerPlaying = (getters) =>
+  !getters.GET_PLAYER_MEDIA_ELEMENT.paused
+  && !getters.GET_PLAYER.isBuffering();
+
 const arePlayerControlsShown = (getters) => {
   // eslint-disable-next-line no-underscore-dangle
   if (!getters.GET_PLAYER_UI.getControls().enabled_) {
@@ -77,8 +85,8 @@ export default {
     commit('SET_PLEX_DECISION', data);
   },
 
-  CHANGE_MAX_VIDEO_BITRATE: async ({ commit, getters, dispatch }, bitrate) => {
-    commit('SET_SLPLAYERQUALITY', bitrate, { root: true });
+  CHANGE_MAX_VIDEO_BITRATE: async ({ commit, dispatch }, bitrate) => {
+    commit('settings/SET_SLPLAYERQUALITY', bitrate, { root: true });
     return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
@@ -139,23 +147,31 @@ export default {
       timeout: 10000,
     }),
 
-  HANDLE_PLAYER_PLAYING: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'playing'),
+  HANDLE_PLAYER_PLAYING: ({ dispatch, getters }) => {
+    if (isPlayerPlaying(getters)) {
+      dispatch('CHANGE_PLAYER_STATE', 'playing');
+    }
+  },
 
-  HANDLE_PLAYER_PAUSE: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'paused'),
+  HANDLE_PLAYER_PAUSE: ({ dispatch, getters }) => {
+    if (isPlayerPaused(getters)) {
+      if (!getters.GET_PLAYER.isBuffering()) {
+        dispatch('CHANGE_PLAYER_STATE', 'paused');
+      }
+    }
+  },
 
-  HANDLE_PLAYER_SEEKING: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'buffering'),
-
-  HANDLE_PLAYER_SEEKED: ({ getters, dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing'),
-
-  HANDLE_PLAYER_WAITING: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'buffering'),
+  HANDLE_PLAYER_BUFFERING: ({ dispatch, getters }, event) => {
+    if (event.buffering) {
+      dispatch('CHANGE_PLAYER_STATE', 'buffering');
+    } else {
+      // Report back if player is playing
+      dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing');
+    }
+  },
 
   HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
-    commit('SET_SLPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
+    commit('settings/SET_SLPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
   },
 
 
@@ -187,9 +203,9 @@ export default {
     offset, machineIdentifier, mediaIndex, key,
   }) => {
     commit('SET_PLEX_SERVER_ID', machineIdentifier);
-    commit('SET_RATING_KEY', key.replace('/library/metadata/', ''));
-    commit('SET_MEDIA_INDEX', mediaIndex || 0);
-    commit('SET_OFFSET_MS', offset || 0);
+    commit('SET_KEY', key);
+    commit('SET_MEDIA_INDEX', mediaIndex);
+    commit('SET_OFFSET_MS', offset);
 
     return Promise.all([
       dispatch('CHANGE_PLAYER_SRC'),
@@ -327,6 +343,7 @@ export default {
   },
 
   INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
+    dispatch('REGISTER_PLAYER_EVENTS');
     const result = await dispatch('CHANGE_PLAYER_SRC');
 
     commit('SET_PLAYER_VOLUME', rootGetters['settings/GET_SLPLAYERVOLUME']);
@@ -336,8 +353,39 @@ export default {
     return result;
   },
 
-  DESTROY_PLAYER_STATE: ({ commit }) => {
+  DESTROY_PLAYER_STATE: ({ commit, dispatch }) => {
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    dispatch('UNREGISTER_PLAYER_EVENTS');
     commit('DESTROY_PLAYER');
+  },
+
+  REGISTER_PLAYER_EVENTS: ({ commit, dispatch }) => {
+    commit('ADD_BUFFERING_EVENT_LISTENER', (e) => dispatch('HANDLE_PLAYER_BUFFERING', e));
+  },
+
+  UNREGISTER_PLAYER_EVENTS: ({ commit }) => {
+    commit('REMOVE_BUFFERING_EVENT_LISTENER');
+  },
+
+  PLAY_PAUSE_VIDEO: ({ getters, commit }) => {
+    if (!getPlayerDurationMs(getters)) {
+      // Can't play yet.  Ignore.
+      return;
+    }
+
+    getters.GET_PLAYER.cancelTrickPlay();
+
+    if (isPlayerPaused(getters)) {
+      commit('PLAY');
+    } else {
+      commit('PAUSE');
+    }
+  },
+
+  SEND_PARTY_PLAY_PAUSE: ({ dispatch, getters, rootGetters }) => {
+    // If the player was actually paused (and not just paused for seeking)
+    if (!rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
+      dispatch('sendPartyPause', isPlayerPaused(getters), { root: true });
+    }
   },
 };

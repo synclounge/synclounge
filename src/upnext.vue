@@ -175,8 +175,8 @@ export default {
       this.transitionBarWithStyle = {};
 
       this.getChosenClient.playMedia({
-        ratingKey: this.item.ratingKey,
-        mediaIndex: null,
+        key: this.item.key,
+        mediaIndex: 0,
         server: this.plexserver,
         offset: 0,
       });

@@ -13,7 +13,7 @@ export default {
   GET_PLEX_DECISION: state => state.plexDecision,
 
   GET_PLEX_SERVER_ID: (state, getters, rootState) =>
-    state.plexServerId || rootState.route.query.chosenServer,
+    state.plexServerId || rootState.route.query.machineIdentifier,
 
   GET_PLEX_SERVER: (state, getters, rootState, rootGetters) =>
     rootGetters.getPlex.servers[getters.GET_PLEX_SERVER_ID],
@@ -83,7 +83,7 @@ export default {
     return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
   },
 
-  GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex || rootState.route.query.playertime,
+  GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex || rootState.route.query.mediaIndex,
 
   GET_RELATIVE_THUMB_URL: (state, getters) =>
     getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb,
@@ -91,11 +91,11 @@ export default {
   GET_THUMB_URL: (state, getters) =>
     getters.GET_PLEX_SERVER.getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200),
 
-  GET_RATING_KEY: (state, getters, rootState) => state.ratingKey || rootState.route.query.key,
+  GET_RATING_KEY: (state, getters) => getters.GET_KEY.replace('/library/metadata/', ''),
 
-  GET_KEY: (state, getters) => `/library/metadata/${getters.GET_RATING_KEY}`,
+  GET_KEY: (state, getters, rootState) => state.key || rootState.route.query.key,
 
-  GET_OFFSET_MS: (state, getters, rootState) => state.offsetMs || rootState.route.query.playertime,
+  GET_OFFSET_MS: (state, getters, rootState) => state.offsetMs || rootState.route.query.offset,
 
   GET_METADATA: state => state.metadata,
   GET_PLAYER_STATE: state => state.playerState,
@@ -127,10 +127,10 @@ export default {
     ...getters.GET_BASE_PARAMS,
   }),
 
-  GET_PLEX_PROFILE_EXTRAS: (state, getters) => {
+  GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
     const base = 'append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)';
-    return getters.GET_MAX_VIDEO_BITRATE
-      ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${getters.GET_MAX_VIDEO_BITRATE}&replace=true)`
+    return rootGetters['settings/GET_SLPLAYERQUALITY']
+      ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${rootGetters['settings/GET_SLPLAYERQUALITY']}&replace=true)`
       : base;
   },
 
@@ -142,14 +142,14 @@ export default {
     protocol: 'dash',
     fastSeek: 1,
     directPlay: 0,
-    directStream: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
+    directStream: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     subtitleSize: 100,
     audioBoost: 100,
     location: getters.GET_PLEX_SERVER_LOCATION,
-    ...getters.GET_MAX_VIDEO_BITRATE && { maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE }, // only include if not null
+    ...rootGetters['settings/GET_SLPLAYERQUALITY'] && { maxVideoBitrate: rootGetters['settings/GET_SLPLAYERQUALITY'] }, // only include if not null
     addDebugOverlay: 0,
     autoAdjustQuality: 1,
-    directStreamAudio: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
+    directStreamAudio: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
     subtitles: 'burn',

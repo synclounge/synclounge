@@ -8,13 +8,12 @@ const state = () => ({
   // Make persistent
   xPlexClientIdentifier: generateGuid(),
 
-  ratingKey: null,
+  key: null,
   metadata: null,
   plexDecision: null,
   plexServerId: null,
 
   mediaIndex: 0,
-  maxVideoBitrate: null,
 
   offsetMs: 0,
   playerState: 'buffering',
@@ -22,6 +21,7 @@ const state = () => ({
   playerUi: null,
   playerControlsShown: true,
   playerControlsShownInterval: null,
+  bufferingEventListener: null,
 });
 
 

@@ -1,7 +1,7 @@
 {
   "webroot": "",
   "webapp_port": 8088,
-  "accessUrl": "http://mysynclounge.com",
+  "accessUrl": "https://mysynclounge.com",
 
   "autoJoin": false,
   "autoJoinServer": "",
@@ -47,7 +47,7 @@
   "clientPollInterval": 1000,
   "syncMode": "cleanseek",
   "syncFlexibility": 3000,
-  "slPlayerQuality": "Original",
+  "slPlayerQuality": 10000,
   "slPlayerVolume": 1,
-  "slPlayerForceTranscode": true
+  "slPlayerForceTranscode": false
 }

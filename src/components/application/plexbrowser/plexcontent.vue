@@ -697,7 +697,7 @@ export default {
       }
 
       await this.chosenClient.playMedia({
-        ratingKey: this.contents.ratingKey,
+        key: this.contents.key,
         mediaIndex,
         server: this.server,
         offset,

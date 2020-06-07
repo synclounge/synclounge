@@ -280,8 +280,9 @@ export default {
                         ) {
                           try {
                             await rootState.chosenClient.playMedia({
-                              ratingKey: hostTimeline.key,
-                              mediaIndex: null,
+                              // TODO: have timeline updates send out more info like mediaIdentifier etc
+                              key: hostTimeline.key,
+                              mediaIndex: 0,
                               server: rootState.plex.servers[hostTimeline.machineIdentifier],
                               offset: hostTimeline.time || 0,
                             });
@@ -312,7 +313,8 @@ export default {
                   sendNotification('Resuming..');
                   return resolve(await rootState.chosenClient.pressPlay());
                 }
-                if (hostTimeline.playerState === 'paused' && ourTimeline.state === 'playing') {
+                if ((hostTimeline.playerState === 'paused' || hostTimeline.playerState === 'buffering')
+                  && ourTimeline.state === 'playing') {
                   sendNotification('Pausing..');
                   return resolve(await rootState.chosenClient.pressPause());
                 }
@@ -325,12 +327,12 @@ export default {
                     const hostLastDelay = Math.round(hostTimeline.latency);
                     // console.log('adding delays', { ourLastDelay, hostLastDelay });
                     if (ourLastDelay && hostLastDelay) {
-                      console.log(
-                        'Adding host delay',
-                        hostLastDelay,
-                        'and our lastDelay',
-                        ourLastDelay,
-                      );
+                      // console.log(
+                      //   'Adding host delay',
+                      //   hostLastDelay,
+                      //   'and our lastDelay',
+                      //   ourLastDelay,
+                      // );
                       data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0);
                     }
                   } catch (e) {

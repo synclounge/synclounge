@@ -4,19 +4,17 @@
       <div
         ref="videoPlayerContainer"
         class="slplayer"
+        @click="onClick"
       >
         <video
           ref="videoPlayer"
-          autoplay="true"
+          autoplay
           preload="auto"
           playsinline="true"
 
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="DO_COMMAND_STOP"
-          @waiting="HANDLE_PLAYER_WAITING"
           @playing="HANDLE_PLAYER_PLAYING"
-          @seeking="HANDLE_PLAYER_SEEKING"
-          @seeked="HANDLE_PLAYER_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
 
           style="background-color:transparent !important;"
@@ -131,6 +129,8 @@ import SubtitleSelectionFactory from '@/player/ui/subtitleselection';
 import AudioSelectionFactory from '@/player/ui/audioselection';
 import MediaSelectionFactory from '@/player/ui/mediaselection';
 import CloseButtonFactory from '@/player/ui/closebutton';
+import Forward30ButtonFactory from '@/player/ui/forward30button';
+import Replay10ButtonFactory from '@/player/ui/replay10button';
 
 export default {
   name: 'slplayer',
@@ -153,7 +153,9 @@ export default {
 
       playerUiOptions: {
         controlPanelElements: [
+          'replay10',
           'play_pause',
+          'forward30',
           'mute',
           'volume',
           'close',
@@ -172,6 +174,8 @@ export default {
           'audio',
           'media',
         ],
+
+        castReceiverAppId: 'CC1AD845',
       },
     };
   },
@@ -189,6 +193,8 @@ export default {
     shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
     shaka.ui.Controls.registerElement('close', new CloseButtonFactory(this.eventbus));
+    shaka.ui.Controls.registerElement('forward30', new Forward30ButtonFactory());
+    shaka.ui.Controls.registerElement('replay10', new Replay10ButtonFactory());
   },
 
   async mounted() {
@@ -201,6 +207,9 @@ export default {
 
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
 
+    this.bigPlayButton.addEventListener('click', this.onClick);
+    this.smallPlayButton.addEventListener('click', this.onClick);
+
     this.eventbus.$on('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
@@ -211,9 +220,14 @@ export default {
     this.applyPlayerWatchers();
     // Similuate a real plex client
     this.eventbus.$on('command', this.HANDLE_COMMAND);
+
+    window.addEventListener('keyup', this.onKeyUp);
   },
 
   beforeDestroy() {
+    window.removeEventListener('keyup', this.onKeyUp);
+    this.bigPlayButton.removeEventListener('click', this.onClick);
+    this.smallPlayButton.removeEventListener('click', this.onClick);
     this.eventbus.$off('command', this.HANDLE_COMMAND);
     this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
@@ -251,10 +265,22 @@ export default {
       'GET_PLAYER_STATE',
       'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
+      'GET_PLAYER_UI',
     ]),
     ...mapGetters('settings', [
       'GET_SLPLAYERQUALITY',
     ]),
+
+    bigPlayButton() {
+      // eslint-disable-next-line no-underscore-dangle
+      return this.GET_PLAYER_UI.getControls().playButton_.button;
+    },
+
+    smallPlayButton() {
+      // eslint-disable-next-line no-underscore-dangle
+      return this.GET_PLAYER_UI.getControls().elements_
+        .find((element) => element instanceof shaka.ui.SmallPlayButton).button;
+    },
   },
 
   methods: {
@@ -267,15 +293,14 @@ export default {
       'CHANGE_PLAYER_SRC',
       'HANDLE_PLAYER_PLAYING',
       'HANDLE_PLAYER_PAUSE',
-      'HANDLE_PLAYER_SEEKING',
-      'HANDLE_PLAYER_SEEKED',
-      'HANDLE_PLAYER_WAITING',
       'HANDLE_PLAYER_VOLUME_CHANGE',
 
       'HANDLE_COMMAND',
       'DO_COMMAND_STOP',
       'INIT_PLAYER_STATE',
       'DESTROY_PLAYER_STATE',
+      'PLAY_PAUSE_VIDEO',
+      'SEND_PARTY_PLAY_PAUSE',
     ]),
 
     ...mapMutations('slplayer', [
@@ -283,6 +308,10 @@ export default {
       'SET_PLAYER_CONFIGURATION',
       'SET_PLAYER_UI',
       'SET_PLAYER_UI_CONFIGURATION',
+    ]),
+
+    ...mapMutations('settings', [
+
     ]),
 
     doManualSync() {
@@ -338,6 +367,26 @@ export default {
         immediate: true,
       });
     },
+
+    onKeyUp(event) {
+      const { activeElement } = document;
+      const isSeekBar = activeElement && activeElement.classList
+        && activeElement.classList.contains('shaka-seek-bar');
+
+      if (event.key === ' ' && activeElement.tagName !== 'INPUT'
+        && activeElement.tagName !== 'BUTTON') {
+        if (!isSeekBar) {
+          // Make spacebar trigger play/pause in locations shaka normally doesn't
+          this.PLAY_PAUSE_VIDEO();
+        }
+
+        this.SEND_PARTY_PLAY_PAUSE();
+      }
+    },
+
+    onClick() {
+      this.SEND_PARTY_PLAY_PAUSE();
+    },
   },
 };
 </script>
@@ -381,7 +430,14 @@ export default {
     height: calc(100vh - (0.5625 * 100vw));
   }
 
+  /* Having to put shaka styling here since scoped rules don't seem to apply to them
+    likely because its added dynamically */
   .slplayer span {
     color: black;
+  }
+
+  .shaka-slplayer-button:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 </style>
