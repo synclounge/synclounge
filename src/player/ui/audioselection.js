@@ -100,15 +100,16 @@ class AudioSelection extends shaka.ui.SettingsMenu {
   onAudioClicked(audioId) {
     this.eventBus.$emit('audiotreamselectionchanged', audioId);
   }
-};
+}
 
 class AudioSelectionFactory {
   constructor(eventBus) {
     this.eventBus = eventBus;
   }
+
   create(rootElement, controls) {
     return new AudioSelection(rootElement, controls, this.eventBus);
   }
-};
+}
 
 export default AudioSelectionFactory;

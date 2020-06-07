@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 const _PlexAuth = require('./PlexAuth.js');
 
 const PlexAuth = new _PlexAuth();

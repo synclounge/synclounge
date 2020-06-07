@@ -17,12 +17,12 @@ module.exports = {
         '@': path.join(__dirname, '/src'),
       },
     },
-    node: false
+    node: false,
   },
   pluginOptions: {
     webpackBundleAnalyzer: {
-      //openAnalyzer: false,
-      analyzerMode: 'server'
-    }
-  }
+      // openAnalyzer: false,
+      analyzerMode: 'server',
+    },
+  },
 };

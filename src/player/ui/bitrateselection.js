@@ -100,15 +100,16 @@ class BitrateSelection extends shaka.ui.SettingsMenu {
   onBitrateClicked(bitrate) {
     this.eventBus.$emit('bitrateselectionchanged', bitrate);
   }
-};
+}
 
 class BitrateSelectionFactory {
   constructor(eventBus) {
     this.eventBus = eventBus;
   }
+
   create(rootElement, controls) {
     return new BitrateSelection(rootElement, controls, this.eventBus);
   }
-};
+}
 
 export default BitrateSelectionFactory;

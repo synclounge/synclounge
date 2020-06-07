@@ -92,6 +92,6 @@ class ShakaUtils {
       eventBus.$off(event, fn);
     });
   }
-};
+}
 
 export default ShakaUtils;

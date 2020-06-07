@@ -1,4 +1,4 @@
-  import Vue from 'vue';
+import Vue from 'vue';
 import VueScrollTo from 'vue-scrollto';
 import VueObserveVisibility from 'vue-observe-visibility';
 import VueClipboard from 'vue-clipboard2';
@@ -41,7 +41,7 @@ window.EventBus.$on('command', (data) => {
         duration: 0,
         state: 'stopped',
       });
-    } else if (data.command === '/player/playback/playMedia') {
+    } if (data.command === '/player/playback/playMedia') {
       router.push({
         path: '/player',
         query: {

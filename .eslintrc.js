@@ -2,7 +2,7 @@
 module.exports = {
   root: true,
   env: {
-    browser: true
+    browser: true,
   },
   extends: ['plugin:vue/recommended', '@vue/airbnb'],
   parserOptions: {
@@ -16,9 +16,9 @@ module.exports = {
       {
         code: 100,
         ignoreComments: true,
-        //ignoreUrls: true,
-        //ignoreStrings: true,
-        ignoreTemplateLiterals: true
+        // ignoreUrls: true,
+        // ignoreStrings: true,
+        ignoreTemplateLiterals: true,
       },
     ],
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

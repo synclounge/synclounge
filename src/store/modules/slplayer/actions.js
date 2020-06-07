@@ -5,7 +5,7 @@ import timeoutPromise from '@/utils/timeoutpromise';
 import delay from '@/utils/delay';
 
 
-const commandActions = command => ({
+const commandActions = (command) => ({
   '/player/timeline/poll': 'DO_COMMAND_POLL',
   '/player/playback/play': 'DO_COMMAND_PLAY',
   '/player/playback/pause': 'DO_COMMAND_PAUSE',
@@ -16,8 +16,7 @@ const commandActions = command => ({
 
 // These functions are a bit special since they use currentTime and duration, which can't
 // be tracked by vuex, so the cache isn't updated correctly
-const getPlayerCurrentTimeMs = (getters) =>
-  (getters.GET_PLAYER_MEDIA_ELEMENT.currentTime * 1000) || getters.GET_OFFSET_MS;
+const getPlayerCurrentTimeMs = (getters) => (getters.GET_PLAYER_MEDIA_ELEMENT.currentTime * 1000) || getters.GET_OFFSET_MS;
 
 const getPlayerDurationMs = (getters) => getters.GET_PLAYER_MEDIA_ELEMENT.duration * 1000;
 
@@ -34,7 +33,7 @@ const makeTimelineParams = (getters) => ({
   ...getters.GET_PART_PARAMS,
 });
 
-const makePollResponse =  (getters) => ({
+const makePollResponse = (getters) => ({
   ratingKey: getters.GET_RATING_KEY,
   key: getters.GET_KEY,
   time: getPlayerCurrentTimeMs(getters),
@@ -57,12 +56,10 @@ const isTimeInBufferedRange = (getters, timeMs) => {
   return false;
 };
 
-const isPlayerPaused = (getters) =>
-  getters.GET_PLAYER_MEDIA_ELEMENT.paused
+const isPlayerPaused = (getters) => getters.GET_PLAYER_MEDIA_ELEMENT.paused
   && !getters.GET_PLAYER_UI.getControls().isSeeking();
 
-const isPlayerPlaying = (getters) =>
-  !getters.GET_PLAYER_MEDIA_ELEMENT.paused
+const isPlayerPlaying = (getters) => !getters.GET_PLAYER_MEDIA_ELEMENT.paused
   && !getters.GET_PLAYER.isBuffering();
 
 const arePlayerControlsShown = (getters) => {
@@ -141,11 +138,10 @@ export default {
     return dispatch('LOAD_PLAYER_SRC');
   },
 
-  SEND_PLEX_TIMELINE_UPDATE: ({ getters }) =>
-    axios.get(getters.GET_TIMELINE_URL, {
-      params: makeTimelineParams(getters),
-      timeout: 10000,
-    }),
+  SEND_PLEX_TIMELINE_UPDATE: ({ getters }) => axios.get(getters.GET_TIMELINE_URL, {
+    params: makeTimelineParams(getters),
+    timeout: 10000,
+  }),
 
   HANDLE_PLAYER_PLAYING: ({ dispatch, getters }) => {
     if (isPlayerPlaying(getters)) {
@@ -182,8 +178,7 @@ export default {
     callback(result);
   },
 
-  DO_COMMAND_DISPATCH: async ({ dispatch }, { action, params }) =>
-    dispatch(action, params),
+  DO_COMMAND_DISPATCH: async ({ dispatch }, { action, params }) => dispatch(action, params),
 
   DO_COMMAND_POLL: ({ getters }) => makePollResponse(getters),
 
@@ -213,8 +208,7 @@ export default {
     ]);
   },
 
-  DO_COMMAND_STOP: ({ dispatch }) =>
-    dispatch('CHANGE_PLAYER_STATE', 'stopped'),
+  DO_COMMAND_STOP: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'stopped'),
 
 
   DO_COMMAND_SEEK_TO: async ({ getters, dispatch }, { offset: seekToMs, softSeek }) => {
@@ -313,7 +307,7 @@ export default {
 
       const delayPromise = delay(10000);
       // eslint-disable-next-line no-await-in-loop
-      await dispatch('SEND_PLEX_TIMELINE_UPDATE').catch(e => e);
+      await dispatch('SEND_PLEX_TIMELINE_UPDATE').catch((e) => e);
       // eslint-disable-next-line no-await-in-loop
       await delayPromise;
     }
@@ -384,7 +378,7 @@ export default {
 
   SEND_PARTY_PLAY_PAUSE: ({ dispatch, getters, rootGetters }) => {
     // If the player was actually paused (and not just paused for seeking)
-    if (!rootGetters['AM_I_HOST'] && rootGetters['getPartyPausing']) {
+    if (!rootGetters.AM_I_HOST && rootGetters.getPartyPausing) {
       dispatch('sendPartyPause', isPlayerPaused(getters), { root: true });
     }
   },

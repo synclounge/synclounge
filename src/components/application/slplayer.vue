@@ -1,6 +1,9 @@
 <template>
   <div style="width:100%; position: relative">
-    <div style="position: relative" v-if="GET_METADATA">
+    <div
+      v-if="GET_METADATA"
+      style="position: relative"
+    >
       <div
         ref="videoPlayerContainer"
         class="slplayer"
@@ -12,24 +15,39 @@
           preload="auto"
           playsinline="true"
 
+          style="background-color:transparent !important;"
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="DO_COMMAND_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
-          @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
 
-          style="background-color:transparent !important;"
-        >
-        </video>
+          @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
+        />
       </div>
 
       <div>
         <transition name="fade">
           <div v-show="ARE_PLAYER_CONTROLS_SHOWN">
-            <v-layout row wrap style="position: absolute; top: 0; left: 0; z-index: 2" class="pa-3 hidden-xs-only">
-              <img :src="GET_THUMB_URL" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;" />
+            <v-layout
+              row
+              wrap
+              style="position: absolute; top: 0; left: 0; z-index: 2"
+              class="pa-3 hidden-xs-only"
+            >
+              <img
+                :src="GET_THUMB_URL"
+                class="elevation-20"
+                style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;"
+              >
               <v-flex class="pl-3">
-                <v-container class="pa-0" fill-height>
-                  <v-layout column wrap justify-space-apart>
+                <v-container
+                  class="pa-0"
+                  fill-height
+                >
+                  <v-layout
+                    column
+                    wrap
+                    justify-space-apart
+                  >
                     <v-flex>
                       <h1>{{ GET_TITLE }}</h1>
                     </v-flex>
@@ -39,47 +57,98 @@
                     </v-flex>
 
                     <v-flex>
-                      <h5>Playing from {{ GET_PLEX_SERVER.name  }}</h5>
+                      <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
                     </v-flex>
                   </v-layout>
                 </v-container>
               </v-flex>
             </v-layout>
 
-            <v-layout row wrap style="position: absolute; top: 0; right: 0; z-index: 2" class="pa-3 hidden-xs-only">
+            <v-layout
+              row
+              wrap
+              style="position: absolute; top: 0; right: 0; z-index: 2"
+              class="pa-3 hidden-xs-only"
+            >
               <v-flex class="text-xs-right pa-1">
                 <div class="hidden-xs-only">
-                  <v-tooltip bottom color="accent" v-if="me && me.role !== 'host'">
-                    <v-icon slot="activator" color="white" class="clickable" :disabled="manualSyncQueued" v-on:click="doManualSync">compare_arrows</v-icon>
+                  <v-tooltip
+                    v-if="me && me.role !== 'host'"
+                    bottom
+                    color="accent"
+                  >
+                    <v-icon
+                      slot="activator"
+                      color="white"
+                      class="clickable"
+                      :disabled="manualSyncQueued"
+                      @click="doManualSync"
+                    >
+                      compare_arrows
+                    </v-icon>
                     Manual Sync
                   </v-tooltip>
 
-                  <router-link to="/browse"  slot="activator">
-                    <v-icon color="white" class="pl-3" v-on:click.native="DO_COMMAND_STOP">close</v-icon>
+                  <router-link
+                    slot="activator"
+                    to="/browse"
+                  >
+                    <v-icon
+                      color="white"
+                      class="pl-3"
+                      @click.native="DO_COMMAND_STOP"
+                    >
+                      close
+                    </v-icon>
                   </router-link>
                 </div>
               </v-flex>
             </v-layout>
 
-            <v-layout row wrap class="hoverBar" style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;">
-              <v-flex xs12>
-              </v-flex>
+            <v-layout
+              row
+              wrap
+              class="hoverBar"
+              style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;"
+            >
+              <v-flex xs12 />
             </v-layout>
           </div>
         </transition>
       </div>
 
-      <div class="messages-wrapper" v-if="$vuetify.breakpoint.mdAndDown">
-        <messages></messages>
+      <div
+        v-if="$vuetify.breakpoint.mdAndDown"
+        class="messages-wrapper"
+      >
+        <messages />
       </div>
 
-      <v-layout justify-center row class="pa-3 hidden-sm-and-up">
+      <v-layout
+        justify-center
+        row
+        class="pa-3 hidden-sm-and-up"
+      >
         <v-flex xs12>
-          <v-layout row wrap>
-            <img :src="GET_THUMB_URL" class="elevation-20" style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto" />
+          <v-layout
+            row
+            wrap
+          >
+            <img
+              :src="GET_THUMB_URL"
+              class="elevation-20"
+              style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"
+            >
             <v-flex class="pl-2">
-              <v-container class="pa-0" fill-height>
-                <v-layout column wrap justify-space-apart>
+              <v-container
+                class="pa-0"
+                fill-height
+              >
+                <v-layout
+                  column
+                  wrap
+                  justify-space-apart
+                >
                   <v-flex>
                     <h1>{{ GET_TITLE }}</h1>
                   </v-flex>
@@ -87,21 +156,45 @@
                     <h3>{{ GET_SECONDARY_TITLE }}</h3>
                   </v-flex>
                   <v-flex>
-                    <h5>Playing from {{ GET_PLEX_SERVER.name  }}</h5>
+                    <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
                   </v-flex>
                 </v-layout>
               </v-container>
             </v-flex>
-            <v-layout row wrap class="">
+            <v-layout
+              row
+              wrap
+              class=""
+            >
               <v-flex xs12>
-                <v-btn block :disabled="manualSyncQueued" color="blue" v-on:click.native="doManualSync" v-if="me.role !== 'host'">Manual sync</v-btn>
+                <v-btn
+                  v-if="me.role !== 'host'"
+                  block
+                  :disabled="manualSyncQueued"
+                  color="blue"
+                  @click.native="doManualSync"
+                >
+                  Manual sync
+                </v-btn>
               </v-flex>
               <v-flex xs12>
-                <v-btn block color="primary" v-on:click.native="dialog = !dialog">Playback Settings</v-btn>
+                <v-btn
+                  block
+                  color="primary"
+                  @click.native="dialog = !dialog"
+                >
+                  Playback Settings
+                </v-btn>
               </v-flex>
               <v-flex xs12>
                 <router-link to="/browse">
-                  <v-btn block color="error" v-on:click.native="DO_COMMAND_STOP">Stop playback</v-btn>
+                  <v-btn
+                    block
+                    color="error"
+                    @click.native="DO_COMMAND_STOP"
+                  >
+                    Stop playback
+                  </v-btn>
                 </router-link>
               </v-flex>
             </v-layout>
@@ -114,15 +207,14 @@
 
 <script>
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 import slplayer from '@/store/modules/slplayer';
 
 import messages from '@/components/messages.vue';
-import plexthumb from './plexbrowser/plexthumb.vue';
 
 import 'shaka-player/dist/controls.css';
-shaka.log.setLevel(shaka.log.Level.WARNING);
-shaka.polyfill.installAll();
 
 import BitrateSelectionFactory from '@/player/ui/bitrateselection';
 import SubtitleSelectionFactory from '@/player/ui/subtitleselection';
@@ -131,9 +223,13 @@ import MediaSelectionFactory from '@/player/ui/mediaselection';
 import CloseButtonFactory from '@/player/ui/closebutton';
 import Forward30ButtonFactory from '@/player/ui/forward30button';
 import Replay10ButtonFactory from '@/player/ui/replay10button';
+import plexthumb from './plexbrowser/plexthumb.vue';
+
+shaka.log.setLevel(shaka.log.Level.WARNING);
+shaka.polyfill.installAll();
 
 export default {
-  name: 'slplayer',
+  name: 'Slplayer',
   components: {
     plexthumb, messages,
   },
@@ -180,6 +276,14 @@ export default {
     };
   },
 
+  watch: {
+    GET_PLAYER_STATE(playerState) {
+      if (playerState === 'stopped') {
+        this.$router.push('/browse');
+      }
+    },
+  },
+
   beforeCreate() {
     if (!this.$store.state.slplayer) {
       this.$store.registerModule('slplayer', slplayer);
@@ -202,8 +306,7 @@ export default {
     this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
-      this.$refs.videoPlayer,
-    ));
+      this.$refs.videoPlayer));
 
     this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
 
@@ -237,14 +340,6 @@ export default {
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
     this.$store.unregisterModule('slplayer');
-  },
-
-  watch: {
-    GET_PLAYER_STATE(playerState) {
-      if (playerState === 'stopped') {
-        this.$router.push('/browse');
-      }
-    },
   },
 
   computed: {

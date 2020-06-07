@@ -100,15 +100,16 @@ class MediaSelection extends shaka.ui.SettingsMenu {
   onMediaClicked(index) {
     this.eventBus.$emit('mediaindexselectionchanged', index);
   }
-};
+}
 
 class MediaSelectionFactory {
   constructor(eventBus) {
     this.eventBus = eventBus;
   }
+
   create(rootElement, controls) {
     return new MediaSelection(rootElement, controls, this.eventBus);
   }
-};
+}
 
 export default MediaSelectionFactory;

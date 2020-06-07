@@ -100,15 +100,16 @@ class SubtitleSelection extends shaka.ui.SettingsMenu {
   onSubtitleClicked(subtitleId) {
     this.eventBus.$emit('subtitlestreamselectionchanged', subtitleId);
   }
-};
+}
 
 class SubtitleSelectionFactory {
   constructor(eventBus) {
     this.eventBus = eventBus;
   }
+
   create(rootElement, controls) {
     return new SubtitleSelection(rootElement, controls, this.eventBus);
   }
-};
+}
 
 export default SubtitleSelectionFactory;

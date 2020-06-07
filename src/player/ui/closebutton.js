@@ -17,7 +17,7 @@ class CloseButton extends shaka.ui.Element {
       this.eventBus.$emit('playerclosebuttonclicked');
     });
   }
-};
+}
 
 
 // Factory that will create a button at run time.
@@ -25,9 +25,10 @@ class CloseButtonFactory {
   constructor(eventBus) {
     this.eventBus = eventBus;
   }
+
   create(rootElement, controls) {
     return new CloseButton(rootElement, controls, this.eventBus);
   }
-};
+}
 
 export default CloseButtonFactory;

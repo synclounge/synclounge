@@ -1,6 +1,7 @@
 import axios from 'axios';
+import parser from 'fast-xml-parser';
+
 const EventEmitter = require('events');
-import parser from 'fast-xml-parser'
 const _PlexAuth = require('./PlexAuth.js');
 
 const PlexAuth = new _PlexAuth();
