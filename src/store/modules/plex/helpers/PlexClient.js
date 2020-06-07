@@ -1,10 +1,9 @@
 import axios from 'axios';
 import parser from 'fast-xml-parser';
+import plexauth from './PlexAuth';
 
 const EventEmitter = require('events');
-const _PlexAuth = require('./PlexAuth.js');
 
-const PlexAuth = new _PlexAuth();
 const stringSimilarity = require('string-similarity');
 
 class PlexClient {
@@ -48,18 +47,18 @@ class PlexClient {
     this.commit = null;
     this.dispatch = null;
 
-    let previousTimeline = {};
-    const differenceCache = [];
+    this.previousTimeline = {};
+    this.differenceCache = [];
 
     this.uuid = this.generateGuid();
   }
 
-  setValue (key, value) {
+  setValue(key, value) {
     this[key] = value;
     this.commit('PLEX_CLIENT_SET_VALUE', [this, key, value]);
-  };
+  }
 
-  generateGuid () {
+  generateGuid() {
     function s4() {
       return Math.floor((1 + Math.random()) * 0x10000)
         .toString(16)
@@ -67,9 +66,9 @@ class PlexClient {
     }
 
     return `${s4() + s4()}-${s4()}`;
-  };
+  }
 
-  async hitApi (command, params, connection, needResponse, dontSub) {
+  async hitApi(command, params, connection, needResponse, dontSub) {
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       return new Promise(async (resolve, reject) => {
         // We are using the SyncLounge Player
@@ -105,15 +104,15 @@ class PlexClient {
     }
     const _url = `${connection.uri + command}?${query}`;
     this.setValue('commandId', this.commandId + 1);
-    const options = PlexAuth.getClientApiOptions(this.clientIdentifier, 5000, this.accessToken);
+    const options = plexauth.getClientApiOptions(this.clientIdentifier, 5000, this.accessToken);
     const { data } = await axios.get(_url, options);
     if (needResponse) {
       return parser.parse(data);
     }
     return true;
-  };
+  }
 
-  getTimeline () {
+  getTimeline() {
     return new Promise(async (resolve, reject) => {
       let data;
       try {
@@ -127,9 +126,9 @@ class PlexClient {
       }
     });
     // Get the timeline object from the client
-  };
+  }
 
-  updateTimelineObject (result) {
+  updateTimelineObject(result) {
     // Check if we are the SLPlayer
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // SLPLAYER
@@ -139,10 +138,10 @@ class PlexClient {
         },
       };
       result = tempObj;
-      if (!previousTimeline.MediaContainer || result.MediaContainer.Timeline[0].ratingKey !== previousTimeline.MediaContainer.Timeline[0].ratingKey) {
+      if (!this.previousTimeline.MediaContainer || result.MediaContainer.Timeline[0].ratingKey !== this.previousTimeline.MediaContainer.Timeline[0].ratingKey) {
         window.EventBus.$emit('PLAYBACK_CHANGE', [this, result.MediaContainer.Timeline[0].ratingKey, result.MediaContainer.Timeline[0]]);
       }
-      previousTimeline = tempObj;
+      this.previousTimeline = tempObj;
       this.lastTimelineObject = result.MediaContainer.Timeline[0];
       this.lastTimelineObject.recievedAt = new Date().getTime();
       window.EventBus.$emit('NEW_TIMELINE', result.MediaContainer.Timeline[0]);
@@ -151,44 +150,44 @@ class PlexClient {
     // Standard player
     const timelines = result.MediaContainer.Timeline;
     let videoTimeline = {};
-    for (let i = 0; i < timelines.length; i++) {
+    for (let i = 0; i < timelines.length; i += 1) {
       const _timeline = timelines[i].$;
       if (_timeline.type === 'video') {
         videoTimeline = _timeline;
-        if (videoTimeline.ratingKey !== previousTimeline.ratingKey) {
+        if (videoTimeline.ratingKey !== this.previousTimeline.ratingKey) {
           window.EventBus.$emit('PLAYBACK_CHANGE', [this, videoTimeline.ratingKey, videoTimeline]);
         }
       }
     }
     window.EventBus.$emit('NEW_TIMELINE', videoTimeline);
-    previousTimeline = videoTimeline;
+    this.previousTimeline = videoTimeline;
     this.lastTimelineObject = videoTimeline;
     this.lastTimelineObject.recievedAt = new Date().getTime();
     // this.setValue('lastTimelineObject', videoTimeline)
     return videoTimeline;
-  };
+  }
 
-  pressPlay () {
+  pressPlay() {
     // Press play on the client
     return this.hitApi('/player/playback/play', { wait: 0 });
-  };
+  }
 
-  pressPause  () {
+  pressPause() {
     // Press pause on the client
     return this.hitApi('/player/playback/pause', { wait: 0 });
-  };
+  }
 
-  pressStop () {
+  pressStop() {
     // Press pause on the client
     return this.hitApi('/player/playback/stop', { wait: 0 });
-  };
+  }
 
-  seekTo (time, params) {
+  seekTo(time, params) {
     // Seek to a time (in ms)
     return this.hitApi('/player/playback/seekTo', { wait: 0, offset: Math.round(time), ...params });
-  };
+  }
 
-  waitForMovement (startTime) {
+  waitForMovement(startTime) {
     return new Promise((resolve, reject) => {
       let time = 500;
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
@@ -203,9 +202,9 @@ class PlexClient {
         }
       }, time);
     });
-  };
+  }
 
-  skipAhead  (current, duration) {
+  skipAhead(current, duration) {
     return new Promise(async (resolve, reject) => {
       const startedAt = new Date().getTime();
       const now = this.lastTimelineObject.time;
@@ -219,16 +218,16 @@ class PlexClient {
       await this.pressPlay();
       resolve();
     });
-  };
+  }
 
-  cleanSeek  (time, isSoft) {
+  cleanSeek(time, isSoft) {
     if (isSoft && this.clientIdentifier === 'PTPLAYER9PLUS10') {
       return this.seekTo(time, { softSeek: true });
     }
     return this.seekTo(time);
-  };
+  }
 
-  sync (hostTimeline, SYNCFLEXIBILITY, SYNCMODE, POLLINTERVAL) {
+  sync(hostTimeline, SYNCFLEXIBILITY, SYNCMODE, POLLINTERVAL) {
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         await this.getTimeline();
@@ -247,7 +246,7 @@ class PlexClient {
       // console.log('Difference with host is', difference);
       const bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused';
 
-      if (parseInt(difference) > parseInt(SYNCFLEXIBILITY) || (bothPaused && difference > 10)) {
+      if (parseInt(difference, 10) > parseInt(SYNCFLEXIBILITY, 10) || (bothPaused && difference > 10)) {
         // We need to seek!
         this.lastSyncCommand = new Date().getTime();
         // Decide what seeking method we want to use
@@ -262,24 +261,24 @@ class PlexClient {
       }
       // Calc the average delay of the last 10 host timeline updates
       // We do this to avoid any issues with random lag spikes
-      differenceCache.unshift(difference);
-      if (differenceCache.length > 5) {
-        differenceCache.pop();
+      this.differenceCache.unshift(difference);
+      if (this.differenceCache.length > 5) {
+        this.differenceCache.pop();
       }
       let total = 0;
-      for (let i = 0; i < differenceCache.length; i++) {
-        total += differenceCache[i];
+      for (let i = 0; i < this.differenceCache.length; i += 1) {
+        total += this.differenceCache[i];
       }
-      const avg = total / differenceCache.length;
+      const avg = total / this.differenceCache.length;
       if (this.clientIdentifier === 'PTPLAYER9PLUS10' && avg > 1500) {
         console.log('Soft syncing because difference is', difference);
         return resolve(await this.cleanSeek(hostTimeline.time, true));
       }
       return resolve('No sync needed');
     });
-  };
+  }
 
-  async playMedia  (data) {
+  async playMedia(data) {
     // Play a media item given a mediaId key and a server to play from
     // We need the following variables to build our paramaters:
     // MediaId Key, Offset, server MachineId,
@@ -318,9 +317,9 @@ class PlexClient {
       await this.waitForMovement();
       resolve(true);
     });
-  };
+  }
 
-  playContentAutomatically  (client, hostData, servers, offset) {
+  playContentAutomatically(client, hostData, servers, offset) {
     // Automatically play content on the client searching all servers based on the title
     return new Promise(async (resolve, reject) => {
       // First lets find all of our playable items
@@ -397,5 +396,7 @@ class PlexClient {
         return false;
       }
     });
-  };
-};
+  }
+}
+
+export default PlexClient;

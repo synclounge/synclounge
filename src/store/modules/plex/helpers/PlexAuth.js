@@ -6,8 +6,8 @@
  * @param method
  * @returns {{url: *, time: boolean, headers: {X-Plex-Client-Identifier: string, Accept: string, X-Plex-Token: *}, timeout: *, method: *}}
  */
-module.exports = function PlexAuth() {
-  this.getApiOptions = function (url, accessToken, timeout, method) {
+export default {
+  getApiOptions(url, accessToken, timeout, method) {
     return {
       url,
       time: true,
@@ -19,9 +19,9 @@ module.exports = function PlexAuth() {
       timeout,
       method,
     };
-  };
+  },
 
-  this.getRequestConfig = function (accessToken, timeout) {
+  getRequestConfig(accessToken, timeout) {
     return {
       headers: {
         'X-Plex-Client-Identifier': 'SyncLounge',
@@ -30,7 +30,7 @@ module.exports = function PlexAuth() {
       },
       timeout,
     };
-  };
+  },
 
   /**
    *
@@ -40,7 +40,7 @@ module.exports = function PlexAuth() {
    * @param timeout
    * @returns {{url: *, time: boolean, headers: {X-Plex-Device-Name: string, X-Plex-Client-Identifier: string, X-Plex-Provides: string, X-Plex-Target-Client-Identifier: *}, timeout: *, method: string}}
    */
-  this.getClientApiOptions = function (clientIdentifier, timeout, token) {
+  getClientApiOptions(clientIdentifier, timeout, token) {
     let sBrowser;
     const sUsrAg = navigator.userAgent;
     if (sUsrAg.indexOf('Chrome') > -1) {
@@ -74,5 +74,5 @@ module.exports = function PlexAuth() {
       },
       timeout,
     };
-  };
+  },
 };

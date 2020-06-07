@@ -1,16 +1,16 @@
 import axios from 'axios';
-import parser from 'fast-xml-parser';
+import xmlutils from '@/utils/xmlutils';
 
-const PlexAuthMaker = require('./helpers/PlexAuth.js');
+import plexauth from './helpers/PlexAuth';
+import PlexServer from './helpers/PlexServer';
+import PlexClient from './helpers/PlexClient';
+
 const PlexConnection = require('./helpers/PlexConnection.js');
-const PlexServer = require('./helpers/PlexServer.js');
-const PlexClient = require('./helpers/PlexClient.js');
 
-const PlexAuth = new PlexAuthMaker();
 
 export default {
   PLEX_LOGIN_TOKEN: async ({ commit, dispatch, rootGetters }, token) => {
-    const config = PlexAuth.getRequestConfig(token, 5000);
+    const config = plexauth.getRequestConfig(token, 5000);
     config.headers['X-Plex-Client-Identifier'] = rootGetters['settings/GET_CLIENTIDENTIFIER'];
 
     try {
@@ -40,20 +40,18 @@ export default {
     }
     try {
       const { data } = await axios.get('https://plex.tv/api/resources?includeHttps=1', {
-        ...PlexAuth.getRequestConfig(state.user.authToken, 5000),
-        transformResponse: parser.parse,
+        ...plexauth.getRequestConfig(state.user.authToken, 5000),
+        transformResponse: xmlutils.parseXML,
       });
-      console.log(data);
 
-      data.MediaContainer.Device.forEach(({ $: device, Connection: connections }) => {
+      data.MediaContainer[0].Device.forEach((device) => {
       // Create a temporary array of object:PlexConnection
       // Exclude local IPs starting with 169.254
-        const tempConnectionsArray = connections
-          .filter(({ $: connection }) => !connection.address.startsWith('169.254'))
-          .flatMap(({ $: connection }) => {
+        const tempConnectionsArray = device.Connection
+          .filter((connection) => !connection.address.startsWith('169.254'))
+          .flatMap((connection) => {
             const tempConnection = new PlexConnection();
             Object.assign(tempConnection, connection);
-
             if (connection.local === '1' && connection.uri.indexOf('plex') > -1) {
               const rawConnection = new PlexConnection();
               Object.assign(rawConnection, connection);
@@ -65,6 +63,10 @@ export default {
 
             return [tempConnection];
           });
+
+        tempConnectionsArray.sort(
+          (con1, con2) => parseInt(con1.port, 10) - parseInt(con2.port, 10),
+        );
 
         // If device is a player
         if (device.provides.indexOf('player') !== -1) {
@@ -189,10 +191,12 @@ export default {
       throw new Error('Sign in before getting devices');
     }
 
-    const { data } = await axios.get('https://plex.tv/pms/servers.xml',
-      PlexAuth.getRequestConfig(token, 5000));
-    const result = await parser.parse(data);
-    state.user.servers = result.MediaContainer.Server;
+    const { data } = await axios.get('https://plex.tv/pms/servers.xml', {
+      ...plexauth.getRequestConfig(token, 5000),
+      transformResponse: xmlutils.parseXML,
+    });
+
+    state.user.servers = data.MediaContainer.Server;
   },
 
   PLEX_CHECK_AUTH: async ({ state, dispatch, getters }, authToken) => {

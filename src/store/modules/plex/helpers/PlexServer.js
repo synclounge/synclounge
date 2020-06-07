@@ -1,8 +1,6 @@
 import axios from 'axios';
-
-const _PlexAuth = require('./PlexAuth.js');
-
-const PlexAuth = new _PlexAuth();
+import promiseutils from '@/utils/promiseutils';
+import plexauth from './PlexAuth';
 
 
 class PlexServer {
@@ -47,7 +45,7 @@ class PlexServer {
             return reject(new Error('Failed to find a connection'));
           }
         }
-        const options = PlexAuth.getApiOptions('', this.accessToken, 15000, 'GET');
+        const options = plexauth.getApiOptions('', this.accessToken, 15000, 'GET');
         axios
           .get(this.chosenConnection.uri + command, {
             params,
@@ -66,11 +64,10 @@ class PlexServer {
     });
   }
 
-  async hitApiTestConnection(command, connection) {
-    const _url = connection.uri + command;
-    const config = PlexAuth.getRequestConfig(this.accessToken, 7500);
-    const { data } = await axios.get(_url, config);
-    return data;
+  hitApiTestConnection(command, connection) {
+    const url = `${connection.uri}${command}`;
+    const config = plexauth.getRequestConfig(this.accessToken, 7500);
+    return axios.get(url, config);
   }
 
   setChosenConnection(con) {
@@ -81,34 +78,30 @@ class PlexServer {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
-    let resolved = false;
 
-    return new Promise(async (resolve, reject) => {
-      await Promise.all(
-        this.plexConnections.map(
-          async (connection, index) =>
-            /*eslint-disable */
-            new Promise(async (_resolve, _reject) => {
-              try {
-                let result = await this.hitApiTestConnection('', connection);
-                if (result) {
-                  resolved = true;
-                  // console.log('Succesfully connected to', server, 'via', connection)
-                  this.setValue('chosenConnection', connection);
-                  resolve(true);
-                }
-                _resolve(false);
-              } catch (e) {
-                _resolve(false);
-              }
-            }),
-          /* eslint-enable */
-        ),
+    // Prefer secure connections first.
+    const secureConnections = this.plexConnections.filter((connection) => connection.protocol === 'https');
+
+    try {
+      const secureConnection = promiseutils.any(
+        secureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)),
       );
-      if (!resolved) {
-        reject(new Error('Unable to find a connection'));
-      }
-    });
+      this.setValue('chosenConnection', secureConnection);
+      return true;
+    } catch (e) {
+      console.log('No secure connections found');
+    }
+
+    // If we are using synclounge over https, we can't access connections over http because
+    // most modern web browsers block mixed content
+    if (window.location.protocol === 'http:') {
+      const insecureConnections = this.plexConnections.filter((connection) => connection.protocol === 'http');
+      const insecureConnection = promiseutils.any(insecureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)));
+      this.setValue('chosenConnection', insecureConnection);
+      return true;
+    }
+
+    throw new Error('Unable to find a connection');
   }
 
   // Functions for dealing with media

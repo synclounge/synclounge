@@ -32,7 +32,7 @@ window.EventBus = new Vue();
 window.EventBus.$on('command', (data) => {
   if (router.app.route.fullPath.indexOf('/player') === -1) {
     if (data.command === '/player/timeline/poll') {
-      return data.callback({
+      data.callback({
         key: null,
         ratingKey: null,
         time: 0,
@@ -41,7 +41,7 @@ window.EventBus.$on('command', (data) => {
         duration: 0,
         state: 'stopped',
       });
-    } if (data.command === '/player/playback/playMedia') {
+    } else if (data.command === '/player/playback/playMedia') {
       router.push({
         path: '/player',
         query: {
@@ -51,7 +51,8 @@ window.EventBus.$on('command', (data) => {
           offset: data.params.offset,
         },
       });
-      return data.callback(true);
+
+      data.callback(true);
     }
   }
 });
