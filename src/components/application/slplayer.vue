@@ -268,6 +268,9 @@ export default {
       'ARE_PLAYER_CONTROLS_SHOWN',
       'GET_PLAYER_UI',
     ]),
+    ...mapGetters('settings', [
+      'GET_SLPLAYERQUALITY',
+    ]),
 
     bigPlayButton() {
       // eslint-disable-next-line no-underscore-dangle
@@ -306,6 +309,10 @@ export default {
       'SET_PLAYER_CONFIGURATION',
       'SET_PLAYER_UI',
       'SET_PLAYER_UI_CONFIGURATION',
+    ]),
+
+    ...mapMutations('settings', [
+      
     ]),
 
     doManualSync() {
@@ -355,7 +362,7 @@ export default {
         immediate: true,
       });
 
-      this.$watch('GET_MAX_VIDEO_BITRATE', (newBitrate) => {
+      this.$watch('GET_SLPLAYERQUALITY', (newBitrate) => {
         this.eventbus.$emit('bitratechanged', newBitrate);
       }, {
         immediate: true,

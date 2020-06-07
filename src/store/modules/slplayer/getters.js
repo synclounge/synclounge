@@ -73,13 +73,6 @@ export default {
 
   GET_QUALITIES: () => qualities,
 
-  // TODO: fix this when the config PR is added
-  GET_MAX_VIDEO_BITRATE: (state, getters, rootState, rootGetters) => {
-    const qualityLabel = rootGetters.getSettingPTPLAYERQUALITY || JSON.parse(window.localStorage.getItem('PTPLAYERQUALITY'));
-    const quality = getters.GET_QUALITIES.find(({ label }) => label === qualityLabel);
-    return quality ? quality.maxVideoBitrate : null;
-  },
-
   GET_AUDIO_STREAM_ID: (state, getters) => {
     const selectedAudioStream = getters.GET_DECISION_STREAMS.find(stream => stream.streamType === '2' && stream.selected === '1');
     return selectedAudioStream ? parseInt(selectedAudioStream.id, 10) : 0;
@@ -134,10 +127,10 @@ export default {
     ...getters.GET_BASE_PARAMS,
   }),
 
-  GET_PLEX_PROFILE_EXTRAS: (state, getters) => {
+  GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
     const base = 'append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)';
-    return getters.GET_MAX_VIDEO_BITRATE
-      ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${getters.GET_MAX_VIDEO_BITRATE}&replace=true)`
+    return rootGetters['settings/GET_SLPLAYERQUALITY']
+      ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${rootGetters['settings/GET_SLPLAYERQUALITY']}&replace=true)`
       : base;
   },
 
@@ -153,7 +146,7 @@ export default {
     subtitleSize: 100,
     audioBoost: 100,
     location: getters.GET_PLEX_SERVER_LOCATION,
-    ...getters.GET_MAX_VIDEO_BITRATE && { maxVideoBitrate: getters.GET_MAX_VIDEO_BITRATE }, // only include if not null
+    ...rootGetters['settings/GET_SLPLAYERQUALITY'] && { maxVideoBitrate: rootGetters['settings/GET_SLPLAYERQUALITY'] }, // only include if not null
     addDebugOverlay: 0,
     autoAdjustQuality: 1,
     directStreamAudio: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,

@@ -15,7 +15,7 @@
           <v-stepper-step step="3">Sync</v-stepper-step>
         </v-stepper-header>
       </v-stepper>
-      <div v-if="!chosenClient">
+      <div v-if="!getChosenClient">
         <v-layout row wrap justify-center mb-2>
           <v-flex xs12 class="ml-4">
             <h2>Choose your Plex player</h2>
@@ -107,10 +107,10 @@
 </template>
 
 <script>
-import plexclient from './plexclient';
-import joinroom from './joinroom';
+import plexclient from './plexclient.vue';
+import joinroom from './joinroom.vue';
 
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions, mapGetters } from 'vuex';
 
 const moment = require('moment');
 
@@ -169,6 +169,7 @@ export default {
   },
   computed: {
     ...mapState(['plex']),
+    ...mapGetters(['getChosenClient']),
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':
@@ -178,9 +179,6 @@ export default {
         default:
           return false;
       }
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
     },
     isHttps() {
       return location.protocol === 'https:';
@@ -242,14 +240,14 @@ export default {
     },
   },
   watch: {
-    chosenClient(to, from) {
-      if (this.chosenClient && !from) {
+    getChosenClient(to, from) {
+      if (this.getChosenClient && !from) {
         this.$router.push('/joinroom');
       }
     },
   },
   methods: {
-    ...mapActions(['PLEX_GET_DEVICES']),
+    ...mapActions(['PLEX_GET_DEVICES', 'CHOOSE_CLIENT']),
     previewClient(client) {
       this.testClient = client;
       this.testClientErrorMsg = null;
@@ -261,7 +259,7 @@ export default {
       this.$store
         .dispatch('PLEX_CLIENT_FINDCONNECTION', client)
         .then(() => {
-          this.$store.commit('SET_CHOSENCLIENT', client);
+          this.CHOOSE_CLIENT(client);
           this.gotResponse = true;
         })
         .catch((e) => {
@@ -288,7 +286,7 @@ export default {
       return `${difference.humanize()} ago`;
     },
     refreshPlexDevices() {
-      this.$store.commit('SET_CHOSENCLIENT', null);
+      this.CHOOSE_CLIENT(null);
       this.$store.commit('REFRESH_PLEXDEVICES');
     },
   },

@@ -243,7 +243,7 @@ module.exports = function PlexClient() {
     }
     return this.seekTo(time);
   };
-  this.sync = function sync(hostTimeline, SYNCFLEXABILITY, SYNCMODE, POLLINTERVAL) {
+  this.sync = function sync(hostTimeline, SYNCFLEXIBILITY, SYNCMODE, POLLINTERVAL) {
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         await this.getTimeline();
@@ -262,8 +262,8 @@ module.exports = function PlexClient() {
       // console.log('Difference with host is', difference);
       const bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused';
 
-      if (parseInt(difference) > parseInt(SYNCFLEXABILITY) || (bothPaused && difference > 10)) {
-      // We need to seek!
+      if (parseInt(difference) > parseInt(SYNCFLEXIBILITY) || (bothPaused && difference > 10)) {
+        // We need to seek!
         this.lastSyncCommand = new Date().getTime();
         // Decide what seeking method we want to use
         if (SYNCMODE === 'cleanseek' || hostTimeline.playerState === 'paused') {

@@ -10,3 +10,7 @@ ptinvites.json
 db.sqlite
 .tmp
 .vscode
+settings.json
+
+# Optional npm cache directory
+.npm

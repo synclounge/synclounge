@@ -12,7 +12,8 @@
             <v-checkbox class="pt-2" label="Change my display name" v-model="HIDEUSERNAME"></v-checkbox>
             <v-text-field
               v-if="HIDEUSERNAME"
-              v-model="ALTUSERNAME"
+              :value="GET_ALTUSERNAME"
+              @change="SET_ALTUSERNAME"
               label="Alternative display name"
             ></v-text-field>
             <div class="text-xs-right">
@@ -22,7 +23,7 @@
         </v-layout>
         <div v-else>
           <h1
-            v-if="!token"
+            v-if="!GET_PLEX_AUTH_TOKEN"
             class="center-text pa-4"
           >To use SyncLounge you need to sign in with your Plex account.</h1>
           <div v-if="!preAuth || checkingAuth">
@@ -68,7 +69,8 @@
 </template>
 
 <script>
-const axios = require('axios');
+import axios from 'axios';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'signin',
@@ -76,15 +78,14 @@ export default {
     return {
       pin: null,
       ID: null,
-      token: null,
       status: 'startup',
       headers: {
         'X-Plex-Device': 'Web',
         'X-Plex-Device-Name': 'SyncLounge',
         'X-Plex-Product': 'SyncLounge',
-        'X-Plex-Version': this.$store.state.appVersion,
+        'X-Plex-Version': this.getAppVersion,
         'X-Plex-Platform-Version': '',
-        'X-Plex-Client-Identifier': this.$store.state.settings.CLIENTIDENTIFIER,
+        'X-Plex-Client-Identifier': this.GET_CLIENTIDENTIFIER
       },
       code: null,
       preAuth: false,
@@ -97,6 +98,15 @@ export default {
     };
   },
   methods: {
+    ...mapActions([
+      'PLEX_CHECK_AUTH',
+      'PLEX_LOGIN_TOKEN',
+    ]),
+    ...mapMutations('settings', [
+      'SET_HIDEUSERNAME',
+      'SET_ALTUSERNAME',
+      'SET_PLEX_AUTH_TOKEN',
+    ]),
     async openPopup() {
       this.openedWindow = window.open(this.url, '_blank');
       this.ticker = setInterval(async () => {
@@ -120,8 +130,8 @@ export default {
       }, this.interval);
     },
     async setAuth(authToken) {
-      window.localStorage.setItem('plexuser', JSON.stringify({ authToken }));
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
+      this.SET_PLEX_AUTH_TOKEN(authToken);
+      await this.PLEX_LOGIN_TOKEN(authToken);
       this.token = authToken;
       this.ready = true;
     },
@@ -137,94 +147,26 @@ export default {
     },
     async checkAuth(authToken) {
       this.checkingAuth = true;
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', authToken);
-      // Get stored authentication settings
-      const authentication = { ...this.$store.state.authentication };
-      // Authentication defaults to false
-      let authenticationPassed = false;
-
-      if (authentication) {
-        // Authenication via Plex mechanism
-        if (authentication.mechanism === 'plex') {
-          // Server authorization using server data
-          if (authentication.type.includes('server')) {
-            try {
-              // Retrieve and store the user's servers
-              await this.$store.dispatch('PLEX_GET_DEVICES', true);
-              // Get the user's servers
-              const servers = { ...this.$store.state.plex.servers };
-
-              // Compare servers against the authorized list
-              for (const id in servers) {
-                const server = servers[id];
-                if (authentication.authorized.includes(server.clientIdentifier)) {
-                  authenticationPassed = true;
-                }
-              }
-            } catch (e) {
-              console.error('An error occurred when authenticating with Plex: ', e);
-            }
-          }
-          // Authorization using user data
-          if (authentication.type.includes('user')) {
-            // Get the user object
-            const user = this.$store.state.plex.user;
-            // Compare the user's email against the authorized list
-            if (authentication.authorized.includes(user.email)) {
-              authenticationPassed = true;
-            }
-            // Compare the user's name against the authorized list
-            if (authentication.authorized.includes(user.username)) {
-              authenticationPassed = true;
-            }
-          }
-        }
-        // New authentication mechanisms can be added here
-        // else if (authentication.mechanism == 'new_mech' ) {
-        // }
-        // Authenication via an unsupported mechanism
-        else if (authentication.mechanism != 'none') {
-          console.error(
-            `Invalid authentication mechanism provided: '${
-              authentication.mechanism
-            }'. Reverting to default.`,
-          );
-          this.$store.state.authentication = {
-            mechanism: 'none',
-          };
-          authenticationPassed = true;
-        }
-        // Authenication mechanism isn't set. This should only happen when authentication mechanism is set to 'none'.
-        else {
-          console.log('No authentication set');
-          authenticationPassed = true;
-        }
-        this.checkingAuth = false;
-        return authenticationPassed;
-      }
-
-      return null;
+      const result = await this.PLEX_CHECK_AUTH(authToken);
+      this.checkingAuth = false;
+      return result;
     },
   },
   computed: {
-    store() {
-      return this;
-    },
+    ...mapGetters([ 'getAppVersion']),
+    ...mapGetters('settings', [
+      'GET_HIDEUSERNAME',
+      'GET_ALTUSERNAME',
+      'GET_PLEX_AUTH_TOKEN',
+      'GET_CLIENTIDENTIFIER',
+    ]),
     HIDEUSERNAME: {
       get() {
-        return this.$store.getters.getSettings.HIDEUSERNAME;
+        return this.GET_HIDEUSERNAME;
       },
       set(value) {
-        this.$store.commit('setSetting', ['HIDEUSERNAME', value]);
-      },
-    },
-    ALTUSERNAME: {
-      get() {
-        return this.$store.getters.getSettings.ALTUSERNAME;
-      },
-      set(value) {
-        this.$store.commit('setSetting', ['ALTUSERNAME', value]);
-      },
+         this.SET_HIDEUSERNAME(value);
+      }
     },
     sBrowser() {
       let sBrowser;
@@ -259,10 +201,7 @@ export default {
   async mounted() {
     let authToken = null;
     // Check for PlexToken set via SyncLounge or Plex
-    if (window.localStorage.getItem('myPlexAccessToken')) {
-      authToken = window.localStorage.getItem('myPlexAccessToken');
-    }
-    else if($cookies.get('mpt')) {
+    if($cookies.get('mpt')) {
       authToken = $cookies.get('mpt');
     }
 
@@ -272,7 +211,7 @@ export default {
           console.log('--- Check Auth mounted ---')
           const authenticated = await this.checkAuth(authToken);
           if (authenticated != null) {
-            if (authenticated == true) {
+            if (authenticated === true) {
               await this.setAuth(authToken);
               this.letsGo();
             } else {

@@ -86,9 +86,7 @@ export default {
   },
 
   CHANGE_MAX_VIDEO_BITRATE: async ({ commit, getters, dispatch }, bitrate) => {
-    // TODO: save to localStore persistently
-    const quality = getters.GET_QUALITIES.find(({ maxVideoBitrate }) => maxVideoBitrate === bitrate);
-    commit('setSettingPTPLAYERQUALITY', quality.label, { root: true });
+    commit('settings/SET_SLPLAYERQUALITY', bitrate, { root: true });
     return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
@@ -172,7 +170,8 @@ export default {
     }
   },
 
-  HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
+  HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }, e) => {
+    console.log(e);
     commit('setSettingPTPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
   },
 

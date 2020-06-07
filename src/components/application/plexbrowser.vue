@@ -26,7 +26,7 @@
         </v-layout>
         <v-layout row wrap v-if="searching || results.length > 0">
           <v-chip
-            v-for="server in plex.servers"
+            v-for="server in getPlex.servers"
             :key="server.machineIdentifier"
             outline
             class="green darken-3 white--text"
@@ -105,9 +105,9 @@
         </div>
       </div>
       <v-divider></v-divider>
-      <div class="pt-4" v-if="validLastServer && results.length == 0">
+      <div class="pt-4" v-if="GET_LASTSERVER && results.length == 0">
         <h4 v-if="subsetOnDeck().length > 0">
-          Continue watching from {{ lastServer.name }}
+          Continue watching from {{ GET_LASTSERVER.name }}
           <span
             style="float:right; font-size:5rem; user-select: none;"
           >
@@ -123,7 +123,7 @@
           <v-flex xs12 md3 class="pb-3 pa-2" v-for="content in subsetOnDeck()" :key="content.key">
             <plexthumb
               :content="content"
-              :server="lastServer"
+              :server="GET_LASTSERVER"
               type="art"
               @contentSet="setContent(content)"
             ></plexthumb>
@@ -136,7 +136,7 @@
           <v-icon @click="PLEX_GET_DEVICES(true)" class="pl-2" small>refresh</v-icon>
         </h4>
         <v-layout row wrap>
-          <v-flex xs12 v-if="Object.keys(plex.servers).length === 0">
+          <v-flex xs12 v-if="Object.keys(getPlex.servers).length === 0">
             <h5>No Plex Media Servers found. Make sure your server owner has shared their libraries with you!</h5>
           </v-flex>
           <v-flex
@@ -144,7 +144,7 @@
             lg4
             md6
             xl3
-            v-for="server in plex.servers"
+            v-for="server in getPlex.servers"
             :key="server.clientIdentifier"
             class="pa-2"
           >
@@ -186,8 +186,8 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
-import plexthumb from "./plexbrowser/plexthumb";
+import { mapGetters, mapActions } from "vuex";
+import plexthumb from "./plexbrowser/plexthumb.vue";
 
 const _ = require("lodash");
 
@@ -209,13 +209,13 @@ export default {
     },
     isConnectable(server) {
       return (
-        this.plex.servers[server.clientIdentifier] &&
-        this.plex.servers[server.clientIdentifier].chosenConnection
+        this.getPlex.servers[server.clientIdentifier] &&
+        this.getPlex.servers[server.clientIdentifier].chosenConnection
       );
     },
     async updateOnDeck() {
-      if (this.lastServer) {
-        this.onDeck = await this.lastServer.getOnDeck(0, 10);
+      if (this.GET_LASTSERVER) {
+        this.onDeck = await this.GET_LASTSERVER.getOnDeck(0, 10);
       }
     },
     subsetOnDeck(size) {
@@ -322,8 +322,8 @@ export default {
       this.results = [];
       this.serversResponded = 0;
       const storedWord = this.searchWord;
-      for (const i in this.plex.servers) {
-        const server = this.plex.servers[i];
+      for (const i in this.getPlex.servers) {
+        const server = this.getPlex.servers[i];
         server.search(this.searchWord).then(serverSearchResults => {
           if (storedWord !== this.searchWord) {
             // Old data
@@ -340,7 +340,7 @@ export default {
           this.searchStatus = `Found ${this.results.length} results from ${
             this.serversResponded
           } servers`;
-          if (this.serversResponded === Object.keys(this.plex.servers).length) {
+          if (this.serversResponded === Object.keys(this.getPlex.servers).length) {
             this.searching = false;
           }
         });
@@ -373,9 +373,7 @@ export default {
     }
   },
   computed: {
-    plex() {
-      return this.$store.getters.getPlex;
-    },
+    ...mapGetters(['GET_LASTSERVER', 'getPlex']),
     onDeckItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
         case "xs":
@@ -391,22 +389,13 @@ export default {
       }
     },
     availableServers() {
-      const servers = this.plex.servers.filter(server => {
+      const servers = this.getPlex.servers.filter(server => {
         if (server.chosenConnection) {
           return true;
         }
         return false;
       });
       return servers;
-    },
-    validLastServer() {
-      return (
-        this.$store.getters.getSettings.LASTSERVER &&
-        this.plex.servers[this.$store.getters.getSettings.LASTSERVER]
-      );
-    },
-    lastServer() {
-      return this.plex.servers[this.$store.getters.getSettings.LASTSERVER];
     },
     onDeckUpStyle() {
       if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length) {

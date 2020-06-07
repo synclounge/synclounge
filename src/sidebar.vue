@@ -1,12 +1,12 @@
 <template>
   <v-container class="pa-0 pb-0" fill-height>
-    <v-layout v-if="ptRoom" row wrap style="background: rgba(30, 31, 50,0.6)">
+    <v-layout v-if="getRoom" row wrap style="background: rgba(30, 31, 50,0.6)">
       <v-flex xs12 style="height: 50vh">
         <v-flex xs12>
           <v-card style="background: linear-gradient(180deg,#1f1c2c,#182848); border-radius: 7px" class="pa-2 ma-3">
             <v-layout row wrap justify-space-between="" align-center>
               <v-flex xs6>
-                <h3 class="mb-0 pb-0 pa-0"> {{ ptRoom }}</h3>
+                <h3 class="mb-0 pb-0 pa-0"> {{ getRoom }}</h3>
               </v-flex>
               <v-flex xs2>
                 <v-menu>
@@ -21,8 +21,8 @@
                 </v-menu>
               </v-flex>
               <v-flex xs12>
-                <div v-if="ptUsers.length != 1" class="participant-count">
-                  {{ ptUsers.length }} people
+                <div v-if="getUsers.length != 1" class="participant-count">
+                  {{ getUsers.length }} people
                 </div>
                 <div v-else class="participant-count">
                   It's just you, invite some friends
@@ -35,7 +35,8 @@
                       class="pa-0 mt-2 party-pausing-label"
                       label="Party Pausing"
                       v-if="isHost(me)"
-                      v-model="partyPausing"
+                      :input-value="getPartyPausing"
+                      @change="updatePartyPausing"
                     ></v-switch>
                     <v-tooltip
                       bottom
@@ -45,15 +46,15 @@
                       <v-btn
                         color="primary"
                         slot="activator"
-                        :disabled="!partyPausing"
+                        :disabled="!canPause"
                         style="min-width: 0; float: right;"
-                        @click="sendPartyPauseLocal(playerState(host) === 'play_arrow')"
-                        v-if="playerState(host) !== 'stop'"
+                        @click="sendPartyPauseLocal(playerState(getHostUser) === 'play_arrow')"
+                        v-if="playerState(getHostUser) !== 'stop'"
                       >
-                        <v-icon v-if="playerState(host) === 'play_arrow'">pause</v-icon>
+                        <v-icon v-if="playerState(getHostUser) === 'play_arrow'">pause</v-icon>
                         <v-icon v-else>play_arrow</v-icon>
                       </v-btn>
-                      <span> Party Pausing is currently {{ partyPausing ? 'enabled' : 'disabled' }} by the host </span>
+                      <span> Party Pausing is currently {{ canPause ? 'enabled' : 'disabled' }} by the host </span>
                     </v-tooltip>
                   </v-flex>
                 </v-layout>
@@ -63,7 +64,7 @@
           <v-card style="background: #E5A00D; border-radius: 7px" class="pa-2 ma-3" v-if="me.role !== 'host' && this.$route.path.indexOf('/player') === -1">
             <v-layout row wrap justify-space-between="" align-center>
               <v-flex xs12 class="text-xs-center">
-                <span class="mb-0 pb-0 pa-0" style="color: rgb(44, 44, 49); "> Waiting for {{ hostUser().username }} to start</span>
+                <span class="mb-0 pb-0 pa-0" style="color: rgb(44, 44, 49); "> Waiting for {{ getHostUser.username }} to start</span>
               </v-flex>
             </v-layout>
           </v-card>
@@ -72,21 +73,21 @@
           <v-card style="background: linear-gradient(180deg,#1f1c2c,#182848)!important; border-radius: 7px" class="pa-1 ml-3 mr-3">
             <v-list-tile avatar style="height:4em" class="pl-1 pr-1 mb-0" tag="div">
               <v-list-tile-avatar>
-                <img v-bind:src="hostUser().avatarUrl" :style="getImgStyle(hostUser())">
-                  <v-icon v-if="hostUser().playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.5)">
-                    {{ playerState(hostUser()) }}
+                <img v-bind:src="getHostUser.avatarUrl" :style="getImgStyle(getHostUser)">
+                  <v-icon v-if="getHostUser.playerState !== 'playing'" style="font-size: 26px; opacity: 0.8; position: absolute;background-color: rgba(0,0,0,0.5)">
+                    {{ playerState(getHostUser) }}
                   </v-icon>
                 </img>
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-tooltip bottom color="rgb(44, 44, 49)" multi-line class="userlist">
                   <span slot="activator">
-                    <v-list-tile-title> {{ hostUser().username }} <span style="opacity: 0.6" v-if="hostUser().uuid === me.uuid"> (you) </span></v-list-tile-title>
-                    <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(hostUser()) }}</v-list-tile-sub-title>
+                    <v-list-tile-title> {{ getHostUser.username }} <span style="opacity: 0.6" v-if="getHostUser.uuid === me.uuid"> (you) </span></v-list-tile-title>
+                    <v-list-tile-sub-title style="opacity:0.6;color:white;font-size:70%">{{ getTitle(getHostUser) }}</v-list-tile-sub-title>
                   </span>
-                  Watching on {{ hostUser().playerProduct || 'Unknown Plex Client' }}
-                  <span v-if="plex.servers[hostUser().machineIdentifier]">
-                    <br />via {{ plex.servers[hostUser().machineIdentifier].name }}
+                  Watching on {{ getHostUser.playerProduct || 'Unknown Plex Client' }}
+                  <span v-if="plex.servers[getHostUser.machineIdentifier]">
+                    <br />via {{ plex.servers[getHostUser.machineIdentifier].name }}
                   </span>
                 </v-tooltip>
               </v-list-tile-content>
@@ -98,12 +99,12 @@
               </v-list-tile-action>
             </v-list-tile>
             <div class="pl-1 pr-1 pt-1 mt-0 pb-0 mb-0">
-              <span style="float: left; font-size:70%" class="ptuser-time pl-1">{{ getCurrent(hostUser()) }}</span>
-              <span style="float: right; font-size:70%" class="ptuser-maxTime pr-1">{{ getMax(hostUser()) }}</span>
-              <v-progress-linear class="pt-content-progress " :height="2" :value="percent(hostUser())"></v-progress-linear>
+              <span style="float: left; font-size:70%" class="ptuser-time pl-1">{{ getCurrent(getHostUser) }}</span>
+              <span style="float: right; font-size:70%" class="ptuser-maxTime pr-1">{{ getMax(getHostUser) }}</span>
+              <v-progress-linear class="pt-content-progress " :height="2" :value="percent(getHostUser)"></v-progress-linear>
             </div>
           </v-card>
-          <div v-for="user in ptUsers" v-bind:key="user.username">
+          <div v-for="user in getUsers" v-bind:key="user.username">
             <div class="pa-1 ml-3 mr-3" v-if="!isHost(user)">
               <v-list-tile avatar style="height:4em" class="pb-0 mb-0" tag="div">
                 <v-list-tile-avatar v-on:dblclick="transferHost(user.username)">
@@ -162,7 +163,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 import messages from '@/components/messages.vue';
 
@@ -175,7 +176,7 @@ export default {
       lastRecievedUpdate: new Date().getTime(),
       now: new Date().getTime(),
 
-      localPauseTimeout: false,
+      partyPauseCooldownRunning: false,
     };
   },
   mounted() {
@@ -184,7 +185,7 @@ export default {
     }, 250);
   },
   watch: {
-    ptUsers: {
+    getUsers: {
       deep: true,
       handler() {
         this.lastRecievedUpdate = new Date().getTime();
@@ -192,88 +193,9 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['getPartyPausing']),
-    plex() {
-      return this.$store.getters.getPlex;
-    },
-    me() {
-      return this.$store.state.me;
-    },
-    host() {
-      return this.$store.getters.getUsers.find(user => user.role === 'host');
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
-    validPlex() {
-      if (!this.$store.state.plex) {
-        return false;
-      }
-      return true;
-    },
-    validDevices() {
-      if (!this.plex) {
-        return false;
-      }
-      return this.plex.gotDevices;
-    },
-    showBrowser() {
-      return this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom;
-    },
-    isPTPlayer() {
-      return this.chosenClient && this.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10';
-    },
-    showMetadata() {
-      return (
-        !this.isPTPlayer &&
-        !this.showBrowser &&
-        this.chosenClient &&
-        this.chosenClient.clientPlayingMetadata
-      );
-    },
-    darkMode() {
-      return this.$store.getters.getSettingDARKMODE;
-    },
-    ptConnected() {
-      return this.$store.getters.getConnected;
-    },
-    ptServer() {
-      return this.$store.getters.getServer;
-    },
-    ptRoom() {
-      return this.$store.getters.getRoom;
-    },
-    ptPassword() {
-      return this.$store.getters.getPassword;
-    },
-    ptUsers() {
-      return this.$store.getters.getUsers;
-    },
-    userCount() {
-      const count = this.$store.getters.getUsers.length;
-      if (count === 1) {
-        return `${count} user`;
-      }
-      return `${count} users`;
-    },
-    playercount() {
-      if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${this.$store.state.plex.clients.length})`;
-      }
-      return '';
-    },
-    servercount() {
-      if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${this.$store.state.plex.servers.length})`;
-      }
-      return '';
-    },
-    showChatValue() {
-      if (this.$store.getters.getShownChat) {
-        return 'block';
-      }
-      return 'none';
-    },
+    ...mapState(['me']),
+    ...mapGetters(['getPartyPausing', 'getUsers', 'getRoom', 'getHostUser']),
+    ...mapGetters({plex: 'getPlex'}),
     serverDelay() {
       return Math.round(this.$store.state.synclounge.commands[
         Object.keys(this.$store.state.synclounge.commands).length - 1
@@ -282,28 +204,19 @@ export default {
     difference() {
       return Math.abs(this.now - this.lastRecievedUpdate);
     },
-    partyPausing: {
-      get() {
-        if (this.localPauseTimeout) return false;
-        return this.getPartyPausing();
-      },
-      set(value) {
-        this.updatePartyPausing(value);
-      },
+    canPause() {
+      return !this.partyPauseCooldownRunning && this.getPartyPausing;
     },
   },
   methods: {
-    ...mapActions(['updatePartyPausing', 'sendPartyPause']),
+    ...mapActions(['updatePartyPausing', 'sendPartyPause', 'transferHost']),
     isHost(user) {
       return user.role === 'host';
     },
-    hostUser() {
-      return this.ptUsers.find(u => u.role === 'host');
-    },
     sendPartyPauseLocal(isPause) {
-      this.localPauseTimeout = true;
+      this.partyPauseCooldownRunning = true;
       setTimeout(() => {
-        this.localPauseTimeout = false;
+        this.partyPauseCooldownRunning = false;
       }, 3000);
       this.sendPartyPause(isPause);
     },
@@ -328,9 +241,6 @@ export default {
         },
       ];
       return arr;
-    },
-    transferHost(username) {
-      this.$store.dispatch('transferHost', username);
     },
     async handleDisconnect() {
       await this.$store.dispatch('disconnectServer');

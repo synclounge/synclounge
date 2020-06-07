@@ -14,7 +14,6 @@ const state = () => ({
   plexServerId: null,
 
   mediaIndex: 0,
-  maxVideoBitrate: null,
 
   offsetMs: 0,
   playerState: 'buffering',

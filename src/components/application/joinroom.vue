@@ -30,13 +30,13 @@
           <v-flex
             xs12
             class="nicelist pa-4"
-            v-if="!context.getters.getConnected && recents && Object.keys(recents).length > 0"
+            v-if="!getConnected && this.GET_RECENT_ROOMS.length > 0"
             style="color:white !important;"
           >
             <v-subheader>Recent Rooms</v-subheader>
             <v-list class="pa-0">
-              <template v-for="(item, index) in recentsSorted">
-                <v-list-tile :key="index" v-if="index < 5" avatar @click="recentConnect(item)">
+              <template v-for="(item, index) in this.GET_RECENT_ROOMS.slice(0, 3)">
+                <v-list-tile :key="index" avatar @click="recentConnect(item)">
                   <v-list-tile-avatar>
                     <img :src="logos.light.small" style="width: 32px; height: auto" />
                   </v-list-tile-avatar>
@@ -53,7 +53,7 @@
                         color="white"
                         dark
                         slot="activator"
-                        @click.stop="removeHistoryItem(item)"
+                        @click.stop="REMOVE_RECENT_ROOM(item)"
                       >close</v-icon>Remove
                     </v-tooltip>
                   </v-list-tile-action>
@@ -64,7 +64,7 @@
           <v-flex
             xs12
             class="nicelist pa-4"
-            v-if="!context.getters.getConnected"
+            v-if="!getConnected"
             style="color:white !important"
           >
             <v-subheader>Select a server</v-subheader>
@@ -74,7 +74,7 @@
                 xs12
                 md3
                 lg2
-                v-for="server in ptservers"
+                v-for="server in GET_SYNCLOUNGE_SERVERS"
                 :key="server.url"
               >
                 <v-card height="300px" style="border-radius: 20px">
@@ -134,7 +134,8 @@
               v-if="selectedServer.url == 'custom'"
               name="input-2"
               label="Custom Server"
-              v-model="CUSTOMSERVER"
+              :value="GET_CUSTOM_SERVER_USER_INPUTTED_URL"
+              @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
               class="input-group pt-input"
             ></v-text-field>
             <v-layout row wrap v-if="selectedServer.url == 'custom'">
@@ -167,7 +168,7 @@
               </v-flex>
             </v-layout>
           </v-flex>
-          <v-flex xs12 v-if="context.getters.getConnected" class="text-xs-center">
+          <v-flex xs12 v-if="getConnected" class="text-xs-center">
             <v-layout row wrap>
               <v-flex xs12 md6 offset-md3>
                 <v-text-field
@@ -208,8 +209,9 @@
 
 <script>
 import Vue from 'vue';
+import axios from 'axios';
 
-const axios = require('axios');
+import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 export default {
   props: ['object'],
@@ -249,18 +251,17 @@ export default {
     if (this.slRoom && this.slConnected && this.slServer) {
       this.$router.push('/browse');
     }
-    this.getRecents();
   },
   methods: {
-    getRecents() {
-      this.recents = JSON.parse(window.localStorage.getItem('recentrooms'));
-    },
-    removeHistoryItem(item) {
-      const recents = JSON.parse(window.localStorage.getItem('recentrooms'));
-      delete recents[`${item.server}/${item.room}`];
-      window.localStorage.setItem('recentrooms', JSON.stringify(recents));
-      return this.getRecents();
-    },
+    ...mapMutations('settings', [
+      'SET_CUSTOM_SERVER_USER_INPUTTED_URL'
+    ]),
+    ...mapActions('settings', [
+      'REMOVE_RECENT_ROOM'
+    ]),
+    ...mapActions([
+      'socketConnect',
+    ]),
     connectionQualityClass(value) {
       if (value < 50) {
         return ['green--text', 'text--lighten-1'];
@@ -299,11 +300,10 @@ export default {
       }
     },
     async testConnections() {
-      this.ptservers.map((server) => {
+      this.GET_SYNCLOUNGE_SERVERS.map((server) => {
         if (server.url !== 'custom') {
           const start = new Date().getTime();
-          axios
-            .get(`${server.url}/health`)
+          axios.get(`${server.url}/health`)
             .then((res) => {
               Vue.set(this.results, server.url, {
                 alive: true,
@@ -327,8 +327,7 @@ export default {
         this.serverError = null;
         if (this.selectedServer.url !== 'custom') {
           this.connectionPending = true;
-          this.$store
-            .dispatch('socketConnect', { address: this.selectedServer.url })
+          this.socketConnect({ address: this.selectedServer.url })
             .then((result) => {
               this.connectionPending = false;
               if (result) {
@@ -357,18 +356,18 @@ export default {
       this.connectionPending = true;
       this.serverError = null;
       this.$store
-        .dispatch('socketConnect', { address: this.CUSTOMSERVER })
+        .dispatch('socketConnect', { address: this.GET_CUSTOM_SERVER_USER_INPUTTED_URL })
         .then((result) => {
           this.connectionPending = false;
           if (result) {
-            this.serverError = `Failed to connect to ${this.CUSTOMSERVER}`;
+            this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
           } else {
             this.serverError = null;
           }
         })
         .catch(() => {
           this.connectionPending = false;
-          this.serverError = `Failed to connect to ${this.CUSTOMSERVER}`;
+          this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
         });
     },
     async recentConnect(recent) {
@@ -381,7 +380,7 @@ export default {
       await this.attemptConnect();
     },
     async joinRoom() {
-      if (!this.context.getters.getConnected) {
+      if (!this.getConnected) {
         throw new Error('not connected to a server');
       }
       if (this.room === '' || this.room == null) {
@@ -390,7 +389,7 @@ export default {
       }
       try {
         await this.$store.dispatch('joinRoom', {
-          user: this.plex.user,
+          user: this.getPlex.user,
           roomName: this.room,
           password: this.password,
         });
@@ -412,50 +411,14 @@ export default {
     },
   },
   computed: {
-    plex() {
-      return this.$store.state.plex;
-    },
+    ...mapGetters(['GET_SYNCLOUNGE_SERVERS', 'getConnected', 'getPlex']),
+    ...mapGetters('settings', [
+      'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
+      'GET_RECENT_ROOMS',
+    ]),
     logo() {
       return this.logos.light.long;
-    },
-    context() {
-      return this.$store;
-    },
-    recentsSorted() {
-      if (!this.recents) {
-        return [];
-      }
-      let arr = [];
-      for (const i in this.recents) {
-        const item = this.recents[i];
-        arr.push(item);
-      }
-      arr = arr.sort((a, b) => b.time - a.time);
-      if (arr.length > 3) {
-        return arr.slice(0, 3);
-      }
-      return arr;
-    },
-    CUSTOMSERVER: {
-      get() {
-        if (!this.$store.getters.getSettings.CUSTOMSERVER) {
-          return 'http://';
-        }
-        return this.$store.getters.getSettings.CUSTOMSERVER;
-      },
-      set(value) {
-        this.$store.commit('setSetting', ['CUSTOMSERVER', value]);
-      },
-    },
-    ptservers() {
-      if (typeof this.$store.getters.getSettings.SERVERS === 'string') {
-        return JSON.parse(this.$store.getters.getSettings.SERVERS);
-      }
-      return this.$store.getters.getSettings.SERVERS;
     },
   },
 };
 </script>
-<style>
-
-</style>
