@@ -35,8 +35,7 @@
             >
               <img
                 :src="GET_THUMB_URL"
-                class="elevation-20"
-                style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto;"
+                class="elevation-20 plex-thumb"
               >
               <v-flex class="pl-3">
                 <v-container
@@ -136,8 +135,7 @@
           >
             <img
               :src="GET_THUMB_URL"
-              class="elevation-20"
-              style="height: 80px; width: auto; vertical-align: middle; margin-left: auto; margin-right: auto"
+              class="elevation-20 plex-thumb"
             >
             <v-flex class="pl-2">
               <v-container
@@ -212,7 +210,6 @@ import {
 } from 'vuex';
 import slplayer from '@/store/modules/slplayer';
 
-import messages from '@/components/messages.vue';
 
 import 'shaka-player/dist/controls.css';
 
@@ -223,17 +220,12 @@ import MediaSelectionFactory from '@/player/ui/mediaselection';
 import CloseButtonFactory from '@/player/ui/closebutton';
 import Forward30ButtonFactory from '@/player/ui/forward30button';
 import Replay10ButtonFactory from '@/player/ui/replay10button';
-import plexthumb from './plexbrowser/plexthumb.vue';
 
 shaka.log.setLevel(shaka.log.Level.WARNING);
 shaka.polyfill.installAll();
 
 export default {
   name: 'Slplayer',
-  components: {
-    plexthumb, messages,
-  },
-
   data() {
     return {
       eventbus: window.EventBus,
@@ -276,6 +268,42 @@ export default {
     };
   },
 
+  computed: {
+    ...mapState(['manualSyncQueued', 'me']),
+    ...mapGetters('slplayer', [
+      'GET_METADATA',
+      'GET_SUBTITLE_STREAMS',
+      'GET_AUDIO_STREAMS',
+      'GET_QUALITIES',
+      'GET_AUDIO_STREAM_ID',
+      'GET_SUBTITLE_STREAM_ID',
+      'GET_MEDIA_LIST',
+      'GET_MEDIA_INDEX',
+      'GET_THUMB_URL',
+      'GET_PLEX_SERVER',
+      'GET_TITLE',
+      'GET_SECONDARY_TITLE',
+      'GET_PLAYER_STATE',
+      'GET_PLAYER',
+      'ARE_PLAYER_CONTROLS_SHOWN',
+      'GET_PLAYER_UI',
+    ]),
+    ...mapGetters('settings', [
+      'GET_SLPLAYERQUALITY',
+    ]),
+
+    bigPlayButton() {
+      // eslint-disable-next-line no-underscore-dangle
+      return this.GET_PLAYER_UI.getControls().playButton_.button;
+    },
+
+    smallPlayButton() {
+      // eslint-disable-next-line no-underscore-dangle
+      return this.GET_PLAYER_UI.getControls().elements_
+        .find((element) => element instanceof shaka.ui.SmallPlayButton).button;
+    },
+  },
+
   watch: {
     GET_PLAYER_STATE(playerState) {
       if (playerState === 'stopped') {
@@ -283,6 +311,7 @@ export default {
       }
     },
   },
+
 
   beforeCreate() {
     if (!this.$store.state.slplayer) {
@@ -340,42 +369,6 @@ export default {
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
     this.$store.unregisterModule('slplayer');
-  },
-
-  computed: {
-    ...mapState(['manualSyncQueued', 'me']),
-    ...mapGetters('slplayer', [
-      'GET_METADATA',
-      'GET_SUBTITLE_STREAMS',
-      'GET_AUDIO_STREAMS',
-      'GET_QUALITIES',
-      'GET_AUDIO_STREAM_ID',
-      'GET_SUBTITLE_STREAM_ID',
-      'GET_MEDIA_LIST',
-      'GET_MEDIA_INDEX',
-      'GET_THUMB_URL',
-      'GET_PLEX_SERVER',
-      'GET_TITLE',
-      'GET_SECONDARY_TITLE',
-      'GET_PLAYER_STATE',
-      'GET_PLAYER',
-      'ARE_PLAYER_CONTROLS_SHOWN',
-      'GET_PLAYER_UI',
-    ]),
-    ...mapGetters('settings', [
-      'GET_SLPLAYERQUALITY',
-    ]),
-
-    bigPlayButton() {
-      // eslint-disable-next-line no-underscore-dangle
-      return this.GET_PLAYER_UI.getControls().playButton_.button;
-    },
-
-    smallPlayButton() {
-      // eslint-disable-next-line no-underscore-dangle
-      return this.GET_PLAYER_UI.getControls().elements_
-        .find((element) => element instanceof shaka.ui.SmallPlayButton).button;
-    },
   },
 
   methods: {
@@ -504,7 +497,8 @@ export default {
 
   .hoverBar {
     position: absolute;
-    background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),color-stop(60%,rgba(0,0,0,.35)),to(transparent));
+    background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),
+      color-stop(60%,rgba(0,0,0,.35)),to(transparent));
     background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent)
   }
   .fade-enter-active, .fade-leave-active {
@@ -513,6 +507,14 @@ export default {
 
   .fade-enter, .fade-leave-to {
     opacity: 0;
+  }
+
+  .plex-thumb {
+    height: 80px;
+    width: auto;
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
   }
 </style>
 
