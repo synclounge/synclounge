@@ -5,38 +5,40 @@ const _PlexAuth = require('./PlexAuth.js');
 const PlexAuth = new _PlexAuth();
 
 
-module.exports = function PlexServer() {
-  this.name = '';
-  this.product = '';
-  this.productVersion = '';
-  this.platform = '';
-  this.platformVersion = '';
-  this.device = '';
-  this.clientIdentifier = '';
-  this.createdAt = '';
-  this.lastSeenAt = '';
-  this.provides = '';
-  this.owned = '';
-  this.httpsRequired = '';
-  this.ownerId = '';
-  this.accessToken = '';
-  this.sourceTitle = '';
-  this.synced = '';
-  this.relay = '';
-  this.publicAddressMatches = '';
-  this.presence = '';
-  this.plexConnections = '';
-  this.chosenConnection = null;
+class PlexServer {
+  constructor() {
+    this.name = '';
+    this.product = '';
+    this.productVersion = '';
+    this.platform = '';
+    this.platformVersion = '';
+    this.device = '';
+    this.clientIdentifier = '';
+    this.createdAt = '';
+    this.lastSeenAt = '';
+    this.provides = '';
+    this.owned = '';
+    this.httpsRequired = '';
+    this.ownerId = '';
+    this.accessToken = '';
+    this.sourceTitle = '';
+    this.synced = '';
+    this.relay = '';
+    this.publicAddressMatches = '';
+    this.presence = '';
+    this.plexConnections = '';
+    this.chosenConnection = null;
 
-  this.commit = null;
+    this.commit = null;
+  }
 
-  this.setValue = function (key, value) {
+  setValue(key, value) {
     this[key] = value;
     this.commit('PLEX_SERVER_SET_VALUE', [this, key, value]);
-  };
+  }
 
   // Functions
-  this.hitApi = function (command, params) {
+  hitApi(command, params) {
     return new Promise(async (resolve, reject) => {
       try {
         if (!this.chosenConnection) {
@@ -62,17 +64,20 @@ module.exports = function PlexServer() {
         reject(e);
       }
     });
-  };
-  this.hitApiTestConnection = async function (command, connection) {
+  }
+
+  async hitApiTestConnection(command, connection) {
     const _url = connection.uri + command;
     const config = PlexAuth.getRequestConfig(this.accessToken, 7500);
     const { data } = await axios.get(_url, config);
     return data;
-  };
-  this.setChosenConnection = function (con) {
+  }
+
+  setChosenConnection(con) {
     this.chosenConnection = con;
-  };
-  this.findConnection = function () {
+  }
+
+  findConnection() {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
@@ -104,26 +109,26 @@ module.exports = function PlexServer() {
         reject(new Error('Unable to find a connection'));
       }
     });
-  };
+  }
 
   // Functions for dealing with media
-  this.search = async function (searchTerm) {
+  async search(searchTerm) {
     // This function hits the PMS using the /search endpoint and returns what the server returns if valid
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       const result = await this.hitApi('/search', { query: searchTerm });
       const validResults = [];
       if (result && result.MediaContainer) {
         if (result.MediaContainer.Metadata) {
-          for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
+          for (let i = 0; i < result.MediaContainer.Metadata.length; i += 1) {
             validResults.push(result.MediaContainer.Metadata[i]);
           }
         }
       }
       return resolve(validResults);
     });
-  };
+  }
 
-  this.getMediaByRatingKey = async function (ratingKey) {
+  async getMediaByRatingKey(ratingKey) {
     // This function hits the PMS and returns the item at the ratingKey
     try {
       const data = await this.hitApi(`/library/metadata/${ratingKey}`, {});
@@ -140,19 +145,22 @@ module.exports = function PlexServer() {
       return false;
     }
     // return this.handleMetadata(data)
-  };
-  this.markWatchedByRatingKey = function (ratingKey) {
+  }
+
+  markWatchedByRatingKey(ratingKey) {
     return this.hitApi('/:/scrobble', {
       identifier: 'com.plexapp.plugins.library',
       key: ratingKey,
     });
-  };
-  this.getPostplay = function (ratingKey) {
+  }
+
+  getPostplay(ratingKey) {
     return this.hitApi(`/hubs/metadata/${ratingKey}/postplay`, {
       'X-Plex-Token': this.accessToken,
     });
-  };
-  this.getUrlForLibraryLoc = function (location, width, height, blur) {
+  }
+
+  getUrlForLibraryLoc(location, width, height, blur) {
     if (!(blur > 0)) {
       blur = 0;
     }
@@ -162,8 +170,9 @@ module.exports = function PlexServer() {
       }&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
     }
     return '';
-  };
-  this.getRandomItem = async function () {
+  }
+
+  async getRandomItem() {
     try {
       const data = await this.getAllLibraries();
       if (!data || !data.MediaContainer || !data.MediaContainer.Directory) {
@@ -182,8 +191,9 @@ module.exports = function PlexServer() {
     } catch (e) {
       throw new Error(e);
     }
-  };
-  this.getAllLibraries = async function () {
+  }
+
+  async getAllLibraries() {
     try {
       const data = await this.hitApi('/library/sections', {});
       if (data && data.MediaContainer) {
@@ -195,8 +205,9 @@ module.exports = function PlexServer() {
     } catch (e) {
       return false;
     }
-  };
-  this.getLibraryContents = async function (key, start, size) {
+  }
+
+  async getLibraryContents(key, start, size) {
     try {
       const data = await this.hitApi(`/library/sections/${key}/all`, {
         'X-Plex-Container-Start': start,
@@ -212,24 +223,28 @@ module.exports = function PlexServer() {
     } catch (e) {
       return false;
     }
-  };
-  this.getRecentlyAddedAll = function (start, size) {
+  }
+
+  getRecentlyAddedAll() {
     return this.hitApi('/library/recentlyAdded', {});
-  };
-  this.getOnDeck = function (start, size) {
+  }
+
+  getOnDeck(start, size) {
     return this.hitApi('/library/onDeck', {
       'X-Plex-Container-Start': start,
       'X-Plex-Container-Size': size,
     });
-  };
-  this.getRelated = function (ratingKey, size) {
+  }
+
+  getRelated(ratingKey, size) {
     ratingKey = ratingKey.replace('/library/metadata/', '');
     return this.hitApi(`/hubs/metadata/${ratingKey}/related`, {
       excludeFields: 'summary',
       count: size,
     });
-  };
-  this.getSeriesData = function (ratingKey) {
+  }
+
+  getSeriesData(ratingKey) {
     return this.hitApi(`/library/metadata/${ratingKey}`, {
       includeConcerts: 1,
       includeExtras: 1,
@@ -239,9 +254,9 @@ module.exports = function PlexServer() {
       asyncRefreshAnalysis: 1,
       asyncRefreshLocalMediaAgent: 1,
     });
-  };
+  }
 
-  this.getSeriesChildren = async function (ratingKey, start, size, excludeAllLeaves, library) {
+  async getSeriesChildren(ratingKey, start, size, excludeAllLeaves, library) {
     try {
       const data = await this.hitApi(`/library/metadata/${ratingKey}/children`, {
         'X-Plex-Container-Start': start,
@@ -249,7 +264,7 @@ module.exports = function PlexServer() {
         excludeAllLeaves,
       });
       if (library) {
-        for (let i = 0; i < data.MediaContainer.Metadata.length; i++) {
+        for (let i = 0; i < data.MediaContainer.Metadata.length; i += 1) {
           data.MediaContainer.Metadata[i].librarySectionID = library;
           // this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey,
           // data.MediaContainer.Metadata[i]])
@@ -259,9 +274,9 @@ module.exports = function PlexServer() {
     } catch (e) {
       return false;
     }
-  };
+  }
 
-  this.handleMetadata = function (result) {
+  handleMetadata(result) {
     // This data is used in our router breadcrumbs
     if (result) {
       if (
@@ -269,7 +284,7 @@ module.exports = function PlexServer() {
         && result.MediaContainer.Metadata
         && result.MediaContainer.Metadata.length > 0
       ) {
-        for (let i = 0; i < result.MediaContainer.Metadata.length; i++) {
+        for (let i = 0; i < result.MediaContainer.Metadata.length; i += 1) {
           result.MediaContainer.Metadata[i].machineIdentifier = this.clientIdentifier;
           const item = result.MediaContainer.Metadata[i];
           if (result.MediaContainer.Metadata[i].ratingKey) {
@@ -313,5 +328,7 @@ module.exports = function PlexServer() {
       }
       return result.MediaContainer.Metadata;
     }
-  };
-};
+  }
+}
+
+export default PlexServer;

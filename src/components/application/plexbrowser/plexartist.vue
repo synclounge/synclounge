@@ -70,8 +70,8 @@
           wrap
         >
           <v-flex
-            v-for="content in contents.MediaContainer.Metadata"
-            :key="content"
+            v-for="subContent in contents.MediaContainer.Metadata"
+            :key="subContent"
             xs6
             md3
             xl1
@@ -79,11 +79,11 @@
             class="pb-3"
           >
             <plexthumb
-              :content="content"
+              :content="subContent"
               :server="server"
               type="thumb"
               full-title
-              @contentSet="setContent(content)"
+              @contentSet="setContent(subContent)"
             />
           </v-flex>
         </v-layout>
@@ -105,8 +105,8 @@
 </template>
 
 <script>
-import plexcontent from './plexcontent';
-import plexalbum from './plexalbum';
+import plexcontent from './plexcontent.vue';
+import plexalbum from './plexalbum.vue';
 import plexthumb from './plexthumb.vue';
 
 export default {
@@ -115,7 +115,22 @@ export default {
     plexthumb,
     plexalbum,
   },
-  props: ['library', 'server', 'content'],
+  props: {
+    library: {
+      type: Object,
+      default: () => {},
+    },
+
+    server: {
+      type: Object,
+      default: () => {},
+    },
+
+    content: {
+      type: Object,
+      default: () => {},
+    },
+  },
   data() {
     return {
       browsingContent: null,
@@ -126,8 +141,10 @@ export default {
   },
   computed: {
     getArtUrl() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(
         this.contents.MediaContainer.banner,
         w / 2,
@@ -136,8 +153,10 @@ export default {
       );
     },
     getThumb() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(
         this.contents.MediaContainer.thumb,
         w / 1,
@@ -170,8 +189,10 @@ export default {
       this.browsingContent = content;
     },
     setBackground() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
 
       this.$store.commit(
         'SET_BACKGROUND',

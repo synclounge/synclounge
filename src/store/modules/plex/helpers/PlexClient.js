@@ -7,55 +7,59 @@ const _PlexAuth = require('./PlexAuth.js');
 const PlexAuth = new _PlexAuth();
 const stringSimilarity = require('string-similarity');
 
-module.exports = function PlexClient() {
-  this.commandId = 0;
-  this.name = null;
-  this.product = null;
-  this.productVersion = null;
-  this.platform = null;
-  this.platformVersion = null;
-  this.device = null;
-  this.clientIdentifier = null;
-  this.createdAt = null;
-  this.lastSeenAt = null;
-  this.provides = null;
-  this.owned = null;
-  this.publicAddressMatches = null;
-  this.presence = null;
-  this.plexConnections = null;
-  this.chosenConnection = null;
-  this.httpServer = null;
-  this.tempId = null;
-  this.events = new EventEmitter();
-  this.labels = [];
+class PlexClient {
+  constructor() {
+    this.commandId = 0;
+    this.name = null;
+    this.product = null;
+    this.productVersion = null;
+    this.platform = null;
+    this.platformVersion = null;
+    this.device = null;
+    this.clientIdentifier = null;
+    this.createdAt = null;
+    this.lastSeenAt = null;
+    this.provides = null;
+    this.owned = null;
+    this.publicAddressMatches = null;
+    this.presence = null;
+    this.plexConnections = null;
+    this.chosenConnection = null;
+    this.httpServer = null;
+    this.tempId = null;
+    this.events = new EventEmitter();
+    this.labels = [];
 
-  this.lastSyncCommand = 0;
+    this.lastSyncCommand = 0;
 
-  this.userData = null;
+    this.userData = null;
 
-  // Latest objects for reference in the future
-  this.lastRatingKey = null;
-  this.lastTimelineObject = null;
-  this.oldTimelineObject = null;
-  this.lastTimeline = null;
-  this.oldTimeline = null;
-  this.clientPlayingMetadata = null;
-  this.lastSubscribe = 0;
-  this.connectedstatus = 'fresh';
+    // Latest objects for reference in the future
+    this.lastRatingKey = null;
+    this.lastTimelineObject = null;
+    this.oldTimelineObject = null;
+    this.lastTimeline = null;
+    this.oldTimeline = null;
+    this.clientPlayingMetadata = null;
+    this.lastSubscribe = 0;
+    this.connectedstatus = 'fresh';
 
-  this.eventbus = window.EventBus; // We will use this to communicate with the SLPlayer
-  this.commit = null;
-  this.dispatch = null;
+    this.eventbus = window.EventBus; // We will use this to communicate with the SLPlayer
+    this.commit = null;
+    this.dispatch = null;
 
-  let previousTimeline = {};
-  const differenceCache = [];
+    let previousTimeline = {};
+    const differenceCache = [];
 
-  this.setValue = function (key, value) {
+    this.uuid = this.generateGuid();
+  }
+
+  setValue (key, value) {
     this[key] = value;
     this.commit('PLEX_CLIENT_SET_VALUE', [this, key, value]);
   };
 
-  this.generateGuid = function () {
+  generateGuid () {
     function s4() {
       return Math.floor((1 + Math.random()) * 0x10000)
         .toString(16)
@@ -64,9 +68,8 @@ module.exports = function PlexClient() {
 
     return `${s4() + s4()}-${s4()}`;
   };
-  this.uuid = this.generateGuid();
 
-  this.hitApi = async function (command, params, connection, needResponse, dontSub) {
+  async hitApi (command, params, connection, needResponse, dontSub) {
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       return new Promise(async (resolve, reject) => {
         // We are using the SyncLounge Player
@@ -110,7 +113,7 @@ module.exports = function PlexClient() {
     return true;
   };
 
-  this.getTimeline = function () {
+  getTimeline () {
     return new Promise(async (resolve, reject) => {
       let data;
       try {
@@ -126,7 +129,7 @@ module.exports = function PlexClient() {
     // Get the timeline object from the client
   };
 
-  this.updateTimelineObject = function (result) {
+  updateTimelineObject (result) {
     // Check if we are the SLPlayer
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       // SLPLAYER
@@ -164,24 +167,28 @@ module.exports = function PlexClient() {
     // this.setValue('lastTimelineObject', videoTimeline)
     return videoTimeline;
   };
-  this.pressPlay = function () {
+
+  pressPlay () {
     // Press play on the client
     return this.hitApi('/player/playback/play', { wait: 0 });
   };
 
-  this.pressPause = function () {
+  pressPause  () {
     // Press pause on the client
     return this.hitApi('/player/playback/pause', { wait: 0 });
   };
-  this.pressStop = function () {
+
+  pressStop () {
     // Press pause on the client
     return this.hitApi('/player/playback/stop', { wait: 0 });
   };
-  this.seekTo = function (time, params) {
+
+  seekTo (time, params) {
     // Seek to a time (in ms)
     return this.hitApi('/player/playback/seekTo', { wait: 0, offset: Math.round(time), ...params });
   };
-  this.waitForMovement = function (startTime) {
+
+  waitForMovement (startTime) {
     return new Promise((resolve, reject) => {
       let time = 500;
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
@@ -197,7 +204,8 @@ module.exports = function PlexClient() {
       }, time);
     });
   };
-  this.skipAhead = function (current, duration) {
+
+  skipAhead  (current, duration) {
     return new Promise(async (resolve, reject) => {
       const startedAt = new Date().getTime();
       const now = this.lastTimelineObject.time;
@@ -212,13 +220,15 @@ module.exports = function PlexClient() {
       resolve();
     });
   };
-  this.cleanSeek = function (time, isSoft) {
+
+  cleanSeek  (time, isSoft) {
     if (isSoft && this.clientIdentifier === 'PTPLAYER9PLUS10') {
       return this.seekTo(time, { softSeek: true });
     }
     return this.seekTo(time);
   };
-  this.sync = function sync(hostTimeline, SYNCFLEXIBILITY, SYNCMODE, POLLINTERVAL) {
+
+  sync (hostTimeline, SYNCFLEXIBILITY, SYNCMODE, POLLINTERVAL) {
     return new Promise(async (resolve, reject) => {
       if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
         await this.getTimeline();
@@ -268,7 +278,8 @@ module.exports = function PlexClient() {
       return resolve('No sync needed');
     });
   };
-  this.playMedia = async function (data) {
+
+  async playMedia  (data) {
     // Play a media item given a mediaId key and a server to play from
     // We need the following variables to build our paramaters:
     // MediaId Key, Offset, server MachineId,
@@ -309,7 +320,7 @@ module.exports = function PlexClient() {
     });
   };
 
-  this.playContentAutomatically = function (client, hostData, servers, offset) {
+  playContentAutomatically  (client, hostData, servers, offset) {
     // Automatically play content on the client searching all servers based on the title
     return new Promise(async (resolve, reject) => {
       // First lets find all of our playable items
@@ -387,9 +398,4 @@ module.exports = function PlexClient() {
       }
     });
   };
-  const wait = (ms) => new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(ms);
-    }, ms);
-  });
 };

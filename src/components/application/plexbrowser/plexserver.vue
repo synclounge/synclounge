@@ -206,8 +206,10 @@ export default {
         case 'md': return 12;
         case 'lg': return 12;
         case 'xl': return 12;
+        default: return 12;
       }
     },
+
     onDeckItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs': return 1;
@@ -215,17 +217,22 @@ export default {
         case 'md': return 3;
         case 'lg': return 4;
         case 'xl': return 4;
+        default: return 4;
       }
     },
+
     clientIdentifier() {
       return this.$route.params.machineIdentifier;
     },
+
     server() {
       return this.plex.servers[this.clientIdentifier];
     },
+
     plex() {
       return this.$store.getters.getPlex;
     },
+
     filteredLibraries() {
       const data = [];
       if (this.libraries) {
@@ -237,38 +244,49 @@ export default {
       }
       return data;
     },
+
     onDeckUpStyle() {
       if ((this.onDeckOffset + this.onDeckItemsPer) >= this.onDeck.MediaContainer.Metadata.length) {
         return {
           opacity: 0.5,
         };
       }
+
+      return {};
     },
+
     onDeckDownStyle() {
       if (this.onDeckOffset === 0) {
         return {
           opacity: 0.5,
         };
       }
+
+      return {};
     },
+
     recentlyAddedDownStyle() {
       if (this.recentlyAddedOffset === 0) {
         return {
           opacity: 0.5,
         };
       }
+
+      return {};
     },
+
     recentlyAddedUpStyle() {
-      if ((this.recentlyAddedOffset + this.recentItemsPer) >= this.recentlyAdded.MediaContainer.Metadata.length) {
+      if (this.recentlyAddedOffset + this.recentItemsPer
+        >= this.recentlyAdded.MediaContainer.Metadata.length) {
         return {
           opacity: 0.5,
         };
       }
-    },
 
+      return {};
+    },
   },
-  created() {
-  },
+
   async mounted() {
     this.server.getAllLibraries().then((data) => {
       if (data) {
@@ -277,25 +295,27 @@ export default {
         this.status = 'Error loading libraries!';
       }
     });
+
     this.server.getRecentlyAddedAll(0, 12).then((result) => {
       if (result) {
         this.recentlyAdded = result;
         this.setBackground();
       }
     });
+
     this.updateOnDeck();
   },
-  beforeDestroy() {
 
-  },
   methods: {
     setContent(content) {
       this.selectedItem = content;
     },
+
     setLibrary(library) {
       this.$router.push(`/browse/${this.server.clientIdentifier}/${library.key}`);
       // this.browsingLibrary = library
     },
+
     updateOnDeck() {
       this.server.getOnDeck(0, 10).then((result) => {
         if (result) {
@@ -303,106 +323,140 @@ export default {
         }
       });
     },
+
     onDeckDown() {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return false;
+        return;
       }
+
       if (this.onDeckOffset - this.onDeckItemsPer < 0) {
         this.onDeckOffset = 0;
       } else {
         this.onDeckOffset -= 4;
       }
     },
+
     onDeckUp() {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return false;
+        return;
       }
+
       if (this.onDeckOffset + this.onDeckItemsPer >= this.onDeck.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
         this.onDeckOffset += this.onDeckItemsPer;
       }
     },
+
     recentlyAddedUp() {
-      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
-        return false;
+      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer
+        || !this.recentlyAdded.MediaContainer.Metadata) {
+        return;
       }
-      if (this.recentlyAddedOffset + this.recentItemsPer >= this.recentlyAdded.MediaContainer.Metadata.length) {
+
+      if (this.recentlyAddedOffset + this.recentItemsPer
+        >= this.recentlyAdded.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
         this.recentlyAddedOffset += this.recentItemsPer;
       }
     },
+
     recentlyAddedDown() {
-      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
-        return false;
+      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer
+        || !this.recentlyAdded.MediaContainer.Metadata) {
+        return;
       }
+
       if (this.recentlyAddedOffset - this.recentItemsPer < 0) {
         this.recentlyAddedOffset = 0;
       } else {
         this.recentlyAddedOffset -= this.recentItemsPer;
       }
     },
+
     setBackground() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
 
       const randomItem = _.sample(this.recentlyAdded.MediaContainer.Metadata);
       const url = randomItem.art;
       this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6));
     },
+
     subsetOnDeck() {
       if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
         return [];
       }
-      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset, this.onDeckOffset + this.onDeckItemsPer);
+      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset,
+        this.onDeckOffset + this.onDeckItemsPer);
     },
+
     subsetRecentlyAdded() {
-      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer || !this.recentlyAdded.MediaContainer.Metadata) {
+      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer
+        || !this.recentlyAdded.MediaContainer.Metadata) {
         return [];
       }
-      return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset, this.recentlyAddedOffset + this.recentItemsPer);
+
+      return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset,
+        this.recentlyAddedOffset + this.recentItemsPer);
     },
+
     progress(content) {
-      let perc = (parseInt(content.viewOffset) / parseInt(content.duration)) * 100;
-      if (isNaN(perc)) {
+      let perc = (parseInt(content.viewOffset, 10) / parseInt(content.duration, 10)) * 100;
+      if (Number.isNaN(perc)) {
         perc = 0;
       }
       return `${perc}%`;
     },
+
     getArt(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1);
     },
+
     getArtLibrary(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1, 15);
     },
+
     getThumb(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4);
     },
+
     getTitleMovie(movie) {
       if (movie.year) {
         return `${movie.title} (${movie.year})`;
       }
       return movie.title;
     },
+
     getGrandparentThumb(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 4);
     },
+
     reset() {
       this.updateOnDeck();
       this.browsingLibrary = false;
       this.selectedItem = false;
       this.setBackground();
     },
-
   },
 };
 </script>

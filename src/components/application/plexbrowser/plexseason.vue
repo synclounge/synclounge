@@ -116,15 +116,12 @@
 </template>
 
 <script>
-import plexcontent from './plexcontent';
 import plexthumb from './plexthumb.vue';
 
 export default {
   components: {
-    plexcontent,
     plexthumb,
   },
-  props: ['library', 'server', 'content'],
   data() {
     return {
       browsingContent: null,
@@ -135,20 +132,28 @@ export default {
   },
   computed: {
     getArtUrl() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-      return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 2, h / 1, 2);
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
+      return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.banner,
+        w / 2, h / 1, 2);
     },
     getThumb() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
+
       return this.plexserver.getUrlForLibraryLoc(
-        this.contents.MediaContainer.thumb || this.contents.MediaContainer.grandparentThumb || this.contents.MediaContainer.parentThumb,
+        this.contents.MediaContainer.thumb || this.contents.MediaContainer.grandparentThumb
+          || this.contents.MediaContainer.parentThumb,
         w / 1,
         h / 2,
       );
     },
   },
+
   watch: {
     browsingContent() {
       if (!this.browsingContent) {
@@ -158,7 +163,8 @@ export default {
   },
   created() {
     // Hit the PMS endpoing /library/sections
-    this.plexserver.getSeriesChildren(this.$route.params.ratingKey, 0, 500, 1, this.$route.params.sectionId)
+    this.plexserver.getSeriesChildren(this.$route.params.ratingKey,
+      0, 500, 1, this.$route.params.sectionId)
       .then((result) => {
         if (result) {
           this.contents = result;
@@ -175,8 +181,10 @@ export default {
       this.browsingContent = content;
     },
     setBackground() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
 
       this.$store.commit('SET_BACKGROUND', this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.art, w / 4, h / 4, 2));
     },

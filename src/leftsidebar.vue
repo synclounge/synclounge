@@ -175,7 +175,7 @@
     >
       <donate
         :donate-dialog="donateDialog"
-        :on-close="() => this.donateDialog = false"
+        :on-close="donateDialog = false"
       />
     </v-dialog>
   </v-navigation-drawer>
@@ -302,20 +302,20 @@ export default {
       return user.role === 'host';
     },
     percent(user) {
-      let perc = (parseInt(user.time) / parseInt(user.maxTime)) * 100;
-      if (isNaN(perc)) {
+      let perc = (parseInt(user.time, 10) / parseInt(user.maxTime, 10)) * 100;
+      if (Number.isNaN(perc)) {
         perc = 0;
       }
       return perc;
     },
     getCurrent(user) {
-      if (isNaN(user.time)) {
+      if (Number.isNaN(user.time)) {
         return this.getTimeFromMs(0);
       }
       return this.getTimeFromMs(user.time);
     },
     getMax(user) {
-      if (isNaN(user.maxTime)) {
+      if (Number.isNaN(user.maxTime)) {
         return this.getTimeFromMs(0);
       }
       return this.getTimeFromMs(user.maxTime);

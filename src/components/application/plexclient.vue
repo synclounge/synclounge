@@ -23,7 +23,9 @@
           {{ label[0] }}
         </v-chip>
       </v-list-item-title>
-      <v-list-item-subtitle>{{ object.product }} - last seen {{ lastSeenAgo }}</v-list-item-subtitle>
+      <v-list-item-subtitle>
+        {{ object.product }} - last seen {{ lastSeenAgo }}
+      </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
 </template>
@@ -33,7 +35,21 @@ const moment = require('moment');
 
 export default {
   name: 'Plexclient',
-  props: ['object', 'selected', 'startup', 'sidebar'],
+  props: {
+    object: {
+      type: Object,
+      default: () => {},
+    },
+
+    selected: {
+      type: Boolean,
+    },
+
+    sidebar: {
+      type: Boolean,
+    },
+  },
+
   data: () => ({
     platformMap: {
       android: 'android',
@@ -97,7 +113,7 @@ export default {
     },
     lastSeenAgo() {
       const now = moment(new Date().getTime());
-      const end = moment.unix(parseInt(this.object.lastSeenAt));
+      const end = moment.unix(parseInt(this.object.lastSeenAt, 10));
       const difference = moment.duration(now.diff(end));
       return `${difference.humanize()} ago`;
     },

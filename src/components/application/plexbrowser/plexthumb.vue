@@ -120,21 +120,48 @@
 import VanillaTilt from 'vanilla-tilt';
 
 export default {
-  components: {},
-  props: [
-    'library',
-    'showServer',
-    'content',
-    'type',
-    'server',
-    'height',
-    'fullTitle',
-    'search',
-    'locked',
-    'img',
-    'bottomOnly',
-    'spoilerFilter',
-  ],
+  props: {
+    showServer: {
+      type: Boolean,
+    },
+
+    content: {
+      type: Object,
+      default: () => {},
+    },
+
+    type: {
+      type: String,
+      default: '',
+    },
+
+    server: {
+      type: Object,
+      default: () => {},
+    },
+
+    height: {
+      type: Number,
+      default: 0,
+    },
+
+    fullTitle: {
+      type: Boolean,
+    },
+
+    img: {
+      type: String,
+      default: '',
+    },
+
+    bottomOnly: {
+      type: Boolean,
+    },
+
+    spoilerFilter: {
+      type: Boolean,
+    },
+  },
   data() {
     return {
       fullheight: null,

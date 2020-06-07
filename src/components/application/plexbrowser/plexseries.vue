@@ -133,12 +133,10 @@
 </template>
 
 <script>
-import plexseason from './plexseason.vue';
 import plexthumb from './plexthumb.vue';
 
 export default {
   components: {
-    plexseason,
     plexthumb,
   },
   props: [],
@@ -154,9 +152,11 @@ export default {
     };
   },
   computed: {
-    getArtUrl(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+    getArtUrl() {
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 2);
     },
     getSeasons() {
@@ -178,28 +178,30 @@ export default {
       return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0, 5);
     },
     thumb() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-      return this.plexserver.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb || this.contents.grandparentThumb, w / 1, h / 1);
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
+      return this.plexserver.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb
+        || this.contents.grandparentThumb, w / 1, h / 1);
     },
   },
   created() {
     // Hit the PMS endpoing /library/sections
-    this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex, this.size, 1, this.$route.params.sectionId).then((result) => {
+    this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex,
+      this.size, 1, this.$route.params.sectionId).then((result) => {
       if (result) {
         this.contents = result.MediaContainer;
         this.setBackground();
       } else {
         this.status = 'Error loading libraries!';
       }
-    }).catch((e, data) => {
-    });
+    }).catch(() => {});
     this.plexserver.getSeriesData(this.$route.params.ratingKey).then((res) => {
       if (res) {
         this.seriesData = res;
       }
-    }).catch((e, data) => {
-    });
+    }).catch(() => {});
   },
   mounted() {
 
@@ -209,8 +211,10 @@ export default {
   },
   methods: {
     setBackground() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 2));
     },
     reset() {

@@ -69,7 +69,9 @@
           style="opacity:0.7"
           class="text-center pt-3"
         >
-          SyncLounge is a tool to sync Plex content with your family and friends. For more info click <a
+          SyncLounge is a tool to sync Plex content with your family and friends.
+          For more info click
+          <a
             target="_blank"
             href="https://github.com/samcm/synclounge"
           > here</a>.
@@ -97,21 +99,7 @@ export default {
       owner: null,
     };
   },
-  watch: {
-    gotDevices(to) {
-      if (to) {
-        if (this.$route.query.autojoin) {
-          this.letsGo();
-        }
-      }
-    },
-  },
-  mounted() {
-    this.password = this.$route.query.password || '';
-    this.room = this.$route.query.room;
-    this.server = this.$route.query.server;
-    this.owner = this.$route.query.owner;
-  },
+
   computed: {
     ...mapGetters('settings', [
       'GET_PLEX_AUTH_TOKEN',
@@ -128,6 +116,22 @@ export default {
       }
       return !this.$store.state.plex.gotDevices;
     },
+  },
+
+  watch: {
+    gotDevices(to) {
+      if (to) {
+        if (this.$route.query.autojoin) {
+          this.letsGo();
+        }
+      }
+    },
+  },
+  mounted() {
+    this.password = this.$route.query.password || '';
+    this.room = this.$route.query.room;
+    this.server = this.$route.query.server;
+    this.owner = this.$route.query.owner;
   },
   methods: {
     async letsGo() {

@@ -152,9 +152,3 @@ new Vue({
   vuetify,
   render: (h) => h(App),
 }).$mount('#app');
-
-global.waitFor = async (ms) => new Promise((resolve) => {
-  setTimeout(() => resolve, ms);
-});
-
-global.to = (promise) => promise.then((data) => [null, data]).catch((err) => [err]);

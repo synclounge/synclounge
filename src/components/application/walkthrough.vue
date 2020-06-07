@@ -252,7 +252,7 @@ export default {
   components: {
     plexclient,
   },
-  props: ['object'],
+
   data() {
     return {
       testClient: null,
@@ -313,11 +313,11 @@ export default {
       }
     },
     isHttps() {
-      return location.protocol === 'https:';
+      return window.location.protocol === 'https:';
     },
     platform() {
       if (!this.testClient || !this.testClient.platform) {
-        return;
+        return '';
       }
       return (
         this.platformMap[this.testClient.platform.toLowerCase()]
@@ -392,7 +392,7 @@ export default {
           this.CHOOSE_CLIENT(client);
           this.gotResponse = true;
         })
-        .catch((e) => {
+        .catch(() => {
           if (client.clientIdentifier !== this.testClient.clientIdentifier) {
             return;
           }
@@ -408,7 +408,7 @@ export default {
     },
     lastSeenAgo(clientTime) {
       const now = moment(new Date().getTime());
-      const end = moment.unix(parseInt(clientTime));
+      const end = moment.unix(parseInt(clientTime, 10));
       const difference = moment.duration(now.diff(end));
       return `${difference.humanize()} ago`;
     },

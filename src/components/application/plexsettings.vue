@@ -4,8 +4,11 @@
       <h4 style="text-align:initial">
         Blocked Plex Servers
       </h4>
-      <small>Used for autoplay functionality. Use this list to block SyncLounge from searching certain
-        servers when attempting to autoplay content.</small>
+      <small>
+        Used for autoplay functionality.
+        Use this list to block SyncLounge from searching certain servers when attempting to
+        autoplay content.
+      </small>
       <v-select
         v-model="BLOCKEDSERVERS"
         label="Select"
@@ -48,12 +51,14 @@ import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'Plexsettings',
-  methods: {
-    ...mapMutations('settings', ['SET_HIDEUSERNAME', 'SET_ALTUSERNAME', 'SET_BLOCKEDSERVERS']),
-  },
   computed: {
     ...mapGetters(['getPlex']),
-    ...mapGetters('settings', ['GET_HIDEUSERNAME', 'GET_ALTUSERNAME', 'GET_BLOCKEDSERVERS']),
+    ...mapGetters('settings', [
+      'GET_HIDEUSERNAME',
+      'GET_ALTUSERNAME',
+      'GET_BLOCKEDSERVERS',
+    ]),
+
     BLOCKEDSERVERS: {
       get() {
         return this.GET_BLOCKEDSERVERS;
@@ -62,6 +67,7 @@ export default {
         this.SET_BLOCKEDSERVERS(value);
       },
     },
+
     HIDEUSERNAME: {
       get() {
         return this.GET_HIDEUSERNAME;
@@ -70,28 +76,25 @@ export default {
         this.SET_HIDEUSERNAME(value);
       },
     },
+
     localServersList() {
-      // TODO: FIX THIS please
-      const servers = [];
       if (!this.getPlex || !this.getPlex.servers) {
-        return servers;
+        return [];
       }
-      for (const id in this.getPlex.servers) {
-        const server = this.getPlex.servers[id];
-        if (this.GET_BLOCKEDSERVERS[server]) {
-          servers.push({
-            name: server.name,
-            id: server.clientIdentifier,
-          });
-          return;
-        }
-        servers.push({
-          name: server.name,
-          id: server.clientIdentifier,
-        });
-      }
-      return servers;
+
+      return this.getPlex.servers.map((server) => ({
+        server: server.name,
+        id: server.clientIdentifier,
+      }));
     },
+  },
+
+  methods: {
+    ...mapMutations('settings', [
+      'SET_HIDEUSERNAME',
+      'SET_ALTUSERNAME',
+      'SET_BLOCKEDSERVERS',
+    ]),
   },
 };
 </script>

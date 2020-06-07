@@ -221,7 +221,10 @@
             v-if="Object.keys(getPlex.servers).length === 0"
             xs12
           >
-            <h5>No Plex Media Servers found. Make sure your server owner has shared their libraries with you!</h5>
+            <h5>
+              No Plex Servers found.
+              Make sure your server owner has shared libraries with you!
+            </h5>
           </v-flex>
           <v-flex
             v-for="server in getPlex.servers"
@@ -302,6 +305,131 @@ export default {
   components: {
     plexthumb,
   },
+
+  data() {
+    return {
+      browsingServer: null,
+      selectedItem: null,
+      browsingContent: null,
+
+      results: [],
+      onDeckOffset: 0,
+      onDeck: null,
+      searchWord: '',
+      searchStatus: 'Search your available Plex Media Servers',
+      searching: false,
+      serversHeardBack: [],
+    };
+  },
+
+  computed: {
+    ...mapGetters(['GET_LASTSERVER', 'getPlex']),
+    onDeckItemsPer() {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs':
+          return 1;
+        case 'sm':
+          return 2;
+        case 'md':
+          return 4;
+        case 'lg':
+          return 4;
+        case 'xl':
+          return 4;
+        default:
+          return 4;
+      }
+    },
+
+    availableServers() {
+      const servers = this.getPlex.servers.filter((server) => {
+        if (server.chosenConnection) {
+          return true;
+        }
+        return false;
+      });
+      return servers;
+    },
+
+    onDeckUpStyle() {
+      if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length) {
+        return {
+          opacity: 0.5,
+        };
+      }
+
+      return {};
+    },
+
+    onDeckDownStyle() {
+      if (this.onDeckOffset === 0) {
+        return {
+          opacity: 0.5,
+        };
+      }
+
+      return {};
+    },
+
+    filteredShows() {
+      return this.results.filter((item) => {
+        if (!item) {
+          return false;
+        }
+        if (item.type === 'show') {
+          return true;
+        }
+        return false;
+      });
+    },
+
+    filteredEpisodes() {
+      return this.results.filter((item) => {
+        if (!item) {
+          return false;
+        }
+        if (item.type === 'episode') {
+          return true;
+        }
+        return false;
+      });
+    },
+
+    filteredMovies() {
+      return this.results.filter((item) => {
+        if (!item) {
+          return false;
+        }
+        if (item.type === 'movie') {
+          return true;
+        }
+        return false;
+      });
+    },
+
+    filteredSeasons() {
+      return this.results.filter((item) => {
+        if (!item) {
+          return false;
+        }
+        if (item.type === 'series') {
+          return true;
+        }
+        return false;
+      });
+    },
+  },
+  watch: {
+    searchWord() {
+      if (this.searchWord === '') {
+        this.results = [];
+        this.searchStatus = 'Search your available Plex Media Servers';
+        return;
+      }
+      this.searchAllServers();
+    },
+  },
+
   mounted() {
     this.updateOnDeck();
   },
@@ -324,7 +452,7 @@ export default {
         this.onDeck = await this.GET_LASTSERVER.getOnDeck(0, 10);
       }
     },
-    subsetOnDeck(size) {
+    subsetOnDeck() {
       if (
         !this.onDeck
         || !this.onDeck.MediaContainer
@@ -347,44 +475,51 @@ export default {
       this.setBackground();
       // this.$store.commit('SET_BACKGROUND',null)
     },
+
     onDeckDown() {
       if (
         !this.onDeck
         || !this.onDeck.MediaContainer
         || !this.onDeck.MediaContainer.Metadata
       ) {
-        return false;
+        return;
       }
+
       if (this.onDeckOffset - 4 < 0) {
         this.onDeckOffset = 0;
       } else {
         this.onDeckOffset -= 4;
       }
     },
+
     onDeckUp() {
       if (
         !this.onDeck
         || !this.onDeck.MediaContainer
         || !this.onDeck.MediaContainer.Metadata
       ) {
-        return false;
+        return;
       }
+
       if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length) {
         // This would overflow!
       } else {
         this.onDeckOffset += 4;
       }
     },
+
     ownerOfServer(server) {
       if (server.owned === '1') {
         return 'you';
       }
       return server.sourceTitle;
     },
+
     setBackground() {
       // this.$store.commit('SET_RANDOMBACKROUND')
       // this.$store.commit('SET_BACKROUND',null)
     },
+
     getThumb(object) {
       const w = Math.round(
         Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
@@ -394,6 +529,7 @@ export default {
       );
       return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4);
     },
+
     getArt(object) {
       const w = Math.round(
         Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
@@ -403,164 +539,57 @@ export default {
       );
       return object.server.getUrlForLibraryLoc(object.art, w / 4, h / 4);
     },
+
     getTitleMovie(movie) {
       if (movie.year) {
         return `${movie.title} (${movie.year})`;
       }
       return movie.title;
     },
+
     heardBack(server) {
-      for (let i = 0; i < this.serversHeardBack.length; i++) {
-        const tempserver = this.serversHeardBack[i];
-        if (tempserver.clientIdentifier === server.clientIdentifier) {
-          return true;
-        }
-      }
-      return false;
+      return this.serversHeardBack
+        .find((serv) => serv.clientIdentifier === server.clientIdentifier);
     },
-    searchAllServers: _.debounce(function () {
+
+    searchAllServers: _.debounce(() => {
       if (this.searchWord === '') {
         this.results = [];
         this.searchStatus = 'Search your available Plex Media Servers';
         return;
       }
+
       this.searching = true;
       this.results = [];
       this.serversResponded = 0;
       const storedWord = this.searchWord;
-      for (const i in this.getPlex.servers) {
-        const server = this.getPlex.servers[i];
+
+      this.getPlex.servers.forEach((server) => {
         server.search(this.searchWord).then((serverSearchResults) => {
           if (storedWord !== this.searchWord) {
             // Old data
             return;
           }
-          this.serversResponded++;
+          this.serversResponded += 1;
           this.serversHeardBack.push(server);
+
           if (serverSearchResults) {
-            for (let j = 0; j < serverSearchResults.length; j++) {
-              serverSearchResults[j].server = server;
-            }
-            this.results = this.results.concat(serverSearchResults);
+            this.results = this.results.concat(serverSearchResults.map((results) => ({
+              ...results,
+              server,
+            })));
           }
+
           this.searchStatus = `Found ${this.results.length} results from ${
             this.serversResponded
           } servers`;
+
           if (this.serversResponded === Object.keys(this.getPlex.servers).length) {
             this.searching = false;
           }
         });
-      }
+      });
     }, 1000),
-  },
-  data() {
-    return {
-      browsingServer: null,
-      selectedItem: null,
-      browsingContent: null,
-
-      results: [],
-      onDeckOffset: 0,
-      onDeck: null,
-      searchWord: '',
-      searchStatus: 'Search your available Plex Media Servers',
-      searching: false,
-      serversHeardBack: [],
-    };
-  },
-  watch: {
-    searchWord() {
-      if (this.searchWord === '') {
-        this.results = [];
-        this.searchStatus = 'Search your available Plex Media Servers';
-        return;
-      }
-      this.searchAllServers();
-    },
-  },
-  computed: {
-    ...mapGetters(['GET_LASTSERVER', 'getPlex']),
-    onDeckItemsPer() {
-      switch (this.$vuetify.breakpoint.name) {
-        case 'xs':
-          return 1;
-        case 'sm':
-          return 2;
-        case 'md':
-          return 4;
-        case 'lg':
-          return 4;
-        case 'xl':
-          return 4;
-      }
-    },
-    availableServers() {
-      const servers = this.getPlex.servers.filter((server) => {
-        if (server.chosenConnection) {
-          return true;
-        }
-        return false;
-      });
-      return servers;
-    },
-    onDeckUpStyle() {
-      if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length) {
-        return {
-          opacity: 0.5,
-        };
-      }
-    },
-    onDeckDownStyle() {
-      if (this.onDeckOffset === 0) {
-        return {
-          opacity: 0.5,
-        };
-      }
-    },
-    filteredShows() {
-      return this.results.filter((item) => {
-        if (!item) {
-          return false;
-        }
-        if (item.type === 'show') {
-          return true;
-        }
-        return false;
-      });
-    },
-    filteredEpisodes() {
-      return this.results.filter((item) => {
-        if (!item) {
-          return false;
-        }
-        if (item.type === 'episode') {
-          return true;
-        }
-        return false;
-      });
-    },
-    filteredMovies() {
-      return this.results.filter((item) => {
-        if (!item) {
-          return false;
-        }
-        if (item.type === 'movie') {
-          return true;
-        }
-        return false;
-      });
-    },
-    filteredSeasons() {
-      return this.results.filter((item) => {
-        if (!item) {
-          return false;
-        }
-        if (item.type === 'series') {
-          return true;
-        }
-        return false;
-      });
-    },
   },
 };
 </script>

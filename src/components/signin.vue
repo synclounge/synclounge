@@ -246,6 +246,7 @@ export default {
     let authToken = null;
     // Check for PlexToken set via SyncLounge or Plex
     if ($cookies.get('mpt')) {
+      console.log('WTFFFFFFFFFFF');
       authToken = $cookies.get('mpt');
     }
 

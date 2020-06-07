@@ -522,15 +522,18 @@ export default {
       if (this.hiddenOverride) {
         return false;
       }
+
       if ((this.contents && this.contents.viewCount === 0) || !this.contents.viewCount) {
         return true;
       }
+
+      return false;
     },
     largestRes() {
       let height = 0;
-      for (let i = 0; i < this.contents.Media.length; i++) {
-        if (parseInt(this.contents.Media[i].videoResolution) > height) {
-          height = parseInt(this.contents.Media[i].videoResolution);
+      for (let i = 0; i < this.contents.Media.length; i += 1) {
+        if (parseInt(this.contents.Media[i].videoResolution, 10) > height) {
+          height = parseInt(this.contents.Media[i].videoResolution, 10);
         }
       }
       return height;
@@ -564,7 +567,7 @@ export default {
         return [];
       }
       const items = [];
-      this.related.MediaContainer.Hub[0].Metadata.map((item) => {
+      this.related.MediaContainer.Hub[0].Metadata.forEach((item) => {
         items.push(item);
       });
       return items.slice(0, 7);
@@ -626,7 +629,7 @@ export default {
     getNewData() {
       this.server.getMediaByRatingKey(this.ratingKey).then(async (result) => {
         if (result) {
-          this.contents = result.MediaContainer.Metadata[0];
+          [this.contents] = result.MediaContainer.Metadata;
           if (this.contents.type === 'episode') {
             this.server
               .getSeriesChildren(`${this.contents.parentRatingKey}/children`, 0, 500, 1)
@@ -637,9 +640,7 @@ export default {
               });
           }
           if (this.contents.type === 'movie') {
-            try {
-              this.related = await this.server.getRelated(this.ratingKey, 12);
-            } catch (e) {}
+            this.related = await this.server.getRelated(this.ratingKey, 12).catch(() => {});
           }
           this.setBackground();
         } else {
@@ -690,7 +691,6 @@ export default {
       });
     },
     async playMedia(content, mediaIndex) {
-      const callback = function () {};
       let offset = 0;
       if (this.resumeFrom) {
         offset = this.contents.viewOffset;
@@ -701,7 +701,7 @@ export default {
         mediaIndex,
         server: this.server,
         offset,
-        callback,
+        callback: () => {},
       });
       this.dialog = false;
     },
@@ -713,20 +713,20 @@ export default {
       });
     },
     pressStop() {
-      this.chosenClient.pressStop((result) => {});
+      this.chosenClient.pressStop(() => {});
     },
     getStreamCount(streams, type) {
       let count = 0;
       streams.forEach((stream) => {
         if (stream.streamType === type) {
-          count++;
+          count += 1;
         }
       });
       return count;
     },
     audioStreams(media) {
       let result = '';
-      for (let i = 0; i < media.length; i++) {
+      for (let i = 0; i < media.length; i += 1) {
         const stream = media[i];
         if (stream.streamType === 2 && stream.languageCode) {
           result = `${result} ${stream.languageCode || 'Unknown Lanugage'},`;
@@ -737,7 +737,7 @@ export default {
     },
     subtitleStreams(media) {
       let result = '';
-      for (let i = 0; i < media.length; i++) {
+      for (let i = 0; i < media.length; i += 1) {
         const stream = media[i];
         if (stream.streamType === 3 && stream.languageCode) {
           result = `${result} ${stream.languageCode || 'Unknown Lanugage'},`;
