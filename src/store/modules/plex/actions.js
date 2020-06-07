@@ -351,6 +351,6 @@ export default {
       return authenticationPassed;
     }
 
-    return null;
+    return true;
   },
 };

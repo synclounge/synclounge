@@ -121,6 +121,8 @@ const fields = [
     env: 'SLPLAYERQUALITY',
     default: defaultSettings.slPlayerQuality,
     type: 'number',
+    // null is allowed because null quality indicates Original
+    nullable: true,
   },
   {
     // Valid values are in the range [0, 1]
@@ -139,6 +141,10 @@ const fields = [
 
 // Returns the parsed setting or default value if wrong type or unable to be parsed
 const parseSetting = (value, setting) => {
+  if (setting.nullable && value === null || value === 'null') {
+    return null;
+  }
+
   if (setting.type === 'array') {
     // If setting is array. (Have to treat arrays differently since typeof array is 'object')
     if (Array.isArray(value)) {
@@ -173,7 +179,7 @@ const parseSetting = (value, setting) => {
   }
 
   console.error(
-    `Error parsing [${setting.type}]: ${e.message} Reverting to default. Value: '${value}'`,
+    `Error parsing [${setting.type}]: Reverting to default. Value: '${value}'`,
   );
   return setting.default;
 };
