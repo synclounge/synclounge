@@ -20,14 +20,12 @@ export default {
           return;
         }
         if (metadata.type === 'movie') {
-          sendNotification(`Now Playing: ${metadata.title} from ${
-            state.plex.servers[metadata.machineIdentifier].name
-          }`);
+          sendNotification(`Now Playing: ${metadata.title} from ${server.name}`);
         }
         if (metadata.type === 'episode') {
           sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
             metadata.index
-          } from ${state.plex.servers[metadata.machineIdentifier].name}`);
+          } from ${server.name}`);
         }
         state.chosenClient.clientPlayingMetadata = metadata;
         const w = Math.round(
@@ -36,7 +34,7 @@ export default {
         const h = Math.round(
           Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
         );
-        state.background = state.plex.servers[metadata.machineIdentifier].getUrlForLibraryLoc(
+        state.background = server.getUrlForLibraryLoc(
           metadata.thumb,
           w / 4,
           h / 4,
@@ -51,6 +49,7 @@ export default {
       }
     }
   },
+
   NEW_TIMELINE({
     commit, state, dispatch, getters,
   }, timeline) {

@@ -372,9 +372,7 @@ export default {
     window.addEventListener('resize', this.handleResize);
   },
   mounted() {
-    console.log(this.bottomOnly);
     this.fullheight = this.$refs.root.offsetHeight;
-    // console.log(this.$refs)
     this.fullwidth = this.$refs.root.offsetWidth;
     if (this.$refs.topText) {
       this.toptextheight = this.$refs.topText.offsetHeight;
