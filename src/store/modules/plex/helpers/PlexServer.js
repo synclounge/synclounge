@@ -1,5 +1,4 @@
 import axios from 'axios';
-import promiseutils from '@/utils/promiseutils';
 import plexauth from './PlexAuth';
 
 
@@ -36,32 +35,21 @@ class PlexServer {
   }
 
   // Functions
-  hitApi(command, params) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        if (!this.chosenConnection) {
-          const result = await this.findConnection();
-          if (!result) {
-            return reject(new Error('Failed to find a connection'));
-          }
-        }
-        const options = plexauth.getApiOptions('', this.accessToken, 15000, 'GET');
-        axios
-          .get(this.chosenConnection.uri + command, {
-            params,
-            headers: options.headers,
-          })
-          .then((response) => {
-            this.handleMetadata(response.data);
-            resolve(response.data);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      } catch (e) {
-        reject(e);
+  async hitApi(command, params) {
+    if (!this.chosenConnection) {
+      const result = await this.findConnection();
+      if (!result) {
+        throw new Error('Failed to find a connection');
       }
+    }
+
+    const options = plexauth.getApiOptions('', this.accessToken, 15000, 'GET');
+    const response = await axios.get(this.chosenConnection.uri + command, {
+      params,
+      headers: options.headers,
     });
+
+    this.handleMetadata(response.data);
   }
 
   hitApiTestConnection(command, connection) {
@@ -74,7 +62,7 @@ class PlexServer {
     this.chosenConnection = con;
   }
 
-  findConnection() {
+  async findConnection() {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
@@ -83,7 +71,7 @@ class PlexServer {
     const secureConnections = this.plexConnections.filter((connection) => connection.protocol === 'https');
 
     try {
-      const secureConnection = promiseutils.any(
+      const secureConnection = Promise.any(
         secureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)),
       );
       this.setValue('chosenConnection', secureConnection);
@@ -96,7 +84,7 @@ class PlexServer {
     // most modern web browsers block mixed content
     if (window.location.protocol === 'http:') {
       const insecureConnections = this.plexConnections.filter((connection) => connection.protocol === 'http');
-      const insecureConnection = promiseutils.any(insecureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)));
+      const insecureConnection = await Promise.any(insecureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)));
       this.setValue('chosenConnection', insecureConnection);
       return true;
     }

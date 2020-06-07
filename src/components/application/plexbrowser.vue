@@ -431,7 +431,6 @@ export default {
   },
 
   mounted() {
-    console.log('IM HERE HAHAHA');
     this.updateOnDeck();
   },
   methods: {
