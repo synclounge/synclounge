@@ -77,7 +77,7 @@
           </p>
         </v-flex>
         <v-flex
-          v-if="!getConnected && this.GET_RECENT_ROOMS.length > 0"
+          v-if="!getConnected && GET_RECENT_ROOMS.length > 0"
           xs12
           class="nicelist pa-4"
           style="color:white !important;"
@@ -160,7 +160,7 @@
                   >
                     <img
                       :src="server.image"
-                      style="max-height: 100%; vertical-align: middle; max-width: 80%; border-radius: 7px"
+                      class="server-image"
                     >
                   </v-flex>
                   <v-flex
@@ -223,7 +223,7 @@
                     <v-btn
                       color="primary"
                       :disabled="connectionPending"
-                      style="width: 80%; border-radius: 7px; margin: auto; position: absolute; bottom: 5px; left: 0; right: 0;"
+                      class="connect-button"
                       @click="serverSelected(server)"
                     >
                       Connect
@@ -374,7 +374,6 @@ import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 export default {
   name: 'Joinroom',
-  props: ['object'],
   data() {
     return {
       selectedServer: '',
@@ -389,32 +388,53 @@ export default {
 
       results: {},
 
-      destroyed: false,
+      testConnectionInterval: null,
     };
   },
-  mounted() {
-    setTimeout(() => {
-      this.testConnections();
-      const ticker = setInterval(() => {
-        if (this.destroyed) {
-          return clearInterval(ticker);
-        }
-        this.testConnections();
-      }, 5000);
-    }, 1500);
+
+  computed: {
+    ...mapGetters(['GET_SYNCLOUNGE_SERVERS', 'getConnected', 'getPlex']),
+    ...mapGetters('settings', ['GET_CUSTOM_SERVER_USER_INPUTTED_URL', 'GET_RECENT_ROOMS']),
+    logo() {
+      return this.logos.light.long;
+    },
   },
+
+  watch: {
+    selectedServer() {
+      // this.attemptConnect()
+      this.serverError = null;
+    },
+
+    slRoom() {
+      if (this.slServer && this.slRoom) {
+        this.$router.push('/browse');
+      }
+    },
+  },
+
+  mounted() {
+    this.testConnectionInterval = setInterval(() => {
+      this.testConnections();
+    }, 5000);
+  },
+
   beforeDestroy() {
+    clearInterval(this.testConnectionInterval);
     this.destroyed = true;
   },
+
   created() {
     if (this.slRoom && this.slConnected && this.slServer) {
       this.$router.push('/browse');
     }
   },
+
   methods: {
     ...mapMutations('settings', ['SET_CUSTOM_SERVER_USER_INPUTTED_URL']),
     ...mapActions('settings', ['REMOVE_RECENT_ROOM']),
     ...mapActions(['socketConnect']),
+
     connectionQualityClass(value) {
       if (value < 50) {
         return ['green--text', 'text--lighten-1'];
@@ -427,6 +447,7 @@ export default {
       }
       return ['red--text'];
     },
+
     loadQualityClass(value) {
       if (value === 'low') {
         return ['green--text', 'text--lighten-1'];
@@ -439,6 +460,7 @@ export default {
       }
       return ['white--text'];
     },
+
     serverSelected(server) {
       this.selectedServer = server;
       if (this.selectedServer.defaultRoom) {
@@ -452,8 +474,9 @@ export default {
         this.attemptConnect();
       }
     },
+
     async testConnections() {
-      this.GET_SYNCLOUNGE_SERVERS.map((server) => {
+      this.GET_SYNCLOUNGE_SERVERS.forEach((server) => {
         if (server.url !== 'custom') {
           const start = new Date().getTime();
           axios
@@ -465,7 +488,7 @@ export default {
                 result: res.data.load || null,
               });
             })
-            .catch((e) => {
+            .catch(() => {
               Vue.set(this.results, server.url, {
                 alive: false,
                 latency: Math.abs(start - new Date().getTime()),
@@ -475,6 +498,7 @@ export default {
         }
       });
     },
+
     attemptConnect() {
       // Attempt the connection
       return new Promise((resolve, reject) => {
@@ -487,8 +511,7 @@ export default {
               if (result) {
                 if (this.room) {
                   this.joinRoom()
-                    .then(() => {})
-                    .catch((e) => {});
+                    .catch(() => {});
                 }
                 resolve();
               } else {
@@ -506,6 +529,7 @@ export default {
         }
       });
     },
+
     attemptConnectCustom() {
       this.connectionPending = true;
       this.serverError = null;
@@ -524,6 +548,7 @@ export default {
           this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
         });
     },
+
     async recentConnect(recent) {
       console.log('Attempting to connect to', recent);
       this.selectedServer = {
@@ -533,6 +558,7 @@ export default {
       this.password = recent.password;
       await this.attemptConnect();
     },
+
     async joinRoom() {
       if (!this.getConnected) {
         throw new Error('not connected to a server');
@@ -553,23 +579,25 @@ export default {
       }
     },
   },
-  watch: {
-    selectedServer() {
-      // this.attemptConnect()
-      this.serverError = null;
-    },
-    slRoom() {
-      if (this.slServer && this.slRoom) {
-        this.$router.push('/browse');
-      }
-    },
-  },
-  computed: {
-    ...mapGetters(['GET_SYNCLOUNGE_SERVERS', 'getConnected', 'getPlex']),
-    ...mapGetters('settings', ['GET_CUSTOM_SERVER_USER_INPUTTED_URL', 'GET_RECENT_ROOMS']),
-    logo() {
-      return this.logos.light.long;
-    },
-  },
 };
 </script>
+
+
+<style scope>
+.server-image {
+  max-height: 100%;
+  vertical-align: middle;
+  max-width: 80%;
+  border-radius: 7px;
+}
+
+.connect-button {
+  width: 80%;
+  border-radius: 7px;
+  margin: auto;
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+}
+</style>

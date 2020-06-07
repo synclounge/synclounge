@@ -26,8 +26,10 @@ export default {
     state.partyPausing = value;
   },
   ADD_MESSAGE(state, msg) {
-    msg.time = moment().format('h:mm A');
-    state.messages.push(msg);
+    state.messages.push({
+      ...msg,
+      time: moment().format('h:mm A'),
+    });
   },
   CLEAR_MESSAGES(state) {
     state.messages = [];

@@ -1,5 +1,3 @@
-const { fs } = require('fs');
-
 const args = require('args-parser')(process.argv);
 
 const { coalesce } = require('./src/utils/helpers');
@@ -7,6 +5,7 @@ const { defaultSettings } = require('./src/defaultsettings');
 
 const readSettingsFile = (file) => {
   try {
+    // eslint-disable-next-line global-require, import/no-dynamic-require
     return require(file);
   } catch (e) {
     return {};
@@ -141,7 +140,7 @@ const fields = [
 
 // Returns the parsed setting or default value if wrong type or unable to be parsed
 const parseSetting = (value, setting) => {
-  if (setting.nullable && value === null || value === 'null') {
+  if (setting.nullable && (value === null || value === 'null')) {
     return null;
   }
 

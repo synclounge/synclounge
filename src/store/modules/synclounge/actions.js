@@ -1,5 +1,6 @@
 import axios from 'axios';
 import io from 'socket.io-client';
+import delay from '@/utils/delay';
 
 function sendNotification(message) {
   console.log(message);
@@ -75,29 +76,32 @@ export default {
     });
   },
 
-  joinRoom({
+  async joinRoom({
     state, commit, dispatch, rootState, rootGetters,
   }, data) {
-    return new Promise(async (resolve) => {
-      if (!state.socket || !state.connected) {
-        throw new Error('Not connected to a server!');
-      }
-      if (typeof data.roomName !== 'string') {
-        throw new Error('invalid room name');
-      }
-      console.log('Joining room', data.roomName);
-      data.password = data.password || '';
-      commit('SET_PASSWORD', data.password);
-      let { username } = data.user;
+    if (!state.socket || !state.connected) {
+      throw new Error('Not connected to a server!');
+    }
 
-      if (rootGetters['settings/GET_HIDEUSERNAME']) {
-        username = rootGetters['settings/GET_ALTUSERNAME'];
-      }
+    if (typeof data.roomName !== 'string') {
+      throw new Error('invalid room name');
+    }
 
-      state.socket.emit(
-        'join',
-        new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid, username),
-      );
+    console.log('Joining room', data.roomName);
+    data.password = data.password || '';
+    commit('SET_PASSWORD', data.password);
+    let { username } = data.user;
+
+    if (rootGetters['settings/GET_HIDEUSERNAME']) {
+      username = rootGetters['settings/GET_ALTUSERNAME'];
+    }
+
+    state.socket.emit(
+      'join',
+      new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid, username),
+    );
+
+    return new Promise((resolve, reject) => {
       state.socket.on('join-result', async (result, _data, details, currentUsers, partyPausing) => {
         console.log('Got join result', result);
         commit('CLEAR_MESSAGES');
@@ -270,7 +274,7 @@ export default {
                       servers,
                       hostTimeline.time,
                     )
-                    .catch(async (e) => {
+                    .catch(async () => {
                       const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
                       if (hostServer && hostTimeline.key) {
                         if (
@@ -278,19 +282,17 @@ export default {
                             hostTimeline.machineIdentifier,
                           )
                         ) {
-                          try {
-                            await rootState.chosenClient.playMedia({
-                              // TODO: have timeline updates send out more info like mediaIdentifier etc
-                              key: hostTimeline.key,
-                              mediaIndex: 0,
-                              server: rootState.plex.servers[hostTimeline.machineIdentifier],
-                              offset: hostTimeline.time || 0,
-                            });
-                            setTimeout(() => {
-                              commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-                            }, 15000);
-                            return resolve();
-                          } catch (e) {}
+                          await rootState.chosenClient.playMedia({
+                            // TODO: have timeline updates send out more info like mediaIdentifier etc
+                            key: hostTimeline.key,
+                            mediaIndex: 0,
+                            server: rootState.plex.servers[hostTimeline.machineIdentifier],
+                            offset: hostTimeline.time || 0,
+                          }).catch(() => {});
+                          setTimeout(() => {
+                            commit('SET_BLOCK_AUTOPLAY', false, { root: true });
+                          }, 15000);
+                          return resolve();
                         }
                       }
                       sendNotification(
@@ -300,9 +302,9 @@ export default {
                         commit('SET_BLOCK_AUTOPLAY', false, { root: true });
                       }, 15000);
                     });
-                  await new Promise((resolve, reject) => {
-                    setTimeout(() => resolve(), 1000);
-                  });
+
+                  await delay(1000);
+
                   setTimeout(() => {
                     commit('SET_BLOCK_AUTOPLAY', false, { root: true });
                   }, 10000);
@@ -313,7 +315,8 @@ export default {
                   sendNotification('Resuming..');
                   return resolve(await rootState.chosenClient.pressPlay());
                 }
-                if ((hostTimeline.playerState === 'paused' || hostTimeline.playerState === 'buffering')
+                if ((hostTimeline.playerState === 'paused'
+                  || hostTimeline.playerState === 'buffering')
                   && ourTimeline.state === 'playing') {
                   sendNotification('Pausing..');
                   return resolve(await rootState.chosenClient.pressPause());
@@ -371,7 +374,7 @@ export default {
             }
             if (Math.abs(state.decisionBlockedTime - new Date().getTime()) < 180000) {
               console.log(
-                'We are not going to make a decision from the host data because a command is already running',
+                'Not going to make a decision from host data because a command is already running',
               );
               return;
             }
@@ -410,18 +413,17 @@ export default {
             commit('SET_DECISION_BLOCKED_TIME', 0);
           });
 
-          state.socket.on('disconnect', (data) => {
+          state.socket.on('disconnect', (disconnectData) => {
             sendNotification('Disconnected from the SyncLounge server');
-            console.log('Disconnect data', data);
-            if (data === 'io client disconnect') {
+            console.log('Disconnect data', disconnectData);
+            if (disconnectData === 'io client disconnect') {
               console.log('We disconnected from the server');
               commit('SET_ROOM', null);
               commit('SET_PASSWORD', null);
               commit('SET_USERS', []);
               commit('SET_CONNECTED', false);
               commit('SET_SERVER', null);
-            }
-            if (data === 'transport close') {
+            } else if (disconnectData === 'transport close') {
               console.log('The server disconnected on us');
             }
           });
@@ -435,22 +437,20 @@ export default {
           commit('SET_PASSWORD', null);
           commit('SET_USERS', []);
         }
+
         return resolve(result);
       });
     });
   },
 
   disconnectServer({ state, commit }) {
-    return new Promise((resolve, reject) => {
-      console.log('Decided we should disconnect from the SL Server.');
-      state.socket.disconnect();
-      commit('SET_ROOM', null);
-      commit('SET_PASSWORD', null);
-      commit('SET_USERS', []);
-      commit('SET_CONNECTED', false);
-      commit('SET_SERVER', null);
-      resolve();
-    });
+    console.log('Decided we should disconnect from the SL Server.');
+    state.socket.disconnect();
+    commit('SET_ROOM', null);
+    commit('SET_PASSWORD', null);
+    commit('SET_USERS', []);
+    commit('SET_CONNECTED', false);
+    commit('SET_SERVER', null);
   },
 
   sendNewMessage({ state, commit, rootState }, msg) {

@@ -16,15 +16,19 @@ const { readSettings } = require('./SettingsHelper');
 
 const settings = readSettings();
 
+const baseSettings = require('./waterline_settings.json');
+
 const bootstrap = () => {
   if (!settings.accessUrl) {
     console.log(
-      'Missing required argument `accessUrl`. This URL is used for redirecting invite links. See documentation for how to set this',
+      'Missing required argument `accessUrl`.',
+      'This URL is used for redirecting invite links.',
+      'See documentation for how to set this',
     );
     return Promise.reject(new Error('Missing URL for invite links'));
   }
 
-  const baseSettings = require('./waterline_settings.json');
+
   // console.log('Basesettings', baseSettings);
   baseSettings.waterline.adapters = {
     'sails-mysql': SailsMysql,

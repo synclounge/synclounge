@@ -292,13 +292,21 @@ socketServer.on('connection', (socket) => {
 
     const room = socketServer.sockets.adapter.rooms[socket.selfUser.room];
     if (!room) {
-      console.log('Got a poll update from a user in a room that was either destroyed or never existed', data);
+      console.log(
+        'Got a poll update from a user in a room that was either destroyed or never existed',
+        data,
+      );
       return;
     }
     // Recieved an update from a user
     updateUserData(socket.selfUser.username, data, socket.selfUser.room);
 
-    socket.emit('poll-result', socketServer.sockets.adapter.rooms[socket.selfUser.room].users, socket.selfUser, data.commandId, room.partyPausing);
+    socket.emit('poll-result',
+      socketServer.sockets.adapter.rooms[socket.selfUser.room].users,
+      socket.selfUser,
+      data.commandId,
+      room.partyPausing);
+
     if (socket.selfUser.role === 'host') {
       // We're the host, broadcast to all clients our data
       const temp = {};

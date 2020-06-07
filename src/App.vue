@@ -178,7 +178,7 @@
         >
           <donate
             :donate-dialog="donateDialog"
-            :on-close="() => this.donateDialog = false"
+            :on-close="donateDialog = false"
           />
         </v-dialog>
       </v-container>

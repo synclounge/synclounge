@@ -12,21 +12,26 @@ const browser = detect();
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
 
-  GET_PLEX_SERVER_ID: (state, getters, rootState) => state.plexServerId || rootState.route.query.machineIdentifier,
+  GET_PLEX_SERVER_ID: (state, getters, rootState) => state.plexServerId
+    || rootState.route.query.machineIdentifier,
 
-  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters.getPlex.servers[getters.GET_PLEX_SERVER_ID],
+  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters.getPlex
+    .servers[getters.GET_PLEX_SERVER_ID],
 
-  GET_PLEX_SERVER_ACCESS_TOKEN: (state, getters) => (getters.GET_PLEX_SERVER ? getters.GET_PLEX_SERVER.accessToken : undefined),
+  GET_PLEX_SERVER_ACCESS_TOKEN: (state, getters) => (getters.GET_PLEX_SERVER
+    ? getters.GET_PLEX_SERVER.accessToken
+    : undefined),
 
-  GET_PLEX_SERVER_URL: (state, getters) => (getters.GET_PLEX_SERVER ? getters.GET_PLEX_SERVER.chosenConnection.uri : undefined),
+  GET_PLEX_SERVER_URL: (state, getters) => (getters.GET_PLEX_SERVER
+    ? getters.GET_PLEX_SERVER.chosenConnection.uri
+    : undefined),
 
-  GET_PLEX_SERVER_LOCATION: (state, getters) =>
-    // eslint-disable-next-line no-nested-ternary
-    (getters.GET_PLEX_SERVER
-      ? getters.GET_PLEX_SERVER.publicAddressMatches === '1'
-        ? 'lan'
-        : 'wan'
-      : undefined),
+  // eslint-disable-next-line no-nested-ternary
+  GET_PLEX_SERVER_LOCATION: (state, getters) => (getters.GET_PLEX_SERVER
+    ? getters.GET_PLEX_SERVER.publicAddressMatches === '1'
+      ? 'lan'
+      : 'wan'
+    : undefined),
 
   GET_PART_ID: (state, getters) => getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
 
@@ -59,28 +64,35 @@ export default {
       id, displayTitle,
     }) => ({ id, text: displayTitle })),
 
-  GET_MEDIA_LIST: (state, getters) => getters.GET_METADATA.Media.map(({ videoResolution, bitrate }, index) => ({
-    index,
-    text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
-  })),
+  GET_MEDIA_LIST: (state, getters) => getters.GET_METADATA.Media.map(
+    ({ videoResolution, bitrate }, index) => ({
+      index,
+      text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
+    }),
+  ),
 
   GET_QUALITIES: () => qualities,
 
   GET_AUDIO_STREAM_ID: (state, getters) => {
-    const selectedAudioStream = getters.GET_DECISION_STREAMS.find((stream) => stream.streamType === '2' && stream.selected === '1');
+    const selectedAudioStream = getters.GET_DECISION_STREAMS
+      .find((stream) => stream.streamType === '2' && stream.selected === '1');
     return selectedAudioStream ? parseInt(selectedAudioStream.id, 10) : 0;
   },
 
   GET_SUBTITLE_STREAM_ID: (state, getters) => {
-    const selectedSubtitleStream = getters.GET_DECISION_STREAMS.find((stream) => stream.streamType === '3' && stream.selected === '1');
+    const selectedSubtitleStream = getters.GET_DECISION_STREAMS
+      .find((stream) => stream.streamType === '3' && stream.selected === '1');
     return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
   },
 
-  GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex || rootState.route.query.mediaIndex,
+  GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex
+    || rootState.route.query.mediaIndex,
 
-  GET_RELATIVE_THUMB_URL: (state, getters) => getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb,
+  GET_RELATIVE_THUMB_URL: (state, getters) => getters.GET_METADATA.grandparentThumb
+    || getters.GET_METADATA.thumb,
 
-  GET_THUMB_URL: (state, getters) => getters.GET_PLEX_SERVER.getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200),
+  GET_THUMB_URL: (state, getters) => getters.GET_PLEX_SERVER
+    .getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200),
 
   GET_RATING_KEY: (state, getters) => getters.GET_KEY.replace('/library/metadata/', ''),
 

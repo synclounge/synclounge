@@ -402,8 +402,8 @@ export default {
       ];
       return arr;
     },
-    async handleDisconnect() {
-      await this.$store.dispatch('disconnectServer');
+    handleDisconnect() {
+      this.$store.dispatch('disconnectServer');
       this.$router.push('/');
     },
     percent(user) {

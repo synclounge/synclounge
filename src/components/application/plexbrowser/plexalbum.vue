@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import plexcontent from './plexcontent';
+import plexcontent from './plexcontent.vue';
 import plexthumb from './plexthumb.vue';
 
 const humanizeDuration = require('humanize-duration');
