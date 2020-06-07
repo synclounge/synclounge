@@ -47,7 +47,7 @@
   "clientPollInterval": 1000,
   "syncMode": "cleanseek",
   "syncFlexibility": 3000,
-  "slPlayerQuality": "Original",
+  "slPlayerQuality": 10000,
   "slPlayerVolume": 1,
-  "slPlayerForceTranscode": true
+  "slPlayerForceTranscode": false
 }
