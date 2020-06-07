@@ -1,4 +1,5 @@
 import axios from 'axios';
+import promiseutils from '@/utils/promiseutils';
 import plexauth from './PlexAuth';
 
 
@@ -72,7 +73,7 @@ class PlexServer {
     const secureConnections = this.plexConnections.filter((connection) => connection.protocol === 'https');
 
     try {
-      const secureConnection = Promise.any(
+      const secureConnection = promiseutils.any(
         secureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)),
       );
       this.setValue('chosenConnection', secureConnection);
@@ -85,7 +86,7 @@ class PlexServer {
     // most modern web browsers block mixed content
     if (window.location.protocol === 'http:') {
       const insecureConnections = this.plexConnections.filter((connection) => connection.protocol === 'http');
-      const insecureConnection = await Promise.any(insecureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)));
+      const insecureConnection = await promiseutils.any(insecureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)));
       this.setValue('chosenConnection', insecureConnection);
       return true;
     }
