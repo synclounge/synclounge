@@ -114,7 +114,7 @@ export default new Router({
       meta: {
         protected: true,
       },
-      name: 'content',
+      name: 'contentspecific',
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
   ],

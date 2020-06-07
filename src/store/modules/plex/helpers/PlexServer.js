@@ -73,7 +73,7 @@ class PlexServer {
     const secureConnections = this.plexConnections.filter((connection) => connection.protocol === 'https');
 
     try {
-      const secureConnection = promiseutils.any(
+      const secureConnection = await promiseutils.any(
         secureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)),
       );
       this.setValue('chosenConnection', secureConnection);
