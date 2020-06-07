@@ -170,9 +170,8 @@ export default {
     }
   },
 
-  HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }, e) => {
-    console.log(e);
-    commit('setSettingPTPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
+  HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
+    commit('settings/SET_SLPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
   },
 
 
@@ -346,10 +345,8 @@ export default {
   INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
     dispatch('REGISTER_PLAYER_EVENTS');
     const result = await dispatch('CHANGE_PLAYER_SRC');
-    const volume = rootGetters.getSettingPTPLAYERVOLUME
-      || parseFloat(JSON.parse(window.localStorage.getItem('PTPLAYERVOLUME')) || 1);
 
-    commit('SET_PLAYER_VOLUME', volume);
+    commit('SET_PLAYER_VOLUME', rootGetters['settings/GET_SLPLAYERVOLUME']);
 
     dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
     dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');

@@ -142,14 +142,14 @@ export default {
     protocol: 'dash',
     fastSeek: 1,
     directPlay: 0,
-    directStream: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
+    directStream: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     subtitleSize: 100,
     audioBoost: 100,
     location: getters.GET_PLEX_SERVER_LOCATION,
     ...rootGetters['settings/GET_SLPLAYERQUALITY'] && { maxVideoBitrate: rootGetters['settings/GET_SLPLAYERQUALITY'] }, // only include if not null
     addDebugOverlay: 0,
     autoAdjustQuality: 1,
-    directStreamAudio: JSON.parse(rootGetters.getSettings.SLPLAYERFORCETRANSCODE) ? 0 : 1,
+    directStreamAudio: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
     subtitles: 'burn',

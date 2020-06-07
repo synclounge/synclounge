@@ -1,7 +1,7 @@
 {
   "webroot": "",
   "webapp_port": 8088,
-  "accessUrl": "http://mysynclounge.com",
+  "accessUrl": "https://mysynclounge.com",
 
   "autoJoin": false,
   "autoJoinServer": "",
