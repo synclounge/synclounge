@@ -185,7 +185,13 @@ export default {
     },
     link() {
       if (this.content.type === 'episode') {
-        return `/browse/${this.serverId}/${this.content.librarySectionID}/tv/${this.content.grandparentRatingKey}/${this.content.parentRatingKey}/${this.content.ratingKey}`;
+        let final = `/browse/${this.serverId}`;
+        const exists = this.content.librarySectionID;
+        if (exists) {
+          final = `${final}/${this.content.librarySectionID}`;
+        }
+        final = `${final}/tv/${this.content.grandparentRatingKey}/${this.content.parentRatingKey}/${this.content.ratingKey}`;
+        return final;
       }
       if (this.content.type === 'season') {
         return `/browse/${this.serverId}/${this.content.librarySectionID}/tv/${this.content.parentRatingKey}/${this.content.ratingKey}`;

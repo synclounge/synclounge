@@ -117,5 +117,14 @@ export default new Router({
       name: 'contentspecific',
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
+    {
+      path:
+        '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
+      meta: {
+        protected: true,
+      },
+      name: 'contentnosection',
+      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
+    },
   ],
 });
