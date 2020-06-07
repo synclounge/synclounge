@@ -117,14 +117,5 @@ export default new Router({
       name: 'content',
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
-    {
-      path:
-        '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
-      meta: {
-        protected: true,
-      },
-      name: 'content',
-      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
-    },
   ],
 });
