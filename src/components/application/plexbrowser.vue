@@ -251,7 +251,7 @@
                   >
                     <v-flex xs4>
                       <v-img
-                        :src="logos.plex.standard"
+                        :src="getLogos.plex.standard"
                         height="110px"
                         contain
                       />
@@ -323,7 +323,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['GET_LASTSERVER', 'getPlex']),
+    ...mapGetters([
+      'GET_LASTSERVER',
+      'getPlex',
+      'getLogos',
+    ]),
     onDeckItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':

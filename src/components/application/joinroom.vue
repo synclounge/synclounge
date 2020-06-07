@@ -23,7 +23,7 @@
         >
           <img
             style="width:100%"
-            :src="logo"
+            :src="getLogos.light.long"
           >
         </v-flex>
       </v-layout>
@@ -91,7 +91,7 @@
               >
                 <v-list-item-avatar>
                   <img
-                    :src="logos.light.small"
+                    :src="getLogos.light.small"
                     style="width: 32px; height: auto"
                   >
                 </v-list-item-avatar>
@@ -369,6 +369,7 @@
 <script>
 import Vue from 'vue';
 import axios from 'axios';
+import moment from 'moment';
 
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
@@ -393,11 +394,19 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['GET_SYNCLOUNGE_SERVERS', 'getConnected', 'getPlex']),
-    ...mapGetters('settings', ['GET_CUSTOM_SERVER_USER_INPUTTED_URL', 'GET_RECENT_ROOMS']),
-    logo() {
-      return this.logos.light.long;
-    },
+    ...mapGetters(['GET_SYNCLOUNGE_SERVERS',
+      'getConnected',
+      'getPlex',
+      'getServer',
+      'getConnected',
+      'getRoom',
+      'getLogos',
+    ]),
+
+    ...mapGetters('settings', [
+      'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
+      'GET_RECENT_ROOMS',
+    ]),
   },
 
   watch: {
@@ -406,8 +415,8 @@ export default {
       this.serverError = null;
     },
 
-    slRoom() {
-      if (this.slServer && this.slRoom) {
+    getRoom() {
+      if (this.getServer && this.getRoom) {
         this.$router.push('/browse');
       }
     },
@@ -425,7 +434,7 @@ export default {
   },
 
   created() {
-    if (this.slRoom && this.slConnected && this.slServer) {
+    if (this.getRoom && this.getConnected && this.getServer) {
       this.$router.push('/browse');
     }
   },
@@ -434,6 +443,11 @@ export default {
     ...mapMutations('settings', ['SET_CUSTOM_SERVER_USER_INPUTTED_URL']),
     ...mapActions('settings', ['REMOVE_RECENT_ROOM']),
     ...mapActions(['socketConnect']),
+
+    sinceNow(x) {
+      const time = moment(x);
+      return time.fromNow();
+    },
 
     connectionQualityClass(value) {
       if (value < 50) {

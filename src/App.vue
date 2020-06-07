@@ -20,12 +20,12 @@
         <img
           class="ma-1 hidden-xs-only"
           style="height: 42px; width: auto; vertical-align: middle"
-          :src="logos.light.long"
+          :src="getLogos.light.long"
         >
         <img
           class="ma-1 hidden-sm-and-up"
           style="height: 42px; width: auto; vertical-align: middle"
-          :src="logo"
+          :src="getLogos.light.small"
         >
       </a>
 
@@ -111,7 +111,7 @@
           </v-alert>
         </v-flex>
         <v-flex
-          v-if="(loading || (getPlex && !getPlex.gotDevices)) && route.protected"
+          v-if="(loading || (getPlex && !getPlex.gotDevices)) && $route.protected"
           xs12
         >
           <v-container fill-height>
@@ -249,6 +249,7 @@ export default {
       'getShortLink',
       'GET_SYNCLOUNGE_SERVERS',
       'GET_UP_NEXT_POST_PLAY_DATA',
+      'getLogos',
     ]),
     ...mapGetters('config', ['GET_CONFIG']),
     ...mapGetters('settings', ['GET_PLEX_AUTH_TOKEN']),
@@ -330,9 +331,6 @@ export default {
     },
     showRightDrawerButton() {
       return this.getConnected && this.getChosenClient && this.getRoom;
-    },
-    logo() {
-      return this.logos.light.small;
     },
     showLinkShortener() {
       return this.getConnected && this.getServer && this.getRoom && this.getShortLink;

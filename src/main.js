@@ -3,7 +3,6 @@ import VueScrollTo from 'vue-scrollto';
 import VueObserveVisibility from 'vue-observe-visibility';
 import VueClipboard from 'vue-clipboard2';
 import VueCookies from 'vue-cookies';
-import moment from 'moment';
 import { sync } from 'vuex-router-sync';
 
 import vuetify from './plugins/vuetify';
@@ -11,9 +10,6 @@ import vuetify from './plugins/vuetify';
 import App from './App.vue';
 import router from './router';
 import store from './store';
-
-require('vanilla-tilt');
-
 
 sync(store, router);
 
@@ -55,65 +51,6 @@ window.EventBus.$on('command', (data) => {
       data.callback(true);
     }
   }
-});
-
-Vue.mixin({
-  computed: {
-    appVersion() {
-      return this.$store.getters.appVersion;
-    },
-    logos() {
-      return this.$store.getters.getLogos;
-    },
-    slConnected() {
-      return this.$store.getters.getConnected;
-    },
-    slServer() {
-      return this.$store.getters.getServer;
-    },
-    slRoom() {
-      return this.$store.getters.getRoom;
-    },
-    slPassword() {
-      return this.$store.getters.getPassword;
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
-    plex() {
-      return this.$store.getters.getPlex;
-    },
-    settings() {
-      return this.$store.getters.getSettings;
-    },
-    plexserver() {
-      return this.plex.servers[this.$route.params.machineIdentifier];
-    },
-    route() {
-      return this.$route;
-    },
-    fontSizes() {
-      const w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-      );
-      const maxPx = 94;
-      const maxRes = 3000;
-      return {
-        largest: {
-          'font-size': `${(w / maxRes) * maxPx}px`,
-        },
-        medium: {
-          'font-size': `${(w / maxRes) * maxPx * 0.6}px`,
-        },
-      };
-    },
-  },
-  methods: {
-    sinceNow(x) {
-      const time = moment(x);
-      return time.fromNow();
-    },
-  },
 });
 
 router.beforeEach((to, from, next) => {

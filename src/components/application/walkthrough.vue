@@ -12,7 +12,7 @@
         >
           <img
             style="width:100%"
-            :src="logo"
+            :src="getLogos.light.long "
           >
         </v-col>
       </v-row>
@@ -301,7 +301,10 @@ export default {
   },
   computed: {
     ...mapState(['plex']),
-    ...mapGetters(['getChosenClient']),
+    ...mapGetters([
+      'getChosenClient',
+      'getLogos',
+    ]),
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':
@@ -361,9 +364,6 @@ export default {
         url = url.replace('clientselect', 'join');
       }
       return url;
-    },
-    logo() {
-      return this.logos.light.long;
     },
     recentClients() {
       return this.$store.getters.recentClients;

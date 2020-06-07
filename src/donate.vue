@@ -4,14 +4,15 @@
       Donate
       <v-spacer />
       <img
-        :src="logos.light.small"
+        :src="getLogos.light.small"
         style="height: 50px"
       >
     </v-card-title>
     <v-divider />
     <v-card-text>
       <p class="pa-2">
-        All donations to SyncLounge go directly towards running the SyncLounge public servers and the continued development of the application.
+        All donations to SyncLounge go directly towards running the SyncLounge
+        public servers and the continued development of the application.
       </p>
       <v-subheader> How to donate </v-subheader>
       <v-layout
@@ -69,7 +70,8 @@
       </div>
       <v-divider />
       <p class="pa-2 soft-text mb-0 pb-0">
-        If you make a donation, stop by the Discord and message samcm#2715 to get your Donator role. Thankyou!
+        If you make a donation, stop by the Discord and message samcm#2715 to get your Donator role.
+        Thankyou!
       </p>
     </v-card-text>
     <v-card-actions>
@@ -86,6 +88,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 
 export default {
   props: {
@@ -94,6 +97,7 @@ export default {
       default: () => {},
     },
   },
+
   data() {
     return {
       addresses: {
@@ -103,6 +107,12 @@ export default {
         BCH: '1K3ULWzW9dLyGbtpnNqUysHuj1suZFXtx4',
       },
     };
+  },
+
+  computed: {
+    ...mapGetters([
+      'getLogos',
+    ]),
   },
 };
 </script>

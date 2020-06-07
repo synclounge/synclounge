@@ -53,9 +53,9 @@
                     </v-icon>
                   </h2>
                   <div class="headline">
-                    {{ title }}
+                    {{ getTitle(item) }}
                   </div>
-                  <div>{{ secondaryTitle }}</div>
+                  <div>{{ getSecondaryTitle(item) }}</div>
                   <v-layout
                     row
                     wrap
@@ -112,9 +112,11 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex';
 
-import plexutils from '@/utils/plexutils';
+import contentTitle from '@/mixins/contentTitle';
 
 export default {
+  mixins: [contentTitle],
+
   data() {
     return {
       sheet: true,
@@ -146,14 +148,6 @@ export default {
 
     item() {
       return this.GET_UP_NEXT_POST_PLAY_DATA.MediaContainer.Hub[0].Metadata[0];
-    },
-
-    title() {
-      return plexutils.getTitle(this.item);
-    },
-
-    secondaryTitle() {
-      return plexutils.getSecondaryTitle(this.item);
     },
   },
 

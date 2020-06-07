@@ -108,7 +108,7 @@
           style="font-size:0.8rem"
         >
           <div class="truncate soft-text">
-            {{ getUnder(content) }}
+            {{ getSecondaryTitle(content) }}
           </div>
         </v-flex>
       </v-layout>
@@ -118,8 +118,10 @@
 
 <script>
 import VanillaTilt from 'vanilla-tilt';
+import contentTitle from '@/mixins/contentTitle';
 
 export default {
+  mixins: [contentTitle],
   props: {
     showServer: {
       type: Boolean,
@@ -370,6 +372,7 @@ export default {
     window.addEventListener('resize', this.handleResize);
   },
   mounted() {
+    console.log(this.bottomOnly);
     this.fullheight = this.$refs.root.offsetHeight;
     // console.log(this.$refs)
     this.fullwidth = this.$refs.root.offsetWidth;
@@ -411,61 +414,6 @@ export default {
       }
       if (this.$refs.bottomText) {
         this.bottomtextheight = this.$refs.bottomText.offsetHeight;
-      }
-    },
-    getTitle(content) {
-      switch (content.type) {
-        case 'movie':
-          if (this.fullTitle !== undefined) {
-            if (content.year) {
-              return `${content.title} (${content.year})`;
-            }
-          }
-          return content.title;
-        case 'show':
-          return content.title;
-        case 'season':
-          if (this.fullTitle !== undefined) {
-            return content.parentTitle;
-          }
-          return content.title;
-        case 'episode':
-          if (this.fullTitle !== undefined) {
-            return content.title;
-          }
-          return content.grandparentTitle;
-        default:
-          return content.title;
-      }
-    },
-    getUnder(content) {
-      switch (content.type) {
-        case 'movie':
-          if (content.year) {
-            return content.year;
-          }
-          return ' ';
-        case 'show':
-          if (content.childCount === 1) {
-            return `${content.childCount} season`;
-          }
-          return `${content.childCount} seasons`;
-        case 'season':
-          if (this.fullTitle !== undefined) {
-            return content.title;
-          }
-          return `${content.leafCount} episodes`;
-        case 'album':
-          return content.year;
-        case 'artist':
-          return '';
-        case 'episode':
-          if (this.fullTitle !== undefined) {
-            return `Episode ${content.index}`;
-          }
-          return ` S${content.parentIndex}E${content.index} - ${content.title}`;
-        default:
-          return content.title;
       }
     },
     getImg(object) {

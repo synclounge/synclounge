@@ -26,7 +26,7 @@
               class="text-center"
             >
               <img
-                :src="logos.light.small"
+                :src="getLogos.light.small"
                 style="width: 90%"
               >
             </v-flex>
@@ -101,12 +101,14 @@ export default {
   },
 
   computed: {
+    ...mapGetters([
+      'getLogos',
+    ]),
+
     ...mapGetters('settings', [
       'GET_PLEX_AUTH_TOKEN',
     ]),
-    logo() {
-      return this.$store.getters.logos.light.short;
-    },
+
     gotDevices() {
       return this.$store.state.plex.gotDevices;
     },

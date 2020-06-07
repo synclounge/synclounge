@@ -1,6 +1,6 @@
 import { detect } from 'detect-browser';
 import { encodeUrlParams } from '@/utils/encoder';
-import plexutils from '@/utils/plexutils';
+import contenttitleutils from '@/utils/contenttitleutils';
 import { qualities } from './qualities';
 
 function capitalizeFirstLetter(string) {
@@ -105,8 +105,9 @@ export default {
   GET_PLAYER: (state) => state.player,
   GET_PLAYER_UI: (state) => state.playerUi,
 
-  GET_TITLE: (state, getters) => plexutils.getTitle(getters.GET_METADATA),
-  GET_SECONDARY_TITLE: (state, getters) => plexutils.getSecondaryTitle(getters.GET_METADATA),
+  GET_TITLE: (state, getters) => contenttitleutils.getTitle(getters.GET_METADATA),
+  GET_SECONDARY_TITLE: (state, getters) => contenttitleutils
+    .getSecondaryTitle(getters.GET_METADATA),
 
   GET_BASE_PARAMS: (state, getters) => ({
     'X-Plex-Product': 'SyncLounge',
