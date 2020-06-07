@@ -22,7 +22,7 @@ module.exports = {
   pluginOptions: {
     webpackBundleAnalyzer: {
       // openAnalyzer: false,
-      analyzerMode: 'server',
+      // analyzerMode: 'server',
     },
   },
 };

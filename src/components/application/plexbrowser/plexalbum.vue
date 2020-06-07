@@ -69,8 +69,8 @@
       <v-divider />
       <div>
         <v-layout
-          v-for="content in contents.MediaContainer.Metadata"
-          :key="content"
+          v-for="item in contents.MediaContainer.Metadata"
+          :key="item"
           class="row mt-3"
           row
           wrap
@@ -83,30 +83,31 @@
               class="click-cursor"
               large
               light
-              @click="playMedia(content)"
+              @click="playMedia(item)"
             >play_arrow</v-icon>
           </v-flex>
           <v-flex
             xs4
             md3
             class="click-cursor"
-            @click="playMedia(content)"
+            @click="playMedia(item)"
           >
-            <span class="soft-text">{{ content.index }}</span>. {{ content.title }}
+            <span class="soft-text">{{ item.index }}</span>. {{ item.title }}
           </v-flex>
           <v-flex
             xs4
             md2
           >
-            <span class="soft-text">{{ getDuration(content) }}</span>
+            <span class="soft-text">{{ getDuration(item) }}</span>
           </v-flex>
           <v-flex md3>
             <span
-              v-for="media in content.Media"
+              v-for="media in item.Media"
               :key="media"
               class="soft-text"
             >
-              {{ media.audioCodec }} ({{ media.audioChannels }}ch) <span v-if="content.Media.length > 1">,</span>
+              {{ media.audioCodec }} ({{ media.audioChannels }}ch)
+              <span v-if="item.Media.length > 1">,</span>
             </span>
           </v-flex>
         </v-layout>
@@ -116,14 +117,12 @@
       v-if="browsingContent && browsingContent.type != 'show'"
       :content="browsingContent"
       :server="server"
-      :library="library"
     />
   </span>
 </template>
 
 <script>
 import plexcontent from './plexcontent.vue';
-import plexthumb from './plexthumb.vue';
 
 const humanizeDuration = require('humanize-duration');
 
@@ -139,9 +138,19 @@ humanizeDuration.languages.shortEn = {
 export default {
   components: {
     plexcontent,
-    plexthumb,
   },
-  props: ['library', 'server', 'content'],
+
+  props: {
+    server: {
+      type: Object,
+      default: () => {},
+    },
+    content: {
+      type: Object,
+      default: () => {},
+    },
+  },
+
   data() {
     return {
       browsingContent: null,
@@ -150,24 +159,32 @@ export default {
       status: 'loading..',
     };
   },
+
   computed: {
     getArtUrl() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(this.contents.MediaContainer.banner, w / 2, h / 1, 5);
     },
+
     chosenClient() {
       return this.$store.getters.getChosenClient;
     },
+
     playable() {
       if (this.nowPlaying || this.nowPlaying === '') {
         return false;
       }
       return true;
     },
+
     getThumb() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(
         this.contents.MediaContainer.grandparentThumb,
         w / 1,
@@ -175,6 +192,7 @@ export default {
       );
     },
   },
+
   watch: {
     browsingContent() {
       if (!this.browsingContent) {
@@ -182,6 +200,7 @@ export default {
       }
     },
   },
+
   created() {
     // Hit the PMS endpoing /library/sections
     this.server.getSeriesContent(this.content.key, 0, 500, 1, (result) => {
@@ -200,8 +219,10 @@ export default {
       this.browsingContent = content;
     },
     setBackground() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      const w = Math.round(Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0));
+      const h = Math.round(Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0));
 
       this.$store.commit(
         'SET_BACKGROUND',
@@ -226,8 +247,7 @@ export default {
     },
     // TODO: this is the wrong API but it's aparantly been wrong for a while?
     playMedia(content) {
-      this.chosenClient.playMedia(content.key, this.server, (result) => {
-      });
+      this.chosenClient.playMedia(content.key, this.server, () => {});
     },
   },
 };

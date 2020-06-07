@@ -16,7 +16,8 @@ const commandActions = (command) => ({
 
 // These functions are a bit special since they use currentTime and duration, which can't
 // be tracked by vuex, so the cache isn't updated correctly
-const getPlayerCurrentTimeMs = (getters) => (getters.GET_PLAYER_MEDIA_ELEMENT.currentTime * 1000) || getters.GET_OFFSET_MS;
+const getPlayerCurrentTimeMs = (getters) => (getters.GET_PLAYER_MEDIA_ELEMENT.currentTime * 1000)
+  || getters.GET_OFFSET_MS;
 
 const getPlayerDurationMs = (getters) => getters.GET_PLAYER_MEDIA_ELEMENT.duration * 1000;
 
@@ -47,6 +48,7 @@ const isTimeInBufferedRange = (getters, timeMs) => {
   const bufferedTimeRange = getters.GET_PLAYER_MEDIA_ELEMENT.buffered;
 
   // There can be multiple ranges
+  // eslint-disable-next-line no-plusplus
   for (let i = 0; i < bufferedTimeRange.length; ++i) {
     if (timeMs >= bufferedTimeRange.start(i) * 1000 && timeMs <= bufferedTimeRange.end(i) * 1000) {
       return true;
@@ -162,7 +164,8 @@ export default {
       dispatch('CHANGE_PLAYER_STATE', 'buffering');
     } else {
       // Report back if player is playing
-      dispatch('CHANGE_PLAYER_STATE', getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing');
+      dispatch('CHANGE_PLAYER_STATE',
+        getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing');
     }
   },
 
@@ -173,8 +176,8 @@ export default {
 
   // Command handlers
   HANDLE_COMMAND: async ({ dispatch }, { command, params, callback }) => {
-    const result = await dispatch('DO_COMMAND_DISPATCH', { action: commandActions(command), params })
-      .catch(console.warn);
+    const result = await dispatch('DO_COMMAND_DISPATCH',
+      { action: commandActions(command), params }).catch(console.warn);
     callback(result);
   },
 
@@ -233,7 +236,8 @@ export default {
   },
 
   NORMAL_SEEK: async ({ getters, commit, rootGetters }, seekToMs) => {
-    if ((Math.abs(seekToMs - getPlayerCurrentTimeMs(getters)) < 3000 && rootGetters.GET_HOST_PLAYER_STATE === 'playing')) {
+    if ((Math.abs(seekToMs - getPlayerCurrentTimeMs(getters)) < 3000
+      && rootGetters.GET_HOST_PLAYER_STATE === 'playing')) {
       let cancelled = false;
 
       window.EventBus.$once('host-playerstate-change', () => {
