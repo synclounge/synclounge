@@ -26,7 +26,8 @@ Vue.$cookies.config('7d');
 // Our Event bus
 window.EventBus = new Vue();
 window.EventBus.$on('command', (data) => {
-  if (router.app.route.fullPath.indexOf('/player') === -1) {
+  // eslint-disable-next-line no-underscore-dangle
+  if (router.app._route.fullPath.indexOf('/player') === -1) {
     if (data.command === '/player/timeline/poll') {
       data.callback({
         key: null,
