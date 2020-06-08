@@ -491,27 +491,7 @@ export default {
     },
 
     async testConnections() {
-      this.GET_SYNCLOUNGE_SERVERS.forEach((server) => {
-        if (server.url !== 'custom') {
-          const start = new Date().getTime();
-          axios
-            .get(`${server.url}/health`)
-            .then((res) => {
-              Vue.set(this.results, server.url, {
-                alive: true,
-                latency: Math.abs(start - new Date().getTime()),
-                result: res.data.load || null,
-              });
-            })
-            .catch(() => {
-              Vue.set(this.results, server.url, {
-                alive: false,
-                latency: Math.abs(start - new Date().getTime()),
-                result: null,
-              });
-            });
-        }
-      });
+
     },
 
     attemptConnect() {

@@ -60,10 +60,26 @@ export default new Router({
       beforeEnter: ifAuthenticated,
     },
     {
+      path: '/clientpicker',
+      meta: {
+      },
+      name: 'ClientPicker',
+      component: () => import('../components/clientpicker.vue'),
+      beforeEnter: ifAuthenticated,
+    },
+    {
       path: '/joinroom',
       meta: {
       },
       component: () => import('../components/application/joinroom.vue'),
+      beforeEnter: ifAuthenticated,
+    },
+    {
+      path: '/createroom',
+      meta: {
+      },
+      component: () => import('../components/createroom.vue'),
+      name: 'CreateRoom',
       beforeEnter: ifAuthenticated,
     },
     {

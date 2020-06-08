@@ -25,9 +25,6 @@ export default {
   SET_SHORTLINK(state, value) {
     state.shortLink = value;
   },
-  REFRESH_PLEXDEVICES(state) {
-    state.plex.getDevices(() => {});
-  },
 
   SET_VALUE(state, data) {
     const [key, value] = data;

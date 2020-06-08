@@ -1,7 +1,8 @@
 <template>
   <v-list-item
+    ref="test"
     :style="styleObj"
-    class="pa-1"
+    v-bind="$attrs"
   >
     <v-list-item-avatar>
       <img
@@ -10,6 +11,7 @@
         :src="url"
       >
     </v-list-item-avatar>
+
     <v-list-item-content>
       <v-list-item-title>
         {{ object.name }}
@@ -23,6 +25,7 @@
           {{ label[0] }}
         </v-chip>
       </v-list-item-title>
+
       <v-list-item-subtitle>
         {{ object.product }} - last seen {{ lastSeenAgo }}
       </v-list-item-subtitle>
@@ -144,6 +147,5 @@ export default {
       };
     },
   },
-  methods: {},
 };
 </script>

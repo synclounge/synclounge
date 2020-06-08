@@ -1,3 +1,23 @@
+import defaultSyncloungeServers from './defaultservers';
+
+const loadToNumber = (load) => {
+  switch (load) {
+    case 'low':
+      return 1;
+
+    case 'medium':
+      return 2;
+
+    case 'high':
+      return 3;
+
+    default:
+      // A really big number since this shouldn't happen
+      return 1000;
+  }
+};
+
+const healthScore = (health) => health.latency + loadToNumber(health.load) * 10;
 
 export default {
   getServer: (state) => state.server,
@@ -12,4 +32,32 @@ export default {
   getHostUser: (state) => state.users.find((u) => u.role === 'host'),
   GET_HOST_PLAYER_STATE: (state) => state.lastHostTimeline.playerState,
   AM_I_HOST: (state) => state.me.role === 'host',
+
+
+  GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => {
+    if (rootGetters['config/GET_CONFIG'].servers && rootGetters['config/GET_CONFIG'].servers.length > 0) {
+      if (rootGetters['config/GET_CONFIG'].customServer) {
+        console.error(
+          "'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.",
+        );
+      }
+      return rootGetters['config/GET_CONFIG'].servers;
+    }
+
+    if (rootGetters['config/GET_CONFIG'].customServer) {
+      return defaultSyncloungeServers.concat([rootGetters['config/GET_CONFIG'].customServer]);
+    }
+
+    return defaultSyncloungeServers.concat([rootGetters['settings/GET_CUSTOMSERVER']]);
+  },
+
+  GET_SERVERS_HEALTH: (state) => state.serversHealth,
+
+  GET_SERVER_HEALTH_SCORES: (state) => state.serversHealth.map((health) => ({
+    score: healthScore(health),
+    url: health.url,
+  })),
+
+  GET_BEST_SERVER: (state, getters) => getters.GET_SERVER_HEALTH_SCORES
+    .reduce((prev, curr) => (curr.score < prev.score ? curr : prev)).url,
 };

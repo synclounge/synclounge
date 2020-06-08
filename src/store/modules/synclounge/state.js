@@ -16,6 +16,8 @@ const state = () => ({
   lastHostTimeline: {},
   commands: {},
   rawTitle: null,
+
+  serversHealth: null,
 });
 
 

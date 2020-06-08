@@ -208,7 +208,7 @@
           <v-icon
             class="pl-2"
             small
-            @click="PLEX_GET_DEVICES(true)"
+            @click="PLEX_GET_DEVICES"
           >
             refresh
           </v-icon>

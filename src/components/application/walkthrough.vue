@@ -92,7 +92,7 @@
               style="background: none"
             >
               <plexclient
-                v-for="i in recentClients"
+                v-for="i in GET_RECENT_PLEX_CLIENTS"
                 :key="i.clientIdentifier"
                 :selected="isClientSelected(i)"
                 :object="i"
@@ -223,7 +223,7 @@
               style="background: none"
             >
               <plexclient
-                v-for="i in recentClients"
+                v-for="i in GET_RECENT_PLEX_CLIENTS"
                 :key="i.clientIdentifier"
                 :selected="isClientSelected(i)"
                 :object="i"
@@ -304,6 +304,7 @@ export default {
     ...mapGetters([
       'getChosenClient',
       'getLogos',
+      'GET_RECENT_PLEX_CLIENTS',
     ]),
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {
@@ -364,9 +365,6 @@ export default {
         url = url.replace('clientselect', 'join');
       }
       return url;
-    },
-    recentClients() {
-      return this.$store.getters.recentClients;
     },
   },
   watch: {

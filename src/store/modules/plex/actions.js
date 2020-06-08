@@ -36,12 +36,7 @@ export default {
 
   PLEX_GET_DEVICES: async ({
     state, commit, dispatch, getters, rootGetters,
-  }, dontDelete) => {
-    if (!dontDelete) {
-      commit('PLEX_SET_VALUE', ['gotDevices', false]);
-      commit('PLEX_SET_VALUE', ['servers', {}]);
-      commit('PLEX_SET_VALUE', ['clients', {}]);
-    }
+  }) => {
     try {
       const { data: devices } = await axios.get('https://plex.tv/api/v2/resources?includeHttps=1', {
         headers: getters.GET_PLEX_BASE_PARAMS,
@@ -201,7 +196,7 @@ export default {
         if (authentication.type.includes('server')) {
           try {
             // Retrieve and store the user's servers
-            await dispatch('PLEX_GET_DEVICES', true);
+            await dispatch('PLEX_GET_DEVICES');
             // Get the user's servers
 
             // Compare servers against the authorized list

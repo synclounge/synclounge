@@ -10,11 +10,10 @@ const browser = detect();
 export default {
   getItemCache: (state) => state.itemCache,
   getLibraryCache: (state) => state.libraryCache,
-  recentClients: (state) => {
-    let clients = Object.values(state.clients);
-    clients = clients.sort((a, b) => parseInt(b.lastSeenAt, 10) - parseInt(a.lastSeenAt, 10));
-    return clients;
-  },
+
+  GET_RECENT_PLEX_CLIENTS: (state) => Object.values(state.clients)
+    .sort((a, b) => -a.lastSeenAt.localeCompare(b.lastSeenAt)),
+
   GET_LASTSERVER: (state, getters) => state.servers[getters['settings/GET_LASTSERVER']],
   GET_VALID_SERVERS: (state) => Object.fromEntries(
     Object.entries(state.servers).filter(

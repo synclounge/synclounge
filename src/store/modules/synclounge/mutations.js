@@ -40,4 +40,8 @@ export default {
   SET_DECISION_BLOCKED_TIME(state, time) {
     state.decisionBlockedTime = time;
   },
+
+  SET_SERVERS_HEALTH: (state, healths) => {
+    state.serversHealth = healths;
+  },
 };

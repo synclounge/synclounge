@@ -1,6 +1,7 @@
 import axios from 'axios';
 import io from 'socket.io-client';
 import delay from '@/utils/delay';
+import guid from '@/utils/guid';
 
 function sendNotification(message) {
   console.log(message);
@@ -508,5 +509,40 @@ export default {
         }
       });
     }
+  },
+
+  FETCH_SERVERS_HEALTH: async ({ getters, commit }) => {
+    const start = new Date().getTime();
+
+    const results = await Promise.allSettled(getters.GET_SYNCLOUNGE_SERVERS
+      .map(async ({ url }) => ({
+        ...(await axios.get(`${url}/health`, { timeout: 2000 }).data),
+        latency: new Date().getTime() - start,
+        url,
+      })));
+
+
+    const aliveServerHealths = results.filter((result) => result.status === 'fulfilled')
+      .map(({ value }) => value);
+
+    commit('SET_SERVERS_HEALTH', aliveServerHealths);
+  },
+
+  GET_OR_FETCH_SERVERS_HEALTH: async ({ dispatch, getters }) => {
+    if (getters.GET_SERVERS_HEALTH) {
+      return getters.GET_SERVERS_HEALTH;
+    }
+
+    await dispatch('FETCH_SERVERS_HEALTH');
+    return getters.GET_SERVERS_HEALTH;
+  },
+
+  CREATE_AND_JOIN_ROOM: ({ getters, dispatch }) => {
+    const url = getters.GET_BEST_SERVER;
+    console.log(url);
+    return dispatch('autoJoin', {
+      server: url,
+      room: guid(),
+    });
   },
 };
