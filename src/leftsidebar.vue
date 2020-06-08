@@ -218,9 +218,6 @@ export default {
     updatedAt() {
       return '';
     },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
     validPlex() {
       if (!this.$store.state.plex) {
         return false;
@@ -230,121 +227,9 @@ export default {
     appVersion() {
       return this.$store.state.appVersion;
     },
-    validDevices() {
-      if (!this.plex) {
-        return false;
-      }
-      return this.plex.gotDevices;
-    },
-    showBrowser() {
-      return this.chosenClient && !this.chosenClient.clientPlayingMetadata && this.ptRoom;
-    },
-    isPTPlayer() {
-      return this.chosenClient && this.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10';
-    },
-    showMetadata() {
-      return (
-        !this.isPTPlayer
-        && !this.showBrowser
-        && this.chosenClient
-        && this.chosenClient.clientPlayingMetadata
-      );
-    },
-    ptConnected() {
-      return this.$store.getters.getConnected;
-    },
-    ptServer() {
-      return this.$store.getters.getServer;
-    },
-    ptRoom() {
-      return this.$store.getters.getRoom;
-    },
-    ptPassword() {
-      return this.$store.getters.getPassword;
-    },
-    ptUsers() {
-      return this.$store.getters.getUsers;
-    },
-    userCount() {
-      const count = this.$store.getters.getUsers.length;
-      if (count === 1) {
-        return `${count} user`;
-      }
-      return `${count} users`;
-    },
-    chatBoxMessage() {
-      return `Message ${this.$store.getters.getRoom}`;
-    },
-    playercount() {
-      if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${this.$store.state.plex.clients.length})`;
-      }
-      return '';
-    },
-    servercount() {
-      if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${this.$store.state.plex.servers.length})`;
-      }
-      return '';
-    },
-    showChatValue() {
-      if (this.$store.getters.getShownChat) {
-        return 'block';
-      }
-      return 'none';
-    },
-    messages() {
-      return this.$store.getters.getMessages;
-    },
   },
   methods: {
     ...mapActions(['SET_LEFT_SIDEBAR_OPEN']),
-    isHost(user) {
-      return user.role === 'host';
-    },
-    percent(user) {
-      let perc = (parseInt(user.time, 10) / parseInt(user.maxTime, 10)) * 100;
-      if (Number.isNaN(perc)) {
-        perc = 0;
-      }
-      return perc;
-    },
-    getCurrent(user) {
-      if (Number.isNaN(user.time)) {
-        return this.getTimeFromMs(0);
-      }
-      return this.getTimeFromMs(user.time);
-    },
-    getMax(user) {
-      if (Number.isNaN(user.maxTime)) {
-        return this.getTimeFromMs(0);
-      }
-      return this.getTimeFromMs(user.maxTime);
-    },
-    getTitle(user) {
-      if (user.title && user.title.length > 0) {
-        return user.title;
-      }
-      return 'Nothing';
-    },
-    sendMessage() {
-      this.$store.dispatch('sendNewMessage', this.messageToBeSent);
-      this.messageToBeSent = '';
-    },
-    playerState(user) {
-      if (user.playerState) {
-        if (user.playerState === 'stopped') {
-          return 'pause';
-        }
-        if (user.playerState === 'paused') {
-          return 'pause';
-        }
-        if (user.playerState === 'playing') {
-          return 'play_arrow';
-        }
-      }
-      return false;
-    },
     getTimeFromMs(ms) {
       const hours = ms / (1000 * 60 * 60);
       const absoluteHours = Math.floor(hours);
@@ -360,9 +245,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.v-list__tile__action {
-  justify-content: center;
-}
-</style>
