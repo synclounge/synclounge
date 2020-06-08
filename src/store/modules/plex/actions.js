@@ -1,6 +1,4 @@
 import axios from 'axios';
-import xmlutils from '@/utils/xmlutils';
-
 
 import plexauth from './helpers/PlexAuth';
 import PlexServer from './helpers/PlexServer';
@@ -188,19 +186,6 @@ export default {
 
   PLEX_CLIENT_UPDATETIMELINE: (context, [client, timeline]) => {
     console.log('Updating timeline for', client, 'with', timeline);
-  },
-
-  PLEX_GET_SERVERS: async ({ state }, token) => {
-    if (!state.user) {
-      throw new Error('Sign in before getting devices');
-    }
-
-    const { data } = await axios.get('https://plex.tv/pms/servers.xml', {
-      ...plexauth.getRequestConfig(token, 5000),
-      transformResponse: xmlutils.parseXML,
-    });
-
-    state.user.servers = data.MediaContainer.Server;
   },
 
   PLEX_CHECK_AUTH: async ({ state, dispatch, getters }, authToken) => {
