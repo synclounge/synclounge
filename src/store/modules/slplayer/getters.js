@@ -104,10 +104,10 @@ export default {
     .getSecondaryTitle(getters.GET_METADATA),
 
 
-  GET_PART_PARAMS: (state, getters) => ({
+  GET_PART_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Text-Format': 'plain',
     'X-Plex-Provider-Version': 1.3,
-    ...getters.GET_BASE_PARAMS,
+    ...rootGetters.GET_PLEX_BASE_PARAMS,
   }),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
@@ -140,7 +140,7 @@ export default {
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
     'X-Plex-Incomplete-Segments': 1,
-    ...getters.GET_BASE_PARAMS,
+    ...rootGetters.GET_PLEX_BASE_PARAMS,
   }),
 
   ARE_PLAYER_CONTROLS_SHOWN: (state) => state.playerControlsShown,
