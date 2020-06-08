@@ -11,8 +11,7 @@ export default {
   getItemCache: (state) => state.itemCache,
   getLibraryCache: (state) => state.libraryCache,
   recentClients: (state) => {
-    let clients = [];
-    for (const client in state.clients) clients.push(state.clients[client]);
+    let clients = Object.values(state.clients);
     clients = clients.sort((a, b) => parseInt(b.lastSeenAt, 10) - parseInt(a.lastSeenAt, 10));
     return clients;
   },

@@ -75,11 +75,13 @@ export default {
         && metadata.type === 'episode'
       ) {
         if (!getters.GET_UP_NEXT_TRIGGERED) {
-          state.plex.servers[timeline.machineIdentifier].getPostplay(timeline.ratingKey).then((data) => {
-            if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle === metadata.grandparentTitle) {
-              commit('SET_UP_NEXT_POST_PLAY_DATA', data);
-            }
-          });
+          state.plex.servers[timeline.machineIdentifier]
+            .getPostplay(timeline.ratingKey).then((data) => {
+              if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle
+                  === metadata.grandparentTitle) {
+                commit('SET_UP_NEXT_POST_PLAY_DATA', data);
+              }
+            });
 
           commit('SET_UP_NEXT_TRIGGERED', true);
         }

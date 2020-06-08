@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import plexauth from './helpers/PlexAuth';
 import PlexServer from './helpers/PlexServer';
 import PlexClient from './helpers/PlexClient';
 

@@ -10,7 +10,8 @@
         :value="GET_CLIENTPOLLINTERVAL"
         :min="100"
         :max="10000"
-        hint="Sets how frequently SyncLounge will poll external plex clients for new information in milliseconds. Default is 1000ms (1 second)"
+        hint="Sets how frequently SyncLounge will poll plex clients for new information in
+        milliseconds.Default is 1000ms (1 second)"
         persistent-hint
         @change="SET_CLIENTPOLLINTERVAL"
       />
@@ -29,7 +30,8 @@
         :value="GET_SYNCFLEXIBILITY"
         :min="0"
         :max="10000"
-        hint="Sets the acceptable distance away from the host in milliseconds. Default is 3000ms (3 seconds)."
+        hint="Sets the acceptable distance away from the host in milliseconds.
+        Default is 3000ms (3 seconds)."
         persistent-hint
         @change="SET_SYNCFLEXIBILITY"
       />
@@ -66,7 +68,8 @@
       </h4>
       <v-switch
         label="Enabled"
-        hint="If enabled SyncLounge will attempt to automatically play the same content as the host."
+        hint="If enabled SyncLounge will attempt to automatically play the
+         same content as the host."
         :input-value="GET_AUTOPLAY"
         @change="SET_AUTOPLAY"
       />

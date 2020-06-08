@@ -25,7 +25,7 @@ export default {
     this.$store.state.plex = null;
     this.$store.state.signedin = 'notsignedin';
     setTimeout(() => {
-      location.reload();
+      window.location.reload();
     }, 2500);
   },
   methods: {

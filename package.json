@@ -48,6 +48,7 @@
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^6.2.2",
+    "fast-xml-parser": "^3.17.3",
     "fscreen": "^1.0.2",
     "humanize-duration": "^3.23.0",
     "moment": "^2.26.0",

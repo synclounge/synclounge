@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 
 class CloseButton extends shaka.ui.Element {

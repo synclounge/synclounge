@@ -35,7 +35,7 @@ export default {
   },
 
   socketConnect({
-    state, commit, rootState, rootGetters,
+    state, commit, rootGetters,
   }, data) {
     return new Promise((resolve, reject) => {
       const { address } = data;
@@ -91,8 +91,8 @@ export default {
     }
 
     console.log('Joining room', data.roomName);
-    data.password = data.password || '';
-    commit('SET_PASSWORD', data.password);
+
+    commit('SET_PASSWORD', data.password || '');
     let { username } = data.user;
 
     if (rootGetters['settings/GET_HIDEUSERNAME']) {
@@ -101,10 +101,10 @@ export default {
 
     state.socket.emit(
       'join',
-      new HandshakeUser(data.user, data.roomName, data.password, rootState.uuid, username),
+      new HandshakeUser(data.user, data.roomName, data.password || '', rootState.uuid, username),
     );
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       state.socket.on('join-result', async (result, _data, details, currentUsers, partyPausing) => {
         console.log('Got join result', result);
         commit('CLEAR_MESSAGES');
@@ -133,7 +133,7 @@ export default {
             urlOrigin = 'http://app.synclounge.tv';
           }
 
-          const data = {
+          const inviteData = {
             urlOrigin,
             owner: rootGetters['settings/GET_PLEX_USER'].username || rootGetters['settings/GET_PLEX_USER'].title,
             server: state.server,
@@ -141,7 +141,7 @@ export default {
             password: state.password || '',
           };
           // if (settings.webroot) urlOrigin = urlOrigin + settings.webroot
-          axios.post(`${urlOrigin}/invite`, data).then((res) => {
+          axios.post(`${urlOrigin}/invite`, inviteData).then((res) => {
             commit('SET_SHORTLINK', res.data.url);
           });
 
@@ -214,149 +214,154 @@ export default {
             });
           });
 
-          state.socket.on('host-update', async (data) => {
-            data.recievedAt = new Date().getTime();
-            const hostTimeline = data;
+          state.socket.on('host-update', async (hostData) => {
+            const hostUpdateData = hostData;
+            hostUpdateData.recievedAt = new Date().getTime();
+            const hostTimeline = hostUpdateData;
             if (
               !state.lastHostTimeline
-              || state.lastHostTimeline.playerState !== data.playerState
+              || state.lastHostTimeline.playerState !== hostUpdateData.playerState
             ) {
               window.EventBus.$emit('host-playerstate-change');
             }
-            const diffBetweenLastUpdate = Math.abs(state.lastHostTimeline.time - data.time);
+            const diffBetweenLastUpdate = Math.abs(state.lastHostTimeline.time
+              - hostUpdateData.time);
             if (diffBetweenLastUpdate > 5000) {
               window.EventBus.$emit('host-playerstate-change');
             }
-            state.lastHostTimeline = data;
-            const decisionMaker = (timelineAge) => {
+            state.lastHostTimeline = hostUpdateData;
+            const decisionMaker = async () => {
               const ourTimeline = rootState.chosenClient.lastTimelineObject;
-              return new Promise(async (resolve, reject) => {
-                if (ourTimeline.playerState === 'buffering') {
-                  return resolve();
-                }
-                if (
-                  (hostTimeline.playerState === 'stopped' || !hostTimeline.playerState)
-                  && ourTimeline.state !== 'stopped'
-                ) {
-                  sendNotification('The host pressed stop');
-                  await rootState.chosenClient.pressStop();
-                  return resolve();
-                }
 
-                if (hostTimeline.playerState === 'stopped') {
-                  return resolve();
-                }
-                // Check if we need to autoplay
-                if (
-                  ((ourTimeline.state === 'stopped' || !ourTimeline.state)
+              if (ourTimeline.playerState === 'buffering') {
+                return;
+              }
+              if (
+                (hostTimeline.playerState === 'stopped' || !hostTimeline.playerState)
+                  && ourTimeline.state !== 'stopped'
+              ) {
+                sendNotification('The host pressed stop');
+                await rootState.chosenClient.pressStop();
+                return;
+              }
+
+              if (hostTimeline.playerState === 'stopped') {
+                return;
+              }
+              // Check if we need to autoplay
+              if (
+                ((ourTimeline.state === 'stopped' || !ourTimeline.state)
                     && hostTimeline.playerState !== 'stopped')
                   || state.rawTitle !== hostTimeline.rawTitle
-                ) {
-                  if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
-                    return resolve();
-                  }
-                  // We need to autoplay!
-                  if (!rootGetters['settings/GET_AUTOPLAY']) {
-                    return resolve();
-                  }
-                  commit('SET_BLOCK_AUTOPLAY', true, { root: true });
+              ) {
+                if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
+                  return;
+                }
+                // We need to autoplay!
+                if (!rootGetters['settings/GET_AUTOPLAY']) {
+                  return;
+                }
+                commit('SET_BLOCK_AUTOPLAY', true, { root: true });
 
-                  const servers = { ...rootState.plex.servers };
-                  rootGetters['settings/GET_BLOCKEDSERVERS'].forEach((id) => {
-                    if (rootState.plex.servers[id]) {
-                      delete servers[id];
+                const servers = { ...rootState.plex.servers };
+                rootGetters['settings/GET_BLOCKEDSERVERS'].forEach((id) => {
+                  if (rootState.plex.servers[id]) {
+                    delete servers[id];
+                  }
+                });
+
+                commit('SET_RAW_TITLE', hostTimeline.rawTitle);
+                sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
+                await rootState.chosenClient
+                  .playContentAutomatically(
+                    rootState.chosenClient,
+                    hostTimeline,
+                    servers,
+                    hostTimeline.time,
+                  )
+                  .catch(async () => {
+                    const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
+                    if (hostServer && hostTimeline.key) {
+                      if (
+                        !rootGetters['settings/GET_BLOCKEDSERVERS'].includes(
+                          hostTimeline.machineIdentifier,
+                        )
+                      ) {
+                        await rootState.chosenClient.playMedia({
+                          // TODO: have timeline updates send out more info like mediaIdentifier etc
+                          key: hostTimeline.key,
+                          mediaIndex: 0,
+                          server: rootState.plex.servers[hostTimeline.machineIdentifier],
+                          offset: hostTimeline.time || 0,
+                        }).catch(() => {});
+                        setTimeout(() => {
+                          commit('SET_BLOCK_AUTOPLAY', false, { root: true });
+                        }, 15000);
+                        return;
+                      }
                     }
+                    sendNotification(
+                      `Failed to find a compatible copy of ${hostTimeline.rawTitle}. If you have access to the content try manually playing it.`,
+                    );
+                    setTimeout(() => {
+                      commit('SET_BLOCK_AUTOPLAY', false, { root: true });
+                    }, 15000);
                   });
 
-                  commit('SET_RAW_TITLE', hostTimeline.rawTitle);
-                  sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
-                  const result = await rootState.chosenClient
-                    .playContentAutomatically(
-                      rootState.chosenClient,
-                      hostTimeline,
-                      servers,
-                      hostTimeline.time,
-                    )
-                    .catch(async () => {
-                      const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
-                      if (hostServer && hostTimeline.key) {
-                        if (
-                          !rootGetters['settings/GET_BLOCKEDSERVERS'].includes(
-                            hostTimeline.machineIdentifier,
-                          )
-                        ) {
-                          await rootState.chosenClient.playMedia({
-                            // TODO: have timeline updates send out more info like mediaIdentifier etc
-                            key: hostTimeline.key,
-                            mediaIndex: 0,
-                            server: rootState.plex.servers[hostTimeline.machineIdentifier],
-                            offset: hostTimeline.time || 0,
-                          }).catch(() => {});
-                          setTimeout(() => {
-                            commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-                          }, 15000);
-                          return resolve();
-                        }
-                      }
-                      sendNotification(
-                        `Failed to find a compatible copy of ${hostTimeline.rawTitle}. If you have access to the content try manually playing it.`,
-                      );
-                      setTimeout(() => {
-                        commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-                      }, 15000);
-                    });
+                await delay(1000);
 
-                  await delay(1000);
+                setTimeout(() => {
+                  commit('SET_BLOCK_AUTOPLAY', false, { root: true });
+                }, 10000);
+                return;
+              }
 
-                  setTimeout(() => {
-                    commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-                  }, 10000);
-                  return resolve();
-                }
-
-                if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
-                  sendNotification('Resuming..');
-                  return resolve(await rootState.chosenClient.pressPlay());
-                }
-                if ((hostTimeline.playerState === 'paused'
+              if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
+                sendNotification('Resuming..');
+                resolve(await rootState.chosenClient.pressPlay());
+                return;
+              }
+              if ((hostTimeline.playerState === 'paused'
                   || hostTimeline.playerState === 'buffering')
                   && ourTimeline.state === 'playing') {
-                  sendNotification('Pausing..');
-                  return resolve(await rootState.chosenClient.pressPause());
-                }
-                if (hostTimeline.playerState === 'playing') {
-                  // Add on the delay between us and the SLServer plus the delay between the server and the host
-                  try {
-                    const ourLastDelay = Math.round(
-                      state.commands[Object.keys(state.commands).length - 1].difference,
-                    );
-                    const hostLastDelay = Math.round(hostTimeline.latency);
-                    // console.log('adding delays', { ourLastDelay, hostLastDelay });
-                    if (ourLastDelay && hostLastDelay) {
-                      // console.log(
-                      //   'Adding host delay',
-                      //   hostLastDelay,
-                      //   'and our lastDelay',
-                      //   ourLastDelay,
-                      // );
-                      data.time = data.time + (ourLastDelay || 0) + (hostLastDelay || 0);
-                    }
-                  } catch (e) {
-                    console.log('Failed to add extra lag time');
-                  }
-                }
+                sendNotification('Pausing..');
+                resolve(await rootState.chosenClient.pressPause());
+                return;
+              }
+              if (hostTimeline.playerState === 'playing') {
+                // Add on the delay between us and the SLServer plus the delay between the server and the host
                 try {
-                  await rootState.chosenClient.sync(
-                    data,
-                    rootGetters['settings/GET_SYNCFLEXIBILITY'],
-                    rootGetters['settings/GET_SYNCMODE'],
-                    rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
+                  const ourLastDelay = Math.round(
+                    state.commands[Object.keys(state.commands).length - 1].difference,
                   );
+                  const hostLastDelay = Math.round(hostTimeline.latency);
+                  // console.log('adding delays', { ourLastDelay, hostLastDelay });
+                  if (ourLastDelay && hostLastDelay) {
+                    // console.log(
+                    //   'Adding host delay',
+                    //   hostLastDelay,
+                    //   'and our lastDelay',
+                    //   ourLastDelay,
+                    // );
+                    hostUpdateData.time = hostUpdateData.time + (ourLastDelay || 0)
+                      + (hostLastDelay || 0);
+                  }
                 } catch (e) {
-                  return resolve();
+                  console.log('Failed to add extra lag time');
                 }
-                return resolve();
-              });
+              }
+              try {
+                await rootState.chosenClient.sync(
+                  hostUpdateData,
+                  rootGetters['settings/GET_SYNCFLEXIBILITY'],
+                  rootGetters['settings/GET_SYNCMODE'],
+                  rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
+                );
+              } catch (e) {
+                resolve();
+                return;
+              }
+              resolve();
             };
             /* This is data from the host, we should react to this data by potentially changing
               what we're playing or seeking to get back in sync with the host.
@@ -389,6 +394,8 @@ export default {
             if (!rootState.chosenClient.lastTimelineObject) {
               console.log('Dont have our first timeline data yet.');
               if (rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+                // TODO: come back and fix this
+                // eslint-disable-next-line no-param-reassign
                 rootState.chosenClient.lastTimelineObject = {
                   playerState: 'stopped',
                 };

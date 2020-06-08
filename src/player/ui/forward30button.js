@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 
 class Forward30Button extends shaka.ui.Element {
@@ -23,7 +24,7 @@ class Forward30Button extends shaka.ui.Element {
   }
 
   onButtonClicked() {
-    this.video.currentTime = this.video.currentTime + 30;
+    this.video.currentTime += 30;
   }
 
   // Updates whether this should be enabled or disabled depending on

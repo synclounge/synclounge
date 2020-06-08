@@ -30,7 +30,6 @@
             Now Playing
           </div>
           <div><small><b>{{ getTitle }}</b> - {{ getUnder }}</small></div>
-          <!-- <div class="hidden-xs-only soft-text" style="font-size: 12px">Click for more info</div> -->
         </v-flex>
       </v-layout>
     </v-card>
@@ -126,15 +125,6 @@ export default {
           return this.item.title;
       }
     },
-  },
-  watch: {
-
-  },
-  async mounted() {
-
-  },
-  methods: {
-
   },
 };
 </script>

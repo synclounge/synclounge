@@ -7,13 +7,13 @@ Vue.use(Router);
 // Good guide: https://blog.sqreen.com/authentication-best-practices-vue/
 
 
-const ifNotAuthenticated = (to, from, next) => {
-  if (!store.getters.IS_AUTHENTICATED) {
-    next();
-    return;
-  }
-  next('/');
-};
+// const ifNotAuthenticated = (to, from, next) => {
+//   if (!store.getters.IS_AUTHENTICATED) {
+//     next();
+//     return;
+//   }
+//   next('/');
+// };
 
 const ifAuthenticated = (to, from, next) => {
   if (store.getters.IS_AUTHENTICATED) {
