@@ -8,7 +8,7 @@ Vue.use(Router);
 
 
 const ifNotAuthenticated = (to, from, next) => {
-  if (!store.getters.isAuthenticated) {
+  if (!store.getters.IS_AUTHENTICATED) {
     next();
     return;
   }
@@ -16,11 +16,11 @@ const ifNotAuthenticated = (to, from, next) => {
 };
 
 const ifAuthenticated = (to, from, next) => {
-  if (store.getters.isAuthenticated) {
+  if (store.getters.IS_AUTHENTICATED) {
     next();
     return;
   }
-  next('/login');
+  next('/signin');
 };
 
 // ==================== Router registration ====================
@@ -57,12 +57,14 @@ export default new Router({
       meta: {
       },
       component: () => import('../components/application/walkthrough.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/joinroom',
       meta: {
       },
       component: () => import('../components/application/joinroom.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/player',
@@ -70,6 +72,7 @@ export default new Router({
         protected: true,
       },
       component: () => import('../components/application/slplayer.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/nowplaying/:machineIdentifier/:ratingKey',
@@ -78,6 +81,7 @@ export default new Router({
       },
       name: 'nowplaying',
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
+      beforeEnter: ifAuthenticated,
     },
 
     {
@@ -87,6 +91,7 @@ export default new Router({
       },
       name: 'browse',
       component: () => import('../components/application/plexbrowser.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/browse/:machineIdentifier',
@@ -95,6 +100,7 @@ export default new Router({
       },
       name: 'server',
       component: () => import('../components/application/plexbrowser/plexserver.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/browse/:machineIdentifier/:sectionId',
@@ -103,6 +109,7 @@ export default new Router({
       },
       name: 'library',
       component: () => import('../components/application/plexbrowser/plexlibrary.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
@@ -111,6 +118,7 @@ export default new Router({
       },
       name: 'content',
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
@@ -119,6 +127,7 @@ export default new Router({
       },
       name: 'series',
       component: () => import('../components/application/plexbrowser/plexseries.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey',
@@ -127,6 +136,7 @@ export default new Router({
       },
       name: 'season',
       component: () => import('../components/application/plexbrowser/plexseason.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path:
@@ -136,6 +146,7 @@ export default new Router({
       },
       name: 'contentspecific',
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path:
@@ -145,6 +156,7 @@ export default new Router({
       },
       name: 'contentnosection',
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
+      beforeEnter: ifAuthenticated,
     },
   ],
 });
