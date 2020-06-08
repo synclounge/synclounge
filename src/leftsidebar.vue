@@ -6,16 +6,16 @@
     disable-route-watcher
     @input="SET_LEFT_SIDEBAR_OPEN"
   >
-    <v-list-item v-if="plex && plex.user">
+    <v-list-item v-if="GET_PLEX_USER">
       <v-list-item-avatar>
         <img
           class="pa-1"
-          :src="plex.user.thumb"
+          :src="GET_PLEX_USER.thumb"
         >
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title style="font-weight: bold">
-          {{ plex.user.username }}
+          {{ GET_PLEX_USER.username }}
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
@@ -182,7 +182,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 import ptsettings from './components/application/settings.vue';
 import plexsettings from './components/application/plexsettings.vue';
@@ -203,6 +203,9 @@ export default {
   },
   computed: {
     ...mapState(['isLeftSidebarOpen']),
+    ...mapGetters('settings', [
+      'GET_PLEX_USER',
+    ]),
     plex() {
       return this.$store.getters.getPlex;
     },
