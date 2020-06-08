@@ -27,7 +27,9 @@ module.exports = {
     },
   },
 
-  extract: process.env.NODE_ENV === 'production' ? {
-    ignoreOrder: true,
-  } : false,
+  css: {
+    extract: process.env.NODE_ENV === 'production' ? {
+      ignoreOrder: true,
+    } : false,
+  },
 };
