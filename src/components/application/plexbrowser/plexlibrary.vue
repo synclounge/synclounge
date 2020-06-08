@@ -61,9 +61,9 @@
 </template>
 
 <script>
+import { debounce, sample } from 'lodash';
 import plexthumb from './plexthumb.vue';
 
-const _ = require('lodash');
 
 export default {
   components: {
@@ -114,7 +114,7 @@ export default {
       const h = Math.round(Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0));
 
-      const randomItem = _.sample(this.contents.MediaContainer.Metadata);
+      const randomItem = sample(this.contents.MediaContainer.Metadata);
       let url = randomItem.thumb;
       if (randomItem.type === 'show') {
         url = randomItem.art;
@@ -138,7 +138,7 @@ export default {
       return movie.title;
     },
 
-    filterItems: _.debounce(() => {
+    filterItems: debounce(() => {
       for (let i = 0; i < this.contents.MediaContainer.Metadata.length; i += 1) {
         const item = this.contents.MediaContainer.Metadata[i];
         if (!this.searchPhrase) {

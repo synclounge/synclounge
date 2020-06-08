@@ -369,7 +369,7 @@
 <script>
 import Vue from 'vue';
 import axios from 'axios';
-import moment from 'moment';
+import { formatDistanceToNow } from 'date-fns';
 
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
@@ -446,8 +446,8 @@ export default {
     ...mapActions(['socketConnect']),
 
     sinceNow(x) {
-      const time = moment(x);
-      return time.fromNow();
+      console.log(x);
+      return formatDistanceToNow(x);
     },
 
     connectionQualityClass(value) {

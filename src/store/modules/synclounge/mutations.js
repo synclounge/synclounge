@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { format } from 'date-fns';
 
 export default {
   SET_CONNECTED(state, value) {
@@ -28,7 +28,7 @@ export default {
   ADD_MESSAGE(state, msg) {
     state.messages.push({
       ...msg,
-      time: moment().format('h:mm A'),
+      time: format(new Date()),
     });
   },
   CLEAR_MESSAGES(state) {

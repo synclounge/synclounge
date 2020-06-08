@@ -31,7 +31,7 @@
 </template>
 
 <script>
-const moment = require('moment');
+import { formatDistanceToNow, parseISO } from 'date-fns';
 
 export default {
   name: 'Plexclient',
@@ -112,10 +112,7 @@ export default {
       return false;
     },
     lastSeenAgo() {
-      const now = moment(new Date().getTime());
-      const end = moment.unix(parseInt(this.object.lastSeenAt, 10));
-      const difference = moment.duration(now.diff(end));
-      return `${difference.humanize()} ago`;
+      return `${formatDistanceToNow(parseISO(this.object.lastSeenAt))} ago`;
     },
     platform() {
       return (

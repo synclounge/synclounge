@@ -19,10 +19,15 @@ module.exports = {
     },
     node: false,
   },
+
   pluginOptions: {
     webpackBundleAnalyzer: {
       // openAnalyzer: false,
       // analyzerMode: 'server',
     },
   },
+
+  extract: process.env.NODE_ENV === 'production' ? {
+    ignoreOrder: true,
+  } : false,
 };

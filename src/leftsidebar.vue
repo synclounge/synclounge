@@ -188,8 +188,6 @@ import ptsettings from './components/application/settings.vue';
 import plexsettings from './components/application/plexsettings.vue';
 import donate from './donate.vue';
 
-const moment = require('moment');
-
 export default {
   components: {
     ptsettings,
@@ -215,7 +213,7 @@ export default {
       return process.env.gitDate;
     },
     updatedAt() {
-      return moment(this.date).fromNow();
+      return '';
     },
     chosenClient() {
       return this.$store.getters.getChosenClient;

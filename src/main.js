@@ -52,7 +52,6 @@ window.EventBus.$on('command', (data) => {
 router.beforeEach((to, from, next) => {
   // console.log('Route change', to, this, store)
   if (to.matched.some((record) => record.meta.protected)) {
-    console.log('protected route', to);
     // this route requires us to be in a room with a client selected
     // if not, redirect to the needed stage
     if (!store.getters.getChosenClient) {

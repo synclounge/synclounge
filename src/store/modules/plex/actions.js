@@ -106,7 +106,7 @@ export default {
       ptplayer.product = 'SyncLounge';
       ptplayer.name = 'SyncLounge Player';
       ptplayer.labels = [['Recommended', 'green']];
-      ptplayer.lastSeenAt = Math.round(new Date().getTime() / 1000);
+      ptplayer.lastSeenAt = new Date().toISOString();
 
       // Get an array of {accessToken, uri} objects
       const serverConnectionTokens = Object.entries(state.servers)

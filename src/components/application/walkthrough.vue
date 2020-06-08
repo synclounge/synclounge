@@ -242,7 +242,7 @@
 </template>
 
 <script>
-import moment from 'moment';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { mapActions, mapGetters, mapState } from 'vuex';
 
 import plexclient from './plexclient.vue';
@@ -412,10 +412,7 @@ export default {
       return false;
     },
     lastSeenAgo(clientTime) {
-      const now = moment(new Date().getTime());
-      const end = moment.unix(parseInt(clientTime, 10));
-      const difference = moment.duration(now.diff(end));
-      return `${difference.humanize()} ago`;
+      return `${formatDistanceToNow(parseISO(clientTime))} ago`;
     },
     refreshPlexDevices() {
       this.CHOOSE_CLIENT(null);

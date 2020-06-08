@@ -296,9 +296,9 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import { debounce } from 'lodash';
 import plexthumb from './plexbrowser/plexthumb.vue';
 
-const _ = require('lodash');
 
 export default {
   name: 'Plexbrowser',
@@ -556,7 +556,7 @@ export default {
         .find((serv) => serv.clientIdentifier === server.clientIdentifier);
     },
 
-    searchAllServers: _.debounce(() => {
+    searchAllServers: debounce(() => {
       if (this.searchWord === '') {
         this.results = [];
         this.searchStatus = 'Search your available Plex Media Servers';

@@ -174,9 +174,8 @@
 </template>
 
 <script>
+import { sample } from 'lodash';
 import plexthumb from './plexthumb.vue';
-
-const _ = require('lodash');
 
 
 export default {
@@ -381,7 +380,7 @@ export default {
       const h = Math.round(Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0));
 
-      const randomItem = _.sample(this.recentlyAdded.MediaContainer.Metadata);
+      const randomItem = sample(this.recentlyAdded.MediaContainer.Metadata);
       const url = randomItem.art;
       this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6));
     },
