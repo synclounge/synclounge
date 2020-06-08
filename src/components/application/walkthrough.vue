@@ -376,6 +376,11 @@ export default {
       }
     },
   },
+
+  mounted() {
+    this.PLEX_GET_DEVICES();
+  },
+
   methods: {
     ...mapActions(['PLEX_GET_DEVICES', 'CHOOSE_CLIENT']),
     previewClient(client) {

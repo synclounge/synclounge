@@ -83,12 +83,14 @@ export default {
             this.authWindow.close();
           }
 
-          this.$router.push('/');
+          break;
         }
 
         // eslint-disable-next-line no-await-in-loop
         await delayPromise;
       }
+
+      this.$router.push('/browse');
     },
 
     openPlexAuthWindow() {

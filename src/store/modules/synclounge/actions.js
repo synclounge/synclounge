@@ -19,21 +19,24 @@ function HandshakeUser(user, room, password, uuid, username) {
 }
 
 export default {
-  async autoJoin({ rootState, dispatch }, data) {
+  async autoJoin({ dispatch, rootGetters }, data) {
     await dispatch('socketConnect', {
       address: data.server,
     });
     const temporaryObj = {
-      user: rootState.plex.user,
+      user: rootGetters['settings/GET_PLEX_USER'],
       roomName: data.room,
       password: data.password,
     };
+
     if (data.room) {
       await dispatch('joinRoom', temporaryObj);
     }
   },
 
-  socketConnect({ state, commit, rootState }, data) {
+  socketConnect({
+    state, commit, rootState, rootGetters,
+  }, data) {
     return new Promise((resolve, reject) => {
       const { address } = data;
       if (state.socket) {
@@ -62,7 +65,7 @@ export default {
           // Looks like the server disconnected on us, lets rejoin
           state.socket.emit(
             'join',
-            new HandshakeUser(rootState.plex.user, state.room, state.password),
+            new HandshakeUser(rootGetters['settings/GET_PLEX_USER'], state.room, state.password),
           );
         }
         return resolve(true, result);
@@ -132,7 +135,7 @@ export default {
 
           const data = {
             urlOrigin,
-            owner: rootState.plex.user.username || rootState.plex.user.title,
+            owner: rootGetters['settings/GET_PLEX_USER'].username || rootGetters['settings/GET_PLEX_USER'].title,
             server: state.server,
             room: state.room,
             password: state.password || '',
@@ -453,12 +456,12 @@ export default {
     commit('SET_SERVER', null);
   },
 
-  sendNewMessage({ state, commit, rootState }, msg) {
+  sendNewMessage({ state, commit, rootGetters }, msg) {
     commit('ADD_MESSAGE', {
       msg,
       user: {
         username: 'You',
-        thumb: rootState.plex.user.thumb,
+        thumb: rootGetters['settings/GET_PLEX_USER'].thumb,
       },
       type: 'message',
     });

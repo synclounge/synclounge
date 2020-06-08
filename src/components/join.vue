@@ -142,16 +142,13 @@ export default {
       this.$store.commit('SET_AUTOJOINPASSWORD', this.password);
       this.$store.commit('SET_VALUE', ['autoJoinOwner', this.owner]);
       this.$store.commit('SET_AUTOJOINURL', this.server);
-      if (this.GET_PLEX_AUTH_TOKEN) {
-        await this.$store.dispatch('autoJoin', {
-          server: this.server,
-          password: this.password,
-          room: this.room,
-        });
-        this.$router.push('/browse');
-      } else {
-        this.$router.push('/signin');
-      }
+
+      await this.$store.dispatch('autoJoin', {
+        server: this.server,
+        password: this.password,
+        room: this.room,
+      });
+      this.$router.push('/browse');
     },
   },
 

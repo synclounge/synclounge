@@ -45,9 +45,9 @@ export default {
     'X-Plex-Language': 'en',
   }),
 
-  GET_PLEX_BASE_PARAMS: (state, getters) => ({
+  GET_PLEX_BASE_PARAMS: (state, getters, rootState, rootGetters) => ({
     ...getters.GET_PLEX_INITIAL_AUTH_PARAMS,
-    'X-Plex-Token': getters.GET_PLEX_SERVER_ACCESS_TOKEN,
+    'X-Plex-Token': rootGetters['settings/GET_PLEX_AUTH_TOKEN'],
   }),
 
   GET_PLEX_AUTH_URL: (state, getters, rootState, rootGetters) => (code) => {

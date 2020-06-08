@@ -14,7 +14,7 @@ export default {
     headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
   }).then(({ data }) => data),
 
-  REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit }, id) => {
+  REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit, dispatch }, id) => {
     const { data } = await axios.get(`https://plex.tv/api/v2/pins/${id}`, {
       headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
     });
@@ -24,6 +24,9 @@ export default {
     }
 
     commit('settings/SET_PLEX_AUTH_TOKEN', data.authToken, { root: true });
+
+    // TODO: fetch this on demand and stuff
+    await dispatch('FETCH_PLEX_USER');
   },
 
   FETCH_PLEX_USER: async ({ getters, commit }) => {
@@ -34,27 +37,22 @@ export default {
     commit('settings/SET_PLEX_USER', data.user, { root: true });
   },
 
-  PLEX_GET_DEVICES: async ({ state, commit, dispatch }, dontDelete) => {
-    if (!state.user) {
-      throw new Error('Sign in before getting devices');
-    }
-
+  PLEX_GET_DEVICES: async ({
+    state, commit, dispatch, getters, rootGetters,
+  }, dontDelete) => {
     if (!dontDelete) {
       commit('PLEX_SET_VALUE', ['gotDevices', false]);
       commit('PLEX_SET_VALUE', ['servers', {}]);
       commit('PLEX_SET_VALUE', ['clients', {}]);
     }
     try {
-      const { data } = await axios.get('https://plex.tv/api/resources?includeHttps=1', {
-        ...plexauth.getRequestConfig(state.user.authToken, 5000),
-        transformResponse: xmlutils.parseXML,
+      const { data: devices } = await axios.get('https://plex.tv/api/v2/resources?includeHttps=1', {
+        headers: getters.GET_PLEX_BASE_PARAMS,
       });
 
-      data.MediaContainer[0].Device.forEach((device) => {
+      devices.forEach((device) => {
       // Create a temporary array of object:PlexConnection
-      // Exclude local IPs starting with 169.254
-        const tempConnectionsArray = device.Connection
-          .filter((connection) => !connection.address.startsWith('169.254'))
+        const tempConnectionsArray = device.connections
           .flatMap((connection) => {
             const tempConnection = new PlexConnection();
             Object.assign(tempConnection, connection);
@@ -83,7 +81,7 @@ export default {
             const tempClient = new PlexClient();
             Object.assign(tempClient, device);
 
-            tempClient.accessToken = state.user.authToken;
+            tempClient.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
             tempClient.plexConnections = tempConnectionsArray;
             dispatch('PLEX_ADD_CLIENT', tempClient);
           }
@@ -94,8 +92,8 @@ export default {
           Object.assign(tempServer, device);
           // Push a manual connection string for when DNS rebind doesnt work
           tempServer.plexConnections = tempConnectionsArray;
-          if (tempServer.accessToken == null) {
-            tempServer.accessToken = state.user.authToken;
+          if (tempServer.accessToken === null) {
+            tempServer.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
           }
 
           dispatch('PLEX_ADD_SERVER', tempServer);

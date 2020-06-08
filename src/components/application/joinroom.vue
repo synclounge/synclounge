@@ -406,6 +406,7 @@ export default {
     ...mapGetters('settings', [
       'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
       'GET_RECENT_ROOMS',
+      'GET_PLEX_USER',
     ]),
   },
 
@@ -583,7 +584,7 @@ export default {
       }
       try {
         await this.$store.dispatch('joinRoom', {
-          user: this.getPlex.user,
+          user: this.GET_PLEX_USER,
           roomName: this.room,
           password: this.password,
         });
