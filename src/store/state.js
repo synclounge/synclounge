@@ -11,7 +11,6 @@ const state = () => ({
   autoJoinRoom: null,
   autoJoinPassword: null,
   autoJoinUsername: null,
-  shortLink: null,
   extAvailable: false,
   lastRatingKey: null,
   manualSyncQueued: false,

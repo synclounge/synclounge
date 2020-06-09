@@ -32,6 +32,7 @@ export default {
   getHostUser: (state) => state.users.find((u) => u.role === 'host'),
   GET_HOST_PLAYER_STATE: (state) => state.lastHostTimeline.playerState,
   AM_I_HOST: (state) => state.me.role === 'host',
+  GET_INVITE_URL: (state) => state.inviteUrl,
 
 
   GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => {

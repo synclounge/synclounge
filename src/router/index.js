@@ -23,6 +23,19 @@ const ifAuthenticated = (to, from, next) => {
   next('/signin');
 };
 
+const ifAuthenticatedWithRedirect = (to, from, next) => {
+  if (store.getters.IS_AUTHENTICATED) {
+    next();
+    return;
+  }
+  next({
+    path: '/signin',
+    query: {
+      redirect: to.fullPath,
+    },
+  });
+};
+
 // ==================== Router registration ====================
 export default new Router({
   base: process.env.webroot,
@@ -45,6 +58,15 @@ export default new Router({
       meta: {},
       component: () => import('../components/signout.vue'),
       beforeEnter: ifAuthenticated,
+    },
+    {
+      path: '/joininvite/:server/:room',
+      meta: {
+      },
+      component: () => import('../components/joininvite.vue'),
+      props: true,
+      name: 'joininvite',
+      beforeEnter: ifAuthenticatedWithRedirect,
     },
     {
       path: '/join',

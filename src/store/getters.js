@@ -9,7 +9,6 @@ export default {
   getAutoJoinRoom: (state) => state.autoJoinRoom,
   getAutoJoinPassword: (state) => state.autoJoinPassword,
   getAutoJoinUrl: (state) => state.autoJoinUrl,
-  getShortLink: (state) => state.shortLink,
 
   // SETTINGS
   getExtAvailable: (state) => state.extAvailable,

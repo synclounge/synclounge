@@ -16,10 +16,9 @@
           <v-card-actions>
             <v-btn
               color="primary"
-              :disabled="!GET_SERVERS_HEALTH"
-              @click="createRoom"
+              @click="joinInvite"
             >
-              Create Room
+              Join Invite
             </v-btn>
 
             <v-spacer />
@@ -40,25 +39,36 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'CreateRoom',
+
+  props: {
+    server: {
+      type: String,
+      default: '',
+    },
+    room: {
+      type: String,
+      default: '',
+    },
+  },
+
   computed: {
     ...mapGetters([
-      'GET_SERVERS_HEALTH',
       'getLogos',
     ]),
   },
 
-  created() {
-    this.FETCH_SERVERS_HEALTH();
-  },
-
   methods: {
     ...mapActions([
-      'FETCH_SERVERS_HEALTH',
-      'CREATE_AND_JOIN_ROOM',
+      'autoJoin',
     ]),
 
-    async createRoom() {
-      await this.CREATE_AND_JOIN_ROOM();
+    async joinInvite() {
+      await this.autoJoin({
+        server: this.server,
+        room: this.room,
+      });
+      // TODO: probably show error if this fails
+
       this.$router.push('/browse');
     },
   },

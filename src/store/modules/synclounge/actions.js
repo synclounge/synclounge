@@ -536,7 +536,6 @@ export default {
 
   CREATE_AND_JOIN_ROOM: ({ getters, dispatch }) => {
     const url = getters.GET_BEST_SERVER;
-    console.log(url);
     return dispatch('autoJoin', {
       server: url,
       room: guid(),

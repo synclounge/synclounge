@@ -19,6 +19,7 @@
           style="height: 42px; width: auto; vertical-align: middle"
           :src="getLogos.light.long"
         >
+
         <img
           class="ma-1 hidden-sm-and-up"
           style="height: 42px; width: auto; vertical-align: middle"
@@ -35,8 +36,8 @@
 
       <v-toolbar-items>
         <v-btn
-          v-if="getShortLink != null"
-          v-clipboard="getShortLink"
+          v-if="inviteUrl"
+          v-clipboard="inviteUrl"
           color="primary"
           dark
           raised
@@ -44,6 +45,7 @@
         >
           Invite
         </v-btn>
+
         <v-btn
           dark
           class="hidden-lg-and-up"
@@ -52,6 +54,7 @@
         >
           <v-icon>fullscreen</v-icon>
         </v-btn>
+
         <v-btn
           v-for="item in links"
           :key="item.title"
@@ -64,6 +67,7 @@
         >
           {{ item.title }}
         </v-btn>
+
         <v-btn
           small
           tag="a"
@@ -73,6 +77,7 @@
         >
           Donate ♥
         </v-btn>
+
         <v-icon
           v-if="showRightDrawerButton"
           class="clickable"
@@ -329,10 +334,6 @@ export default {
       return this.getConnected && this.getRoom;
     },
 
-    showLinkShortener() {
-      return this.getConnected && this.getServer && this.getRoom && this.getShortLink;
-    },
-
     mainStyle() {
       if (this.$store.getters.getBackground !== null) {
         return {
@@ -353,6 +354,18 @@ export default {
         });
       }
       return arr;
+    },
+
+    inviteUrl() {
+      if (this.getServer && this.getRoom) {
+        const invitePart = this.$router.resolve({
+          name: 'joininvite',
+          params: { server: this.getServer, room: this.getRoom },
+        }).href;
+
+        return `${window.location.origin}/${invitePart}`;
+      }
+      return '';
     },
   },
 

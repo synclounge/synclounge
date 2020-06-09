@@ -19,9 +19,6 @@ export default {
   SET_AUTOJOINURL(state, value) {
     state.autoJoinUrl = value;
   },
-  SET_SHORTLINK(state, value) {
-    state.shortLink = value;
-  },
 
   SET_VALUE(state, data) {
     const [key, value] = data;
