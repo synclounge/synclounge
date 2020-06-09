@@ -68,7 +68,7 @@
                         "
                         block
                         class="primary white--text"
-                        @click.native="playMedia(contents)"
+                        @click.native="playMedia(contents, 0)"
                       >
                         <v-icon> play_arrow </v-icon>
                       </v-btn>
@@ -212,7 +212,7 @@
                         "
                         block
                         class="primary white--text"
-                        @click.native="playMedia(contents)"
+                        @click.native="playMedia(contents, 0)"
                       >
                         <v-icon> play_arrow </v-icon>
                       </v-btn>
