@@ -1,12 +1,11 @@
 <template>
-  <span v-if="server">
-    <v-layout
+  <v-container v-if="server">
+    <v-row
       v-if="!libraries && !browsingLibrary && !selectedItem"
-      row
-      align-center
+      align="center"
     >
-      <v-flex
-        xs12
+      <v-col
+        cols="12"
         style="position: relative"
       >
         <v-progress-circular
@@ -15,8 +14,9 @@
           indeterminate
           class="amber--text"
         />
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
+
     <div
       v-if="!browsingLibrary && !selectedItem && libraries"
       class="mt-3"
@@ -62,7 +62,9 @@
               style="background: rgba(0,0,0,0.7); position:relative; width:100%;"
               class="text-center pa-1"
             >
-              <h2 class="truncate text-xs-left text-sm-center">{{ library.title }}</h2>
+              <h2 class="truncate text-xs-left text-sm-center">
+                {{ library.title }}
+              </h2>
             </div>
           </v-card>
         </v-flex>
@@ -77,7 +79,7 @@
         wrap
       >
         <v-flex xs6>
-          <h4>On Deck</h4>
+          <v-subheader>On Deck</v-subheader>
         </v-flex>
         <v-flex xs6>
           <span style="float:right; user-select: none;">
@@ -170,11 +172,11 @@
         </v-flex>
       </v-layout>
     </div>
-  </span>
+  </v-container>
 </template>
 
 <script>
-import { sample } from 'lodash';
+import { sample } from 'lodash-es';
 import plexthumb from './plexthumb.vue';
 
 

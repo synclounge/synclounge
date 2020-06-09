@@ -131,7 +131,7 @@ export default {
       'GET_UP_NEXT_POST_PLAY_DATA',
       'GET_PLEX_SERVER_ID',
       'getPlex',
-      'getChosenClient',
+      'GET_CHOSEN_CLIENT',
     ]),
 
     background() {
@@ -168,7 +168,7 @@ export default {
     playMedia() {
       this.transitionBarWithStyle = {};
 
-      this.getChosenClient.playMedia({
+      this.GET_CHOSEN_CLIENT.playMedia({
         key: this.item.key,
         mediaIndex: 0,
         server: this.plexserver,

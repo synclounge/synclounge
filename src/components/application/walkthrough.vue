@@ -43,7 +43,7 @@
           </v-stepper-step>
         </v-stepper-header>
       </v-stepper>
-      <div v-if="!getChosenClient">
+      <div v-if="!GET_CHOSEN_CLIENT">
         <v-row class="ml-4">
           <v-col class="pb-0">
             <h2>Choose your Plex player</h2>
@@ -302,7 +302,7 @@ export default {
   computed: {
     ...mapState(['plex']),
     ...mapGetters([
-      'getChosenClient',
+      'GET_CHOSEN_CLIENT',
       'getLogos',
       'GET_RECENT_PLEX_CLIENTS',
     ]),
@@ -368,8 +368,8 @@ export default {
     },
   },
   watch: {
-    getChosenClient(to, from) {
-      if (this.getChosenClient && !from) {
+    GET_CHOSEN_CLIENT(to, from) {
+      if (this.GET_CHOSEN_CLIENT && !from) {
         this.$router.push('/joinroom');
       }
     },

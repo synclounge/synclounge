@@ -1,8 +1,5 @@
-const EventEmitter = require('events');
-
 const state = () => ({
   socket: null,
-  ptevents: new EventEmitter(),
   ptservers: [],
   connected: false,
   server: false,

@@ -10,16 +10,17 @@ const browser = detect();
 export default {
   getItemCache: (state) => state.itemCache,
   getLibraryCache: (state) => state.libraryCache,
-
+  GET_SL_PLAYER: (state) => state.slPlayer,
+  GET_CHOSEN_CLIENT: (state) => state.chosenClient,
   GET_RECENT_PLEX_CLIENTS: (state) => Object.values(state.clients)
     .sort((a, b) => -a.lastSeenAt.localeCompare(b.lastSeenAt)),
 
   GET_LASTSERVER: (state, getters) => state.servers[getters['settings/GET_LASTSERVER']],
-  GET_VALID_SERVERS: (state) => Object.fromEntries(
-    Object.entries(state.servers).filter(
-      ([, server]) => server.chosenConnection,
-    ),
+  GET_CONNECTABLE_PLEX_SERVERS: (state) => Object.values(state.servers).filter(
+    (server) => server.chosenConnection,
   ),
+
+  GET_PLEX_SERVERS: (state) => state.servers,
 
   IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN'],
 
@@ -43,9 +44,9 @@ export default {
     'X-Plex-Language': 'en',
   }),
 
-  GET_PLEX_BASE_PARAMS: (state, getters, rootState, rootGetters) => ({
+  GET_PLEX_BASE_PARAMS: (state, getters, rootState, rootGetters) => (accessToken) => ({
     ...getters.GET_PLEX_INITIAL_AUTH_PARAMS,
-    'X-Plex-Token': rootGetters['settings/GET_PLEX_AUTH_TOKEN'],
+    'X-Plex-Token': accessToken || rootGetters['settings/GET_PLEX_AUTH_TOKEN'],
   }),
 
   GET_PLEX_AUTH_URL: (state, getters, rootState, rootGetters) => (code) => {

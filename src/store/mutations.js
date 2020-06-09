@@ -1,9 +1,6 @@
 import Vue from 'vue';
 
 export default {
-  SET_CHOSENCLIENT(state, client) {
-    state.chosenClient = client;
-  },
   SET_PLEX(state, value) {
     state.plex = value;
   },

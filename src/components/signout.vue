@@ -22,8 +22,6 @@ export default {
   name: 'Signout',
   mounted() {
     this.SET_PLEX_AUTH_TOKEN(null);
-    this.$store.state.plex = null;
-    this.$store.state.signedin = 'notsignedin';
     setTimeout(() => {
       window.location.reload();
     }, 2500);

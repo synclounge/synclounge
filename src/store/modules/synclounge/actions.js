@@ -83,6 +83,8 @@ export default {
   async joinRoom({
     state, commit, dispatch, rootState, rootGetters,
   }, data) {
+    dispatch('START_CLIENT_POLLER', null, { root: true });
+
     if (!state.socket || !state.connected) {
       throw new Error('Not connected to a server!');
     }
@@ -177,11 +179,11 @@ export default {
               type: 'alert',
             });
             sendNotification(messageText);
-            if (rootState.chosenClient) {
+            if (rootGetters.GET_CHOSEN_CLIENT) {
               if (isPause) {
-                rootState.chosenClient.pressPause();
+                rootGetters.GET_CHOSEN_CLIENT.pressPause();
               } else {
-                rootState.chosenClient.pressPlay();
+                rootGetters.GET_CHOSEN_CLIENT.pressPlay();
               }
             }
           });
@@ -232,7 +234,7 @@ export default {
             }
             state.lastHostTimeline = hostUpdateData;
             const decisionMaker = async () => {
-              const ourTimeline = rootState.chosenClient.lastTimelineObject;
+              const ourTimeline = rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject;
 
               if (ourTimeline.playerState === 'buffering') {
                 return;
@@ -242,7 +244,7 @@ export default {
                   && ourTimeline.state !== 'stopped'
               ) {
                 sendNotification('The host pressed stop');
-                await rootState.chosenClient.pressStop();
+                await rootGetters.GET_CHOSEN_CLIENT.pressStop();
                 return;
               }
 
@@ -273,9 +275,8 @@ export default {
 
                 commit('SET_RAW_TITLE', hostTimeline.rawTitle);
                 sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
-                await rootState.chosenClient
+                await rootGetters.GET_CHOSEN_CLIENT
                   .playContentAutomatically(
-                    rootState.chosenClient,
                     hostTimeline,
                     servers,
                     hostTimeline.time,
@@ -288,7 +289,7 @@ export default {
                           hostTimeline.machineIdentifier,
                         )
                       ) {
-                        await rootState.chosenClient.playMedia({
+                        await rootGetters.GET_CHOSEN_CLIENT.playMedia({
                           // TODO: have timeline updates send out more info like mediaIdentifier etc
                           key: hostTimeline.key,
                           mediaIndex: 0,
@@ -319,14 +320,14 @@ export default {
 
               if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
                 sendNotification('Resuming..');
-                resolve(await rootState.chosenClient.pressPlay());
+                resolve(await rootGetters.GET_CHOSEN_CLIENT.pressPlay());
                 return;
               }
               if ((hostTimeline.playerState === 'paused'
                   || hostTimeline.playerState === 'buffering')
                   && ourTimeline.state === 'playing') {
                 sendNotification('Pausing..');
-                resolve(await rootState.chosenClient.pressPause());
+                resolve(await rootGetters.GET_CHOSEN_CLIENT.pressPause());
                 return;
               }
               if (hostTimeline.playerState === 'playing') {
@@ -352,7 +353,7 @@ export default {
                 }
               }
               try {
-                await rootState.chosenClient.sync(
+                await rootGetters.GET_CHOSEN_CLIENT.sync(
                   hostUpdateData,
                   rootGetters['settings/GET_SYNCFLEXIBILITY'],
                   rootGetters['settings/GET_SYNCMODE'],
@@ -376,7 +377,7 @@ export default {
             if (rootState.manualSyncQueued) {
               commit('SET_DECISION_BLOCKED_TIME', new Date().getTime());
               window.EventBus.$emit('host-playerstate-change');
-              await rootState.chosenClient.seekTo(hostTimeline.time);
+              await rootGetters.GET_CHOSEN_CLIENT.seekTo(hostTimeline.time);
               commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
               commit('SET_DECISION_BLOCKED_TIME', 0);
               return;
@@ -387,17 +388,13 @@ export default {
               );
               return;
             }
-            // console.log('Decision isnt blocked');
-            if (!rootState.chosenClient) {
-              console.log('We dont have a client chosen yet!');
-              return;
-            }
-            if (!rootState.chosenClient.lastTimelineObject) {
+
+            if (!rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject) {
               console.log('Dont have our first timeline data yet.');
-              if (rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
+              if (rootGetters.GET_CHOSEN_CLIENT.clientIdentifier === 'PTPLAYER9PLUS10') {
                 // TODO: come back and fix this
                 // eslint-disable-next-line no-param-reassign
-                rootState.chosenClient.lastTimelineObject = {
+                rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject = {
                   playerState: 'stopped',
                 };
               } else {
@@ -407,7 +404,7 @@ export default {
             // Check previous timeline data age
             commit('SET_DECISION_BLOCKED_TIME', new Date().getTime());
             const timelineAge = Math.abs(
-              new Date().getTime() - rootState.chosenClient.lastTimelineObject.recievedAt,
+              new Date().getTime() - rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject.recievedAt,
             );
             // console.log('Timeline age is', timelineAge);
             try {
@@ -496,15 +493,15 @@ export default {
     }
   },
 
-  sendPartyPause({ rootState, state }, isPause) {
+  sendPartyPause({ state, rootGetters }, isPause) {
     if (state.socket.connected) {
       state.socket.emit('party_pausing_send', isPause, (response) => {
         console.log('Response from send', response);
         if (response) {
           if (isPause) {
-            rootState.chosenClient.pressPause();
+            rootGetters.GET_CHOSEN_CLIENT.pressPause();
           } else {
-            rootState.chosenClient.pressPlay();
+            rootGetters.GET_CHOSEN_CLIENT.pressPlay();
           }
         }
       });
@@ -513,8 +510,8 @@ export default {
 
   FETCH_SERVERS_HEALTH: async ({ getters, commit }) => {
     const start = new Date().getTime();
-
     const results = await Promise.allSettled(getters.GET_SYNCLOUNGE_SERVERS
+      .filter((server) => server.url !== 'custom')
       .map(async ({ url }) => ({
         ...(await axios.get(`${url}/health`, { timeout: 2000 }).data),
         latency: new Date().getTime() - start,

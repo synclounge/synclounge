@@ -1,6 +1,10 @@
 import Vue from 'vue';
 
 export default {
+  SET_CHOSEN_CLIENT: (state, client) => {
+    state.chosenClient = client;
+  },
+
   PLEX_SET_VALUE: (state, data) => {
     const key = data[0];
     const value = data[1];
@@ -24,12 +28,17 @@ export default {
   },
 
   PLEX_CLIENT_SET: (state, client) => {
-    // state.clients[client.clientIdentifier] = client
-    Vue.set(state.clients, client.clientIdentifier, client);
+    state.clients = {
+      ...state.clients,
+      [client.clientIdentifier]: client,
+    };
   },
-  PLEX_SERVER_SET: (state, server) => {
-    // state.servers[server.clientIdentifier] = server
-    Vue.set(state.servers, server.clientIdentifier, server);
+
+  PLEX_ADD_SERVER: (state, server) => {
+    state.servers = {
+      ...state.servers,
+      [server.clientIdentifier]: server,
+    };
   },
 
   PLEX_SERVER_SET_CONNECTION: (state, { server, connection }) => {

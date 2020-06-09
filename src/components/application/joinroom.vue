@@ -367,8 +367,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
 
 import { mapGetters, mapMutations, mapActions } from 'vuex';
@@ -488,10 +486,6 @@ export default {
       if (this.selectedServer.url !== 'custom') {
         this.attemptConnect();
       }
-    },
-
-    async testConnections() {
-
     },
 
     attemptConnect() {

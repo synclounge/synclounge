@@ -61,7 +61,8 @@
 </template>
 
 <script>
-import { debounce, sample } from 'lodash';
+import { mapGetters } from 'vuex';
+import { debounce, sample } from 'lodash-es';
 import plexthumb from './plexthumb.vue';
 
 
@@ -86,8 +87,9 @@ export default {
   },
 
   computed: {
+    ...mapGetters(['getPlex']),
     server() {
-      return this.plex.servers[this.$route.params.machineIdentifier];
+      return this.getPlex.servers[this.$route.params.machineIdentifier];
     },
   },
 

@@ -324,7 +324,7 @@ export default {
   },
 
   UPDATE_CLIENT_TIMELINE: ({ getters, rootGetters }) => {
-    rootGetters.getChosenClient.updateTimelineObject(makePollResponse(getters));
+    rootGetters.GET_CHOSEN_CLIENT.updateTimelineObject(makePollResponse(getters));
   },
 
   CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {

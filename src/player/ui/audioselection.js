@@ -35,6 +35,7 @@ class AudioSelection extends shaka.ui.SettingsMenu {
   }
 
   onAudioStreamsChanged(streams) {
+    console.log('streams changed', streams);
     this.audioStreams = streams;
     this.updateAudioSelection();
   }

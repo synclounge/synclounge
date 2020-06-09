@@ -30,9 +30,9 @@ export default new Router({
   routes: [
     {
       path: '/',
-      meta: {
-        protected: true,
-      },
+      component: () => import('../components/createroom.vue'),
+      name: 'CreateRoom',
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/signin',
@@ -44,6 +44,7 @@ export default new Router({
       path: '/signout',
       meta: {},
       component: () => import('../components/signout.vue'),
+      beforeEnter: ifAuthenticated,
     },
     {
       path: '/join',
@@ -72,14 +73,6 @@ export default new Router({
       meta: {
       },
       component: () => import('../components/application/joinroom.vue'),
-      beforeEnter: ifAuthenticated,
-    },
-    {
-      path: '/createroom',
-      meta: {
-      },
-      component: () => import('../components/createroom.vue'),
-      name: 'CreateRoom',
       beforeEnter: ifAuthenticated,
     },
     {

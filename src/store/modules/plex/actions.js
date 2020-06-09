@@ -1,14 +1,17 @@
 import axios from 'axios';
+import promiseutils from '@/utils/promiseutils';
+import { sample } from 'lodash-es';
 
 import PlexServer from './helpers/PlexServer';
 import PlexClient from './helpers/PlexClient';
 
-const PlexConnection = require('./helpers/PlexConnection.js');
-
 
 export default {
-  REQUEST_PLEX_INIT_AUTH: ({ getters }) => axios.post('https://plex.tv/api/v2/pins?strong=true', null, {
+  REQUEST_PLEX_INIT_AUTH: ({ getters }) => axios.post('https://plex.tv/api/v2/pins', null, {
     headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
+    params: {
+      strong: true,
+    },
   }).then(({ data }) => data),
 
   REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit, dispatch }, id) => {
@@ -27,105 +30,61 @@ export default {
   },
 
   FETCH_PLEX_USER: async ({ getters, commit }) => {
-    const { data } = await axios.get('https://plex.tv/users/account.json', {
-      headers: getters.GET_PLEX_BASE_PARAMS,
+    const { data } = await axios.get('https://plex.tv/api/v2/user', {
+      params: {
+        includeSubscriptions: 1,
+        includeProviders: 1,
+        includeSettings: 1,
+        includeSharedSettings: 1,
+      },
+      headers: getters.GET_PLEX_BASE_PARAMS(),
     });
 
-    commit('settings/SET_PLEX_USER', data.user, { root: true });
+    commit('settings/SET_PLEX_USER', data, { root: true });
   },
 
   PLEX_GET_DEVICES: async ({
-    state, commit, dispatch, getters, rootGetters,
+    commit, dispatch, getters, rootGetters,
   }) => {
     try {
-      const { data: devices } = await axios.get('https://plex.tv/api/v2/resources?includeHttps=1', {
-        headers: getters.GET_PLEX_BASE_PARAMS,
+      const { data: devices } = await axios.get('https://plex.tv/api/v2/resources', {
+        params: {
+          includeHttps: 1,
+          includeRelay: 1,
+        },
+        headers: getters.GET_PLEX_BASE_PARAMS(),
       });
 
-      devices.forEach((device) => {
+      await Promise.allSettled(devices.map(async (device) => {
       // Create a temporary array of object:PlexConnection
-        const tempConnectionsArray = device.connections
-          .flatMap((connection) => {
-            const tempConnection = new PlexConnection();
-            Object.assign(tempConnection, connection);
-            if (connection.local === '1' && connection.uri.indexOf('plex') > -1) {
-              const rawConnection = new PlexConnection();
-              Object.assign(rawConnection, connection);
-              rawConnection.uri = `${connection.protocol}://${connection.address}:${connection.port}`;
-              rawConnection.isManual = true;
-              // Return both
-              return [tempConnection, rawConnection];
-            }
-
-            return [tempConnection];
-          });
-
-        tempConnectionsArray.sort(
-          (con1, con2) => parseInt(con1.port, 10) - parseInt(con2.port, 10),
-        );
 
         // If device is a player
         if (device.provides.indexOf('player') !== -1) {
-        // If device is not Plex Web
-          if (device.product.indexOf('Plex Web') === -1) {
           // This is a Client
           // Create a new PlexClient object
-            const tempClient = new PlexClient();
-            Object.assign(tempClient, device);
+          const tempClient = new PlexClient(device);
 
-            tempClient.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
-            tempClient.plexConnections = tempConnectionsArray;
-            dispatch('PLEX_ADD_CLIENT', tempClient);
-          }
+          tempClient.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
+          tempClient.commit = commit;
+          dispatch('PLEX_ADD_CLIENT', tempClient);
         } else if (device.provides.indexOf('server') !== -1) {
         // This is a Server
         // Create a new PlexServer object
           const tempServer = new PlexServer();
           Object.assign(tempServer, device);
           // Push a manual connection string for when DNS rebind doesnt work
-          tempServer.plexConnections = tempConnectionsArray;
-          if (tempServer.accessToken === null) {
-            tempServer.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
-          }
 
-          dispatch('PLEX_ADD_SERVER', tempServer);
+          tempServer.chosenConnection = await dispatch('FIND_WORKING_CONNECTION', { connections: device.connections, accessToken: tempServer.accessToken }).catch(() => null);
+          tempServer.commit = commit;
+          console.log('CHOSEN CONN: ', tempServer.chosenConnection);
+
+          commit('PLEX_ADD_SERVER', tempServer);
         }
-      });
+      }));
 
-      // Setup our slPlayer
-      const ptplayer = new PlexClient();
-      ptplayer.provides = 'player';
-      ptplayer.clientIdentifier = 'PTPLAYER9PLUS10';
-      ptplayer.platform = 'Web';
-      ptplayer.device = 'Web';
-      ptplayer.product = 'SyncLounge';
-      ptplayer.name = 'SyncLounge Player';
-      ptplayer.labels = [['Recommended', 'green']];
-      ptplayer.lastSeenAt = new Date().toISOString();
 
-      // Get an array of {accessToken, uri} objects
-      const serverConnectionTokens = Object.entries(state.servers)
-        .flatMap(([, server]) => server.plexConnections
-          .map((serverConnection) => ({
-            accessToken: serverConnection.accessToken,
-            uri: serverConnection.uri,
-          })));
-
-      Object.entries(state.clients).forEach(([, client]) => {
-        client.plexConnections.forEach((clientConnection) => {
-          const match = serverConnectionTokens
-            .find((serverCon) => serverCon.uri === clientConnection.uri);
-          if (match !== undefined) {
-          // Yeah it would be better if I didn't have to mutate client but oh well
-          // eslint-disable-next-line no-param-reassign
-            client.accessToken = match.accessToken;
-          }
-        });
-      });
-
-      dispatch('PLEX_ADD_CLIENT', ptplayer);
+      dispatch('PLEX_ADD_CLIENT', getters.GET_SL_PLAYER);
       commit('PLEX_SET_VALUE', ['gotDevices', true]);
-      dispatch('PLEX_REFRESH_SERVER_CONNECTIONS');
     } catch (e) {
       // Invalid response
       commit('PLEX_SET_VALUE', ['gotDevices', true]);
@@ -133,24 +92,12 @@ export default {
     }
   },
 
-  PLEX_REFRESH_SERVER_CONNECTIONS: ({ state, dispatch }) => Promise.allSettled(
-    Object.entries(state.servers)
-      .map(([, server]) => dispatch('PLEX_SERVER_FINDCONNECTION', server)),
-  ).catch(() => {}),
-
-  PLEX_SERVER_FINDCONNECTION: (context, server) => server.findConnection(),
-
-  PLEX_ADD_CLIENT: ({ commit, dispatch }, client) => {
+  PLEX_ADD_CLIENT: ({ commit }, client) => {
     commit('PLEX_CLIENT_SET', client);
-    commit('PLEX_CLIENT_SET_VALUE', [client, 'commit', commit]);
-    commit('PLEX_CLIENT_SET_VALUE', [client, 'dispatch', dispatch]);
-  },
-  PLEX_ADD_SERVER: ({ commit }, server) => {
-    commit('PLEX_SERVER_SET', server);
-    commit('PLEX_SERVER_SET_VALUE', [server, 'commit', commit]);
   },
 
   PLEX_CLIENT_FINDCONNECTION: async ({ commit }, client) => {
+    // TODO: use this to authenticate again lol
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
@@ -239,20 +186,60 @@ export default {
     return true;
   },
 
-  getRandomThumb: async ({ getters }) => {
-    const validServers = getters.GET_VALID_SERVERS;
-
-    if (Object.keys(validServers).length > 1) {
-      const keys = Object.keys(validServers);
-      const randomServer = validServers[keys[Math.floor(keys.length * Math.random())]];
-      const result = await randomServer.getRandomItem();
-      if (!result) {
-        throw new Error('No result found');
-      }
-
-      return randomServer.getUrlForLibraryLoc(result.thumb, 900, 900, 8);
+  getRandomThumb: async ({ getters, dispatch }) => {
+    if (getters.GET_CONNECTABLE_PLEX_SERVERS.length <= 0) {
+      await dispatch('PLEX_GET_DEVICES');
     }
 
-    throw new Error('No valid servers found');
+    const randomServer = sample(getters.GET_CONNECTABLE_PLEX_SERVERS);
+    if (!randomServer) {
+      throw new Error('No valid servers found');
+    }
+
+    const result = await randomServer.getRandomItem();
+    if (!result) {
+      throw new Error('No result found');
+    }
+
+    return randomServer.getUrlForLibraryLoc(result.thumb, 900, 900, 8);
+  },
+
+  TEST_PLEX_CONNECTION: ({ getters }, { connection, accessToken }) => axios.get(`${connection.uri}/media/providers`, {
+    headers: getters.GET_PLEX_BASE_PARAMS(accessToken),
+    timeout: 7500,
+  }),
+
+  FIND_WORKING_CONNECTION: async ({ dispatch }, { connections, accessToken }) => {
+    // This function iterates through all available connections and
+    // if any of them return a valid response we'll set that connection
+    // as the chosen connection for future use.
+
+    const nonRelayConnections = connections.filter((connection) => !connection.relay);
+    // Prefer secure connections first.
+    const secureConnections = nonRelayConnections.filter((connection) => connection.protocol === 'https');
+    const insecureConnections = nonRelayConnections.filter((connection) => connection.protocol === 'http');
+
+    try {
+      const secureConnection = await promiseutils.any(
+        secureConnections.map((connection) => dispatch('TEST_PLEX_CONNECTION', { connection, accessToken }).then(() => connection)),
+      );
+      return secureConnection;
+    } catch (e) {
+      console.log('No secure connections found');
+    }
+
+    // If we are using synclounge over https, we can't access connections over http because
+    // most modern web browsers block mixed content
+
+    try {
+      const insecureConnection = await promiseutils.any(insecureConnections.map((connection) => dispatch('TEST_PLEX_CONNECTION', { connection, accessToken }).then(() => connection)));
+      return insecureConnection;
+    } catch (e) {
+      console.log('No insecure connections found');
+    }
+
+    // Finally try relay connections if we failed everywhere else.
+    const relayConnections = connections.filter((connection) => connection.relay);
+    return promiseutils.any(relayConnections.map((connection) => dispatch('TEST_PLEX_CONNECTION', { connection, accessToken }).then(() => connection)));
   },
 };

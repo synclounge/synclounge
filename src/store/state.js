@@ -5,8 +5,6 @@ const state = () => ({
   appVersion: process.env.npm_package_version,
   background: null,
   shownChat: false,
-  chosenClient: null,
-  chosenClientTimeSet: new Date().getTime(),
   blockAutoPlay: false,
   autoJoin: false,
   autoJoinUrl: null,

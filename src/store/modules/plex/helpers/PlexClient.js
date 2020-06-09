@@ -4,36 +4,26 @@ import { encodeUrlParams } from '@/utils/encoder';
 import delay from '@/utils/delay';
 import plexauth from './PlexAuth';
 
-const EventEmitter = require('events');
 
 const stringSimilarity = require('string-similarity');
 
 class PlexClient {
-  constructor() {
+  constructor(params) {
     this.commandId = 0;
     this.name = null;
     this.product = null;
-    this.productVersion = null;
     this.platform = null;
-    this.platformVersion = null;
     this.device = null;
     this.clientIdentifier = null;
-    this.createdAt = null;
     this.lastSeenAt = null;
     this.provides = null;
     this.owned = null;
     this.publicAddressMatches = null;
-    this.presence = null;
     this.plexConnections = null;
     this.chosenConnection = null;
-    this.httpServer = null;
-    this.tempId = null;
-    this.events = new EventEmitter();
     this.labels = [];
 
     this.lastSyncCommand = 0;
-
-    this.userData = null;
 
     // Latest objects for reference in the future
     this.lastRatingKey = null;
@@ -42,32 +32,19 @@ class PlexClient {
     this.lastTimeline = null;
     this.oldTimeline = null;
     this.clientPlayingMetadata = null;
-    this.lastSubscribe = 0;
     this.connectedstatus = 'fresh';
 
-    this.eventbus = window.EventBus; // We will use this to communicate with the SLPlayer
     this.commit = null;
-    this.dispatch = null;
 
     this.previousTimeline = {};
     this.differenceCache = [];
 
-    this.uuid = this.generateGuid();
+    Object.assign(this, params);
   }
 
   setValue(key, value) {
     this[key] = value;
     this.commit('PLEX_CLIENT_SET_VALUE', [this, key, value]);
-  }
-
-  generateGuid() {
-    function s4() {
-      return Math.floor((1 + Math.random()) * 0x10000)
-        .toString(16)
-        .substring(1);
-    }
-
-    return `${s4() + s4()}-${s4()}`;
   }
 
   async hitApi(command, params, con) {
@@ -82,7 +59,8 @@ class PlexClient {
             resolve(resultData);
           },
         };
-        this.eventbus.$emit('command', data);
+
+        window.EventBus.$emit('command', data);
       });
     }
 
@@ -148,7 +126,7 @@ class PlexClient {
     const timelines = result.MediaContainer.Timeline;
     let videoTimeline = {};
     for (let i = 0; i < timelines.length; i += 1) {
-      const subTimeline = timelines[i].$;
+      const subTimeline = timelines[i];
       if (subTimeline.type === 'video') {
         videoTimeline = subTimeline;
         if (videoTimeline.ratingKey !== this.previousTimeline.ratingKey) {
@@ -160,7 +138,7 @@ class PlexClient {
     this.previousTimeline = videoTimeline;
     this.lastTimelineObject = videoTimeline;
     this.lastTimelineObject.recievedAt = new Date().getTime();
-    // this.setValue('lastTimelineObject', videoTimeline)
+
     return videoTimeline;
   }
 
@@ -313,7 +291,7 @@ class PlexClient {
     return true;
   }
 
-  async playContentAutomatically(client, hostData, servers, offset) {
+  async playContentAutomatically(hostData, servers, offset) {
     // Automatically play content on the client searching all servers based on the title
 
     function checkResult(data) {

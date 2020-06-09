@@ -28,7 +28,7 @@ export default {
   ADD_MESSAGE(state, msg) {
     state.messages.push({
       ...msg,
-      time: format(new Date()),
+      time: format(new Date(), 'h:mm a..aaa'),
     });
   },
   CLEAR_MESSAGES(state) {

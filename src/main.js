@@ -54,19 +54,9 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.protected)) {
     // this route requires us to be in a room with a client selected
     // if not, redirect to the needed stage
-    if (!store.getters.getChosenClient) {
-      return next({
-        path: '/clientselect',
-      });
-    }
     if (!store.getters.getRoom) {
       return next({
-        path: '/joinroom',
-      });
-    }
-    if (!store.getters.getServer) {
-      return next({
-        path: '/joinroom',
+        path: '/',
       });
     }
     next();

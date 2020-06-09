@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -47,20 +48,23 @@ export default {
     };
   },
   computed: {
+    ...mapGetters([
+      'GET_CHOSEN_CLIENT',
+      'getPlex',
+    ]),
+
     item() {
-      return this.chosenClient.clientPlayingMetadata;
+      return this.GET_CHOSEN_CLIENT.clientPlayingMetadata;
     },
     href() {
       return `/nowplaying/${this.item.machineIdentifier}/${this.item.ratingKey}`;
     },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
     plexserver() {
       if (!this.item) return null;
-      return this.plex.servers[this.item.machineIdentifier];
+      return this.getPlex.servers[this.GET_CHOSEN_CLIENT.lastTimelineObject.machineIdentifier];
     },
     thumb() {
+      if (!this.item) return '';
       return this.plexserver.getUrlForLibraryLoc(this.item[this.imageType], 100, 300);
     },
     imageType() {

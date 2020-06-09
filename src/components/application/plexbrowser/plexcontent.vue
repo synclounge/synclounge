@@ -85,7 +85,7 @@
                       v-if="!playable"
                       class="pa-2"
                     >
-                      Now playing on {{ chosenClient.name }} from {{ server.name }}
+                      Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
                     </div>
                     <v-btn
                       v-if="!playable"
@@ -232,7 +232,7 @@
                       >
                         <v-flex xs12>
                           <div class="pa-2">
-                            Now playing on {{ chosenClient.name }} from {{ server.name }}
+                            Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
                           </div>
                         </v-flex>
                         <v-flex xs12>
@@ -471,6 +471,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import plexthumb from './plexthumb.vue';
 
 const humanizeDuration = require('humanize-duration');
@@ -500,6 +501,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters([
+      'GET_CHOSEN_CLIENT',
+    ]),
     plex() {
       return this.$store.getters.getPlex;
     },
@@ -549,9 +553,6 @@ export default {
         return `${Math.round(this.fullwidth * 2)}px`;
       }
       return `${Math.round(this.fullwidth * 2)}px`;
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
     },
     playable() {
       return this.$route.fullPath.indexOf('/nowplaying') === -1;
@@ -696,7 +697,7 @@ export default {
         offset = this.contents.viewOffset;
       }
 
-      await this.chosenClient.playMedia({
+      await this.GET_CHOSEN_CLIENT.playMedia({
         key: this.contents.key,
         mediaIndex,
         server: this.server,
@@ -713,7 +714,7 @@ export default {
       });
     },
     pressStop() {
-      this.chosenClient.pressStop(() => {});
+      this.GET_CHOSEN_CLIENT.pressStop(() => {});
     },
     getStreamCount(streams, type) {
       let count = 0;

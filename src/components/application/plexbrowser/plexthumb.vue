@@ -26,8 +26,8 @@
             fluid
             style="position:relative"
           >
-            <v-layout>
-              <v-flex xs12>
+            <v-row>
+              <v-col xs12>
                 <small
                   v-if="showServer !== undefined"
                   class="ma-1"
@@ -61,13 +61,11 @@
                   class="pa-0"
                   style="max-width:100%"
                 >
-                  <v-layout
-                    row
-                    wrap
-                    justify-end
-                    align-end
+                  <v-row
+                    justify="end"
+                    align="end"
                   >
-                    <v-flex xs12>
+                    <v-col xs12>
                       <v-progress-linear
                         v-if="showProgressBar"
                         style="width:100%"
@@ -75,43 +73,45 @@
                         height="1"
                         :value="unwatchedPercent"
                       />
-                    </v-flex>
-                  </v-layout>
+                    </v-col>
+                  </v-row>
                 </v-container>
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
           </v-container>
         </v-img>
       </v-card>
-      <v-layout
-        align-end
-        row
-        wrap
+
+      <v-row
+        dense
+        no-gutters
+        align="end"
         class="text-xs-left pa-1 white--text"
         style="max-width: 100%"
       >
-        <v-flex
+        <v-col
           v-if="!bottomOnly"
-          xs12
+          cols="12"
           style="max-width: 100%"
         >
           <div
             class="truncate"
-            style="font-size:1rem"
+            style="font-size:0.9rem"
           >
             {{ getTitle(content) }}
           </div>
-        </v-flex>
-        <v-flex
+        </v-col>
+
+        <v-col
           ref="bottomText"
-          xs12
-          style="font-size:0.8rem"
+          cols="12"
+          style="font-size:0.7rem"
         >
           <div class="truncate soft-text">
             {{ getSecondaryTitle(content) }}
           </div>
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
     </router-link>
   </div>
 </template>

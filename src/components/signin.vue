@@ -90,7 +90,7 @@ export default {
         await delayPromise;
       }
 
-      this.$router.push('/browse');
+      this.$router.push('/');
     },
 
     openPlexAuthWindow() {

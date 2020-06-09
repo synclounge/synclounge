@@ -1,5 +1,4 @@
 import axios from 'axios';
-import promiseutils from '@/utils/promiseutils';
 import plexauth from './PlexAuth';
 
 
@@ -54,44 +53,8 @@ class PlexServer {
     return data;
   }
 
-  hitApiTestConnection(command, connection) {
-    const url = `${connection.uri}${command}`;
-    const config = plexauth.getRequestConfig(this.accessToken, 7500);
-    return axios.get(url, config);
-  }
-
   setChosenConnection(con) {
     this.chosenConnection = con;
-  }
-
-  async findConnection() {
-    // This function iterates through all available connections and
-    // if any of them return a valid response we'll set that connection
-    // as the chosen connection for future use.
-
-    // Prefer secure connections first.
-    const secureConnections = this.plexConnections.filter((connection) => connection.protocol === 'https');
-
-    try {
-      const secureConnection = await promiseutils.any(
-        secureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)),
-      );
-      this.setValue('chosenConnection', secureConnection);
-      return true;
-    } catch (e) {
-      console.log('No secure connections found');
-    }
-
-    // If we are using synclounge over https, we can't access connections over http because
-    // most modern web browsers block mixed content
-    if (window.location.protocol === 'http:') {
-      const insecureConnections = this.plexConnections.filter((connection) => connection.protocol === 'http');
-      const insecureConnection = await promiseutils.any(insecureConnections.map((connection) => this.hitApiTestConnection('', connection).then(() => connection)));
-      this.setValue('chosenConnection', insecureConnection);
-      return true;
-    }
-
-    throw new Error('Unable to find a connection');
   }
 
   // Functions for dealing with media

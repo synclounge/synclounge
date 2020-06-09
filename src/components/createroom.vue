@@ -1,23 +1,36 @@
 <template>
-  <v-container>
-    <v-card
-      style="background: rgba(0,0,0,0.3)"
-      class="pa-1"
+  <v-container class="fill-height">
+    <v-row
+      align="center"
+      justify="center"
     >
-      <v-card-title>
-        Welcome to SyncLounge
-      </v-card-title>
-
-
-      <v-card-actions>
-        <v-btn
-          :disabled="!GET_SERVERS_HEALTH"
-          @click="createRoom"
+      <v-col>
+        <v-card
+          class="mx-auto"
+          max-width="500"
         >
-          Create Room
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+          <v-card-title>
+            Welcome to SyncLounge
+          </v-card-title>
+
+          <v-card-actions>
+            <v-btn
+              color="primary"
+              :disabled="!GET_SERVERS_HEALTH"
+              @click="createRoom"
+            >
+              Create Room
+            </v-btn>
+
+            <v-spacer />
+
+            <v-btn>
+              Advanced
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -27,9 +40,13 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'CreateRoom',
+  components: {
+    clientpicker: () => import('./clientpicker.vue'),
+  },
   computed: {
     ...mapGetters([
       'GET_SERVERS_HEALTH',
+      'getLogos',
     ]),
   },
 
@@ -45,6 +62,7 @@ export default {
 
     async createRoom() {
       await this.CREATE_AND_JOIN_ROOM();
+      console.log('AFTER CREATE AND JOIN');
       this.$router.push('/browse');
     },
   },

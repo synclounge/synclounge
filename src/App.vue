@@ -1,8 +1,5 @@
 <template>
-  <v-app
-    dark
-    style="height:100%"
-  >
+  <v-app>
     <leftsidebar />
     <rightsidebar />
 
@@ -93,13 +90,14 @@
       app
     >
       <v-container
-        class="ma-0 pa-0"
         align-start
+        class="ma-0 pa-0"
         :style="containerStyle"
-        style="height: 100%; z-index: 250"
+        style="height: 100%"
         fluid
       >
         <v-alert
+          width="100%"
           :dismissible="true"
           type="error"
           class="mt-0"
@@ -107,34 +105,27 @@
           {{ configError }}
         </v-alert>
 
-
         <v-container
           v-if="(loading || (getPlex && !getPlex.gotDevices)) && $route.protected"
           fill-height
         >
-          <v-layout
-            justify-center
-            align-center
-            wrap
-            row
+          <v-row
+            justify="center"
+            align="center"
             class="pt-4 text-center"
           >
-            <v-flex
-              xs8
-              md4
-            >
+            <v-col>
               <v-progress-circular
                 indeterminate
                 :size="60"
                 class="amber--text"
               />
-            </v-flex>
-          </v-layout>
+            </v-col>
+          </v-row>
         </v-container>
 
-        <div
+        <template
           v-else
-          :style="paddingStyle"
         >
           <v-breadcrumbs
             v-if="crumbs && crumbs.length > 0"
@@ -145,6 +136,7 @@
             <template v-slot:divider>
               <v-icon>chevron_right</v-icon>
             </template>
+
             <template v-slot:item="props">
               <v-breadcrumbs-item
                 :to="props.item.to"
@@ -158,7 +150,8 @@
           </v-breadcrumbs>
 
           <router-view />
-        </div>
+        </template>
+
         <v-snackbar
           v-model="snackbar"
           color="green darken-2"
@@ -169,7 +162,9 @@
             {{ snackbarMsg }}
           </div>
         </v-snackbar>
+
         <upnext v-if="GET_UP_NEXT_POST_PLAY_DATA" />
+
         <v-dialog
           v-model="donateDialog"
           max-width="650px"
@@ -242,7 +237,7 @@ export default {
       'getPlex',
       'getItemCache',
       'getLibraryCache',
-      'getChosenClient',
+      'GET_CHOSEN_CLIENT',
       'getConnected',
       'getRoom',
       'getServer',
@@ -325,15 +320,13 @@ export default {
     },
 
     showNowPlaying() {
-      return (
-        this.getChosenClient
-        && this.getChosenClient.clientPlayingMetadata
+      return (this.GET_CHOSEN_CLIENT.clientPlayingMetadata
         && this.$route.name === 'browse'
       );
     },
 
     showRightDrawerButton() {
-      return this.getConnected && this.getChosenClient && this.getRoom;
+      return this.getConnected && this.getRoom;
     },
 
     showLinkShortener() {
@@ -361,16 +354,6 @@ export default {
       }
       return arr;
     },
-
-    paddingStyle() {
-      const arr = [];
-      if (this.$route.path.indexOf('/player') === -1) {
-        arr.push({
-          padding: '16px',
-        });
-      }
-      return arr;
-    },
   },
 
   watch: {
@@ -388,19 +371,8 @@ export default {
     } catch (e) {
       this.configError = `Failed to fetch config: ${e}`;
     }
-    //
-    //  Settings
-    //
-    // Set AutoJoin information in order of importance: query -> config -> settings
-    if (this.$route.query.autojoin) {
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
-      this.$store.commit('SET_AUTOJOINURL', this.$route.query.server);
-      this.$store.commit('SET_VALUE', ['autoJoinOwner', this.$route.query.owner]);
-      if (this.$route.query.password) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
-      }
-    } else if (this.GET_CONFIG) {
+
+    if (this.GET_CONFIG) {
       if (this.GET_CONFIG.autoJoin && this.GET_CONFIG.autoJoin === true) {
         this.$store.commit('SET_AUTOJOIN', true);
         this.$store.commit('SET_AUTOJOINROOM', this.GET_CONFIG.autoJoinRoom);
@@ -409,29 +381,6 @@ export default {
       }
     }
 
-    // Auto-join if a single server is provided and autoJoinServer is not
-    if (this.GET_SYNCLOUNGE_SERVERS.length === 1 && !this.$store.autoJoinServer) {
-      const server = this.GET_SYNCLOUNGE_SERVERS[0];
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINURL', server.url);
-      if (!this.$store.autoJoinRoom && server.defaultRoom) {
-        this.$store.commit('SET_AUTOJOINROOM', server.defaultRoom);
-      }
-      if (!this.$store.autoJoinPassword && server.defaultPassword) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', server.defaultPassword);
-      }
-    }
-    //
-    // End Settings
-    //
-
-    if (this.$store.state.autoJoin) {
-      this.$store.dispatch('autoJoin', {
-        server: this.$store.state.autoJoinUrl,
-        password: this.$store.state.autoJoinPassword,
-        room: this.$store.state.autoJoinRoom,
-      });
-    }
 
     window.EventBus.$on('notification', (msg) => {
       this.snackbarMsg = msg;
@@ -443,11 +392,11 @@ export default {
     });
 
     window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
-      if (this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
+      if (this.GET_CHOSEN_CLIENT.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
         this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
       }
       if (
-        this.getChosenClient.clientIdentifier !== 'PTPLAYER9PLUS10'
+        this.GET_CHOSEN_CLIENT.clientIdentifier !== 'PTPLAYER9PLUS10'
         && !data[1]
         && this.$route.fullPath.indexOf('/nowplaying') > -1
       ) {
@@ -472,10 +421,16 @@ export default {
 
   methods: {
     ...mapActions('config', ['fetchConfig']),
-    ...mapActions(['SET_LEFT_SIDEBAR_OPEN', 'SET_RIGHT_SIDEBAR_OPEN', 'TOGGLE_RIGHT_SIDEBAR_OPEN']),
+    ...mapActions([
+      'SET_LEFT_SIDEBAR_OPEN',
+      'SET_RIGHT_SIDEBAR_OPEN',
+      'TOGGLE_RIGHT_SIDEBAR_OPEN',
+    ]),
+
     sendNotification() {
       window.EventBus.$emit('notification', 'Copied to clipboard');
     },
+
     goFullscreen() {
       fscreen.requestFullscreen(document.body);
     },

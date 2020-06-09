@@ -1,34 +1,30 @@
 <template>
-  <v-card>
-    <v-card-title>
+  <v-list
+    dense
+  >
+    <v-subheader>
       Plex Players
-      <v-spacer />
       <v-btn
         icon
+        x-small
         @click="PLEX_GET_DEVICES"
       >
         <v-icon>refresh</v-icon>
       </v-btn>
-    </v-card-title>
-
-
-    <v-list
-      dense
+    </v-subheader>
+    <v-list-item-group
+      mandatory
+      :value="GET_CHOSEN_CLIENT"
+      @change="CHOOSE_CLIENT"
     >
-      <v-list-item-group
-        mandatory
-        :value="getChosenClient"
-        @change="CHOOSE_CLIENT"
-      >
-        <plexclient
-          v-for="client in GET_RECENT_PLEX_CLIENTS"
-          :key="client.clientIdentifier"
-          :object="client"
-          :value="client"
-        />
-      </v-list-item-group>
-    </v-list>
-  </v-card>
+      <plexclient
+        v-for="client in GET_RECENT_PLEX_CLIENTS"
+        :key="client.clientIdentifier"
+        :object="client"
+        :value="client"
+      />
+    </v-list-item-group>
+  </v-list>
 </template>
 
 <script>
@@ -91,7 +87,7 @@ export default {
   computed: {
     ...mapState(['plex']),
     ...mapGetters([
-      'getChosenClient',
+      'GET_CHOSEN_CLIENT',
       'getLogos',
       'GET_RECENT_PLEX_CLIENTS',
     ]),

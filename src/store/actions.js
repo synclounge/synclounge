@@ -1,33 +1,38 @@
+import delay from '@/utils/delay';
+
 function sendNotification(message) {
   return window.EventBus.$emit('notification', message);
 }
 
 export default {
-  async PLAYBACK_CHANGE({ commit, state, dispatch }, [, ratingKey, mediaContainer]) {
+  async PLAYBACK_CHANGE({
+    commit, state, dispatch, getters,
+  }, [, ratingKey, mediaContainer]) {
     if (ratingKey) {
       // Playing something different!
+      commit('SET_PLEX_SERVER_ID', mediaContainer.machineIdentifier);
       const server = state.plex.servers[mediaContainer.machineIdentifier];
       commit('settings/SET_LASTSERVER', mediaContainer.machineIdentifier);
-      if (!server) {
-        return;
-      }
-      commit('SET_PLEX_SERVER_ID', mediaContainer.machineIdentifier);
+
       // Fetch our metadata from this server
-      // console.log('Loading content metadata from store ' + ratingKey)
+
       server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {
         const metadata = data.MediaContainer.Metadata[0];
         if (!metadata) {
           return;
         }
+
         if (metadata.type === 'movie') {
           sendNotification(`Now Playing: ${metadata.title} from ${server.name}`);
         }
+
         if (metadata.type === 'episode') {
           sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
             metadata.index
           } from ${server.name}`);
         }
-        state.chosenClient.clientPlayingMetadata = metadata;
+
+        getters.GET_CHOSEN_CLIENT.clientPlayingMetadata = metadata;
         const w = Math.round(
           Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
         );
@@ -42,7 +47,7 @@ export default {
         );
       });
     } else {
-      state.chosenClient.clientPlayingMetadata = null;
+      getters.GET_CHOSEN_CLIENT.clientPlayingMetadata = null;
       const thumb = await dispatch('getRandomThumb');
       if (thumb) {
         state.background = thumb;
@@ -53,14 +58,9 @@ export default {
   NEW_TIMELINE({
     commit, state, dispatch, getters,
   }, timeline) {
-    // return true
-    const client = state.chosenClient;
-    const metadata = state.chosenClient.clientPlayingMetadata || {};
-    // console.log(state)
-    if (!state.chosenClient || client.clientIdentifier !== state.chosenClient.clientIdentifier) {
-      console.log('Invalid client');
-      return false;
-    }
+    const client = getters.GET_CHOSEN_CLIENT;
+    const metadata = getters.GET_CHOSEN_CLIENT.clientPlayingMetadata || {};
+
     if (state.lastRatingKey !== timeline.ratingKey) {
       commit('SET_VALUE', ['lastRatingKey', timeline.ratingKey]);
       dispatch('PLAYBACK_CHANGE', [client, timeline.ratingKey, timeline]);
@@ -96,7 +96,7 @@ export default {
     let rawTitle = null;
     let type = null;
     let showName = null;
-    if (state.chosenClient.clientPlayingMetadata) {
+    if (getters.GET_CHOSEN_CLIENT.clientPlayingMetadata) {
       rawTitle = metadata.title;
       if (metadata.type === 'episode') {
         title = `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-`
@@ -129,16 +129,16 @@ export default {
       title,
       rawTitle,
       playerState: timeline.state,
-      clientResponseTime: state.chosenClient.lastResponseTime,
-      playerProduct: state.chosenClient.product,
+      clientResponseTime: getters.GET_CHOSEN_CLIENT.lastResponseTime,
+      playerProduct: getters.GET_CHOSEN_CLIENT.product,
       status,
       type,
       showName,
       uuid: state.uuid,
     };
-    if (state.chosenClient && state.chosenClient.lastTimelineObject) {
-      endObj.machineIdentifier = state.chosenClient.lastTimelineObject.machineIdentifier;
-      endObj.key = state.chosenClient.lastTimelineObject.key;
+    if (getters.GET_CHOSEN_CLIENT && getters.GET_CHOSEN_CLIENT.lastTimelineObject) {
+      endObj.machineIdentifier = getters.GET_CHOSEN_CLIENT.lastTimelineObject.machineIdentifier;
+      endObj.key = getters.GET_CHOSEN_CLIENT.lastTimelineObject.key;
     }
     if (state.synclounge.socket) {
       const commandId = Object.keys(state.synclounge.commands).length + 1;
@@ -156,66 +156,36 @@ export default {
 
     return true;
   },
+
   SET_LEFT_SIDEBAR_OPEN: ({ commit }, open) => {
     commit('SET_LEFT_SIDEBAR_OPEN', open);
   },
+
   SET_RIGHT_SIDEBAR_OPEN: ({ commit }, open) => {
     commit('SET_RIGHT_SIDEBAR_OPEN', open);
   },
+
   TOGGLE_RIGHT_SIDEBAR_OPEN: ({ commit }) => {
     commit('TOGGLE_RIGHT_SIDEBAR_OPEN');
   },
 
-  CHOOSE_CLIENT: ({ commit, state, getters }, client) => {
-    // Set up our client poller
-    let commandInProgress = false;
+  START_CLIENT_POLLER: async ({ getters }) => {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const delayPromise = delay(getters['settings/GET_CLIENTPOLLINTERVAL']);
 
-    function clientPoller(time) {
-      if (!state.chosenClient) {
-        return;
-      }
-
-      if (state.chosenClientTimeSet !== time) {
-        // We have a new chosen client, we need to stop
-        return;
-      }
-
-      if (state.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') {
-        if (!commandInProgress) {
-          state.chosenClient
-            .getTimeline()
-            .then(() => {
-              commandInProgress = false;
-            })
-            .catch(() => {
-              commandInProgress = false;
-            });
-          commandInProgress = true;
-        }
-      } else {
-        state.chosenClient.getTimeline();
-      }
-
-      setTimeout(() => {
-        clientPoller(time);
-      }, getters['settings/GET_CLIENTPOLLINTERVAL']);
+      // eslint-disable-next-line no-await-in-loop
+      await getters.GET_CHOSEN_CLIENT.getTimeline().catch(() => {});
+      // eslint-disable-next-line no-await-in-loop
+      await delayPromise;
     }
+  },
 
-    // Check if we need to remove old handlers
-    if (state.chosenClient) {
-      state.chosenClient.events.removeAllListeners();
+  CHOOSE_CLIENT: ({ commit, getters }, client) => {
+    commit('SET_CHOSEN_CLIENT', client);
+    if (getters.GET_CHOSEN_CLIENT.lastTimelineObject) {
+      getters.GET_CHOSEN_CLIENT.lastTimelineObject.ratingKey = -1;
     }
-
-    commit('SET_CHOSENCLIENT', client);
-    if (state.chosenClient && state.chosenClient.lastTimelineObject) {
-      state.chosenClient.lastTimelineObject.ratingKey = -1;
-    }
-    if (state.chosenClient == null) {
-      return;
-    }
-    state.chosenClientTimeSet = new Date().getTime();
-    clientPoller(state.chosenClientTimeSet);
-    state.chosenClient.getTimeline(() => { });
   },
 
   TRIGGER_MANUAL_SYNC: ({ commit }) => {
