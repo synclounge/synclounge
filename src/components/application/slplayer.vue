@@ -238,6 +238,7 @@ export default {
       },
 
       playerUiOptions: {
+        addBigPlayButton: true,
         controlPanelElements: [
           'replay10',
           'play_pause',
@@ -291,8 +292,10 @@ export default {
     ]),
 
     bigPlayButton() {
+      window.player = this.GET_PLAYER;
+      window.playerUi = this.GET_PLAYER_UI;
       // eslint-disable-next-line no-underscore-dangle
-      return this.GET_PLAYER_UI.getControls().playButton_.button;
+      return this.GET_PLAYER_UI.controls_.playButton_.button;
     },
 
     smallPlayButton() {
