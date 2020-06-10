@@ -109,13 +109,14 @@ export default {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
+    console.log(client);
 
     if (client.clientIdentifier === 'PTPLAYER9PLUS10') {
       return true;
     }
 
     try {
-      await Promise.any(client.plexConnections.map(async (connection) => {
+      await promiseutils.any(client.connections.map(async (connection) => {
         // We dont care about this result, some clients require a poll command before sending a subscription command
         await client.hitApi('/player/timeline/poll', { wait: 0 }, connection, false, true)
           .catch(() => { });

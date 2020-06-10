@@ -366,13 +366,6 @@ export default {
       return url;
     },
   },
-  watch: {
-    GET_CHOSEN_CLIENT(to, from) {
-      if (this.GET_CHOSEN_CLIENT && !from) {
-        this.$router.push('/joinroom');
-      }
-    },
-  },
 
   mounted() {
     this.FETCH_PLEX_DEVICES();
@@ -382,41 +375,48 @@ export default {
     ...mapActions([
       'CHOOSE_CLIENT',
       'FETCH_PLEX_DEVICES',
+      'PLEX_CLIENT_FINDCONNECTION',
     ]),
     ...mapMutations([
       'SET_CHOSEN_CLIENT_ID',
     ]),
+
     previewClient(client) {
       this.testClient = client;
       this.testClientErrorMsg = null;
     },
+
     async clientClicked() {
       const client = this.testClient;
       this.gotResponse = false;
       this.testClientErrorMsg = null;
-      this.$store
-        .dispatch('PLEX_CLIENT_FINDCONNECTION', client)
-        .then(() => {
-          this.SET_CHOSEN_CLIENT_ID(client.clientIdentifier);
-          this.gotResponse = true;
-        })
-        .catch(() => {
-          if (client.clientIdentifier !== this.testClient.clientIdentifier) {
-            return;
-          }
-          this.gotResponse = true;
-          this.testClientErrorMsg = 'Unable to connect to client';
-        });
+
+      try {
+        await this.PLEX_CLIENT_FINDCONNECTION(client);
+
+        this.SET_CHOSEN_CLIENT_ID(client.clientIdentifier);
+        this.gotResponse = true;
+        this.$router.push('/joinroom');
+      } catch {
+        if (client.clientIdentifier !== this.testClient.clientIdentifier) {
+          return;
+        }
+        this.gotResponse = true;
+        this.testClientErrorMsg = 'Unable to connect to client';
+      }
     },
+
     isClientSelected(client) {
       if (client === this.testClient) {
         return true;
       }
       return false;
     },
+
     lastSeenAgo(clientTime) {
       return `${formatDistanceToNow(parseISO(clientTime))} ago`;
     },
+
     refreshPlexDevices() {
       this.CHOOSE_CLIENT(null);
       this.$store.commit('REFRESH_PLEXDEVICES');

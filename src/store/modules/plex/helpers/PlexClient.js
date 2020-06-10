@@ -88,9 +88,9 @@ class PlexClient {
       ...plexauth.getClientApiOptions(this.clientIdentifier, 5000, this.accessToken),
       transformResponse: xmlutils.parseXML,
     };
-    await axios.get(url, options);
+    const { data } = await axios.get(url, options);
 
-    return true;
+    return data;
   }
 
   async getTimeline() {
@@ -122,8 +122,9 @@ class PlexClient {
       window.EventBus.$emit('NEW_TIMELINE', result.MediaContainer.Timeline[0]);
       return result.MediaContainer.Timeline[0];
     }
+
     // Standard player
-    const timelines = result.MediaContainer.Timeline;
+    const timelines = result.MediaContainer[0].Timeline;
     let videoTimeline = {};
     for (let i = 0; i < timelines.length; i += 1) {
       const subTimeline = timelines[i];
