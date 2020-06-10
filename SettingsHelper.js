@@ -134,10 +134,6 @@ const fields = [
 
 // Returns the parsed setting or default value if wrong type or unable to be parsed
 const parseSetting = (value, setting) => {
-  if (setting.nullable && (value === null || value === 'null')) {
-    return null;
-  }
-
   if (setting.type === 'array') {
     // If setting is array. (Have to treat arrays differently since typeof array is 'object')
     if (Array.isArray(value)) {
