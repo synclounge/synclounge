@@ -27,7 +27,9 @@ export default {
       : 'wan'
     : undefined),
 
-  GET_PART_ID: (state, getters) => getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id,
+  GET_PART_ID: (state, getters) => (getters.GET_METADATA
+    ? getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id
+    : null),
 
   GET_SRC_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd?${encodeUrlParams(getters.GET_DECISION_AND_START_PARAMS)}`,
 
@@ -58,12 +60,12 @@ export default {
       id, displayTitle,
     }) => ({ id, text: displayTitle })),
 
-  GET_MEDIA_LIST: (state, getters) => getters.GET_METADATA.Media.map(
+  GET_MEDIA_LIST: (state, getters) => (getters.GET_METADATA ? getters.GET_METADATA.Media.map(
     ({ videoResolution, bitrate }, index) => ({
       index,
       text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
     }),
-  ),
+  ) : ([])),
 
   GET_QUALITIES: () => qualities,
 
@@ -79,16 +81,20 @@ export default {
     return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
   },
 
+  // TODO: fix this 0 fallback
   GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex
-    || rootState.route.query.mediaIndex,
+    || rootState.route.query.mediaIndex || 0,
 
-  GET_RELATIVE_THUMB_URL: (state, getters) => getters.GET_METADATA.grandparentThumb
-    || getters.GET_METADATA.thumb,
+  GET_RELATIVE_THUMB_URL: (state, getters) => (getters.GET_METADATA
+    ? getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb
+    : null),
 
-  GET_THUMB_URL: (state, getters) => getters.GET_PLEX_SERVER
-    .getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200),
+  GET_THUMB_URL: (state, getters) => (getters.GET_PLEX_SERVER ? getters.GET_PLEX_SERVER
+    .getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200) : null),
 
-  GET_RATING_KEY: (state, getters) => getters.GET_KEY.replace('/library/metadata/', ''),
+  GET_RATING_KEY: (state, getters) => (getters.GET_KEY
+    ? getters.GET_KEY.replace('/library/metadata/', '')
+    : null),
 
   GET_KEY: (state, getters, rootState) => state.key || rootState.route.query.key,
 
@@ -99,9 +105,13 @@ export default {
   GET_PLAYER: (state) => state.player,
   GET_PLAYER_UI: (state) => state.playerUi,
 
-  GET_TITLE: (state, getters) => contenttitleutils.getTitle(getters.GET_METADATA),
-  GET_SECONDARY_TITLE: (state, getters) => contenttitleutils
-    .getSecondaryTitle(getters.GET_METADATA),
+  GET_TITLE: (state, getters) => (getters.GET_METADATA
+    ? contenttitleutils.getTitle(getters.GET_METADATA)
+    : null),
+
+  GET_SECONDARY_TITLE: (state, getters) => (getters.GET_METADATA
+    ? contenttitleutils.getSecondaryTitle(getters.GET_METADATA)
+    : null),
 
 
   GET_PART_PARAMS: (state, getters, rootState, rootGetters) => ({
@@ -145,7 +155,9 @@ export default {
 
   ARE_PLAYER_CONTROLS_SHOWN: (state) => state.playerControlsShown,
 
-  GET_PLAYER_MEDIA_ELEMENT: (state) => state.player.getMediaElement(),
+  GET_PLAYER_MEDIA_ELEMENT: (state) => (state.player
+    ? state.player.getMediaElement()
+    : null),
 
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
 };

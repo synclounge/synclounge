@@ -181,13 +181,6 @@ export default {
     }
   },
 
-  CHOOSE_CLIENT: ({ commit, getters }, client) => {
-    commit('SET_CHOSEN_CLIENT', client);
-    if (getters.GET_CHOSEN_CLIENT.lastTimelineObject) {
-      getters.GET_CHOSEN_CLIENT.lastTimelineObject.ratingKey = -1;
-    }
-  },
-
   TRIGGER_MANUAL_SYNC: ({ commit }) => {
     commit('SET_MANUAL_SYNC_QUEUED', true);
   },

@@ -37,23 +37,27 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item
-        v-if="plex && plex.gotDevices"
-        @click.stop="plexsettingstoggle = !plexsettingstoggle"
-      >
-        <v-list-item-icon>
-          <v-icon color="white">
-            settings
-          </v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Plex Settings</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
 
-      <v-subheader v-if="plex && plex.gotDevices">
-        Account
-      </v-subheader>
+      <template v-if="IS_DONE_FETCHING_DEVICES">
+        <v-list-item
+          @click.stop="plexsettingstoggle = !plexsettingstoggle"
+        >
+          <v-list-item-icon>
+            <v-icon color="white">
+              settings
+            </v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title>Plex Settings</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-subheader>
+          Account
+        </v-subheader>
+      </template>
+
       <v-list-item
         :router="true"
         to="/signout"
@@ -63,12 +67,14 @@
             cancel
           </v-icon>
         </v-list-item-icon>
+
         <v-list-item-content>
           <v-list-item-title>Sign out</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
       <v-subheader>About</v-subheader>
+
       <v-list-item
         href="https://synclounge.tv/"
         target="_blank"
@@ -151,6 +157,7 @@
         <ptsettings class="darken-4 pa-1" />
       </v-card>
     </v-dialog>
+
     <v-dialog
       v-model="plexsettingstoggle"
       width="350"
@@ -164,11 +171,11 @@
         </div>
         <v-divider class="mt-2 mb-2" />
         <plexsettings
-          v-if="validPlex && plex.gotDevices"
           class="darken-4 pa-1"
         />
       </v-card>
     </v-dialog>
+
     <v-dialog
       v-model="donateDialog"
       max-width="650px"
@@ -203,7 +210,8 @@ export default {
   },
   computed: {
     ...mapState(['isLeftSidebarOpen']),
-    ...mapGetters('settings', [
+    ...mapGetters([
+      'IS_DONE_FETCHING_DEVICES',
       'GET_PLEX_USER',
     ]),
     plex() {
@@ -217,12 +225,6 @@ export default {
     },
     updatedAt() {
       return '';
-    },
-    validPlex() {
-      if (!this.$store.state.plex) {
-        return false;
-      }
-      return true;
     },
     appVersion() {
       return this.$store.state.appVersion;

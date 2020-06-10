@@ -60,20 +60,13 @@ export default new Router({
       beforeEnter: ifAuthenticated,
     },
     {
-      path: '/joininvite/:server/:room',
+      path: '/join/:server/:room',
       meta: {
-      },
-      component: () => import('../components/joininvite.vue'),
-      props: true,
-      name: 'joininvite',
-      beforeEnter: ifAuthenticatedWithRedirect,
-    },
-    {
-      path: '/join',
-      meta: {
-        protected: false,
       },
       component: () => import('../components/join.vue'),
+      props: true,
+      name: 'join',
+      beforeEnter: ifAuthenticatedWithRedirect,
     },
     {
       path: '/clientselect',

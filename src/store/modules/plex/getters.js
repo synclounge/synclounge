@@ -11,7 +11,7 @@ export default {
   getItemCache: (state) => state.itemCache,
   getLibraryCache: (state) => state.libraryCache,
   GET_SL_PLAYER: (state) => state.slPlayer,
-  GET_CHOSEN_CLIENT: (state) => state.chosenClient,
+  GET_CHOSEN_CLIENT: (state) => state.clients[state.chosenClientId],
   GET_RECENT_PLEX_CLIENTS: (state) => Object.values(state.clients)
     .sort((a, b) => -a.lastSeenAt.localeCompare(b.lastSeenAt)),
 
@@ -62,4 +62,8 @@ export default {
 
     return `https://app.plex.tv/auth#?${encodeUrlParams(urlParams)}`;
   },
+
+  IS_DONE_FETCHING_DEVICES: (state) => state.doneFetchingDevices,
+  GET_DEVICE_FETCH_PROMISE: (state) => state.deviceFetchPromise,
+  GET_PLEX_USER: (state) => state.user,
 };

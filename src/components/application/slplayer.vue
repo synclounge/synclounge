@@ -208,8 +208,6 @@ import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 import {
   mapActions, mapGetters, mapMutations, mapState,
 } from 'vuex';
-import slplayer from '@/store/modules/slplayer';
-
 
 import 'shaka-player/dist/controls.css';
 
@@ -233,11 +231,6 @@ export default {
       lastSentTimeline: {},
       metadataLoadedPromise: null,
 
-      playerConfig: {
-        streaming: {
-          bufferingGoal: 120,
-        },
-      },
 
       playerUiOptions: {
         controlPanelElements: [
@@ -312,13 +305,6 @@ export default {
     },
   },
 
-
-  beforeCreate() {
-    if (!this.$store.state.slplayer) {
-      this.$store.registerModule('slplayer', slplayer);
-    }
-  },
-
   created() {
     this.metadataLoadedPromise = this.FETCH_METADATA();
     shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.eventbus));
@@ -332,8 +318,8 @@ export default {
 
   async mounted() {
     await this.metadataLoadedPromise;
-    this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
-    this.SET_PLAYER_CONFIGURATION(this.playerConfig);
+    await this.ATTACH_PLAYER(this.$refs.videoPlayer);
+    console.log('DONE ATTACH');
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
       this.$refs.videoPlayer));
 
@@ -368,12 +354,12 @@ export default {
     this.eventbus.$off('playerclosebuttonclicked', this.DO_COMMAND_STOP);
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
-    this.$store.unregisterModule('slplayer');
   },
 
   methods: {
     ...mapActions('slplayer', [
       'FETCH_METADATA',
+      'ATTACH_PLAYER',
       'CHANGE_MAX_VIDEO_BITRATE',
       'CHANGE_AUDIO_STREAM',
       'CHANGE_SUBTITLE_STREAM',
@@ -392,8 +378,6 @@ export default {
     ]),
 
     ...mapMutations('slplayer', [
-      'SET_PLAYER',
-      'SET_PLAYER_CONFIGURATION',
       'SET_PLAYER_UI',
       'SET_PLAYER_UI_CONFIGURATION',
     ]),

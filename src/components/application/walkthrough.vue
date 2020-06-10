@@ -59,7 +59,7 @@
           </v-col>
         </v-row>
         <div
-          v-if="plex && !plex.gotDevices"
+          v-if="!IS_DONE_FETCHING_DEVICES"
           class="text-center pa-4"
         >
           <v-progress-circular
@@ -78,7 +78,7 @@
             lg="6"
           >
             <v-subheader>
-              Plex Players {{ playercount }}
+              Plex Players
               <v-icon
                 class="pl-2"
                 small
@@ -217,7 +217,7 @@
             md="6"
             lg="7"
           >
-            <v-subheader>Plex Players {{ playercount }}</v-subheader>
+            <v-subheader>Plex Players</v-subheader>
             <v-list
               dense
               style="background: none"
@@ -305,6 +305,7 @@ export default {
       'GET_CHOSEN_CLIENT',
       'getLogos',
       'GET_RECENT_PLEX_CLIENTS',
+      'IS_DONE_FETCHING_DEVICES',
     ]),
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {
@@ -343,15 +344,7 @@ export default {
     clients() {
       return this.plex.clients;
     },
-    context() {
-      return this.$store;
-    },
-    playercount() {
-      if (this.$store.state.plex && this.$store.state.plex.gotDevices) {
-        return `(${Object.keys(this.plex.clients).length})`;
-      }
-      return '';
-    },
+
     nohttpslink() {
       if (!this.isHttps) {
         return '';

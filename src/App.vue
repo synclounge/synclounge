@@ -111,7 +111,7 @@
         </v-alert>
 
         <v-container
-          v-if="(loading || (getPlex && !getPlex.gotDevices)) && $route.protected"
+          v-if="(loading || (getPlex && !IS_DONE_FETCHING_DEVICES)) && $route.protected"
           fill-height
         >
           <v-row
@@ -250,6 +250,8 @@ export default {
       'GET_SYNCLOUNGE_SERVERS',
       'GET_UP_NEXT_POST_PLAY_DATA',
       'getLogos',
+      'IS_DONE_FETCHING_DEVICES',
+      'IS_AUTHENTICATED',
     ]),
     ...mapGetters('config', ['GET_CONFIG']),
     ...mapState(['isRightSidebarOpen']),
@@ -359,7 +361,7 @@ export default {
     inviteUrl() {
       if (this.getServer && this.getRoom) {
         const invitePart = this.$router.resolve({
-          name: 'joininvite',
+          name: 'join',
           params: { server: this.getServer, room: this.getRoom },
         }).href;
 
@@ -379,11 +381,18 @@ export default {
   },
 
   async mounted() {
+    if (this.IS_AUTHENTICATED) {
+      // Kick off a bunch of requests that we need for later
+      this.FETCH_PLEX_USER();
+      this.FETCH_PLEX_DEVICES_IF_NEEDED();
+    }
+
     try {
       await this.configFetchPromise;
     } catch (e) {
       this.configError = `Failed to fetch config: ${e}`;
     }
+
 
     if (this.GET_CONFIG) {
       if (this.GET_CONFIG.autoJoin && this.GET_CONFIG.autoJoin === true) {
@@ -438,6 +447,8 @@ export default {
       'SET_LEFT_SIDEBAR_OPEN',
       'SET_RIGHT_SIDEBAR_OPEN',
       'TOGGLE_RIGHT_SIDEBAR_OPEN',
+      'FETCH_PLEX_DEVICES_IF_NEEDED',
+      'FETCH_PLEX_USER',
     ]),
 
     sendNotification() {

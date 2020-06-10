@@ -41,8 +41,4 @@ export default {
   SET_RECENT_ROOMS: (state, rooms) => {
     state.recentRooms = rooms;
   },
-
-  SET_PLEX_USER: (state, user) => {
-    state.plexUser = user;
-  },
 };

@@ -3,7 +3,7 @@ import plexauth from './PlexAuth';
 
 
 class PlexServer {
-  constructor() {
+  constructor(params) {
     this.name = '';
     this.product = '';
     this.productVersion = '';
@@ -27,6 +27,8 @@ class PlexServer {
     this.chosenConnection = null;
 
     this.commit = null;
+
+    Object.assign(this, params);
   }
 
   setValue(key, value) {

@@ -40,55 +40,63 @@ export default {
       headers: getters.GET_PLEX_BASE_PARAMS(),
     });
 
-    commit('settings/SET_PLEX_USER', data, { root: true });
+    commit('SET_PLEX_USER', data);
   },
 
-  PLEX_GET_DEVICES: async ({
+  // Private function, please use FETCH_PLEX_DEVICES instead
+  _FETCH_PLEX_DEVICES: async ({
     commit, dispatch, getters, rootGetters,
   }) => {
-    try {
-      const { data: devices } = await axios.get('https://plex.tv/api/v2/resources', {
-        params: {
-          includeHttps: 1,
-          includeRelay: 1,
-        },
-        headers: getters.GET_PLEX_BASE_PARAMS(),
-      });
+    const { data: devices } = await axios.get('https://plex.tv/api/v2/resources', {
+      params: {
+        includeHttps: 1,
+        includeRelay: 1,
+      },
+      headers: getters.GET_PLEX_BASE_PARAMS(),
+    });
 
-      await Promise.allSettled(devices.map(async (device) => {
-      // Create a temporary array of object:PlexConnection
+    await Promise.allSettled(devices.map(async (device) => {
+      if (device.provides.indexOf('player') !== -1) {
+        // This is a Client
 
-        // If device is a player
-        if (device.provides.indexOf('player') !== -1) {
-          // This is a Client
-          // Create a new PlexClient object
-          const tempClient = new PlexClient(device);
-
-          tempClient.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
-          tempClient.commit = commit;
-          dispatch('PLEX_ADD_CLIENT', tempClient);
-        } else if (device.provides.indexOf('server') !== -1) {
+        const tempClient = new PlexClient(device);
+        tempClient.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
+        tempClient.commit = commit;
+        dispatch('PLEX_ADD_CLIENT', tempClient);
+      } else if (device.provides.indexOf('server') !== -1) {
         // This is a Server
-        // Create a new PlexServer object
-          const tempServer = new PlexServer();
-          Object.assign(tempServer, device);
-          // Push a manual connection string for when DNS rebind doesnt work
+        const tempServer = new PlexServer(device);
+        tempServer.commit = commit;
+        tempServer.chosenConnection = await dispatch('FIND_WORKING_CONNECTION', {
+          connections: device.connections,
+          accessToken: tempServer.accessToken,
+        }).catch(() => null);
 
-          tempServer.chosenConnection = await dispatch('FIND_WORKING_CONNECTION', { connections: device.connections, accessToken: tempServer.accessToken }).catch(() => null);
-          tempServer.commit = commit;
-          console.log('CHOSEN CONN: ', tempServer.chosenConnection);
+        commit('PLEX_ADD_SERVER', tempServer);
+      }
+    }));
 
-          commit('PLEX_ADD_SERVER', tempServer);
-        }
-      }));
+    if (!getters.IS_DONE_FETCHING_DEVICES) {
+      commit('SET_DONE_FETCHING_DEVICES', true);
+    }
+  },
 
+  FETCH_PLEX_DEVICES: async ({ getters, commit, dispatch }) => {
+    // If we already have started checking for devices,
+    // wait for that to finish instead of starting new request
+    if (!getters.GET_DEVICE_FETCH_PROMISE) {
+      const fetchPromise = dispatch('_FETCH_PLEX_DEVICES');
+      commit('SET_DEVICE_FETCH_PROMISE', fetchPromise);
+    }
 
-      dispatch('PLEX_ADD_CLIENT', getters.GET_SL_PLAYER);
-      commit('PLEX_SET_VALUE', ['gotDevices', true]);
-    } catch (e) {
-      // Invalid response
-      commit('PLEX_SET_VALUE', ['gotDevices', true]);
-      throw e;
+    await getters.GET_DEVICE_FETCH_PROMISE;
+    commit('SET_DEVICE_FETCH_PROMISE', null);
+  },
+
+  // Use this to trigger a fetch if you don't need the devices refreshed
+  FETCH_PLEX_DEVICES_IF_NEEDED: async ({ getters, dispatch }) => {
+    if (!getters.IS_DONE_FETCHING_DEVICES) {
+      await dispatch('FETCH_PLEX_DEVICES');
     }
   },
 

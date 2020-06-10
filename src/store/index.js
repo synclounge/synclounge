@@ -11,12 +11,15 @@ import synclounge from './modules/synclounge';
 import config from './modules/config/config.store';
 import settings from './modules/settings';
 import plex from './modules/plex';
-
+import slplayer from './modules/slplayer';
 
 Vue.use(Vuex);
 
 const persistedState = createPersistedState({
-  paths: ['settings'],
+  paths: [
+    'settings',
+    'plex.user',
+  ],
 });
 
 const store = new Vuex.Store({
@@ -29,6 +32,7 @@ const store = new Vuex.Store({
     plex,
     config,
     settings,
+    slplayer,
   },
   plugins: [persistedState],
 });

@@ -25,7 +25,7 @@ export default {
       address: data.server,
     });
     const temporaryObj = {
-      user: rootGetters['settings/GET_PLEX_USER'],
+      user: rootGetters.GET_PLEX_USER,
       roomName: data.room,
       password: data.password,
     };
@@ -66,7 +66,7 @@ export default {
           // Looks like the server disconnected on us, lets rejoin
           state.socket.emit(
             'join',
-            new HandshakeUser(rootGetters['settings/GET_PLEX_USER'], state.room, state.password),
+            new HandshakeUser(rootGetters.GET_PLEX_USER, state.room, state.password),
           );
         }
         return resolve(true, result);
@@ -129,24 +129,6 @@ export default {
             },
             { root: true },
           );
-
-          // Generate our short url/invite link
-          let urlOrigin = window.location.origin + (rootGetters['config/GET_CONFIG'].webroot || '');
-          if (process.env.NODE_ENV === 'development') {
-            urlOrigin = 'http://app.synclounge.tv';
-          }
-
-          const inviteData = {
-            urlOrigin,
-            owner: rootGetters['settings/GET_PLEX_USER'].username || rootGetters['settings/GET_PLEX_USER'].title,
-            server: state.server,
-            room: state.room,
-            password: state.password || '',
-          };
-          // if (settings.webroot) urlOrigin = urlOrigin + settings.webroot
-          axios.post(`${urlOrigin}/invite`, inviteData).then((res) => {
-            commit('SET_SHORTLINK', res.data.url);
-          });
 
           // Now we need to setup events for dealing with the PTServer.
           // We will regularly be recieving and sending data to and from the server.
@@ -466,7 +448,7 @@ export default {
       msg,
       user: {
         username: 'You',
-        thumb: rootGetters['settings/GET_PLEX_USER'].thumb,
+        thumb: rootGetters.GET_PLEX_USER.thumb,
       },
       type: 'message',
     });

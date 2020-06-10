@@ -26,7 +26,6 @@ const state = () => ({
   lastServer: null,
   plexAuthToken: null,
   recentRooms: [],
-  plexUser: null,
 });
 
 export default state;

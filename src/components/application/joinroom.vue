@@ -399,12 +399,12 @@ export default {
       'getConnected',
       'getRoom',
       'getLogos',
+      'GET_PLEX_USER',
     ]),
 
     ...mapGetters('settings', [
       'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
       'GET_RECENT_ROOMS',
-      'GET_PLEX_USER',
     ]),
   },
 

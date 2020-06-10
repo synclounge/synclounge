@@ -65,13 +65,6 @@ export default {
     state.player.setPlaybackRate(rate);
   },
 
-  DESTROY_PLAYER: (state) => {
-    state.player.destroy();
-    state.playerUi.destroy();
-    state.player = null;
-    state.playerUi = null;
-  },
-
   // DOM attributes aren't reactive so you have to update this periodically
   UPDATE_PLAYER_CONTROLS_SHOWN: (state, shown) => {
     state.playerControlsShown = shown;
