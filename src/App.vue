@@ -105,7 +105,7 @@
           width="100%"
           :dismissible="true"
           type="error"
-          class="mt-0"
+          class="mt-0 mb-0"
         >
           {{ configError }}
         </v-alert>

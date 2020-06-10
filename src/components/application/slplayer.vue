@@ -385,7 +385,7 @@ export default {
       'SET_PLAYER_UI',
       'SET_PLAYER_UI_CONFIGURATION',
       'SET_PLAYER',
-      'SET_PLAYER_CONFIG',
+      'SET_PLAYER_CONFIGURATION',
     ]),
 
     ...mapMutations('settings', [
