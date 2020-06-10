@@ -262,7 +262,7 @@ export default {
           'media',
         ],
 
-        castReceiverAppId: 'CC1AD845',
+        castReceiverAppId: this.castReceiverId,
       },
     };
   },
@@ -290,6 +290,12 @@ export default {
     ...mapGetters('settings', [
       'GET_SLPLAYERQUALITY',
     ]),
+
+    castReceiverId() {
+      return window.chrome && window.chrome.cast && window.chrome.cast.media
+        ? window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID
+        : '';
+    },
 
     bigPlayButton() {
       window.player = this.GET_PLAYER;
@@ -389,10 +395,6 @@ export default {
       'SET_PLAYER_UI_CONFIGURATION',
       'SET_PLAYER',
       'SET_PLAYER_CONFIGURATION',
-    ]),
-
-    ...mapMutations('settings', [
-
     ]),
 
     doManualSync() {
