@@ -357,6 +357,7 @@ export default {
     dispatch('UNREGISTER_PLAYER_EVENTS');
 
     await getters.GET_PLAYER_UI.destroy();
+    commit('SET_OFFSET_MS', 0);
     commit('SET_PLAYER', null);
     commit('SET_PLAYER_UI', null);
   },
