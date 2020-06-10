@@ -16,7 +16,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "npm run build; node webapp.js",
+    "start": "node server.js",
     "server": "node server.js"
   },
   "dependencies": {
