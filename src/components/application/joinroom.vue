@@ -367,7 +367,9 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import { formatDistanceToNow } from 'date-fns';
+import axios from 'axios';
 
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
@@ -392,7 +394,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['GET_SYNCLOUNGE_SERVERS',
+    ...mapGetters([
+      'GET_SYNCLOUNGE_SERVERS',
       'getConnected',
       'getPlex',
       'getServer',
@@ -444,7 +447,6 @@ export default {
     ...mapActions(['socketConnect']),
 
     sinceNow(x) {
-      console.log(x);
       return formatDistanceToNow(x);
     },
 
@@ -486,6 +488,30 @@ export default {
       if (this.selectedServer.url !== 'custom') {
         this.attemptConnect();
       }
+    },
+
+    async testConnections() {
+      this.GET_SYNCLOUNGE_SERVERS.map((server) => {
+        if (server.url !== 'custom') {
+          const start = new Date().getTime();
+          axios
+            .get(`${server.url}/health`)
+            .then((res) => {
+              Vue.set(this.results, server.url, {
+                alive: true,
+                latency: Math.abs(start - new Date().getTime()),
+                result: res.data.load || null,
+              });
+            })
+            .catch((e) => {
+              Vue.set(this.results, server.url, {
+                alive: false,
+                latency: Math.abs(start - new Date().getTime()),
+                result: null,
+              });
+            });
+        }
+      });
     },
 
     attemptConnect() {
