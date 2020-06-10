@@ -32,6 +32,8 @@ export default {
           } from ${server.name}`);
         }
 
+        // TODO: come and fix this
+        // eslint-disable-next-line no-param-reassign
         getters.GET_CHOSEN_CLIENT.clientPlayingMetadata = metadata;
         const w = Math.round(
           Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
@@ -47,6 +49,8 @@ export default {
         );
       });
     } else {
+      // TODO: come and fix this
+      // eslint-disable-next-line no-param-reassign
       getters.GET_CHOSEN_CLIENT.clientPlayingMetadata = null;
       const thumb = await dispatch('getRandomThumb');
       if (thumb) {

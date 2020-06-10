@@ -40,13 +40,6 @@
 import { mapGetters } from 'vuex';
 
 export default {
-  components: {
-  },
-  data() {
-    return {
-
-    };
-  },
   computed: {
     ...mapGetters([
       'GET_CHOSEN_CLIENT',

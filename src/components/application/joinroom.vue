@@ -491,7 +491,7 @@ export default {
     },
 
     async testConnections() {
-      this.GET_SYNCLOUNGE_SERVERS.map((server) => {
+      this.GET_SYNCLOUNGE_SERVERS.forEach((server) => {
         if (server.url !== 'custom') {
           const start = new Date().getTime();
           axios
@@ -503,7 +503,7 @@ export default {
                 result: res.data.load || null,
               });
             })
-            .catch((e) => {
+            .catch(() => {
               Vue.set(this.results, server.url, {
                 alive: false,
                 latency: Math.abs(start - new Date().getTime()),

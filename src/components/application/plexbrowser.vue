@@ -558,6 +558,7 @@ export default {
         .find((serv) => serv.clientIdentifier === server.clientIdentifier);
     },
 
+    // eslint-disable-next-line func-names
     searchAllServers: debounce(function () {
       if (this.searchWord === '') {
         this.results = [];

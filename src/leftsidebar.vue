@@ -193,9 +193,9 @@ import { mapActions, mapGetters, mapState } from 'vuex';
 
 export default {
   components: {
-    ptsettings: import('./components/application/settings.vue'),
-    plexsettings: import('./components/application/plexsettings.vue'),
-    donate: import('./donate.vue'),
+    ptsettings: () => import('./components/application/settings.vue'),
+    plexsettings: () => import('./components/application/plexsettings.vue'),
+    donate: () => import('./donate.vue'),
   },
 
   data() {
