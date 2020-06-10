@@ -1,5 +1,4 @@
 import axios from 'axios';
-import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 
 import generateGuid from '@/utils/guid';
 import timeoutPromise from '@/utils/timeoutpromise';
@@ -15,11 +14,6 @@ const commandActions = (command) => ({
   '/player/playback/seekTo': 'DO_COMMAND_SEEK_TO',
 })[command];
 
-const playerConfig = () => ({
-  streaming: {
-    bufferingGoal: 120,
-  },
-});
 
 // These functions are a bit special since they use currentTime and duration, which can't
 // be tracked by vuex, so the cache isn't updated correctly
@@ -362,7 +356,8 @@ export default {
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     dispatch('UNREGISTER_PLAYER_EVENTS');
 
-    await getters.GET_PLAYER.detach();
+    await getters.GET_PLAYER_UI.destroy();
+    commit('SET_PLAYER', null);
     commit('SET_PLAYER_UI', null);
   },
 
@@ -393,15 +388,6 @@ export default {
     // If the player was actually paused (and not just paused for seeking)
     if (!rootGetters.AM_I_HOST && rootGetters.getPartyPausing) {
       dispatch('sendPartyPause', isPlayerPaused(getters), { root: true });
-    }
-  },
-
-  ATTACH_PLAYER: async ({ commit, getters }, mediaElement) => {
-    if (getters.GET_PLAYER) {
-      await getters.GET_PLAYER.attach(mediaElement);
-    } else {
-      commit('SET_PLAYER', new shaka.Player(mediaElement));
-      commit('SET_PLAYER_CONFIGURATION', playerConfig());
     }
   },
 };

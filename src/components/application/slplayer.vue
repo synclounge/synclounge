@@ -231,6 +231,11 @@ export default {
       lastSentTimeline: {},
       metadataLoadedPromise: null,
 
+      playerConfig: {
+        streaming: {
+          bufferingGoal: 120,
+        },
+      },
 
       playerUiOptions: {
         controlPanelElements: [
@@ -318,8 +323,8 @@ export default {
 
   async mounted() {
     await this.metadataLoadedPromise;
-    await this.ATTACH_PLAYER(this.$refs.videoPlayer);
-    console.log('DONE ATTACH');
+    this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
+    this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
       this.$refs.videoPlayer));
 
@@ -359,7 +364,6 @@ export default {
   methods: {
     ...mapActions('slplayer', [
       'FETCH_METADATA',
-      'ATTACH_PLAYER',
       'CHANGE_MAX_VIDEO_BITRATE',
       'CHANGE_AUDIO_STREAM',
       'CHANGE_SUBTITLE_STREAM',
@@ -380,6 +384,8 @@ export default {
     ...mapMutations('slplayer', [
       'SET_PLAYER_UI',
       'SET_PLAYER_UI_CONFIGURATION',
+      'SET_PLAYER',
+      'SET_PLAYER_CONFIG',
     ]),
 
     ...mapMutations('settings', [

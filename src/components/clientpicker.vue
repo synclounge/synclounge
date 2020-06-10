@@ -7,7 +7,7 @@
       <v-btn
         icon
         x-small
-        @click="PLEX_GET_DEVICES"
+        @click="FETCH_PLEX_DEVICES"
       >
         <v-icon>refresh</v-icon>
       </v-btn>
@@ -94,12 +94,12 @@ export default {
   },
 
   mounted() {
-    this.PLEX_GET_DEVICES();
+    this.FETCH_PLEX_DEVICES();
   },
 
   methods: {
     ...mapActions([
-      'PLEX_GET_DEVICES',
+      'FETCH_PLEX_DEVICES',
       'CHOOSE_CLIENT',
     ]),
     async clientClicked() {

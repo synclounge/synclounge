@@ -82,7 +82,7 @@
               <v-icon
                 class="pl-2"
                 small
-                @click="PLEX_GET_DEVICES()"
+                @click="FETCH_PLEX_DEVICES"
               >
                 refresh
               </v-icon>
@@ -369,11 +369,14 @@ export default {
   },
 
   mounted() {
-    this.PLEX_GET_DEVICES();
+    this.FETCH_PLEX_DEVICES();
   },
 
   methods: {
-    ...mapActions(['PLEX_GET_DEVICES', 'CHOOSE_CLIENT']),
+    ...mapActions([
+      'CHOOSE_CLIENT',
+      'FETCH_PLEX_DEVICES',
+    ]),
     previewClient(client) {
       this.testClient = client;
       this.testClientErrorMsg = null;

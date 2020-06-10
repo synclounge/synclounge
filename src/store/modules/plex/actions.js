@@ -151,7 +151,7 @@ export default {
         if (authentication.type.includes('server')) {
           try {
             // Retrieve and store the user's servers
-            await dispatch('PLEX_GET_DEVICES');
+            await dispatch('FETCH_PLEX_DEVICES_IF_NEEDED');
             // Get the user's servers
 
             // Compare servers against the authorized list
@@ -195,9 +195,7 @@ export default {
   },
 
   getRandomThumb: async ({ getters, dispatch }) => {
-    if (getters.GET_CONNECTABLE_PLEX_SERVERS.length <= 0) {
-      await dispatch('PLEX_GET_DEVICES');
-    }
+    await dispatch('FETCH_PLEX_DEVICES_IF_NEEDED');
 
     const randomServer = sample(getters.GET_CONNECTABLE_PLEX_SERVERS);
     if (!randomServer) {
