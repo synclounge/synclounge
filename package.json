@@ -41,7 +41,7 @@
     "babel-eslint": "^10.1.0",
     "date-fns": "^2.14.0",
     "detect-browser": "^5.1.0",
-    "eslint": "^6.7.2",
+    "eslint": "^7.2.0",
     "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-vue": "^6.2.2",
     "fast-xml-parser": "^3.17.4",
