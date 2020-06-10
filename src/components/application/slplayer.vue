@@ -232,9 +232,9 @@ export default {
       metadataLoadedPromise: null,
 
       playerConfig: {
-        streaming: {
-          bufferingGoal: 120,
-        },
+        // streaming: {
+        //   bufferingGoal: 120,
+        // },
       },
 
       playerUiOptions: {
@@ -465,8 +465,10 @@ export default {
       }
     },
 
-    onClick() {
-      this.SEND_PARTY_PLAY_PAUSE();
+    onClick(e) {
+      if (!e.target.classList.contains('shaka-close-button')) {
+        this.SEND_PARTY_PLAY_PAUSE();
+      }
     },
   },
 };
