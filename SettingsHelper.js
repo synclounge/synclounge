@@ -29,12 +29,6 @@ const fields = [
     type: 'number',
   },
   {
-    local: 'accessUrl',
-    env: 'WEB_ACCESSURL',
-    default: '',
-    type: 'string',
-  },
-  {
     local: 'autoJoin',
     env: 'AUTOJOIN_ENABLED',
     default: false,
@@ -221,7 +215,7 @@ module.exports = {
 
       // Remove trailing slashes, if they exist
       if (
-        (setting.local === 'webroot' || setting.local === 'accessUrl')
+        (setting.local === 'webroot')
         && output[setting.local].endsWith('/')
       ) {
         console.log(

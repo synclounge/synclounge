@@ -20,18 +20,14 @@
     "server": "node server.js"
   },
   "dependencies": {
-    "body-parser": "^1.19.0",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "sails-disk": "^2.1.0",
-    "sails-mysql": "^1.0.1",
     "socket.io": "^2.3.0",
     "vue": "^2.6.11",
     "vue-router": "^3.3.2",
     "vuetify": "^2.2.32",
-    "vuex": "^3.4.0",
-    "waterline": "^0.13.6"
+    "vuex": "^3.4.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.1",
