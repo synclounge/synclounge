@@ -21,7 +21,7 @@ export default {
     state.slPlayerQuality,
     rootGetters['config/GET_CONFIG'].slPlayerQuality,
     defaultSettings.slPlayerQuality,
-  ),
+  ) || null,
   GET_SLPLAYERVOLUME: (state, getters, rootState, rootGetters) => coalesce(
     state.slPlayerVolume,
     rootGetters['config/GET_CONFIG'].slPlayerVolume,
