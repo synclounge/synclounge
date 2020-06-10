@@ -43,12 +43,14 @@
           </v-stepper-step>
         </v-stepper-header>
       </v-stepper>
-      <div v-if="!GET_CHOSEN_CLIENT">
+
+      <div>
         <v-row class="ml-4">
           <v-col class="pb-0">
             <h2>Choose your Plex player</h2>
           </v-col>
         </v-row>
+
         <v-row class="ml-4">
           <v-col
             class="pt-0"
@@ -58,6 +60,7 @@
             client and will let you know if it cannot.
           </v-col>
         </v-row>
+
         <div
           v-if="!IS_DONE_FETCHING_DEVICES"
           class="text-center pa-4"
@@ -87,6 +90,7 @@
                 refresh
               </v-icon>
             </v-subheader>
+
             <v-list
               dense
               style="background: none"
@@ -243,7 +247,9 @@
 
 <script>
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { mapActions, mapGetters, mapState } from 'vuex';
+import {
+  mapActions, mapGetters, mapState, mapMutations,
+} from 'vuex';
 
 import plexclient from './plexclient.vue';
 
@@ -377,6 +383,9 @@ export default {
       'CHOOSE_CLIENT',
       'FETCH_PLEX_DEVICES',
     ]),
+    ...mapMutations([
+      'SET_CHOSEN_CLIENT_ID',
+    ]),
     previewClient(client) {
       this.testClient = client;
       this.testClientErrorMsg = null;
@@ -388,7 +397,7 @@ export default {
       this.$store
         .dispatch('PLEX_CLIENT_FINDCONNECTION', client)
         .then(() => {
-          this.CHOOSE_CLIENT(client);
+          this.SET_CHOSEN_CLIENT_ID(client.clientIdentifier);
           this.gotResponse = true;
         })
         .catch(() => {

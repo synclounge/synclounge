@@ -24,7 +24,7 @@
 
             <v-spacer />
 
-            <v-btn>
+            <v-btn to="/clientselect">
               Advanced
             </v-btn>
           </v-card-actions>
