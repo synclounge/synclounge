@@ -22,12 +22,12 @@ module.exports = {
     node: false,
   },
 
-  pluginOptions: {
-    webpackBundleAnalyzer: {
-      // openAnalyzer: false,
-      // analyzerMode: 'server',
-    },
-  },
+  // pluginOptions: {
+  //   webpackBundleAnalyzer: {
+  //     openAnalyzer: false,
+  //     analyzerMode: 'server',
+  //   },
+  // },
 
   css: {
     extract: process.env.NODE_ENV === 'production' ? {

@@ -55,7 +55,6 @@
     "string-similarity": "^4.0.1",
     "vanilla-tilt": "^1.7.0",
     "vue-cli-plugin-vuetify": "~2.0.5",
-    "vue-cli-plugin-webpack-bundle-analyzer": "~2.0.0",
     "vue-clipboard2": "^0.3.1",
     "vue-observe-visibility": "^0.4.6",
     "vue-scrollto": "^2.18.1",
