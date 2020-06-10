@@ -2,7 +2,7 @@ import guid from '@/utils/guid';
 
 const state = () => ({
   appTitle: 'SyncLounge',
-  appVersion: process.env.npm_package_version,
+  appVersion: process.env.VUE_APP_VERSION,
   background: null,
   shownChat: false,
   blockAutoPlay: false,

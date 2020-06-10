@@ -4,6 +4,8 @@ const { readSettings } = require('./SettingsHelper');
 
 const settings = readSettings();
 
+process.env.VUE_APP_VERSION = require('./package.json').version;
+
 module.exports = {
   publicPath: settings.webroot,
   lintOnSave: process.env.NODE_ENV !== 'production',

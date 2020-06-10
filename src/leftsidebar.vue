@@ -191,16 +191,13 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 
-import ptsettings from './components/application/settings.vue';
-import plexsettings from './components/application/plexsettings.vue';
-import donate from './donate.vue';
-
 export default {
   components: {
-    ptsettings,
-    plexsettings,
-    donate,
+    ptsettings: import('./components/application/settings.vue'),
+    plexsettings: import('./components/application/plexsettings.vue'),
+    donate: import('./donate.vue'),
   },
+
   data() {
     return {
       ptsettingstoggle: false,
@@ -208,28 +205,31 @@ export default {
       donateDialog: false,
     };
   },
+
   computed: {
     ...mapState(['isLeftSidebarOpen']),
     ...mapGetters([
       'IS_DONE_FETCHING_DEVICES',
       'GET_PLEX_USER',
     ]),
-    plex() {
-      return this.$store.getters.getPlex;
-    },
+
     hash() {
       return process.env.gitHash;
     },
+
     date() {
       return process.env.gitDate;
     },
+
     updatedAt() {
       return '';
     },
+
     appVersion() {
       return this.$store.state.appVersion;
     },
   },
+
   methods: {
     ...mapActions(['SET_LEFT_SIDEBAR_OPEN']),
     getTimeFromMs(ms) {
