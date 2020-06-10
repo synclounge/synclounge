@@ -54,11 +54,15 @@ export default {
 
   GET_SERVERS_HEALTH: (state) => state.serversHealth,
 
-  GET_SERVER_HEALTH_SCORES: (state) => state.serversHealth.map((health) => ({
-    score: healthScore(health),
-    url: health.url,
-  })),
+  GET_SERVER_HEALTH_SCORES: (state, getters) => (getters.GET_SERVERS_HEALTH
+    ? getters.GET_SERVERS_HEALTH.map((health) => ({
+      score: healthScore(health),
+      url: health.url,
+    }))
+    : null),
 
-  GET_BEST_SERVER: (state, getters) => getters.GET_SERVER_HEALTH_SCORES
-    .reduce((prev, curr) => (curr.score < prev.score ? curr : prev)).url,
+  GET_BEST_SERVER: (state, getters) => (getters.GET_SERVER_HEALTH_SCORES
+    ? getters.GET_SERVER_HEALTH_SCORES
+      .reduce((prev, curr) => (curr.score < prev.score ? curr : prev)).url
+    : null),
 };

@@ -64,4 +64,8 @@ export default {
   SET_PLEX_USER: (state, user) => {
     state.user = user;
   },
+
+  SET_USER_AUTHORIZED: (state, authorized) => {
+    state.userAuthorized = authorized;
+  },
 };

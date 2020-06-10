@@ -22,7 +22,7 @@ export default {
 
   GET_PLEX_SERVERS: (state) => state.servers,
 
-  IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN'],
+  IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN'] && getters.IS_USER_AUTHORIZED,
 
   GET_PLEX_PRODUCT_HEADER: () => 'SyncLounge',
   GET_PLEX_DEVICE_DEVICE_HEADER: () => browser.os,
@@ -66,4 +66,5 @@ export default {
   IS_DONE_FETCHING_DEVICES: (state) => state.doneFetchingDevices,
   GET_DEVICE_FETCH_PROMISE: (state) => state.deviceFetchPromise,
   GET_PLEX_USER: (state) => state.user,
+  IS_USER_AUTHORIZED: (state) => state.userAuthorized,
 };

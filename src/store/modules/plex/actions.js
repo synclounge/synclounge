@@ -137,8 +137,9 @@ export default {
     console.log('Updating timeline for', client, 'with', timeline);
   },
 
-  PLEX_CHECK_AUTH: async ({ state, dispatch, getters }, authToken) => {
-    await dispatch('PLEX_LOGIN_TOKEN', authToken);
+  PLEX_CHECK_AUTH: async ({
+    state, dispatch, getters, commit,
+  }) => {
     // Get stored authentication settings
     const authentication = getters['config/GET_AUTHENTICATION'];
     // Authentication defaults to false
@@ -187,11 +188,12 @@ export default {
         console.log('No authentication set');
         authenticationPassed = true;
       }
-      return authenticationPassed;
+      commit('SET_USER_AUTHORIZED', authenticationPassed);
+      return;
     }
 
     // Fallback if authentication isn't set
-    return true;
+    commit('SET_USER_AUTHORIZED', true);
   },
 
   getRandomThumb: async ({ getters, dispatch }) => {

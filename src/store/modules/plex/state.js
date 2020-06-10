@@ -22,6 +22,7 @@ const state = () => ({
 
   doneFetchingDevices: false,
   deviceFetchPromise: null,
+  userAuthorized: null,
 
   itemCache: {},
   libraryCache: {},

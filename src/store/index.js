@@ -19,6 +19,7 @@ const persistedState = createPersistedState({
   paths: [
     'settings',
     'plex.user',
+    'plex.userAuthorized',
   ],
 });
 

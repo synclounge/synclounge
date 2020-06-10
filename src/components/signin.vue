@@ -3,12 +3,19 @@
     class="pt-2 pa-4"
     justify="center"
   >
-    <v-col md="8">
+    <v-col md="6">
       <v-card
         :loading="loading"
         style="background: rgba(0,0,0,0.3)"
         class="pa-4"
       >
+        <v-alert
+          v-if="IS_USER_AUTHORIZED === false"
+          type="error"
+        >
+          You are not authorized to access this server
+        </v-alert>
+
         <v-card-title>
           Sign in with Plex
         </v-card-title>
@@ -27,7 +34,9 @@
         <v-card-actions>
           <v-btn
             class="primary"
+            x-large
             text
+            :disabled="loading"
             @click="authenticate"
           >
             Sign in
@@ -56,6 +65,7 @@ export default {
   computed: {
     ...mapGetters([
       'GET_PLEX_AUTH_URL',
+      'IS_USER_AUTHORIZED',
     ]),
   },
 
@@ -63,6 +73,7 @@ export default {
     ...mapActions([
       'REQUEST_PLEX_INIT_AUTH',
       'REQUEST_PLEX_AUTH_TOKEN',
+      'PLEX_CHECK_AUTH',
     ]),
 
     async authenticate() {
@@ -89,8 +100,11 @@ export default {
         // eslint-disable-next-line no-await-in-loop
         await delayPromise;
       }
+      this.loading = false;
 
-      this.$router.push(this.$route.query.redirect || '/');
+      if (this.IS_USER_AUTHORIZED) {
+        this.$router.push(this.$route.query.redirect || '/');
+      }
     },
 
     openPlexAuthWindow() {
@@ -104,6 +118,7 @@ export default {
     async isAuthComplete() {
       try {
         await this.REQUEST_PLEX_AUTH_TOKEN(this.plexAuthResponse.id);
+        this.PLEX_CHECK_AUTH();
         return true;
       } catch {
         return false;
