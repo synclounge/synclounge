@@ -366,7 +366,6 @@ export default {
     ]),
 
     getCastReceiverId() {
-      console.log(window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
       return window.chrome && window.chrome.cast && window.chrome.cast.media
         ? window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID
         : '';
