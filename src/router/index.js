@@ -54,6 +54,7 @@ export default new Router({
     {
       path: '/join/:server/:room',
       meta: {
+        requiresAuth: true,
         noAutoJoin: true,
         redirectAfterAuth: true,
       },
