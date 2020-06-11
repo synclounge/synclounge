@@ -219,7 +219,6 @@ export default {
     },
 
     date() {
-      console.log('date', process.env.VUE_APP_GIT_DATE);
       return parseISO(process.env.VUE_APP_GIT_DATE);
     },
 
