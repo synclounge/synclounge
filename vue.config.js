@@ -1,12 +1,15 @@
 const path = require('path');
+const git = require('git-rev-sync');
 
 const { readSettings } = require('./SettingsHelper');
 
 const settings = readSettings();
 
 process.env.VUE_APP_CONFIGURATION = JSON.stringify(settings);
-
 process.env.VUE_APP_VERSION = require('./package.json').version;
+
+process.env.VUE_APP_GIT_HASH = git.short();
+process.env.VUE_APP_GIT_DATE = git.date().toISOString();
 
 module.exports = {
   publicPath: settings.webroot,

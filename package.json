@@ -46,6 +46,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "fast-xml-parser": "^3.17.4",
     "fscreen": "^1.0.2",
+    "git-rev-sync": "^2.0.0",
     "humanize-duration": "^3.23.0",
     "lodash-es": "^4.17.15",
     "sass": "^1.26.7",

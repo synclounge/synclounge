@@ -190,6 +190,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 
 export default {
   components: {
@@ -214,15 +215,16 @@ export default {
     ]),
 
     hash() {
-      return process.env.gitHash;
+      return process.env.VUE_APP_GIT_HASH;
     },
 
     date() {
-      return process.env.gitDate;
+      console.log('date', process.env.VUE_APP_GIT_DATE);
+      return parseISO(process.env.VUE_APP_GIT_DATE);
     },
 
     updatedAt() {
-      return '';
+      return `${formatDistanceToNow(this.date)} ago`;
     },
 
     appVersion() {
