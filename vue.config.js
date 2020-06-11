@@ -8,8 +8,14 @@ const settings = readSettings();
 process.env.VUE_APP_CONFIGURATION = JSON.stringify(settings);
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
-process.env.VUE_APP_GIT_HASH = git.short();
-process.env.VUE_APP_GIT_DATE = git.date().toISOString();
+try {
+  process.env.VUE_APP_GIT_HASH = git.short();
+  process.env.VUE_APP_GIT_DATE = git.date().toISOString();
+} catch (e) {
+  // Sometimes on CI stuff they build with .git being present
+  process.env.VUE_APP_GIT_DATE = new Date().toISOString();
+}
+
 
 module.exports = {
   publicPath: settings.webroot,
