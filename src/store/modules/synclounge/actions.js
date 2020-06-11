@@ -327,8 +327,8 @@ export default {
                     //   'and our lastDelay',
                     //   ourLastDelay,
                     // );
-                    hostUpdateData.time = hostUpdateData.time + (ourLastDelay || 0)
-                      + (hostLastDelay || 0);
+                    hostUpdateData.time = hostUpdateData.time + ourLastDelay
+                      + hostLastDelay;
                   }
                 } catch (e) {
                   console.log('Failed to add extra lag time');

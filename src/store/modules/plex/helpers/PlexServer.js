@@ -213,9 +213,8 @@ class PlexServer {
 
   handleMetadata(result) {
     // This data is used in our router breadcrumbs
-    if (result) {
-      if (result.MediaContainer
-        && result.MediaContainer.Metadata
+    if (result && result.MediaContainer) {
+      if (result.MediaContainer.Metadata
         && result.MediaContainer.Metadata.length > 0
       ) {
         result.MediaContainer.Metadata.forEach((item) => {

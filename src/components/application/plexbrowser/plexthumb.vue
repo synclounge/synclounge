@@ -235,10 +235,7 @@ export default {
       return false;
     },
     hideThumb() {
-      if (this.spoilerFilter !== undefined || this.spoilerFilter !== null) {
-        return true;
-      }
-      return false;
+      return this.spoilerFilter;
     },
     fullCalculatedHeightRaw() {
       if (this.height) {

@@ -558,20 +558,12 @@ export default {
       return this.$route.fullPath.indexOf('/nowplaying') === -1;
     },
     relatedItems() {
-      if (!this.related) {
+      if (!this.related || !this.related.MediaContainer || !this.related.MediaContainer
+      || !this.related.MediaContainer.Hub || !this.related.MediaContainer.Hub.length > 0) {
         return [];
       }
-      if (!this.related || !this.related.MediaContainer || !this.related.MediaContainer) {
-        return [];
-      }
-      if (!this.related.MediaContainer.Hub || !this.related.MediaContainer.Hub.length > 0) {
-        return [];
-      }
-      const items = [];
-      this.related.MediaContainer.Hub[0].Metadata.forEach((item) => {
-        items.push(item);
-      });
-      return items.slice(0, 7);
+
+      return this.related.MediaContainer.Hub[0].Metadata.slice(0, 7);
     },
     getArtUrl() {
       const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));

@@ -139,7 +139,7 @@ socketServer.on('connection', (socket) => {
   }
 
   function updateUserData(username, userData, room) {
-    if (!room === undefined || room === undefined || room === null) {
+    if (!room) {
       console.log('Tried to update a user who isnt in a room', username, userData, room);
       return false;
     }

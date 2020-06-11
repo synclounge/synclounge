@@ -140,7 +140,7 @@ export default {
       return movie.title;
     },
 
-    filterItems: debounce(() => {
+    filterItems: debounce(function filter() {
       for (let i = 0; i < this.contents.MediaContainer.Metadata.length; i += 1) {
         const item = this.contents.MediaContainer.Metadata[i];
         if (!this.searchPhrase) {
