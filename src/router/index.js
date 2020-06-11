@@ -146,6 +146,7 @@ export default new Router({
         protected: true,
       },
       name: 'series',
+      props: true,
       component: () => import('../components/application/plexbrowser/plexseries.vue'),
     },
     {

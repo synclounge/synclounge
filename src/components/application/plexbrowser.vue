@@ -37,7 +37,7 @@
         <v-chip
           v-for="server in getPlex.servers"
           :key="server.machineIdentifier"
-          outline
+          outlined
           class="green darken-3 white--text"
         >
           <v-avatar>

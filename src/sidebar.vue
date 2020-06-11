@@ -2,9 +2,10 @@
   <v-navigation-drawer
     v-if="getHostUser"
     :value="isRightSidebarOpen"
-    style="padding: 0; z-index: 6"
+    style="z-index: 6"
     app
     right
+    class="pa-0"
     width="300"
     @input="SET_RIGHT_SIDEBAR_OPEN"
   >
@@ -302,6 +303,7 @@
     </v-list>
 
     <v-divider />
+
     <messages v-if="$vuetify.breakpoint.lgAndUp" />
 
     <template v-slot:append>

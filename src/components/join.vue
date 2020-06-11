@@ -43,11 +43,12 @@ export default {
   props: {
     server: {
       type: String,
-      default: '',
+      required: true,
     },
+
     room: {
       type: String,
-      default: '',
+      required: true,
     },
   },
 

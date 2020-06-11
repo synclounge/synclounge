@@ -122,7 +122,7 @@
         >
           <plexthumb
             :content="content"
-            :server="plexserver"
+            :server="plexServer"
             type="thumb"
             style="margin:7%"
           />
@@ -133,9 +133,28 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   components: {
     plexthumb: () => import('./plexthumb.vue'),
+  },
+
+  props: {
+    machineIdentifier: {
+      type: String,
+      required: true,
+    },
+
+    sectionId: {
+      type: String,
+      required: true,
+    },
+
+    ratingKey: {
+      type: String,
+      required: true,
+    },
   },
 
   data() {
@@ -151,12 +170,20 @@ export default {
   },
 
   computed: {
+    ...mapGetters([
+      'GET_PLEX_SERVER',
+    ]),
+
+    plexServer() {
+      return this.GET_PLEX_SERVER(this.machineIdentifier);
+    },
+
     getArtUrl() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
         window.innerWidth || 0));
       const h = Math.round(Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0));
-      return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 2);
+      return this.plexServer.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 2);
     },
 
     getSeasons() {
@@ -185,15 +212,15 @@ export default {
         window.innerWidth || 0));
       const h = Math.round(Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0));
-      return this.plexserver.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb
+      return this.plexServer.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb
         || this.contents.grandparentThumb, w / 1, h / 1);
     },
   },
 
   created() {
     // Hit the PMS endpoing /library/sections
-    this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex,
-      this.size, 1, this.$route.params.sectionId).then((result) => {
+    this.plexServer.getSeriesChildren(this.ratingKey, this.startingIndex,
+      this.size, 1, this.sectionId).then((result) => {
       if (result) {
         this.contents = result.MediaContainer;
         this.setBackground();
@@ -201,7 +228,8 @@ export default {
         this.status = 'Error loading libraries!';
       }
     }).catch(() => {});
-    this.plexserver.getSeriesData(this.$route.params.ratingKey).then((res) => {
+
+    this.plexServer.getSeriesData(this.ratingKey).then((res) => {
       if (res) {
         this.seriesData = res;
       }

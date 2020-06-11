@@ -21,6 +21,7 @@ export default {
   ),
 
   GET_PLEX_SERVERS: (state) => state.servers,
+  GET_PLEX_SERVER: (state) => (machineIdentifier) => state.servers[machineIdentifier],
 
   IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN'] && getters.IS_USER_AUTHORIZED,
 
