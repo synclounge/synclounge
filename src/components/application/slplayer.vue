@@ -305,7 +305,7 @@ export default {
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
       this.$refs.videoPlayer));
 
-    this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions());
+    this.SET_PLAYER_UI_CONFIGURATION(this.getPlayerUiOptions());
 
     this.bigPlayButton.addEventListener('click', this.onClick);
     this.smallPlayButton.addEventListener('click', this.onClick);
