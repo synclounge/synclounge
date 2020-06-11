@@ -116,12 +116,11 @@
 </template>
 
 <script>
-import plexthumb from './plexthumb.vue';
-
 export default {
   components: {
-    plexthumb,
+    plexthumb: () => import('./plexthumb.vue'),
   },
+
   data() {
     return {
       browsingContent: null,
@@ -130,6 +129,7 @@ export default {
       status: 'loading..',
     };
   },
+
   computed: {
     getArtUrl() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
@@ -139,6 +139,7 @@ export default {
       return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.banner,
         w / 2, h / 1, 2);
     },
+
     getThumb() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
         window.innerWidth || 0));
@@ -161,6 +162,7 @@ export default {
       }
     },
   },
+
   created() {
     // Hit the PMS endpoing /library/sections
     this.plexserver.getSeriesChildren(this.$route.params.ratingKey,
@@ -174,12 +176,12 @@ export default {
         }
       });
   },
-  mounted() {},
-  beforeDestroy() {},
+
   methods: {
     setContent(content) {
       this.browsingContent = content;
     },
+
     setBackground() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
         window.innerWidth || 0));
@@ -187,10 +189,6 @@ export default {
         window.innerHeight || 0));
 
       this.$store.commit('SET_BACKGROUND', this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.art, w / 4, h / 4, 2));
-    },
-    reset() {
-      this.browsingContent = false;
-      this.setBackground();
     },
   },
 };

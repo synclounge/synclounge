@@ -21,11 +21,13 @@ export default {
       messageToBeSent: '',
     };
   },
+
   computed: {
     chatboxLabel() {
       return 'Message';
     },
   },
+
   methods: {
     ...mapActions(['sendNewMessage']),
     sendMessage() {

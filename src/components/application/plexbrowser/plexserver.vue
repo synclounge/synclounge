@@ -177,13 +177,12 @@
 
 <script>
 import { sample } from 'lodash-es';
-import plexthumb from './plexthumb.vue';
-
 
 export default {
   components: {
-    plexthumb,
+    plexthumb: () => import('./plexthumb.vue'),
   },
+
   data() {
     return {
       browsingLibrary: null,
@@ -199,6 +198,7 @@ export default {
       recentlyAddedOffset: 0,
     };
   },
+
   computed: {
     recentItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
@@ -405,22 +405,6 @@ export default {
         this.recentlyAddedOffset + this.recentItemsPer);
     },
 
-    progress(content) {
-      let perc = (parseInt(content.viewOffset, 10) / parseInt(content.duration, 10)) * 100;
-      if (Number.isNaN(perc)) {
-        perc = 0;
-      }
-      return `${perc}%`;
-    },
-
-    getArt(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-      return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1);
-    },
-
     getArtLibrary(object) {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
         window.innerWidth || 0));
@@ -435,28 +419,6 @@ export default {
       const h = Math.round(Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0));
       return this.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4);
-    },
-
-    getTitleMovie(movie) {
-      if (movie.year) {
-        return `${movie.title} (${movie.year})`;
-      }
-      return movie.title;
-    },
-
-    getGrandparentThumb(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-      return this.server.getUrlForLibraryLoc(object.grandparentThumb, w / 3, h / 4);
-    },
-
-    reset() {
-      this.updateOnDeck();
-      this.browsingLibrary = false;
-      this.selectedItem = false;
-      this.setBackground();
     },
   },
 };

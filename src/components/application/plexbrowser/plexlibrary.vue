@@ -62,13 +62,12 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { debounce, sample } from 'lodash-es';
-import plexthumb from './plexthumb.vue';
+import { sample } from 'lodash-es';
 
 
 export default {
   components: {
-    plexthumb,
+    plexthumb: () => import('./plexthumb.vue'),
   },
 
   data() {
@@ -103,13 +102,6 @@ export default {
       this.browsingContent = content;
     },
 
-    getThumb(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-      return this.server.getUrlForLibraryLoc(object.thumb, w / 6, h / 4);
-    },
     setBackground() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
         window.innerWidth || 0));
@@ -123,35 +115,6 @@ export default {
       }
       this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(url, w / 4, h / 4, 8));
     },
-
-    isShown(item) {
-      if (!item.active) {
-        return {
-          display: 'none',
-        };
-      }
-      return {};
-    },
-
-    getTitleMovie(movie) {
-      if (movie.year) {
-        return `${movie.title} (${movie.year})`;
-      }
-      return movie.title;
-    },
-
-    filterItems: debounce(function filter() {
-      for (let i = 0; i < this.contents.MediaContainer.Metadata.length; i += 1) {
-        const item = this.contents.MediaContainer.Metadata[i];
-        if (!this.searchPhrase) {
-          item.active = true;
-        } else if (item.title.toLowerCase().indexOf(this.searchPhrase.toLowerCase()) > -1) {
-          item.active = true;
-        } else {
-          item.active = false;
-        }
-      }
-    }, 500),
 
     getMoreContent() {
       if (this.stopNewContent || this.busy) {
@@ -187,12 +150,6 @@ export default {
           this.busy = false;
         });
     },
-
-    reset() {
-      this.browsingContent = false;
-      this.setBackground();
-    },
-
   },
 };
 </script>

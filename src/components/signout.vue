@@ -20,12 +20,14 @@ import { mapMutations } from 'vuex';
 
 export default {
   name: 'Signout',
+
   mounted() {
     this.SET_PLEX_AUTH_TOKEN(null);
     setTimeout(() => {
       window.location.reload();
     }, 2500);
   },
+
   methods: {
     ...mapMutations('settings', [
       'SET_PLEX_AUTH_TOKEN',

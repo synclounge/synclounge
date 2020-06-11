@@ -251,12 +251,11 @@ import {
   mapActions, mapGetters, mapState, mapMutations,
 } from 'vuex';
 
-import plexclient from './plexclient.vue';
 
 export default {
   name: 'Walkthrough',
   components: {
-    plexclient,
+    plexclient: () => import('./plexclient.vue'),
   },
 
   data() {

@@ -298,13 +298,12 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { debounce } from 'lodash-es';
-import plexthumb from './plexbrowser/plexthumb.vue';
 
 
 export default {
   name: 'Plexbrowser',
   components: {
-    plexthumb,
+    plexthumb: () => import('./plexbrowser/plexthumb.vue'),
   },
 
   data() {
@@ -330,6 +329,7 @@ export default {
       'getLogos',
       'GET_CONNECTABLE_PLEX_SERVERS',
     ]),
+
     onDeckItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':
@@ -345,16 +345,6 @@ export default {
         default:
           return 4;
       }
-    },
-
-    availableServers() {
-      const servers = this.getPlex.servers.filter((server) => {
-        if (server.chosenConnection) {
-          return true;
-        }
-        return false;
-      });
-      return servers;
     },
 
     onDeckUpStyle() {
@@ -425,6 +415,7 @@ export default {
       });
     },
   },
+
   watch: {
     searchWord() {
       if (this.searchWord === '') {
@@ -439,25 +430,26 @@ export default {
   mounted() {
     this.updateOnDeck();
   },
+
   methods: {
     ...mapActions(['PLEX_GET_DEVICES']),
     setContent(content) {
       this.selectedItem = content;
     },
-    setServer(server) {
-      this.browsingServer = server;
-    },
+
     isConnectable(server) {
       return (
         this.getPlex.servers[server.clientIdentifier]
         && this.getPlex.servers[server.clientIdentifier].chosenConnection
       );
     },
+
     async updateOnDeck() {
       if (this.GET_LASTSERVER) {
         this.onDeck = await this.GET_LASTSERVER.getOnDeck(0, 10);
       }
     },
+
     subsetOnDeck() {
       if (
         !this.onDeck
@@ -470,16 +462,6 @@ export default {
         this.onDeckOffset,
         this.onDeckOffset + this.onDeckItemsPer,
       );
-    },
-    reset() {
-      this.updateOnDeck();
-      this.browsingServer = false;
-      this.selectedItem = false;
-      this.results = [];
-      this.searchWord = '';
-      this.searching = false;
-      this.setBackground();
-      // this.$store.commit('SET_BACKGROUND',null)
     },
 
     onDeckDown() {
@@ -521,45 +503,13 @@ export default {
       return server.sourceTitle;
     },
 
-    setBackground() {
-      // this.$store.commit('SET_RANDOMBACKROUND')
-      // this.$store.commit('SET_BACKROUND',null)
-    },
-
-    getThumb(object) {
-      const w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-      );
-      const h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
-      );
-      return object.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4);
-    },
-
-    getArt(object) {
-      const w = Math.round(
-        Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-      );
-      const h = Math.round(
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
-      );
-      return object.server.getUrlForLibraryLoc(object.art, w / 4, h / 4);
-    },
-
-    getTitleMovie(movie) {
-      if (movie.year) {
-        return `${movie.title} (${movie.year})`;
-      }
-      return movie.title;
-    },
-
     heardBack(server) {
       return this.serversHeardBack
         .find((serv) => serv.clientIdentifier === server.clientIdentifier);
     },
 
-    // eslint-disable-next-line func-names
-    searchAllServers: debounce(function () {
+
+    searchAllServers: debounce(function search() {
       if (this.searchWord === '') {
         this.results = [];
         this.searchStatus = 'Search your available Plex Media Servers';

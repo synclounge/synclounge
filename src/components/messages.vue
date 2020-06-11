@@ -20,17 +20,17 @@
 </template>
 
 <script>
-import message from '@/components/message.vue';
-
 import { mapGetters } from 'vuex';
 
 export default {
   components: {
-    message,
+    message: () => import('./message.vue'),
   },
+
   computed: {
     ...mapGetters(['getMessages']),
   },
+
   watch: {
     messages() {
       const options = {
@@ -42,6 +42,7 @@ export default {
       this.$scrollTo('#lastMessage', 5, options);
     },
   },
+
   methods: {
     getMsgId(msg) {
       if (this.getMessages && msg === this.getMessages[this.getMessages.length - 1]) {

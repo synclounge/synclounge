@@ -30,12 +30,10 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 
-import plexclient from './application/plexclient.vue';
-
 export default {
   name: 'ClientPicker',
   components: {
-    plexclient,
+    plexclient: () => import('./application/plexclient.vue'),
   },
 
   data() {

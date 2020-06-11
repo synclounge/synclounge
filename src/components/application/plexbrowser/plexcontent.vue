@@ -472,13 +472,11 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import plexthumb from './plexthumb.vue';
-
-const humanizeDuration = require('humanize-duration');
+import humanizeDuration from 'humanize-duration';
 
 export default {
   components: {
-    plexthumb,
+    plexthumb: () => import('./plexthumb.vue'),
   },
   data() {
     return {

@@ -92,40 +92,23 @@ export default {
       xbox: 'xbox',
     },
   }),
+
   computed: {
-    tooltipMsg() {
-      return `${this.object.name} running ${this.object.product} on ${this.object.device}`;
-    },
-    connection_success() {
-      return this.object.connectedstatus === 'connected';
-    },
-    connection_wait() {
-      return this.object.connectedstatus === 'waiting';
-    },
-    connection_failed() {
-      return this.object.connectedstatus === 'failed';
-    },
-    connection_fresh() {
-      return this.object.connectedstatus === 'fresh';
-    },
-    isTrunc() {
-      if (this.sidebar) {
-        return true;
-      }
-      return false;
-    },
     lastSeenAgo() {
       return `${formatDistanceToNow(parseISO(this.object.lastSeenAt))} ago`;
     },
+
     platform() {
       return (
         this.platformMap[this.object.platform.toLowerCase()]
         || this.platformMap[this.object.product.toLowerCase()]
       );
     },
+
     platformClass() {
       return [`platform-${this.platform}`];
     },
+
     url() {
       if (!this.platform) {
         return 'platforms/plex.svg';
@@ -135,6 +118,7 @@ export default {
       }
       return `platforms/${this.platform}.svg`;
     },
+
     styleObj() {
       if (this.selected) {
         return {

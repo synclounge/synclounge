@@ -164,6 +164,7 @@ export default {
       type: Boolean,
     },
   },
+
   data() {
     return {
       fullheight: null,
@@ -174,10 +175,12 @@ export default {
       hovering: false,
     };
   },
+
   computed: {
     plex() {
       return this.$store.getters.getPlex;
     },
+
     serverId() {
       return (
         this.$route.params.machineIdentifier
@@ -185,6 +188,7 @@ export default {
         || this.$route.params.clientIdentifier
       );
     },
+
     link() {
       if (this.content.type === 'episode') {
         let final = `/browse/${this.serverId}`;
@@ -203,6 +207,7 @@ export default {
       }
       return `/browse/${this.serverId}/${this.content.librarySectionID}/${this.content.ratingKey}`;
     },
+
     showUnwatchedFlag() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
         return (!this.content.viewCount || this.content.viewCount === 0) && !this.showProgressBar;

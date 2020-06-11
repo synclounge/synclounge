@@ -133,13 +133,11 @@
 </template>
 
 <script>
-import plexthumb from './plexthumb.vue';
-
 export default {
   components: {
-    plexthumb,
+    plexthumb: () => import('./plexthumb.vue'),
   },
-  props: [],
+
   data() {
     return {
       browsingContent: null,
@@ -151,6 +149,7 @@ export default {
       status: 'loading..',
     };
   },
+
   computed: {
     getArtUrl() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
@@ -159,24 +158,28 @@ export default {
         window.innerHeight || 0));
       return this.plexserver.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 2);
     },
+
     getSeasons() {
       if (this.contents.size === 1) {
         return `${this.contents.size} season`;
       }
       return `${this.contents.size} seasons`;
     },
+
     roles() {
       if (!this.seriesData) {
         return [];
       }
       return this.seriesData.MediaContainer.Metadata[0].Role.slice(0, 6);
     },
+
     genres() {
       if (!this.seriesData) {
         return [];
       }
       return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0, 5);
     },
+
     thumb() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
         window.innerWidth || 0));
@@ -186,6 +189,7 @@ export default {
         || this.contents.grandparentThumb, w / 1, h / 1);
     },
   },
+
   created() {
     // Hit the PMS endpoing /library/sections
     this.plexserver.getSeriesChildren(this.$route.params.ratingKey, this.startingIndex,
@@ -203,12 +207,7 @@ export default {
       }
     }).catch(() => {});
   },
-  mounted() {
 
-  },
-  beforeDestroy() {
-
-  },
   methods: {
     setBackground() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
@@ -217,11 +216,6 @@ export default {
         window.innerHeight || 0));
       this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 2));
     },
-    reset() {
-      this.browsingContent = false;
-      this.setBackground();
-    },
-
   },
 };
 </script>
