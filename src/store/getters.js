@@ -5,10 +5,6 @@ export default {
   getShownChat: (state) => state.shownChat,
   getStats: (state) => state.stats,
   getBlockAutoPlay: (state) => state.blockAutoPlay,
-  getAutoJoin: (state) => state.autoJoin,
-  getAutoJoinRoom: (state) => state.autoJoinRoom,
-  getAutoJoinPassword: (state) => state.autoJoinPassword,
-  getAutoJoinUrl: (state) => state.autoJoinUrl,
 
   // SETTINGS
   getExtAvailable: (state) => state.extAvailable,
@@ -32,4 +28,8 @@ export default {
   GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
   GET_UP_NEXT_POST_PLAY_DATA: (state) => state.upNextPostPlayData,
   GET_PLEX_SERVER_ID: (state) => state.plexServerId,
+  GET_CONFIG: (state) => state.configuration,
+  GET_AUTHENTICATION: (state) => state.configuration.authentication,
+  GET_CONFIGURATION_FETCHED: (state) => state.configurationFectched,
+  GET_CONFIGURATION_FETCHED_ERROR: (state) => state.configurationFetchedError,
 };

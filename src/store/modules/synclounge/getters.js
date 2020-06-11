@@ -36,17 +36,17 @@ export default {
 
 
   GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => {
-    if (rootGetters['config/GET_CONFIG'].servers && rootGetters['config/GET_CONFIG'].servers.length > 0) {
-      if (rootGetters['config/GET_CONFIG'].customServer) {
+    if (rootGetters.GET_CONFIG.servers && rootGetters.GET_CONFIG.servers.length > 0) {
+      if (rootGetters.GET_CONFIG.customServer) {
         console.error(
           "'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.",
         );
       }
-      return rootGetters['config/GET_CONFIG'].servers;
+      return rootGetters.GET_CONFIG.servers;
     }
 
-    if (rootGetters['config/GET_CONFIG'].customServer) {
-      return defaultSyncloungeServers.concat([rootGetters['config/GET_CONFIG'].customServer]);
+    if (rootGetters.GET_CONFIG.customServer) {
+      return defaultSyncloungeServers.concat([rootGetters.GET_CONFIG.customServer]);
     }
 
     return defaultSyncloungeServers.concat([rootGetters['settings/GET_CUSTOMSERVER']]);

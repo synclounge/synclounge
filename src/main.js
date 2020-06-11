@@ -50,24 +50,28 @@ window.EventBus.$on('command', (data) => {
 });
 
 router.beforeEach((to, from, next) => {
-  // console.log('Route change', to, this, store)
-  if (to.matched.some((record) => record.meta.protected)) {
+  if (!store.getters.IS_AUTHENTICATED && to.matched.some((record) => record.meta.requiresAuth)) {
+    if (to.matched.some((record) => record.meta.redirectAfterAuth)) {
+      next({
+        path: '/signin',
+        query: {
+          redirect: to.fullPath,
+        },
+      });
+    } else {
+      next('/signin');
+    }
+  } else if (store.getters.GET_CONFIG.autoJoin
+    && to.matched.some((record) => record.meta.noAutoJoin)) {
+    next('/autojoin');
+  } else if (!store.getters.getRoom && to.matched.some((record) => record.meta.protected)) {
     // this route requires us to be in a room with a client selected
     // if not, redirect to the needed stage
-    if (!store.getters.getRoom) {
-      return next({
-        path: '/',
-      });
-    }
-    next();
-  } else {
-    if (!to.meta.protected) {
-      return next();
-    }
-    router.push('/browse');
-  }
 
-  return null;
+    next('/');
+  } else {
+    next();
+  }
 });
 
 new Vue({

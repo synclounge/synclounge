@@ -8,7 +8,6 @@ import mutations from './mutations';
 import getters from './getters';
 
 import synclounge from './modules/synclounge';
-import config from './modules/config/config.store';
 import settings from './modules/settings';
 import plex from './modules/plex';
 import slplayer from './modules/slplayer';
@@ -31,7 +30,6 @@ const store = new Vuex.Store({
   modules: {
     synclounge,
     plex,
-    config,
     settings,
     slplayer,
   },

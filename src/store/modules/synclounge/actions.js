@@ -523,4 +523,10 @@ export default {
       room: guid(),
     });
   },
+
+  JOIN_CONFIG_SYNCLOUNGE_SERVER: ({ rootGetters, dispatch }) => dispatch('autoJoin', {
+    server: rootGetters.GET_CONFIG.autoJoinServer,
+    room: rootGetters.GET_CONFIG.autoJoinRoom,
+    password: rootGetters.GET_CONFIG.autoJoinPassword,
+  }),
 };

@@ -4,6 +4,8 @@ const { readSettings } = require('./SettingsHelper');
 
 const settings = readSettings();
 
+process.env.VUE_APP_CONFIGURATION = JSON.stringify(settings);
+
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
 module.exports = {

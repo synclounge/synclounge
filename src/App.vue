@@ -102,16 +102,18 @@
         fluid
       >
         <v-alert
+          v-if="GET_CONFIGURATION_FETCHED_ERROR"
           width="100%"
           :dismissible="true"
           type="error"
           class="mt-0 mb-0"
         >
-          {{ configError }}
+          Failed to fetch config: {{ GET_CONFIGURATION_FETCHED_ERROR }}
         </v-alert>
 
         <v-container
-          v-if="(loading || (getPlex && !IS_DONE_FETCHING_DEVICES)) && $route.protected"
+          v-if="(GET_CONFIG.fetchConfig && !GET_CONFIGURATION_FETCHED
+            || (getPlex && !IS_DONE_FETCHING_DEVICES)) && $route.protected"
           fill-height
         >
           <v-row
@@ -206,12 +208,8 @@ export default {
       initialized: false,
       donateDialog: false,
 
-      loading: true,
-      configError: null,
-
       snackbar: false,
       snackbarMsg: false,
-      configFetchPromise: null,
 
       items: [
         {
@@ -252,8 +250,10 @@ export default {
       'getLogos',
       'IS_DONE_FETCHING_DEVICES',
       'IS_AUTHENTICATED',
+      'GET_CONFIG',
+      'GET_CONFIGURATION_FETCHED',
+      'GET_CONFIGURATION_FETCHED_ERROR',
     ]),
-    ...mapGetters('config', ['GET_CONFIG']),
     ...mapState(['isRightSidebarOpen']),
 
     extAvailable() {
@@ -380,30 +380,7 @@ export default {
     },
   },
 
-  async mounted() {
-    if (this.IS_AUTHENTICATED) {
-      // Kick off a bunch of requests that we need for later
-      this.FETCH_PLEX_USER();
-      this.FETCH_PLEX_DEVICES_IF_NEEDED();
-    }
-
-    try {
-      await this.configFetchPromise;
-    } catch (e) {
-      this.configError = `Failed to fetch config: ${e}`;
-    }
-
-
-    if (this.GET_CONFIG) {
-      if (this.GET_CONFIG.autoJoin && this.GET_CONFIG.autoJoin === true) {
-        this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', this.GET_CONFIG.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', this.GET_CONFIG.autoJoinServer);
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.GET_CONFIG.autoJoinPassword);
-      }
-    }
-
-
+  mounted() {
     window.EventBus.$on('notification', (msg) => {
       this.snackbarMsg = msg;
       this.snackbar = true;
@@ -433,22 +410,28 @@ export default {
       this.appIsFullscreen = isFullscreen;
       document.body.classList.toggle('is-fullscreen', isFullscreen);
     });
-
-    this.loading = false;
   },
 
   created() {
-    this.configFetchPromise = this.fetchConfig();
+    if (this.GET_CONFIG.fetchConfig) {
+      this.FETCH_CONFIG();
+    }
+
+    if (this.IS_AUTHENTICATED) {
+      // Kick off a bunch of requests that we need for later
+      this.FETCH_PLEX_USER();
+      this.FETCH_PLEX_DEVICES_IF_NEEDED();
+    }
   },
 
   methods: {
-    ...mapActions('config', ['fetchConfig']),
     ...mapActions([
       'SET_LEFT_SIDEBAR_OPEN',
       'SET_RIGHT_SIDEBAR_OPEN',
       'TOGGLE_RIGHT_SIDEBAR_OPEN',
       'FETCH_PLEX_DEVICES_IF_NEEDED',
       'FETCH_PLEX_USER',
+      'FETCH_CONFIG',
     ]),
 
     sendNotification() {

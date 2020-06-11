@@ -1,23 +1,8 @@
 import Vue from 'vue';
 
 export default {
-  SET_PLEX(state, value) {
-    state.plex = value;
-  },
-  SET_AUTOJOIN(state, value) {
-    state.autoJoin = value;
-  },
   SET_BACKGROUND(state, value) {
     state.background = value;
-  },
-  SET_AUTOJOINROOM(state, value) {
-    state.autoJoinRoom = value;
-  },
-  SET_AUTOJOINPASSWORD(state, value) {
-    state.autoJoinPassword = value;
-  },
-  SET_AUTOJOINURL(state, value) {
-    state.autoJoinUrl = value;
   },
 
   SET_VALUE(state, data) {
@@ -45,5 +30,17 @@ export default {
 
   SET_PLEX_SERVER_ID: (state, id) => {
     state.plexServerId = id;
+  },
+
+  SET_CONFIG: (state, data) => {
+    state.configuration = data;
+  },
+
+  SET_CONFIGURATION_FETCHED: (state, fetched) => {
+    state.configurationFetcehd = fetched;
+  },
+
+  SET_CONFIGURATION_FETCH_ERROR: (state, error) => {
+    state.configurationFetchError = error;
   },
 };

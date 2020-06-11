@@ -1,7 +1,6 @@
 const args = require('args-parser')(process.argv);
 
 const { coalesce } = require('./src/utils/helpers');
-const { defaultSettings } = require('./src/defaultsettings');
 
 const readSettingsFile = (file) => {
   try {
@@ -88,31 +87,31 @@ const fields = [
   {
     local: 'autoplay',
     env: 'AUTOPLAY',
-    default: defaultSettings.autoplay,
+    default: true,
     type: 'boolean',
   },
   {
     local: 'clientPollInterval',
     env: 'CLIENTPOLLINTERVAL',
-    default: defaultSettings.clientPollInterval,
+    default: 1000,
     type: 'number',
   },
   {
     local: 'syncMode',
     env: 'SYNCMODE',
-    default: defaultSettings.syncMode,
+    default: 'cleanseek',
     type: 'string',
   },
   {
     local: 'syncFlexibility',
     env: 'SYNCFLEXIBILITY',
-    default: defaultSettings.syncFlexibility,
+    default: 3000,
     type: 'number',
   },
   {
     local: 'slPlayerQuality',
     env: 'SLPLAYERQUALITY',
-    default: defaultSettings.slPlayerQuality,
+    default: null,
     type: 'number',
     // null is allowed because null quality indicates Original
     nullable: true,
@@ -121,13 +120,19 @@ const fields = [
     // Valid values are in the range [0, 1]
     local: 'slPlayerVolume',
     env: 'SLPLAYERVOLUME',
-    default: defaultSettings.slPlayerVolume,
+    default: 1,
     type: 'number',
   },
   {
     local: 'slPlayerForceTranscode',
     env: 'SLPLAYERFORCETRANSCODE',
-    default: defaultSettings.slPlayerForceTranscode,
+    default: false,
+    type: 'boolean',
+  },
+  {
+    local: 'fetchConfig',
+    env: 'FETCH_CONFIG',
+    default: false,
     type: 'boolean',
   },
 ];

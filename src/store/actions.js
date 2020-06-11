@@ -1,4 +1,7 @@
+import axios from 'axios';
+
 import delay from '@/utils/delay';
+
 
 function sendNotification(message) {
   return window.EventBus.$emit('notification', message);
@@ -194,5 +197,17 @@ export default {
     if (result) {
       commit('SET_BACKGROUND', result);
     }
+  },
+
+  FETCH_CONFIG: async ({ commit }) => {
+    const url = window.location.origin + window.location.pathname.replace(/\/+$/, '');
+    try {
+      const { data } = await axios.get(`${url}/config`);
+      commit('SET_CONFIG', data);
+    } catch (e) {
+      commit('SET_CONFIGURATION_FETCH_ERROR', e);
+    }
+
+    commit('SET_CONFIGURATION_FETCHED', true);
   },
 };
