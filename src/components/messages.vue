@@ -2,6 +2,7 @@
   <div>
     <v-divider class="hidden-md-and-down" />
     <v-list
+      v-chat-scroll
       subheader
       dense
     >

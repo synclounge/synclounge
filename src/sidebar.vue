@@ -313,25 +313,21 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 
-import messages from '@/components/messages.vue';
-import MessageInput from '@/components/MessageInput.vue';
-
 export default {
   components: {
-    messages,
-    MessageInput,
+    messages: () => import('@/components/messages.vue'),
+    MessageInput: () => import('@/components/MessageInput.vue'),
   },
   data() {
     return {
-      lastRecievedUpdate: new Date().getTime(),
-      now: new Date().getTime(),
-
       partyPauseCooldownRunning: false,
     };
   },
+
   computed: {
     ...mapState(['me', 'isRightSidebarOpen']),
     ...mapGetters(['getPlex', 'getPartyPausing', 'getUsers', 'getRoom', 'getHostUser']),
+
     serverDelay() {
       return Math.round(
         this.$store.state.synclounge.commands[
@@ -339,27 +335,10 @@ export default {
         ].difference,
       );
     },
-    difference() {
-      return Math.abs(this.now - this.lastRecievedUpdate);
-    },
+
     canPause() {
       return !this.partyPauseCooldownRunning && this.getPartyPausing;
     },
-  },
-
-  watch: {
-    getUsers: {
-      deep: true,
-      handler() {
-        this.lastRecievedUpdate = new Date().getTime();
-      },
-    },
-  },
-
-  mounted() {
-    setInterval(() => {
-      this.now = new Date().getTime();
-    }, 250);
   },
 
   methods: {
@@ -420,10 +399,6 @@ export default {
       }
       const time = parseInt(user.time, 10);
       return this.getTimeFromMs(time);
-      // if (user.playerState === 'playing') {
-      //   time = Math.floor((Math.floor((time + parseInt(this.difference - this.serverDelay)) / 1000) * 1000))
-      // }
-      // return this.getTimeFromMs(time)
     },
 
     getMax(user) {

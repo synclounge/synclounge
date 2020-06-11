@@ -6,7 +6,6 @@ const state = () => ({
   background: null,
   shownChat: false,
   blockAutoPlay: false,
-  extAvailable: false,
   lastRatingKey: null,
   manualSyncQueued: false,
   uuid: guid(),

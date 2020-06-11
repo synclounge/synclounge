@@ -256,10 +256,6 @@ export default {
     ]),
     ...mapState(['isRightSidebarOpen']),
 
-    extAvailable() {
-      return this.$store.getters.getExtAvailable;
-    },
-
     crumbs() {
       if (
         this.$route.path.indexOf('browse') === -1

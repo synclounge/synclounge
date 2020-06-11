@@ -1,9 +1,8 @@
 import Vue from 'vue';
-import VueScrollTo from 'vue-scrollto';
 import VueObserveVisibility from 'vue-observe-visibility';
 import VueClipboard from 'vue-clipboard2';
+import VueChatScroll from 'vue-chat-scroll';
 import { sync } from 'vuex-router-sync';
-
 import vuetify from './plugins/vuetify';
 
 import App from './App.vue';
@@ -12,7 +11,7 @@ import store from './store';
 
 sync(store, router);
 
-Vue.use(VueScrollTo);
+Vue.use(VueChatScroll);
 Vue.use(VueClipboard);
 Vue.use(VueObserveVisibility);
 

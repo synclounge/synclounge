@@ -7,7 +7,6 @@ export default {
   getBlockAutoPlay: (state) => state.blockAutoPlay,
 
   // SETTINGS
-  getExtAvailable: (state) => state.extAvailable,
   getLogos: () => ({
     light: {
       long: 'logo-long-light.png',
