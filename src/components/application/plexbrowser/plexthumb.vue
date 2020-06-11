@@ -214,53 +214,7 @@ export default {
 
       return false;
     },
-    fontSizeTop() {
-      let size = this.toptextheight * 0.7;
-      if (size > 18) {
-        size = 18;
-      }
-      return { 'font-size': `${size}px` };
-    },
-    fontSizeBottom() {
-      let size = this.bottomtextheight * 0.7;
-      if (size > 14) {
-        size = 14;
-      }
-      return { 'font-size': `${size * 1}px` };
-    },
-    onlyBottom() {
-      if (this.bottomOnly !== undefined || this.bottomOnly !== null) {
-        return true;
-      }
-      return false;
-    },
-    hideThumb() {
-      return this.spoilerFilter;
-    },
-    fullCalculatedHeightRaw() {
-      if (this.height) {
-        return this.height;
-      }
-      if (this.content.type === 'movie') {
-        return Math.round(this.fullwidth * 1.5);
-      }
-      if (this.content.type === 'episode') {
-        return Math.round(this.fullwidth * 0.7);
-      }
-      return Math.round(this.fullwidth * 1.5);
-    },
-    fakeRowHeight() {
-      if (this.height) {
-        return `${Math.round(this.height * 0.78)}em`;
-      }
-      if (this.content.type === 'movie') {
-        return `${Math.round(this.fullwidth * 1.5 * 0.78)}px`;
-      }
-      if (this.content.type === 'episode') {
-        return `${Math.round(this.fullwidth * 0.7 * 0.78)}px`;
-      }
-      return `${Math.round(this.fullwidth * 1.5 * 0.78)}px`;
-    },
+
     calculatedHeight() {
       if (this.height) {
         return `${this.height}em`;
@@ -276,21 +230,7 @@ export default {
       }
       return `${Math.round(this.fullwidth * 1.5)}px`;
     },
-    bottomCalculatedHeight() {
-      if (this.height && this.type === 'thumb') {
-        return `${Math.round(this.height * 0.22)}em`;
-      }
-      if (this.height && this.type === 'art') {
-        return `${Math.round(this.height * 0.15)}em`;
-      }
-      if (this.content.type === 'movie') {
-        return `${Math.round(this.fullwidth * 1.5 * 0.22)}px`;
-      }
-      if (this.content.type === 'episode') {
-        return `${Math.round(this.fullwidth * 0.7 * 0.22)}px`;
-      }
-      return `${Math.round(this.fullwidth * 1.5 * 0.22)}px`;
-    },
+
     showProgressBar() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
         return this.content.viewOffset && this.content.viewOffset > 0;
@@ -330,12 +270,14 @@ export default {
 
       return true;
     },
+
     unwatchedCount() {
       if (this.content.type === 'show' || this.content.type === 'season') {
         return this.content.leafCount - this.content.viewedLeafCount;
       }
       return '';
     },
+
     unwatchedPercent() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
         return (this.content.viewOffset / this.content.duration) * 100;
@@ -343,18 +285,22 @@ export default {
       return (this.content.viewedLeafCount / this.content.leafCount) * 100;
     },
   },
+
   created() {
     window.addEventListener('resize', this.handleResize);
   },
+
   mounted() {
     this.fullheight = this.$refs.root.offsetHeight;
     this.fullwidth = this.$refs.root.offsetWidth;
     if (this.$refs.topText) {
       this.toptextheight = this.$refs.topText.offsetHeight;
     }
+
     if (this.$refs.bottomText) {
       this.bottomtextheight = this.$refs.bottomText.offsetHeight;
     }
+
     if (this.type === 'thumb') {
       VanillaTilt.init(this.$refs.root, {
         reverse: true, // reverse the tilt direction
@@ -372,13 +318,16 @@ export default {
       });
     }
   },
+
   beforeDestroy() {
     window.removeEventListener('resize', this.handleResize);
   },
+
   methods: {
     emitContentClicked(content) {
       this.$emit('contentSet', content);
     },
+
     handleResize() {
       this.fullheight = this.$refs.root.offsetHeight;
       this.fullwidth = this.$refs.root.offsetWidth;
@@ -389,6 +338,7 @@ export default {
         this.bottomtextheight = this.$refs.bottomText.offsetHeight;
       }
     },
+
     getImg(object) {
       const w = Math.round(this.fullwidth * 2);
       if (this.type === 'thumb') {
@@ -396,7 +346,7 @@ export default {
       }
       if (
         !this.hovering
-        && this.hideThumb
+        && this.spoilerFilter
         && (!this.content.viewCount || this.content.viewCount === 0)
       ) {
         return this.server.getUrlForLibraryLoc(object.art, w, 1000);
