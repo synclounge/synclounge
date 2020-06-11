@@ -305,27 +305,7 @@ export default {
 
       return false;
     },
-    topTextStyle() {
-      if (this.onlyBottom) {
-        return {
-          height: '0%',
-        };
-      }
-      return {
-        height: '50%',
-      };
-    },
-    bottomTextStyle() {
-      if (this.onlyBottom) {
-        return {
-          height: '100%',
-          'font-size': '1rem',
-        };
-      }
-      return {
-        height: '50%',
-      };
-    },
+
     unwatched() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
         return !(this.content.viewCount && this.content.viewCount > 0);
@@ -333,23 +313,21 @@ export default {
 
       return false;
     },
+
     unfinished() {
       // Lol
       if (this.content.type === 'movie' || this.content.type === 'episode') {
-        if (!this.content.viewCount || this.content.viewCount === 0) {
-          if (this.content.viewOffset === 0 || this.content.viewOffset === undefined) {
-            return true;
-          }
-          return false;
-        }
-        return false;
+        return !this.content.viewCount && !this.content.viewOffset;
       }
+
       if (this.content.viewedLeafCount === 0) {
         return false;
       }
+
       if (this.content.leafCount - this.content.viewedLeafCount < 1) {
         return false;
       }
+
       return true;
     },
     unwatchedCount() {

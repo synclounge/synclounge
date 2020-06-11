@@ -282,7 +282,7 @@ class PlexClient {
       token: data.server.accessToken,
     };
 
-    if (data.mediaIndex !== undefined || data.mediaIndex !== null) {
+    if (data.mediaIndex) {
       params.mediaIndex = data.mediaIndex;
     }
 
@@ -364,7 +364,7 @@ class PlexClient {
       };
 
       await this.playMedia(data).catch(() => {
-        start(parseInt(parseInt(index, 10) + 1, 10), 10);
+        start(parseInt(parseInt(index, 10) + 1, 10));
       });
     };
     start(0);

@@ -143,7 +143,7 @@ export default {
       showName,
       uuid: state.uuid,
     };
-    if (getters.GET_CHOSEN_CLIENT && getters.GET_CHOSEN_CLIENT.lastTimelineObject) {
+    if (getters.GET_CHOSEN_CLIENT.lastTimelineObject) {
       endObj.machineIdentifier = getters.GET_CHOSEN_CLIENT.lastTimelineObject.machineIdentifier;
       endObj.key = getters.GET_CHOSEN_CLIENT.lastTimelineObject.key;
     }

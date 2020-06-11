@@ -385,16 +385,14 @@ export default {
             }
             // Check previous timeline data age
             commit('SET_DECISION_BLOCKED_TIME', new Date().getTime());
-            const timelineAge = Math.abs(
-              new Date().getTime() - rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject.recievedAt,
-            );
+
             // console.log('Timeline age is', timelineAge);
             try {
               // if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
               //   await rootState.chosenClient.getTimeline()
               //   await decisionMaker(0)
               // } else {
-              await decisionMaker(timelineAge);
+              await decisionMaker();
               // }
             } catch (e) {
               console.log('Error caught in sync logic', e);

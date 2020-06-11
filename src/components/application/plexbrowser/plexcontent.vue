@@ -558,8 +558,8 @@ export default {
       return this.$route.fullPath.indexOf('/nowplaying') === -1;
     },
     relatedItems() {
-      if (!this.related || !this.related.MediaContainer || !this.related.MediaContainer
-      || !this.related.MediaContainer.Hub || !this.related.MediaContainer.Hub.length > 0) {
+      if (!this.related || !this.related.MediaContainer || !this.related.MediaContainer.Hub
+      || this.related.MediaContainer.Hub.length <= 0) {
         return [];
       }
 
@@ -721,7 +721,7 @@ export default {
       let result = '';
       for (let i = 0; i < media.length; i += 1) {
         const stream = media[i];
-        if (stream.streamType === 2 && stream.languageCode) {
+        if (stream.streamType === 2) {
           result = `${result} ${stream.languageCode || 'Unknown Lanugage'},`;
         }
       }
@@ -732,7 +732,7 @@ export default {
       let result = '';
       for (let i = 0; i < media.length; i += 1) {
         const stream = media[i];
-        if (stream.streamType === 3 && stream.languageCode) {
+        if (stream.streamType === 3) {
           result = `${result} ${stream.languageCode || 'Unknown Lanugage'},`;
         }
       }
