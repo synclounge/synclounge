@@ -28,7 +28,11 @@ const app = express();
 const server = http.Server(app);
 const router = express.Router();
 
-server.listen(settings.server_port);
+
+// CI stuff
+const port = process.env.WEBSOCKET_USE_PORT ? process.env.PORT : settings.server_port;
+
+server.listen(port);
 
 app.options('*', cors()); // enable pre-flight across-the-board
 app.use(cors({ credentials: false }));
@@ -390,5 +394,5 @@ socketServer.on('connection', (socket) => {
 });
 
 
-console.log(`SyncLounge Server successfully started on port ${settings.server_port}`);
+console.log(`SyncLounge Server successfully started on port ${port}`);
 console.log(`Running with base URL: ${settings.serverroot}`);
