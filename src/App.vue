@@ -360,6 +360,11 @@ export default {
 
     inviteUrl() {
       if (this.getServer && this.getRoom) {
+        if (this.GET_CONFIG.autoJoin) {
+          // If autojoin, just link to main site
+          return window.location.origin;
+        }
+
         const invitePart = this.$router.resolve({
           name: 'join',
           params: { server: this.getServer, room: this.getRoom },

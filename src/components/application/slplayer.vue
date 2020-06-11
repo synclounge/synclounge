@@ -45,7 +45,7 @@
                   <v-layout
                     column
                     wrap
-                    justify-space-apart
+                    justify="space-apart"
                   >
                     <v-flex>
                       <h1>{{ GET_TITLE }}</h1>
@@ -145,7 +145,7 @@
                 <v-layout
                   column
                   wrap
-                  justify-space-apart
+                  justify="space-apart"
                 >
                   <v-flex>
                     <h1>{{ GET_TITLE }}</h1>
@@ -237,33 +237,7 @@ export default {
         // },
       },
 
-      playerUiOptions: {
-        addBigPlayButton: true,
-        controlPanelElements: [
-          'replay10',
-          'play_pause',
-          'forward30',
-          'mute',
-          'volume',
-          'close',
-          'time_and_duration',
-          'spacer',
 
-          'overflow_menu',
-          'fullscreen',
-        ],
-
-        overflowMenuButtons: [
-          'picture_in_picture',
-          'cast',
-          'bitrate',
-          'subtitle',
-          'audio',
-          'media',
-        ],
-
-        castReceiverAppId: this.castReceiverId,
-      },
     };
   },
 
@@ -290,12 +264,6 @@ export default {
     ...mapGetters('settings', [
       'GET_SLPLAYERQUALITY',
     ]),
-
-    castReceiverId() {
-      return window.chrome && window.chrome.cast && window.chrome.cast.media
-        ? window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID
-        : '';
-    },
 
     bigPlayButton() {
       window.player = this.GET_PLAYER;
@@ -337,7 +305,7 @@ export default {
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
       this.$refs.videoPlayer));
 
-    this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions);
+    this.SET_PLAYER_UI_CONFIGURATION(this.playerUiOptions());
 
     this.bigPlayButton.addEventListener('click', this.onClick);
     this.smallPlayButton.addEventListener('click', this.onClick);
@@ -396,6 +364,44 @@ export default {
       'SET_PLAYER',
       'SET_PLAYER_CONFIGURATION',
     ]),
+
+    getCastReceiverId() {
+      console.log(window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
+      return window.chrome && window.chrome.cast && window.chrome.cast.media
+        ? window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID
+        : '';
+    },
+
+    // This is an action so it's not cached because chromecast stuff loads late
+    getPlayerUiOptions() {
+      return {
+        addBigPlayButton: true,
+        controlPanelElements: [
+          'replay10',
+          'play_pause',
+          'forward30',
+          'mute',
+          'volume',
+          'close',
+          'time_and_duration',
+          'spacer',
+
+          'overflow_menu',
+          'fullscreen',
+        ],
+
+        overflowMenuButtons: [
+          'picture_in_picture',
+          'cast',
+          'bitrate',
+          'subtitle',
+          'audio',
+          'media',
+        ],
+
+        castReceiverAppId: this.getCastReceiverId(),
+      };
+    },
 
     doManualSync() {
       this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
