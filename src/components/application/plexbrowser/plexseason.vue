@@ -102,7 +102,7 @@
           >
             <plexthumb
               :content="content"
-              :server="plexserver"
+              :server="plexServer"
               type="thumb"
               style="margin:2%"
               full-title
@@ -116,9 +116,34 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   components: {
     plexthumb: () => import('./plexthumb.vue'),
+  },
+
+  props: {
+    machineIdentifier: {
+      type: String,
+      required: true,
+    },
+
+    sectionId: {
+      type: String,
+      required: true,
+    },
+
+    // TODO: unused prop, but it's in route. Why? Is it still needed?
+    parentKey: {
+      type: String,
+      required: true,
+    },
+
+    ratingKey: {
+      type: String,
+      required: true,
+    },
   },
 
   data() {
@@ -131,12 +156,20 @@ export default {
   },
 
   computed: {
+    ...mapGetters([
+      'GET_PLEX_SERVER',
+    ]),
+
+    plexServer() {
+      return this.GET_PLEX_SERVER(this.machineIdentifier);
+    },
+
     getArtUrl() {
       const w = Math.round(Math.max(document.documentElement.clientWidth,
         window.innerWidth || 0));
       const h = Math.round(Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0));
-      return this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.banner,
+      return this.plexServer.getUrlForLibraryLoc(this.contents.MediaContainer.banner,
         w / 2, h / 1, 2);
     },
 
@@ -146,7 +179,7 @@ export default {
       const h = Math.round(Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0));
 
-      return this.plexserver.getUrlForLibraryLoc(
+      return this.plexServer.getUrlForLibraryLoc(
         this.contents.MediaContainer.thumb || this.contents.MediaContainer.grandparentThumb
           || this.contents.MediaContainer.parentThumb,
         w / 1,
@@ -165,8 +198,7 @@ export default {
 
   created() {
     // Hit the PMS endpoing /library/sections
-    this.plexserver.getSeriesChildren(this.$route.params.ratingKey,
-      0, 500, 1, this.$route.params.sectionId)
+    this.plexServer.getSeriesChildren(this.ratingKey, 0, 500, 1, this.sectionId)
       .then((result) => {
         if (result) {
           this.contents = result;
@@ -188,7 +220,7 @@ export default {
       const h = Math.round(Math.max(document.documentElement.clientHeight,
         window.innerHeight || 0));
 
-      this.$store.commit('SET_BACKGROUND', this.plexserver.getUrlForLibraryLoc(this.contents.MediaContainer.art, w / 4, h / 4, 2));
+      this.$store.commit('SET_BACKGROUND', this.plexServer.getUrlForLibraryLoc(this.contents.MediaContainer.art, w / 4, h / 4, 2));
     },
   },
 };
