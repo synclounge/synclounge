@@ -109,7 +109,6 @@ export default {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
-    console.log(client);
 
     if (client.clientIdentifier === 'PTPLAYER9PLUS10') {
       return true;

@@ -77,7 +77,6 @@
                     color="accent"
                   >
                     <v-icon
-                      slot="activator"
                       color="white"
                       class="clickable"
                       :disabled="manualSyncQueued"
@@ -89,7 +88,6 @@
                   </v-tooltip>
 
                   <router-link
-                    slot="activator"
                     to="/browse"
                   >
                     <v-icon
