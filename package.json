@@ -61,7 +61,6 @@
     "vue-observe-visibility": "^0.4.6",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.4.4",
-    "vuex-persistedstate": "^3.0.1",
-    "vuex-router-sync": "^5.0.0"
+    "vuex-persistedstate": "^3.0.1"
   }
 }

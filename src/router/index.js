@@ -1,18 +1,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import store from '@/store';
 
 Vue.use(Router);
 
 // Good guide: https://blog.sqreen.com/authentication-best-practices-vue/
-
-const requireAutoJoinEnabled = (to, from, next) => {
-  if (store.getters.GET_CONFIG.autoJoin) {
-    next();
-    return;
-  }
-  next('/');
-};
 
 // ==================== Router registration ====================
 export default new Router({
@@ -46,10 +37,10 @@ export default new Router({
       meta: {
         requiresAuth: true,
         redirectAfterAuth: true,
+        requireAutoJoinEnabled: true,
       },
       component: () => import('../components/autojoin.vue'),
       name: 'autojoin',
-      beforeEnter: requireAutoJoinEnabled,
     },
     {
       path: '/join/:server/:room',

@@ -102,13 +102,15 @@ export default {
     let title = null;
     let rawTitle = null;
     let type = null;
-    let showName = null;
+    let grandparentTitle = null;
+    let parentTitle = null;
     if (getters.GET_CHOSEN_CLIENT.clientPlayingMetadata) {
       rawTitle = metadata.title;
       if (metadata.type === 'episode') {
         title = `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-`
           + `E${metadata.index}`;
-        showName = metadata.grandparentTitle;
+        parentTitle = metadata.parentTitle;
+        grandparentTitle = metadata.grandparentTitle;
       } else {
         title = metadata.title;
       }
@@ -140,7 +142,8 @@ export default {
       playerProduct: getters.GET_CHOSEN_CLIENT.product,
       status,
       type,
-      showName,
+      grandparentTitle,
+      parentTitle,
       uuid: state.uuid,
     };
     if (getters.GET_CHOSEN_CLIENT.lastTimelineObject) {

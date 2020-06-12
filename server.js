@@ -158,7 +158,8 @@ socketServer.on('connection', (socket) => {
         foundUser.rawTitle = userData.rawTitle;
         foundUser.clientResponseTime = userData.clientResponseTime;
         foundUser.type = userData.type;
-        foundUser.showName = userData.showName || '';
+        foundUser.parentTitle = userData.parentTitle || '';
+        foundUser.grandparentTitle = userData.grandparentTitle || '';
         foundUser.playerProduct = userData.playerProduct || '';
         foundUser.status = userData.status || 'unknown';
         foundUser.machineIdentifier = userData.machineIdentifier || '';
@@ -323,10 +324,11 @@ socketServer.on('connection', (socket) => {
       temp.clientResponseTime = data.clientResponseTime;
       temp.machineIdentifier = data.machineIdentifier;
       temp.type = data.type;
-      temp.showName = data.showName;
       temp.key = data.key;
       temp.latency = data.latency;
-      temp.showName = data.showName;
+      temp.parentTitle = data.parentTitle;
+
+      temp.grandparentTitle = data.grandparentTitle;
       temp.status = data.status;
       temp.playerProduct = data.playerProduct;
       socket.broadcast.to(socket.selfUser.room).emit('host-update', temp);

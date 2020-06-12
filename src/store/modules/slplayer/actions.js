@@ -114,8 +114,12 @@ export default {
     return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
-  FETCH_METADATA: async ({ commit, getters }) => {
-    const result = await getters.GET_PLEX_SERVER.getMediaByRatingKey(getters.GET_RATING_KEY);
+  FETCH_METADATA: async ({ commit, getters, dispatch }) => {
+    const result = await dispatch('FETCH_PLEX_METADATA', {
+      key: getters.GET_KEY,
+      machineIdentifier: getters.GET_PLEX_SERVER_ID,
+    },
+    { root: true });
     // Always media 0
 
     commit('SET_METADATA', result.MediaContainer.Metadata[0]);

@@ -209,7 +209,7 @@
         <v-icon
           class="pl-2"
           small
-          @click="PLEX_GET_DEVICES"
+          @click="FETCH_PLEX_DEVICES"
         >
           refresh
         </v-icon>
@@ -432,7 +432,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(['PLEX_GET_DEVICES']),
+    ...mapActions(['FETCH_PLEX_DEVICES']),
     setContent(content) {
       this.selectedItem = content;
     },

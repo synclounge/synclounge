@@ -1,6 +1,9 @@
 import axios from 'axios';
 import promiseutils from '@/utils/promiseutils';
-import { sample } from 'lodash-es';
+import { sample, maxBy } from 'lodash-es';
+import router from '@/router';
+import scoreMedia from './helpers/mediascoring';
+
 
 import PlexServer from './helpers/PlexServer';
 import PlexClient from './helpers/PlexClient';
@@ -15,7 +18,7 @@ export default {
   }).then(({ data }) => data),
 
   REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit, dispatch }, id) => {
-    const { data } = await axios.get(`https://plex.tv/api/v2/pins/${id}`, {
+    const { data } = await axios.get(`https://plex. /api/v2/pins/${id}`, {
       headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
     });
 
@@ -249,5 +252,112 @@ export default {
     // Finally try relay connections if we failed everywhere else.
     const relayConnections = connections.filter((connection) => connection.relay);
     return promiseutils.any(relayConnections.map((connection) => dispatch('TEST_PLEX_CONNECTION', { connection, accessToken }).then(() => connection)));
+  },
+
+
+  FETCH_PLEX_METADATA: async ({ getters }, { key, machineIdentifier }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get(key);
+
+    // this.commit('SET_LIBRARYCACHE', [
+    //   data.MediaContainer.librarySectionID,
+    //   this.clientIdentifier,
+    //   data.MediaContainer.librarySectionTitle,
+    // ]);
+
+    return data;
+  },
+
+  SEARCH_PLEX_SERVER: async ({ getters }, { query, machineIdentifier }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/search',
+      {
+        params: {
+          query,
+        },
+      });
+
+    return data.MediaContainer.Metadata.map((result) => ({
+      ...result,
+      machineIdentifier,
+    }));
+  },
+
+
+  SEARCH_UNBLOCKED_PLEX_SERVERS: ({ getters, dispatch }, query) => Promise.allSettled(
+    getters.GET_UNBLOCKED_PLEX_SERVER_IDS.map((machineIdentifier) => dispatch('SEARCH_PLEX_SERVER', {
+      machineIdentifier,
+      query,
+    })),
+  ).then((results) => results.filter((result) => result.status === 'fulfilled')
+    .flatMap((result) => result.value)),
+
+
+  FIND_BEST_MEDIA_MATCH: async ({ getters, dispatch }, hostTimeline) => {
+    // If we have access the same server, play same content
+    if (getters.IS_PLEX_SERVER_UNBLOCKED(hostTimeline.machineIdentifier)) {
+      try {
+        await dispatch('FETCH_PLEX_METADATA', {
+          key: hostTimeline.key,
+          machineIdentifier: hostTimeline.machineIdentifier,
+        });
+
+        return {
+          key: hostTimeline.key,
+          machineIdentifier: hostTimeline.machineIdentifier,
+          mediaIndex: hostTimeline.mediaIndex,
+          offset: hostTimeline.time,
+        };
+      // eslint-disable-next-line no-empty
+      } catch { }
+    }
+
+    const results = await dispatch('SEARCH_UNBLOCKED_PLEX_SERVERS', hostTimeline.rawTitle);
+
+    const bestResult = maxBy(results, (result) => scoreMedia(result, hostTimeline));
+
+    console.log(bestResult);
+    return null;
+  },
+
+  PLEX_CLIENT_PLAY_MEDIA: async ({ getters, commit }, {
+    key, mediaIndex, serverIdentifier, offset,
+  }) => {
+    const server = getters.GET_PLEX_SERVER(serverIdentifier);
+
+    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
+      // do raw stuff
+      // commit the proper stuff
+      commit('slplayer/SET_PLEX_SERVER_ID', serverIdentifier);
+      commit('slplayer/SET_KEY', key);
+      commit('slplayer/SET_MEDIA_INDEX', mediaIndex);
+      commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0);
+      router.push('/player');
+      // TODO: navigate there lol
+    } else {
+      // Play a media item given a mediaId key and a server to play from
+      // We need the following variables to build our paramaters:
+      // MediaId Key, Offset, server MachineId,
+      // Server Ip, Server Port, Server Protocol, Path
+
+      const command = '/player/playback/playMedia';
+
+      const params = {
+        'X-Plex-Client-Identifier': 'SyncLounge',
+        key,
+        offset: Math.round(offset) || 0,
+        machineIdentifier: serverIdentifier,
+        address: server.chosenConnection.address,
+        port: server.chosenConnection.port,
+        protocol: server.chosenConnection.protocol,
+        path: server.chosenConnection.uri + key,
+        wait: 0,
+        token: server.accessToken,
+      };
+
+      if (mediaIndex) {
+        params.mediaIndex = mediaIndex;
+      }
+      await getters.GET_CHOSEN_CLIENT.hitApi(command, params);
+      await this.waitForMovement();
+    }
   },
 };

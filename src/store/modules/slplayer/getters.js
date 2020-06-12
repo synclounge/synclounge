@@ -6,11 +6,10 @@ import { qualities } from './qualities';
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
 
-  GET_PLEX_SERVER_ID: (state, getters, rootState) => state.plexServerId
-    || rootState.route.query.machineIdentifier,
+  GET_PLEX_SERVER_ID: (state) => state.plexServerId,
 
-  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters.getPlex
-    .servers[getters.GET_PLEX_SERVER_ID],
+  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters
+    .GET_PLEX_SERVER(getters.GET_PLEX_SERVER_ID),
 
   GET_PLEX_SERVER_ACCESS_TOKEN: (state, getters) => (getters.GET_PLEX_SERVER
     ? getters.GET_PLEX_SERVER.accessToken
@@ -82,8 +81,7 @@ export default {
   },
 
   // TODO: fix this 0 fallback
-  GET_MEDIA_INDEX: (state, getters, rootState) => state.mediaIndex
-    || rootState.route.query.mediaIndex || 0,
+  GET_MEDIA_INDEX: (state) => state.mediaIndex,
 
   GET_RELATIVE_THUMB_URL: (state, getters) => (getters.GET_METADATA
     ? getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb
@@ -96,9 +94,8 @@ export default {
     ? getters.GET_KEY.replace('/library/metadata/', '')
     : null),
 
-  GET_KEY: (state, getters, rootState) => state.key || rootState.route.query.key,
-
-  GET_OFFSET_MS: (state, getters, rootState) => state.offsetMs || rootState.route.query.offset,
+  GET_KEY: (state) => state.key,
+  GET_OFFSET_MS: (state) => state.offsetMs,
 
   GET_METADATA: (state) => state.metadata,
   GET_PLAYER_STATE: (state) => state.playerState,

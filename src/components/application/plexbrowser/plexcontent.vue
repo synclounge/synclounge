@@ -471,7 +471,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import humanizeDuration from 'humanize-duration';
 
 export default {
@@ -501,10 +501,8 @@ export default {
   computed: {
     ...mapGetters([
       'GET_CHOSEN_CLIENT',
+      'GET_PLEX_SERVER',
     ]),
-    plex() {
-      return this.$store.getters.getPlex;
-    },
     ratingKey() {
       return this.$route.params.ratingKey;
     },
@@ -512,7 +510,7 @@ export default {
       return this.$route.params.machineIdentifier;
     },
     server() {
-      return this.plex.servers[this.serverId];
+      return this.GET_PLEX_SERVER(this.serverId);
     },
     me() {
       return this.$store.state.me;
@@ -531,27 +529,7 @@ export default {
 
       return false;
     },
-    largestRes() {
-      let height = 0;
-      for (let i = 0; i < this.contents.Media.length; i += 1) {
-        if (parseInt(this.contents.Media[i].videoResolution, 10) > height) {
-          height = parseInt(this.contents.Media[i].videoResolution, 10);
-        }
-      }
-      return height;
-    },
-    calculatedHeight() {
-      if (this.height) {
-        return `${this.height}em`;
-      }
-      if (this.contents.type === 'movie') {
-        return `${Math.round(this.fullwidth * 2)}px`;
-      }
-      if (this.contents.type === 'episode') {
-        return `${Math.round(this.fullwidth * 2)}px`;
-      }
-      return `${Math.round(this.fullwidth * 2)}px`;
-    },
+
     playable() {
       return this.$route.fullPath.indexOf('/nowplaying') === -1;
     },
@@ -563,6 +541,7 @@ export default {
 
       return this.related.MediaContainer.Hub[0].Metadata.slice(0, 7);
     },
+
     getArtUrl() {
       const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
       const h = Math.round(
@@ -576,6 +555,7 @@ export default {
       }
       return this.server.getUrlForLibraryLoc(this.contents.grandparentArt, w * 1.5, h * 1.5, 0);
     },
+
     length() {
       return humanizeDuration(this.contents.duration, {
         delimiter: ' ',
@@ -583,12 +563,14 @@ export default {
         round: true,
       });
     },
+
     title() {
       if (this.contents.type === 'episode') {
         return this.contents.grandparentTitle;
       }
       return this.contents.title;
     },
+
     thumb() {
       const w = Math.round(Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
       const h = Math.round(
@@ -604,19 +586,24 @@ export default {
       );
     },
   },
+
   watch: {
     ratingKey() {
       this.getNewData();
     },
   },
-  created() {},
+
   mounted() {
     this.getNewData();
     this.fullheight = this.$refs.root.offsetHeight;
     this.fullwidth = this.$refs.root.offsetWidth;
   },
-  beforeDestroy() {},
+
   methods: {
+    ...mapActions([
+      'PLEX_CLIENT_PLAY_MEDIA',
+    ]),
+
     getNewData() {
       this.server.getMediaByRatingKey(this.ratingKey).then(async (result) => {
         if (result) {
@@ -681,21 +668,22 @@ export default {
         this.$parent.reset();
       });
     },
+
     async playMedia(content, mediaIndex) {
       let offset = 0;
       if (this.resumeFrom) {
         offset = this.contents.viewOffset;
       }
 
-      await this.GET_CHOSEN_CLIENT.playMedia({
+      await this.PLEX_CLIENT_PLAY_MEDIA({
         key: this.contents.key,
         mediaIndex,
-        server: this.server,
+        serverIdentifier: this.$route.params.machineIdentifier,
         offset,
-        callback: () => {},
       });
       this.dialog = false;
     },
+
     getDuration(dur) {
       return humanizeDuration(dur, {
         delimiter: ' ',
@@ -703,9 +691,11 @@ export default {
         round: true,
       });
     },
+
     pressStop() {
       this.GET_CHOSEN_CLIENT.pressStop(() => {});
     },
+
     getStreamCount(streams, type) {
       let count = 0;
       streams.forEach((stream) => {

@@ -1,4 +1,6 @@
 import { detect } from 'detect-browser';
+import axios from 'axios';
+import { difference } from 'lodash-es';
 import { encodeUrlParams } from '@/utils/encoder';
 
 function capitalizeFirstLetter(string) {
@@ -12,6 +14,7 @@ export default {
   getLibraryCache: (state) => state.libraryCache,
   GET_SL_PLAYER: (state) => state.slPlayer,
   GET_CHOSEN_CLIENT: (state) => state.clients[state.chosenClientId],
+  GET_CHOSEN_CLIENT_ID: (state) => state.chosenClientId,
   GET_RECENT_PLEX_CLIENTS: (state) => Object.values(state.clients)
     .sort((a, b) => -a.lastSeenAt.localeCompare(b.lastSeenAt)),
 
@@ -68,4 +71,23 @@ export default {
   GET_DEVICE_FETCH_PROMISE: (state) => state.deviceFetchPromise,
   GET_PLEX_USER: (state) => state.user,
   IS_USER_AUTHORIZED: (state) => state.userAuthorized,
+
+  GET_UNBLOCKED_PLEX_SERVER_IDS: (state, getters, rootState, rootGetters) => difference(
+    Object.keys(getters.GET_PLEX_SERVERS),
+    rootGetters['settings/GET_BLOCKEDSERVERS'],
+  ),
+
+  IS_PLEX_SERVER_UNBLOCKED: (state, getters) => (machineIdentifier) => getters
+    .GET_UNBLOCKED_PLEX_SERVER_IDS.includes(machineIdentifier),
+
+
+  GET_PLEX_SERVER_AXIOS: (state, getters) => (machineIdentifier) => {
+    const server = getters.GET_PLEX_SERVER(machineIdentifier);
+
+    return axios.create({
+      baseURL: server.chosenConnection.uri,
+      timeout: 5000,
+      headers: getters.GET_PLEX_BASE_PARAMS(server.accessToken),
+    });
+  },
 };

@@ -58,7 +58,9 @@ export default {
   SET_PLAYER_CURRENT_TIME_MS: (state, timeMs) => {
     // Also update offset as fallback
     state.offsetMs = timeMs;
-    state.player.getMediaElement().currentTime = timeMs / 1000;
+    if (state.player) {
+      state.player.getMediaElement().currentTime = timeMs / 1000;
+    }
   },
 
   SET_PLAYER_PLAYBACK_RATE: (state, rate) => {

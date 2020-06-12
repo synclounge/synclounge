@@ -4,9 +4,6 @@ import { encodeUrlParams } from '@/utils/encoder';
 import delay from '@/utils/delay';
 import plexauth from './PlexAuth';
 
-
-const stringSimilarity = require('string-similarity');
-
 class PlexClient {
   constructor(params) {
     this.commandId = 0;
@@ -249,125 +246,6 @@ class PlexClient {
       return this.cleanSeek(hostTimeline.time, true);
     }
     return 'No sync needed';
-  }
-
-  async playMedia(data) {
-    // Play a media item given a mediaId key and a server to play from
-    // We need the following variables to build our paramaters:
-    // MediaId Key, Offset, server MachineId,
-    // Server Ip, Server Port, Server Protocol, Path
-
-    // First we will mirror the item so the user has an idea of what we're about to play
-
-    const command = '/player/playback/playMedia';
-    const offset = Math.round(data.offset) || 0;
-    const serverId = data.server.clientIdentifier;
-    const uri = new URL(data.server.chosenConnection.uri);
-    const address = uri.hostname;
-    // eslint-disable-next-line no-nested-ternary
-    const port = uri.port !== '' ? uri.port : (uri.protocol === 'https:' ? '443' : '80'); // port not specified if standard
-    const protocol = uri.protocol.replace(':', ''); // remove extra colon
-    const path = data.server.chosenConnection.uri + data.key;
-
-    const params = {
-      'X-Plex-Client-Identifier': 'SyncLounge',
-      key: data.key,
-      offset,
-      machineIdentifier: serverId,
-      address,
-      port,
-      protocol,
-      path,
-      wait: 0,
-      token: data.server.accessToken,
-    };
-
-    if (data.mediaIndex) {
-      params.mediaIndex = data.mediaIndex;
-    }
-
-    // Now that we've built our params, it's time to hit the client api
-    await this.hitApi(command, params, this.chosenConnection);
-    await this.waitForMovement();
-    return true;
-  }
-
-  async playContentAutomatically(hostData, servers, offset) {
-    // Automatically play content on the client searching all servers based on the title
-
-    function checkResult(data) {
-      // Do a series of checks to see if this result is OK
-      // Check if rawTitle matches
-      if (data.title !== hostData.rawTitle) {
-        return false;
-      }
-      // Check if length is close enough
-      if (Math.abs(parseInt(data.duration, 10) - parseInt(hostData.maxTime, 10)) > 1000
-        || !data.duration) {
-        return false;
-      }
-      if (data.type === 'movie') {
-        // We're good!
-        return true;
-      }
-      if (data.type === 'episode') {
-        // Check if the show name is the same
-        const similarity = stringSimilarity.compareTwoStrings(data.grandparentTitle,
-          hostData.showName);
-        return similarity > 0.40;
-      }
-      if (data.type === 'track') {
-        // We're good!
-        return true;
-      }
-      return false;
-    }
-
-
-    // First lets find all of our playable items
-    let playables = [];
-    const serversArr = Object.values(servers);
-
-    await Promise.all(serversArr.map(async (server) => {
-      if (!server.chosenConnection) {
-        return;
-      }
-
-      const results = await server.search(hostData.rawTitle);
-      for (let k = 0; k < results.length; k += 1) {
-        // Now we need to check the result
-        if (checkResult(results[k])) {
-          // Its a match!
-          playables.push({
-            server,
-            result: results[k],
-          });
-        }
-      }
-    }));
-
-    playables = playables.sort((a, b) => parseInt(b.server.publicAddressMatches, 10)
-        - parseInt(a.server.publicAddressMatches, 10));
-
-    const start = async (index) => {
-      // Now lets try and play our items one by one
-      if (playables.length === 0 || index === playables.length) {
-        throw new Error('Didnt find any playable items');
-      }
-      const { server } = playables[index];
-      const { key } = playables[index].result;
-      const data = {
-        key,
-        mediaIndex: 0,
-        server,
-        offset: offset || 0,
-      };
-
-      await this.playMedia(data).catch(() => {
-        start(parseInt(parseInt(index, 10) + 1, 10));
-      });
-    };
-    start(0);
   }
 }
 

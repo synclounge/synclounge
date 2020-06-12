@@ -1,6 +1,5 @@
 import axios from 'axios';
 import io from 'socket.io-client';
-import delay from '@/utils/delay';
 import guid from '@/utils/guid';
 
 function sendNotification(message) {
@@ -257,46 +256,24 @@ export default {
 
                 commit('SET_RAW_TITLE', hostTimeline.rawTitle);
                 sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
-                await rootGetters.GET_CHOSEN_CLIENT
-                  .playContentAutomatically(
-                    hostTimeline,
-                    servers,
-                    hostTimeline.time,
-                  )
-                  .catch(async () => {
-                    const hostServer = rootState.plex.servers[hostTimeline.machineIdentifier];
-                    if (hostServer && hostTimeline.key) {
-                      if (
-                        !rootGetters['settings/GET_BLOCKEDSERVERS'].includes(
-                          hostTimeline.machineIdentifier,
-                        )
-                      ) {
-                        await rootGetters.GET_CHOSEN_CLIENT.playMedia({
-                          // TODO: have timeline updates send out more info like mediaIdentifier etc
-                          key: hostTimeline.key,
-                          mediaIndex: 0,
-                          server: rootState.plex.servers[hostTimeline.machineIdentifier],
-                          offset: hostTimeline.time || 0,
-                        }).catch(() => {});
-                        setTimeout(() => {
-                          commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-                        }, 15000);
-                        return;
-                      }
-                    }
-                    sendNotification(
-                      `Failed to find a compatible copy of ${hostTimeline.rawTitle}. If you have access to the content try manually playing it.`,
-                    );
-                    setTimeout(() => {
-                      commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-                    }, 15000);
-                  });
 
-                await delay(1000);
-
+                const bestMatch = await dispatch('FIND_BEST_MEDIA_MATCH', hostTimeline, { root: true });
+                if (bestMatch) {
+                  await dispatch('PLEX_CLIENT_PLAY_MEDIA', {
+                    // TODO: have timeline updates send out more info like mediaIdentifier etc
+                    key: bestMatch.key,
+                    mediaIndex: bestMatch.mediaIndex || 0,
+                    serverIdentifier: bestMatch.machineIdentifier,
+                    offset: hostTimeline.time || 0,
+                  }).catch(() => {});
+                } else {
+                  sendNotification(
+                    `Failed to find a compatible copy of ${hostTimeline.rawTitle}. If you have access to the content try manually playing it.`,
+                  );
+                }
                 setTimeout(() => {
                   commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-                }, 10000);
+                }, 15000);
                 return;
               }
 
