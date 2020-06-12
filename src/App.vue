@@ -90,7 +90,7 @@
       </v-toolbar-items>
     </v-app-bar>
 
-    <v-content
+    <v-main
       :style="mainStyle"
       app
     >
@@ -182,7 +182,7 @@
           />
         </v-dialog>
       </v-container>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
