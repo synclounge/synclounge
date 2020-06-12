@@ -230,9 +230,9 @@ export default {
       metadataLoadedPromise: null,
 
       playerConfig: {
-        // streaming: {
-        //   bufferingGoal: 120,
-        // },
+        streaming: {
+          bufferingGoal: 120,
+        },
       },
 
 
