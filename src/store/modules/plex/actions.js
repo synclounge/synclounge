@@ -18,7 +18,7 @@ export default {
   }).then(({ data }) => data),
 
   REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit, dispatch }, id) => {
-    const { data } = await axios.get(`https://plex. /api/v2/pins/${id}`, {
+    const { data } = await axios.get(`https://plex.tv/api/v2/pins/${id}`, {
       headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
     });
 
