@@ -18,11 +18,11 @@ const state = () => ({
   },
 
   servers: {},
+  lastServerId: null,
   user: null,
 
   doneFetchingDevices: false,
   deviceFetchPromise: null,
-  userAuthorized: null,
 
   itemCache: {},
   libraryCache: {},

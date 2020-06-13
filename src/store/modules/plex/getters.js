@@ -1,6 +1,6 @@
 import { detect } from 'detect-browser';
 import axios from 'axios';
-import { difference } from 'lodash-es';
+import { difference, intersection } from 'lodash-es';
 import { encodeUrlParams } from '@/utils/encoder';
 
 function capitalizeFirstLetter(string) {
@@ -18,13 +18,15 @@ export default {
   GET_RECENT_PLEX_CLIENTS: (state) => Object.values(state.clients)
     .sort((a, b) => -a.lastSeenAt.localeCompare(b.lastSeenAt)),
 
-  GET_LASTSERVER: (state, getters) => state.servers[getters['settings/GET_LASTSERVER']],
+  GET_LAST_SERVER_ID: (state) => state.lastServerId,
+  GET_LAST_SERVER: (state, getters) => getters.GET_PLEX_SERVER(getters.GET_LAST_SERVER_ID),
   GET_CONNECTABLE_PLEX_SERVERS: (state) => Object.values(state.servers).filter(
     (server) => server.chosenConnection,
   ),
 
   GET_PLEX_SERVERS: (state) => state.servers,
-  GET_PLEX_SERVER: (state) => (machineIdentifier) => state.servers[machineIdentifier],
+  GET_PLEX_SERVER_IDS: (state, getters) => Object.keys(getters.GET_PLEX_SERVERS),
+  GET_PLEX_SERVER: (state, getters) => (machineIdentifier) => getters.GET_PLEX_SERVERS[machineIdentifier],
 
   IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN'] && getters.IS_USER_AUTHORIZED,
 
@@ -70,16 +72,16 @@ export default {
   IS_DONE_FETCHING_DEVICES: (state) => state.doneFetchingDevices,
   GET_DEVICE_FETCH_PROMISE: (state) => state.deviceFetchPromise,
   GET_PLEX_USER: (state) => state.user,
-  IS_USER_AUTHORIZED: (state) => state.userAuthorized,
+  IS_USER_AUTHORIZED: (state, getters) => getters.IS_PLEX_SERVER_AUTHORIZED
+    || getters.IS_PLEX_USER_AUTHORIZED || getters.IS_AUTHENTICATION_TYPE_NONE,
 
   GET_UNBLOCKED_PLEX_SERVER_IDS: (state, getters, rootState, rootGetters) => difference(
-    Object.keys(getters.GET_PLEX_SERVERS),
+    getters.GET_PLEX_SERVER_IDS,
     rootGetters['settings/GET_BLOCKEDSERVERS'],
   ),
 
   IS_PLEX_SERVER_UNBLOCKED: (state, getters) => (machineIdentifier) => getters
     .GET_UNBLOCKED_PLEX_SERVER_IDS.includes(machineIdentifier),
-
 
   GET_PLEX_SERVER_AXIOS: (state, getters) => (machineIdentifier) => {
     const server = getters.GET_PLEX_SERVER(machineIdentifier);
@@ -90,4 +92,15 @@ export default {
       headers: getters.GET_PLEX_BASE_PARAMS(server.accessToken),
     });
   },
+
+  IS_PLEX_SERVER_AUTHORIZED: (state, getters, rootState, rootGetters) => rootGetters['config/GET_AUTHENTICATION'].type.includes('server')
+    && intersection(getters.GET_PLEX_SERVER_IDS, rootGetters['config/GET_AUTHENTICATION'].authorized).length > 0,
+
+  IS_PLEX_USER_AUTHORIZED: (state, getters, rootState, rootGetters) => rootGetters['config/GET_AUTHENTICATION'].type.includes('user')
+    && intersection(
+      [getters.GET_PLEX_USER.username, getters.GET_PLEX_USER.email],
+      rootGetters['config/GET_AUTHENTICATION'].authorized,
+    ).length > 0,
+
+  IS_AUTHENTICATION_TYPE_NONE: (state, getters, rootState, rootGetters) => rootGetters['config/GET_AUTHENTICATION'].type === 'none',
 };

@@ -73,7 +73,7 @@ export default {
     ...mapActions([
       'REQUEST_PLEX_INIT_AUTH',
       'REQUEST_PLEX_AUTH_TOKEN',
-      'PLEX_CHECK_AUTH',
+      'FETCH_PLEX_DEVICES_IF_NEEDED',
     ]),
 
     async authenticate() {
@@ -118,7 +118,7 @@ export default {
     async isAuthComplete() {
       try {
         await this.REQUEST_PLEX_AUTH_TOKEN(this.plexAuthResponse.id);
-        this.PLEX_CHECK_AUTH();
+        await this.FETCH_PLEX_DEVICES_IF_NEEDED();
         return true;
       } catch {
         return false;

@@ -19,6 +19,7 @@ const persistedState = createPersistedState({
     'settings',
     'plex.user',
     'plex.userAuthorized',
+    'plex.lastServerId',
   ],
 });
 

@@ -13,9 +13,9 @@ export default {
   }, [, ratingKey, mediaContainer]) {
     if (ratingKey) {
       // Playing something different!
-      commit('SET_PLEX_SERVER_ID', mediaContainer.machineIdentifier);
+      commit('SET_LAST_SERVER_ID', mediaContainer.machineIdentifier);
       const server = state.plex.servers[mediaContainer.machineIdentifier];
-      commit('settings/SET_LASTSERVER', mediaContainer.machineIdentifier);
+
 
       // Fetch our metadata from this server
 
@@ -32,7 +32,7 @@ export default {
         if (metadata.type === 'episode') {
           sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
             metadata.index
-          } from ${server.name}`);
+            } from ${server.name}`);
         }
 
         // TODO: come and fix this
@@ -85,7 +85,7 @@ export default {
           state.plex.servers[timeline.machineIdentifier]
             .getPostplay(timeline.ratingKey).then((data) => {
               if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle
-                  === metadata.grandparentTitle) {
+                === metadata.grandparentTitle) {
                 commit('SET_UP_NEXT_POST_PLAY_DATA', data);
               }
             });
@@ -185,7 +185,7 @@ export default {
       const delayPromise = delay(getters['settings/GET_CLIENTPOLLINTERVAL']);
 
       // eslint-disable-next-line no-await-in-loop
-      await getters.GET_CHOSEN_CLIENT.getTimeline().catch(() => {});
+      await getters.GET_CHOSEN_CLIENT.getTimeline().catch(() => { });
       // eslint-disable-next-line no-await-in-loop
       await delayPromise;
     }

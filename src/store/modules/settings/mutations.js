@@ -29,9 +29,6 @@ export default {
   SET_SLPLAYERQUALITY: (state, quality) => {
     state.slPlayerQuality = quality;
   },
-  SET_LASTSERVER: (state, server) => {
-    state.lastServer = server;
-  },
   SET_SLPLAYERVOLUME: (state, volume) => {
     state.slPlayerVolume = volume;
   },

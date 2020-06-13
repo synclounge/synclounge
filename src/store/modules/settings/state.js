@@ -23,7 +23,6 @@ const state = () => ({
   hideUsername: false,
   altUsername: null,
   clientIdentifier: guid(),
-  lastServer: null,
   plexAuthToken: null,
   recentRooms: [],
 });

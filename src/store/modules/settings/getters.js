@@ -42,7 +42,6 @@ export default {
   GET_HIDEUSERNAME: (state) => state.hideUsername,
   GET_ALTUSERNAME: (state) => state.altUsername,
   GET_CLIENTIDENTIFIER: (state) => state.clientIdentifier,
-  GET_LASTSERVER: (state) => state.lastServer,
   GET_CUSTOM_SERVER_USER_INPUTTED_URL: (state) => state.customServerUserInputtedUrl,
   GET_PLEX_AUTH_TOKEN: (state) => state.plexAuthToken,
   GET_RECENT_ROOMS: (state) => state.recentRooms,

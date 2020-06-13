@@ -26,7 +26,6 @@ export default {
 
   GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
   GET_UP_NEXT_POST_PLAY_DATA: (state) => state.upNextPostPlayData,
-  GET_PLEX_SERVER_ID: (state) => state.plexServerId,
   GET_CONFIG: (state) => state.configuration,
   GET_AUTHENTICATION: (state) => state.configuration.authentication,
   GET_CONFIGURATION_FETCHED: (state) => state.configurationFectched,

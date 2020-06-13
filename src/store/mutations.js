@@ -28,10 +28,6 @@ export default {
     state.upNextPostPlayData = data;
   },
 
-  SET_PLEX_SERVER_ID: (state, id) => {
-    state.plexServerId = id;
-  },
-
   SET_CONFIG: (state, data) => {
     state.configuration = data;
   },

@@ -26,8 +26,6 @@ const state = () => ({
 
   // This stores the postplay data and controls whether the upnext component is visible
   upNextPostPlayData: null,
-
-  plexServerId: null,
 });
 
 export default state;

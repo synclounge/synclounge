@@ -29,7 +29,7 @@ export default {
     Vue.set(state.servers[server.clientIdentifier], key, value);
   },
 
-  PLEX_CLIENT_SET: (state, client) => {
+  PLEX_ADD_CLIENT: (state, client) => {
     Vue.set(state.clients, client.clientIdentifier, client);
   },
 
@@ -65,7 +65,7 @@ export default {
     state.user = user;
   },
 
-  SET_USER_AUTHORIZED: (state, authorized) => {
-    state.userAuthorized = authorized;
+  SET_LAST_SERVER_ID: (state, id) => {
+    state.lastServerId = id;
   },
 };

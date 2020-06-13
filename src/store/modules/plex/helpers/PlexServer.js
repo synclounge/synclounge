@@ -8,32 +8,21 @@ class PlexServer {
     this.product = '';
     this.productVersion = '';
     this.platform = '';
-    this.platformVersion = '';
     this.device = '';
     this.clientIdentifier = '';
-    this.createdAt = '';
     this.lastSeenAt = '';
     this.provides = '';
     this.owned = '';
-    this.httpsRequired = '';
     this.ownerId = '';
     this.accessToken = '';
     this.sourceTitle = '';
-    this.synced = '';
     this.relay = '';
     this.publicAddressMatches = '';
-    this.presence = '';
-    this.plexConnections = '';
     this.chosenConnection = null;
 
     this.commit = null;
 
     Object.assign(this, params);
-  }
-
-  setValue(key, value) {
-    this[key] = value;
-    this.commit('PLEX_SERVER_SET_VALUE', [this, key, value]);
   }
 
   // Functions
@@ -53,10 +42,6 @@ class PlexServer {
 
     this.handleMetadata(data);
     return data;
-  }
-
-  setChosenConnection(con) {
-    this.chosenConnection = con;
   }
 
   // Functions for dealing with media
@@ -102,30 +87,26 @@ class PlexServer {
     if (this.chosenConnection) {
       return `${this.chosenConnection.uri}/photo/:/transcode?url=${location}&X-Plex-Token=${
         this.accessToken
-      }&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
+        }&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
     }
     return '';
   }
 
   async getRandomItem() {
-    try {
-      const data = await this.getAllLibraries();
-      if (!data || !data.MediaContainer || !data.MediaContainer.Directory) {
-        return false;
-      }
-      const libraries = data.MediaContainer.Directory;
-      const library = libraries[Math.floor(Math.random() * libraries.length)];
-
-      const result = await this.getLibraryContents(library.key, 0, 50);
-      if (!result) {
-        return false;
-      }
-      const items = result.MediaContainer.Metadata;
-      const item = items[Math.floor(Math.random() * items.length)];
-      return item;
-    } catch (e) {
-      throw new Error(e);
+    const data = await this.getAllLibraries();
+    if (!data || !data.MediaContainer || !data.MediaContainer.Directory) {
+      return false;
     }
+    const libraries = data.MediaContainer.Directory;
+    const library = libraries[Math.floor(Math.random() * libraries.length)];
+
+    const result = await this.getLibraryContents(library.key, 0, 50);
+    if (!result) {
+      return false;
+    }
+    const items = result.MediaContainer.Metadata;
+    const item = items[Math.floor(Math.random() * items.length)];
+    return item;
   }
 
   async getAllLibraries() {

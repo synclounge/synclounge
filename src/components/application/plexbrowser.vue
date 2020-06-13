@@ -156,10 +156,10 @@
     <v-divider />
 
     <template
-      v-if="GET_LASTSERVER && results.length == 0"
+      v-if="GET_LAST_SERVER && results.length == 0"
     >
-      <v-subheader v-if="subsetOnDeck().length > 0">
-        Continue watching from {{ GET_LASTSERVER.name }}
+      <v-subheader v-if="subsetOnDeck.length > 0">
+        Continue watching from {{ GET_LAST_SERVER.name }}
         <span
           style="float:right; font-size:5rem; user-select: none;"
         >
@@ -182,14 +182,14 @@
           justify="center"
         >
           <v-col
-            v-for="content in subsetOnDeck()"
+            v-for="content in subsetOnDeck"
             :key="content.key"
             cols="3"
             class="pb-3 pa-2"
           >
             <plexthumb
               :content="content"
-              :server="GET_LASTSERVER"
+              :server="GET_LAST_SERVER"
               type="art"
               @contentSet="setContent(content)"
             />
@@ -324,7 +324,7 @@ export default {
 
   computed: {
     ...mapGetters([
-      'GET_LASTSERVER',
+      'GET_LAST_SERVER',
       'getPlex',
       'getLogos',
       'GET_CONNECTABLE_PLEX_SERVERS',
@@ -414,41 +414,6 @@ export default {
         return false;
       });
     },
-  },
-
-  watch: {
-    searchWord() {
-      if (this.searchWord === '') {
-        this.results = [];
-        this.searchStatus = 'Search your available Plex Media Servers';
-        return;
-      }
-      this.searchAllServers();
-    },
-  },
-
-  mounted() {
-    this.updateOnDeck();
-  },
-
-  methods: {
-    ...mapActions(['FETCH_PLEX_DEVICES']),
-    setContent(content) {
-      this.selectedItem = content;
-    },
-
-    isConnectable(server) {
-      return (
-        this.getPlex.servers[server.clientIdentifier]
-        && this.getPlex.servers[server.clientIdentifier].chosenConnection
-      );
-    },
-
-    async updateOnDeck() {
-      if (this.GET_LASTSERVER) {
-        this.onDeck = await this.GET_LASTSERVER.getOnDeck(0, 10);
-      }
-    },
 
     subsetOnDeck() {
       if (
@@ -493,6 +458,41 @@ export default {
         // This would overflow!
       } else {
         this.onDeckOffset += 4;
+      }
+    },
+  },
+
+  watch: {
+    searchWord() {
+      if (this.searchWord === '') {
+        this.results = [];
+        this.searchStatus = 'Search your available Plex Media Servers';
+        return;
+      }
+      this.searchAllServers();
+    },
+  },
+
+  mounted() {
+    this.updateOnDeck();
+  },
+
+  methods: {
+    ...mapActions(['FETCH_PLEX_DEVICES']),
+    setContent(content) {
+      this.selectedItem = content;
+    },
+
+    isConnectable(server) {
+      return (
+        this.getPlex.servers[server.clientIdentifier]
+        && this.getPlex.servers[server.clientIdentifier].chosenConnection
+      );
+    },
+
+    async updateOnDeck() {
+      if (this.GET_LAST_SERVER) {
+        this.onDeck = await this.GET_LAST_SERVER.getOnDeck(0, 10);
       }
     },
 
