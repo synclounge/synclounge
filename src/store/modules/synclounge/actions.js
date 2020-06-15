@@ -1,6 +1,7 @@
 import axios from 'axios';
 import io from 'socket.io-client';
 import guid from '@/utils/guid';
+import delay from '@/utils/delay';
 
 function sendNotification(message) {
   console.log(message);
@@ -504,4 +505,17 @@ export default {
     room: rootGetters.GET_CONFIG.autoJoinRoom,
     password: rootGetters.GET_CONFIG.autoJoinPassword,
   }),
+
+  START_CLIENT_POLLER: async ({ getters }) => {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const delayPromise = delay(getters['settings/GET_CLIENTPOLLINTERVAL']);
+
+      // eslint-disable-next-line no-await-in-loop
+      await getters.GET_CHOSEN_CLIENT.getTimeline().catch(() => { });
+      // eslint-disable-next-line no-await-in-loop
+      await delayPromise;
+    }
+  },
+
 };

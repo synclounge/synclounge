@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="server">
+  <v-container class="pt-0">
     <v-row
       v-if="!libraries && !browsingLibrary && !selectedItem"
       align="center"
@@ -17,9 +17,8 @@
       </v-col>
     </v-row>
 
-    <div
+    <template
       v-if="!browsingLibrary && !selectedItem && libraries"
-      class="mt-3"
     >
       <div v-if="!libraries && !browsingLibrary">
         <v-progress-circular
@@ -27,19 +26,18 @@
           large
         />
       </div>
-      <h4> Libraries </h4>
-      <v-layout
+
+      <v-subheader>Libraries</v-subheader>
+      <v-row
         v-if="libraries && !browsingLibrary"
-        row
-        wrap
+        no-gutters
       >
-        <v-flex
-          v-for="library in filteredLibraries"
+        <v-col
+          v-for="library in libraries"
           :key="library.name"
-          xs12
-          md3
-          xl2
-          lg2
+          sm="12"
+          md="3"
+          lg="2"
           class="pa-1"
         >
           <v-card
@@ -67,120 +65,152 @@
               </h2>
             </div>
           </v-card>
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
+
       <v-divider
-        v-if="subsetOnDeck(onDeckItemsPer).length > 0"
+        v-if="subsetOnDeck.length > 0"
         class="mt-3 ma-2"
       />
-      <v-layout
-        v-if="subsetOnDeck(onDeckItemsPer).length > 0"
-        row
-        wrap
+
+      <v-row
+        v-if="subsetOnDeck.length > 0"
+        no-gutters
       >
-        <v-flex xs6>
-          <v-subheader>On Deck</v-subheader>
-        </v-flex>
-        <v-flex xs6>
-          <span style="float:right; user-select: none;">
-            <v-icon
-              style="margin-right: 15px;cursor: pointer"
-              :style="onDeckDownStyle"
-              @click="onDeckDown"
-            >fa-angle-left</v-icon><v-icon
-              :style="onDeckUpStyle"
-              style="cursor: pointer"
-              @click="onDeckUp"
-            >fa-angle-right</v-icon>
-          </span>
-        </v-flex>
-      </v-layout>
-      <v-layout
+        <v-col
+          cols="auto"
+        >
+          <v-subheader class="compact-header">
+            On Deck
+          </v-subheader>
+        </v-col>
+
+        <v-col
+          cols="auto"
+          class="ml-auto"
+        >
+          <v-icon
+            style="cursor: pointer"
+            :style="onDeckDownStyle"
+            @click="onDeckDown"
+          >
+            navigate_before
+          </v-icon>
+
+          <v-icon
+            :style="onDeckUpStyle"
+            style="cursor: pointer"
+            @click="onDeckUp"
+          >
+            navigate_next
+          </v-icon>
+        </v-col>
+      </v-row>
+
+      <v-row
         v-if="onDeck"
-        row
-        wrap
+        no-gutters
       >
-        <v-flex
-          v-for="content in subsetOnDeck()"
+        <v-col
+          v-for="content in subsetOnDeck"
           :key="content.key"
-          xs12
-          sm6
-          md4
-          lg3
+          sm="6"
+          md="4"
+          lg="3"
           class="pb-3 pa-1"
         >
           <plexthumb
             :content="content"
-            :server="server"
+            :server-id="machineIdentifier"
             type="art"
             @contentSet="setContent(content)"
           />
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
+
       <v-divider
-        v-if="subsetRecentlyAdded(recentItemsPer).length > 0"
+        v-if="subsetRecentlyAdded.length > 0"
         class="mt-3 ma-2"
       />
-      <v-layout
-        v-if="subsetRecentlyAdded(recentItemsPer).length > 0"
-        row
-        wrap
+
+      <v-row
+        v-if="subsetRecentlyAdded.length > 0"
+        no-gutters
       >
-        <v-flex xs6>
-          <h4>Recently Added</h4>
-        </v-flex>
-        <v-flex xs6>
-          <span style="float:right; user-select: none;"> <v-icon
-            fa
-            style="margin-right: 15px;cursor: pointer;"
+        <v-col cols="auto">
+          <v-subheader class="compact-header">
+            Recently Added
+          </v-subheader>
+        </v-col>
+
+        <v-col
+          cols="auto"
+          class="ml-auto"
+        >
+          <v-icon
+            style="cursor: pointer;"
             :style="recentlyAddedDownStyle"
             @click="recentlyAddedDown"
-          >fa-angle-left</v-icon><v-icon
-            fa
+          >
+            navigate_before
+          </v-icon>
+
+          <v-icon
             :style="recentlyAddedUpStyle"
             style="cursor: pointer"
             @click="recentlyAddedUp"
-          >fa-angle-right</v-icon>
-          </span>
-        </v-flex>
-      </v-layout>
-      <v-layout
+          >
+            navigate_next
+          </v-icon>
+        </v-col>
+      </v-row>
+
+      <v-row
         v-if="recentlyAdded"
-        class="row pt-2"
-        row
-        wrap
-        justify-space-between
+        justify="space-between"
+        no-gutters
       >
-        <v-flex
-          v-for="content in subsetRecentlyAdded(recentItemsPer)"
+        <v-col
+          v-for="content in subsetRecentlyAdded"
           :key="content.key"
-          xs4
-          sm2
-          md1
-          xl1
-          lg1
+          sm="2"
+          md="1"
           class="pb-3 pa-3"
         >
           <plexthumb
             :content="content"
-            :server="server"
+            :server-id="machineIdentifier"
             type="thumb"
             full-title
             locked
             @contentSet="setContent(content)"
           />
-        </v-flex>
-      </v-layout>
-    </div>
+        </v-col>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
 <script>
 import { sample } from 'lodash-es';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+
+import sizing from '@/mixins/sizing';
 
 export default {
   components: {
     plexthumb: () => import('./plexthumb.vue'),
+  },
+
+  mixins: [
+    sizing,
+  ],
+
+  props: {
+    machineIdentifier: {
+      type: String,
+      required: true,
+    },
   },
 
   data() {
@@ -200,6 +230,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters('plexservers', [
+      'GET_MEDIA_IMAGE_URL',
+    ]),
+
     recentItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs': return 3;
@@ -222,32 +256,8 @@ export default {
       }
     },
 
-    clientIdentifier() {
-      return this.$route.params.machineIdentifier;
-    },
-
-    server() {
-      return this.plex.servers[this.clientIdentifier];
-    },
-
-    plex() {
-      return this.$store.getters.getPlex;
-    },
-
-    filteredLibraries() {
-      const data = [];
-      if (this.libraries) {
-        this.libraries.MediaContainer.Directory.forEach((library) => {
-          if (library.type !== 'artist' || library.agent !== 'tv.plex.agents.music') {
-            data.push(library);
-          }
-        });
-      }
-      return data;
-    },
-
     onDeckUpStyle() {
-      if ((this.onDeckOffset + this.onDeckItemsPer) >= this.onDeck.MediaContainer.Metadata.length) {
+      if ((this.onDeckOffset + this.onDeckItemsPer) >= this.onDeck.length) {
         return {
           opacity: 0.5,
         };
@@ -278,7 +288,7 @@ export default {
 
     recentlyAddedUpStyle() {
       if (this.recentlyAddedOffset + this.recentItemsPer
-        >= this.recentlyAdded.MediaContainer.Metadata.length) {
+        >= this.recentlyAdded.length) {
         return {
           opacity: 0.5,
         };
@@ -286,47 +296,82 @@ export default {
 
       return {};
     },
+
+
+    subsetOnDeck() {
+      if (!this.onDeck) {
+        return [];
+      }
+      return this.onDeck.slice(this.onDeckOffset,
+        this.onDeckOffset + this.onDeckItemsPer);
+    },
+
+    subsetRecentlyAdded() {
+      if (!this.recentlyAdded) {
+        return [];
+      }
+
+      return this.recentlyAdded.slice(this.recentlyAddedOffset,
+        this.recentlyAddedOffset + this.recentItemsPer);
+    },
   },
 
-  async mounted() {
-    this.server.getAllLibraries().then((data) => {
-      if (data) {
-        this.libraries = data;
-      } else {
-        this.status = 'Error loading libraries!';
-      }
-    });
-
-    this.server.getRecentlyAddedAll(0, 12).then((result) => {
-      if (result) {
-        this.recentlyAdded = result;
-        this.setBackground();
-      }
-    });
-
-    this.updateOnDeck();
+  mounted() {
+    return Promise.all([
+      this.fetchAllLibraries(),
+      this.fetchRecentlyAdded(),
+      this.fetchOnDeck(),
+    ]);
   },
 
   methods: {
+    ...mapActions('plexservers', [
+      'FETCH_RECENTLY_ADDED_MEDIA',
+      'FETCH_ALL_LIBRARIES',
+      'FETCH_ON_DECK',
+    ]),
+
+    ...mapMutations([
+      'SET_BACKGROUND',
+    ]),
+
+    async fetchAllLibraries() {
+      try {
+        const libraries = await this.FETCH_ALL_LIBRARIES(this.machineIdentifier);
+        this.libraries = libraries.filter((library) => library.type !== 'artist'
+          || library.agent !== 'tv.plex.agents.music');
+      } catch (e) {
+        this.status = 'Error loading libraries!';
+      }
+    },
+
+    async fetchRecentlyAdded() {
+      this.recentlyAdded = await this.FETCH_RECENTLY_ADDED_MEDIA(this.machineIdentifier);
+      if (this.recentlyAdded) {
+        this.setBackground();
+      }
+    },
+
+
+    async fetchOnDeck() {
+      this.onDeck = await this.FETCH_ON_DECK({
+        machineIdentifier: this.machineIdentifier,
+        start: 0,
+        size: 10,
+      });
+    },
+
     setContent(content) {
       this.selectedItem = content;
     },
 
     setLibrary(library) {
-      this.$router.push(`/browse/${this.server.clientIdentifier}/${library.key}`);
+      this.$router.push(`/browse/${this.machineIdentifier}/${library.key}`);
       // this.browsingLibrary = library
     },
 
-    updateOnDeck() {
-      this.server.getOnDeck(0, 10).then((result) => {
-        if (result) {
-          this.onDeck = result;
-        }
-      });
-    },
-
     onDeckDown() {
-      if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
+      if (!this.onDeck) {
         return;
       }
 
@@ -338,11 +383,11 @@ export default {
     },
 
     onDeckUp() {
-      if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
+      if (!this.onDeck) {
         return;
       }
 
-      if (this.onDeckOffset + this.onDeckItemsPer >= this.onDeck.MediaContainer.Metadata.length) {
+      if (this.onDeckOffset + this.onDeckItemsPer >= this.onDeck.length) {
         // This would overflow!
       } else {
         this.onDeckOffset += this.onDeckItemsPer;
@@ -350,13 +395,12 @@ export default {
     },
 
     recentlyAddedUp() {
-      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer
-        || !this.recentlyAdded.MediaContainer.Metadata) {
+      if (!this.recentlyAdded) {
         return;
       }
 
       if (this.recentlyAddedOffset + this.recentItemsPer
-        >= this.recentlyAdded.MediaContainer.Metadata.length) {
+        >= this.recentlyAdded.length) {
         // This would overflow!
       } else {
         this.recentlyAddedOffset += this.recentItemsPer;
@@ -364,8 +408,7 @@ export default {
     },
 
     recentlyAddedDown() {
-      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer
-        || !this.recentlyAdded.MediaContainer.Metadata) {
+      if (!this.recentlyAdded) {
         return;
       }
 
@@ -377,49 +420,41 @@ export default {
     },
 
     setBackground() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-
-      const randomItem = sample(this.recentlyAdded.MediaContainer.Metadata);
-      const url = randomItem.art;
-      this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(url, w / 4, h / 1, 6));
+      this.$store.commit('SET_BACKGROUND',
+        this.GET_MEDIA_IMAGE_URL({
+          machineIdentifier: this.machineIdentifier,
+          mediaUrl: sample(this.recentlyAdded).art,
+          width: this.getAppWidth() / 4,
+          height: this.getAppHeight() / 1,
+          blur: 6,
+        }));
     },
 
-    subsetOnDeck() {
-      if (!this.onDeck || !this.onDeck.MediaContainer || !this.onDeck.MediaContainer.Metadata) {
-        return [];
-      }
-      return this.onDeck.MediaContainer.Metadata.slice(this.onDeckOffset,
-        this.onDeckOffset + this.onDeckItemsPer);
-    },
-
-    subsetRecentlyAdded() {
-      if (!this.recentlyAdded || !this.recentlyAdded.MediaContainer
-        || !this.recentlyAdded.MediaContainer.Metadata) {
-        return [];
-      }
-
-      return this.recentlyAdded.MediaContainer.Metadata.slice(this.recentlyAddedOffset,
-        this.recentlyAddedOffset + this.recentItemsPer);
-    },
 
     getArtLibrary(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-      return this.server.getUrlForLibraryLoc(object.art, w / 1, h / 1, 15);
+      return this.GET_MEDIA_IMAGE_URL({
+        machineIdentifier: this.machineIdentifier,
+        mediaUrl: object.art,
+        width: this.getAppWidth(),
+        height: this.getAppHeight(),
+        blur: 15,
+      });
     },
 
     getThumb(object) {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-      return this.server.getUrlForLibraryLoc(object.thumb, w / 4, h / 4);
+      return this.GET_MEDIA_IMAGE_URL({
+        machineIdentifier: this.machineIdentifier,
+        mediaUrl: object.thumb,
+        width: this.getAppWidth() / 4,
+        height: this.getAppHeight() / 4,
+      });
     },
   },
 };
 </script>
+
+<style scoped>
+div.compact-header {
+  height: auto;
+}
+</style>

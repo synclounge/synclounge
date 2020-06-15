@@ -2,8 +2,8 @@ import axios from 'axios';
 
 import promiseutils from '@/utils/promiseutils';
 
-import PlexServer from '../helpers/PlexServer';
-import PlexClient from '../helpers/PlexClient';
+import PlexServer from './helpers/PlexServer';
+import PlexClient from './helpers/PlexClient';
 
 export default {
   REQUEST_PLEX_INIT_AUTH: ({ getters }) => axios.post('https://plex.tv/api/v2/pins', null, {
@@ -60,7 +60,7 @@ export default {
         const tempClient = new PlexClient(device);
         tempClient.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
         tempClient.commit = commit;
-        commit('PLEX_ADD_CLIENT', tempClient);
+        commit('plexclients/ADD_PLEX_CLIENT', tempClient, { root: true });
       } else if (device.provides.indexOf('server') !== -1) {
         // This is a Server
         const tempServer = new PlexServer(device);
@@ -70,7 +70,7 @@ export default {
           accessToken: tempServer.accessToken,
         }).catch(() => null);
 
-        commit('PLEX_ADD_SERVER', tempServer);
+        commit('plexservers/ADD_PLEX_SERVER', tempServer, { root: true });
       }
     }));
 

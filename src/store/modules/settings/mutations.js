@@ -20,9 +20,6 @@ export default {
   SET_ALTUSERNAME: (state, alt) => {
     state.altUsername = alt;
   },
-  SET_BLOCKEDSERVERS: (state, blocked) => {
-    state.blockedServers = blocked;
-  },
   SET_CUSTOM_SERVER_USER_INPUTTED_URL: (state, url) => {
     state.customServerUserInputtedUrl = url;
   },

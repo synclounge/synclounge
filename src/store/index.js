@@ -6,11 +6,7 @@ import actions from './actions';
 import state from './state';
 import mutations from './mutations';
 import getters from './getters';
-
-import synclounge from './modules/synclounge';
-import settings from './modules/settings';
-import plex from './modules/plex';
-import slplayer from './modules/slplayer';
+import modules from './modules';
 
 Vue.use(Vuex);
 
@@ -18,8 +14,7 @@ const persistedState = createPersistedState({
   paths: [
     'settings',
     'plex.user',
-    'plex.userAuthorized',
-    'plex.lastServerId',
+    'plexservers.lastServerId',
   ],
 });
 
@@ -28,12 +23,7 @@ const store = new Vuex.Store({
   mutations,
   actions,
   getters,
-  modules: {
-    synclounge,
-    plex,
-    settings,
-    slplayer,
-  },
+  modules,
   plugins: [persistedState],
 });
 

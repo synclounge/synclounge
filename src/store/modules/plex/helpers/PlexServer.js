@@ -44,13 +44,6 @@ class PlexServer {
     return data;
   }
 
-  // Functions for dealing with media
-  async search(searchTerm) {
-    // This function hits the PMS using the /search endpoint and returns what the server returns if valid
-    const result = await this.hitApi('/search', { query: searchTerm });
-    return result.MediaContainer.Metadata;
-  }
-
   async getMediaByRatingKey(ratingKey) {
     // This function hits the PMS and returns the item at the ratingKey
     try {
@@ -83,14 +76,6 @@ class PlexServer {
     });
   }
 
-  getUrlForLibraryLoc(location, width, height, blur) {
-    if (this.chosenConnection) {
-      return `${this.chosenConnection.uri}/photo/:/transcode?url=${location}&X-Plex-Token=${
-        this.accessToken
-        }&height=${Math.floor(height)}&width=${Math.floor(width)}&blur=${blur}`;
-    }
-    return '';
-  }
 
   async getRandomItem() {
     const data = await this.getAllLibraries();
@@ -146,20 +131,6 @@ class PlexServer {
     return this.hitApi('/library/recentlyAdded', {});
   }
 
-  getOnDeck(start, size) {
-    return this.hitApi('/library/onDeck', {
-      'X-Plex-Container-Start': start,
-      'X-Plex-Container-Size': size,
-    });
-  }
-
-  getRelated(ratingKey, size) {
-    return this.hitApi(`/hubs/metadata/${ratingKey}/related`, {
-      excludeFields: 'summary',
-      count: size,
-    });
-  }
-
   getSeriesData(ratingKey) {
     return this.hitApi(`/library/metadata/${ratingKey}`, {
       includeConcerts: 1,
@@ -170,26 +141,6 @@ class PlexServer {
       asyncRefreshAnalysis: 1,
       asyncRefreshLocalMediaAgent: 1,
     });
-  }
-
-  async getSeriesChildren(ratingKey, start, size, excludeAllLeaves, library) {
-    try {
-      const data = await this.hitApi(`/library/metadata/${ratingKey}/children`, {
-        'X-Plex-Container-Start': start,
-        'X-Plex-Container-Size': size,
-        excludeAllLeaves,
-      });
-      if (library) {
-        for (let i = 0; i < data.MediaContainer.Metadata.length; i += 1) {
-          data.MediaContainer.Metadata[i].librarySectionID = library;
-          // this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey,
-          // data.MediaContainer.Metadata[i]])
-        }
-      }
-      return data;
-    } catch (e) {
-      return false;
-    }
   }
 
   handleMetadata(result) {

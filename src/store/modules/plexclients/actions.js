@@ -35,10 +35,10 @@ export default {
     console.log('Updating timeline for', client, 'with', timeline);
   },
 
-  PLEX_CLIENT_PLAY_MEDIA: async ({ getters, commit }, {
+  PLEX_CLIENT_PLAY_MEDIA: async ({ getters, commit, rootGetters }, {
     key, mediaIndex, serverIdentifier, offset,
   }) => {
-    const server = getters.GET_PLEX_SERVER(serverIdentifier);
+    const server = rootGetters['plexservers/GET_PLEX_SERVER'](serverIdentifier);
 
     if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
       // do raw stuff

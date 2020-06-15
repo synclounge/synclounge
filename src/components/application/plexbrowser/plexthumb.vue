@@ -18,7 +18,7 @@
           class="white--text"
           style="position:relative"
           :height="calculatedHeight"
-          :src="getImg(content)"
+          :src="imgUrl"
         >
           <v-container
             class="pa-0 ma-0"
@@ -27,16 +27,16 @@
             style="position:relative"
           >
             <v-row>
-              <v-col xs12>
+              <v-col cols="12">
                 <small
-                  v-if="showServer !== undefined"
+                  v-if="showServer"
                   class="ma-1"
                   style="position:absolute; top:0;text-align:right;right:0;
                   background: rgba(0, 0, 0, .5)"
                 >
-                  {{ server.name }}</small>
+                  {{ GET_PLEX_SERVER(serverId).name }}</small>
                 <div
-                  v-if="showUnwatchedFlag && showServer == undefined"
+                  v-if="showUnwatchedFlag && !showServer"
                   class="pt-content-unwatched pt-orange unwatched"
                 >
                   <span class="pa-2 black--text">
@@ -45,8 +45,9 @@
                     </span>
                   </span>
                 </div>
+
                 <div
-                  v-if="content.Media && content.Media.length != 1 && showServer == undefined"
+                  v-if="content.Media && content.Media.length != 1 && !showServer"
                   style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)"
                 >
                   <span class="pa-2 black--text">
@@ -55,31 +56,19 @@
                     </span>
                   </span>
                 </div>
-                <v-container
-                  fill-height
-                  fluid
-                  class="pa-0"
-                  style="max-width:100%"
-                >
-                  <v-row
-                    justify="end"
-                    align="end"
-                  >
-                    <v-col xs12>
-                      <v-progress-linear
-                        v-if="showProgressBar"
-                        style="width:100%"
-                        class="pa-0 mb-0 ma-0 pt-content-progress"
-                        height="1"
-                        :value="unwatchedPercent"
-                      />
-                    </v-col>
-                  </v-row>
-                </v-container>
               </v-col>
             </v-row>
           </v-container>
         </v-img>
+
+        <v-progress-linear
+          v-if="showProgressBar"
+          v-slot:progress
+          style="width:100%"
+          class="pa-0 mb-0 ma-0 pt-content-progress"
+          height="1"
+          :value="unwatchedPercent"
+        />
       </v-card>
 
       <v-row
@@ -117,6 +106,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import VanillaTilt from 'vanilla-tilt';
 import contentTitle from '@/mixins/contentTitle';
 
@@ -127,6 +117,11 @@ export default {
       type: Boolean,
     },
 
+    serverId: {
+      type: String,
+      required: true,
+    },
+
     content: {
       type: Object,
       default: () => {},
@@ -135,11 +130,6 @@ export default {
     type: {
       type: String,
       default: '',
-    },
-
-    server: {
-      type: Object,
-      default: () => {},
     },
 
     height: {
@@ -177,16 +167,50 @@ export default {
   },
 
   computed: {
-    plex() {
-      return this.$store.getters.getPlex;
-    },
+    ...mapGetters('plexservers', [
+      'GET_MEDIA_IMAGE_URL',
+      'GET_PLEX_SERVER',
+    ]),
 
-    serverId() {
-      return (
-        this.$route.params.machineIdentifier
-        || this.server.clientIdentifier
-        || this.$route.params.clientIdentifier
-      );
+    imgUrl() {
+      const width = Math.round(this.fullwidth * 2);
+      if (this.type === 'thumb') {
+        return this.GET_MEDIA_IMAGE_URL({
+          machineIdentifier: this.serverId,
+          mediaUrl: this.content.thumb,
+          width,
+          height: 1000,
+        });
+      }
+
+      if (!this.hovering && this.spoilerFilter && !this.content.viewCount) {
+        return this.GET_MEDIA_IMAGE_URL({
+          machineIdentifier: this.serverId,
+          mediaUrl: this.content.art,
+          width,
+          height: 1000,
+        });
+      }
+
+      if (this.img) {
+        return this.img;
+      }
+
+      if (this.type === 'art') {
+        return this.GET_MEDIA_IMAGE_URL({
+          machineIdentifier: this.serverId,
+          mediaUrl: this.content.art,
+          width,
+          height: 1000,
+        });
+      }
+
+      return this.GET_MEDIA_IMAGE_URL({
+        machineIdentifier: this.serverId,
+        mediaUrl: this.content.thumb,
+        width,
+        height: 1000,
+      });
     },
 
     link() {
@@ -342,30 +366,6 @@ export default {
       if (this.$refs.bottomText) {
         this.bottomtextheight = this.$refs.bottomText.offsetHeight;
       }
-    },
-
-    getImg(object) {
-      const w = Math.round(this.fullwidth * 2);
-      if (this.type === 'thumb') {
-        return this.server.getUrlForLibraryLoc(object.thumb, w, 1000);
-      }
-      if (
-        !this.hovering
-        && this.spoilerFilter
-        && (!this.content.viewCount || this.content.viewCount === 0)
-      ) {
-        return this.server.getUrlForLibraryLoc(object.art, w, 1000);
-      }
-      if (this.img) {
-        return this.img;
-      }
-      if (this.type === 'art') {
-        return this.server.getUrlForLibraryLoc(object.art, w, 1000);
-      }
-      return this.server.getUrlForLibraryLoc(object.thumb, w, 1000);
-    },
-    reset() {
-      this.browsingContent = false;
     },
   },
 };

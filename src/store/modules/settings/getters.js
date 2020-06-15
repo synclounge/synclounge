@@ -22,7 +22,6 @@ export default {
   GET_CUSTOMSERVER: (state, getters, rootState, rootGetters) => coalesce(state.customServer,
     rootGetters.GET_CONFIG.customServer),
 
-  GET_BLOCKEDSERVERS: (state) => state.blockedServers,
   GET_SLPLAYERQUALITY: (state, getters, rootState, rootGetters) => coalesce(
     state.slPlayerQuality,
     rootGetters.GET_CONFIG.slPlayerQuality,

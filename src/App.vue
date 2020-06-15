@@ -113,7 +113,7 @@
 
         <v-container
           v-if="(GET_CONFIG.fetchConfig && !GET_CONFIGURATION_FETCHED
-            || (getPlex && !IS_DONE_FETCHING_DEVICES)) && $route.protected"
+            || !IS_DONE_FETCHING_DEVICES) && $route.protected"
           fill-height
         >
           <v-row
@@ -237,10 +237,8 @@ export default {
 
   computed: {
     ...mapGetters([
-      'getPlex',
       'getItemCache',
       'getLibraryCache',
-      'GET_CHOSEN_CLIENT',
       'getConnected',
       'getRoom',
       'getServer',
@@ -253,6 +251,13 @@ export default {
       'GET_CONFIG',
       'GET_CONFIGURATION_FETCHED',
       'GET_CONFIGURATION_FETCHED_ERROR',
+    ]),
+    ...mapGetters('plexclients', [
+      'GET_CHOSEN_CLIENT_ID',
+      'GET_CLIENT_PLAYING_METADATA',
+    ]),
+    ...mapGetters('plexservers', [
+      'GET_PLEX_SERVER',
     ]),
     ...mapState(['isRightSidebarOpen']),
 
@@ -285,7 +290,7 @@ export default {
       ];
       const map = {
         machineIdentifier: () => ({
-          text: this.getPlex.servers[this.$route.params.machineIdentifier].name,
+          text: this.GET_PLEX_SERVER(this.$route.params.machineIdentifier).name,
           to: `/browse/${this.$route.params.machineIdentifier}`,
         }),
         sectionId: () => ({
@@ -323,9 +328,7 @@ export default {
     },
 
     showNowPlaying() {
-      return (this.GET_CHOSEN_CLIENT.clientPlayingMetadata
-        && this.$route.name === 'browse'
-      );
+      return this.GET_CLIENT_PLAYING_METADATA && this.$route.name === 'browse';
     },
 
     showRightDrawerButton() {
@@ -392,11 +395,12 @@ export default {
     });
 
     window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
-      if (this.GET_CHOSEN_CLIENT.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
+      if (this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10' && data[1]) {
         this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
       }
+
       if (
-        this.GET_CHOSEN_CLIENT.clientIdentifier !== 'PTPLAYER9PLUS10'
+        this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
         && !data[1]
         && this.$route.fullPath.indexOf('/nowplaying') > -1
       ) {

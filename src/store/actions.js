@@ -1,8 +1,5 @@
 import axios from 'axios';
 
-import delay from '@/utils/delay';
-
-
 function sendNotification(message) {
   return window.EventBus.$emit('notification', message);
 }
@@ -32,7 +29,7 @@ export default {
         if (metadata.type === 'episode') {
           sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
             metadata.index
-            } from ${server.name}`);
+          } from ${server.name}`);
         }
 
         // TODO: come and fix this
@@ -177,18 +174,6 @@ export default {
 
   TOGGLE_RIGHT_SIDEBAR_OPEN: ({ commit }) => {
     commit('TOGGLE_RIGHT_SIDEBAR_OPEN');
-  },
-
-  START_CLIENT_POLLER: async ({ getters }) => {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const delayPromise = delay(getters['settings/GET_CLIENTPOLLINTERVAL']);
-
-      // eslint-disable-next-line no-await-in-loop
-      await getters.GET_CHOSEN_CLIENT.getTimeline().catch(() => { });
-      // eslint-disable-next-line no-await-in-loop
-      await delayPromise;
-    }
   },
 
   TRIGGER_MANUAL_SYNC: ({ commit }) => {

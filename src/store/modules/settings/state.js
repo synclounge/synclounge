@@ -16,7 +16,6 @@ const state = () => ({
     image: 'synclounge-white.png',
   },
   customServerUserInputtedUrl: 'http://',
-  blockedServers: [],
   slPlayerQuality: null,
   slPlayerVolume: null,
   slPlayerForceTranscode: null,

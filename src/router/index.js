@@ -91,6 +91,7 @@ export default new Router({
         protected: true,
       },
       name: 'nowplaying',
+      props: true,
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
 
@@ -110,6 +111,7 @@ export default new Router({
         protected: true,
       },
       name: 'server',
+      props: true,
       component: () => import('../components/application/plexbrowser/plexserver.vue'),
     },
     {
@@ -128,6 +130,7 @@ export default new Router({
         protected: true,
       },
       name: 'content',
+      props: true,
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
     {
@@ -158,6 +161,7 @@ export default new Router({
         protected: true,
       },
       name: 'contentspecific',
+      props: true,
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
     {
@@ -168,6 +172,7 @@ export default new Router({
         protected: true,
       },
       name: 'contentnosection',
+      props: true,
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
   ],

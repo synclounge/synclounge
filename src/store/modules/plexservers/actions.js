@@ -1,5 +1,5 @@
 import { sample, maxBy } from 'lodash-es';
-import scoreMedia from '../helpers/mediascoring';
+import scoreMedia from './mediascoring';
 
 export default {
   getRandomThumb: async ({ getters, dispatch }) => {
@@ -26,6 +26,10 @@ export default {
         },
       });
 
+    if (!data.MediaContainer.Metadata) {
+      return [];
+    }
+
     return data.MediaContainer.Metadata.map((result) => ({
       ...result,
       machineIdentifier,
@@ -41,7 +45,7 @@ export default {
     //   data.MediaContainer.librarySectionTitle,
     // ]);
 
-    return data;
+    return data.MediaContainer.Metadata[0];
   },
 
   SEARCH_UNBLOCKED_PLEX_SERVERS: ({ getters, dispatch }, query) => Promise.allSettled(
@@ -77,5 +81,62 @@ export default {
 
     console.log(bestResult);
     return bestResult;
+  },
+
+
+  FETCH_ON_DECK: async ({ getters }, { machineIdentifier, start, size }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/library/onDeck',
+      {
+        params: {
+          'X-Plex-Container-Start': start,
+          'X-Plex-Container-Size': size,
+        },
+      });
+
+    return data.MediaContainer.Metadata;
+  },
+
+  FETCH_ALL_LIBRARIES: async ({ getters }, machineIdentifier) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/library/sections');
+    // if (data && data.MediaContainer) {
+    //   data.MediaContainer.Directory.forEach((library) => {
+    //     this.commit('SET_LIBRARYCACHE', [library.key, this.clientIdentifier, library.title]);
+    //   });
+    // }
+    return data.MediaContainer.Directory;
+  },
+
+  FETCH_RECENTLY_ADDED_MEDIA: async ({ getters }, machineIdentifier) => {
+    const { data } = await getters
+      .GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/library/recentlyAdded');
+
+    return data.MediaContainer.Metadata;
+  },
+
+
+  FETCH_MEDIA_CHILDREN: async ({ getters }, {
+    machineIdentifier, key, start, size, excludeAllLeaves,
+  }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get(`${key}/children`, {
+      'X-Plex-Container-Start': start,
+      'X-Plex-Container-Size': size,
+      excludeAllLeaves,
+    });
+
+
+    return data.MediaContainer.Metadata.map((child) => ({
+      ...child,
+      librarySectionID: data.MediaContainer.librarySectionID,
+    }));
+  },
+
+
+  FETCH_RELATED: async ({ getters }, { machineIdentifier, key, count }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get(`${key}/related`, {
+      excludeFields: 'summary',
+      count,
+    });
+
+    return data.MediaContainer.Hub[0].Metadata;
   },
 };

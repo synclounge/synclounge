@@ -124,10 +124,6 @@ main {
   background: #272c38;
 }
 
-.slcontent .dialog .dialog--active {
-  box-shadow: none;
-}
-
 .v-list__tile {
   color: #ffffff;
 }

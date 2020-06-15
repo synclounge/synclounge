@@ -146,9 +146,9 @@
                 }}</v-list-item-subtitle>
               </span>
               Watching on {{ getHostUser.playerProduct || 'Unknown Plex Client' }}
-              <span v-if="getPlex.servers[getHostUser.machineIdentifier]">
+              <span v-if="GET_PLEX_SERVER(getHostUser.machineIdentifier)">
                 <br>
-                via {{ getPlex.servers[getHostUser.machineIdentifier].name }}
+                via {{ GET_PLEX_SERVER(getHostUser.machineIdentifier).name }}
               </span>
             </v-tooltip>
           </v-list-item-content>
@@ -235,9 +235,9 @@
                   }}</v-list-item-subtitle>
                 </span>
                 Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
-                <span v-if="getPlex.servers[user.machineIdentifier]">
+                <span v-if="GET_PLEX_SERVER(user.machineIdentifier)">
                   <br>
-                  via {{ getPlex.servers[user.machineIdentifier].name }}
+                  via {{ GET_PLEX_SERVER(user.machineIdentifier).name }}
                 </span>
               </v-tooltip>
             </v-list-item-content>
@@ -328,7 +328,16 @@ export default {
 
   computed: {
     ...mapState(['me', 'isRightSidebarOpen']),
-    ...mapGetters(['getPlex', 'getPartyPausing', 'getUsers', 'getRoom', 'getHostUser']),
+    ...mapGetters([
+      'getPartyPausing',
+      'getUsers',
+      'getRoom',
+      'getHostUser',
+    ]),
+
+    ...mapGetters('plexservers', [
+      'GET_PLEX_SERVER',
+    ]),
 
     serverDelay() {
       return Math.round(
