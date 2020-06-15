@@ -36,17 +36,18 @@ export default {
   },
 
   PLEX_CLIENT_PLAY_MEDIA: async ({ getters, commit, rootGetters }, {
-    key, mediaIndex, serverIdentifier, offset,
+    key, mediaIndex, metadata, serverIdentifier, offset,
   }) => {
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](serverIdentifier);
 
     if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
       // do raw stuff
       // commit the proper stuff
-      commit('slplayer/SET_PLEX_SERVER_ID', serverIdentifier);
-      commit('slplayer/SET_KEY', key);
-      commit('slplayer/SET_MEDIA_INDEX', mediaIndex);
-      commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0);
+      commit('slplayer/SET_METADATA', metadata, { root: true });
+      commit('slplayer/SET_PLEX_SERVER_ID', serverIdentifier, { root: true });
+      commit('slplayer/SET_KEY', key, { root: true });
+      commit('slplayer/SET_MEDIA_INDEX', mediaIndex, { root: true });
+      commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
       router.push('/player');
       // TODO: navigate there lol
     } else {

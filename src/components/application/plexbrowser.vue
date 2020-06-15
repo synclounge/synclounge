@@ -242,15 +242,16 @@
                   justify="center"
                   align="center"
                 >
-                  <v-col xs4>
+                  <v-col cols="4">
                     <v-img
                       :src="getLogos.plex.standard"
                       height="110px"
                       contain
                     />
                   </v-col>
+
                   <v-col
-                    xs8
+                    cols="8"
                     class="pl-2"
                   >
                     <div>

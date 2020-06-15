@@ -241,6 +241,7 @@ export default {
 
   computed: {
     ...mapState(['manualSyncQueued', 'me']),
+
     ...mapGetters('slplayer', [
       'GET_METADATA',
       'GET_SUBTITLE_STREAMS',
@@ -259,6 +260,7 @@ export default {
       'ARE_PLAYER_CONTROLS_SHOWN',
       'GET_PLAYER_UI',
     ]),
+
     ...mapGetters('settings', [
       'GET_SLPLAYERQUALITY',
     ]),
@@ -286,7 +288,6 @@ export default {
   },
 
   created() {
-    this.metadataLoadedPromise = this.FETCH_METADATA();
     shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
@@ -338,7 +339,6 @@ export default {
 
   methods: {
     ...mapActions('slplayer', [
-      'FETCH_METADATA',
       'CHANGE_MAX_VIDEO_BITRATE',
       'CHANGE_AUDIO_STREAM',
       'CHANGE_SUBTITLE_STREAM',

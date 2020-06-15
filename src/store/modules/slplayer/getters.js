@@ -8,8 +8,7 @@ export default {
 
   GET_PLEX_SERVER_ID: (state) => state.plexServerId,
 
-  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters
-    .GET_PLEX_SERVER(getters.GET_PLEX_SERVER_ID),
+  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters['plexservers/GET_PLEX_SERVER'](getters.GET_PLEX_SERVER_ID),
 
   GET_PLEX_SERVER_ACCESS_TOKEN: (state, getters) => (getters.GET_PLEX_SERVER
     ? getters.GET_PLEX_SERVER.accessToken
@@ -87,8 +86,14 @@ export default {
     ? getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb
     : null),
 
-  GET_THUMB_URL: (state, getters) => (getters.GET_PLEX_SERVER ? getters.GET_PLEX_SERVER
-    .getUrlForLibraryLoc(getters.GET_RELATIVE_THUMB_URL, 200, 200) : null),
+  GET_THUMB_URL: (state, getters, rootState, rootGetters) => (getters.GET_PLEX_SERVER
+    ? rootGetters['plexservers/GET_MEDIA_IMAGE_URL']({
+      machineIdentifier: getters.GET_PLEX_SERVER_ID,
+      mediaUrl: getters.GET_RELATIVE_THUMB_URL,
+      width: 200,
+      height: 200,
+    })
+    : null),
 
   GET_RATING_KEY: (state, getters) => (getters.GET_KEY
     ? getters.GET_KEY.replace('/library/metadata/', '')

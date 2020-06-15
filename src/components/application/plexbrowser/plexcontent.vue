@@ -19,7 +19,6 @@
       </v-col>
     </v-row>
 
-
     <v-card
       v-if="contents"
       horizontal
@@ -27,408 +26,406 @@
       style="height: 80vh"
       class="darken-2 white--text"
     >
-      <div style=" height: 100%">
-        <v-container
-          style="background-color: rgba(0, 0, 0, 0.8); height: 100%"
-          fluid
-        >
-          <v-row>
-            <v-col
-              sm="12"
-              md="3"
-            >
-              <v-row>
-                <v-col
-                  md="12"
-                  class="pa-2"
-                >
-                  <v-img
-                    :src="thumb"
-                    height="30vh"
-                    contain
-                  />
-                </v-col>
+      <v-container
+        style="background-color: rgba(0, 0, 0, 0.8); height: 100%"
+        fluid
+      >
+        <v-row>
+          <v-col
+            sm="12"
+            md="3"
+          >
+            <v-row>
+              <v-col
+                md="12"
+                class="pa-2"
+              >
+                <v-img
+                  :src="thumb"
+                  height="30vh"
+                  contain
+                />
+              </v-col>
 
-                <v-col
-                  sm="8"
-                  md="12"
-                  class="text-center hidden-sm-and-down "
-                >
-                  <div v-if="playable">
-                    <v-btn
-                      v-if="
-                        playable &&
-                          contents.Media.length == 1 &&
-                          (contents.viewOffset == 0 || !contents.viewOffset)
-                      "
-                      block
-                      class="primary white--text"
-                      @click.native="playMedia(contents, 0)"
-                    >
-                      <v-icon> play_arrow </v-icon>
-                    </v-btn>
-
-                    <v-btn
-                      v-else
-                      block
-                      class="primary white--text"
-                      @click.native.stop="dialog = true"
-                    >
-                      <v-icon> play_arrow </v-icon>
-                    </v-btn>
-                  </div>
-
-                  <div
-                    v-if="!playable"
-                    class="pa-2"
-                  >
-                    Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
-                  </div>
-
+              <v-col
+                sm="8"
+                md="12"
+                class="text-center hidden-sm-and-down "
+              >
+                <div v-if="playable">
                   <v-btn
-                    v-if="!playable"
-                    style="background-color: #cc3f3f"
-                    class="white--text"
-                    @click.native="pressStop()"
+                    v-if="
+                      playable &&
+                        contents.Media.length == 1 &&
+                        (contents.viewOffset == 0 || !contents.viewOffset)
+                    "
+                    block
+                    class="primary white--text"
+                    @click.native="playMedia(contents, 0)"
                   >
-                    <v-icon /> Stop
+                    <v-icon> play_arrow </v-icon>
                   </v-btn>
 
-                  <div v-if="!playable">
-                    <v-btn
-                      v-if="me.role !== 'host'"
-                      :disabled="manualSyncQueued"
-                      color="blue"
-                      @click.native="doManualSync"
-                    >
-                      Manual sync
-                    </v-btn>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-col>
-
-            <v-col
-              sm="12"
-              md="9"
-              class="pa-2"
-            >
-              <h1>
-                {{ title }}
-                <span style="float: right">
-                  <v-menu>
-                    <v-btn
-                      icon
-                      class="ma-0 pa-0"
-                      dark
-                    >
-                      <v-icon>more_vert</v-icon>
-                    </v-btn>
-
-                    <v-list>
-                      <v-list-item @click="markWatched(contents)">
-                        <v-list-item-title>Mark as played</v-list-item-title>
-                      </v-list-item>
-
-                      <v-list-item
-                        :href="
-                          'https://app.plex.tv/desktop#!/server/' +
-                            contents.machineIdentifier +
-                            '/details?key=' +
-                            contents.key
-                        "
-                        target="_blank"
-                      >
-                        <v-list-item-title>Open in Plex Web</v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </span>
-              </h1>
-
-              <h4 v-if="contents.type === 'episode'">
-                Season {{ contents.parentIndex }} Episode {{ contents.index }} ({{
-                  contents.year
-                }})
-              </h4>
-
-              <h2 v-if="contents.type === 'episode'">
-                {{ contents.title }}
-              </h2>
-
-              <h3 v-else>
-                {{ contents.year }}
-              </h3>
-
-              <v-row>
-                <v-col
-                  sm="12"
-                  md="6"
-                  style="opacity:0.5"
-                >
-                  {{ length }}
-                </v-col>
-
-                <v-col
-                  sm="6"
-                >
-                  <div class="text-xs-right">
-                    <v-chip
-                      v-if="
-                        contents.Media && contents.Media[0] && contents.Media[0].videoResolution
-                      "
-                      bottom
-                      outlined
-                      left
-                    >
-                      {{ contents.Media[0].videoResolution.toUpperCase() }}
-                    </v-chip>
-
-                    <v-chip
-                      v-if="contents.contentRating"
-                      color="grey darken-2"
-                      small
-                      label
-                    >
-                      {{ contents.contentRating }}
-                    </v-chip>
-
-                    <v-chip
-                      v-if="contents.studio"
-                      color="grey darken-2"
-                      small
-                      label
-                    >
-                      {{ contents.studio }}
-                    </v-chip>
-                  </div>
-                </v-col>
-
-                <v-col
-                  cols="12"
-                  class="text-center hidden-md-and-up "
-                >
-                  <div v-if="playable">
-                    <v-btn
-                      v-if="
-                        playable &&
-                          contents.Media.length == 1 &&
-                          (contents.viewOffset == 0 || !contents.viewOffset)
-                      "
-                      block
-                      class="primary white--text"
-                      @click.native="playMedia(contents, 0)"
-                    >
-                      <v-icon> play_arrow </v-icon>
-                    </v-btn>
-
-                    <v-btn
-                      v-else
-                      block
-                      class="primary white--text"
-                      @click.native.stop="dialog = true"
-                    >
-                      <v-icon> play_arrow </v-icon>
-                    </v-btn>
-                  </div>
-
-                  <div v-else>
-                    <v-row>
-                      <v-col cols="12">
-                        <div class="pa-2">
-                          Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
-                        </div>
-                      </v-col>
-
-                      <v-col cols="12">
-                        <v-btn
-                          block
-                          style="background-color: #cc3f3f"
-                          class="white--text"
-                          @click.native="pressStop()"
-                        >
-                          <v-icon /> Stop
-                        </v-btn>
-                      </v-col>
-
-                      <v-col cols="12">
-                        <v-btn
-                          v-if="me.role !== 'host'"
-                          block
-                          :disabled="manualSyncQueued"
-                          color="blue"
-                          @click.native="doManualSync"
-                        >
-                          Manual sync
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </div>
-                </v-col>
-
-                <div style="width: 100%">
-                  <p
-                    v-if="hidden"
-                    class="pt-3"
-                    style="font-style: italic"
-                    @click="hiddenOverride = true"
-                  >
-                    Summary automatically hidden for unwatched content. Click to unhide.
-                  </p>
-
-                  <p
+                  <v-btn
                     v-else
-                    class="pt-3"
-                    style="font-style: italic"
+                    block
+                    class="primary white--text"
+                    @click.native.stop="dialog = true"
                   >
-                    {{ contents.summary }}
-                  </p>
+                    <v-icon> play_arrow </v-icon>
+                  </v-btn>
                 </div>
 
-                <v-row
-                  v-if="contents.type === 'movie'"
-                  class="hidden-sm-and-down"
-                  justify="start"
-                  align="start"
+                <div
+                  v-if="!playable"
+                  class="pa-2"
                 >
-                  <v-col
-                    v-if="contents.Role && contents.Role.length > 0"
-                    lg="3"
-                    xl="2"
+                  Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
+                </div>
+
+                <v-btn
+                  v-if="!playable"
+                  style="background-color: #cc3f3f"
+                  class="white--text"
+                  @click.native="pressStop()"
+                >
+                  <v-icon /> Stop
+                </v-btn>
+
+                <div v-if="!playable">
+                  <v-btn
+                    v-if="me.role !== 'host'"
+                    :disabled="manualSyncQueued"
+                    color="blue"
+                    @click.native="doManualSync"
                   >
-                    <v-subheader class="white--text">
-                      Featuring
-                    </v-subheader>
+                    Manual sync
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
+          </v-col>
 
-                    <div
-                      v-for="actor in contents.Role.slice(0, 6)"
-                      :key="actor.tag"
-                    >
-                      {{ actor.tag }}
-                      <span style="opacity:0.7;font-size:80%"> {{ actor.role }} </span>
-                    </div>
-                  </v-col>
-
-                  <v-col
-                    v-if="contents.Director && contents.Director.length > 0"
-                    lg="3"
-                    xl="2"
+          <v-col
+            sm="12"
+            md="9"
+            class="pa-2"
+          >
+            <h1>
+              {{ title }}
+              <span style="float: right">
+                <v-menu>
+                  <v-btn
+                    icon
+                    class="ma-0 pa-0"
+                    dark
                   >
-                    <v-subheader class="white--text">
-                      Director
-                    </v-subheader>
+                    <v-icon>more_vert</v-icon>
+                  </v-btn>
 
-                    <div
-                      v-for="director in contents.Director.slice(0, 3)"
-                      :key="director.tag"
+                  <v-list>
+                    <v-list-item @click="markWatched(contents)">
+                      <v-list-item-title>Mark as played</v-list-item-title>
+                    </v-list-item>
+
+                    <v-list-item
+                      :href="
+                        'https://app.plex.tv/desktop#!/server/' +
+                          contents.machineIdentifier +
+                          '/details?key=' +
+                          contents.key
+                      "
+                      target="_blank"
                     >
-                      {{ director.tag }}
-                    </div>
-                  </v-col>
+                      <v-list-item-title>Open in Plex Web</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </span>
+            </h1>
 
-                  <v-col
-                    v-if="contents.Producer && contents.Producer.length > 0"
-                    lg="3"
-                    xl="2"
+            <h4 v-if="contents.type === 'episode'">
+              Season {{ contents.parentIndex }} Episode {{ contents.index }} ({{
+                contents.year
+              }})
+            </h4>
+
+            <h2 v-if="contents.type === 'episode'">
+              {{ contents.title }}
+            </h2>
+
+            <h3 v-else>
+              {{ contents.year }}
+            </h3>
+
+            <v-row>
+              <v-col
+                sm="12"
+                md="6"
+                style="opacity:0.5"
+              >
+                {{ length }}
+              </v-col>
+
+              <v-col
+                sm="6"
+              >
+                <div class="text-xs-right">
+                  <v-chip
+                    v-if="
+                      contents.Media && contents.Media[0] && contents.Media[0].videoResolution
+                    "
+                    bottom
+                    outlined
+                    left
                   >
-                    <v-subheader class="white--text">
-                      Producers
-                    </v-subheader>
+                    {{ contents.Media[0].videoResolution.toUpperCase() }}
+                  </v-chip>
 
-                    <div
-                      v-for="producer in contents.Producer.slice(0, 3)"
-                      :key="producer.tag"
-                    >
-                      {{ producer.tag }}
-                    </div>
-                  </v-col>
-
-                  <v-col
-                    v-if="contents.Writer && contents.Writer.length > 0"
-                    lg="3"
-                    xl="2"
+                  <v-chip
+                    v-if="contents.contentRating"
+                    color="grey darken-2"
+                    small
+                    label
                   >
-                    <v-subheader class="white--text">
-                      Writers
-                    </v-subheader>
+                    {{ contents.contentRating }}
+                  </v-chip>
 
-                    <div
-                      v-for="writer in contents.Writer.slice(0, 3)"
-                      :key="writer.tag"
-                    >
-                      {{ writer.tag }}
-                    </div>
-                  </v-col>
-                </v-row>
+                  <v-chip
+                    v-if="contents.studio"
+                    color="grey darken-2"
+                    small
+                    label
+                  >
+                    {{ contents.studio }}
+                  </v-chip>
+                </div>
+              </v-col>
+
+              <v-col
+                cols="12"
+                class="text-center hidden-md-and-up "
+              >
+                <div v-if="playable">
+                  <v-btn
+                    v-if="
+                      playable &&
+                        contents.Media.length == 1 &&
+                        (contents.viewOffset == 0 || !contents.viewOffset)
+                    "
+                    block
+                    class="primary white--text"
+                    @click.native="playMedia(contents, 0)"
+                  >
+                    <v-icon> play_arrow </v-icon>
+                  </v-btn>
+
+                  <v-btn
+                    v-else
+                    block
+                    class="primary white--text"
+                    @click.native.stop="dialog = true"
+                  >
+                    <v-icon> play_arrow </v-icon>
+                  </v-btn>
+                </div>
+
+                <div v-else>
+                  <v-row>
+                    <v-col cols="12">
+                      <div class="pa-2">
+                        Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
+                      </div>
+                    </v-col>
+
+                    <v-col cols="12">
+                      <v-btn
+                        block
+                        style="background-color: #cc3f3f"
+                        class="white--text"
+                        @click.native="pressStop()"
+                      >
+                        <v-icon /> Stop
+                      </v-btn>
+                    </v-col>
+
+                    <v-col cols="12">
+                      <v-btn
+                        v-if="me.role !== 'host'"
+                        block
+                        :disabled="manualSyncQueued"
+                        color="blue"
+                        @click.native="doManualSync"
+                      >
+                        Manual sync
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-col>
+
+              <div style="width: 100%">
+                <p
+                  v-if="hidden"
+                  class="pt-3"
+                  style="font-style: italic"
+                  @click="hiddenOverride = true"
+                >
+                  Summary automatically hidden for unwatched content. Click to unhide.
+                </p>
+
+                <p
+                  v-else
+                  class="pt-3"
+                  style="font-style: italic"
+                >
+                  {{ contents.summary }}
+                </p>
+              </div>
+
+              <v-row
+                v-if="contents.type === 'movie'"
+                class="hidden-sm-and-down"
+                justify="start"
+                align="start"
+              >
+                <v-col
+                  v-if="contents.Role && contents.Role.length > 0"
+                  lg="3"
+                  xl="2"
+                >
+                  <v-subheader class="white--text">
+                    Featuring
+                  </v-subheader>
+
+                  <div
+                    v-for="actor in contents.Role.slice(0, 6)"
+                    :key="actor.tag"
+                  >
+                    {{ actor.tag }}
+                    <span style="opacity:0.7;font-size:80%"> {{ actor.role }} </span>
+                  </div>
+                </v-col>
+
+                <v-col
+                  v-if="contents.Director && contents.Director.length > 0"
+                  lg="3"
+                  xl="2"
+                >
+                  <v-subheader class="white--text">
+                    Director
+                  </v-subheader>
+
+                  <div
+                    v-for="director in contents.Director.slice(0, 3)"
+                    :key="director.tag"
+                  >
+                    {{ director.tag }}
+                  </div>
+                </v-col>
+
+                <v-col
+                  v-if="contents.Producer && contents.Producer.length > 0"
+                  lg="3"
+                  xl="2"
+                >
+                  <v-subheader class="white--text">
+                    Producers
+                  </v-subheader>
+
+                  <div
+                    v-for="producer in contents.Producer.slice(0, 3)"
+                    :key="producer.tag"
+                  >
+                    {{ producer.tag }}
+                  </div>
+                </v-col>
+
+                <v-col
+                  v-if="contents.Writer && contents.Writer.length > 0"
+                  lg="3"
+                  xl="2"
+                >
+                  <v-subheader class="white--text">
+                    Writers
+                  </v-subheader>
+
+                  <div
+                    v-for="writer in contents.Writer.slice(0, 3)"
+                    :key="writer.tag"
+                  >
+                    {{ writer.tag }}
+                  </div>
+                </v-col>
               </v-row>
+            </v-row>
+          </v-col>
+        </v-row>
+
+        <v-divider />
+
+        <div
+          v-if="subsetParentData.length >= 0 && contents.type == 'episode'"
+          class="hidden-xs-only"
+        >
+          <v-subheader>
+            Also in Season {{ contents.parentIndex }} of
+            {{ contents.grandparentTitle }}
+          </v-subheader>
+
+          <v-row
+            v-if="parentData"
+            justify="start"
+          >
+            <v-col
+              v-for="ep in subsetParentData"
+              :key="ep.key"
+              sm="6"
+              md="2"
+              class="pb-3"
+            >
+              <plexthumb
+                bottom-only
+                :content="ep"
+                :img="getLittleThumb(ep)"
+                :class="{ highlightBorder: ep.index === contents.index }"
+                style="margin:3%"
+                :server-id="machineIdentifier"
+                spoiler-filter
+              />
             </v-col>
           </v-row>
+        </div>
 
-          <v-divider />
-
-          <div
-            v-if="subsetParentData.length >= 0 && contents.type == 'episode'"
-            class="hidden-xs-only"
+        <div v-if="related.length > 0">
+          <v-subheader>Related Movies</v-subheader>
+          <v-container
+            fill-height
+            fluid
           >
-            <v-subheader>
-              Also in Season {{ contents.parentIndex }} of
-              {{ contents.grandparentTitle }}
-            </v-subheader>
-
             <v-row
-              v-if="parentData"
-              justify="start"
+              justify="space-around"
+              align="center"
             >
               <v-col
-                v-for="ep in subsetParentData"
-                :key="ep.key"
-                sm="6"
-                md="2"
-                class="pb-3"
+                v-for="movie in related"
+                :key="movie.key"
+                sm="4"
+                md="1"
+                class="ma-1"
               >
                 <plexthumb
-                  bottom-only
-                  :content="ep"
-                  :img="getLittleThumb(ep)"
-                  :class="{ highlightBorder: ep.index === contents.index }"
+                  :content="movie"
+                  :img="getLittleThumb(movie)"
                   style="margin:3%"
                   :server-id="machineIdentifier"
-                  spoiler-filter
+                  type="thumb"
                 />
               </v-col>
             </v-row>
-          </div>
-
-          <div v-if="related.length > 0">
-            <v-subheader>Related Movies</v-subheader>
-            <v-container
-              fill-height
-              fluid
-            >
-              <v-row
-                justify="space-around"
-                align="center"
-              >
-                <v-col
-                  v-for="movie in related"
-                  :key="movie.key"
-                  sm="4"
-                  md="1"
-                  class="ma-1"
-                >
-                  <plexthumb
-                    :content="movie"
-                    :img="getLittleThumb(movie)"
-                    style="margin:3%"
-                    :server-id="machineIdentifier"
-                    type="thumb"
-                  />
-                </v-col>
-              </v-row>
-            </v-container>
-          </div>
-        </v-container>
-      </div>
+          </v-container>
+        </div>
+      </v-container>
     </v-card>
 
     <v-dialog
@@ -704,6 +701,7 @@ export default {
 
       await this.PLEX_CLIENT_PLAY_MEDIA({
         key: this.contents.key,
+        metadata: this.contents,
         mediaIndex,
         serverIdentifier: this.$route.params.machineIdentifier,
         offset,
