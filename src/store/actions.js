@@ -13,7 +13,6 @@ export default {
       commit('SET_LAST_SERVER_ID', mediaContainer.machineIdentifier);
       const server = state.plex.servers[mediaContainer.machineIdentifier];
 
-
       // Fetch our metadata from this server
 
       server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {

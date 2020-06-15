@@ -40,7 +40,6 @@ export default {
   DOES_USER_HAVE_AUTHORIZED_SERVER: (state, getters, rootState, rootGetters) => rootGetters['config/GET_AUTHENTICATION'].type.includes('server')
   && intersection(getters.GET_PLEX_SERVER_IDS, rootGetters['config/GET_AUTHENTICATION'].authorized).length > 0,
 
-
   GET_MEDIA_IMAGE_URL: (state, getters, rootState, rootGetters) => ({
     machineIdentifier, mediaUrl, width, height, blur,
   }) => {

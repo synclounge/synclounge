@@ -28,7 +28,6 @@ const app = express();
 const server = http.Server(app);
 const router = express.Router();
 
-
 // CI stuff
 const port = process.env.WEBSOCKET_USE_PORT ? process.env.PORT : settings.server_port;
 
@@ -59,7 +58,6 @@ const socketServer = io(server, {
   },
 });
 
-
 // Setup our router
 router.get('/', (req, res) => {
   res.send('You\'ve connected to the SLServer, you\'re probably looking for the webapp.');
@@ -83,7 +81,6 @@ router.get('/users', (req, res) => {
   const users = Object.keys(socketServer.sockets.connected).length;
   return res.send(JSON.stringify({ users })).end();
 });
-
 
 socketServer.on('connection', (socket) => {
   function transferHost(user, newHostPredicate) {
@@ -394,7 +391,6 @@ socketServer.on('connection', (socket) => {
     handleDisconnect(true);
   });
 });
-
 
 console.log(`SyncLounge Server successfully started on port ${port}`);
 console.log(`Running with base URL: ${settings.serverroot}`);

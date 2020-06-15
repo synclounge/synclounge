@@ -476,7 +476,6 @@ export default {
         url,
       })));
 
-
     const aliveServerHealths = results.filter((result) => result.status === 'fulfilled')
       .map(({ value }) => value);
 

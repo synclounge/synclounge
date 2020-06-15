@@ -2,7 +2,6 @@ import { encodeUrlParams } from '@/utils/encoder';
 import contenttitleutils from '@/utils/contenttitleutils';
 import { qualities } from './qualities';
 
-
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
 
@@ -114,7 +113,6 @@ export default {
   GET_SECONDARY_TITLE: (state, getters) => (getters.GET_METADATA
     ? contenttitleutils.getSecondaryTitle(getters.GET_METADATA)
     : null),
-
 
   GET_PART_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Text-Format': 'plain',

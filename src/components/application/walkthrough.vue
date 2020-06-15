@@ -251,7 +251,6 @@ import {
   mapActions, mapGetters, mapState, mapMutations,
 } from 'vuex';
 
-
 export default {
   name: 'Walkthrough',
   components: {

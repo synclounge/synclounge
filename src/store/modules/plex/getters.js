@@ -63,7 +63,6 @@ export default {
     || rootGetters['plexservers/DOES_USER_HAVE_AUTHORIZED_SERVER']
     || getters.IS_PLEX_USER_AUTHORIZED,
 
-
   IS_PLEX_USER_AUTHORIZED: (state, getters, rootState, rootGetters) => rootGetters
     .GET_AUTHENTICATION.type.includes('user')
     && intersection(

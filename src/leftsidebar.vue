@@ -37,7 +37,6 @@
         </v-list-item-content>
       </v-list-item>
 
-
       <template v-if="IS_DONE_FETCHING_DEVICES">
         <v-list-item
           @click.stop="plexsettingstoggle = !plexsettingstoggle"

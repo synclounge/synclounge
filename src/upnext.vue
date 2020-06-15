@@ -204,7 +204,6 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .c-timer {
   height: 3px;

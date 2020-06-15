@@ -1,4 +1,3 @@
-
 import guid from '@/utils/guid';
 
 const state = () => ({
@@ -20,6 +19,5 @@ const state = () => ({
   playerControlsShownInterval: null,
   bufferingEventListener: null,
 });
-
 
 export default state;

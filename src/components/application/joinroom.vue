@@ -598,7 +598,6 @@ export default {
 };
 </script>
 
-
 <style scope>
 .server-image {
   max-height: 100%;

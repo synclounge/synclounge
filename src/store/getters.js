@@ -20,7 +20,6 @@ export default {
     },
   }),
 
-
   GET_MANUAL_SYNC_QUEUED: (state) => state.manualSyncQueued,
   GET_ME: (state) => state.me,
 

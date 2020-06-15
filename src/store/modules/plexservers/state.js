@@ -3,5 +3,4 @@ const state = () => ({
   lastServerId: null,
 });
 
-
 export default state;

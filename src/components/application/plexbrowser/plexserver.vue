@@ -297,7 +297,6 @@ export default {
       return {};
     },
 
-
     subsetOnDeck() {
       if (!this.onDeck) {
         return [];
@@ -316,8 +315,8 @@ export default {
     },
   },
 
-  mounted() {
-    return Promise.all([
+  async mounted() {
+    await Promise.all([
       this.fetchAllLibraries(),
       this.fetchRecentlyAdded(),
       this.fetchOnDeck(),
@@ -351,7 +350,6 @@ export default {
         this.setBackground();
       }
     },
-
 
     async fetchOnDeck() {
       this.onDeck = await this.FETCH_ON_DECK({
@@ -429,7 +427,6 @@ export default {
           blur: 6,
         }));
     },
-
 
     getArtLibrary(object) {
       return this.GET_MEDIA_IMAGE_URL({

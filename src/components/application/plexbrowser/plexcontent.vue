@@ -638,7 +638,6 @@ export default {
         machineIdentifier: this.machineIdentifier,
       });
 
-
       if (this.contents.type === 'episode') {
         this.parentData = await this.FETCH_MEDIA_CHILDREN({
           machineIdentifier: this.machineIdentifier,

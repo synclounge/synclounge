@@ -145,7 +145,6 @@
       </v-row>
     </template>
 
-
     <v-divider />
 
     <template
@@ -169,7 +168,6 @@
           >navigate_next</v-icon>
         </span>
       </v-subheader>
-
 
       <v-row
         v-if="onDeck"
@@ -207,7 +205,6 @@
           refresh
         </v-icon>
       </v-subheader>
-
 
       <v-row>
         <v-col
@@ -294,7 +291,6 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { debounce } from 'lodash-es';
-
 
 export default {
   name: 'Plexbrowser',

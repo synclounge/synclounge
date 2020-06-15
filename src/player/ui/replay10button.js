@@ -42,7 +42,6 @@ class Replay10Button extends shaka.ui.Element {
   }
 }
 
-
 // Factory that will create a button at run time.
 class Replay10ButtonFactory {
   create(rootElement, controls) {

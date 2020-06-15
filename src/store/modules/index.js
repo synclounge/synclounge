@@ -5,7 +5,6 @@ import plexclients from './plexclients';
 import plexservers from './plexservers';
 import slplayer from './slplayer';
 
-
 export default {
   synclounge,
   plex,

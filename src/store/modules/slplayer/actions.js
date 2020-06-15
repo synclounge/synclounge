@@ -4,7 +4,6 @@ import generateGuid from '@/utils/guid';
 import timeoutPromise from '@/utils/timeoutpromise';
 import delay from '@/utils/delay';
 
-
 const commandActions = (command) => ({
   '/player/timeline/poll': 'DO_COMMAND_POLL',
   '/player/playback/play': 'DO_COMMAND_PLAY',
@@ -13,7 +12,6 @@ const commandActions = (command) => ({
   '/player/playback/stop': 'DO_COMMAND_STOP',
   '/player/playback/seekTo': 'DO_COMMAND_SEEK_TO',
 })[command];
-
 
 // These functions are a bit special since they use currentTime and duration, which can't
 // be tracked by vuex, so the cache isn't updated correctly
@@ -166,7 +164,6 @@ export default {
     commit('settings/SET_SLPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
   },
 
-
   // Command handlers
   HANDLE_COMMAND: async ({ dispatch }, { command, params, callback }) => {
     const result = await dispatch('DO_COMMAND_DISPATCH',
@@ -205,7 +202,6 @@ export default {
   },
 
   DO_COMMAND_STOP: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'stopped'),
-
 
   DO_COMMAND_SEEK_TO: async ({ getters, dispatch }, { offset: seekToMs, softSeek }) => {
     if (Number.isNaN(getPlayerDurationMs(getters))) {

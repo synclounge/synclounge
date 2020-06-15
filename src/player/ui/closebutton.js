@@ -20,7 +20,6 @@ class CloseButton extends shaka.ui.Element {
   }
 }
 
-
 // Factory that will create a button at run time.
 class CloseButtonFactory {
   constructor(eventBus) {

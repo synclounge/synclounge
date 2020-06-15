@@ -19,7 +19,6 @@
           Welcome to SyncLounge
         </v-card-title>
 
-
         <v-card-actions>
           <v-btn
             class="primary"
@@ -35,7 +34,6 @@
     </v-col>
   </v-row>
 </template>
-
 
 <script>
 import { mapActions, mapGetters } from 'vuex';

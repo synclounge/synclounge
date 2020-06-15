@@ -409,7 +409,6 @@ export default {
       this.$store.dispatch('PLAYBACK_CHANGE', data);
     });
 
-
     fscreen.addEventListener('fullscreenchange', () => {
       const isFullscreen = fscreen.fullscreenElement !== null;
       this.appIsFullscreen = isFullscreen;

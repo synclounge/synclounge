@@ -16,7 +16,6 @@ try {
   process.env.VUE_APP_GIT_DATE = new Date().toISOString();
 }
 
-
 module.exports = {
   publicPath: settings.webroot,
   lintOnSave: process.env.NODE_ENV !== 'production',

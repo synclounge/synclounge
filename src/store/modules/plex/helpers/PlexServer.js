@@ -1,7 +1,6 @@
 import axios from 'axios';
 import plexauth from './PlexAuth';
 
-
 class PlexServer {
   constructor(params) {
     this.name = '';
@@ -75,7 +74,6 @@ class PlexServer {
       'X-Plex-Token': this.accessToken,
     });
   }
-
 
   async getRandomItem() {
     const data = await this.getAllLibraries();

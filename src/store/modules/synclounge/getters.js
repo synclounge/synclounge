@@ -34,7 +34,6 @@ export default {
   AM_I_HOST: (state) => state.me.role === 'host',
   GET_INVITE_URL: (state) => state.inviteUrl,
 
-
   GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => {
     if (rootGetters.GET_CONFIG.servers && rootGetters.GET_CONFIG.servers.length > 0) {
       if (rootGetters.GET_CONFIG.customServer) {

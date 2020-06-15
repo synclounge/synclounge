@@ -83,7 +83,6 @@ export default {
     return bestResult;
   },
 
-
   FETCH_ON_DECK: async ({ getters }, { machineIdentifier, start, size }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/library/onDeck',
       {
@@ -113,7 +112,6 @@ export default {
     return data.MediaContainer.Metadata;
   },
 
-
   FETCH_MEDIA_CHILDREN: async ({ getters }, {
     machineIdentifier, key, start, size, excludeAllLeaves,
   }) => {
@@ -123,13 +121,11 @@ export default {
       excludeAllLeaves,
     });
 
-
     return data.MediaContainer.Metadata.map((child) => ({
       ...child,
       librarySectionID: data.MediaContainer.librarySectionID,
     }));
   },
-
 
   FETCH_RELATED: async ({ getters }, { machineIdentifier, key, count }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get(`${key}/related`, {

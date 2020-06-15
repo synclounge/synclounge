@@ -42,7 +42,6 @@ class Forward30Button extends shaka.ui.Element {
   }
 }
 
-
 // Factory that will create a button at run time.
 class Forward30ButtonFactory {
   create(rootElement, controls) {

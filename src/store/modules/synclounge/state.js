@@ -16,5 +16,4 @@ const state = () => ({
   serversHealth: null,
 });
 
-
 export default state;

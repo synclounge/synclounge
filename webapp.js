@@ -41,7 +41,6 @@ app.listen(settings.webapp_port, () => {
 
 console.log('Running with base URL: ', settings.webroot);
 
-
 if (settings.authentication && settings.authentication.mechanism !== 'none') {
   console.log('Authentication:', settings.authentication);
 }
