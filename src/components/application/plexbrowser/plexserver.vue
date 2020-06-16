@@ -35,7 +35,7 @@
         <v-col
           v-for="library in libraries"
           :key="library.name"
-          sm="12"
+          cols="12"
           md="3"
           lg="2"
           class="pa-1"
@@ -77,9 +77,7 @@
         v-if="subsetOnDeck.length > 0"
         no-gutters
       >
-        <v-col
-          cols="auto"
-        >
+        <v-col>
           <v-subheader class="compact-header">
             On Deck
           </v-subheader>
@@ -121,7 +119,7 @@
         >
           <plexthumb
             :content="content"
-            :server-id="machineIdentifier"
+            :machine-identifier="machineIdentifier"
             type="art"
             @contentSet="setContent(content)"
           />
@@ -137,7 +135,7 @@
         v-if="subsetRecentlyAdded.length > 0"
         no-gutters
       >
-        <v-col cols="auto">
+        <v-col>
           <v-subheader class="compact-header">
             Recently Added
           </v-subheader>
@@ -173,13 +171,14 @@
         <v-col
           v-for="content in subsetRecentlyAdded"
           :key="content.key"
+          cols="4"
           sm="2"
           md="1"
           class="pb-3 pa-3"
         >
           <plexthumb
             :content="content"
-            :server-id="machineIdentifier"
+            :machine-identifier="machineIdentifier"
             type="thumb"
             full-title
             locked

@@ -1,27 +1,24 @@
 <template>
-  <span>
-    <v-layout
-      v-if="!contents"
-      row
+  <v-row
+    v-if="!metadata"
+  >
+    <v-col
+      cols="12"
+      style="position:relative"
     >
-      <v-flex
-        xs12
-        style="position:relative"
-      >
-        <v-progress-circular
-          style="left: 50%; top:50%"
-          :size="60"
-          indeterminate
-          class="amber--text"
-        />
-      </v-flex>
-    </v-layout>
-    <div
-      v-if="contents"
-      class="mt-3"
-    >
-      <v-flex
-        xs12
+      <v-progress-circular
+        style="left: 50%; top:50%"
+        :size="60"
+        indeterminate
+        class="amber--text"
+      />
+    </v-col>
+  </v-row>
+
+  <v-container v-else>
+    <v-row>
+      <v-col
+        cols="12"
         style="background: rgba(0, 0, 0, .4);"
       >
         <v-card
@@ -32,15 +29,13 @@
             style="background:rgba(0,0,0,0.6)"
             class="pa-3 ma-0"
             fluid
-            grid-list-lg
           >
-            <v-layout
-              row
+            <v-row
               style="height:100%"
             >
-              <v-flex
-                xs12
-                md3
+              <v-col
+                cols="12"
+                md="3"
                 class="hidden-sm-and-down"
               >
                 <v-img
@@ -49,21 +44,23 @@
                   height="25em"
                   contain
                 />
-              </v-flex>
-              <v-flex
-                xs12
-                md9
-                class="ma-2"
+              </v-col>
+
+              <v-col
+                cols="12"
+                md="9"
               >
-                <div>
-                  <h1> {{ contents.parentTitle }}</h1>
-                  <h3 style="font-weight:bold">{{ contents.title }}</h3>
-                  <p> {{ getSeasons }} - {{ contents.parentYear }} </p>
+                <v-container>
+                  <h1> {{ metadata.title }}</h1>
+                  <p> {{ getSeasons }} - {{ metadata.year }} </p>
                   <v-divider />
                   <p
                     style="font-style: italic"
                     class="pt-3; overflow: hidden"
-                  > {{ contents.summary }} </p>
+                  >
+                    {{ metadata.summary }}
+                  </p>
+
                   <div>
                     <v-chip
                       v-for="genre in genres"
@@ -74,18 +71,20 @@
                       {{ genre.tag }}
                     </v-chip>
                   </div>
-                  <v-subheader class="white--text"> Featuring </v-subheader>
-                  <v-layout
-                    v-if="seriesData"
-                    row
-                    wrap
+
+                  <v-subheader class="white--text">
+                    Featuring
+                  </v-subheader>
+
+                  <v-row
+                    v-if="metadata"
                   >
-                    <v-flex
+                    <v-col
                       v-for="role in roles"
                       :key="role.tag"
-                      xs12
-                      md6
-                      lg4
+                      cols="12"
+                      md="6"
+                      lg="4"
                     >
                       <v-chip style="border: none; background: none; color: white">
                         <v-avatar>
@@ -95,58 +94,60 @@
                         <div
                           style="opacity:0.7;font-size:80% "
                           class="pa-2"
-                        > {{ role.role }} </div>
+                        >
+                          {{ role.role }}
+                        </div>
                       </v-chip>
-                    </v-flex>
-                  </v-layout>
-                </div>
-              </v-flex>
-            </v-layout>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-col>
+            </v-row>
           </v-container>
         </v-card>
-      </v-flex>
-      <h4 class="mt-3"> Seasons </h4>
-      <v-layout
-        class="row"
-        row
-        wrap
+      </v-col>
+    </v-row>
+
+    <h4 class="mt-3">
+      Seasons
+    </h4>
+
+    <v-row>
+      <v-col
+        v-for="content in children"
+        :key="content.key"
+        cols="4"
+        md="2"
+        lg="1"
+        class="pb-3"
       >
-        <v-flex
-          v-for="content in contents.Metadata"
-          :key="content.key"
-          xs4
-          md2
-          xl1
-          lg1
-          class="pb-3"
-        >
-          <plexthumb
-            :content="content"
-            :server="plexServer"
-            type="thumb"
-            style="margin:7%"
-          />
-        </v-flex>
-      </v-layout>
-    </div>
-  </span>
+        <plexthumb
+          :content="content"
+          :machine-identifier="machineIdentifier"
+          type="thumb"
+          style="margin:7%"
+        />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
+
+import sizing from '@/mixins/sizing';
 
 export default {
   components: {
     plexthumb: () => import('./plexthumb.vue'),
   },
 
+  mixins: [
+    sizing,
+  ],
+
   props: {
     machineIdentifier: {
-      type: String,
-      required: true,
-    },
-
-    sectionId: {
       type: String,
       required: true,
     },
@@ -159,90 +160,97 @@ export default {
 
   data() {
     return {
-      browsingContent: null,
-      startingIndex: 0,
-      size: 150,
-
-      contents: null,
-      seriesData: null,
-      status: 'loading..',
+      metadata: null,
+      children: [],
     };
   },
 
   computed: {
-    ...mapGetters([
-      'GET_PLEX_SERVER',
+    ...mapGetters('plexservers', [
+      'GET_MEDIA_IMAGE_URL',
     ]),
 
-    plexServer() {
-      return this.GET_PLEX_SERVER(this.machineIdentifier);
-    },
-
     getArtUrl() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-      return this.plexServer.getUrlForLibraryLoc(this.contents.banner, w / 1, h / 1, 2);
+      return this.GET_MEDIA_IMAGE_URL({
+        machineIdentifier: this.machineIdentifier,
+        mediaUrl: this.metadata.banner,
+        width: this.getAppWidth(),
+        height: this.getAppHeight(),
+        blur: 2,
+      });
     },
 
     getSeasons() {
-      if (this.contents.size === 1) {
-        return `${this.contents.size} season`;
+      if (this.children.length === 1) {
+        return `${this.children.length} season`;
       }
-      return `${this.contents.size} seasons`;
+      return `${this.children.length} seasons`;
     },
 
     roles() {
-      if (!this.seriesData) {
+      if (!this.metadata) {
         return [];
       }
-      return this.seriesData.MediaContainer.Metadata[0].Role.slice(0, 6);
+      return this.metadata.Role.slice(0, 6);
     },
 
     genres() {
-      if (!this.seriesData) {
+      if (!this.metadata) {
         return [];
       }
-      return this.seriesData.MediaContainer.Metadata[0].Genre.slice(0, 5);
+      return this.metadata.Genre.slice(0, 5);
     },
 
     thumb() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-      return this.plexServer.getUrlForLibraryLoc(this.contents.thumb || this.contents.parentThumb
-        || this.contents.grandparentThumb, w / 1, h / 1);
+      return this.GET_MEDIA_IMAGE_URL({
+        machineIdentifier: this.machineIdentifier,
+        mediaUrl: this.metadata.thumb,
+        width: this.getAppWidth(),
+        height: this.getAppHeight(),
+      });
     },
   },
 
-  created() {
-    // Hit the PMS endpoing /library/sections
-    this.plexServer.getSeriesChildren(this.ratingKey, this.startingIndex,
-      this.size, 1, this.sectionId).then((result) => {
-      if (result) {
-        this.contents = result.MediaContainer;
-        this.setBackground();
-      } else {
-        this.status = 'Error loading libraries!';
-      }
-    }).catch(() => {});
-
-    this.plexServer.getSeriesData(this.ratingKey).then((res) => {
-      if (res) {
-        this.seriesData = res;
-      }
-    }).catch(() => {});
+  async mounted() {
+    await Promise.all([
+      this.fetchMetadata(),
+      this.fetchChildren(),
+    ]);
   },
 
   methods: {
+    ...mapActions('plexservers', [
+      'FETCH_PLEX_METADATA',
+      'FETCH_MEDIA_CHILDREN',
+    ]),
+
+    async fetchMetadata() {
+      this.metadata = await this.FETCH_PLEX_METADATA({
+        ratingKey: this.ratingKey,
+        machineIdentifier: this.machineIdentifier,
+      });
+    },
+
+    async fetchChildren() {
+      this.children = await this.FETCH_MEDIA_CHILDREN({
+        machineIdentifier: this.machineIdentifier,
+        ratingKey: this.ratingKey,
+        start: 0,
+        size: 150,
+        excludeAllLeaves: 1,
+      });
+      this.setBackground();
+    },
+
     setBackground() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-      this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(this.contents.art, w / 4, h / 4, 2));
+      this.$store.commit('SET_BACKGROUND',
+        this.GET_MEDIA_IMAGE_URL({
+          machineIdentifier: this.machineIdentifier,
+          mediaUrl: this.metadata.art,
+          width: this.getAppWidth() / 4,
+          height: this.getAppHeight() / 4,
+          blur: 2,
+        }));
     },
   },
 };

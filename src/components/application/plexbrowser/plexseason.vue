@@ -134,12 +134,6 @@ export default {
       required: true,
     },
 
-    // TODO: unused prop, but it's in route. Why? Is it still needed?
-    parentKey: {
-      type: String,
-      required: true,
-    },
-
     ratingKey: {
       type: String,
       required: true,
@@ -197,6 +191,7 @@ export default {
   },
 
   created() {
+    console.log(this.$route.params);
     // Hit the PMS endpoing /library/sections
     this.plexServer.getSeriesChildren(this.ratingKey, 0, 500, 1, this.sectionId)
       .then((result) => {

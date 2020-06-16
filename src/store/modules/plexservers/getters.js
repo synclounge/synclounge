@@ -51,7 +51,7 @@ export default {
       url: mediaUrl,
       width,
       height,
-      blur,
+      blur: blur || 0,
     };
 
     return `${server.chosenConnection.uri}/photo/:/transcode/?${encodeUrlParams(params)}`;

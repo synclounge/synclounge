@@ -112,8 +112,8 @@
         </v-alert>
 
         <v-container
-          v-if="(GET_CONFIG.fetchConfig && !GET_CONFIGURATION_FETCHED
-            || !IS_DONE_FETCHING_DEVICES) && $route.protected"
+          v-if="((GET_CONFIG.fetchConfig && !GET_CONFIGURATION_FETCHED)
+            || !IS_DONE_FETCHING_DEVICES) && $route.matched.some((record) => record.meta.protected)"
           fill-height
         >
           <v-row
@@ -195,11 +195,11 @@ import fscreen from 'fscreen';
 
 export default {
   components: {
-    rightsidebar: () => import('./sidebar.vue'),
-    upnext: () => import('./upnext.vue'),
-    nowplayingchip: () => import('./nowplayingchip.vue'),
-    leftsidebar: () => import('./leftsidebar.vue'),
-    donate: () => import('./donate.vue'),
+    rightsidebar: () => import('./components/sidebar.vue'),
+    upnext: () => import('./components/upnext.vue'),
+    nowplayingchip: () => import('./components/nowplayingchip.vue'),
+    leftsidebar: () => import('./components/leftsidebar.vue'),
+    donate: () => import('./components/donate.vue'),
   },
 
   data() {
@@ -268,9 +268,11 @@ export default {
       ) {
         return [];
       }
-      const getTitle = (id) => {
+      const getTitle = (ratingKey) => {
         try {
-          return this.getItemCache[this.$route.params.machineIdentifier][id].title;
+          console.log(ratingKey);
+          console.log(this.getItemCache[this.$route.params.machineIdentifier]);
+          return this.getItemCache[this.$route.params.machineIdentifier][ratingKey].title;
         } catch (e) {
           return 'Loading..';
         }
@@ -288,36 +290,41 @@ export default {
           to: '/browse',
         },
       ];
+
       const map = {
         machineIdentifier: () => ({
           text: this.GET_PLEX_SERVER(this.$route.params.machineIdentifier).name,
           to: `/browse/${this.$route.params.machineIdentifier}`,
         }),
+
         sectionId: () => ({
           text: getLibrary(this.$route.params.sectionId),
           to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}`,
         }),
-        parentKey: () => {
+
+        parentRatingKey: () => {
           let to;
-          if (this.$route.params.grandparentKey) {
-            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentKey}/${this.$route.params.parentKey}`;
+          if (this.$route.params.grandparentRatingKey) {
+            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentRatingKey}/${this.$route.params.parentRatingKey}`;
           } else {
-            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.parentKey}`;
+            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.parentRatingKey}`;
           }
           return {
-            text: getTitle(this.$route.params.parentKey),
+            text: getTitle(this.$route.params.parentRatingKey),
             to,
           };
         },
-        grandparentKey: () => ({
-          text: getTitle(this.$route.params.grandparentKey),
-          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentKey}/`,
+        grandparentRatingKey: () => ({
+          text: getTitle(this.$route.params.grandparentRatingKey),
+          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentRatingKey}/`,
         }),
+
         ratingKey: () => ({
           text: getTitle(this.$route.params.ratingKey),
           to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/${this.$route.params.ratingKey}`,
         }),
       };
+
       Object.keys(this.$route.params).forEach((param) => {
         const link = map[param]();
         if (link) {

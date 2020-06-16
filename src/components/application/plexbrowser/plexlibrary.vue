@@ -1,13 +1,12 @@
 <template>
-  <span style="max-height: 90%">
-    <v-layout
+  <v-container>
+    <v-row
       v-if="!contents && !browsingContent"
-      row
-      justify-center
-      align-start
+      justify="center"
+      align="start"
     >
-      <v-flex
-        xs12
+      <v-col
+        cols="12"
         style="position:relative"
       >
         <v-progress-circular
@@ -16,52 +15,47 @@
           indeterminate
           class="amber--text"
         />
-      </v-flex>
-    </v-layout>
-    <div
+      </v-col>
+    </v-row>
+
+    <v-row
       v-if="!browsingContent && contents"
       class="mt-3"
       style="height:90vh; overflow-y: auto"
     >
-      <v-layout
-        class="row"
-        row
-        wrap
+      <v-col
+        v-for="content in contents"
+        :key="content.key"
+        cols="3"
+        md="1"
+
+        class="ma-1"
       >
-        <v-flex
-          v-for="content in contents.MediaContainer.Metadata"
-          :key="content.key"
-          xs3
-          sm3
-          md1
-          lg1
-          class="ma-1"
-        >
-          <plexthumb
-            :content="content"
-            :server="server"
-            type="thumb"
-            style="margin:7%"
-            @contentSet="setContent(content)"
-          />
-        </v-flex>
-      </v-layout>
-      <v-layout row>
-        <v-flex
-          v-if="contents && !browsingContent && !stopNewContent"
-          v-observe-visibility="getMoreContent"
-          xs12
-          justify-center
-        >
-          Loading...
-        </v-flex>
-      </v-layout>
-    </div>
-  </span>
+        <plexthumb
+          :content="content"
+          :machine-identifier="machineIdentifier"
+          type="thumb"
+          style="margin:7%"
+          @contentSet="setContent(content)"
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>z
+      <v-col
+        v-if="contents && !browsingContent && !stopNewContent"
+        v-observe-visibility="getMoreContent"
+        cols="12"
+        justify="center"
+      >
+        Loading...
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions } from 'vuex';
 import { sample } from 'lodash-es';
 
 export default {
@@ -69,26 +63,28 @@ export default {
     plexthumb: () => import('./plexthumb.vue'),
   },
 
+  props: {
+    machineIdentifier: {
+      type: String,
+      required: true,
+    },
+
+    sectionId: {
+      type: String,
+      required: true,
+    },
+  },
+
   data() {
     return {
       browsingContent: null,
       startingIndex: 0,
       size: 100,
-      libraryTotalSize: false,
 
       stopNewContent: false,
       busy: false,
-      contents: null,
-      status: 'loading..',
-      searchPhrase: null,
+      contents: [],
     };
-  },
-
-  computed: {
-    ...mapGetters(['getPlex']),
-    server() {
-      return this.getPlex.servers[this.$route.params.machineIdentifier];
-    },
   },
 
   created() {
@@ -97,57 +93,58 @@ export default {
   },
 
   methods: {
+    ...mapActions('plexservers', [
+      'FETCH_LIBRARY_CONTENTS',
+    ]),
+
     setContent(content) {
       this.browsingContent = content;
     },
 
     setBackground() {
-      const w = Math.round(Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0));
-      const h = Math.round(Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0));
-
       const randomItem = sample(this.contents.MediaContainer.Metadata);
-      let url = randomItem.thumb;
-      if (randomItem.type === 'show') {
-        url = randomItem.art;
-      }
-      this.$store.commit('SET_BACKGROUND', this.server.getUrlForLibraryLoc(url, w / 4, h / 4, 8));
+
+      this.$store.commit('SET_BACKGROUND',
+        this.GET_MEDIA_IMAGE_URL({
+          machineIdentifier: this.machineIdentifier,
+          mediaUrl: randomItem.type === 'show'
+            ? randomItem.art
+            : randomItem.thumb,
+          width: this.getAppWidth() / 4,
+          height: this.getAppHeight() / 4,
+          blur: 8,
+        }));
     },
 
-    getMoreContent() {
+    async getMoreContent() {
       if (this.stopNewContent || this.busy) {
         return;
       }
 
       this.busy = true;
-      this.server.getLibraryContents(this.$route.params.sectionId, this.startingIndex, this.size)
-        .then((result) => {
-          if (result && result.MediaContainer && result.MediaContainer.Metadata) {
-            this.libraryTotalSize = result.MediaContainer.totalSize;
-            this.startingIndex += 100;
-            if (this.contents) {
-              for (let i = 0; i < result.MediaContainer.Metadata.length; i += 1) {
-                const media = result.MediaContainer.Metadata[i];
-                media.active = true;
-                this.contents.MediaContainer.Metadata.push(media);
-              }
-            } else {
-              for (let i = 0; i < result.MediaContainer.Metadata.length; i += 1) {
-                const media = result.MediaContainer.Metadata[i];
-                media.active = true;
-              }
-              this.contents = result;
-              this.setBackground();
-            }
-            if (result.MediaContainer.size < 100) {
-              this.stopNewContent = true;
-            }
-          } else {
-            this.status = 'Error loading libraries!';
-          }
-          this.busy = false;
-        });
+
+      const results = await this.FETCH_LIBRARY_CONTENTS({
+        machineIdentifier: this.machineIdentifier,
+        sectionId: this.sectionId,
+        start: this.startingIndex,
+        size: this.size,
+      });
+
+      results.forEach((result) => {
+        this.contents.push(result);
+      });
+
+      this.startingIndex += results.length;
+
+      if (this.contents.length <= 100) {
+        this.setBackground();
+      }
+
+      if (results.length < 100) {
+        this.stopNewContent = true;
+      }
+
+      this.busy = false;
     },
   },
 };

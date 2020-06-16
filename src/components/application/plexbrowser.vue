@@ -71,7 +71,7 @@
 
         <v-col
           v-for="movie in filteredMovies"
-          :key="movie.key"
+          :key="movie.ratingKey"
           sm="6"
           md="3"
           lg="1"
@@ -79,7 +79,7 @@
         >
           <plexthumb
             :content="movie"
-            :server-id="movie.machineIdentifier"
+            :machine-identifier="movie.machineIdentifier"
             show-server
             search
             @contentSet="setContent(movie)"
@@ -99,7 +99,7 @@
 
         <v-col
           v-for="show in filteredShows"
-          :key="show.key"
+          :key="show.ratingKey"
           sm="6"
           md="3"
           lg="1"
@@ -107,7 +107,7 @@
         >
           <plexthumb
             :content="show"
-            :server-id="show.machineIdentifier"
+            :machine-identifier="show.machineIdentifier"
             show-server
             search
             @contentSet="setContent(show)"
@@ -127,7 +127,7 @@
 
         <v-col
           v-for="episode in filteredEpisodes"
-          :key="episode.key"
+          :key="episode.ratingKey"
           sm="6"
           md="3"
           lg="2"
@@ -135,7 +135,7 @@
         >
           <plexthumb
             :content="episode"
-            :server-id="episode.machineIdentifier"
+            :machine-identifier="episode.machineIdentifier"
             show-server
             type="art"
             search
@@ -175,13 +175,13 @@
       >
         <v-col
           v-for="content in subsetOnDeck"
-          :key="content.key"
+          :key="content.ratingKey"
           cols="3"
           class="pb-3 pa-2"
         >
           <plexthumb
             :content="content"
-            :server-id="GET_LAST_SERVER_ID"
+            :machine-identifier="GET_LAST_SERVER_ID"
             type="art"
             @contentSet="setContent(content)"
           />
@@ -220,13 +220,15 @@
         <v-col
           v-for="server in GET_PLEX_SERVERS"
           :key="server.clientIdentifier"
-          sm="12"
+          cols="12"
           md="6"
           lg="4"
           xl="3"
           class="pa-2"
         >
-          <router-link :to="'/browse/' + server.clientIdentifier">
+          <router-link
+            :to="{ name: 'server', params: { machineIdentifier: server.clientIdentifier }}"
+          >
             <v-card
               class="white--text"
               horizontal
@@ -318,6 +320,7 @@ export default {
     ...mapGetters([
       'getLogos',
     ]),
+
     ...mapGetters('plexservers', [
       'GET_LAST_SERVER',
       'GET_LAST_SERVER_ID',
@@ -343,7 +346,7 @@ export default {
     },
 
     onDeckUpStyle() {
-      if (this.onDeckOffset + 3 >= this.onDeck.MediaContainer.Metadata.length) {
+      if (this.onDeckOffset + 3 >= this.onDeck.length) {
         return {
           opacity: 0.5,
         };
@@ -363,62 +366,26 @@ export default {
     },
 
     filteredShows() {
-      return this.searchResults.filter((item) => {
-        if (!item) {
-          return false;
-        }
-        if (item.type === 'show') {
-          return true;
-        }
-        return false;
-      });
+      return this.searchResults.filter((item) => item.type === 'show');
     },
 
     filteredEpisodes() {
-      return this.searchResults.filter((item) => {
-        if (!item) {
-          return false;
-        }
-        if (item.type === 'episode') {
-          return true;
-        }
-        return false;
-      });
+      return this.searchResults.filter((item) => item.type === 'episode');
     },
 
     filteredMovies() {
-      return this.searchResults.filter((item) => {
-        if (!item) {
-          return false;
-        }
-        if (item.type === 'movie') {
-          return true;
-        }
-        return false;
-      });
+      return this.searchResults.filter((item) => item.type === 'movie');
     },
 
     filteredSeasons() {
-      return this.searchResults.filter((item) => {
-        if (!item) {
-          return false;
-        }
-        if (item.type === 'series') {
-          return true;
-        }
-        return false;
-      });
+      return this.searchResults.filter((item) => item.type === 'series');
     },
 
     subsetOnDeck() {
-      if (
-        !this.onDeck
-        || !this.onDeck.MediaContainer
-        || !this.onDeck.MediaContainer.Metadata
-      ) {
+      if (!this.onDeck) {
         return [];
       }
-      return this.onDeck.MediaContainer.Metadata.slice(
+      return this.onDeck.slice(
         this.onDeckOffset,
         this.onDeckOffset + this.onDeckItemsPer,
       );
@@ -450,14 +417,11 @@ export default {
     ...mapActions(['FETCH_PLEX_DEVICES']),
     ...mapActions('plexservers', [
       'SEARCH_PLEX_SERVER',
+      'FETCH_ON_DECK',
     ]),
 
     onDeckDown() {
-      if (
-        !this.onDeck
-        || !this.onDeck.MediaContainer
-        || !this.onDeck.MediaContainer.Metadata
-      ) {
+      if (!this.onDeck) {
         return;
       }
 
@@ -469,15 +433,11 @@ export default {
     },
 
     onDeckUp() {
-      if (
-        !this.onDeck
-        || !this.onDeck.MediaContainer
-        || !this.onDeck.MediaContainer.Metadata
-      ) {
+      if (!this.onDeck) {
         return;
       }
 
-      if (this.onDeckOffset + 4 >= this.onDeck.MediaContainer.Metadata.length) {
+      if (this.onDeckOffset + 4 >= this.onDeck.length) {
         // This would overflow!
       } else {
         this.onDeckOffset += 4;

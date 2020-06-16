@@ -13,6 +13,7 @@
           :src="GET_PLEX_USER.thumb"
         >
       </v-list-item-avatar>
+
       <v-list-item-content>
         <v-list-item-title style="font-weight: bold">
           {{ GET_PLEX_USER.username }}
@@ -32,6 +33,7 @@
             settings
           </v-icon>
         </v-list-item-icon>
+
         <v-list-item-content>
           <v-list-item-title>SyncLounge Settings</v-list-item-title>
         </v-list-item-content>
@@ -83,6 +85,7 @@
             info
           </v-icon>
         </v-list-item-icon>
+
         <v-list-item-content>
           <v-list-item-title>SyncLounge v{{ appVersion }}</v-list-item-title>
         </v-list-item-content>
@@ -97,6 +100,7 @@
             chat
           </v-icon>
         </v-list-item-icon>
+
         <v-list-item-content>
           <v-list-item-title>Discord</v-list-item-title>
         </v-list-item-content>
@@ -111,6 +115,7 @@
             code
           </v-icon>
         </v-list-item-icon>
+
         <v-list-item-content>
           <v-list-item-title>GitHub</v-list-item-title>
         </v-list-item-content>
@@ -122,6 +127,7 @@
             favorite
           </v-icon>
         </v-list-item-icon>
+
         <v-list-item-content>
           <v-list-item-title>Donate</v-list-item-title>
         </v-list-item-content>
@@ -152,6 +158,7 @@
         <div class="text-center">
           <h2>SyncLounge Settings</h2>
         </div>
+
         <v-divider class="mt-2 mb-2" />
         <ptsettings class="darken-4 pa-1" />
       </v-card>
@@ -168,6 +175,7 @@
         <div class="text-center">
           <h2>Plex Settings</h2>
         </div>
+
         <v-divider class="mt-2 mb-2" />
         <plexsettings
           class="darken-4 pa-1"
@@ -193,8 +201,8 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 
 export default {
   components: {
-    ptsettings: () => import('./components/application/settings.vue'),
-    plexsettings: () => import('./components/application/plexsettings.vue'),
+    ptsettings: () => import('./application/settings.vue'),
+    plexsettings: () => import('./application/plexsettings.vue'),
     donate: () => import('./donate.vue'),
   },
 

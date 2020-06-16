@@ -43,25 +43,6 @@ class PlexServer {
     return data;
   }
 
-  async getMediaByRatingKey(ratingKey) {
-    // This function hits the PMS and returns the item at the ratingKey
-    try {
-      const data = await this.hitApi(`/library/metadata/${ratingKey}`, {});
-      if (data && data.MediaContainer.librarySectionID) {
-        this.commit('SET_LIBRARYCACHE', [
-          data.MediaContainer.librarySectionID,
-          this.clientIdentifier,
-          data.MediaContainer.librarySectionTitle,
-        ]);
-      }
-      return data;
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
-    // return this.handleMetadata(data)
-  }
-
   markWatchedByRatingKey(ratingKey) {
     return this.hitApi('/:/scrobble', {
       identifier: 'com.plexapp.plugins.library',
@@ -103,97 +84,6 @@ class PlexServer {
       return data;
     } catch (e) {
       return false;
-    }
-  }
-
-  async getLibraryContents(key, start, size) {
-    try {
-      const data = await this.hitApi(`/library/sections/${key}/all`, {
-        'X-Plex-Container-Start': start,
-        'X-Plex-Container-Size': size,
-        excludeAllLeaves: 1,
-      });
-
-      for (let i = 0; i < data.MediaContainer.Metadata.length; i += 1) {
-        data.MediaContainer.Metadata[i].librarySectionID = key;
-        // this.commit('SET_ITEMCACHE', [data.MediaContainer.Metadata[i].ratingKey,
-        // data.MediaContainer.Metadata[i]])
-      }
-      return data;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  getRecentlyAddedAll() {
-    return this.hitApi('/library/recentlyAdded', {});
-  }
-
-  getSeriesData(ratingKey) {
-    return this.hitApi(`/library/metadata/${ratingKey}`, {
-      includeConcerts: 1,
-      includeExtras: 1,
-      includeOnDeck: 1,
-      includePopularLeaves: 1,
-      asyncCheckFiles: 1,
-      asyncRefreshAnalysis: 1,
-      asyncRefreshLocalMediaAgent: 1,
-    });
-  }
-
-  handleMetadata(result) {
-    // This data is used in our router breadcrumbs
-    if (result && result.MediaContainer) {
-      if (result.MediaContainer.Metadata
-        && result.MediaContainer.Metadata.length > 0
-      ) {
-        result.MediaContainer.Metadata.forEach((item) => {
-          if (item.ratingKey) {
-            this.commit('SET_ITEMCACHE', [
-              item.ratingKey,
-              {
-                ...item,
-                machineIdentifier: this.clientIdentifier,
-              },
-            ]);
-          }
-
-          if (item.grandparentRatingKey) {
-            this.commit('SET_ITEMCACHE', [
-              item.grandparentRatingKey,
-              { title: item.grandparentTitle, machineIdentifier: this.clientIdentifier },
-            ]);
-          }
-
-          if (item.parentRatingKey) {
-            this.commit('SET_ITEMCACHE', [
-              item.parentRatingKey,
-              { title: item.parentTitle, machineIdentifier: this.clientIdentifier },
-            ]);
-          }
-        });
-      } else {
-        if (result.MediaContainer.ratingKey) {
-          this.commit('SET_ITEMCACHE', [result.MediaContainer.ratingKey, result.MediaContainer]);
-        }
-
-        if (result.MediaContainer.grandparentRatingKey) {
-          this.commit('SET_ITEMCACHE', [
-            result.MediaContainer.grandparentRatingKey,
-            {
-              title: result.MediaContainer.grandparentTitle,
-              machineIdentifier: this.clientIdentifier,
-            },
-          ]);
-        }
-
-        if (result.MediaContainer.parentRatingKey) {
-          this.commit('SET_ITEMCACHE', [
-            result.MediaContainer.parentRatingKey,
-            { title: result.MediaContainer.parentTitle, machineIdentifier: this.clientIdentifier },
-          ]);
-        }
-      }
     }
   }
 }

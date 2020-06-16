@@ -120,6 +120,7 @@ export default new Router({
         requiresAuth: true,
         protected: true,
       },
+      props: true,
       name: 'library',
       component: () => import('../components/application/plexbrowser/plexlibrary.vue'),
     },
@@ -129,7 +130,7 @@ export default new Router({
         requiresAuth: true,
         protected: true,
       },
-      name: 'content',
+      name: 'movie',
       props: true,
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },
@@ -144,7 +145,7 @@ export default new Router({
       component: () => import('../components/application/plexbrowser/plexseries.vue'),
     },
     {
-      path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey',
+      path: '/browse/:machineIdentifier/:sectionId/tv/:parentRatingKey/:ratingKey',
       meta: {
         requiresAuth: true,
         protected: true,
@@ -155,23 +156,12 @@ export default new Router({
     },
     {
       path:
-        '/browse/:machineIdentifier/:sectionId/tv/:grandparentKey/:parentKey/:ratingKey',
+        '/browse/:machineIdentifier/:sectionId/tv/:grandparentRatingKey/:parentRatingKey/:ratingKey',
       meta: {
         requiresAuth: true,
         protected: true,
       },
-      name: 'contentspecific',
-      props: true,
-      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
-    },
-    {
-      path:
-        '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
-      meta: {
-        requiresAuth: true,
-        protected: true,
-      },
-      name: 'contentnosection',
+      name: 'content',
       props: true,
       component: () => import('../components/application/plexbrowser/plexcontent.vue'),
     },

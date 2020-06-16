@@ -27,7 +27,7 @@
       class="darken-2 white--text"
     >
       <v-container
-        style="background-color: rgba(0, 0, 0, 0.8); height: 100%"
+        style="background-color: rgba(0, 0, 0, 0.8); min-height: 100%"
         fluid
       >
         <v-row>
@@ -35,75 +35,77 @@
             sm="12"
             md="3"
           >
-            <v-row>
-              <v-col
-                md="12"
-                class="pa-2"
-              >
-                <v-img
-                  :src="thumb"
-                  height="30vh"
-                  contain
-                />
-              </v-col>
-
-              <v-col
-                sm="8"
-                md="12"
-                class="text-center hidden-sm-and-down "
-              >
-                <div v-if="playable">
-                  <v-btn
-                    v-if="
-                      playable &&
-                        contents.Media.length == 1 &&
-                        (contents.viewOffset == 0 || !contents.viewOffset)
-                    "
-                    block
-                    class="primary white--text"
-                    @click.native="playMedia(contents, 0)"
-                  >
-                    <v-icon> play_arrow </v-icon>
-                  </v-btn>
-
-                  <v-btn
-                    v-else
-                    block
-                    class="primary white--text"
-                    @click.native.stop="dialog = true"
-                  >
-                    <v-icon> play_arrow </v-icon>
-                  </v-btn>
-                </div>
-
-                <div
-                  v-if="!playable"
+            <v-container>
+              <v-row>
+                <v-col
+                  md="12"
                   class="pa-2"
                 >
-                  Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
-                </div>
+                  <v-img
+                    :src="thumb"
+                    height="30vh"
+                    contain
+                  />
+                </v-col>
 
-                <v-btn
-                  v-if="!playable"
-                  style="background-color: #cc3f3f"
-                  class="white--text"
-                  @click.native="pressStop()"
+                <v-col
+                  sm="8"
+                  md="12"
+                  class="text-center hidden-sm-and-down"
                 >
-                  <v-icon /> Stop
-                </v-btn>
+                  <template v-if="playable">
+                    <v-btn
+                      v-if="
+                        playable &&
+                          contents.Media.length == 1 &&
+                          (contents.viewOffset == 0 || !contents.viewOffset)
+                      "
+                      block
+                      class="primary white--text"
+                      @click.native="playMedia(contents, 0)"
+                    >
+                      <v-icon> play_arrow </v-icon>
+                    </v-btn>
 
-                <div v-if="!playable">
-                  <v-btn
-                    v-if="me.role !== 'host'"
-                    :disabled="manualSyncQueued"
-                    color="blue"
-                    @click.native="doManualSync"
+                    <v-btn
+                      v-else
+                      block
+                      class="primary white--text"
+                      @click.native.stop="dialog = true"
+                    >
+                      <v-icon> play_arrow </v-icon>
+                    </v-btn>
+                  </template>
+
+                  <div
+                    v-if="!playable"
+                    class="pa-2"
                   >
-                    Manual sync
+                    Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
+                  </div>
+
+                  <v-btn
+                    v-if="!playable"
+                    style="background-color: #cc3f3f"
+                    class="white--text"
+                    @click.native="pressStop()"
+                  >
+                    <v-icon /> Stop
                   </v-btn>
-                </div>
-              </v-col>
-            </v-row>
+
+                  <div v-if="!playable">
+                    <v-btn
+                      v-if="me.role !== 'host'"
+                      :disabled="manualSyncQueued"
+                      color="blue"
+                      @click.native="doManualSync"
+                    >
+                      Manual sync
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
           </v-col>
 
           <v-col
@@ -111,66 +113,82 @@
             md="9"
             class="pa-2"
           >
-            <h1>
-              {{ title }}
-              <span style="float: right">
-                <v-menu>
-                  <v-btn
-                    icon
-                    class="ma-0 pa-0"
-                    dark
-                  >
-                    <v-icon>more_vert</v-icon>
-                  </v-btn>
+            <v-container>
+              <v-row no-gutters>
+                <v-col>
+                  <h1>
+                    {{ title }}
+                  </h1>
+                </v-col>
 
-                  <v-list>
-                    <v-list-item @click="markWatched(contents)">
-                      <v-list-item-title>Mark as played</v-list-item-title>
-                    </v-list-item>
+                <v-col
+                  cols="auto"
+                  class="ml-auto"
+                >
+                  <v-menu>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        icon
+                        class="ma-0 pa-0"
+                        v-bind="attrs"
+                        v-on="on"
+                      >
+                        <v-icon>more_vert</v-icon>
+                      </v-btn>
+                    </template>
 
-                    <v-list-item
-                      :href="
-                        'https://app.plex.tv/desktop#!/server/' +
-                          contents.machineIdentifier +
-                          '/details?key=' +
-                          contents.key
-                      "
-                      target="_blank"
-                    >
-                      <v-list-item-title>Open in Plex Web</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </span>
-            </h1>
+                    <v-list>
+                      <v-list-item @click="markWatched(contents)">
+                        <v-list-item-title>Mark as played</v-list-item-title>
+                      </v-list-item>
 
-            <h4 v-if="contents.type === 'episode'">
-              Season {{ contents.parentIndex }} Episode {{ contents.index }} ({{
-                contents.year
-              }})
-            </h4>
+                      <v-list-item
+                        :href="
+                          'https://app.plex.tv/desktop#!/server/' +
+                            contents.machineIdentifier +
+                            '/details?key=' +
+                            contents.key
+                        "
+                        target="_blank"
+                      >
+                        <v-list-item-title>Open in Plex Web</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-col>
+              </v-row>
 
-            <h2 v-if="contents.type === 'episode'">
-              {{ contents.title }}
-            </h2>
+              <v-row no-gutters>
+                <v-col>
+                  <h4 v-if="contents.type === 'episode'">
+                    Season {{ contents.parentIndex }} Episode {{ contents.index }} ({{
+                      contents.year
+                    }})
+                  </h4>
 
-            <h3 v-else>
-              {{ contents.year }}
-            </h3>
+                  <h2 v-if="contents.type === 'episode'">
+                    {{ contents.title }}
+                  </h2>
 
-            <v-row>
-              <v-col
-                sm="12"
-                md="6"
-                style="opacity:0.5"
-              >
-                {{ length }}
-              </v-col>
+                  <h3 v-else>
+                    {{ contents.year }}
+                  </h3>
+                </v-col>
+              </v-row>
 
-              <v-col
-                sm="6"
-              >
-                <div class="text-xs-right">
+              <v-row>
+                <v-col
+                  sm="12"
+                  md="6"
+                  style="opacity:0.5"
+                >
+                  {{ length }}
+                </v-col>
+
+                <v-col
+                  sm="6"
+                  class="text-sm-right"
+                >
                   <v-chip
                     v-if="
                       contents.Media && contents.Media[0] && contents.Media[0].videoResolution
@@ -199,166 +217,162 @@
                   >
                     {{ contents.studio }}
                   </v-chip>
-                </div>
-              </v-col>
+                </v-col>
 
-              <v-col
-                cols="12"
-                class="text-center hidden-md-and-up "
-              >
-                <div v-if="playable">
-                  <v-btn
-                    v-if="
-                      playable &&
-                        contents.Media.length == 1 &&
-                        (contents.viewOffset == 0 || !contents.viewOffset)
-                    "
-                    block
-                    class="primary white--text"
-                    @click.native="playMedia(contents, 0)"
+                <v-col
+                  cols="12"
+                  class="text-center hidden-md-and-up "
+                >
+                  <div v-if="playable">
+                    <v-btn
+                      v-if="
+                        playable &&
+                          contents.Media.length == 1 &&
+                          (contents.viewOffset == 0 || !contents.viewOffset)
+                      "
+                      block
+                      class="primary white--text"
+                      @click.native="playMedia(contents, 0)"
+                    >
+                      <v-icon> play_arrow </v-icon>
+                    </v-btn>
+
+                    <v-btn
+                      v-else
+                      block
+                      class="primary white--text"
+                      @click.native.stop="dialog = true"
+                    >
+                      <v-icon> play_arrow </v-icon>
+                    </v-btn>
+                  </div>
+
+                  <div v-else>
+                    <v-row>
+                      <v-col cols="12">
+                        <div class="pa-2">
+                          Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
+                        </div>
+                      </v-col>
+
+                      <v-col cols="12">
+                        <v-btn
+                          block
+                          style="background-color: #cc3f3f"
+                          class="white--text"
+                          @click.native="pressStop()"
+                        >
+                          <v-icon /> Stop
+                        </v-btn>
+                      </v-col>
+
+                      <v-col cols="12">
+                        <v-btn
+                          v-if="me.role !== 'host'"
+                          block
+                          :disabled="manualSyncQueued"
+                          color="blue"
+                          @click.native="doManualSync"
+                        >
+                          Manual sync
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </div>
+                </v-col>
+
+                <div style="width: 100%">
+                  <p
+                    v-if="hidden"
+                    class="pt-3"
+                    style="font-style: italic"
+                    @click="hiddenOverride = true"
                   >
-                    <v-icon> play_arrow </v-icon>
-                  </v-btn>
+                    Summary automatically hidden for unwatched content. Click to unhide.
+                  </p>
 
-                  <v-btn
+                  <p
                     v-else
-                    block
-                    class="primary white--text"
-                    @click.native.stop="dialog = true"
+                    class="pt-3"
+                    style="font-style: italic"
                   >
-                    <v-icon> play_arrow </v-icon>
-                  </v-btn>
+                    {{ contents.summary }}
+                  </p>
                 </div>
 
-                <div v-else>
-                  <v-row>
-                    <v-col cols="12">
-                      <div class="pa-2">
-                        Now playing on {{ GET_CHOSEN_CLIENT.name }} from {{ server.name }}
-                      </div>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-btn
-                        block
-                        style="background-color: #cc3f3f"
-                        class="white--text"
-                        @click.native="pressStop()"
-                      >
-                        <v-icon /> Stop
-                      </v-btn>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-btn
-                        v-if="me.role !== 'host'"
-                        block
-                        :disabled="manualSyncQueued"
-                        color="blue"
-                        @click.native="doManualSync"
-                      >
-                        Manual sync
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                </div>
-              </v-col>
-
-              <div style="width: 100%">
-                <p
-                  v-if="hidden"
-                  class="pt-3"
-                  style="font-style: italic"
-                  @click="hiddenOverride = true"
+                <v-row
+                  v-if="contents.type === 'movie'"
+                  class="hidden-sm-and-down"
+                  justify="start"
+                  align="start"
                 >
-                  Summary automatically hidden for unwatched content. Click to unhide.
-                </p>
-
-                <p
-                  v-else
-                  class="pt-3"
-                  style="font-style: italic"
-                >
-                  {{ contents.summary }}
-                </p>
-              </div>
-
-              <v-row
-                v-if="contents.type === 'movie'"
-                class="hidden-sm-and-down"
-                justify="start"
-                align="start"
-              >
-                <v-col
-                  v-if="contents.Role && contents.Role.length > 0"
-                  lg="3"
-                  xl="2"
-                >
-                  <v-subheader class="white--text">
-                    Featuring
-                  </v-subheader>
-
-                  <div
-                    v-for="actor in contents.Role.slice(0, 6)"
-                    :key="actor.tag"
+                  <v-col
+                    v-if="contents.Role && contents.Role.length > 0"
+                    cols="auto"
                   >
-                    {{ actor.tag }}
-                    <span style="opacity:0.7;font-size:80%"> {{ actor.role }} </span>
-                  </div>
-                </v-col>
+                    <v-subheader class="white--text">
+                      Featuring
+                    </v-subheader>
 
-                <v-col
-                  v-if="contents.Director && contents.Director.length > 0"
-                  lg="3"
-                  xl="2"
-                >
-                  <v-subheader class="white--text">
-                    Director
-                  </v-subheader>
+                    <div
+                      v-for="actor in contents.Role.slice(0, 6)"
+                      :key="actor.tag"
+                    >
+                      {{ actor.tag }}
+                      <span style="opacity:0.7;font-size:80%"> {{ actor.role }} </span>
+                    </div>
+                  </v-col>
 
-                  <div
-                    v-for="director in contents.Director.slice(0, 3)"
-                    :key="director.tag"
+                  <v-col
+                    v-if="contents.Director && contents.Director.length > 0"
+                    cols="auto"
                   >
-                    {{ director.tag }}
-                  </div>
-                </v-col>
+                    <v-subheader class="white--text">
+                      Director
+                    </v-subheader>
 
-                <v-col
-                  v-if="contents.Producer && contents.Producer.length > 0"
-                  lg="3"
-                  xl="2"
-                >
-                  <v-subheader class="white--text">
-                    Producers
-                  </v-subheader>
+                    <div
+                      v-for="director in contents.Director.slice(0, 3)"
+                      :key="director.tag"
+                    >
+                      {{ director.tag }}
+                    </div>
+                  </v-col>
 
-                  <div
-                    v-for="producer in contents.Producer.slice(0, 3)"
-                    :key="producer.tag"
+                  <v-col
+                    v-if="contents.Producer && contents.Producer.length > 0"
+                    cols="auto"
                   >
-                    {{ producer.tag }}
-                  </div>
-                </v-col>
+                    <v-subheader class="white--text">
+                      Producers
+                    </v-subheader>
 
-                <v-col
-                  v-if="contents.Writer && contents.Writer.length > 0"
-                  lg="3"
-                  xl="2"
-                >
-                  <v-subheader class="white--text">
-                    Writers
-                  </v-subheader>
+                    <div
+                      v-for="producer in contents.Producer.slice(0, 3)"
+                      :key="producer.tag"
+                    >
+                      {{ producer.tag }}
+                    </div>
+                  </v-col>
 
-                  <div
-                    v-for="writer in contents.Writer.slice(0, 3)"
-                    :key="writer.tag"
+                  <v-col
+                    v-if="contents.Writer && contents.Writer.length > 0"
+                    cols="auto"
                   >
-                    {{ writer.tag }}
-                  </div>
-                </v-col>
+                    <v-subheader class="white--text">
+                      Writers
+                    </v-subheader>
+
+                    <div
+                      v-for="writer in contents.Writer.slice(0, 3)"
+                      :key="writer.tag"
+                    >
+                      {{ writer.tag }}
+                    </div>
+                  </v-col>
+                </v-row>
               </v-row>
-            </v-row>
+            </v-container>
           </v-col>
         </v-row>
 
@@ -390,41 +404,37 @@
                 :img="getLittleThumb(ep)"
                 :class="{ highlightBorder: ep.index === contents.index }"
                 style="margin:3%"
-                :server-id="machineIdentifier"
+                :machine-identifier="machineIdentifier"
                 spoiler-filter
               />
             </v-col>
           </v-row>
         </div>
 
-        <div v-if="related.length > 0">
+        <template v-if="related.length > 0">
           <v-subheader>Related Movies</v-subheader>
-          <v-container
-            fill-height
-            fluid
+
+          <v-row
+            justify="space-around"
+            align="center"
           >
-            <v-row
-              justify="space-around"
-              align="center"
+            <v-col
+              v-for="movie in related"
+              :key="movie.key"
+              sm="4"
+              md="1"
+              class="ma-1"
             >
-              <v-col
-                v-for="movie in related"
-                :key="movie.key"
-                sm="4"
-                md="1"
-                class="ma-1"
-              >
-                <plexthumb
-                  :content="movie"
-                  :img="getLittleThumb(movie)"
-                  style="margin:3%"
-                  :server-id="machineIdentifier"
-                  type="thumb"
-                />
-              </v-col>
-            </v-row>
-          </v-container>
-        </div>
+              <plexthumb
+                :content="movie"
+                :img="getLittleThumb(movie)"
+                style="margin:3%"
+                :machine-identifier="machineIdentifier"
+                type="thumb"
+              />
+            </v-col>
+          </v-row>
+        </template>
       </v-container>
     </v-card>
 
@@ -607,6 +617,7 @@ export default {
     },
   },
 
+  // TODO: see if needed
   watch: {
     ratingKey() {
       this.getNewData();
@@ -634,14 +645,14 @@ export default {
 
     async getNewData() {
       this.contents = await this.FETCH_PLEX_METADATA({
-        key: `/library/metadata/${this.ratingKey}`,
+        ratingKey: this.ratingKey,
         machineIdentifier: this.machineIdentifier,
       });
 
       if (this.contents.type === 'episode') {
         this.parentData = await this.FETCH_MEDIA_CHILDREN({
           machineIdentifier: this.machineIdentifier,
-          key: this.contents.parentKey,
+          ratingKey: this.contents.parentRatingKey,
           start: 0,
           size: 500,
           excludeAllLeaves: 1,
@@ -649,7 +660,7 @@ export default {
       } else if (this.contents.type === 'movie') {
         this.related = await this.FETCH_RELATED({
           machineIdentifier: this.machineIdentifier,
-          key: `/library/metadata/${this.ratingKey}`,
+          ratingKey: this.contents.ratingKey,
           count: 7,
         });
       }
@@ -702,7 +713,7 @@ export default {
         key: this.contents.key,
         metadata: this.contents,
         mediaIndex,
-        serverIdentifier: this.$route.params.machineIdentifier,
+        serverIdentifier: this.machineIdentifier,
         offset,
       });
       this.dialog = false;

@@ -34,7 +34,7 @@
                   style="position:absolute; top:0;text-align:right;right:0;
                   background: rgba(0, 0, 0, .5)"
                 >
-                  {{ GET_PLEX_SERVER(serverId).name }}</small>
+                  {{ GET_PLEX_SERVER(machineIdentifier).name }}</small>
                 <div
                   v-if="showUnwatchedFlag && !showServer"
                   class="pt-content-unwatched pt-orange unwatched"
@@ -117,7 +117,7 @@ export default {
       type: Boolean,
     },
 
-    serverId: {
+    machineIdentifier: {
       type: String,
       required: true,
     },
@@ -176,7 +176,7 @@ export default {
       const width = Math.round(this.fullwidth * 2);
       if (this.type === 'thumb') {
         return this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.serverId,
+          machineIdentifier: this.machineIdentifier,
           mediaUrl: this.content.thumb,
           width,
           height: 1000,
@@ -185,7 +185,7 @@ export default {
 
       if (!this.hovering && this.spoilerFilter && !this.content.viewCount) {
         return this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.serverId,
+          machineIdentifier: this.machineIdentifier,
           mediaUrl: this.content.art,
           width,
           height: 1000,
@@ -198,7 +198,7 @@ export default {
 
       if (this.type === 'art') {
         return this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.serverId,
+          machineIdentifier: this.machineIdentifier,
           mediaUrl: this.content.art,
           width,
           height: 1000,
@@ -206,7 +206,7 @@ export default {
       }
 
       return this.GET_MEDIA_IMAGE_URL({
-        machineIdentifier: this.serverId,
+        machineIdentifier: this.machineIdentifier,
         mediaUrl: this.content.thumb,
         width,
         height: 1000,
@@ -214,22 +214,57 @@ export default {
     },
 
     link() {
-      if (this.content.type === 'episode') {
-        let final = `/browse/${this.serverId}`;
-        const exists = this.content.librarySectionID;
-        if (exists) {
-          final = `${final}/${this.content.librarySectionID}`;
+      switch (this.content.type) {
+        case 'episode': {
+          return {
+            name: 'content',
+            params: {
+              machineIdentifier: this.machineIdentifier,
+              sectionId: this.content.librarySectionID,
+              grandparentRatingKey: this.content.grandparentRatingKey,
+              parentRatingKey: this.content.parentRatingKey,
+              ratingKey: this.content.ratingKey,
+            },
+          };
         }
-        final = `${final}/tv/${this.content.grandparentRatingKey}/${this.content.parentRatingKey}/${this.content.ratingKey}`;
-        return final;
+
+        case 'season': {
+          return {
+            name: 'season',
+            params: {
+              machineIdentifier: this.machineIdentifier,
+              sectionId: this.content.librarySectionID,
+              parentRatingKey: this.content.parentRatingKey,
+              ratingKey: this.content.ratingKey,
+            },
+          };
+        }
+
+        case 'series':
+        case 'show': {
+          return {
+            name: 'series',
+            params: {
+              machineIdentifier: this.machineIdentifier,
+              sectionId: this.content.librarySectionID,
+              ratingKey: this.content.ratingKey,
+            },
+          };
+        }
+
+        // Movie or other type
+        case 'movie':
+        default: {
+          return {
+            name: 'movie',
+            params: {
+              machineIdentifier: this.machineIdentifier,
+              sectionId: this.content.librarySectionID,
+              ratingKey: this.content.ratingKey,
+            },
+          };
+        }
       }
-      if (this.content.type === 'season') {
-        return `/browse/${this.serverId}/${this.content.librarySectionID}/tv/${this.content.parentRatingKey}/${this.content.ratingKey}`;
-      }
-      if (this.content.type === 'series' || this.content.type === 'show') {
-        return `/browse/${this.serverId}/${this.content.librarySectionID}/tv/${this.content.ratingKey}`;
-      }
-      return `/browse/${this.serverId}/${this.content.librarySectionID}/${this.content.ratingKey}`;
     },
 
     showUnwatchedFlag() {
