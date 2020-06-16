@@ -1,9 +1,10 @@
 <template>
-  <div style="width:100%; position: relative">
-    <div
-      v-if="GET_METADATA"
-      style="position: relative"
-    >
+  <v-row
+    v-if="GET_METADATA"
+    style="position: relative"
+    class="slplayer-container"
+  >
+    <v-col class="pa-0">
       <div
         ref="videoPlayerContainer"
         class="slplayer"
@@ -197,8 +198,8 @@
           </v-layout>
         </v-flex>
       </v-layout>
-    </div>
-  </div>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -479,6 +480,11 @@ export default {
 </script>
 
 <style scoped>
+  .slplayer-container {
+    margin-top: -12px;
+    margin-bottom: -12px;
+  }
+
   .slplayer video {
     width: 100%;
     height: 100%;
