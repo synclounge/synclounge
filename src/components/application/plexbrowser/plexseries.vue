@@ -229,6 +229,8 @@ export default {
         ratingKey: this.ratingKey,
         machineIdentifier: this.machineIdentifier,
       });
+
+      this.setBackground();
     },
 
     async fetchChildren() {
@@ -239,7 +241,6 @@ export default {
         size: 150,
         excludeAllLeaves: 1,
       });
-      this.setBackground();
     },
 
     setBackground() {

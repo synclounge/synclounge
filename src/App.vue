@@ -270,8 +270,6 @@ export default {
       }
       const getTitle = (ratingKey) => {
         try {
-          console.log(ratingKey);
-          console.log(this.getItemCache[this.$route.params.machineIdentifier]);
           return this.getItemCache[this.$route.params.machineIdentifier][ratingKey].title;
         } catch (e) {
           return 'Loading..';

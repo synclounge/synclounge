@@ -49,8 +49,8 @@ export default {
     const params = {
       ...rootGetters.GET_PLEX_BASE_PARAMS(server.accessToken),
       url: mediaUrl,
-      width,
-      height,
+      width: Math.round(width),
+      height: Math.round(height),
       blur: blur || 0,
     };
 

@@ -41,7 +41,7 @@
       </v-col>
     </v-row>
 
-    <v-row>z
+    <v-row>
       <v-col
         v-if="contents && !browsingContent && !stopNewContent"
         v-observe-visibility="getMoreContent"
@@ -55,13 +55,19 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import { sample } from 'lodash-es';
+
+import sizing from '@/mixins/sizing';
 
 export default {
   components: {
     plexthumb: () => import('./plexthumb.vue'),
   },
+
+  mixins: [
+    sizing,
+  ],
 
   props: {
     machineIdentifier: {
@@ -85,6 +91,12 @@ export default {
       busy: false,
       contents: [],
     };
+  },
+
+  computed: {
+    ...mapGetters('plexservers', [
+      'GET_MEDIA_IMAGE_URL',
+    ]),
   },
 
   created() {
