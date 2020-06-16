@@ -173,9 +173,11 @@ export default {
   }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
       .get(`/library/metadata/${ratingKey}/children`, {
-        'X-Plex-Container-Start': start,
-        'X-Plex-Container-Size': size,
-        excludeAllLeaves,
+        params: {
+          'X-Plex-Container-Start': start,
+          'X-Plex-Container-Size': size,
+          excludeAllLeaves,
+        },
       });
 
     dispatch('CACHE_METADATA_TITLES', { machineIdentifier, result: data.MediaContainer });
@@ -207,9 +209,11 @@ export default {
   }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
       .get(`/library/sections/${sectionId}/all`, {
-        'X-Plex-Container-Start': start,
-        'X-Plex-Container-Size': size,
-        excludeAllLeaves: 1,
+        params: {
+          'X-Plex-Container-Start': start,
+          'X-Plex-Container-Size': size,
+          excludeAllLeaves: 1,
+        },
       });
 
     return data.MediaContainer.Metadata.map((child) => ({

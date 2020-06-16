@@ -11,9 +11,9 @@ const browser = detect();
 export default {
   getItemCache: (state) => state.itemCache,
   getLibraryCache: (state) => state.libraryCache,
-  GET_SL_PLAYER: (state) => state.slPlayer,
 
-  IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN'] && getters.IS_USER_AUTHORIZED,
+  IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN']
+    && getters.IS_USER_AUTHORIZED,
 
   GET_PLEX_PRODUCT_HEADER: () => 'SyncLounge',
   GET_PLEX_DEVICE_DEVICE_HEADER: () => browser.os,
@@ -22,7 +22,7 @@ export default {
 
   GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Product': getters.GET_PLEX_PRODUCT_HEADER,
-    'X-Plex-Version': '4.34.3',
+    'X-Plex-Version': rootGetters.getAppVersion,
     'X-Plex-Client-Identifier': rootGetters['settings/GET_CLIENTIDENTIFIER'],
     'X-Plex-Platform': getters.GET_PLEX_PLATFORM_HEADER,
     'X-Plex-Platform-Version': browser.version,
@@ -31,7 +31,8 @@ export default {
     'X-Plex-Model': 'hosted',
     'X-Plex-Device': getters.GET_PLEX_DEVICE_DEVICE_HEADER,
     'X-Plex-Device-Name': getters.GET_PLEX_DEVICE_NAME_HEADER,
-    'X-Plex-Device-Screen-Resolution': `${window.screen.availWidth}x${window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
+    'X-Plex-Device-Screen-Resolution':
+      `${window.screen.availWidth}x${window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
     'X-Plex-Language': 'en',
   }),
 
@@ -70,5 +71,6 @@ export default {
       rootGetters.GET_AUTHENTICATION.authorized,
     ).length > 0,
 
-  IS_AUTHENTICATION_TYPE_NONE: (state, getters, rootState, rootGetters) => rootGetters.GET_AUTHENTICATION.mechanism === 'none',
+  IS_AUTHENTICATION_TYPE_NONE: (state, getters, rootState, rootGetters) => rootGetters
+    .GET_AUTHENTICATION.mechanism === 'none',
 };

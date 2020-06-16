@@ -1,76 +1,67 @@
 <template>
-  <div
-    ref="root"
-    class="portrait"
-    style="cursor: pointer"
+  <v-card
+    :to="link"
+    flat
+    tile
+    color="transparent"
     @mouseover="hovering = true"
     @mouseout="hovering = false"
+    @click.native="emitContentClicked(content)"
   >
-    <router-link :to="link">
-      <v-card
-        flat
-        class="grey darken-4 elevation-20"
-        style="border-radius: 0px !important"
-        @click.native="emitContentClicked(content)"
+    <v-img
+      data-tilt
+      class="white--text"
+      style="position:relative"
+      :height="calculatedHeight"
+      :src="imgUrl"
+    >
+      <v-container
+        class="pa-0 ma-0"
+        fill-height
+        fluid
+        style="position:relative"
       >
-        <v-img
-          data-tilt
-          class="white--text"
-          style="position:relative"
-          :height="calculatedHeight"
-          :src="imgUrl"
-        >
-          <v-container
-            class="pa-0 ma-0"
-            fill-height
-            fluid
-            style="position:relative"
-          >
-            <v-row>
-              <v-col cols="12">
-                <small
-                  v-if="showServer"
-                  class="ma-1"
-                  style="position:absolute; top:0;text-align:right;right:0;
+        <v-row>
+          <v-col cols="12">
+            <small
+              v-if="showServer"
+              class="ma-1"
+              style="position:absolute; top:0;text-align:right;right:0;
                   background: rgba(0, 0, 0, .5)"
-                >
-                  {{ GET_PLEX_SERVER(machineIdentifier).name }}</small>
-                <div
-                  v-if="showUnwatchedFlag && !showServer"
-                  class="pt-content-unwatched pt-orange unwatched"
-                >
-                  <span class="pa-2 black--text">
-                    <span>
-                      {{ unwatchedCount }}
-                    </span>
-                  </span>
-                </div>
+            >
+              {{ GET_PLEX_SERVER(machineIdentifier).name }}</small>
 
-                <div
-                  v-if="content.Media && content.Media.length != 1 && !showServer"
-                  style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8)"
-                >
-                  <span class="pa-2 black--text">
-                    <span>
-                      {{ content.Media.length }}
-                    </span>
-                  </span>
-                </div>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-img>
+            <div
+              v-if="showUnwatchedFlag && !showServer"
+              class="pt-content-unwatched pt-orange unwatched pa-1 text-body-2"
+              style="min-width: 16px; min-height: 16px"
+            >
+              {{ unwatchedCount }}
+            </div>
 
-        <v-progress-linear
-          v-if="showProgressBar"
-          v-slot:progress
-          style="width:100%"
-          class="pa-0 mb-0 ma-0 pt-content-progress"
-          height="1"
-          :value="unwatchedPercent"
-        />
-      </v-card>
+            <div
+              v-if="content.Media && content.Media.length != 1 && !showServer"
+              style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8);
+                   min-width: 16px; min-height: 16px"
+              class="pa-1 text-body-2"
+            >
+              {{ content.Media.length }}
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-img>
 
+    <v-progress-linear
+      v-if="showProgressBar"
+      v-slot:progress
+      style="width:100%"
+      class="pa-0 mb-0 ma-0 pt-content-progress"
+      height="1"
+      :value="unwatchedPercent"
+    />
+
+    <v-card-text class="pa-0">
       <v-row
         dense
         no-gutters
@@ -92,7 +83,6 @@
         </v-col>
 
         <v-col
-          ref="bottomText"
           cols="12"
           style="font-size:0.7rem"
         >
@@ -101,8 +91,8 @@
           </div>
         </v-col>
       </v-row>
-    </router-link>
-  </div>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -112,6 +102,7 @@ import contentTitle from '@/mixins/contentTitle';
 
 export default {
   mixins: [contentTitle],
+
   props: {
     showServer: {
       type: Boolean,
@@ -157,11 +148,7 @@ export default {
 
   data() {
     return {
-      fullheight: null,
       fullwidth: null,
-      toptextheight: null,
-      bottomtextheight: null,
-
       hovering: false,
     };
   },
@@ -283,12 +270,15 @@ export default {
       if (this.height) {
         return `${this.height}em`;
       }
+
       if (this.type === 'art') {
         return `${Math.round(this.fullwidth * 0.7)}px`;
       }
+
       if (this.content.type === 'movie') {
         return `${Math.round(this.fullwidth * 1.5)}px`;
       }
+
       if (this.content.type === 'episode') {
         return `${Math.round(this.fullwidth * 0.7)}px`;
       }
@@ -355,18 +345,10 @@ export default {
   },
 
   mounted() {
-    this.fullheight = this.$refs.root.offsetHeight;
-    this.fullwidth = this.$refs.root.offsetWidth;
-    if (this.$refs.topText) {
-      this.toptextheight = this.$refs.topText.offsetHeight;
-    }
-
-    if (this.$refs.bottomText) {
-      this.bottomtextheight = this.$refs.bottomText.offsetHeight;
-    }
+    this.fullwidth = this.$el.offsetWidth;
 
     if (this.type === 'thumb') {
-      VanillaTilt.init(this.$refs.root, {
+      VanillaTilt.init(this.$el, {
         reverse: true, // reverse the tilt direction
         max: 7, // max tilt rotation (degrees)
         perspective: 1000, // Transform perspective, the lower the more extreme the tilt gets.
@@ -393,14 +375,7 @@ export default {
     },
 
     handleResize() {
-      this.fullheight = this.$refs.root.offsetHeight;
-      this.fullwidth = this.$refs.root.offsetWidth;
-      if (this.$refs.topText) {
-        this.toptextheight = this.$refs.topText.offsetHeight;
-      }
-      if (this.$refs.bottomText) {
-        this.bottomtextheight = this.$refs.bottomText.offsetHeight;
-      }
+      this.fullwidth = this.$el.offsetWidth;
     },
   },
 };

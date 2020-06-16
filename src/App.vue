@@ -88,6 +88,32 @@
           }}
         </v-icon>
       </v-toolbar-items>
+
+      <template
+        v-if="crumbs && crumbs.length > 0"
+        v-slot:extension
+      >
+        <v-breadcrumbs
+          :items="crumbs"
+          class="text-xs-left"
+          style="justify-content: left"
+        >
+          <template v-slot:divider>
+            <v-icon>chevron_right</v-icon>
+          </template>
+
+          <template v-slot:item="props">
+            <v-breadcrumbs-item
+              :to="props.item.to"
+              :exact="true"
+            >
+              {{
+                props.item.text
+              }}
+            </v-breadcrumbs-item>
+          </template>
+        </v-breadcrumbs>
+      </template>
     </v-app-bar>
 
     <v-main
@@ -95,8 +121,7 @@
       app
     >
       <v-container
-        align-start
-        class="ma-0 pa-0"
+        align="start"
         :style="containerStyle"
         style="height: 100%"
         fluid
@@ -134,28 +159,6 @@
         <template
           v-else
         >
-          <v-breadcrumbs
-            v-if="crumbs && crumbs.length > 0"
-            :items="crumbs"
-            class="text-xs-left"
-            style="justify-content: left"
-          >
-            <template v-slot:divider>
-              <v-icon>chevron_right</v-icon>
-            </template>
-
-            <template v-slot:item="props">
-              <v-breadcrumbs-item
-                :to="props.item.to"
-                :exact="true"
-              >
-                {{
-                  props.item.text
-                }}
-              </v-breadcrumbs-item>
-            </template>
-          </v-breadcrumbs>
-
           <router-view />
         </template>
 

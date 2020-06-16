@@ -1,5 +1,8 @@
 <template>
-  <v-container>
+  <v-container
+    fluid
+    style=" overflow-y: auto"
+  >
     <v-row
       v-if="!contents && !browsingContent"
       justify="center"
@@ -20,22 +23,18 @@
 
     <v-row
       v-if="!browsingContent && contents"
-      class="mt-3"
-      style="height:90vh; overflow-y: auto"
+      no-gutter
     >
       <v-col
         v-for="content in contents"
-        :key="content.key"
+        :key="content.ratingKey"
         cols="3"
         md="1"
-
-        class="ma-1"
       >
         <plexthumb
           :content="content"
           :machine-identifier="machineIdentifier"
           type="thumb"
-          style="margin:7%"
           @contentSet="setContent(content)"
         />
       </v-col>
@@ -100,7 +99,7 @@ export default {
   },
 
   created() {
-    // Hit the PMS endpoing /library/sections
+    console.log('created');
     this.getMoreContent();
   },
 
@@ -114,7 +113,7 @@ export default {
     },
 
     setBackground() {
-      const randomItem = sample(this.contents.MediaContainer.Metadata);
+      const randomItem = sample(this.contents);
 
       this.$store.commit('SET_BACKGROUND',
         this.GET_MEDIA_IMAGE_URL({
@@ -129,6 +128,7 @@ export default {
     },
 
     async getMoreContent() {
+      console.log('get more content');
       if (this.stopNewContent || this.busy) {
         return;
       }
@@ -148,7 +148,7 @@ export default {
 
       this.startingIndex += results.length;
 
-      if (this.contents.length <= 100) {
+      if (this.contents.length <= 100 && this.contents.length > 0) {
         this.setBackground();
       }
 
