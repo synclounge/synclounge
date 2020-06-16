@@ -45,7 +45,6 @@ export default {
     //   this.clientIdentifier,
     //   data.MediaContainer.librarySectionTitle,
     // ]);
-    dispatch('CACHE_METADATA_TITLES', { machineIdentifier, result: data.MediaContainer });
     return data.MediaContainer.Metadata[0];
   },
 
@@ -144,8 +143,6 @@ export default {
         },
       });
 
-    dispatch('CACHE_METADATA_TITLES', { machineIdentifier, result: data.MediaContainer });
-
     return data.MediaContainer.Metadata;
   },
 
@@ -163,8 +160,6 @@ export default {
     const { data } = await getters
       .GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/library/recentlyAdded');
 
-    dispatch('CACHE_METADATA_TITLES', { machineIdentifier, result: data.MediaContainer });
-
     return data.MediaContainer.Metadata;
   },
 
@@ -180,12 +175,32 @@ export default {
         },
       });
 
-    dispatch('CACHE_METADATA_TITLES', { machineIdentifier, result: data.MediaContainer });
-
     return data.MediaContainer.Metadata.map((child) => ({
       ...child,
       librarySectionID: data.MediaContainer.librarySectionID,
     }));
+  },
+
+  FETCH_SHOW: async ({ getters }, {
+    machineIdentifier, ratingKey, start, size, excludeAllLeaves,
+  }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
+      .get(`/library/metadata/${ratingKey}/children`, {
+        params: {
+          'X-Plex-Container-Start': start,
+          'X-Plex-Container-Size': size,
+          excludeAllLeaves,
+        },
+      });
+
+    // Add librarySectionID to all children
+    return {
+      ...data.MediaContainer,
+      Metadata: data.MediaContainer.Metadata.map((child) => ({
+        ...child,
+        librarySectionID: data.MediaContainer.librarySectionID,
+      })),
+    };
   },
 
   FETCH_RELATED: async ({ getters, dispatch }, { machineIdentifier, ratingKey, count }) => {
@@ -194,8 +209,6 @@ export default {
         excludeFields: 'summary',
         count,
       });
-
-    dispatch('CACHE_METADATA_TITLES', { machineIdentifier, result: data.MediaContainer.Hub[0] });
 
     // TODO: potentially include the other hubs too (related director etc...)
     return data.MediaContainer.Hub[0].Metadata.map((child) => ({

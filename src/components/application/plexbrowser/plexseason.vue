@@ -17,7 +17,7 @@
 
   <v-container
     v-else
-    class="mt-3"
+    fluid
   >
     <v-row>
       <v-col cols="12">
@@ -52,44 +52,39 @@
                 md="9"
                 style="position:relative"
               >
+                <h1> {{ metadata.title1 }}</h1>
+
+                <h3 style="font-weight:bold">
+                  {{ metadata.title2 }}
+                </h3>
+
+                <p> {{ metadata.Metadata.length }} episodes </p>
+
+                <v-divider />
+
+                <p
+                  style="overflow: hidden"
+                  class="pt-3 font-italic"
+                >
+                  {{ metadata.summary }}
+                </p>
+
                 <div>
-                  <h1> {{ metadata.parentTitle }}</h1>
-                  <h3 style="font-weight:bold">
-                    {{ metadata.title }}
-                  </h3>
-                  <p> {{ children.length }} episodes </p>
-
-                  <v-divider />
-
-                  <p
-                    style="font-style: italic"
-                    class="pt-3; overflow: hidden"
+                  <v-chip
+                    v-if="metadata.grandparentContentRating"
+                    label
+                    color="grey"
                   >
-                    {{ metadata.summary }}
-                  </p>
+                    {{ metadata.grandparentContentRating }}
+                  </v-chip>
 
-                  <div>
-                    <div
-                      style="float:right"
-                      class="pa-4"
-                    >
-                      <v-chip
-                        v-if="metadata.grandparentContentRating"
-                        label
-                        color="grey"
-                      >
-                        {{ metadata.grandparentContentRating }}
-                      </v-chip>
-
-                      <v-chip
-                        v-if="metadata.grandparentStudio"
-                        secondary
-                        color="grey"
-                      >
-                        {{ metadata.grandparentStudio }}
-                      </v-chip>
-                    </div>
-                  </div>
+                  <v-chip
+                    v-if="metadata.grandparentStudio"
+                    secondary
+                    color="grey"
+                  >
+                    {{ metadata.grandparentStudio }}
+                  </v-chip>
                 </div>
               </v-col>
             </v-row>
@@ -108,7 +103,7 @@
       class="row mt-3"
     >
       <v-col
-        v-for="content in children"
+        v-for="content in metadata.Metadata"
         :key="content.key"
         cols="6"
         md="2"
@@ -118,7 +113,6 @@
           :content="content"
           :machine-identifier="machineIdentifier"
           type="thumb"
-          style="margin:2%"
           full-title
           @contentSet="setContent(content)"
         />
@@ -147,11 +141,6 @@ export default {
       required: true,
     },
 
-    sectionId: {
-      type: String,
-      required: true,
-    },
-
     ratingKey: {
       type: String,
       required: true,
@@ -161,7 +150,6 @@ export default {
   data() {
     return {
       browsingContent: null,
-      children: [],
       metadata: null,
     };
   },
@@ -202,35 +190,24 @@ export default {
   },
 
   async mounted() {
-    await Promise.all([
-      this.fetchMetadata(),
-      this.fetchChildren(),
-    ]);
+    await this.fetchMetadata();
   },
 
   methods: {
     ...mapActions('plexservers', [
-      'FETCH_PLEX_METADATA',
-      'FETCH_MEDIA_CHILDREN',
+      'FETCH_SHOW',
     ]),
 
     async fetchMetadata() {
-      this.metadata = await this.FETCH_PLEX_METADATA({
-        ratingKey: this.ratingKey,
-        machineIdentifier: this.machineIdentifier,
-      });
-
-      this.setBackground();
-    },
-
-    async fetchChildren() {
-      this.children = await this.FETCH_MEDIA_CHILDREN({
+      this.metadata = await this.FETCH_SHOW({
         machineIdentifier: this.machineIdentifier,
         ratingKey: this.ratingKey,
         start: 0,
         size: 500,
         excludeAllLeaves: 1,
       });
+
+      this.setBackground();
     },
 
     setContent(content) {

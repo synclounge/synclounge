@@ -99,7 +99,6 @@ export default {
   },
 
   created() {
-    console.log('created');
     this.getMoreContent();
   },
 
@@ -128,7 +127,6 @@ export default {
     },
 
     async getMoreContent() {
-      console.log('get more content');
       if (this.stopNewContent || this.busy) {
         return;
       }
