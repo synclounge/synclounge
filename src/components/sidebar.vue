@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer
-    v-if="getHostUser"
+    v-if="GET_HOST_USER"
     :value="isRightSidebarOpen"
     style="z-index: 6"
     app
@@ -67,13 +67,13 @@
           color="rgb(44, 44, 49)"
         >
           <v-btn
-            v-if="playerState(getHostUser) !== 'stop'"
+            v-if="playerState(GET_HOST_USER) !== 'stop'"
             color="primary"
             :disabled="!canPause"
             style="min-width: 0; float: right;"
-            @click="sendPartyPauseLocal(playerState(getHostUser) === 'play_arrow')"
+            @click="sendPartyPauseLocal(playerState(GET_HOST_USER) === 'play_arrow')"
           >
-            <v-icon v-if="playerState(getHostUser) === 'play_arrow'">
+            <v-icon v-if="playerState(GET_HOST_USER) === 'play_arrow'">
               pause
             </v-icon>
             <v-icon v-else>
@@ -93,7 +93,7 @@
         <span
           class="mb-0 pb-0 pa-0"
           style="color: rgb(44, 44, 49); "
-        >Waiting for {{ getHostUser.username }} to start</span>
+        >Waiting for {{ GET_HOST_USER.username }} to start</span>
       </v-list-item>
     </template>
 
@@ -113,15 +113,15 @@
         >
           <v-list-item-avatar>
             <img
-              :src="getHostUser.avatarUrl"
-              :style="getImgStyle(getHostUser)"
+              :src="GET_HOST_USER.avatarUrl"
+              :style="getImgStyle(GET_HOST_USER)"
             >
             <v-icon
-              v-if="getHostUser.playerState !== 'playing'"
+              v-if="GET_HOST_USER.playerState !== 'playing'"
               style="font-size: 26px; opacity: 0.8; position: absolute;
               background-color: rgba(0,0,0,0.5)"
             >
-              {{ playerState(getHostUser) }}
+              {{ playerState(GET_HOST_USER) }}
             </v-icon>
           </v-list-item-avatar>
 
@@ -134,21 +134,21 @@
             >
               <span>
                 <v-list-item-title>
-                  {{ getHostUser.username }}
+                  {{ GET_HOST_USER.username }}
                   <span
-                    v-if="getHostUser.uuid === me.uuid"
+                    v-if="GET_HOST_USER.uuid === me.uuid"
                     style="opacity: 0.6"
                   >(you)</span>
                 </v-list-item-title>
 
                 <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">{{
-                  getTitle(getHostUser)
+                  getTitle(GET_HOST_USER)
                 }}</v-list-item-subtitle>
               </span>
-              Watching on {{ getHostUser.playerProduct || 'Unknown Plex Client' }}
-              <span v-if="GET_PLEX_SERVER(getHostUser.machineIdentifier)">
+              Watching on {{ GET_HOST_USER.playerProduct || 'Unknown Plex Client' }}
+              <span v-if="GET_PLEX_SERVER(GET_HOST_USER.machineIdentifier)">
                 <br>
-                via {{ GET_PLEX_SERVER(getHostUser.machineIdentifier).name }}
+                via {{ GET_PLEX_SERVER(GET_HOST_USER.machineIdentifier).name }}
               </span>
             </v-tooltip>
           </v-list-item-content>
@@ -172,18 +172,18 @@
             style="float: left; font-size:70%"
             class="ptuser-time pl-1"
           >{{
-            getCurrent(getHostUser)
+            getCurrent(GET_HOST_USER)
           }}</span>
           <span
             style="float: right; font-size:70%"
             class="ptuser-maxTime pr-1"
           >{{
-            getMax(getHostUser)
+            getMax(GET_HOST_USER)
           }}</span>
           <v-progress-linear
             class="pt-content-progress"
             :height="2"
-            :value="percent(getHostUser)"
+            :value="percent(GET_HOST_USER)"
           />
         </div>
       </v-card>
@@ -328,11 +328,11 @@ export default {
 
   computed: {
     ...mapState(['me', 'isRightSidebarOpen']),
-    ...mapGetters([
+    ...mapGetters('synclounge', [
       'getPartyPausing',
       'getUsers',
       'getRoom',
-      'getHostUser',
+      'GET_HOST_USER',
     ]),
 
     ...mapGetters('plexservers', [

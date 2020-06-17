@@ -6,9 +6,8 @@ import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 
 export default {
   async autoJoin({ dispatch, rootGetters }, data) {
-    await dispatch('socketConnect', {
-      address: data.server,
-    });
+    await dispatch('ESTABLISH_SOCKET_CONNECTION', data.server);
+    console.log('ESTABISHED');
     const temporaryObj = {
       user: rootGetters.GET_PLEX_USER,
       roomName: data.room,
@@ -22,7 +21,11 @@ export default {
 
   ESTABLISH_SOCKET_CONNECTION: async ({ commit }, address) => {
     // TODO: make wrapper method that disconnects the socket if it already exists
-    const socket = await socketConnect(address);
+    const base = new URL(`${address}////`);
+    console.log(base);
+    const url = new URL('socket.io', base.href);
+    console.log(url);
+    const socket = await socketConnect(url.origin, { path: url.pathname });
     commit('SET_SOCKET', socket);
   },
 

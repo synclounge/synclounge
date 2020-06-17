@@ -22,7 +22,9 @@ export default new Router({
     {
       path: '/signin',
       name: 'Signin',
-      meta: {},
+      meta: {
+        requiresNoAuth: true,
+      },
       component: () => import('../components/signin.vue'),
     },
     {
@@ -37,7 +39,7 @@ export default new Router({
       meta: {
         requiresAuth: true,
         redirectAfterAuth: true,
-        requireAutoJoinEnabled: true,
+        requiresAutoJoinEnabled: true,
       },
       component: () => import('../components/autojoin.vue'),
       name: 'autojoin',

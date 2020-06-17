@@ -79,7 +79,7 @@
         </v-btn>
 
         <v-icon
-          v-if="showRightDrawerButton"
+          v-if="GET_ROOM"
           class="clickable"
           @click="TOGGLE_RIGHT_SIDEBAR_OPEN"
         >
@@ -242,26 +242,33 @@ export default {
     ...mapGetters([
       'getItemCache',
       'getLibraryCache',
-      'getConnected',
-      'getRoom',
-      'getServer',
       'getShortLink',
       'GET_SYNCLOUNGE_SERVERS',
       'GET_UP_NEXT_POST_PLAY_DATA',
       'getLogos',
-      'IS_DONE_FETCHING_DEVICES',
-      'IS_AUTHENTICATED',
       'GET_CONFIG',
       'GET_CONFIGURATION_FETCHED',
       'GET_CONFIGURATION_FETCHED_ERROR',
     ]),
+
+    ...mapGetters('plex', [
+      'IS_AUTHENTICATED',
+      'IS_DONE_FETCHING_DEVICES',
+    ]),
+
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
       'GET_CLIENT_PLAYING_METADATA',
     ]),
+
     ...mapGetters('plexservers', [
       'GET_PLEX_SERVER',
     ]),
+
+    ...mapGetters('synclounge', [
+      'GET_ROOM',
+    ]),
+
     ...mapState(['isRightSidebarOpen']),
 
     crumbs() {
@@ -337,10 +344,6 @@ export default {
 
     showNowPlaying() {
       return this.GET_CLIENT_PLAYING_METADATA && this.$route.name === 'browse';
-    },
-
-    showRightDrawerButton() {
-      return this.getConnected && this.getRoom;
     },
 
     mainStyle() {
@@ -441,9 +444,12 @@ export default {
       'SET_LEFT_SIDEBAR_OPEN',
       'SET_RIGHT_SIDEBAR_OPEN',
       'TOGGLE_RIGHT_SIDEBAR_OPEN',
+      'FETCH_CONFIG',
+    ]),
+
+    ...mapActions('plex', [
       'FETCH_PLEX_DEVICES_IF_NEEDED',
       'FETCH_PLEX_USER',
-      'FETCH_CONFIG',
     ]),
 
     sendNotification() {

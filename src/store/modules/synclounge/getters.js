@@ -20,14 +20,13 @@ const loadToNumber = (load) => {
 const healthScore = (health) => health.latency + loadToNumber(health.load) * 10;
 
 export default {
-
   getMe: (state) => state.me,
-  getRoom: (state) => state.room,
+  GET_ROOM: (state) => state.room,
   getPassword: (state) => state.password,
   getUsers: (state) => state.users,
   getMessages: (state) => state.messages,
   getPartyPausing: (state) => state.partyPausing,
-  getHostUser: (state) => state.users.find((u) => u.role === 'host'),
+  GET_HOST_USER: (state) => state.users.find((u) => u.role === 'host'),
   GET_HOST_PLAYER_STATE: (state) => state.lastHostTimeline.playerState,
   AM_I_HOST: (state) => state.me.role === 'host',
   GET_INVITE_URL: (state) => state.inviteUrl,
@@ -68,4 +67,6 @@ export default {
   GET_DISPLAY_USERNAME: (state, getters, rootState, rootGetters) => (rootGetters['settings/GET_HIDEUSERNAME']
     ? rootGetters['settings/GET_ALTUSERNAME']
     : rootGetters['plex/GET_PLEX_USER'].username || rootGetters['plex/GET_PLEX_USER'].title),
+
+  GET_UUID: (state) => state.uuid,
 };

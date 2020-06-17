@@ -63,14 +63,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
+    ...mapGetters('plex', [
       'GET_PLEX_AUTH_URL',
       'IS_USER_AUTHORIZED',
     ]),
   },
 
   methods: {
-    ...mapActions([
+    ...mapActions('plex', [
       'REQUEST_PLEX_INIT_AUTH',
       'REQUEST_PLEX_AUTH_TOKEN',
       'FETCH_PLEX_DEVICES_IF_NEEDED',

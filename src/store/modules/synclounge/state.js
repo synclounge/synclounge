@@ -3,7 +3,7 @@ import guid from '@/utils/guid';
 const state = () => ({
   uuid: guid(),
   socket: null,
-  room: false,
+  room: null,
   password: false,
   users: [],
   messages: [],

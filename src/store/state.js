@@ -11,9 +11,6 @@ const state = () => ({
   configurationFetched: false,
   configurationFetchError: false,
 
-  // SETTINGS
-  stats: {},
-  me: {},
   isLeftSidebarOpen: false,
   isRightSidebarOpen: false,
 

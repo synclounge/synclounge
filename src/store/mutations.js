@@ -1,17 +1,12 @@
-import Vue from 'vue';
-
 export default {
   SET_BACKGROUND(state, value) {
     state.background = value;
   },
 
-  SET_VALUE(state, data) {
-    const [key, value] = data;
-    Vue.set(state, key, value);
-  },
   SET_LEFT_SIDEBAR_OPEN: (state, open) => { state.isLeftSidebarOpen = open; },
   SET_RIGHT_SIDEBAR_OPEN: (state, open) => { state.isRightSidebarOpen = open; },
   TOGGLE_RIGHT_SIDEBAR_OPEN: (state) => { state.isRightSidebarOpen = !state.isRightSidebarOpen; },
+
   SET_BLOCK_AUTOPLAY: (state, block) => {
     state.blockAutoPlay = block;
   },

@@ -216,7 +216,8 @@ export default {
 
   computed: {
     ...mapState(['isLeftSidebarOpen']),
-    ...mapGetters([
+
+    ...mapGetters('plex', [
       'IS_DONE_FETCHING_DEVICES',
       'GET_PLEX_USER',
     ]),

@@ -34,7 +34,7 @@ window.EventBus.$on('command', (data) => {
 });
 
 router.beforeEach((to, from, next) => {
-  if (!store.getters.IS_AUTHENTICATED && to.matched.some((record) => record.meta.requiresAuth)) {
+  if (!store.getters['plex/IS_AUTHENTICATED'] && to.matched.some((record) => record.meta.requiresAuth)) {
     if (to.matched.some((record) => record.meta.redirectAfterAuth)) {
       next({
         path: '/signin',
@@ -45,11 +45,13 @@ router.beforeEach((to, from, next) => {
     } else {
       next('/signin');
     }
+  } else if (to.matched.some((record) => record.meta.requiresNoAuth) && store.getters['plex/IS_AUTHENTICATED']) {
+    next('/');
   } else if (store.getters.GET_CONFIG.autoJoin
     && to.matched.some((record) => record.meta.noAutoJoin)) {
     next('/autojoin');
   } else if (store.getters.GET_CONFIG.autoJoin
-    && to.matched.some((record) => record.meta.requireAutoJoinEnabled)) {
+    && to.matched.some((record) => record.meta.requiresAutoJoinEnabled)) {
     next('/');
   } else if (!store.getters.getRoom && to.matched.some((record) => record.meta.protected)) {
     // this route requires us to be in a room with a client selected

@@ -41,8 +41,11 @@ export default {
   name: 'CreateRoom',
   computed: {
     ...mapGetters([
-      'GET_SERVERS_HEALTH',
       'getLogos',
+    ]),
+
+    ...mapGetters('synclounge', [
+      'GET_SERVERS_HEALTH',
     ]),
   },
 
@@ -51,7 +54,7 @@ export default {
   },
 
   methods: {
-    ...mapActions([
+    ...mapActions('synclounge', [
       'FETCH_SERVERS_HEALTH',
       'CREATE_AND_JOIN_ROOM',
     ]),
