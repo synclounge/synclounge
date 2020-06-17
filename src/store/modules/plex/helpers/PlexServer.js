@@ -39,7 +39,6 @@ class PlexServer {
       headers: options.headers,
     });
 
-    this.handleMetadata(data);
     return data;
   }
 

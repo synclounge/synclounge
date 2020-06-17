@@ -1,168 +1,7 @@
 import axios from 'axios';
-
-function sendNotification(message) {
-  return window.EventBus.$emit('notification', message);
-}
+import sizing from '@/utils/sizing';
 
 export default {
-  async PLAYBACK_CHANGE({
-    commit, state, dispatch, getters,
-  }, [, ratingKey, mediaContainer]) {
-    if (ratingKey) {
-      // Playing something different!
-      commit('SET_LAST_SERVER_ID', mediaContainer.machineIdentifier);
-      const server = getters['plexservers/GET_PLEX_SERVER'](mediaContainer.machineIdentifier);
-
-      // Fetch our metadata from this server
-
-      server.getMediaByRatingKey(ratingKey.replace('/library/metadata/', '')).then((data) => {
-        const metadata = data.MediaContainer.Metadata[0];
-        if (!metadata) {
-          return;
-        }
-
-        if (metadata.type === 'movie') {
-          sendNotification(`Now Playing: ${metadata.title} from ${server.name}`);
-        }
-
-        if (metadata.type === 'episode') {
-          sendNotification(`Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
-            metadata.index
-          } from ${server.name}`);
-        }
-
-        // TODO: come and fix this
-        // eslint-disable-next-line no-param-reassign
-        getters.GET_CHOSEN_CLIENT.clientPlayingMetadata = metadata;
-        const w = Math.round(
-          Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-        );
-        const h = Math.round(
-          Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
-        );
-        state.background = server.getUrlForLibraryLoc(
-          metadata.thumb,
-          w / 4,
-          h / 4,
-          4,
-        );
-      });
-    } else {
-      // TODO: come and fix this
-      // eslint-disable-next-line no-param-reassign
-      getters.GET_CHOSEN_CLIENT.clientPlayingMetadata = null;
-      const thumb = await dispatch('plexservers/FETCH_RANDOM_THUMB_URL');
-      if (thumb) {
-        state.background = thumb;
-      }
-    }
-  },
-
-  NEW_TIMELINE({
-    commit, state, dispatch, getters,
-  }, timeline) {
-    const client = getters.GET_CHOSEN_CLIENT;
-    const metadata = getters.GET_CHOSEN_CLIENT.clientPlayingMetadata || {};
-
-    if (state.lastRatingKey !== timeline.ratingKey) {
-      commit('SET_VALUE', ['lastRatingKey', timeline.ratingKey]);
-      dispatch('PLAYBACK_CHANGE', [client, timeline.ratingKey, timeline]);
-    }
-
-    // Check if we need to activate the upnext feature
-    if (state.me && state.me.role === 'host') {
-      if (
-        timeline.duration
-        && timeline.time
-        && Math.abs(timeline.duration - timeline.time) < 10000
-        && metadata.type === 'episode'
-      ) {
-        if (!getters.GET_UP_NEXT_TRIGGERED) {
-          state.plex.servers[timeline.machineIdentifier]
-            .getPostplay(timeline.ratingKey).then((data) => {
-              if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle
-                === metadata.grandparentTitle) {
-                commit('SET_UP_NEXT_POST_PLAY_DATA', data);
-              }
-            });
-
-          commit('SET_UP_NEXT_TRIGGERED', true);
-        }
-      } else if (getters.GET_UP_NEXT_TRIGGERED) {
-        // If outside upnext period, reset triggered
-        commit('SET_UP_NEXT_TRIGGERED', false);
-      }
-    }
-
-    // state.ourClientResponseTime = timeline.lastResponseTime
-    let title = null;
-    let rawTitle = null;
-    let type = null;
-    let grandparentTitle = null;
-    let parentTitle = null;
-    if (getters.GET_CHOSEN_CLIENT.clientPlayingMetadata) {
-      rawTitle = metadata.title;
-      if (metadata.type === 'episode') {
-        title = `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-`
-          + `E${metadata.index}`;
-        parentTitle = metadata.parentTitle;
-        grandparentTitle = metadata.grandparentTitle;
-      } else {
-        title = metadata.title;
-      }
-      type = metadata.type;
-    }
-    let status = 'good';
-    if (!state.synclounge.lastHostTimeline
-      || Number.isNaN(state.synclounge.lastHostTimeline.time)) {
-      status = 'error';
-    } else {
-      const hostAge = Math.abs(new Date().getTime() - state.synclounge.lastHostTimeline.recievedAt);
-      let hostTime = 0 + state.synclounge.lastHostTimeline.time;
-      if (state.synclounge.lastHostTimeline.playerState === 'playing') {
-        hostTime = parseInt(hostTime, 10) + parseInt(hostAge, 10);
-      }
-      const difference = Math.abs(timeline.time - hostTime);
-      if (difference > getters['settings/GET_SYNCFLEXIBILITY']) {
-        status = 'notok';
-      }
-    }
-
-    const endObj = {
-      time: parseInt(timeline.time, 10),
-      maxTime: parseInt(timeline.duration, 10),
-      title,
-      rawTitle,
-      playerState: timeline.state,
-      clientResponseTime: getters.GET_CHOSEN_CLIENT.lastResponseTime,
-      playerProduct: getters.GET_CHOSEN_CLIENT.product,
-      status,
-      type,
-      grandparentTitle,
-      parentTitle,
-      uuid: state.uuid,
-    };
-    if (getters.GET_CHOSEN_CLIENT.lastTimelineObject) {
-      endObj.machineIdentifier = getters.GET_CHOSEN_CLIENT.lastTimelineObject.machineIdentifier;
-      endObj.key = getters.GET_CHOSEN_CLIENT.lastTimelineObject.key;
-    }
-    if (state.synclounge.socket) {
-      const commandId = Object.keys(state.synclounge.commands).length + 1;
-      state.synclounge.commands[commandId] = {
-        start: new Date().getTime(),
-      };
-      endObj.commandId = commandId;
-      if (Object.keys(state.synclounge.commands).length > 1) {
-        const latency = state.synclounge.commands[Object.keys(state.synclounge.commands).length - 1]
-          .difference;
-        endObj.latency = latency;
-      }
-      state.synclounge.socket.emit('poll', endObj);
-    }
-
-    return true;
-  },
-
   SET_LEFT_SIDEBAR_OPEN: ({ commit }, open) => {
     commit('SET_LEFT_SIDEBAR_OPEN', open);
   },
@@ -190,4 +29,71 @@ export default {
 
     commit('SET_CONFIGURATION_FETCHED', true);
   },
+
+  NEW_TIMELINE: ({ commit, getters }, timeline) => {
+    // Check if we need to activate the upnext feature
+    if (getters['synclounge/AM_I_HOST']) {
+      if (timeline.duration && timeline.time
+        && Math.abs(timeline.duration - timeline.time) < 10000
+        && metadata.type === 'episode'
+      ) {
+        if (!getters.GET_UP_NEXT_TRIGGERED) {
+          state.plex.servers[timeline.machineIdentifier]
+            .getPostplay(timeline.ratingKey).then((data) => {
+              if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle
+                === metadata.grandparentTitle) {
+                commit('SET_UP_NEXT_POST_PLAY_DATA', data);
+              }
+            });
+
+          commit('SET_UP_NEXT_TRIGGERED', true);
+        }
+      } else if (getters.GET_UP_NEXT_TRIGGERED) {
+        // If outside upnext period, reset triggered
+        commit('SET_UP_NEXT_TRIGGERED', false);
+      }
+    }
+
+    return true;
+  },
+
+  PLAYBACK_CHANGE: async ({ commit, dispatch, getters }, { machineIdentifier, metadata }) => {
+    if (metadata) {
+      // Playing something different!
+      commit('plexservers/SET_LAST_SERVER_ID', machineIdentifier, { root: true });
+
+      const serverName = getters['plexservers/GET_PLEX_SERVER'](machineIdentifier).name;
+
+      // eslint-disable-next-line default-case
+      switch (metadata.type) {
+        case 'movie': {
+          dispatch('DISPLAY_NOTIFICATION',
+            `Now Playing: ${metadata.title} from ${serverName}`);
+          break;
+        }
+
+        case 'episode': {
+          dispatch('DISPLAY_NOTIFICATION',
+            `Now Playing: ${metadata.grandparentTitle} S${metadata.parentIndex}E${
+              metadata.index
+            } from ${serverName}`);
+          break;
+        }
+      }
+
+      commit('SET_BACKGROUND',
+        getters['plexservers/GET_MEDIA_IMAGE_URL']({
+          machineIdentifier,
+          mediaUrl: metadata.thumb,
+          width: sizing.getAppWidth() / 4,
+          height: sizing.getAppHeight() / 4,
+          blur: 4,
+        }));
+    } else {
+      const thumb = await dispatch('plexservers/FETCH_RANDOM_THUMB_URL');
+      commit('SET_BACKGROUND', thumb);
+    }
+  },
+
+  DISPLAY_NOTIFICATION: (message) => window.EventBus.$emit('notification', message),
 };

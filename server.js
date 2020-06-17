@@ -149,7 +149,7 @@ socketServer.on('connection', (socket) => {
       if (foundUser !== undefined) {
         // This is our user
         foundUser.time = userData.time;
-        foundUser.maxTime = userData.maxTime;
+        foundUser.duration = userData.duration;
         foundUser.title = userData.title;
         foundUser.lastHeartbeat = (new Date()).getTime();
         foundUser.playerState = userData.playerState;
@@ -315,7 +315,7 @@ socketServer.on('connection', (socket) => {
       // We're the host, broadcast to all clients our data
       const temp = {};
       temp.time = data.time;
-      temp.maxTime = data.maxTime;
+      temp.duration = data.duration;
       temp.title = data.title;
       temp.rawTitle = data.rawTitle;
       temp.lastHeartbeat = new Date().getTime();

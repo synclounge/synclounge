@@ -163,16 +163,54 @@ export default {
     password: rootGetters.GET_CONFIG.autoJoinPassword,
   }),
 
-  START_CLIENT_POLLER: async ({ getters }) => {
+  START_CLIENT_POLLER: async ({ getters, dispatch }) => {
     // eslint-disable-next-line no-constant-condition
     while (true) {
+      if (!getters.GET_ROOM) {
+        // stop polling if we leave the room
+        break;
+      }
+
       const delayPromise = delay(getters['settings/GET_CLIENTPOLLINTERVAL']);
 
       // eslint-disable-next-line no-await-in-loop
-      await getters.GET_CHOSEN_CLIENT.getTimeline().catch(() => { });
+      await dispatch('POLL');
       // eslint-disable-next-line no-await-in-loop
       await delayPromise;
     }
+  },
+
+  POLL: async ({ dispatch, getters }) => {
+    const clientPart = await dispatch('plexclients/POLL_CLIENT');
+    const status = getters.COMPUTE_STATUS(clientPart.time);
+
+    dispatch('EMIT_POLL', {
+      ...clientPart,
+      status,
+      uuid: getters.GET_UUID,
+    });
+  },
+
+  EMIT_POLL: ({ getters, dispatch, commit }, data) => {
+    dispatch('EMIT', {
+      tynamepe: 'poll',
+      data: {
+        ...data,
+        commandId: getters.GET_POLL_NUMBER,
+        latency: getters.GET_SRTT,
+      },
+    });
+
+    commit('ADD_UNACKED_POLL', {
+      pollNumber: getters.GET_POLL_NUMBER,
+      timeSent: Date.now(),
+    });
+
+    commit('INCREMENT_POLL_NUMBER');
+  },
+
+  EMIT: ({ getters }, { name, data }) => {
+    getters.GET_SOCKET.emit(name, data);
   },
 
   ...eventhandlers,

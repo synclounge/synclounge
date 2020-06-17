@@ -68,4 +68,33 @@ export default {
     : rootGetters['plex/GET_PLEX_USER'].username || rootGetters['plex/GET_PLEX_USER'].title),
 
   GET_UUID: (state) => state.uuid,
+
+  GET_HOST_TIMELINE: (state) => state.hostTimeline,
+
+  // Gets the host's player time adjusted based on how long it's been since we got the message
+  GET_HOST_PLAYER_TIME_ADJUSTED: (state, getters) => () => {
+    const hostAge = Date.now() - getters.GET_HOST_TIMELINE.recievedAt;
+
+    return getters.GET_HOST_TIMELINE.playerState === 'playing'
+      ? getters.GET_HOST_TIMELINE.time + hostAge
+      : getters.GET_HOST_TIMELINE.time;
+  },
+
+  GET_STATUS: (state, getters, rootState, rootGetters) => (clientTime) => {
+    if (!getters.GET_HOST_TIMELINE || Number.isNaN(getters.GET_HOST_TIMELINE.time)) {
+      return 'error';
+    }
+
+    const difference = Math.abs(clientTime - getters.GET_HOST_PLAYER_TIME_ADJUSTED());
+
+    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY']) {
+      return 'notok';
+    }
+
+    return 'good';
+  },
+
+  GET_POLL_NUMBER: (state) => state.pollNumber,
+
+  GET_SRTT: (state) => state.srtt,
 };

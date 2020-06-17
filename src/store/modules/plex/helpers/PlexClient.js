@@ -90,56 +90,6 @@ class PlexClient {
     return data;
   }
 
-  async getTimeline() {
-    const data = await this.hitApi('/player/timeline/poll', { wait: 0 }, this.chosenConnection, true);
-    if (data) {
-      return this.updateTimelineObject(data);
-    }
-    throw new Error('Invalid data recieved from client');
-  }
-
-  updateTimelineObject(timeline) {
-    // Check if we are the SLPlayer
-    let result = timeline;
-    if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
-      // SLPLAYER
-      const tempObj = {
-        MediaContainer: {
-          Timeline: [{ ...result }],
-        },
-      };
-      result = tempObj;
-      if (!this.previousTimeline.MediaContainer || result.MediaContainer.Timeline[0].ratingKey
-        !== this.previousTimeline.MediaContainer.Timeline[0].ratingKey) {
-        window.EventBus.$emit('PLAYBACK_CHANGE', [this, result.MediaContainer.Timeline[0].ratingKey, result.MediaContainer.Timeline[0]]);
-      }
-      this.previousTimeline = tempObj;
-      [this.lastTimelineObject] = result.MediaContainer.Timeline;
-      this.lastTimelineObject.recievedAt = new Date().getTime();
-      window.EventBus.$emit('NEW_TIMELINE', result.MediaContainer.Timeline[0]);
-      return result.MediaContainer.Timeline[0];
-    }
-
-    // Standard player
-    const timelines = result.MediaContainer[0].Timeline;
-    let videoTimeline = {};
-    for (let i = 0; i < timelines.length; i += 1) {
-      const subTimeline = timelines[i];
-      if (subTimeline.type === 'video') {
-        videoTimeline = subTimeline;
-        if (videoTimeline.ratingKey !== this.previousTimeline.ratingKey) {
-          window.EventBus.$emit('PLAYBACK_CHANGE', [this, videoTimeline.ratingKey, videoTimeline]);
-        }
-      }
-    }
-    window.EventBus.$emit('NEW_TIMELINE', videoTimeline);
-    this.previousTimeline = videoTimeline;
-    this.lastTimelineObject = videoTimeline;
-    this.lastTimelineObject.recievedAt = new Date().getTime();
-
-    return videoTimeline;
-  }
-
   pressPlay() {
     // Press play on the client
     return this.hitApi('/player/playback/play', { wait: 0 });

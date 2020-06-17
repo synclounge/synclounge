@@ -8,4 +8,16 @@ export default {
   SET_CHOSEN_CLIENT_ID: (state, id) => {
     state.chosenClientId = id;
   },
+
+  SET_PLEX_CLIENT_TIMELINE: (state, timeline) => {
+    state.plexClientTimeline = timeline;
+  },
+
+  SET_ACTIVE_MEDIA_METADATA: (state, metadata) => {
+    state.activeMediaMetadata = metadata;
+  },
+
+  SET_ACTIVE_SERVER_ID: (state, id) => {
+    state.activeServerId = id;
+  },
 };

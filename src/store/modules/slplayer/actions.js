@@ -136,6 +136,12 @@ export default {
     timeout: 10000,
   }),
 
+  FETCH_TIMELINE_POLL_DATA: ({ getters }) => ({
+    time: getPlayerCurrentTimeMs(getters),
+    duration: getPlayerDurationMs(getters),
+    playerState: getters.GET_PLAYER_STATE,
+  }),
+
   HANDLE_PLAYER_PLAYING: ({ dispatch, getters }) => {
     if (isPlayerPlaying(getters)) {
       dispatch('CHANGE_PLAYER_STATE', 'playing');
@@ -313,7 +319,7 @@ export default {
   },
 
   UPDATE_CLIENT_TIMELINE: ({ getters, rootGetters }) => {
-    rootGetters.GET_CHOSEN_CLIENT.updateTimelineObject(makePollResponse(getters));
+    rootGetters['plexclients/GET_CHOSEN_CLIENT'].updateTimelineObject(makePollResponse(getters));
   },
 
   CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {

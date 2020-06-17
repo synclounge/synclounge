@@ -4,7 +4,6 @@ const state = () => ({
   background: null,
   shownChat: false,
   blockAutoPlay: false,
-  lastRatingKey: null,
   manualSyncQueued: false,
   upNextCache: {},
   configuration: JSON.parse(process.env.VUE_APP_CONFIGURATION),
