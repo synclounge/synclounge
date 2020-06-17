@@ -1,6 +1,7 @@
 <template>
   <v-container
     class="slcontent"
+    fluid
   >
     <v-row
       v-if="!contents"

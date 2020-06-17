@@ -8,7 +8,6 @@ const state = () => ({
   users: [],
   messages: [],
   partyPausing: false,
-  me: '',
   decisionBlockedTime: 0,
   lastHostTimeline: {},
   commands: {},

@@ -117,7 +117,7 @@ export default {
   GET_PART_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Text-Format': 'plain',
     'X-Plex-Provider-Version': 1.3,
-    ...rootGetters.GET_PLEX_BASE_PARAMS(getters.GET_PLEX_SERVER_ACCESS_TOKEN),
+    ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
   }),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
@@ -150,7 +150,7 @@ export default {
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
     'X-Plex-Incomplete-Segments': 1,
-    ...rootGetters.GET_PLEX_BASE_PARAMS(getters.GET_PLEX_SERVER_ACCESS_TOKEN),
+    ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
   }),
 
   ARE_PLAYER_CONTROLS_SHOWN: (state) => state.playerControlsShown,

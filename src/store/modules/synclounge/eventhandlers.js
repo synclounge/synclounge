@@ -12,10 +12,10 @@ export default {
     console.log('Got join result', result);
     commit('CLEAR_MESSAGES');
 
-    commit('SET_ROOM', _data.room);
     commit('SET_USERS', currentUsers);
-    commit('SET_ME', _data.username);
+    // commit('SET_ME', _data.username);
     commit('SET_PARTYPAUSING', partyPausing);
+    commit('SET_ROOM', _data.room);
 
     sendNotification(`Joined room: ${_data.room}`);
     // Add this item to our recently-connected list
@@ -67,11 +67,10 @@ export default {
     });
   },
 
-  HANDLE_POLL_RESULT: ({ commit, state }, { users, me, commandId }) => {
+  HANDLE_POLL_RESULT: ({ commit, state }, { users, commandId }) => {
     // Now we need to setup events for dealing with the PTServer.
     // We will regularly be recieving and sending data to and from the server.
     // We want to make sure we are listening for all the server events
-    commit('SET_VALUE', ['me', me]);
     commit('SET_USERS', users);
 
     // TODO: understand command id importance and rewrite this ugh

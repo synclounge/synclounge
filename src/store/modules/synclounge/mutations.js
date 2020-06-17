@@ -1,10 +1,6 @@
 import { format } from 'date-fns';
 
 export default {
-  SET_ME(state, value) {
-    state.me = value;
-  },
-
   SET_USERS(state, value) {
     state.users = value;
   },

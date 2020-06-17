@@ -11,7 +11,7 @@
       </v-subheader>
 
       <message
-        v-for="(msg, index) in getMessages"
+        v-for="(msg, index) in GET_MESSAGES"
         :id="getMsgId(msg)"
         :key="index"
         :message="msg"
@@ -29,7 +29,9 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['getMessages']),
+    ...mapGetters('synclounge', [
+      'GET_MESSAGES',
+    ]),
   },
 
   watch: {

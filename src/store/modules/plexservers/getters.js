@@ -27,18 +27,19 @@ export default {
     return axios.create({
       baseURL: server.chosenConnection.uri,
       timeout: 5000,
-      headers: rootGetters.GET_PLEX_BASE_PARAMS(server.accessToken),
+      headers: rootGetters['plex/GET_PLEX_BASE_PARAMS'](server.accessToken),
     });
   },
 
   GET_LAST_SERVER_ID: (state) => state.lastServerId,
   GET_LAST_SERVER: (state, getters) => getters.GET_PLEX_SERVER(getters.GET_LAST_SERVER_ID),
-  GET_CONNECTABLE_PLEX_SERVERS: (state) => Object.values(state.servers).filter(
-    (server) => server.chosenConnection,
-  ),
 
-  DOES_USER_HAVE_AUTHORIZED_SERVER: (state, getters, rootState, rootGetters) => rootGetters['config/GET_AUTHENTICATION'].type.includes('server')
-  && intersection(getters.GET_PLEX_SERVER_IDS, rootGetters['config/GET_AUTHENTICATION'].authorized).length > 0,
+  DOES_USER_HAVE_AUTHORIZED_SERVER: (state, getters, rootState, rootGetters) => rootGetters
+    .GET_AUTHENTICATION.type
+   && rootGetters.GET_AUTHENTICATION.type.includes('server')
+  && intersection(
+    getters.GET_PLEX_SERVER_IDS, rootGetters.GET_AUTHENTICATION.authorized,
+  ).length > 0,
 
   GET_MEDIA_IMAGE_URL: (state, getters, rootState, rootGetters) => ({
     machineIdentifier, mediaUrl, width, height, blur,
@@ -47,7 +48,7 @@ export default {
     const server = getters.GET_PLEX_SERVER(machineIdentifier);
 
     const params = {
-      ...rootGetters.GET_PLEX_BASE_PARAMS(server.accessToken),
+      ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](server.accessToken),
       url: mediaUrl,
       width: Math.round(width),
       height: Math.round(height),

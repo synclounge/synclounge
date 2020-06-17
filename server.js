@@ -21,6 +21,7 @@ class User {
     this.title = null;
     this.time = null;
     this.avatarUrl = null;
+    this.uuid = null;
   }
 }
 
@@ -266,6 +267,7 @@ socketServer.on('connection', (socket) => {
     let currentUsers = null;
     if (result) {
       tempUser.room = data.room;
+      tempUser.uuid = data.uuid;
       console.log(`User ${tempUser.username} joined ${tempUser.room}`);
       if (tempUser.role === 'host') {
         room.hostUsername = tempUser.username;

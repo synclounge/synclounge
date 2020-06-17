@@ -55,37 +55,6 @@ class PlexServer {
       'X-Plex-Token': this.accessToken,
     });
   }
-
-  async getRandomItem() {
-    const data = await this.getAllLibraries();
-    if (!data || !data.MediaContainer || !data.MediaContainer.Directory) {
-      return false;
-    }
-    const libraries = data.MediaContainer.Directory;
-    const library = libraries[Math.floor(Math.random() * libraries.length)];
-
-    const result = await this.getLibraryContents(library.key, 0, 50);
-    if (!result) {
-      return false;
-    }
-    const items = result.MediaContainer.Metadata;
-    const item = items[Math.floor(Math.random() * items.length)];
-    return item;
-  }
-
-  async getAllLibraries() {
-    try {
-      const data = await this.hitApi('/library/sections', {});
-      if (data && data.MediaContainer) {
-        data.MediaContainer.Directory.forEach((library) => {
-          this.commit('SET_LIBRARYCACHE', [library.key, this.clientIdentifier, library.title]);
-        });
-      }
-      return data;
-    } catch (e) {
-      return false;
-    }
-  }
 }
 
 export default PlexServer;

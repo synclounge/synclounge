@@ -2,20 +2,42 @@ import { sample, maxBy } from 'lodash-es';
 import scoreMedia from './mediascoring';
 
 export default {
-  getRandomThumb: async ({ getters, dispatch }) => {
+  FETCH_RANDOM_ITEM: async ({ dispatch }, machineIdentifier) => {
+    const libraryKeys = await dispatch('FETCH_ALL_LIBRARIES', machineIdentifier)
+      .map((library) => library.key);
+
+    const libraryKey = sample(libraryKeys);
+
+    const contents = await dispatch('FETCH_LIBRARY_CONTENTS', {
+      machineIdentifier,
+      sectionId: libraryKey,
+      start: 0,
+      size: 50,
+    });
+
+    return sample(contents);
+  },
+
+  FETCH_RANDOM_THUMB_URL: async ({ getters, dispatch }) => {
     await dispatch('FETCH_PLEX_DEVICES_IF_NEEDED');
 
-    const randomServer = sample(getters.GET_CONNECTABLE_PLEX_SERVERS);
-    if (!randomServer) {
+    const machineIdentifier = sample(getters.GET_CONNECTABLE_PLEX_SERVER_IDS);
+    if (!machineIdentifier) {
       throw new Error('No valid servers found');
     }
 
-    const result = await randomServer.getRandomItem();
+    const result = await dispatch('GET_RANDOM_ITEM', machineIdentifier);
     if (!result) {
       throw new Error('No result found');
     }
 
-    return randomServer.getUrlForLibraryLoc(result.thumb, 900, 900, 8);
+    return getters.GET_MEDIA_IMAGE_URL({
+      machineIdentifier,
+      mediaUrl: result.thumb,
+      width: 900,
+      height: 900,
+      blur: 8,
+    });
   },
 
   SEARCH_PLEX_SERVER: async ({ getters }, { query, machineIdentifier }) => {

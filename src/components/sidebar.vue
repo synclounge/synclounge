@@ -12,12 +12,12 @@
     <template v-slot:prepend>
       <v-list-item three-line>
         <v-list-item-content>
-          <v-list-item-title>{{ getRoom }}</v-list-item-title>
+          <v-list-item-title>{{ GET_ROOM }}</v-list-item-title>
           <v-list-item-subtitle
-            v-if="getUsers.length != 1"
+            v-if="GET_USERS.length != 1"
             class="participant-count"
           >
-            {{ getUsers.length }} people
+            {{ GET_USERS.length }} people
           </v-list-item-subtitle>
           <v-list-item-subtitle
             v-else
@@ -55,7 +55,7 @@
 
       <v-list-item>
         <v-switch
-          v-if="isHost(me)"
+          v-if="isHost(GET_ME)"
           class="pa-0 mt-2 party-pausing-label"
           label="Party Pausing"
           :input-value="getPartyPausing"
@@ -86,7 +86,7 @@
       </v-list-item>
 
       <v-list-item
-        v-if="me.role !== 'host' && $route.path.indexOf('/player') === -1"
+        v-if="GET_ME.role !== 'host' && $route.path.indexOf('/player') === -1"
         style="background: #E5A00D; border-radius: 7px"
         class="pa-2 ma-3"
       >
@@ -136,7 +136,7 @@
                 <v-list-item-title>
                   {{ GET_HOST_USER.username }}
                   <span
-                    v-if="GET_HOST_USER.uuid === me.uuid"
+                    v-if="GET_HOST_USER.uuid === GET_ME.uuid"
                     style="opacity: 0.6"
                   >(you)</span>
                 </v-list-item-title>
@@ -189,7 +189,7 @@
       </v-card>
 
       <div
-        v-for="user in getUsers"
+        v-for="user in GET_USERS"
         :key="user.username"
       >
         <div
@@ -226,7 +226,7 @@
                   <v-list-item-title>
                     {{ user.username }}
                     <span
-                      v-if="user.uuid === me.uuid"
+                      v-if="user.uuid === GET_ME.uuid"
                       style="opacity: 0.6"
                     >(you)</span>
                   </v-list-item-title>
@@ -258,7 +258,7 @@
               </v-tooltip>
 
               <v-menu
-                v-if="user.uuid !== me.uuid && isHost(me)"
+                v-if="user.uuid !== GET_ME.uuid && isHost(GET_ME)"
                 :offset-y="true"
               >
                 <v-btn
@@ -327,25 +327,18 @@ export default {
   },
 
   computed: {
-    ...mapState(['me', 'isRightSidebarOpen']),
+    ...mapState(['isRightSidebarOpen']),
     ...mapGetters('synclounge', [
+      'GET_ME',
       'getPartyPausing',
-      'getUsers',
-      'getRoom',
+      'GET_USERS',
+      'GET_ROOM',
       'GET_HOST_USER',
     ]),
 
     ...mapGetters('plexservers', [
       'GET_PLEX_SERVER',
     ]),
-
-    serverDelay() {
-      return Math.round(
-        this.$store.state.synclounge.commands[
-          Object.keys(this.$store.state.synclounge.commands).length - 1
-        ].difference,
-      );
-    },
 
     canPause() {
       return !this.partyPauseCooldownRunning && this.getPartyPausing;
@@ -359,9 +352,11 @@ export default {
       'transferHost',
       'SET_RIGHT_SIDEBAR_OPEN',
     ]),
+
     isHost(user) {
       return user.role === 'host';
     },
+
     sendPartyPauseLocal(isPause) {
       this.partyPauseCooldownRunning = true;
       setTimeout(() => {
@@ -369,6 +364,7 @@ export default {
       }, 3000);
       this.sendPartyPause(isPause);
     },
+
     getUserColor(user) {
       if (user.status === 'good' || user.role === 'host') {
         return '#0de47499';
@@ -385,6 +381,7 @@ export default {
 
       return '#F44336';
     },
+
     getImgStyle(user) {
       const arr = [
         {
@@ -393,10 +390,12 @@ export default {
       ];
       return arr;
     },
+
     handleDisconnect() {
       this.$store.dispatch('disconnectServer');
       this.$router.push('/');
     },
+
     percent(user) {
       let perc = (parseInt(user.time, 10) / parseInt(user.maxTime, 10)) * 100;
       if (Number.isNaN(perc)) {
@@ -404,6 +403,7 @@ export default {
       }
       return perc;
     },
+
     getCurrent(user) {
       if (Number.isNaN(user.time) || user.time === 0 || !user.time) {
         return this.getTimeFromMs(0);
@@ -418,12 +418,14 @@ export default {
       }
       return this.getTimeFromMs(user.maxTime);
     },
+
     getTitle(user) {
       if (user.title && user.title.length > 0) {
         return user.title;
       }
       return 'Nothing';
     },
+
     playerState(user) {
       if (user.playerState) {
         if (user.playerState === 'stopped') {
@@ -441,6 +443,7 @@ export default {
       }
       return 'stop';
     },
+
     getTimeFromMs(ms) {
       const hours = ms / (1000 * 60 * 60);
       const absoluteHours = Math.floor(hours);
@@ -456,6 +459,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .wideinput .input-group--text-field.input-group--prepend-icon .input-group__details {
   margin-left: unset;

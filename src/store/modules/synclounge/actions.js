@@ -3,28 +3,27 @@ import socketConnect from '@/utils/socketconnect';
 import guid from '@/utils/guid';
 import delay from '@/utils/delay';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
+import combineUrl from '@/utils/combineurl';
 
 export default {
-  async autoJoin({ dispatch, rootGetters }, data) {
+  async autoJoin({ dispatch }, data) {
     await dispatch('ESTABLISH_SOCKET_CONNECTION', data.server);
-    console.log('ESTABISHED');
-    const temporaryObj = {
-      user: rootGetters.GET_PLEX_USER,
-      roomName: data.room,
-      password: data.password,
-    };
 
     if (data.room) {
-      await dispatch('joinRoom', temporaryObj);
+      await dispatch('JOIN_ROOM', {
+        room: data.room,
+        password: data.password,
+      });
     }
   },
 
-  ESTABLISH_SOCKET_CONNECTION: async ({ commit }, address) => {
+  ESTABLISH_SOCKET_CONNECTION: async ({ commit, getters }, address) => {
     // TODO: make wrapper method that disconnects the socket if it already exists
-    const base = new URL(`${address}////`);
-    console.log(base);
-    const url = new URL('socket.io', base.href);
-    console.log(url);
+    if (getters.GET_SOCKET) {
+      getters.GET_SOCKET.disconnect();
+    }
+
+    const url = combineUrl('socket.io', address);
     const socket = await socketConnect(url.origin, { path: url.pathname });
     commit('SET_SOCKET', socket);
   },
@@ -33,7 +32,7 @@ export default {
     getters, commit, dispatch, rootGetters,
   }, { room, password }) {
     // Move this outside somewhere else
-    dispatch('START_CLIENT_POLLER', null, { root: true });
+    // dispatch('START_CLIENT_POLLER', null, { root: true });
 
     // TODO: remove this
     commit('SET_PASSWORD', password);
@@ -44,7 +43,7 @@ export default {
         username: getters.GET_DISPLAY_USERNAME,
         room,
         password,
-        avatarUrl: rootGetters['plex/GET_USER'].thumb,
+        avatarUrl: rootGetters['plex/GET_PLEX_USER'].thumb,
         uuid: getters.GET_UUID,
       },
     );
@@ -78,12 +77,12 @@ export default {
     commit('SET_SERVER', null);
   },
 
-  sendNewMessage({ state, commit, rootGetters }, msg) {
+  SEND_MESSAGE({ state, commit, rootGetters }, msg) {
     commit('ADD_MESSAGE', {
       msg,
       user: {
         username: 'You',
-        thumb: rootGetters.GET_PLEX_USER.thumb,
+        thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
       },
       type: 'message',
     });

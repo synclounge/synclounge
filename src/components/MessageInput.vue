@@ -6,8 +6,8 @@
     hide-details
     single-line
     class="ml-2 mr-2 pr-1"
-    @click:append-outer="sendMessage()"
-    @keyup.enter.native="sendMessage()"
+    @click:append-outer="sendMessage"
+    @keyup.enter.native="sendMessage"
   />
 </template>
 
@@ -29,13 +29,16 @@ export default {
   },
 
   methods: {
-    ...mapActions(['sendNewMessage']),
+    ...mapActions('synclounge', [
+      'SEND_MESSAGE',
+    ]),
+
     sendMessage() {
       if (this.messageToBeSent === '') {
         return;
       }
       console.log(`We should send this message: ${this.messageToBeSent}`);
-      this.sendNewMessage(this.messageToBeSent);
+      this.SEND_MESSAGE(this.messageToBeSent);
       this.messageToBeSent = '';
     },
   },

@@ -1,5 +1,8 @@
 <template>
-  <v-container class="pt-0">
+  <v-container
+    class="pt-0"
+    fluid
+  >
     <v-row
       v-if="!libraries && !browsingLibrary && !selectedItem"
       align="center"

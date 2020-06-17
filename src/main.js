@@ -53,7 +53,7 @@ router.beforeEach((to, from, next) => {
   } else if (store.getters.GET_CONFIG.autoJoin
     && to.matched.some((record) => record.meta.requiresAutoJoinEnabled)) {
     next('/');
-  } else if (!store.getters.getRoom && to.matched.some((record) => record.meta.protected)) {
+  } else if (!store.getters['synclounge/GET_ROOM'] && to.matched.some((record) => record.meta.protected)) {
     // this route requires us to be in a room with a client selected
     // if not, redirect to the needed stage
 

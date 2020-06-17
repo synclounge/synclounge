@@ -20,16 +20,15 @@ const loadToNumber = (load) => {
 const healthScore = (health) => health.latency + loadToNumber(health.load) * 10;
 
 export default {
-  getMe: (state) => state.me,
+  GET_ME: (state, getters) => getters.GET_USERS.find((u) => u.uuid === getters.GET_UUID),
   GET_ROOM: (state) => state.room,
   getPassword: (state) => state.password,
-  getUsers: (state) => state.users,
-  getMessages: (state) => state.messages,
+  GET_USERS: (state) => state.users,
+  GET_MESSAGES: (state) => state.messages,
   getPartyPausing: (state) => state.partyPausing,
-  GET_HOST_USER: (state) => state.users.find((u) => u.role === 'host'),
+  GET_HOST_USER: (state, getters) => getters.GET_USERS.find((u) => u.role === 'host'),
   GET_HOST_PLAYER_STATE: (state) => state.lastHostTimeline.playerState,
-  AM_I_HOST: (state) => state.me.role === 'host',
-  GET_INVITE_URL: (state) => state.inviteUrl,
+  AM_I_HOST: (state, getters) => getters.GET_ME && getters.GET_ME.role === 'host',
 
   GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => {
     if (rootGetters.GET_CONFIG.servers && rootGetters.GET_CONFIG.servers.length > 0) {

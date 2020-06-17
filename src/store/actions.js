@@ -51,7 +51,7 @@ export default {
       // TODO: come and fix this
       // eslint-disable-next-line no-param-reassign
       getters.GET_CHOSEN_CLIENT.clientPlayingMetadata = null;
-      const thumb = await dispatch('getRandomThumb');
+      const thumb = await dispatch('plexservers/FETCH_RANDOM_THUMB_URL');
       if (thumb) {
         state.background = thumb;
       }
@@ -177,13 +177,6 @@ export default {
 
   TRIGGER_MANUAL_SYNC: ({ commit }) => {
     commit('SET_MANUAL_SYNC_QUEUED', true);
-  },
-
-  SET_RANDOMBACKROUND: async ({ dispatch, commit }) => {
-    const result = await dispatch('getRandomThumb').catch(() => { });
-    if (result) {
-      commit('SET_BACKGROUND', result);
-    }
   },
 
   FETCH_CONFIG: async ({ commit }) => {

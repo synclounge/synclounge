@@ -65,7 +65,8 @@ export default {
     || getters.IS_PLEX_USER_AUTHORIZED,
 
   IS_PLEX_USER_AUTHORIZED: (state, getters, rootState, rootGetters) => rootGetters
-    .GET_AUTHENTICATION.type.includes('user')
+    .GET_AUTHENTICATION.type
+  && rootGetters.GET_AUTHENTICATION.type.includes('user')
     && intersection(
       [getters.GET_PLEX_USER.username, getters.GET_PLEX_USER.email],
       rootGetters.GET_AUTHENTICATION.authorized,
