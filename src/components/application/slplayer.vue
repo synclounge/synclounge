@@ -165,7 +165,7 @@
             >
               <v-flex xs12>
                 <v-btn
-                  v-if="me.role !== 'host'"
+                  v-if="!AM_I_HOST"
                   block
                   :disabled="manualSyncQueued"
                   color="blue"
@@ -263,6 +263,10 @@ export default {
 
     ...mapGetters('settings', [
       'GET_SLPLAYERQUALITY',
+    ]),
+
+    ...mapGetters('synclounge', [
+      'AM_I_HOST',
     ]),
 
     bigPlayButton() {
