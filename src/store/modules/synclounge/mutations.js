@@ -1,9 +1,6 @@
 import { format } from 'date-fns';
 
 export default {
-  SET_CONNECTED(state, value) {
-    state.connected = value;
-  },
   SET_ME(state, value) {
     state.me = value;
   },
@@ -15,12 +12,6 @@ export default {
   },
   SET_PASSWORD(state, value) {
     state.password = value;
-  },
-  SET_SERVERS(state, value) {
-    state.servers = value;
-  },
-  SET_SERVER(state, value) {
-    state.server = value;
   },
   SET_PARTYPAUSING(state, value) {
     state.partyPausing = value;
@@ -44,4 +35,8 @@ export default {
   SET_SERVERS_HEALTH: (state, healths) => {
     state.serversHealth = healths;
   },
+
+  SET_SOCKET: (state, socket) => {
+    state.socket = socket;
+  }
 };

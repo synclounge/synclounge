@@ -1,6 +1,5 @@
 export default {
   getAppVersion: (state) => state.appVersion,
-  getPlex: (state) => state.plex,
   getBackground: (state) => state.background,
   getShownChat: (state) => state.shownChat,
   getStats: (state) => state.stats,

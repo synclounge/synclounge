@@ -36,7 +36,7 @@ export default {
     }));
   },
 
-  FETCH_PLEX_METADATA: async ({ getters, dispatch }, { ratingKey, machineIdentifier }) => {
+  FETCH_PLEX_METADATA: async ({ getters }, { ratingKey, machineIdentifier }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
       .get(`/library/metadata/${ratingKey}`);
 
@@ -134,7 +134,7 @@ export default {
     return bestResult;
   },
 
-  FETCH_ON_DECK: async ({ getters, dispatch }, { machineIdentifier, start, size }) => {
+  FETCH_ON_DECK: async ({ getters }, { machineIdentifier, start, size }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/library/onDeck',
       {
         params: {
@@ -156,14 +156,14 @@ export default {
     return data.MediaContainer.Directory;
   },
 
-  FETCH_RECENTLY_ADDED_MEDIA: async ({ getters, dispatch }, machineIdentifier) => {
+  FETCH_RECENTLY_ADDED_MEDIA: async ({ getters }, machineIdentifier) => {
     const { data } = await getters
       .GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/library/recentlyAdded');
 
     return data.MediaContainer.Metadata;
   },
 
-  FETCH_MEDIA_CHILDREN: async ({ getters, dispatch }, {
+  FETCH_MEDIA_CHILDREN: async ({ getters }, {
     machineIdentifier, ratingKey, start, size, excludeAllLeaves,
   }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
@@ -203,7 +203,7 @@ export default {
     };
   },
 
-  FETCH_RELATED: async ({ getters, dispatch }, { machineIdentifier, ratingKey, count }) => {
+  FETCH_RELATED: async ({ getters }, { machineIdentifier, ratingKey, count }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
       .get(`/library/metadata/${ratingKey}/related`, {
         excludeFields: 'summary',

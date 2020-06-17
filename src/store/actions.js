@@ -11,7 +11,7 @@ export default {
     if (ratingKey) {
       // Playing something different!
       commit('SET_LAST_SERVER_ID', mediaContainer.machineIdentifier);
-      const server = state.plex.servers[mediaContainer.machineIdentifier];
+      const server = getters['plexservers/GET_PLEX_SERVER'](mediaContainer.machineIdentifier);
 
       // Fetch our metadata from this server
 

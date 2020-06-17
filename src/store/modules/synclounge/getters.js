@@ -20,14 +20,12 @@ const loadToNumber = (load) => {
 const healthScore = (health) => health.latency + loadToNumber(health.load) * 10;
 
 export default {
-  getServer: (state) => state.server,
+
   getMe: (state) => state.me,
   getRoom: (state) => state.room,
   getPassword: (state) => state.password,
   getUsers: (state) => state.users,
-  getConnected: (state) => state.connected,
   getMessages: (state) => state.messages,
-  getSocket: (state) => state.socket,
   getPartyPausing: (state) => state.partyPausing,
   getHostUser: (state) => state.users.find((u) => u.role === 'host'),
   GET_HOST_PLAYER_STATE: (state) => state.lastHostTimeline.playerState,
@@ -64,4 +62,10 @@ export default {
     ? getters.GET_SERVER_HEALTH_SCORES
       .reduce((prev, curr) => (curr.score < prev.score ? curr : prev)).url
     : null),
+
+  GET_SOCKET: (state) => state.socket,
+
+  GET_DISPLAY_USERNAME: (state, getters, rootState, rootGetters) => (rootGetters['settings/GET_HIDEUSERNAME']
+    ? rootGetters['settings/GET_ALTUSERNAME']
+    : rootGetters['plex/GET_PLEX_USER'].username || rootGetters['plex/GET_PLEX_USER'].title),
 };

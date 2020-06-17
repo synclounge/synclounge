@@ -1,8 +1,8 @@
+import guid from '@/utils/guid';
+
 const state = () => ({
+  uuid: guid(),
   socket: null,
-  ptservers: [],
-  connected: false,
-  server: false,
   room: false,
   password: false,
   users: [],

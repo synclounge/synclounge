@@ -73,4 +73,6 @@ export default {
 
   IS_AUTHENTICATION_TYPE_NONE: (state, getters, rootState, rootGetters) => rootGetters
     .GET_AUTHENTICATION.mechanism === 'none',
+
+  GET_UUID: (state) => state.uuid,
 };

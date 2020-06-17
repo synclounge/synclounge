@@ -1,5 +1,3 @@
-import guid from '@/utils/guid';
-
 const state = () => ({
   appTitle: 'SyncLounge',
   appVersion: process.env.VUE_APP_VERSION,
@@ -8,7 +6,6 @@ const state = () => ({
   blockAutoPlay: false,
   lastRatingKey: null,
   manualSyncQueued: false,
-  uuid: guid(),
   upNextCache: {},
   configuration: JSON.parse(process.env.VUE_APP_CONFIGURATION),
   configurationFetched: false,
