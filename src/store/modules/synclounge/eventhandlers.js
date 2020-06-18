@@ -65,21 +65,20 @@ export default {
     state.socket.on('new_message', (msgObj) => {
       commit('ADD_MESSAGE', msgObj);
     });
+
+    dispatch('START_CLIENT_POLLER');
   },
 
-  HANDLE_POLL_RESULT: ({ commit, state }, { users, commandId }) => {
+  HANDLE_POLL_RESULT: ({ commit, getters }, { users, commandId }) => {
     // Now we need to setup events for dealing with the PTServer.
     // We will regularly be recieving and sending data to and from the server.
     // We want to make sure we are listening for all the server events
-    commit('SET_USERS', users);
 
-    // TODO: understand command id importance and rewrite this ugh
-    if (state.commands[commandId]) {
-      state.commands[commandId].end = new Date().getTime();
-      state.commands[commandId].difference = Math.abs(
-        state.commands[commandId].end - state.commands[commandId].start,
-      );
-    }
+    commit('UPDATE_SRTT', Date.now() - getters.GET_POLL_SENT_TIME(commandId));
+    commit('DELETE_UNACKED_POLL', commandId);
+    console.log('srtt', getters.GET_SRTT);
+
+    commit('SET_USERS', users);
   },
 
   HANDLE_PARTY_PAUSING_CHANGED: ({ commit }, { value, user }) => {

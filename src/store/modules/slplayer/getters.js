@@ -5,9 +5,11 @@ import { qualities } from './qualities';
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
 
-  GET_PLEX_SERVER_ID: (state) => state.plexServerId,
-
-  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters['plexservers/GET_PLEX_SERVER'](getters.GET_PLEX_SERVER_ID),
+  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => {
+    console.log(rootGetters['plexclients/GET_ACTIVE_SERVER_ID']);
+    console.log(rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']));
+    return rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']);
+  },
 
   GET_PLEX_SERVER_ACCESS_TOKEN: (state, getters) => (getters.GET_PLEX_SERVER
     ? getters.GET_PLEX_SERVER.accessToken
@@ -24,8 +26,8 @@ export default {
       : 'wan'
     : undefined),
 
-  GET_PART_ID: (state, getters) => (getters.GET_METADATA
-    ? getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].id
+  GET_PART_ID: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+    ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media[getters.GET_MEDIA_INDEX].Part[0].id
     : null),
 
   GET_SRC_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd?${encodeUrlParams(getters.GET_DECISION_AND_START_PARAMS)}`,
@@ -36,8 +38,8 @@ export default {
 
   GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline`,
 
-  GET_STREAMS: (state, getters) => (getters.GET_METADATA
-    ? getters.GET_METADATA.Media[getters.GET_MEDIA_INDEX].Part[0].Stream
+  GET_STREAMS: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+    ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media[getters.GET_MEDIA_INDEX].Part[0].Stream
     : []),
 
   GET_DECISION_STREAMS: (state, getters) => (getters.GET_PLEX_DECISION
@@ -57,12 +59,13 @@ export default {
       id, displayTitle,
     }) => ({ id, text: displayTitle })),
 
-  GET_MEDIA_LIST: (state, getters) => (getters.GET_METADATA ? getters.GET_METADATA.Media.map(
-    ({ videoResolution, bitrate }, index) => ({
-      index,
-      text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
-    }),
-  ) : ([])),
+  GET_MEDIA_LIST: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+    ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media.map(
+      ({ videoResolution, bitrate }, index) => ({
+        index,
+        text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
+      }),
+    ) : ([])),
 
   GET_QUALITIES: () => qualities,
 
@@ -81,37 +84,31 @@ export default {
   // TODO: fix this 0 fallback
   GET_MEDIA_INDEX: (state) => state.mediaIndex,
 
-  GET_RELATIVE_THUMB_URL: (state, getters) => (getters.GET_METADATA
-    ? getters.GET_METADATA.grandparentThumb || getters.GET_METADATA.thumb
+  GET_RELATIVE_THUMB_URL: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+    ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].grandparentThumb || rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].thumb
     : null),
 
   GET_THUMB_URL: (state, getters, rootState, rootGetters) => (getters.GET_PLEX_SERVER
     ? rootGetters['plexservers/GET_MEDIA_IMAGE_URL']({
-      machineIdentifier: getters.GET_PLEX_SERVER_ID,
+      machineIdentifier: rootGetters['plexclients/GET_ACTIVE_SERVER_ID'],
       mediaUrl: getters.GET_RELATIVE_THUMB_URL,
       width: 200,
       height: 200,
     })
     : null),
 
-  GET_RATING_KEY: (state, getters) => (getters.GET_KEY
-    ? getters.GET_KEY.replace('/library/metadata/', '')
-    : null),
-
-  GET_KEY: (state) => state.key,
   GET_OFFSET_MS: (state) => state.offsetMs,
 
-  GET_METADATA: (state) => state.metadata,
   GET_PLAYER_STATE: (state) => state.playerState,
   GET_PLAYER: (state) => state.player,
   GET_PLAYER_UI: (state) => state.playerUi,
 
-  GET_TITLE: (state, getters) => (getters.GET_METADATA
-    ? contenttitleutils.getTitle(getters.GET_METADATA)
+  GET_TITLE: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+    ? contenttitleutils.getTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
     : null),
 
-  GET_SECONDARY_TITLE: (state, getters) => (getters.GET_METADATA
-    ? contenttitleutils.getSecondaryTitle(getters.GET_METADATA)
+  GET_SECONDARY_TITLE: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+    ? contenttitleutils.getSecondaryTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
     : null),
 
   GET_PART_PARAMS: (state, getters, rootState, rootGetters) => ({
@@ -129,7 +126,7 @@ export default {
 
   GET_DECISION_AND_START_PARAMS: (state, getters, rootState, rootGetters) => ({
     hasMDE: 1,
-    path: getters.GET_KEY,
+    path: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].key,
     mediaIndex: getters.GET_MEDIA_INDEX,
     partIndex: 0,
     protocol: 'dash',

@@ -32,7 +32,6 @@ export default {
     getters, commit, dispatch, rootGetters,
   }, { room, password }) {
     // Move this outside somewhere else
-    // dispatch('START_CLIENT_POLLER', null, { root: true });
 
     // TODO: remove this
     commit('SET_PASSWORD', password);
@@ -162,7 +161,8 @@ export default {
     password: rootGetters.GET_CONFIG.autoJoinPassword,
   }),
 
-  START_CLIENT_POLLER: async ({ getters, dispatch }) => {
+  START_CLIENT_POLLER: async ({ getters, dispatch, rootGetters }) => {
+    console.log('START CLIENT POLLER');
     // eslint-disable-next-line no-constant-condition
     while (true) {
       if (!getters.GET_ROOM) {
@@ -170,7 +170,7 @@ export default {
         break;
       }
 
-      const delayPromise = delay(getters['settings/GET_CLIENTPOLLINTERVAL']);
+      const delayPromise = delay(rootGetters['settings/GET_CLIENTPOLLINTERVAL']);
 
       // eslint-disable-next-line no-await-in-loop
       await dispatch('POLL');
@@ -180,8 +180,8 @@ export default {
   },
 
   POLL: async ({ dispatch, getters }) => {
-    const clientPart = await dispatch('plexclients/POLL_CLIENT');
-    const status = getters.COMPUTE_STATUS(clientPart.time);
+    const clientPart = await dispatch('plexclients/POLL_CLIENT', null, { root: true });
+    const status = getters.GET_STATUS(clientPart.time);
 
     dispatch('EMIT_POLL', {
       ...clientPart,
@@ -192,7 +192,7 @@ export default {
 
   EMIT_POLL: ({ getters, dispatch, commit }, data) => {
     dispatch('EMIT', {
-      tynamepe: 'poll',
+      name: 'poll',
       data: {
         ...data,
         commandId: getters.GET_POLL_NUMBER,

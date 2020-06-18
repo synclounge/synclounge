@@ -1,6 +1,5 @@
 <template>
   <v-row
-    v-if="GET_METADATA"
     style="position: relative"
     class="slplayer-container"
   >
@@ -73,7 +72,7 @@
               <v-flex class="text-xs-right pa-1">
                 <div class="hidden-xs-only">
                   <v-tooltip
-                    v-if="me && me.role !== 'host'"
+                    v-if="!AM_I_HOST"
                     bottom
                     color="accent"
                   >
@@ -240,10 +239,9 @@ export default {
   },
 
   computed: {
-    ...mapState(['manualSyncQueued', 'me']),
+    ...mapState(['manualSyncQueued']),
 
     ...mapGetters('slplayer', [
-      'GET_METADATA',
       'GET_SUBTITLE_STREAMS',
       'GET_AUDIO_STREAMS',
       'GET_QUALITIES',

@@ -62,4 +62,8 @@ export default {
   ADD_UNACKED_POLL: (state, { pollNumber, timeSent }) => {
     Vue.set(state.unackedPolls, pollNumber, timeSent);
   },
+
+  DELETE_UNACKED_POLL: (state, pollNumber) => {
+    Vue.delete(state.unackedPolls, pollNumber);
+  },
 };

@@ -16,22 +16,6 @@ Vue.config.productionTip = false;
 
 // Our Event bus
 window.EventBus = new Vue();
-window.EventBus.$on('command', (data) => {
-  // eslint-disable-next-line no-underscore-dangle
-  if (router.app._route.fullPath.indexOf('/player') === -1) {
-    if (data.command === '/player/timeline/poll') {
-      data.callback({
-        key: null,
-        ratingKey: null,
-        time: 0,
-        type: 'video',
-        machineIdentifier: null,
-        duration: 0,
-        state: 'stopped',
-      });
-    }
-  }
-});
 
 router.beforeEach((to, from, next) => {
   if (!store.getters['plex/IS_AUTHENTICATED'] && to.matched.some((record) => record.meta.requiresAuth)) {

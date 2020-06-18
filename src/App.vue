@@ -258,7 +258,7 @@ export default {
 
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
-      'GET_CLIENT_PLAYING_METADATA',
+      'GET_ACTIVE_SERVER_ID',
     ]),
 
     ...mapGetters('plexservers', [
@@ -343,7 +343,7 @@ export default {
     },
 
     showNowPlaying() {
-      return this.GET_CLIENT_PLAYING_METADATA && this.$route.name === 'browse';
+      return this.GET_ACTIVE_SERVER_ID && this.$route.name === 'browse';
     },
 
     mainStyle() {

@@ -161,7 +161,7 @@ socketServer.on('connection', (socket) => {
         foundUser.playerProduct = userData.playerProduct || '';
         foundUser.status = userData.status || 'unknown';
         foundUser.machineIdentifier = userData.machineIdentifier || '';
-        foundUser.key = userData.key;
+        foundUser.ratingKey = userData.ratingKey;
         foundUser.uuid = userData.uuid;
 
         return true;
@@ -323,7 +323,7 @@ socketServer.on('connection', (socket) => {
       temp.clientResponseTime = data.clientResponseTime;
       temp.machineIdentifier = data.machineIdentifier;
       temp.type = data.type;
-      temp.key = data.key;
+      temp.ratingKey = data.ratingKey;
       temp.latency = data.latency;
       temp.parentTitle = data.parentTitle;
 

@@ -20,9 +20,9 @@ const getPlayerCurrentTimeMs = (getters) => (getters.GET_PLAYER_MEDIA_ELEMENT.cu
 
 const getPlayerDurationMs = (getters) => getters.GET_PLAYER_MEDIA_ELEMENT.duration * 1000;
 
-const makeTimelineParams = (getters) => ({
-  ratingKey: getters.GET_RATING_KEY,
-  key: getters.GET_KEY,
+const makeTimelineParams = ({ getters, rootGetters }) => ({
+  ratingKey: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].ratingKey,
+  key: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].key,
   // playbackTime: 591
   // playQueueItemID: 19037144
   state: getters.GET_PLAYER_STATE,
@@ -31,16 +31,6 @@ const makeTimelineParams = (getters) => ({
   duration: Math.floor(getPlayerDurationMs(getters)),
   'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
   ...getters.GET_PART_PARAMS,
-});
-
-const makePollResponse = (getters) => ({
-  ratingKey: getters.GET_RATING_KEY,
-  key: getters.GET_KEY,
-  time: getPlayerCurrentTimeMs(getters),
-  duration: getPlayerDurationMs(getters),
-  type: 'video',
-  machineIdentifier: getters.GET_PLEX_SERVER_ID,
-  state: getters.GET_PLAYER_STATE,
 });
 
 const isTimeInBufferedRange = (getters, timeMs) => {
@@ -131,16 +121,22 @@ export default {
     return dispatch('LOAD_PLAYER_SRC');
   },
 
-  SEND_PLEX_TIMELINE_UPDATE: ({ getters }) => axios.get(getters.GET_TIMELINE_URL, {
-    params: makeTimelineParams(getters),
+  SEND_PLEX_TIMELINE_UPDATE: ({ getters, rootGetters }) => axios.get(getters.GET_TIMELINE_URL, {
+    params: makeTimelineParams({ getters, rootGetters }),
     timeout: 10000,
   }),
 
-  FETCH_TIMELINE_POLL_DATA: ({ getters }) => ({
-    time: getPlayerCurrentTimeMs(getters),
-    duration: getPlayerDurationMs(getters),
-    playerState: getters.GET_PLAYER_STATE,
-  }),
+  FETCH_TIMELINE_POLL_DATA: ({ getters }) => (getters.GET_PLAYER_STATE === 'stopped'
+    ? {
+      time: 0,
+      duration: 0,
+      playerState: getters.GET_PLAYER_STATE,
+    }
+    : ({
+      time: getPlayerCurrentTimeMs(getters),
+      duration: getPlayerDurationMs(getters),
+      playerState: getters.GET_PLAYER_STATE,
+    })),
 
   HANDLE_PLAYER_PLAYING: ({ dispatch, getters }) => {
     if (isPlayerPlaying(getters)) {
@@ -179,8 +175,6 @@ export default {
 
   DO_COMMAND_DISPATCH: async ({ dispatch }, { action, params }) => dispatch(action, params),
 
-  DO_COMMAND_POLL: ({ getters }) => makePollResponse(getters),
-
   DO_COMMAND_PLAY: ({ getters, commit }) => {
     if (getters.GET_PLAYER_STATE !== 'playing') {
       commit('PLAY');
@@ -201,10 +195,7 @@ export default {
     commit('SET_MEDIA_INDEX', mediaIndex);
     commit('SET_OFFSET_MS', offset);
 
-    return Promise.all([
-      dispatch('CHANGE_PLAYER_SRC'),
-      dispatch('FETCH_METADATA'),
-    ]);
+    return dispatch('CHANGE_PLAYER_SRC');
   },
 
   DO_COMMAND_STOP: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'stopped'),
@@ -319,7 +310,8 @@ export default {
   },
 
   UPDATE_CLIENT_TIMELINE: ({ getters, rootGetters }) => {
-    rootGetters['plexclients/GET_CHOSEN_CLIENT'].updateTimelineObject(makePollResponse(getters));
+    // TODO: fix this and ugh
+    // rootGetters['plexclients/GET_CHOSEN_CLIENT'].updateTimelineObject(makePollResponse(getters));
   },
 
   CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {

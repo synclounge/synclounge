@@ -97,4 +97,6 @@ export default {
   GET_POLL_NUMBER: (state) => state.pollNumber,
 
   GET_SRTT: (state) => state.srtt,
+
+  GET_POLL_SENT_TIME: (state) => (pollNumber) => state.unackedPolls[pollNumber],
 };
