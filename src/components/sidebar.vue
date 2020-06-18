@@ -397,7 +397,7 @@ export default {
     },
 
     percent(user) {
-      let perc = (parseInt(user.time, 10) / parseInt(user.maxTime, 10)) * 100;
+      let perc = (parseInt(user.time, 10) / parseInt(user.duration, 10)) * 100;
       if (Number.isNaN(perc)) {
         perc = 0;
       }
@@ -413,10 +413,10 @@ export default {
     },
 
     getMax(user) {
-      if (Number.isNaN(user.maxTime)) {
+      if (Number.isNaN(user.duration)) {
         return this.getTimeFromMs(0);
       }
-      return this.getTimeFromMs(user.maxTime);
+      return this.getTimeFromMs(user.duration);
     },
 
     getTitle(user) {

@@ -387,9 +387,9 @@ export default {
   },
 
   watch: {
-    showRightDrawerButton() {
+    GET_ROOM() {
       // TODO: fix this is hacky
-      if (this.showRightDrawerButton) {
+      if (this.GET_ROOM) {
         this.SET_RIGHT_SIDEBAR_OPEN(true);
       }
     },

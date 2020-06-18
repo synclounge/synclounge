@@ -76,7 +76,6 @@ export default {
 
     commit('UPDATE_SRTT', Date.now() - getters.GET_POLL_SENT_TIME(commandId));
     commit('DELETE_UNACKED_POLL', commandId);
-    console.log('srtt', getters.GET_SRTT);
 
     commit('SET_USERS', users);
   },

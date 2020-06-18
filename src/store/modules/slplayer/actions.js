@@ -323,7 +323,9 @@ export default {
 
   LOAD_PLAYER_SRC: async ({ getters, commit }) => {
     const result = await getters.GET_PLAYER.load(getters.GET_SRC_URL);
-    commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET_MS);
+    if (getters.GET_OFFSET_MS > 0) {
+      commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET_MS);
+    }
     return result;
   },
 

@@ -1,8 +1,4 @@
 export default {
-  SET_METADATA: (state, metadata) => {
-    state.metadata = metadata;
-  },
-
   SET_PLAYER_STATE: (state, playerState) => {
     state.playerState = playerState;
   },
@@ -31,16 +27,8 @@ export default {
     state.offsetMs = offset;
   },
 
-  SET_PLEX_SERVER_ID: (state, id) => {
-    state.plexServerId = id;
-  },
-
   SET_MEDIA_INDEX: (state, index) => {
     state.mediaIndex = index;
-  },
-
-  SET_KEY: (state, key) => {
-    state.key = key;
   },
 
   SET_PLEX_DECISION: (state, decision) => {

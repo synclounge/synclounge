@@ -146,7 +146,7 @@ export default {
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
-    'X-Plex-Incomplete-Segments': 1,
+    // 'X-Plex-Incomplete-Segments': 1,
     ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
   }),
 

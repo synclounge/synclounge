@@ -162,7 +162,6 @@ export default {
   }),
 
   START_CLIENT_POLLER: async ({ getters, dispatch, rootGetters }) => {
-    console.log('START CLIENT POLLER');
     // eslint-disable-next-line no-constant-condition
     while (true) {
       if (!getters.GET_ROOM) {

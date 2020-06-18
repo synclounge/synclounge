@@ -217,7 +217,7 @@ import CloseButtonFactory from '@/player/ui/closebutton';
 import Forward30ButtonFactory from '@/player/ui/forward30button';
 import Replay10ButtonFactory from '@/player/ui/replay10button';
 
-// shaka.log.setLevel(shaka.log.Level.WARNING);
+// shaka.log.setLevel(shaka.log.Level.DEBUG);
 shaka.polyfill.installAll();
 
 export default {
