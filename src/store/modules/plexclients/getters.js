@@ -46,4 +46,12 @@ export default {
       parentTitle: null,
       ratingKey: null,
     }),
+
+  GET_PLEX_CLIENT_POLL_DATA: (state, getters) => (getters.GET_PLEX_CLIENT_TIMELINE
+    ? ({
+      time: getters.GET_PLEX_CLIENT_TIMELINE.time,
+      duration: getters.GET_PLEX_CLIENT_TIMELINE.duration,
+      playerState: getters.GET_PLEX_CLIENT_TIMELINE.state,
+    })
+    : null),
 };

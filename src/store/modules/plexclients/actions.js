@@ -121,11 +121,21 @@ export default {
 
     await dispatch('UPDATE_PLEX_CLIENT_TIMELINE', timeline);
 
-    return {
-      time: getters.GET_PLEX_CLIENT_TIMELINE.time,
-      duration: getters.GET_PLEX_CLIENT_TIMELINE.duration,
-      playerState: getters.GET_PLEX_CLIENT_TIMELINE.state,
-    };
+    return getters.GET_PLEX_CLIENT_POLL_DATA;
+  },
+
+  // Same return as FETCH_TIMELINE_POLL_DATA but usees the cached data (if normal plex client rather than making a request)
+  // or asks slplayer since it can do that with no delay
+  FETCH_TIMELINE_POLL_DATA_CACHE: ({ getters, dispatch }) => {
+    switch (getters.GET_CHOSEN_CLIENT_ID) {
+      case 'PTPLAYER9PLUS10': {
+        return dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true });
+      }
+
+      default: {
+        return getters.GET_PLEX_CLIENT_POLL_DATA;
+      }
+    }
   },
 
   FETCH_TIMELINE_POLL_DATA: ({ getters, dispatch }) => {

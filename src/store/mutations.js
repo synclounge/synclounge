@@ -7,10 +7,6 @@ export default {
   SET_RIGHT_SIDEBAR_OPEN: (state, open) => { state.isRightSidebarOpen = open; },
   TOGGLE_RIGHT_SIDEBAR_OPEN: (state) => { state.isRightSidebarOpen = !state.isRightSidebarOpen; },
 
-  SET_BLOCK_AUTOPLAY: (state, block) => {
-    state.blockAutoPlay = block;
-  },
-
   SET_MANUAL_SYNC_QUEUED: (state, queued) => {
     state.manualSyncQueued = queued;
   },

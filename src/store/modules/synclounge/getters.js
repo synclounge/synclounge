@@ -101,4 +101,7 @@ export default {
   GET_POLL_SENT_TIME: (state) => (pollNumber) => state.unackedPolls[pollNumber],
 
   GET_SERVER: (state) => state.server,
+
+  // Used to detect if the host changes 
+  GET_HOST_LAST_RATING_KEY: (state) => state.hostLastRatingKey,
 };

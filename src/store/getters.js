@@ -2,7 +2,6 @@ export default {
   getAppVersion: (state) => state.appVersion,
   getBackground: (state) => state.background,
   getShownChat: (state) => state.shownChat,
-  getBlockAutoPlay: (state) => state.blockAutoPlay,
 
   // SETTINGS
   getLogos: () => ({

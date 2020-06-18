@@ -182,93 +182,74 @@ export default {
   },
 
   DECISION_MAKE: async ({
-    getters, commit, dispatch, rootGetters,
+    getters, dispatch, rootGetters,
   }) => {
-    const ourTimeline = rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject;
+    // TODO: potentailly don't do anythign if we have no timeline data yet
+    const timeline = dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
-    if (ourTimeline.playerState === 'buffering') {
-      return;
-    }
-
-    if ((!getters.GET_HOST_TIMELINE.playerState || getters.GET_HOST_TIMELINE.playerState === 'stopped')
-          && ourTimeline.state !== 'stopped') {
-      sendNotification('The host pressed stop');
+    if (getters.GET_HOST_TIMELINE.playerState === 'stopped' && timeline.playerState !== 'stopped') {
+    // First, decide if we should stop playback
+      dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
       await rootGetters.GET_CHOSEN_CLIENT.pressStop();
       return;
-    }
-
-    if (hostTimeline.playerState === 'stopped') {
-      return;
-    }
-    // Check if we need to autoplay
-    if (
-      ((ourTimeline.state === 'stopped' || !ourTimeline.state)
-            && hostTimeline.playerState !== 'stopped')
-          || state.rawTitle !== hostTimeline.rawTitle
-    ) {
-      if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
-        return;
-      }
-      // We need to autoplay!
-      if (!rootGetters['settings/GET_AUTOPLAY']) {
-        return;
-      }
-      commit('SET_BLOCK_AUTOPLAY', true, { root: true });
-
-      commit('SET_RAW_TITLE', hostTimeline.rawTitle);
-      sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
-
-      const bestMatch = await dispatch('FIND_BEST_MEDIA_MATCH', hostTimeline, { root: true });
-      if (bestMatch) {
-        await dispatch('PLEX_CLIENT_PLAY_MEDIA', {
-          // TODO: have timeline updates send out more info like mediaIdentifier etc
-          key: bestMatch.key,
-          mediaIndex: bestMatch.mediaIndex || 0,
-          serverIdentifier: bestMatch.machineIdentifier,
-          offset: hostTimeline.time || 0,
-        }).catch(() => {});
-      } else {
-        sendNotification(
-          `Failed to find a compatible copy of ${hostTimeline.rawTitle}. If you have access to the content try manually playing it.`,
-        );
-      }
-
-      setTimeout(() => {
-        commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-      }, 15000);
+    } if (rootGetters['settings/GET_AUTOPLAY']
+    && (getters.GET_HOST_TIMELINE.ratingKey !== getters.GET_HOST_LAST_RATING_KEY
+      || timeline.playerState === 'stopped')) {
+      // If we have autoplay enabled and the host rating key has changed or if we aren't playign anything
+      await dispatch('FIND_AND_PLAY_NEW_MEDIA');
       return;
     }
 
-    if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
-      sendNotification('Resuming..');
+    // TODO: examine if we want this or not
+    if (timeline.playerState === 'buffering') {
+      return;
+    }
+
+    if (getters.GET_HOST_TIMELINE.playerState === 'playing' && timeline.state === 'paused') {
+      dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
       await rootGetters.GET_CHOSEN_CLIENT.pressPlay();
-      return;
     }
 
-    if ((hostTimeline.playerState === 'paused'
-          || hostTimeline.playerState === 'buffering')
-          && ourTimeline.state === 'playing') {
-      sendNotification('Pausing..');
+    if ((getters.GET_HOST_TIMELINE.playerState === 'paused'
+          || getters.GET_HOST_TIMELINE.playerState === 'buffering')
+          && timeline.state === 'playing') {
+      dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
       await rootGetters.GET_CHOSEN_CLIENT.pressPause();
-      return;
     }
 
-    if (hostTimeline.playerState === 'playing') {
+    if (getters.GET_HOST_TIMELINE.playerState === 'playing') {
       // Add on the delay between us and the SLServer plus the delay between the server and the host
       hostUpdateData.time = hostUpdateData.time + (getters.GET_SRTT || 0)
               + (hostTimeline.latency || 0);
     }
 
-    try {
-      await rootGetters.GET_CHOSEN_CLIENT.sync(
-        hostUpdateData,
-        rootGetters['settings/GET_SYNCFLEXIBILITY'],
-        rootGetters['settings/GET_SYNCMODE'],
-        rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
-      );
-    } catch (e) {
-      console.log(e);
+    await rootGetters.GET_CHOSEN_CLIENT.sync(
+      hostUpdateData,
+      rootGetters['settings/GET_SYNCFLEXIBILITY'],
+      rootGetters['settings/GET_SYNCMODE'],
+      rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
+    );
+  },
+
+  FIND_AND_PLAY_NEW_MEDIA: async ({ getters, dispatch, commit }) => {
+    dispatch('DISPLAY_NOTIFICATION', `Searching Plex Servers for "${getters.GET_HOST_TIMELINE.rawTitle}"`, { root: true });
+
+    const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH', getters.GET_HOST_TIMELINE, { root: true });
+    if (bestMatch) {
+      await dispatch('PLEX_CLIENT_PLAY_MEDIA', {
+        // TODO: have timeline updates send out more info like mediaIdentifier etc
+        key: bestMatch.key,
+        mediaIndex: bestMatch.mediaIndex || 0,
+        serverIdentifier: bestMatch.machineIdentifier,
+        offset: getters.GET_HOST_TIMELINE.time || 0,
+      });
+    } else {
+      dispatch('DISPLAY_NOTIFICATION',
+        `Failed to find a compatible copy of ${getters.GET_HOST_TIMELINE}. If you have access to the content try manually playing it.`,
+        { root: true });
     }
+
+    commit('SET_HOST_LAST_RATING_KEY', getters.GET_HOST_TIMELINE.ratingKey);
   },
 
   HANDLE_DISCONNECT: ({ commit }, disconnectData) => {
