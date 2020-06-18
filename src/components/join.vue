@@ -58,7 +58,7 @@ export default {
   },
 
   methods: {
-    ...mapActions([
+    ...mapActions('synclounge', [
       'autoJoin',
     ]),
 

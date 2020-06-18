@@ -26,6 +26,7 @@ export default {
     const url = combineUrl('socket.io', address);
     const socket = await socketConnect(url.origin, { path: url.pathname });
     commit('SET_SOCKET', socket);
+    commit('SET_SERVER', address);
   },
 
   async JOIN_ROOM({

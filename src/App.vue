@@ -267,6 +267,7 @@ export default {
 
     ...mapGetters('synclounge', [
       'GET_ROOM',
+      'GET_SERVER',
     ]),
 
     ...mapState(['isRightSidebarOpen']),
@@ -369,7 +370,7 @@ export default {
     },
 
     inviteUrl() {
-      if (this.getServer && this.getRoom) {
+      if (this.GET_ROOM) {
         if (this.GET_CONFIG.autoJoin) {
           // If autojoin, just link to main site
           return window.location.origin;
@@ -377,7 +378,7 @@ export default {
 
         const invitePart = this.$router.resolve({
           name: 'join',
-          params: { server: this.getServer, room: this.getRoom },
+          params: { server: this.GET_SERVER, room: this.GET_ROOM },
         }).href;
 
         return `${window.location.origin}/${invitePart}`;

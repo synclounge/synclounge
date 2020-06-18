@@ -99,4 +99,6 @@ export default {
   GET_SRTT: (state) => state.srtt,
 
   GET_POLL_SENT_TIME: (state) => (pollNumber) => state.unackedPolls[pollNumber],
+
+  GET_SERVER: (state) => state.server,
 };

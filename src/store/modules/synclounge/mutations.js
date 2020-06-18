@@ -66,4 +66,8 @@ export default {
   DELETE_UNACKED_POLL: (state, pollNumber) => {
     Vue.delete(state.unackedPolls, pollNumber);
   },
+
+  SET_SERVER: (state, server) => {
+    state.server = server;
+  },
 };
