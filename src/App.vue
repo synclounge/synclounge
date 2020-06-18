@@ -401,25 +401,6 @@ export default {
       this.snackbar = true;
     });
 
-    window.EventBus.$on('NEW_TIMELINE', (timeline) => {
-      this.$store.dispatch('NEW_TIMELINE', timeline);
-    });
-
-    window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
-      if (this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10' && data[1]) {
-        this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
-      }
-
-      if (
-        this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
-        && !data[1]
-        && this.$route.fullPath.indexOf('/nowplaying') > -1
-      ) {
-        this.$router.push('/browse/');
-      }
-      this.$store.dispatch('PLAYBACK_CHANGE', data);
-    });
-
     fscreen.addEventListener('fullscreenchange', () => {
       const isFullscreen = fscreen.fullscreenElement !== null;
       this.appIsFullscreen = isFullscreen;

@@ -143,6 +143,7 @@ export default {
 
   POLL_CLIENT: async ({ getters, dispatch }) => {
     const timelinePart = await dispatch('FETCH_TIMELINE_POLL_DATA');
+    dispatch('HANDLE_NEW_TIMELINE', timelinePart, { root: true });
 
     return {
       ...getters.GET_ACTIVE_MEDIA_POLL_METADATA,

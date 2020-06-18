@@ -256,4 +256,11 @@ export default {
       librarySectionID: data.MediaContainer.librarySectionID,
     }));
   },
+
+  FETCH_POST_PLAY: async ({ getters }, { machineIdentifier, ratingKey }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
+      .get(`/hubs/metadata/${ratingKey}/postplay`);
+
+    return data.MediaContainer.Hub[0].Metadata[0];
+  },
 };

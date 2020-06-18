@@ -57,7 +57,6 @@ export default {
           });
           resolve();
         } else {
-          commit('SET_ME', null);
           commit('SET_ROOM', null);
           commit('SET_PASSWORD', null);
           commit('SET_USERS', []);

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import sizing from '@/utils/sizing';
+import router from '@/router';
 
 export default {
   SET_LEFT_SIDEBAR_OPEN: ({ commit }, open) => {
@@ -30,21 +31,22 @@ export default {
     commit('SET_CONFIGURATION_FETCHED', true);
   },
 
-  NEW_TIMELINE: ({ commit, getters }, timeline) => {
+  HANDLE_NEW_TIMELINE: async ({ commit, getters, dispatch }, timeline) => {
     // Check if we need to activate the upnext feature
     if (getters['synclounge/AM_I_HOST']) {
       if (timeline.duration && timeline.time
-        && Math.abs(timeline.duration - timeline.time) < 10000
-        && metadata.type === 'episode'
+        && (timeline.duration - timeline.time) < 10000
+        && getters['plexclients/GET_ACTIVE_MEDIA_METADATA'].type === 'episode'
       ) {
         if (!getters.GET_UP_NEXT_TRIGGERED) {
-          state.plex.servers[timeline.machineIdentifier]
-            .getPostplay(timeline.ratingKey).then((data) => {
-              if (data.MediaContainer.Hub[0].Metadata[0].grandparentTitle
-                === metadata.grandparentTitle) {
-                commit('SET_UP_NEXT_POST_PLAY_DATA', data);
-              }
-            });
+          const item = await dispatch('plexservers/FETCH_POST_PLAY', {
+            machineIdentifier: getters['plexclients/GET_ACTIVE_SERVER_ID'],
+            ratingKey: getters['plexclients/GET_ACTIVE_MEDIA_METADATA'].ratingKey,
+          });
+
+          if (item.grandparentTitle === getters['plexclients/GET_ACTIVE_MEDIA_METADATA'].grandparentTitle) {
+            commit('SET_UP_NEXT_POST_PLAY_DATA', item);
+          }
 
           commit('SET_UP_NEXT_TRIGGERED', true);
         }
@@ -92,6 +94,16 @@ export default {
     } else {
       const thumb = await dispatch('plexservers/FETCH_RANDOM_THUMB_URL');
       commit('SET_BACKGROUND', thumb);
+    }
+
+    if (getters['plexclients/GET_CHOSEN_CLIENT_ID'] !== 'PTPLAYER9PLUS10' && metadata) {
+      router.push(`/nowplaying/${machineIdentifier}/${metadata.ratingKey}`);
+    }
+
+    if (getters['plexclients/GET_CHOSEN_CLIENT_ID'] !== 'PTPLAYER9PLUS10' && metadata
+        && router.fullPath.indexOf('/nowplaying') > -1
+    ) {
+      router.push('/browse/');
     }
   },
 

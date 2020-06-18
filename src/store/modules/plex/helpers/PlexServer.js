@@ -48,12 +48,6 @@ class PlexServer {
       key: ratingKey,
     });
   }
-
-  getPostplay(ratingKey) {
-    return this.hitApi(`/hubs/metadata/${ratingKey}/postplay`, {
-      'X-Plex-Token': this.accessToken,
-    });
-  }
 }
 
 export default PlexServer;
