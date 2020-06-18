@@ -1,8 +1,3 @@
-function sendNotification(message) {
-  console.log(message);
-  return window.EventBus.$emit('notification', message);
-}
-
 export default {
   HANDLE_SUCCESSFUL_JOIN_RESULT: ({
     getters, state, commit, dispatch,
@@ -138,135 +133,25 @@ export default {
     });
   },
 
-  HANDLE_HOST_UPDATE: async ({
-    commit, dispatch, state, rootGetters, rootState,
-  }, hostData) => {
-    const hostUpdateData = hostData;
-    hostUpdateData.recievedAt = new Date().getTime();
-    const hostTimeline = hostUpdateData;
-    if (
-      !state.lastHostTimeline
-        || state.lastHostTimeline.playerState !== hostUpdateData.playerState
-    ) {
+  HANDLE_HOST_UPDATE: ({ getters, commit, dispatch }, timeline) => {
+    if (!getters.GET_HOST_TIMELINE
+        || getters.GET_HOST_TIMELINE.playerState !== timeline.playerState
+        || Math.abs(timeline.time - getters.GET_HOST_TIMELINE.time) < 5000) {
       window.EventBus.$emit('host-playerstate-change');
     }
-    const diffBetweenLastUpdate = Math.abs(state.lastHostTimeline.time
-        - hostUpdateData.time);
-    if (diffBetweenLastUpdate > 5000) {
-      window.EventBus.$emit('host-playerstate-change');
-    }
-    state.lastHostTimeline = hostUpdateData;
 
-    const decisionMaker = async () => {
-      const ourTimeline = rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject;
+    commit('SET_HOST_TIMELINE', {
+      ...timeline,
+      recievedAt: Date.now(),
+    });
 
-      if (ourTimeline.playerState === 'buffering') {
-        return;
-      }
-      if (
-        (hostTimeline.playerState === 'stopped' || !hostTimeline.playerState)
-            && ourTimeline.state !== 'stopped'
-      ) {
-        sendNotification('The host pressed stop');
-        await rootGetters.GET_CHOSEN_CLIENT.pressStop();
-        return;
-      }
+    return dispatch('SYNCHRONIZE');
+  },
 
-      if (hostTimeline.playerState === 'stopped') {
-        return;
-      }
-      // Check if we need to autoplay
-      if (
-        ((ourTimeline.state === 'stopped' || !ourTimeline.state)
-              && hostTimeline.playerState !== 'stopped')
-            || state.rawTitle !== hostTimeline.rawTitle
-      ) {
-        if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
-          return;
-        }
-        // We need to autoplay!
-        if (!rootGetters['settings/GET_AUTOPLAY']) {
-          return;
-        }
-        commit('SET_BLOCK_AUTOPLAY', true, { root: true });
-
-        const servers = { ...rootState.plex.servers };
-        rootGetters['settings/GET_BLOCKEDSERVERS'].forEach((id) => {
-          if (rootState.plex.servers[id]) {
-            delete servers[id];
-          }
-        });
-
-        commit('SET_RAW_TITLE', hostTimeline.rawTitle);
-        sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
-
-        const bestMatch = await dispatch('FIND_BEST_MEDIA_MATCH', hostTimeline, { root: true });
-        if (bestMatch) {
-          await dispatch('PLEX_CLIENT_PLAY_MEDIA', {
-            // TODO: have timeline updates send out more info like mediaIdentifier etc
-            key: bestMatch.key,
-            mediaIndex: bestMatch.mediaIndex || 0,
-            serverIdentifier: bestMatch.machineIdentifier,
-            offset: hostTimeline.time || 0,
-          }).catch(() => {});
-        } else {
-          sendNotification(
-            `Failed to find a compatible copy of ${hostTimeline.rawTitle}. If you have access to the content try manually playing it.`,
-          );
-        }
-        setTimeout(() => {
-          commit('SET_BLOCK_AUTOPLAY', false, { root: true });
-        }, 15000);
-        return;
-      }
-
-      if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
-        sendNotification('Resuming..');
-        await rootGetters.GET_CHOSEN_CLIENT.pressPlay();
-        return;
-      }
-      if ((hostTimeline.playerState === 'paused'
-            || hostTimeline.playerState === 'buffering')
-            && ourTimeline.state === 'playing') {
-        sendNotification('Pausing..');
-        await rootGetters.GET_CHOSEN_CLIENT.pressPause();
-        return;
-      }
-      if (hostTimeline.playerState === 'playing') {
-        // Add on the delay between us and the SLServer plus the delay between the server and the host
-        try {
-          const ourLastDelay = Math.round(
-            state.commands[Object.keys(state.commands).length - 1].difference,
-          );
-          const hostLastDelay = Math.round(hostTimeline.latency);
-          // console.log('adding delays', { ourLastDelay, hostLastDelay });
-          if (ourLastDelay && hostLastDelay) {
-            // console.log(
-            //   'Adding host delay',
-            //   hostLastDelay,
-            //   'and our lastDelay',
-            //   ourLastDelay,
-            // );
-            hostUpdateData.time = hostUpdateData.time + ourLastDelay
-                + hostLastDelay;
-          }
-        } catch (e) {
-          console.log('Failed to add extra lag time');
-        }
-      }
-
-      try {
-        await rootGetters.GET_CHOSEN_CLIENT.sync(
-          hostUpdateData,
-          rootGetters['settings/GET_SYNCFLEXIBILITY'],
-          rootGetters['settings/GET_SYNCMODE'],
-          rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    };
-      /* This is data from the host, we should react to this data by potentially changing
+  SYNCHRONIZE: async ({
+    getters, commit, dispatch, rootGetters,
+  }) => {
+    /* This is data from the host, we should react to this data by potentially changing
         what we're playing or seeking to get back in sync with the host.
 
         We need to limit how ourself to make sure we dont hit the client too hard.
@@ -275,35 +160,13 @@ export default {
         if we need to seek or start playing something.
       */
 
-    if (rootState.manualSyncQueued) {
-      commit('SET_DECISION_BLOCKED_TIME', new Date().getTime());
+    // TODO: move this manual sync into this module
+    if (rootGetters.GET_MANUAL_SYNC_QUEUED) {
       window.EventBus.$emit('host-playerstate-change');
-      await rootGetters.GET_CHOSEN_CLIENT.seekTo(hostTimeline.time);
+      await rootGetters.GET_CHOSEN_CLIENT.seekTo(getters.GET_HOST_TIMELINE.time);
       commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
-      commit('SET_DECISION_BLOCKED_TIME', 0);
       return;
     }
-    if (Math.abs(state.decisionBlockedTime - new Date().getTime()) < 180000) {
-      console.log(
-        'Not going to make a decision from host data because a command is already running',
-      );
-      return;
-    }
-
-    if (!rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject) {
-      console.log('Dont have our first timeline data yet.');
-      if (rootGetters.GET_CHOSEN_CLIENT.clientIdentifier === 'PTPLAYER9PLUS10') {
-        // TODO: come back and fix this
-        // eslint-disable-next-line no-param-reassign
-        rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject = {
-          playerState: 'stopped',
-        };
-      } else {
-        return;
-      }
-    }
-    // Check previous timeline data age
-    commit('SET_DECISION_BLOCKED_TIME', new Date().getTime());
 
     // console.log('Timeline age is', timelineAge);
     try {
@@ -315,9 +178,97 @@ export default {
       // }
     } catch (e) {
       console.log('Error caught in sync logic', e);
-      commit('SET_DECISION_BLOCKED_TIME', 0);
     }
-    commit('SET_DECISION_BLOCKED_TIME', 0);
+  },
+
+  DECISION_MAKE: async ({
+    getters, commit, dispatch, rootGetters,
+  }) => {
+    const ourTimeline = rootGetters.GET_CHOSEN_CLIENT.lastTimelineObject;
+
+    if (ourTimeline.playerState === 'buffering') {
+      return;
+    }
+
+    if ((!getters.GET_HOST_TIMELINE.playerState || getters.GET_HOST_TIMELINE.playerState === 'stopped')
+          && ourTimeline.state !== 'stopped') {
+      sendNotification('The host pressed stop');
+      await rootGetters.GET_CHOSEN_CLIENT.pressStop();
+      return;
+    }
+
+    if (hostTimeline.playerState === 'stopped') {
+      return;
+    }
+    // Check if we need to autoplay
+    if (
+      ((ourTimeline.state === 'stopped' || !ourTimeline.state)
+            && hostTimeline.playerState !== 'stopped')
+          || state.rawTitle !== hostTimeline.rawTitle
+    ) {
+      if (rootState.blockAutoPlay || !hostTimeline.rawTitle) {
+        return;
+      }
+      // We need to autoplay!
+      if (!rootGetters['settings/GET_AUTOPLAY']) {
+        return;
+      }
+      commit('SET_BLOCK_AUTOPLAY', true, { root: true });
+
+      commit('SET_RAW_TITLE', hostTimeline.rawTitle);
+      sendNotification(`Searching Plex Servers for "${hostTimeline.rawTitle}"`);
+
+      const bestMatch = await dispatch('FIND_BEST_MEDIA_MATCH', hostTimeline, { root: true });
+      if (bestMatch) {
+        await dispatch('PLEX_CLIENT_PLAY_MEDIA', {
+          // TODO: have timeline updates send out more info like mediaIdentifier etc
+          key: bestMatch.key,
+          mediaIndex: bestMatch.mediaIndex || 0,
+          serverIdentifier: bestMatch.machineIdentifier,
+          offset: hostTimeline.time || 0,
+        }).catch(() => {});
+      } else {
+        sendNotification(
+          `Failed to find a compatible copy of ${hostTimeline.rawTitle}. If you have access to the content try manually playing it.`,
+        );
+      }
+
+      setTimeout(() => {
+        commit('SET_BLOCK_AUTOPLAY', false, { root: true });
+      }, 15000);
+      return;
+    }
+
+    if (hostTimeline.playerState === 'playing' && ourTimeline.state === 'paused') {
+      sendNotification('Resuming..');
+      await rootGetters.GET_CHOSEN_CLIENT.pressPlay();
+      return;
+    }
+
+    if ((hostTimeline.playerState === 'paused'
+          || hostTimeline.playerState === 'buffering')
+          && ourTimeline.state === 'playing') {
+      sendNotification('Pausing..');
+      await rootGetters.GET_CHOSEN_CLIENT.pressPause();
+      return;
+    }
+
+    if (hostTimeline.playerState === 'playing') {
+      // Add on the delay between us and the SLServer plus the delay between the server and the host
+      hostUpdateData.time = hostUpdateData.time + (getters.GET_SRTT || 0)
+              + (hostTimeline.latency || 0);
+    }
+
+    try {
+      await rootGetters.GET_CHOSEN_CLIENT.sync(
+        hostUpdateData,
+        rootGetters['settings/GET_SYNCFLEXIBILITY'],
+        rootGetters['settings/GET_SYNCMODE'],
+        rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
+      );
+    } catch (e) {
+      console.log(e);
+    }
   },
 
   HANDLE_DISCONNECT: ({ commit }, disconnectData) => {
@@ -328,7 +279,6 @@ export default {
       commit('SET_ROOM', null);
       commit('SET_PASSWORD', null);
       commit('SET_USERS', []);
-      commit('SET_CONNECTED', false);
       commit('SET_SERVER', null);
     } else if (disconnectData === 'transport close') {
       console.log('The server disconnected on us');

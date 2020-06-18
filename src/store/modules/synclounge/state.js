@@ -9,7 +9,6 @@ const state = () => ({
   users: [],
   messages: [],
   partyPausing: false,
-  decisionBlockedTime: 0,
   hostTimeline: null,
   rawTitle: null,
   serversHealth: null,

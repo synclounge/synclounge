@@ -33,10 +33,6 @@ export default {
     state.rawTitle = title;
   },
 
-  SET_DECISION_BLOCKED_TIME(state, time) {
-    state.decisionBlockedTime = time;
-  },
-
   SET_SERVERS_HEALTH: (state, healths) => {
     state.serversHealth = healths;
   },
@@ -69,5 +65,9 @@ export default {
 
   SET_SERVER: (state, server) => {
     state.server = server;
+  },
+
+  SET_HOST_TIMELINE: (state, timeline) => {
+    state.hostTimeline = timeline;
   },
 };
