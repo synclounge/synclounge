@@ -9,7 +9,7 @@ class Forward30Button extends shaka.ui.Element {
     this.button = document.createElement('button');
     this.button.classList.add('shaka-forward30-button');
     this.button.classList.add('shaka-slplayer-button');
-    this.button.classList.add('material-icons');
+    this.button.classList.add('material-icons-round');
     this.button.textContent = 'forward_30';
     this.parent.appendChild(this.button);
 

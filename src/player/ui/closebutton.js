@@ -9,7 +9,7 @@ class CloseButton extends shaka.ui.Element {
     // The actual button that will be displayed
     this.button = document.createElement('button');
     this.button.classList.add('shaka-close-button');
-    this.button.classList.add('material-icons');
+    this.button.classList.add('material-icons-round');
     this.button.textContent = 'close';
     this.parent.appendChild(this.button);
 

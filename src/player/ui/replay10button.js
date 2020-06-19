@@ -9,7 +9,7 @@ class Replay10Button extends shaka.ui.Element {
     this.button = document.createElement('button');
     this.button.classList.add('shaka-replay10-button');
     this.button.classList.add('shaka-slplayer-button');
-    this.button.classList.add('material-icons');
+    this.button.classList.add('material-icons-round');
     this.button.textContent = 'replay_10';
     this.parent.appendChild(this.button);
 

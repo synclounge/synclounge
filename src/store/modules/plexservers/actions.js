@@ -133,13 +133,13 @@ export default {
     // If we have access the same server, play same content
     if (getters.IS_PLEX_SERVER_UNBLOCKED(hostTimeline.machineIdentifier)) {
       try {
-        await dispatch('FETCH_PLEX_METADATA', {
+        const metadata = await dispatch('FETCH_PLEX_METADATA', {
           ratingKey: hostTimeline.ratingKey,
           machineIdentifier: hostTimeline.machineIdentifier,
         });
 
         return {
-          ratingKey: hostTimeline.ratingKey,
+          ...metadata,
           machineIdentifier: hostTimeline.machineIdentifier,
           mediaIndex: hostTimeline.mediaIndex,
           offset: hostTimeline.time,

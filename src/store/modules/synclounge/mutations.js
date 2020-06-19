@@ -70,4 +70,8 @@ export default {
   SET_HOST_TIMELINE: (state, timeline) => {
     state.hostTimeline = timeline;
   },
+
+  SET_HOST_LAST_RATING_KEY: (state, ratingKey) => {
+    state.hostLastRatingKey = ratingKey;
+  },
 };

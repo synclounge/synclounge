@@ -37,16 +37,17 @@ export default {
     console.log('Updating timeline for', client, 'with', timeline);
   },
 
-  PLEX_CLIENT_PLAY_MEDIA: async ({ getters, commit, rootGetters }, {
-    key, mediaIndex, metadata, serverIdentifier, offset,
+  PLAY_MEDIA: async ({ getters, commit, rootGetters }, {
+    mediaIndex, offset, metadata, machineIdentifier,
   }) => {
-    const server = rootGetters['plexservers/GET_PLEX_SERVER'](serverIdentifier);
+    const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
 
     if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
       // do raw stuff
       // commit the proper stuff
+
       commit('SET_ACTIVE_MEDIA_METADATA', metadata);
-      commit('SET_ACTIVE_SERVER_ID', serverIdentifier);
+      commit('SET_ACTIVE_SERVER_ID', machineIdentifier);
       commit('slplayer/SET_MEDIA_INDEX', mediaIndex, { root: true });
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
       router.push('/player');
@@ -61,13 +62,13 @@ export default {
 
       const params = {
         'X-Plex-Client-Identifier': 'SyncLounge',
-        key,
+        key: metadata.key,
         offset: Math.round(offset) || 0,
-        machineIdentifier: serverIdentifier,
+        machineIdentifier,
         address: server.chosenConnection.address,
         port: server.chosenConnection.port,
         protocol: server.chosenConnection.protocol,
-        path: server.chosenConnection.uri + key,
+        path: server.chosenConnection.uri + metadata.key,
         wait: 0,
         token: server.accessToken,
       };

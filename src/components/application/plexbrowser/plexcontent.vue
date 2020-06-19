@@ -631,7 +631,7 @@ export default {
 
   methods: {
     ...mapActions('plexclients', [
-      'PLEX_CLIENT_PLAY_MEDIA',
+      'PLAY_MEDIA',
     ]),
 
     ...mapActions('plexservers', [
@@ -710,11 +710,10 @@ export default {
         offset = this.contents.viewOffset;
       }
 
-      await this.PLEX_CLIENT_PLAY_MEDIA({
-        key: this.contents.key,
+      await this.PLAY_MEDIA({
         metadata: this.contents,
         mediaIndex,
-        serverIdentifier: this.machineIdentifier,
+        machineIdentifier: this.machineIdentifier,
         offset,
       });
       this.dialog = false;

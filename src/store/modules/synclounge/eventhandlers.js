@@ -186,7 +186,6 @@ export default {
     if (getters.GET_HOST_TIMELINE.playerState === 'stopped' && timeline.playerState !== 'stopped') {
     // First, decide if we should stop playback
       dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
-      await rootGetters.GET_CHOSEN_CLIENT.pressStop();
       return dispatch('plexclients/PRESS_STOP', null, { root: true });
     }
 
@@ -226,13 +225,13 @@ export default {
 
     const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH', getters.GET_HOST_TIMELINE, { root: true });
     if (bestMatch) {
-      await dispatch('PLEX_CLIENT_PLAY_MEDIA', {
+      await dispatch('plexclients/PLAY_MEDIA', {
         // TODO: have timeline updates send out more info like mediaIdentifier etc
-        key: bestMatch.key,
         mediaIndex: bestMatch.mediaIndex || 0,
-        serverIdentifier: bestMatch.machineIdentifier,
         offset: getters.GET_HOST_TIMELINE.time || 0,
-      });
+        metadata: bestMatch,
+        machineIdentifier: bestMatch.machineIdentifier,
+      }, { root: true });
     } else {
       dispatch('DISPLAY_NOTIFICATION',
         `Failed to find a compatible copy of ${getters.GET_HOST_TIMELINE}. If you have access to the content try manually playing it.`,

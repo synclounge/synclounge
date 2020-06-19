@@ -6,8 +6,6 @@ export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
 
   GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => {
-    console.log(rootGetters['plexclients/GET_ACTIVE_SERVER_ID']);
-    console.log(rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']));
     return rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']);
   },
 
