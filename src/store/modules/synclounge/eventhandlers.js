@@ -187,50 +187,38 @@ export default {
     // First, decide if we should stop playback
       dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
       await rootGetters.GET_CHOSEN_CLIENT.pressStop();
-      return;
+      return dispatch('plexclients/PRESS_STOP', null, { root: true });
     }
 
     if (rootGetters['settings/GET_AUTOPLAY']
     && (getters.GET_HOST_TIMELINE.ratingKey !== getters.GET_HOST_LAST_RATING_KEY
       || timeline.playerState === 'stopped')) {
       // If we have autoplay enabled and the host rating key has changed or if we aren't playign anything
-      await dispatch('FIND_AND_PLAY_NEW_MEDIA');
-      return;
+      return dispatch('FIND_AND_PLAY_NEW_MEDIA');
     }
 
     // TODO: examine if we want this or not
     if (timeline.playerState === 'buffering') {
-      return;
+      return false;
     }
 
     if (getters.GET_HOST_TIMELINE.playerState === 'playing' && timeline.state === 'paused') {
       dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
-      await rootGetters.GET_CHOSEN_CLIENT.pressPlay();
-      return;
+      return dispatch('plexclients/PRESS_PLAY', null, { root: true });
     }
 
     if ((getters.GET_HOST_TIMELINE.playerState === 'paused'
           || getters.GET_HOST_TIMELINE.playerState === 'buffering')
           && timeline.state === 'playing') {
       dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
-      await rootGetters.GET_CHOSEN_CLIENT.pressPause();
-      return;
+      return dispatch('plexclients/PRESS_PAUSE', null, { root: true });
     }
 
     // TODO: since we have awaited,
 
     // TODO: potentially update the player state if we paused or played so we know in the sync
 
-    if (getters.GET_HOST_TIMELINE.playerState === 'playing') {
-      // Add on the delay between us and the SLServer plus the delay between the server and the host
-      hostUpdateData.time = hostUpdateData.time + (getters.GET_SRTT || 0)
-              + (hostTimeline.latency || 0);
-    }
-
-    await dispatch('plexclients/SYNC', null, { root: true });
-    await rootGetters.GET_CHOSEN_CLIENT.sync(
-      hostUpdateData,
-    );
+    return dispatch('plexclients/SYNC', null, { root: true });
   },
 
   FIND_AND_PLAY_NEW_MEDIA: async ({ getters, dispatch, commit }) => {

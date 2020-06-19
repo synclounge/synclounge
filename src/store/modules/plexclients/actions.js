@@ -230,20 +230,24 @@ export default {
       return dispatch('SKIP_AHEAD', { offset: adjustedHostTime, duration: 10000 });
     }
 
+    // TODO: come back and properly implement this
+
     // Calc the average delay of the last 10 host timeline updates
     // We do this to avoid any issues with random lag spikes
-    this.differenceCache.unshift(difference);
-    if (this.differenceCache.length > 5) {
-      this.differenceCache.pop();
-    }
+    // this.differenceCache.unshift(difference);
+    // if (this.differenceCache.length > 5) {
+    //   this.differenceCache.pop();
+    // }
 
-    let total = 0;
-    for (let i = 0; i < this.differenceCache.length; i += 1) {
-      total += this.differenceCache[i];
-    }
+    // let total = 0;
+    // for (let i = 0; i < this.differenceCache.length; i += 1) {
+    //   total += this.differenceCache[i];
+    // }
 
-    const avg = total / this.differenceCache.length;
-    if (this.clientIdentifier === 'PTPLAYER9PLUS10' && avg > 1500) {
+    // const avg = total / this.differenceCache.length;
+
+    const avg = difference;
+    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' && avg > 1500) {
       console.log('Soft syncing because difference is', difference);
 
       return dispatch('SOFT_SEEK', adjustedHostTime);

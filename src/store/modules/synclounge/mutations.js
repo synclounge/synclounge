@@ -70,5 +70,4 @@ export default {
   SET_HOST_TIMELINE: (state, timeline) => {
     state.hostTimeline = timeline;
   },
-  
 };
