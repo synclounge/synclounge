@@ -4,15 +4,6 @@ import generateGuid from '@/utils/guid';
 import timeoutPromise from '@/utils/timeoutpromise';
 import delay from '@/utils/delay';
 
-const commandActions = (command) => ({
-  '/player/timeline/poll': 'DO_COMMAND_POLL',
-  '/player/playback/play': 'DO_COMMAND_PLAY',
-  '/player/playback/pause': 'DO_COMMAND_PAUSE',
-  '/player/playback/playMedia': 'DO_COMMAND_PLAY_MEDIA',
-  '/player/playback/stop': 'DO_COMMAND_STOP',
-  '/player/playback/seekTo': 'DO_COMMAND_SEEK_TO',
-})[command];
-
 // These functions are a bit special since they use currentTime and duration, which can't
 // be tracked by vuex, so the cache isn't updated correctly
 const getPlayerCurrentTimeMs = (getters) => (getters.GET_PLAYER_MEDIA_ELEMENT.currentTime * 1000)
@@ -166,25 +157,12 @@ export default {
     commit('settings/SET_SLPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
   },
 
-  // Command handlers
-  HANDLE_COMMAND: async ({ dispatch }, { command, params, callback }) => {
-    const result = await dispatch('DO_COMMAND_DISPATCH',
-      { action: commandActions(command), params }).catch(console.warn);
-    callback(result);
+  PRESS_PLAY: ({ getters }) => {
+    getters.GET_PLAYER_MEDIA_ELEMENT.play();
   },
 
-  DO_COMMAND_DISPATCH: async ({ dispatch }, { action, params }) => dispatch(action, params),
-
-  DO_COMMAND_PLAY: ({ getters, commit }) => {
-    if (getters.GET_PLAYER_STATE !== 'playing') {
-      commit('PLAY');
-    }
-  },
-
-  DO_COMMAND_PAUSE: ({ getters, commit }) => {
-    if (getters.GET_PLAYER_STATE !== 'paused') {
-      commit('PAUSE');
-    }
+  PRESS_PAUSE: ({ getters }) => {
+    getters.GET_PLAYER_MEDIA_ELEMENT.pause();
   },
 
   DO_COMMAND_PLAY_MEDIA: ({ commit, dispatch }, {
@@ -198,19 +176,7 @@ export default {
     return dispatch('CHANGE_PLAYER_SRC');
   },
 
-  DO_COMMAND_STOP: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'stopped'),
-
-  DO_COMMAND_SEEK_TO: async ({ getters, dispatch }, { offset: seekToMs, softSeek }) => {
-    if (Number.isNaN(getPlayerDurationMs(getters))) {
-      throw new Error('Player is not ready');
-    }
-
-    if (softSeek) {
-      return dispatch('SOFT_SEEK', seekToMs);
-    }
-
-    return dispatch('NORMAL_SEEK', seekToMs);
-  },
+  PRESS_STOP: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'stopped'),
 
   SOFT_SEEK: ({ getters, commit }, seekToMs) => {
     if (!isTimeInBufferedRange(getters, seekToMs)) {

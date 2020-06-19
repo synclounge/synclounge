@@ -192,6 +192,11 @@ export default {
       throw new Error('Already synced with this timeline. Need to wait for new one to sync again');
     }
 
+    // TODO: make sure all them hit here and fix the id lol
+    // todo: also store the command id above because it might have changed during the awaits
+    // TODO: also update this when pausing or playign so we don't have werid stuff
+    commit('SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID', null);
+
     const adjustedHostTime = rootGetters['synclounge/GET_HOST_PLAYER_TIME_ADJUSTED']();
 
     // TODO: only do this if we are playign (but maybe we just did a play command>...)
@@ -219,15 +224,10 @@ export default {
 
       if (rootGetters['settings/GET_SYNCMODE'] === 'cleanseek'
         || rootGetters['synclounge/GET_HOST_TIMELINE'].playerState === 'paused') {
-        return this.cleanSeek(adjustedHostTime);
+        return dispatch('SEEK_TO', adjustedHostTime);
       }
 
-      if (rootGetters['settings/GET_SYNCMODE'] === 'skipahead') {
-        return this.skipAhead(adjustedHostTime, 10000);
-      }
-
-      // Fall back to skipahead
-      return this.skipAhead(adjustedHostTime, 10000);
+      return dispatch('SKIP_AHEAD', { offset: adjustedHostTime, duration: 10000 });
     }
 
     // Calc the average delay of the last 10 host timeline updates
@@ -245,14 +245,119 @@ export default {
     const avg = total / this.differenceCache.length;
     if (this.clientIdentifier === 'PTPLAYER9PLUS10' && avg > 1500) {
       console.log('Soft syncing because difference is', difference);
-      return this.cleanSeek(adjustedHostTime, true);
+
+      return dispatch('SOFT_SEEK', adjustedHostTime);
     }
 
-    // TODO: make sure all them hit here and fix the id lol
-    // todo: also store the command id above because it might have changed during the awaits
-    // TODO: also update this when pausing or playign so we don't have werid stuff
-    commit('SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID', null);
-
     return 'No sync needed';
+  },
+
+  PRESS_PLAY: ({ getters, dispatch }) => {
+    switch (getters.GET_CHOSEN_CLIENT_ID) {
+      case 'PTPLAYER9PLUS10': {
+        return dispatch('slplayer/PRESS_PLAY', null, { root: true });
+      }
+
+      default: {
+        return dispatch('SEND_CLIENT_REQUEST', {
+          url: '/player/playback/play',
+          params: {
+            wait: 0,
+          },
+        });
+      }
+    }
+  },
+
+  PRESS_PAUSE: ({ getters, dispatch }) => {
+    switch (getters.GET_CHOSEN_CLIENT_ID) {
+      case 'PTPLAYER9PLUS10': {
+        return dispatch('slplayer/PRESS_PAUSE', null, { root: true });
+      }
+
+      default: {
+        return dispatch('SEND_CLIENT_REQUEST', {
+          url: '/player/playback/pause',
+          params: {
+            wait: 0,
+          },
+        });
+      }
+    }
+  },
+
+  PRESS_STOP: ({ getters, dispatch }) => {
+    switch (getters.GET_CHOSEN_CLIENT_ID) {
+      case 'PTPLAYER9PLUS10': {
+        return dispatch('slplayer/PRESS_STOP', null, { root: true });
+      }
+
+      default: {
+        return dispatch('SEND_CLIENT_REQUEST', {
+          url: '/player/playback/stop',
+          params: {
+            wait: 0,
+          },
+        });
+      }
+    }
+  },
+
+  SEEK_TO: ({ getters, dispatch }, offset) => {
+    switch (getters.GET_CHOSEN_CLIENT_ID) {
+      case 'PTPLAYER9PLUS10': {
+        return dispatch('slplayer/NORMAL_SEEK', offset, { root: true });
+      }
+
+      default: {
+        return dispatch('SEND_CLIENT_REQUEST', {
+          url: '/player/playback/seekTo',
+          params: {
+            wait: 0,
+            offset,
+          },
+        });
+      }
+    }
+  },
+
+  WAIT_FOR_MOVEMENT: (startTime) => new Promise((resolve) => {
+    let time = 500;
+    if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
+      time = 50;
+    }
+    const timer = setInterval(async () => {
+      const now = await this.getTimeline();
+      if (now.time !== startTime) {
+        console.log('Player has movement!');
+        resolve();
+        clearInterval(timer);
+      }
+    }, time);
+  }),
+
+  SKIP_AHEAD: async (current, duration) => {
+    const startedAt = Date.now();
+    const now = this.lastTimelineObject.time;
+    await this.seekTo(current + duration);
+    await this.waitForMovement(now);
+    // The client is now ready
+    await this.pressPause();
+    // Calculate how long it took to get to our ready state
+    const elapsed = Date.now() - startedAt;
+    await delay(duration - elapsed);
+    await this.pressPlay();
+  },
+
+  SOFT_SEEK: ({ getters, dispatch }, offset) => {
+    switch (getters.GET_CHOSEN_CLIENT_ID) {
+      case 'PTPLAYER9PLUS10': {
+        return dispatch('slplayer/SOFT_SEEK', offset, { root: true });
+      }
+
+      default: {
+        return dispatch('SEEK_TO', offset);
+      }
+    }
   },
 };

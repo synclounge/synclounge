@@ -35,14 +35,6 @@ export default {
     state.plexDecision = decision;
   },
 
-  PLAY: (state) => {
-    state.player.getMediaElement().play();
-  },
-
-  PAUSE: (state) => {
-    state.player.getMediaElement().pause();
-  },
-
   SET_PLAYER_CURRENT_TIME_MS: (state, timeMs) => {
     // Also update offset as fallback
     state.offsetMs = timeMs;

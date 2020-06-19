@@ -90,62 +90,7 @@ class PlexClient {
     return data;
   }
 
-  pressPlay() {
-    // Press play on the client
-    return this.hitApi('/player/playback/play', { wait: 0 });
-  }
 
-  pressPause() {
-    // Press pause on the client
-    return this.hitApi('/player/playback/pause', { wait: 0 });
-  }
-
-  pressStop() {
-    // Press pause on the client
-    return this.hitApi('/player/playback/stop', { wait: 0 });
-  }
-
-  seekTo(time, params) {
-    // Seek to a time (in ms)
-    return this.hitApi('/player/playback/seekTo', { wait: 0, offset: Math.round(time), ...params });
-  }
-
-  waitForMovement(startTime) {
-    return new Promise((resolve) => {
-      let time = 500;
-      if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
-        time = 50;
-      }
-      const timer = setInterval(async () => {
-        const now = await this.getTimeline();
-        if (now.time !== startTime) {
-          console.log('Player has movement!');
-          resolve();
-          clearInterval(timer);
-        }
-      }, time);
-    });
-  }
-
-  async skipAhead(current, duration) {
-    const startedAt = new Date().getTime();
-    const now = this.lastTimelineObject.time;
-    await this.seekTo(current + duration);
-    await this.waitForMovement(now);
-    // The client is now ready
-    await this.pressPause();
-    // Calculate how long it took to get to our ready state
-    const elapsed = Math.abs(startedAt - new Date().getTime());
-    await delay(duration - elapsed);
-    await this.pressPlay();
-  }
-
-  cleanSeek(time, isSoft) {
-    if (isSoft && this.clientIdentifier === 'PTPLAYER9PLUS10') {
-      return this.seekTo(time, { softSeek: true });
-    }
-    return this.seekTo(time);
-  }
 }
 
 export default PlexClient;
