@@ -20,4 +20,12 @@ export default {
   SET_ACTIVE_SERVER_ID: (state, id) => {
     state.activeServerId = id;
   },
+
+  INCREMENT_COMMAND_ID: (state) => {
+    state.commandId += 1;
+  },
+
+  SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: (state, commandId) => {
+    state.previousSyncTimelineCommandId = commandId;
+  },
 };

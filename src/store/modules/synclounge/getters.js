@@ -75,8 +75,11 @@ export default {
   GET_HOST_PLAYER_TIME_ADJUSTED: (state, getters) => () => {
     const hostAge = Date.now() - getters.GET_HOST_TIMELINE.recievedAt;
 
+    // TODO: please veyr much examine the latency and maybe see if the server should calc
     return getters.GET_HOST_TIMELINE.playerState === 'playing'
       ? getters.GET_HOST_TIMELINE.time + hostAge
+        + (getters.GET_HOST_TIMELINE.latency || 0)
+        + (getters.GET_HOST_TIMELINE.srttSnapsnotAtReception || 0) / 2
       : getters.GET_HOST_TIMELINE.time;
   },
 
@@ -102,6 +105,6 @@ export default {
 
   GET_SERVER: (state) => state.server,
 
-  // Used to detect if the host changes 
+  // Used to detect if the host changes
   GET_HOST_LAST_RATING_KEY: (state) => state.hostLastRatingKey,
 };

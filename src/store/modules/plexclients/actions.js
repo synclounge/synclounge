@@ -79,12 +79,28 @@ export default {
     }
   },
 
-  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ getters }) => {
-    const { data } = await getters.GET_CHOSEN_PLEX_CLIENT_AXIOS.get('/player/timeline/poll', {
+  SEND_CLIENT_REQUEST: async ({ getters, commit }, { path, params }) => {
+    const { data } = await getters.GET_CHOSEN_PLEX_CLIENT_AXIOS.get(path, {
+      params: {
+        commandId: getters.GET_COMMAND_ID,
+        type: 'video',
+        ...params,
+      },
+      transformResponse: xmlutils.parseXML,
+    });
+
+    // TODO: maybe potentially increment it even if it fails
+    commit('INCREMENT_COMMAND_ID');
+
+    return data;
+  },
+
+  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch }) => {
+    const data = await dispatch('SEND_CLIENT_REQUEST', {
+      url: '/player/timeline/poll',
       params: {
         wait: 0,
       },
-      transformResponse: xmlutils.parseXML,
     });
 
     const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type === 'video');
@@ -94,6 +110,7 @@ export default {
       time: parseInt(videoTimeline.time, 10),
       duration: parseInt(videoTimeline.duration, 10),
       receivedAt: Date.now(),
+      commandID: parseInt(data.MediaContainer[0].commandID, 10),
     };
   },
 
@@ -162,5 +179,80 @@ export default {
       playerProduct: getters.GET_CHOSEN_CLIENT.product,
       machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
     };
+  },
+
+  SYNC: async ({
+    getters, dispatch, commit, rootGetters,
+  }) => {
+    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
+      && (!getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID
+        || getters.GET_PLEX_CLIENT_TIMELINE.commandID
+          <= getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID)) {
+      // TODO: examine if I should throw error or handle it another way
+      throw new Error('Already synced with this timeline. Need to wait for new one to sync again');
+    }
+
+    const adjustedHostTime = rootGetters['synclounge/GET_HOST_PLAYER_TIME_ADJUSTED']();
+
+    // TODO: only do this if we are playign (but maybe we just did a play command>...)
+
+    // TODO: see if i need await
+    const playerPollData = dispatch('FETCH_TIMELINE_POLL_DATA_CACHE');
+
+    // TODO: also assuming 0 rtt between us and player (is this wise)
+    const timelineAge = playerPollData.recievedAt
+      ? Date.now() - playerPollData.recievedAt
+      : 0;
+
+    const adjustedTime = playerPollData.playerState === 'playing'
+      ? playerPollData + timelineAge
+      : playerPollData.time;
+
+    const difference = Math.abs(adjustedHostTime - adjustedTime);
+
+    const bothPaused = rootGetters['synclounge/GET_HOST_TIMELINE'].playerState === 'paused'
+       && playerPollData.playerState === 'paused';
+
+    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY'] || (bothPaused && difference > 10)) {
+      // We need to seek!
+      // Decide what seeking method we want to use
+
+      if (rootGetters['settings/GET_SYNCMODE'] === 'cleanseek'
+        || rootGetters['synclounge/GET_HOST_TIMELINE'].playerState === 'paused') {
+        return this.cleanSeek(adjustedHostTime);
+      }
+
+      if (rootGetters['settings/GET_SYNCMODE'] === 'skipahead') {
+        return this.skipAhead(adjustedHostTime, 10000);
+      }
+
+      // Fall back to skipahead
+      return this.skipAhead(adjustedHostTime, 10000);
+    }
+
+    // Calc the average delay of the last 10 host timeline updates
+    // We do this to avoid any issues with random lag spikes
+    this.differenceCache.unshift(difference);
+    if (this.differenceCache.length > 5) {
+      this.differenceCache.pop();
+    }
+
+    let total = 0;
+    for (let i = 0; i < this.differenceCache.length; i += 1) {
+      total += this.differenceCache[i];
+    }
+
+    const avg = total / this.differenceCache.length;
+    if (this.clientIdentifier === 'PTPLAYER9PLUS10' && avg > 1500) {
+      console.log('Soft syncing because difference is', difference);
+      return this.cleanSeek(adjustedHostTime, true);
+    }
+
+    // TODO: make sure all them hit here and fix the id lol
+    // todo: also store the command id above because it might have changed during the awaits
+    // TODO: also update this when pausing or playign so we don't have werid stuff
+    commit('SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID', null);
+
+    return 'No sync needed';
   },
 };

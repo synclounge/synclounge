@@ -146,57 +146,6 @@ class PlexClient {
     }
     return this.seekTo(time);
   }
-
-  async sync(hostTime, SYNCFLEXIBILITY, SYNCMODE, POLLINTERVAL) {
-    const hostTimeline = hostTime;
-    if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
-      await this.getTimeline();
-    }
-    const lastCommandTime = Math.abs(this.lastSyncCommand - new Date().getTime());
-    if (this.lastSyncCommand && this.clientIdentifier !== 'PTPLAYER9PLUS10' && lastCommandTime < POLLINTERVAL) {
-      throw new Error('too soon for another sync command');
-    }
-    const lagTime = Math.abs(hostTimeline.recievedAt - new Date().getTime());
-    if (lagTime) {
-      hostTimeline.time += lagTime;
-    }
-    const timelineAge = new Date().getTime() - this.lastTimelineObject.recievedAt;
-    const ourTime = parseInt(this.lastTimelineObject.time, 10) + parseInt(timelineAge, 10);
-    const difference = Math.abs((parseInt(ourTime, 10)) - parseInt(hostTimeline.time, 10));
-    // console.log('Difference with host is', difference);
-    const bothPaused = hostTimeline.playerState === 'paused' && this.lastTimelineObject.state === 'paused';
-
-    if (parseInt(difference, 10) > parseInt(SYNCFLEXIBILITY, 10)
-        || (bothPaused && difference > 10)) {
-      // We need to seek!
-      this.lastSyncCommand = new Date().getTime();
-      // Decide what seeking method we want to use
-      if (SYNCMODE === 'cleanseek' || hostTimeline.playerState === 'paused') {
-        return this.cleanSeek(hostTimeline.time);
-      }
-      if (SYNCMODE === 'skipahead') {
-        return this.skipAhead(hostTimeline.time, 10000);
-      }
-      // Fall back to skipahead
-      return this.skipAhead(hostTimeline.time, 10000);
-    }
-    // Calc the average delay of the last 10 host timeline updates
-    // We do this to avoid any issues with random lag spikes
-    this.differenceCache.unshift(difference);
-    if (this.differenceCache.length > 5) {
-      this.differenceCache.pop();
-    }
-    let total = 0;
-    for (let i = 0; i < this.differenceCache.length; i += 1) {
-      total += this.differenceCache[i];
-    }
-    const avg = total / this.differenceCache.length;
-    if (this.clientIdentifier === 'PTPLAYER9PLUS10' && avg > 1500) {
-      console.log('Soft syncing because difference is', difference);
-      return this.cleanSeek(hostTimeline.time, true);
-    }
-    return 'No sync needed';
-  }
 }
 
 export default PlexClient;

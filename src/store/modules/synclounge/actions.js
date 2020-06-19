@@ -196,7 +196,10 @@ export default {
       data: {
         ...data,
         commandId: getters.GET_POLL_NUMBER,
-        latency: getters.GET_SRTT,
+        // RTT / 2 because this is just the time it takes for a message to get to the server,
+        // not a complete round trip. The receiver should add this latency as well as 1/2 their srtt
+        // to the server when calculating delays
+        latency: getters.GET_SRTT / 2,
       },
     });
 

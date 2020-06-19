@@ -8,11 +8,10 @@ export default {
     commit('CLEAR_MESSAGES');
 
     commit('SET_USERS', currentUsers);
-    // commit('SET_ME', _data.username);
     commit('SET_PARTYPAUSING', partyPausing);
     commit('SET_ROOM', _data.room);
 
-    sendNotification(`Joined room: ${_data.room}`);
+    dispatch('DISPLAY_NOTIFICATION', `Joined room: ${_data.room}`, { root: true });
     // Add this item to our recently-connected list
     dispatch(
       'settings/ADD_RECENT_ROOM',
@@ -85,7 +84,7 @@ export default {
     commit('SET_PARTYPAUSING', value);
   },
 
-  HANDLE_PARTY_PAUSING_PAUSE: ({ commit, rootGetters }, { isPause, user }) => {
+  HANDLE_PARTY_PAUSING_PAUSE: ({ commit, dispatch, rootGetters }, { isPause, user }) => {
     const messageText = `${user.username} pressed ${isPause ? 'pause' : 'play'}`;
     commit('ADD_MESSAGE', {
       msg: messageText,
@@ -93,7 +92,7 @@ export default {
       type: 'alert',
     });
 
-    sendNotification(messageText);
+    dispatch('DISPLAY_NOTIFICATION', messageText, { root: true });
     if (rootGetters.GET_CHOSEN_CLIENT) {
       if (isPause) {
         rootGetters.GET_CHOSEN_CLIENT.pressPause();
@@ -143,6 +142,8 @@ export default {
     commit('SET_HOST_TIMELINE', {
       ...timeline,
       recievedAt: Date.now(),
+      // TODO: think about whether I need this or
+      srttSnapsnotAtReception: getters.GET_SRTT,
     });
 
     return dispatch('SYNCHRONIZE');
@@ -170,18 +171,13 @@ export default {
 
     // console.log('Timeline age is', timelineAge);
     try {
-      // if ((timelineAge > 1000 && rootState.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10') || rootState.chosenClient.clientIdentifier === 'PTPLAYER9PLUS10') {
-      //   await rootState.chosenClient.getTimeline()
-      //   await decisionMaker(0)
-      // } else {
-      await decisionMaker();
-      // }
+      await dispatch('DECISION_MAKER');
     } catch (e) {
       console.log('Error caught in sync logic', e);
     }
   },
 
-  DECISION_MAKE: async ({
+  DECISION_MAKER: async ({
     getters, dispatch, rootGetters,
   }) => {
     // TODO: potentailly don't do anythign if we have no timeline data yet
@@ -192,7 +188,9 @@ export default {
       dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
       await rootGetters.GET_CHOSEN_CLIENT.pressStop();
       return;
-    } if (rootGetters['settings/GET_AUTOPLAY']
+    }
+
+    if (rootGetters['settings/GET_AUTOPLAY']
     && (getters.GET_HOST_TIMELINE.ratingKey !== getters.GET_HOST_LAST_RATING_KEY
       || timeline.playerState === 'stopped')) {
       // If we have autoplay enabled and the host rating key has changed or if we aren't playign anything
@@ -208,6 +206,7 @@ export default {
     if (getters.GET_HOST_TIMELINE.playerState === 'playing' && timeline.state === 'paused') {
       dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
       await rootGetters.GET_CHOSEN_CLIENT.pressPlay();
+      return;
     }
 
     if ((getters.GET_HOST_TIMELINE.playerState === 'paused'
@@ -215,7 +214,12 @@ export default {
           && timeline.state === 'playing') {
       dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
       await rootGetters.GET_CHOSEN_CLIENT.pressPause();
+      return;
     }
+
+    // TODO: since we have awaited,
+
+    // TODO: potentially update the player state if we paused or played so we know in the sync
 
     if (getters.GET_HOST_TIMELINE.playerState === 'playing') {
       // Add on the delay between us and the SLServer plus the delay between the server and the host
@@ -223,11 +227,9 @@ export default {
               + (hostTimeline.latency || 0);
     }
 
+    await dispatch('plexclients/SYNC', null, { root: true });
     await rootGetters.GET_CHOSEN_CLIENT.sync(
       hostUpdateData,
-      rootGetters['settings/GET_SYNCFLEXIBILITY'],
-      rootGetters['settings/GET_SYNCMODE'],
-      rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
     );
   },
 
@@ -252,8 +254,9 @@ export default {
     commit('SET_HOST_LAST_RATING_KEY', getters.GET_HOST_TIMELINE.ratingKey);
   },
 
-  HANDLE_DISCONNECT: ({ commit }, disconnectData) => {
-    sendNotification('Disconnected from the SyncLounge server');
+  HANDLE_DISCONNECT: ({ commit, dispatch }, disconnectData) => {
+    dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
+
     console.log('Disconnect data', disconnectData);
     if (disconnectData === 'io client disconnect') {
       console.log('We disconnected from the server');

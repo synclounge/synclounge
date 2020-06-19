@@ -21,8 +21,12 @@ export default {
 
     return axios.create({
       baseURL: client.chosenConnection.uri,
+      // TODO: examine this timeout...
       timeout: 5000,
-      headers: rootGetters['plex/GET_PLEX_BASE_PARAMS'](client.accessToken),
+      headers: {
+        ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](client.accessToken),
+        'X-Plex-Target-Client-Identifier': clientIdentifier,
+      },
     });
   },
 
@@ -54,4 +58,8 @@ export default {
       playerState: getters.GET_PLEX_CLIENT_TIMELINE.state,
     })
     : null),
+
+  GET_COMMAND_ID: (state) => state.commandId,
+
+  GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: (state) => state.previousSyncTimelineCommandId,
 };
