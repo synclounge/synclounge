@@ -2,15 +2,15 @@ export default {
   HANDLE_SUCCESSFUL_JOIN_RESULT: ({
     getters, state, commit, dispatch,
   }, {
-    result, _data, currentUsers, partyPausing,
+    _data, currentUsers, partyPausing,
   }) => {
-    console.log('Got join result', result);
     commit('CLEAR_MESSAGES');
 
     commit('SET_USERS', currentUsers);
     commit('SET_PARTYPAUSING', partyPausing);
     commit('SET_ROOM', _data.room);
 
+    console.log(_data.room);
     dispatch('DISPLAY_NOTIFICATION', `Joined room: ${_data.room}`, { root: true });
     // Add this item to our recently-connected list
     dispatch(

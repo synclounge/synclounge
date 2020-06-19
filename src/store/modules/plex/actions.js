@@ -3,7 +3,6 @@ import axios from 'axios';
 import promiseutils from '@/utils/promiseutils';
 
 import PlexServer from './helpers/PlexServer';
-import PlexClient from './helpers/PlexClient';
 
 export default {
   REQUEST_PLEX_INIT_AUTH: ({ getters }) => axios.post('https://plex.tv/api/v2/pins', null, {
@@ -43,9 +42,7 @@ export default {
   },
 
   // Private function, please use FETCH_PLEX_DEVICES instead
-  _FETCH_PLEX_DEVICES: async ({
-    commit, dispatch, getters, rootGetters,
-  }) => {
+  _FETCH_PLEX_DEVICES: async ({ commit, dispatch, getters }) => {
     const { data: devices } = await axios.get('https://plex.tv/api/v2/resources', {
       params: {
         includeHttps: 1,
@@ -57,10 +54,7 @@ export default {
     await Promise.allSettled(devices.map(async (device) => {
       if (device.provides.indexOf('player') !== -1) {
         // This is a Client
-        const tempClient = new PlexClient(device);
-        tempClient.accessToken = rootGetters['settings/GET_PLEX_AUTH_TOKEN'];
-        tempClient.commit = commit;
-        commit('plexclients/ADD_PLEX_CLIENT', tempClient, { root: true });
+        commit('plexclients/ADD_PLEX_CLIENT', device, { root: true });
       } else if (device.provides.indexOf('server') !== -1) {
         // This is a Server
         const tempServer = new PlexServer(device);

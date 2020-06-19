@@ -107,5 +107,7 @@ export default {
     }
   },
 
-  DISPLAY_NOTIFICATION: (message) => window.EventBus.$emit('notification', message),
+  DISPLAY_NOTIFICATION: (context, message) => {
+    window.EventBus.$emit('notification', message);
+  },
 };

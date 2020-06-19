@@ -51,9 +51,11 @@ export default {
     return new Promise((resolve, reject) => {
       // TODO: make the socket join args into one object instead (rewrite backend server)
       getters.GET_SOCKET.once('join-result', async (result, _data, details, currentUsers, partyPausing) => {
+        console.log('Got join result', result);
+
         if (result) {
           dispatch('HANDLE_SUCCESSFUL_JOIN_RESULT', {
-            result, _data, currentUsers, partyPausing,
+            _data, currentUsers, partyPausing,
           });
           resolve();
         } else {

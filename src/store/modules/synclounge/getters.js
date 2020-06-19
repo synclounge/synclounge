@@ -27,7 +27,6 @@ export default {
   GET_MESSAGES: (state) => state.messages,
   getPartyPausing: (state) => state.partyPausing,
   GET_HOST_USER: (state, getters) => getters.GET_USERS.find((u) => u.role === 'host'),
-  GET_HOST_PLAYER_STATE: (state) => state.lastHostTimeline.playerState,
   AM_I_HOST: (state, getters) => getters.GET_ME && getters.GET_ME.role === 'host',
 
   GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => {

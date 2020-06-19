@@ -1,6 +1,7 @@
 import router from '@/router';
 import promiseutils from '@/utils/promiseutils';
 import xmlutils from '@/utils/xmlutils';
+import delay from '@/utils/delay';
 
 export default {
   PLEX_CLIENT_FINDCONNECTION: async ({ commit }, client) => {

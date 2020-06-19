@@ -320,6 +320,7 @@ export default {
     messages: () => import('@/components/messages.vue'),
     MessageInput: () => import('@/components/MessageInput.vue'),
   },
+
   data() {
     return {
       partyPauseCooldownRunning: false,

@@ -187,10 +187,9 @@ export default {
     return true;
   },
 
-  NORMAL_SEEK: async ({ getters, commit, rootGetters }, seekToMs) => {
+  NORMAL_SEEK: async ({ getters, commit }, seekToMs) => {
     // TODO: check the logic here to make sense if the seek time is in the past ...
-    if ((Math.abs(seekToMs - getPlayerCurrentTimeMs(getters)) < 3000
-      && rootGetters.GET_HOST_PLAYER_STATE === 'playing')) {
+    if (Math.abs(seekToMs - getPlayerCurrentTimeMs(getters)) < 3000) {
       let cancelled = false;
 
       window.EventBus.$once('host-playerstate-change', () => {
