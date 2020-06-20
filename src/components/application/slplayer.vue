@@ -17,7 +17,7 @@ f<template>
 
           style="background-color:transparent !important;"
           @pause="HANDLE_PLAYER_PAUSE"
-          @ended="DO_COMMAND_STOP"
+          @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
 
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
@@ -93,7 +93,7 @@ f<template>
                     <v-icon
                       color="white"
                       class="pl-3"
-                      @click.native="DO_COMMAND_STOP"
+                      @click.native="PRESS_STOP"
                     >
                       close
                     </v-icon>
@@ -324,8 +324,6 @@ export default {
 
     this.INIT_PLAYER_STATE();
     this.applyPlayerWatchers();
-    // Similuate a real plex client
-    this.eventbus.$on('command', this.HANDLE_COMMAND);
 
     window.addEventListener('keyup', this.onKeyUp);
   },
@@ -334,7 +332,6 @@ export default {
     window.removeEventListener('keyup', this.onKeyUp);
     this.bigPlayButton.removeEventListener('click', this.onClick);
     this.smallPlayButton.removeEventListener('click', this.onClick);
-    this.eventbus.$off('command', this.HANDLE_COMMAND);
     this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
@@ -355,8 +352,7 @@ export default {
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
 
-      'HANDLE_COMMAND',
-      'DO_COMMAND_STOP',
+      'PRESS_STOP',
       'INIT_PLAYER_STATE',
       'DESTROY_PLAYER_STATE',
       'PLAY_PAUSE_VIDEO',
