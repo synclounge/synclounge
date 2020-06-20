@@ -270,7 +270,6 @@ export default {
   },
 
   CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
-    console.log('CHANGE PLAYER STATE: ', state);
     commit('SET_PLAYER_STATE', state);
     const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     await dispatch('synclounge/POLL', null, { root: true });
@@ -333,10 +332,8 @@ export default {
     }
   },
 
-  SEND_PARTY_PLAY_PAUSE: ({ dispatch, getters, rootGetters }) => {
+  SEND_PARTY_PLAY_PAUSE: ({ dispatch, getters }) => {
     // If the player was actually paused (and not just paused for seeking)
-    if (!rootGetters.AM_I_HOST && rootGetters.getPartyPausing) {
-      dispatch('sendPartyPause', isPlayerPaused(getters), { root: true });
-    }
+    dispatch('synclounge/sendPartyPause', isPlayerPaused(getters), { root: true });
   },
 };

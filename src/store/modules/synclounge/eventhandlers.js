@@ -10,7 +10,6 @@ export default {
     commit('SET_PARTYPAUSING', partyPausing);
     commit('SET_ROOM', _data.room);
 
-    console.log(_data.room);
     dispatch('DISPLAY_NOTIFICATION', `Joined room: ${_data.room}`, { root: true });
     // Add this item to our recently-connected list
     dispatch(
@@ -84,7 +83,7 @@ export default {
     commit('SET_PARTYPAUSING', value);
   },
 
-  HANDLE_PARTY_PAUSING_PAUSE: ({ commit, dispatch, rootGetters }, { isPause, user }) => {
+  HANDLE_PARTY_PAUSING_PAUSE: async ({ commit, dispatch }, { isPause, user }) => {
     const messageText = `${user.username} pressed ${isPause ? 'pause' : 'play'}`;
     commit('ADD_MESSAGE', {
       msg: messageText,
@@ -93,12 +92,11 @@ export default {
     });
 
     dispatch('DISPLAY_NOTIFICATION', messageText, { root: true });
-    if (rootGetters.GET_CHOSEN_CLIENT) {
-      if (isPause) {
-        rootGetters.GET_CHOSEN_CLIENT.pressPause();
-      } else {
-        rootGetters.GET_CHOSEN_CLIENT.pressPlay();
-      }
+
+    if (isPause) {
+      await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
+    } else {
+      await dispatch('plexclients/PRESS_PLAY', null, { root: true });
     }
   },
 
@@ -112,7 +110,6 @@ export default {
   },
 
   HANDLE_USER_LEFT: ({ commit }, { users, user }) => {
-    console.log('USER LEFT', users);
     commit('SET_USERS', users);
     commit('ADD_MESSAGE', {
       msg: `${user.username} left the room`,
@@ -143,7 +140,6 @@ export default {
     commit('SET_HOST_TIMELINE', {
       ...timeline,
       recievedAt: Date.now(),
-      // TODO: think about whether I need this or
       srttSnapsnotAtReception: getters.GET_SRTT,
     });
 
@@ -153,7 +149,6 @@ export default {
   SYNCHRONIZE: async ({
     getters, commit, dispatch, rootGetters,
   }) => {
-    console.log('sync:', Date.now());
     await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
     /* This is data from the host, we should react to this data by potentially changing
         what we're playing or seeking to get back in sync with the host.
@@ -167,7 +162,7 @@ export default {
     // TODO: move this manual sync into this module
     if (rootGetters.GET_MANUAL_SYNC_QUEUED) {
       window.EventBus.$emit('host-playerstate-change');
-      await rootGetters.GET_CHOSEN_CLIENT.seekTo(getters.GET_HOST_TIMELINE.time);
+      await dispatch('plexclients/SEEK_TO', getters.GET_HOST_TIMELINE.time, { root: true });
       commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
       return;
     }
@@ -175,7 +170,7 @@ export default {
     if (!getters.GET_IS_SYNC_IN_PROGRESS) {
       // Basically a lock that only allows 1 sync at a time
       commit('SET_IS_SYNC_IN_PROGRESS', true);
-      // console.log('Timeline age is', timelineAge);
+
       try {
         await dispatch('DECISION_MAKER');
       } catch (e) {
@@ -209,7 +204,6 @@ export default {
 
     if (rootGetters['settings/GET_AUTOPLAY']
     && getters.GET_HOST_TIMELINE.ratingKey !== getters.GET_HOST_LAST_RATING_KEY) {
-      console.log('hostKey', getters.GET_HOST_TIMELINE.ratingKey, getters.GET_HOST_LAST_RATING_KEY);
       // If we have autoplay enabled and the host rating key has changed or if we aren't playign anything
       return dispatch('FIND_AND_PLAY_NEW_MEDIA');
     }

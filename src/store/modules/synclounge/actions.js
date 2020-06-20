@@ -110,15 +110,15 @@ export default {
     }
   },
 
-  sendPartyPause({ state, rootGetters }, isPause) {
-    if (state.socket.connected) {
-      state.socket.emit('party_pausing_send', isPause, (response) => {
+  sendPartyPause: ({ getters, dispatch }, isPause) => {
+    if (getters.GET_SOCKET.connected && getters.getPartyPausing) {
+      getters.GET_SOCKET.emit('party_pausing_send', isPause, async (response) => {
         console.log('Response from send', response);
         if (response) {
           if (isPause) {
-            rootGetters.GET_CHOSEN_CLIENT.pressPause();
+            await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
           } else {
-            rootGetters.GET_CHOSEN_CLIENT.pressPlay();
+            await dispatch('plexclients/PRESS_PLAY', null, { root: true });
           }
         }
       });
