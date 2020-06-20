@@ -112,6 +112,7 @@ export default {
   },
 
   HANDLE_USER_LEFT: ({ commit }, { users, user }) => {
+    console.log('USER LEFT', users);
     commit('SET_USERS', users);
     commit('ADD_MESSAGE', {
       msg: `${user.username} left the room`,
@@ -152,6 +153,7 @@ export default {
   SYNCHRONIZE: async ({
     getters, commit, dispatch, rootGetters,
   }) => {
+    console.log('sync:', Date.now());
     /* This is data from the host, we should react to this data by potentially changing
         what we're playing or seeking to get back in sync with the host.
 
@@ -169,11 +171,17 @@ export default {
       return;
     }
 
-    // console.log('Timeline age is', timelineAge);
-    try {
-      await dispatch('DECISION_MAKER');
-    } catch (e) {
-      console.log('Error caught in sync logic', e);
+    if (!getters.GET_IS_SYNC_IN_PROGRESS) {
+      // Basically a lock that only allows 1 sync at a time
+      commit('SET_IS_SYNC_IN_PROGRESS', true);
+      // console.log('Timeline age is', timelineAge);
+      try {
+        await dispatch('DECISION_MAKER');
+      } catch (e) {
+        console.log('Error caught in sync logic', e);
+      }
+
+      commit('SET_IS_SYNC_IN_PROGRESS', false);
     }
   },
 
@@ -181,17 +189,26 @@ export default {
     getters, dispatch, rootGetters,
   }) => {
     // TODO: potentailly don't do anythign if we have no timeline data yet
-    const timeline = dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
-    if (getters.GET_HOST_TIMELINE.playerState === 'stopped' && timeline.playerState !== 'stopped') {
-    // First, decide if we should stop playback
-      dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
-      return dispatch('plexclients/PRESS_STOP', null, { root: true });
+    if (rootGetters['plexclients/ALREADY_SYNCED_ON_CURRENT_TIMELINE']) {
+    // TODO: examine if I should throw error or handle it another way
+      throw new Error('Already synced with this timeline. Need to wait for new one to sync again');
+    }
+
+    if (getters.GET_HOST_TIMELINE.playerState === 'stopped') {
+      // First, decide if we should stop playback
+      if (timeline.playerState !== 'stopped') {
+        dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
+        return dispatch('plexclients/PRESS_STOP', null, { root: true });
+      }
+
+      return true;
     }
 
     if (rootGetters['settings/GET_AUTOPLAY']
-    && (getters.GET_HOST_TIMELINE.ratingKey !== getters.GET_HOST_LAST_RATING_KEY
-      || timeline.playerState === 'stopped')) {
+    && getters.GET_HOST_TIMELINE.ratingKey !== getters.GET_HOST_LAST_RATING_KEY) {
+      console.log('hostKey', getters.GET_HOST_TIMELINE.ratingKey, getters.GET_HOST_LAST_RATING_KEY);
       // If we have autoplay enabled and the host rating key has changed or if we aren't playign anything
       return dispatch('FIND_AND_PLAY_NEW_MEDIA');
     }
@@ -208,20 +225,19 @@ export default {
 
     if ((getters.GET_HOST_TIMELINE.playerState === 'paused'
           || getters.GET_HOST_TIMELINE.playerState === 'buffering')
-          && timeline.state === 'playing') {
-      dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
+          && timeline.playerState === 'playing') {
+      await dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
       return dispatch('plexclients/PRESS_PAUSE', null, { root: true });
     }
 
     // TODO: since we have awaited,
 
     // TODO: potentially update the player state if we paused or played so we know in the sync
-
     return dispatch('plexclients/SYNC', null, { root: true });
   },
 
   FIND_AND_PLAY_NEW_MEDIA: async ({ getters, dispatch, commit }) => {
-    dispatch('DISPLAY_NOTIFICATION', `Searching Plex Servers for "${getters.GET_HOST_TIMELINE.rawTitle}"`, { root: true });
+    await dispatch('DISPLAY_NOTIFICATION', `Searching Plex Servers for "${getters.GET_HOST_TIMELINE.rawTitle}"`, { root: true });
 
     const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH', getters.GET_HOST_TIMELINE, { root: true });
     if (bestMatch) {
@@ -233,16 +249,16 @@ export default {
         machineIdentifier: bestMatch.machineIdentifier,
       }, { root: true });
     } else {
-      dispatch('DISPLAY_NOTIFICATION',
-        `Failed to find a compatible copy of ${getters.GET_HOST_TIMELINE}. If you have access to the content try manually playing it.`,
+      await dispatch('DISPLAY_NOTIFICATION',
+        `Failed to find a compatible copy of ${getters.GET_HOST_TIMELINE.title}. If you have access to the content try manually playing it.`,
         { root: true });
     }
 
     commit('SET_HOST_LAST_RATING_KEY', getters.GET_HOST_TIMELINE.ratingKey);
   },
 
-  HANDLE_DISCONNECT: ({ commit, dispatch }, disconnectData) => {
-    dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
+  HANDLE_DISCONNECT: async ({ commit, dispatch }, disconnectData) => {
+    await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
 
     console.log('Disconnect data', disconnectData);
     if (disconnectData === 'io client disconnect') {

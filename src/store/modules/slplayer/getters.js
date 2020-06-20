@@ -5,9 +5,7 @@ import { qualities } from './qualities';
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
 
-  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => {
-    return rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']);
-  },
+  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']),
 
   GET_PLEX_SERVER_ACCESS_TOKEN: (state, getters) => (getters.GET_PLEX_SERVER
     ? getters.GET_PLEX_SERVER.accessToken

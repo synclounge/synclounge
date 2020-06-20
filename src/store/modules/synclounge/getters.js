@@ -106,4 +106,6 @@ export default {
 
   // Used to detect if the host changes
   GET_HOST_LAST_RATING_KEY: (state) => state.hostLastRatingKey,
+
+  GET_IS_SYNC_IN_PROGRESS: (state) => state.isSyncInProgress,
 };

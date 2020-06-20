@@ -80,6 +80,7 @@ export default new Router({
     },
     {
       path: '/player',
+      name: 'player',
       meta: {
         requiresAuth: true,
         protected: true,

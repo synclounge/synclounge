@@ -37,9 +37,11 @@ export default {
     console.log('Updating timeline for', client, 'with', timeline);
   },
 
-  PLAY_MEDIA: async ({ getters, commit, rootGetters }, {
-    mediaIndex, offset, metadata, machineIdentifier,
-  }) => {
+  PLAY_MEDIA: async ({
+    getters, commit, dispatch, rootGetters,
+  }, {
+      mediaIndex, offset, metadata, machineIdentifier,
+    }) => {
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
 
     if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
@@ -50,7 +52,15 @@ export default {
       commit('SET_ACTIVE_SERVER_ID', machineIdentifier);
       commit('slplayer/SET_MEDIA_INDEX', mediaIndex, { root: true });
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
-      router.push('/player');
+
+      if (router.currentRoute.name === 'player') {
+        await dispatch('slplayer/CHANGE_PLAYER_SRC', null, { root: true });
+      } else {
+        // TODO: fix this is so hacky
+        commit('slplayer/SET_PLAYER_STATE', 'buffering', { root: true });
+        router.push('/player');
+      }
+
       // TODO: navigate there lol
     } else {
       // Play a media item given a mediaId key and a server to play from
@@ -171,7 +181,7 @@ export default {
 
   POLL_CLIENT: async ({ getters, dispatch }) => {
     const timelinePart = await dispatch('FETCH_TIMELINE_POLL_DATA');
-    dispatch('HANDLE_NEW_TIMELINE', timelinePart, { root: true });
+    await dispatch('HANDLE_NEW_TIMELINE', timelinePart, { root: true });
 
     return {
       ...getters.GET_ACTIVE_MEDIA_POLL_METADATA,
@@ -183,28 +193,24 @@ export default {
     };
   },
 
-  SYNC: async ({
-    getters, dispatch, commit, rootGetters,
-  }) => {
-    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
-      && (!getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID
-        || getters.GET_PLEX_CLIENT_TIMELINE.commandID
-          <= getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID)) {
-      // TODO: examine if I should throw error or handle it another way
-      throw new Error('Already synced with this timeline. Need to wait for new one to sync again');
-    }
-
+  UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: ({ commit, getters }) => {
     // TODO: make sure all them hit here and fix the id lol
     // todo: also store the command id above because it might have changed during the awaits
     // TODO: also update this when pausing or playign so we don't have werid stuff
-    commit('SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID', null);
+    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
+      commit('SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID', getters.GET_PLEX_CLIENT_TIMELINE.commandID);
+    }
+  },
+
+  SYNC: async ({ getters, dispatch, rootGetters }) => {
+    await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
     const adjustedHostTime = rootGetters['synclounge/GET_HOST_PLAYER_TIME_ADJUSTED']();
 
     // TODO: only do this if we are playign (but maybe we just did a play command>...)
 
     // TODO: see if i need await
-    const playerPollData = dispatch('FETCH_TIMELINE_POLL_DATA_CACHE');
+    const playerPollData = await dispatch('FETCH_TIMELINE_POLL_DATA_CACHE');
 
     // TODO: also assuming 0 rtt between us and player (is this wise)
     const timelineAge = playerPollData.recievedAt
@@ -220,6 +226,7 @@ export default {
     const bothPaused = rootGetters['synclounge/GET_HOST_TIMELINE'].playerState === 'paused'
        && playerPollData.playerState === 'paused';
 
+    console.log('difference: ', difference);
     if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY'] || (bothPaused && difference > 10)) {
       // We need to seek!
       // Decide what seeking method we want to use
@@ -258,13 +265,15 @@ export default {
     return 'No sync needed';
   },
 
-  PRESS_PLAY: ({ getters, dispatch }) => {
+  PRESS_PLAY: async ({ getters, dispatch }) => {
+    console.log('Press play');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_PLAY', null, { root: true });
       }
 
       default: {
+        await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
         return dispatch('SEND_CLIENT_REQUEST', {
           url: '/player/playback/play',
           params: {
@@ -276,6 +285,7 @@ export default {
   },
 
   PRESS_PAUSE: ({ getters, dispatch }) => {
+    console.log('Press play');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_PAUSE', null, { root: true });
@@ -292,13 +302,16 @@ export default {
     }
   },
 
-  PRESS_STOP: ({ getters, dispatch }) => {
+  PRESS_STOP: async ({ getters, dispatch }) => {
+    console.log('Press stop');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_STOP', null, { root: true });
       }
 
       default: {
+        await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
+
         return dispatch('SEND_CLIENT_REQUEST', {
           url: '/player/playback/stop',
           params: {
@@ -309,13 +322,16 @@ export default {
     }
   },
 
-  SEEK_TO: ({ getters, dispatch }, offset) => {
+  SEEK_TO: async ({ getters, dispatch }, offset) => {
+    console.log('Seek to');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/NORMAL_SEEK', offset, { root: true });
       }
 
       default: {
+        await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
+
         return dispatch('SEND_CLIENT_REQUEST', {
           url: '/player/playback/seekTo',
           params: {
@@ -356,6 +372,7 @@ export default {
   },
 
   SOFT_SEEK: ({ getters, dispatch }, offset) => {
+    console.log('soft seek');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/SOFT_SEEK', offset, { root: true });

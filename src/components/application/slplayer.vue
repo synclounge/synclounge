@@ -1,4 +1,4 @@
-<template>
+f<template>
   <v-row
     style="position: relative"
     class="slplayer-container"
@@ -217,11 +217,16 @@ import CloseButtonFactory from '@/player/ui/closebutton';
 import Forward30ButtonFactory from '@/player/ui/forward30button';
 import Replay10ButtonFactory from '@/player/ui/replay10button';
 
-// shaka.log.setLevel(shaka.log.Level.DEBUG);
+shaka.log.setLevel(shaka.log.Level.ERROR);
 shaka.polyfill.installAll();
 
 export default {
   name: 'Slplayer',
+
+  components: {
+    messages: () => import('@/components/messages.vue'),
+  },
+
   data() {
     return {
       eventbus: window.EventBus,

@@ -118,7 +118,7 @@ socketServer.on('connection', (socket) => {
       return;
     }
 
-    room.user = room.users.filter((user) => user.username !== username);
+    room.users = room.users.filter((user) => user.username !== username);
   }
 
   function handleDisconnect(disconnect) {

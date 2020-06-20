@@ -1,67 +1,86 @@
 <template>
-  <router-link :to="href">
-    <v-card
-      color="blue darken-4"
-      hover
-      style="height: 100%; width: 230px"
+  <v-card
+    :to="href"
+    color="blue darken-4"
+    hover
+    style="height: 100%; width: 230px"
+  >
+    <v-row
+      justify="center"
+      align="center"
     >
-      <v-layout
-        row
-        wrap
-        justify-center
-        align-center
+      <v-col
+        md="2"
+        class="hidden-xs-only text-center"
       >
-        <v-flex
-          md2
-          class="hidden-xs-only text-center"
+        <img
+          :src="thumb"
+          style="height: 52px; vertical-align: middle"
         >
-          <img
-            :src="thumb"
-            style="height: 52px; vertical-align: middle"
-          >
-        </v-flex>
-        <v-flex
-          md10
-          xs12
-          class="pl-3 pa-1 text-xs-left"
-          style="overflow: hidden; white-space: nowrap; line-height: 24px"
-        >
-          <div style="font-size: 18px">
-            Now Playing
-          </div>
-          <div><small><b>{{ getTitle }}</b> - {{ getUnder }}</small></div>
-        </v-flex>
-      </v-layout>
-    </v-card>
-  </router-link>
+      </v-col>
+
+      <v-col
+        cols="12"
+        md="10"
+        class="pl-3 pa-1 text-xs-left"
+        style="overflow: hidden; white-space: nowrap; line-height: 24px"
+      >
+        <div style="font-size: 18px">
+          Now Playing
+        </div>
+
+        <div>
+          <small>
+            <b>{{ getTitle(GET_ACTIVE_MEDIA_METADATA) }}</b> -
+            {{ getSecondaryTitle(GET_ACTIVE_MEDIA_METADATA) }}
+          </small>
+        </div>
+      </v-col>
+    </v-row>
+  </v-card>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
 
+import contentTitle from '@/mixins/contentTitle';
+
 export default {
+  mixins: [
+    contentTitle,
+  ],
+
   computed: {
-    ...mapGetters([
-      'GET_CHOSEN_CLIENT',
-      'getPlex',
+    ...mapGetters('plexclients', [
+      'GET_ACTIVE_MEDIA_METADATA',
+      'GET_ACTIVE_SERVER_ID',
     ]),
 
-    item() {
-      return this.GET_CHOSEN_CLIENT.clientPlayingMetadata;
-    },
+    ...mapGetters('plexservers', [
+      'GET_MEDIA_IMAGE_URL',
+    ]),
+
     href() {
-      return `/nowplaying/${this.item.machineIdentifier}/${this.item.ratingKey}`;
+      return {
+        name: 'nowplaying',
+        params: {
+          machineIdentifier: this.GET_ACTIVE_SERVER_ID,
+          ratingKey: this.GET_ACTIVE_MEDIA_METADATA.ratingKey,
+        },
+      };
     },
-    plexserver() {
-      if (!this.item) return null;
-      return this.getPlex.servers[this.GET_CHOSEN_CLIENT.lastTimelineObject.machineIdentifier];
-    },
+
     thumb() {
-      if (!this.item) return '';
-      return this.plexserver.getUrlForLibraryLoc(this.item[this.imageType], 100, 300);
+      return this.GET_MEDIA_IMAGE_URL({
+        machineIdentifier: this.GET_ACTIVE_SERVER_ID,
+        mediaUrl: this.GET_ACTIVE_MEDIA_METADATA[this.imageType],
+        width: 100,
+        height: 300,
+      });
     },
+
     imageType() {
-      switch (this.item.type) {
+      switch (this.GET_ACTIVE_MEDIA_METADATA.type) {
         case 'movie':
           return 'thumb';
         case 'show':
@@ -70,56 +89,6 @@ export default {
           return 'grandparentThumb';
         default:
           return 'thumb';
-      }
-    },
-    getTitle() {
-      switch (this.item.type) {
-        case 'movie':
-          if (this.fullTitle !== undefined) {
-            if (this.item.year) {
-              return `${this.item.title} (${this.item.year})`;
-            }
-          }
-          return this.item.title;
-        case 'show':
-          return this.item.title;
-        case 'season':
-          return this.item.title;
-        case 'episode':
-          return this.item.grandparentTitle;
-        default:
-          return this.item.title;
-      }
-    },
-    getUnder() {
-      switch (this.item.type) {
-        case 'movie':
-          if (this.item.year) {
-            return this.item.year;
-          }
-          return ' ';
-        case 'show':
-          if (this.item.childCount === 1) {
-            return `${this.item.childCount} season`;
-          }
-          return `${this.item.childCount} seasons`;
-        case 'season':
-          return `${this.item.leafCount} episodes`;
-        case 'album':
-          return this.item.year;
-        case 'artist':
-          return '';
-        case 'episode':
-          return (
-            ` S${
-              this.item.parentIndex
-            }E${
-              this.item.index
-            } - ${
-              this.item.title}`
-          );
-        default:
-          return this.item.title;
       }
     },
   },

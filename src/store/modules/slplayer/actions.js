@@ -109,7 +109,11 @@ export default {
   CHANGE_PLAYER_SRC: async ({ commit, dispatch }) => {
     commit('SET_SESSION', generateGuid());
     await dispatch('SEND_PLEX_DECISION_REQUEST');
-    return dispatch('LOAD_PLAYER_SRC');
+
+    return Promise.all([
+      dispatch('CHANGE_PLAYER_STATE', 'buffering'),
+      dispatch('LOAD_PLAYER_SRC'),
+    ]);
   },
 
   SEND_PLEX_TIMELINE_UPDATE: ({ getters, rootGetters }) => axios.get(getters.GET_TIMELINE_URL, {
@@ -117,17 +121,17 @@ export default {
     timeout: 10000,
   }),
 
-  FETCH_TIMELINE_POLL_DATA: ({ getters }) => (getters.GET_PLAYER_STATE === 'stopped'
+  FETCH_TIMELINE_POLL_DATA: ({ getters }) => (getters.GET_PLAYER
     ? {
-      time: 0,
-      duration: 0,
-      playerState: getters.GET_PLAYER_STATE,
-    }
-    : ({
       time: getPlayerCurrentTimeMs(getters),
       duration: getPlayerDurationMs(getters),
       playerState: getters.GET_PLAYER_STATE,
-    })),
+    }
+    : {
+      time: 0,
+      duration: 0,
+      playerState: getters.GET_PLAYER_STATE,
+    }),
 
   HANDLE_PLAYER_PLAYING: ({ dispatch, getters }) => {
     if (isPlayerPlaying(getters)) {
@@ -165,17 +169,6 @@ export default {
     getters.GET_PLAYER_MEDIA_ELEMENT.pause();
   },
 
-  DO_COMMAND_PLAY_MEDIA: ({ commit, dispatch }, {
-    offset, machineIdentifier, mediaIndex, key,
-  }) => {
-    commit('SET_PLEX_SERVER_ID', machineIdentifier);
-    commit('SET_KEY', key);
-    commit('SET_MEDIA_INDEX', mediaIndex);
-    commit('SET_OFFSET_MS', offset);
-
-    return dispatch('CHANGE_PLAYER_SRC');
-  },
-
   PRESS_STOP: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'stopped'),
 
   SOFT_SEEK: ({ getters, commit }, seekToMs) => {
@@ -189,7 +182,8 @@ export default {
 
   NORMAL_SEEK: async ({ getters, commit }, seekToMs) => {
     // TODO: check the logic here to make sense if the seek time is in the past ...
-    if (Math.abs(seekToMs - getPlayerCurrentTimeMs(getters)) < 3000) {
+    if (Math.abs(seekToMs - getPlayerCurrentTimeMs(getters)) < 3000
+    && getters.GET_PLAYER_STATE === 'playing') {
       let cancelled = false;
 
       window.EventBus.$once('host-playerstate-change', () => {
@@ -281,6 +275,7 @@ export default {
   },
 
   CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {
+    console.log('CHANGE PLAYER STATE: ', state);
     commit('SET_PLAYER_STATE', state);
     const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     dispatch('UPDATE_CLIENT_TIMELINE');
@@ -296,20 +291,22 @@ export default {
   },
 
   INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
-    dispatch('REGISTER_PLAYER_EVENTS');
+    await dispatch('REGISTER_PLAYER_EVENTS');
     const result = await dispatch('CHANGE_PLAYER_SRC');
 
     commit('SET_PLAYER_VOLUME', rootGetters['settings/GET_SLPLAYERVOLUME']);
 
-    dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
-    dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     return result;
   },
 
   DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
-    dispatch('UNREGISTER_PLAYER_EVENTS');
+    await dispatch('UNREGISTER_PLAYER_EVENTS');
 
+    commit('plexclients/SET_ACTIVE_MEDIA_METADATA', null, { root: true });
+    commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
     await getters.GET_PLAYER_UI.destroy();
     commit('SET_OFFSET_MS', 0);
     commit('SET_PLAYER', null);

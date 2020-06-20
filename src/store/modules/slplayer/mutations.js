@@ -44,7 +44,7 @@ export default {
   },
 
   SET_PLAYER_PLAYBACK_RATE: (state, rate) => {
-    state.player.setPlaybackRate(rate);
+    state.player.getMediaElement().playbackRate = rate;
   },
 
   // DOM attributes aren't reactive so you have to update this periodically
@@ -72,5 +72,6 @@ export default {
 
   REMOVE_BUFFERING_EVENT_LISTENER: (state) => {
     state.player.removeEventListener('buffering', state.bufferingEventListener);
+    state.bufferingEventListener = null;
   },
 };
