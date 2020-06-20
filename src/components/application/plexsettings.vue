@@ -68,6 +68,7 @@ export default {
       },
 
       set(value) {
+        // TODO: this is broken and not persistent fix it
         this.SET_BLOCKED_SERVER_IDS(value);
       },
     },

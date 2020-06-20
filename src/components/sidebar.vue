@@ -13,12 +13,14 @@
       <v-list-item three-line>
         <v-list-item-content>
           <v-list-item-title>{{ GET_ROOM }}</v-list-item-title>
+
           <v-list-item-subtitle
             v-if="GET_USERS.length != 1"
             class="participant-count"
           >
             {{ GET_USERS.length }} people
           </v-list-item-subtitle>
+
           <v-list-item-subtitle
             v-else
             class="participant-count"
@@ -61,6 +63,7 @@
           :input-value="getPartyPausing"
           @change="updatePartyPausing"
         />
+
         <v-tooltip
           v-else
           bottom
@@ -76,10 +79,12 @@
             <v-icon v-if="playerState(GET_HOST_USER) === 'play_arrow'">
               pause
             </v-icon>
+
             <v-icon v-else>
               play_arrow
             </v-icon>
           </v-btn>
+
           <span>Party Pausing is currently {{ canPause ? 'enabled' : 'disabled' }} by the
             host</span>
         </v-tooltip>
@@ -93,7 +98,9 @@
         <span
           class="mb-0 pb-0 pa-0"
           style="color: rgb(44, 44, 49); "
-        >Waiting for {{ GET_HOST_USER.username }} to start</span>
+        >
+          Waiting for {{ GET_HOST_USER.username }} to start
+        </span>
       </v-list-item>
     </template>
 
@@ -103,26 +110,26 @@
       style="overflow: auto; max-height: calc(50vh - 154px); background: none"
     >
       <v-card
-        style="background: linear-gradient(180deg,#1f1c2c,#182848)!important; border-radius: 7px"
         class="pa-1 ml-3 mr-3"
       >
         <v-list-item
-          style="height:4em"
+          style="height: 4em"
           class="pl-1 pr-1 mb-0"
           tag="div"
         >
           <v-list-item-avatar>
-            <img
+            <v-img
               :src="GET_HOST_USER.avatarUrl"
               :style="getImgStyle(GET_HOST_USER)"
             >
-            <v-icon
-              v-if="GET_HOST_USER.playerState !== 'playing'"
-              style="font-size: 26px; opacity: 0.8; position: absolute;
+              <v-icon
+                v-if="GET_HOST_USER.playerState !== 'playing'"
+                style="font-size: 26px; opacity: 0.8;
               background-color: rgba(0,0,0,0.5)"
-            >
-              {{ playerState(GET_HOST_USER) }}
-            </v-icon>
+              >
+                {{ playerState(GET_HOST_USER) }}
+              </v-icon>
+            </v-img>
           </v-list-item-avatar>
 
           <v-list-item-content>
@@ -132,19 +139,27 @@
               multi-line
               class="userlist"
             >
-              <span>
-                <v-list-item-title>
-                  {{ GET_HOST_USER.username }}
-                  <span
-                    v-if="GET_HOST_USER.uuid === GET_ME.uuid"
-                    style="opacity: 0.6"
-                  >(you)</span>
-                </v-list-item-title>
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-list-item-title>
+                    {{ GET_HOST_USER.username }}
+                    <span
+                      v-if="AM_I_HOST"
+                      style="opacity: 0.6"
+                    >
+                      (you)
+                    </span>
+                  </v-list-item-title>
 
-                <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">{{
-                  getTitle(GET_HOST_USER)
-                }}</v-list-item-subtitle>
-              </span>
+                  <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">
+                    {{ getTitle(GET_HOST_USER) }}
+                  </v-list-item-subtitle>
+                </div>
+              </template>
+
               Watching on {{ GET_HOST_USER.playerProduct || 'Unknown Plex Client' }}
               <span v-if="GET_PLEX_SERVER(GET_HOST_USER.machineIdentifier)">
                 <br>
@@ -160,9 +175,18 @@
               multi-line
               class="userlist"
             >
-              <v-icon style="color: #E5A00D">
-                star
-              </v-icon>Host
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon style="color: #E5A00D">
+                    star
+                  </v-icon>
+                </div>
+              </template>
+
+              Host
             </v-tooltip>
           </v-list-item-action>
         </v-list-item>
@@ -171,15 +195,17 @@
           <span
             style="float: left; font-size:70%"
             class="ptuser-time pl-1"
-          >{{
-            getCurrent(GET_HOST_USER)
-          }}</span>
+          >
+            {{ getCurrent(GET_HOST_USER) }}
+          </span>
+
           <span
             style="float: right; font-size:70%"
             class="ptuser-maxTime pr-1"
-          >{{
-            getMax(GET_HOST_USER)
-          }}</span>
+          >
+            {{ getMax(GET_HOST_USER) }}
+          </span>
+
           <v-progress-linear
             class="pt-content-progress"
             :height="2"
@@ -222,18 +248,27 @@
                 multi-line
                 class="userlist"
               >
-                <span>
-                  <v-list-item-title>
-                    {{ user.username }}
-                    <span
-                      v-if="user.uuid === GET_ME.uuid"
-                      style="opacity: 0.6"
-                    >(you)</span>
-                  </v-list-item-title>
-                  <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">{{
-                    getTitle(user)
-                  }}</v-list-item-subtitle>
-                </span>
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-list-item-title>
+                      {{ user.username }}
+                      <span
+                        v-if="user.uuid === GET_ME.uuid"
+                        style="opacity: 0.6"
+                      >
+                        (you)
+                      </span>
+                    </v-list-item-title>
+
+                    <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">
+                      {{ getTitle(user) }}
+                    </v-list-item-subtitle>
+                  </div>
+                </template>
+
                 Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
                 <span v-if="GET_PLEX_SERVER(user.machineIdentifier)">
                   <br>
@@ -249,12 +284,20 @@
                 multi-line
                 class="userlist"
               >
-                <v-icon
-                  v-if="isHost(user)"
-                  style="color: #E5A00D"
-                >
-                  star
-                </v-icon>Host
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-icon
+                      v-if="isHost(user)"
+                      style="color: #E5A00D"
+                    >
+                      star
+                    </v-icon>
+                  </div>
+                </template>
+                Host
               </v-tooltip>
 
               <v-menu
@@ -283,15 +326,17 @@
             <span
               style="float: left; font-size:70%"
               class="ptuser-time pl-1"
-            >{{
-              getCurrent(user)
-            }}</span>
+            >
+              {{ getCurrent(user) }}
+            </span>
+
             <span
               style="float: right; font-size:70%"
               class="ptuser-maxTime pr-1"
-            >{{
-              getMax(user)
-            }}</span>
+            >
+              {{ getMax(user) }}
+            </span>
+
             <v-progress-linear
               class="pt-content-progress"
               :height="2"
@@ -335,6 +380,7 @@ export default {
       'GET_USERS',
       'GET_ROOM',
       'GET_HOST_USER',
+      'AM_I_HOST',
     ]),
 
     ...mapGetters('plexservers', [
