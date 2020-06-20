@@ -1,4 +1,4 @@
-f<template>
+<template>
   <v-row
     style="position: relative"
     class="slplayer-container"
@@ -27,49 +27,49 @@ f<template>
       <div>
         <transition name="fade">
           <div v-show="ARE_PLAYER_CONTROLS_SHOWN">
-            <v-layout
-              row
-              wrap
+            <v-row
               style="position: absolute; top: 0; left: 0; z-index: 2"
               class="pa-3 hidden-xs-only"
             >
-              <img
-                :src="GET_THUMB_URL"
-                class="elevation-20 plex-thumb"
-              >
-              <v-flex class="pl-3">
+              <v-col cols="auto">
+                <v-img
+                  contain
+                  :src="GET_THUMB_URL"
+                  class="plex-thumb"
+                />
+              </v-col>
+
+              <v-col class="pl-3">
                 <v-container
                   class="pa-0"
                   fill-height
                 >
-                  <v-layout
-                    column
-                    wrap
-                    justify="space-apart"
-                  >
-                    <v-flex>
+                  <v-row no-gutters>
+                    <v-col>
                       <h1>{{ GET_TITLE }}</h1>
-                    </v-flex>
+                    </v-col>
+                  </v-row>
 
-                    <v-flex>
+                  <v-row no-gutters>
+                    <v-col>
                       <h3>{{ GET_SECONDARY_TITLE }}</h3>
-                    </v-flex>
+                    </v-col>
+                  </v-row>
 
-                    <v-flex>
+                  <v-row no-gutters>
+                    <v-col>
                       <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
-                    </v-flex>
-                  </v-layout>
+                    </v-col>
+                  </v-row>
                 </v-container>
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
 
-            <v-layout
-              row
-              wrap
+            <v-row
               style="position: absolute; top: 0; right: 0; z-index: 2"
               class="pa-3 hidden-xs-only"
             >
-              <v-flex class="text-xs-right pa-1">
+              <v-col class="text-xs-right pa-1">
                 <div class="hidden-xs-only">
                   <v-tooltip
                     v-if="!AM_I_HOST"
@@ -87,116 +87,106 @@ f<template>
                     Manual Sync
                   </v-tooltip>
 
-                  <router-link
-                    to="/browse"
+                  <v-icon
+                    color="white"
+                    class="pl-3"
+                    @click.native="PRESS_STOP"
                   >
-                    <v-icon
-                      color="white"
-                      class="pl-3"
-                      @click.native="PRESS_STOP"
-                    >
-                      close
-                    </v-icon>
-                  </router-link>
+                    close
+                  </v-icon>
                 </div>
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
 
-            <v-layout
-              row
-              wrap
+            <v-row
               class="hoverBar"
               style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;"
             >
-              <v-flex xs12 />
-            </v-layout>
+              <v-col xs12 />
+            </v-row>
           </div>
         </transition>
       </div>
 
       <div
         v-if="$vuetify.breakpoint.mdAndDown"
-        class="messages-wrapper"
       >
-        <messages />
+        <messages class="messages-wrapper" />
+        <MessageInput />
       </div>
 
-      <v-layout
-        justify-center
-        row
-        class="pa-3 hidden-sm-and-up"
-      >
-        <v-flex xs12>
-          <v-layout
-            row
-            wrap
-          >
-            <img
+      <div class="hidden-sm-and-up">
+        <v-row
+          justify="center"
+          class="pa-3"
+        >
+          <v-col cols="auto">
+            <v-img
+              contain
               :src="GET_THUMB_URL"
-              class="elevation-20 plex-thumb"
+              class="plex-thumb"
+            />
+          </v-col>
+
+          <v-col class="pl-2">
+            <v-container
+              class="pa-0"
+              fill-height
             >
-            <v-flex class="pl-2">
-              <v-container
-                class="pa-0"
-                fill-height
-              >
-                <v-layout
-                  column
-                  wrap
-                  justify="space-apart"
-                >
-                  <v-flex>
-                    <h1>{{ GET_TITLE }}</h1>
-                  </v-flex>
-                  <v-flex>
-                    <h3>{{ GET_SECONDARY_TITLE }}</h3>
-                  </v-flex>
-                  <v-flex>
-                    <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-flex>
-            <v-layout
-              row
-              wrap
-              class=""
+              <v-row no-gutters>
+                <v-col>
+                  <h1>{{ GET_TITLE }}</h1>
+                </v-col>
+              </v-row>
+
+              <v-row no-gutters>
+                <v-col>
+                  <h3>{{ GET_SECONDARY_TITLE }}</h3>
+                </v-col>
+              </v-row>
+
+              <v-row no-gutters>
+                <v-col>
+                  <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col v-if="!AM_I_HOST">
+            <v-btn
+              block
+              :disabled="manualSyncQueued"
+              color="blue"
+              @click.native="doManualSync"
             >
-              <v-flex xs12>
-                <v-btn
-                  v-if="!AM_I_HOST"
-                  block
-                  :disabled="manualSyncQueued"
-                  color="blue"
-                  @click.native="doManualSync"
-                >
-                  Manual sync
-                </v-btn>
-              </v-flex>
-              <v-flex xs12>
-                <v-btn
-                  block
-                  color="primary"
-                  @click.native="dialog = !dialog"
-                >
-                  Playback Settings
-                </v-btn>
-              </v-flex>
-              <v-flex xs12>
-                <router-link to="/browse">
-                  <v-btn
-                    block
-                    color="error"
-                    @click.native="DO_COMMAND_STOP"
-                  >
-                    Stop playback
-                  </v-btn>
-                </router-link>
-              </v-flex>
-            </v-layout>
-          </v-layout>
-        </v-flex>
-      </v-layout>
+              Manual sync
+            </v-btn>
+          </v-col>
+
+          <v-col>
+            <v-btn
+              block
+              color="primary"
+              @click.native="dialog = !dialog"
+            >
+              Playback Settings
+            </v-btn>
+          </v-col>
+
+          <v-col>
+            <v-btn
+              block
+              color="error"
+              @click.native="DO_COMMAND_STOP"
+            >
+              Stop playback
+            </v-btn>
+          </v-col>
+        </v-row>
+      </div>
     </v-col>
   </v-row>
 </template>
@@ -225,6 +215,7 @@ export default {
 
   components: {
     messages: () => import('@/components/messages.vue'),
+    MessageInput: () => import('@/components/MessageInput.vue'),
   },
 
   data() {
@@ -528,7 +519,8 @@ export default {
 
 <style>
   .messages-wrapper {
-    height: calc(100vh - (0.5625 * 100vw) - 150px);
+    max-height: calc(100vh - (0.5625 * 100vw) - 150px);
+    overflow: scroll;
   }
 
   .is-fullscreen .messages-wrapper {

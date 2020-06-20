@@ -121,7 +121,7 @@ export default {
     timeout: 10000,
   }),
 
-  FETCH_TIMELINE_POLL_DATA: ({ getters }) => (getters.GET_PLAYER
+  FETCH_TIMELINE_POLL_DATA: ({ getters }) => (getters.GET_PLAYER_MEDIA_ELEMENT
     ? {
       time: getPlayerCurrentTimeMs(getters),
       duration: getPlayerDurationMs(getters),
