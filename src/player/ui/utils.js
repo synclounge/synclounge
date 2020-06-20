@@ -57,7 +57,7 @@ class ShakaUtils {
 
   static checkmarkIcon() {
     const icon = document.createElement('i');
-    icon.classList.add('material-icons');
+    icon.classList.add('material-icons-round');
     icon.classList.add('shaka-chosen-item');
     icon.textContent = 'done';
     // Screen reader should ignore icon text.

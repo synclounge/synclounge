@@ -269,20 +269,17 @@ export default {
     }, 500));
   },
 
-  UPDATE_CLIENT_TIMELINE: ({ getters, rootGetters }) => {
-    // TODO: fix this and ugh
-    // rootGetters['plexclients/GET_CHOSEN_CLIENT'].updateTimelineObject(makePollResponse(getters));
-  },
-
-  CHANGE_PLAYER_STATE: ({ commit, dispatch }, state) => {
+  CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
     console.log('CHANGE PLAYER STATE: ', state);
     commit('SET_PLAYER_STATE', state);
     const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
-    dispatch('UPDATE_CLIENT_TIMELINE');
+    await dispatch('synclounge/POLL', null, { root: true });
     return result;
   },
 
   LOAD_PLAYER_SRC: async ({ getters, commit }) => {
+    // TODO: potentailly unload if already loaded to avoid load interrupted errors
+    // However, while its loading, potentially   reporting the old time...
     const result = await getters.GET_PLAYER.load(getters.GET_SRC_URL);
     if (getters.GET_OFFSET_MS > 0) {
       commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET_MS);
