@@ -104,32 +104,35 @@
       </v-list-item>
     </template>
 
-    <v-list
-      dense
-      two-line
-      style="overflow: auto; max-height: calc(50vh - 154px); background: none"
+    <div
+      style="height: 100%"
+      class="d-flex flex-column"
     >
-      <v-card
-        class="pa-1 ml-3 mr-3"
+      <v-list
+        class="user-list"
+        dense
+        two-line
+        style="max-height: calc(50vh - 154px); background: none"
       >
         <v-list-item
-          style="height: 4em"
-          class="pl-1 pr-1 mb-0"
+          v-for="user in GET_USERS"
+          :key="user.username"
+          style="height:4em"
+          class="pl-1 pr-1 pb-0 mb-0"
           tag="div"
         >
-          <v-list-item-avatar>
-            <v-img
-              :src="GET_HOST_USER.avatarUrl"
-              :style="getImgStyle(GET_HOST_USER)"
+          <v-list-item-avatar @dblclick="TRANSFER_HOST(user.username)">
+            <img
+              :src="user.avatarUrl"
+              :style="getImgStyle(user)"
             >
-              <v-icon
-                v-if="GET_HOST_USER.playerState !== 'playing'"
-                style="font-size: 26px; opacity: 0.8;
-              background-color: rgba(0,0,0,0.5)"
-              >
-                {{ playerState(GET_HOST_USER) }}
-              </v-icon>
-            </v-img>
+            <v-icon
+              v-if="user.playerState !== 'playing'"
+              style="font-size: 26px; opacity: 0.8; position: absolute;
+                background-color: rgba(0,0,0,0.7)"
+            >
+              {{ playerState(user) }}
+            </v-icon>
           </v-list-item-avatar>
 
           <v-list-item-content>
@@ -145,9 +148,9 @@
                   v-on="on"
                 >
                   <v-list-item-title>
-                    {{ GET_HOST_USER.username }}
+                    {{ user.username }}
                     <span
-                      v-if="AM_I_HOST"
+                      v-if="user.uuid === GET_ME.uuid"
                       style="opacity: 0.6"
                     >
                       (you)
@@ -155,201 +158,70 @@
                   </v-list-item-title>
 
                   <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">
-                    {{ getTitle(GET_HOST_USER) }}
+                    {{ getTitle(user) }}
                   </v-list-item-subtitle>
                 </div>
               </template>
 
-              Watching on {{ GET_HOST_USER.playerProduct || 'Unknown Plex Client' }}
-              <span v-if="GET_PLEX_SERVER(GET_HOST_USER.machineIdentifier)">
+              Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
+              <span v-if="GET_PLEX_SERVER(user.machineIdentifier)">
                 <br>
-                via {{ GET_PLEX_SERVER(GET_HOST_USER.machineIdentifier).name }}
+                via {{ GET_PLEX_SERVER(user.machineIdentifier).name }}
               </span>
             </v-tooltip>
-          </v-list-item-content>
 
-          <v-list-item-action>
-            <v-tooltip
-              bottom
-              color="rgb(44, 44, 49)"
-              multi-line
-              class="userlist"
+            <div
+              style="font-size:70%"
+              class="d-flex justify-space-between"
             >
-              <template v-slot:activator="{ on, attrs }">
-                <div
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  <v-icon style="color: #E5A00D">
-                    star
-                  </v-icon>
-                </div>
-              </template>
+              <div>
+                {{ getCurrent(user) }}
+              </div>
 
-              Host
-            </v-tooltip>
-          </v-list-item-action>
-        </v-list-item>
-
-        <div class="pl-1 pr-1 pt-1 mt-0 pb-0 mb-0">
-          <span
-            style="float: left; font-size:70%"
-            class="ptuser-time pl-1"
-          >
-            {{ getCurrent(GET_HOST_USER) }}
-          </span>
-
-          <span
-            style="float: right; font-size:70%"
-            class="ptuser-maxTime pr-1"
-          >
-            {{ getMax(GET_HOST_USER) }}
-          </span>
-
-          <v-progress-linear
-            class="pt-content-progress"
-            :height="2"
-            :value="percent(GET_HOST_USER)"
-          />
-        </div>
-      </v-card>
-
-      <div
-        v-for="user in GET_USERS"
-        :key="user.username"
-      >
-        <div
-          v-if="!isHost(user)"
-          class="pa-1 ml-3 mr-3"
-        >
-          <v-list-item
-            style="height:4em"
-            class="pl-1 pr-1 pb-0 mb-0"
-            tag="div"
-          >
-            <v-list-item-avatar @dblclick="transferHost(user.username)">
-              <img
-                :src="user.avatarUrl"
-                :style="getImgStyle(user)"
-              >
-              <v-icon
-                v-if="user.playerState !== 'playing'"
-                style="font-size: 26px; opacity: 0.8; position: absolute;
-                background-color: rgba(0,0,0,0.7)"
-              >
-                {{ playerState(user) }}
-              </v-icon>
-            </v-list-item-avatar>
-
-            <v-list-item-content>
-              <v-tooltip
-                bottom
-                color="rgb(44, 44, 49)"
-                multi-line
-                class="userlist"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <div
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-list-item-title>
-                      {{ user.username }}
-                      <span
-                        v-if="user.uuid === GET_ME.uuid"
-                        style="opacity: 0.6"
-                      >
-                        (you)
-                      </span>
-                    </v-list-item-title>
-
-                    <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">
-                      {{ getTitle(user) }}
-                    </v-list-item-subtitle>
-                  </div>
-                </template>
-
-                Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
-                <span v-if="GET_PLEX_SERVER(user.machineIdentifier)">
-                  <br>
-                  via {{ GET_PLEX_SERVER(user.machineIdentifier).name }}
-                </span>
-              </v-tooltip>
-            </v-list-item-content>
-
-            <v-list-item-action>
-              <v-tooltip
-                bottom
-                color="rgb(44, 44, 49)"
-                multi-line
-                class="userlist"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <div
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon
-                      v-if="isHost(user)"
-                      style="color: #E5A00D"
-                    >
-                      star
-                    </v-icon>
-                  </div>
-                </template>
-                Host
-              </v-tooltip>
-
-              <v-menu
-                v-if="user.uuid !== GET_ME.uuid && isHost(GET_ME)"
-                :offset-y="true"
-              >
-                <v-btn
-                  icon
-                  class="ma-0 pa-0"
-                  dark
-                >
-                  <v-icon>more_vert</v-icon>
-                </v-btn>
-                <v-list>
-                  <v-list-item @click="transferHost(user.username)">
-                    <v-list-item-title class="user-menu-list">
-                      Make Host
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </v-list-item-action>
-          </v-list-item>
-
-          <div class="pl-0 pr-0 pt-1 mt-0 pb-0 mb-0">
-            <span
-              style="float: left; font-size:70%"
-              class="ptuser-time pl-1"
-            >
-              {{ getCurrent(user) }}
-            </span>
-
-            <span
-              style="float: right; font-size:70%"
-              class="ptuser-maxTime pr-1"
-            >
-              {{ getMax(user) }}
-            </span>
+              <div>
+                {{ getMax(user) }}
+              </div>
+            </div>
 
             <v-progress-linear
               class="pt-content-progress"
               :height="2"
               :value="percent(user)"
             />
-          </div>
-        </div>
-      </div>
-    </v-list>
+          </v-list-item-content>
 
-    <v-divider />
+          <v-list-item-action>
+            <v-tooltip
+              v-if="isHost(user) || AM_I_HOST"
+              bottom
+              color="rgb(44, 44, 49)"
+              multi-line
+              class="userlist"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  v-bind="attrs"
+                  style="color: #E5A00D"
+                  v-on="on"
+                  @click="AM_I_HOST && !isHost(user) ? TRANSFER_HOST(user.username) : null"
+                >
+                  {{ getHostIconName(user) }}
+                </v-icon>
+              </template>
 
-    <messages v-if="$vuetify.breakpoint.lgAndUp" />
+              <span>{{ getHostActionText(user) }}</span>
+            </v-tooltip>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
+
+      <v-divider />
+
+      <messages
+        v-if="$vuetify.breakpoint.lgAndUp"
+        class="messages"
+      />
+    </div>
 
     <template v-slot:append>
       <MessageInput />
@@ -393,15 +265,30 @@ export default {
   },
 
   methods: {
-    ...mapActions([
+    ...mapActions('synclounge', [
       'updatePartyPausing',
       'sendPartyPause',
-      'transferHost',
+      'TRANSFER_HOST',
+    ]),
+
+    ...mapActions([
       'SET_RIGHT_SIDEBAR_OPEN',
     ]),
 
     isHost(user) {
       return user.role === 'host';
+    },
+
+    getHostIconName(user) {
+      return this.isHost(user)
+        ? 'star'
+        : 'star_outline';
+    },
+
+    getHostActionText(user) {
+      return this.isHost(user)
+        ? 'Host'
+        : 'Transfer host';
     },
 
     sendPartyPauseLocal(isPause) {
@@ -491,23 +378,37 @@ export default {
       return 'stop';
     },
 
-    getTimeFromMs(ms) {
-      const hours = ms / (1000 * 60 * 60);
-      const absoluteHours = Math.floor(hours);
-      const h = absoluteHours > 9 ? absoluteHours : `0${absoluteHours}`;
-      const minutes = (hours - absoluteHours) * 60;
-      const absoluteMinutes = Math.floor(minutes);
-      const m = absoluteMinutes > 9 ? absoluteMinutes : `0${absoluteMinutes}`;
-      const seconds = (minutes - absoluteMinutes) * 60;
-      const absoluteSeconds = Math.floor(seconds);
-      const s = absoluteSeconds > 9 ? absoluteSeconds : `0${absoluteSeconds}`;
-      return `${h}:${m}:${s}`;
+    getTimeFromMs(timeMs) {
+      const displayTime = Math.round(timeMs / 1000);
+
+      const h = Math.floor(displayTime / 3600);
+      const m = Math.floor((displayTime / 60) % 60);
+      let s = Math.floor(displayTime % 60);
+      if (s < 10) {
+        s = `0${s}`;
+      }
+      let text = `${m}:${s}`;
+      if (displayTime > 3600) {
+        if (m < 10) {
+          text = `0${text}`;
+        }
+        text = `${h}:${text}`;
+      }
+      return text;
     },
   },
 };
 </script>
 
 <style scoped>
+.user-list, .messages {
+  overflow-y: auto;
+}
+
+.messages {
+  flex: 1 1 0;
+}
+
 .wideinput .input-group--text-field.input-group--prepend-icon .input-group__details {
   margin-left: unset;
   max-width: unset;

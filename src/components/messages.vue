@@ -1,23 +1,20 @@
 <template>
-  <div>
-    <v-divider class="hidden-md-and-down" />
-    <v-list
-      v-chat-scroll
-      subheader
-      dense
-    >
-      <v-subheader class="md-4">
-        Chat
-      </v-subheader>
+  <v-list
+    v-chat-scroll
+    subheader
+    dense
+  >
+    <v-subheader class="md-4">
+      Chat
+    </v-subheader>
 
-      <message
-        v-for="(msg, index) in GET_MESSAGES"
-        :id="getMsgId(msg)"
-        :key="index"
-        :message="msg"
-      />
-    </v-list>
-  </div>
+    <message
+      v-for="(msg, index) in GET_MESSAGES"
+      :id="getMsgId(msg)"
+      :key="index"
+      :message="msg"
+    />
+  </v-list>
 </template>
 
 <script>
@@ -32,18 +29,6 @@ export default {
     ...mapGetters('synclounge', [
       'GET_MESSAGES',
     ]),
-  },
-
-  watch: {
-    messages() {
-      const options = {
-        container: '#chatbox',
-        easing: 'linear',
-        duration: 1,
-        cancelable: false,
-      };
-      this.$scrollTo('#lastMessage', 5, options);
-    },
   },
 
   methods: {

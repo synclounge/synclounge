@@ -95,7 +95,7 @@ export default {
     }
   },
 
-  transferHost({ state }, username) {
+  TRANSFER_HOST({ state }, username) {
     if (state.socket.connected) {
       state.socket.emit('transfer_host', {
         username,
