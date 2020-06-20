@@ -10,7 +10,6 @@
 
     <message
       v-for="(msg, index) in GET_MESSAGES"
-      :id="getMsgId(msg)"
       :key="index"
       :message="msg"
     />
@@ -29,15 +28,6 @@ export default {
     ...mapGetters('synclounge', [
       'GET_MESSAGES',
     ]),
-  },
-
-  methods: {
-    getMsgId(msg) {
-      if (this.getMessages && msg === this.getMessages[this.getMessages.length - 1]) {
-        return 'lastMessage';
-      }
-      return '';
-    },
   },
 };
 </script>

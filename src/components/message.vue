@@ -1,5 +1,5 @@
 <template>
-  <v-list-item three-line>
+  <v-list-item>
     <v-list-item-avatar size="32">
       <v-img
         :src="message.user.thumb || message.user.avatarUrl"
@@ -8,7 +8,9 @@
 
     <v-list-item-content>
       <v-list-item-title v-text="message.user.username" />
+
       <v-list-item-subtitle
+        class="message-content"
         v-text="message.msg"
       />
     </v-list-item-content>
@@ -49,5 +51,10 @@ export default {
   background: #e5a00d;
   float: right;
   color: rgb(44, 44, 49);
+}
+
+.message-content {
+   white-space: normal !important;
+   font-weight: normal !important;
 }
 </style>
