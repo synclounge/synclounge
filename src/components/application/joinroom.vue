@@ -76,13 +76,15 @@
             your friends to join. If the room does not exist it will be created for you.
           </p>
         </v-flex>
+
         <v-flex
-          v-if="!getConnected && GET_RECENT_ROOMS.length > 0"
+          v-if="!GET_SOCKET && GET_RECENT_ROOMS.length > 0"
           xs12
           class="nicelist pa-4"
           style="color:white !important;"
         >
           <v-subheader>Recent Rooms</v-subheader>
+
           <v-list class="pa-0">
             <template v-for="(item, index) in GET_RECENT_ROOMS.slice(0, 3)">
               <v-list-item
@@ -121,8 +123,9 @@
             </template>
           </v-list>
         </v-flex>
+
         <v-flex
-          v-if="!getConnected"
+          v-if="!GET_SOCKET"
           xs12
           class="nicelist pa-4"
           style="color:white !important"
@@ -292,8 +295,9 @@
             </v-flex>
           </v-layout>
         </v-flex>
+
         <v-flex
-          v-if="getConnected"
+          v-if="GET_SOCKET"
           xs12
           class="text-center"
         >
@@ -395,15 +399,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
+    ...mapGetters('synclounge', [
+      'GET_SOCKET',
       'GET_SYNCLOUNGE_SERVERS',
-      'getConnected',
-      'getPlex',
-      'getServer',
-      'getConnected',
-      'getRoom',
+      'GET_ROOM',
+      'GET_SERVER',
+    ]),
+
+    ...mapGetters([
       'getLogos',
-      'GET_PLEX_USER',
     ]),
 
     ...mapGetters('settings', [
@@ -418,8 +422,8 @@ export default {
       this.serverError = null;
     },
 
-    getRoom() {
-      if (this.getServer && this.getRoom) {
+    GET_ROOM() {
+      if (this.GET_SERVER && this.GET_ROOM) {
         this.$router.push('/browse');
       }
     },
@@ -437,7 +441,7 @@ export default {
   },
 
   created() {
-    if (this.getRoom && this.getConnected && this.getServer) {
+    if (this.GET_ROOM && this.GET_SOCKET && this.GET_SERVER) {
       this.$router.push('/browse');
     }
   },
@@ -445,7 +449,11 @@ export default {
   methods: {
     ...mapMutations('settings', ['SET_CUSTOM_SERVER_USER_INPUTTED_URL']),
     ...mapActions('settings', ['REMOVE_RECENT_ROOM']),
-    ...mapActions(['socketConnect']),
+
+    ...mapActions('synclounge', [
+      'JOIN_ROOM',
+      'ESTABLISH_SOCKET_CONNECTION',
+    ]),
 
     sinceNow(x) {
       return formatDistanceToNow(x);
@@ -477,7 +485,7 @@ export default {
       return ['white--text'];
     },
 
-    serverSelected(server) {
+    async serverSelected(server) {
       this.selectedServer = server;
       if (this.selectedServer.defaultRoom) {
         this.room = this.selectedServer.defaultRoom;
@@ -487,7 +495,7 @@ export default {
         }
       }
       if (this.selectedServer.url !== 'custom') {
-        this.attemptConnect();
+        await this.attemptConnect();
       }
     },
 
@@ -515,54 +523,49 @@ export default {
       });
     },
 
-    attemptConnect() {
-      // Attempt the connection
-      return new Promise((resolve, reject) => {
-        this.serverError = null;
-        if (this.selectedServer.url !== 'custom') {
-          this.connectionPending = true;
-          this.socketConnect({ address: this.selectedServer.url })
-            .then((result) => {
-              this.connectionPending = false;
-              if (result) {
-                if (this.room) {
-                  this.joinRoom()
-                    .catch(() => {});
-                }
-                resolve();
-              } else {
-                this.serverError = null;
-                reject(result);
-              }
-            })
-            .catch((e) => {
-              this.connectionPending = false;
-              this.serverError = `Failed to connect to ${this.selectedServer.url}`;
-              reject(e);
-            });
-        } else {
-          reject(new Error('Custom error: wrong function'));
+    async attemptConnect() {
+      this.serverError = null;
+
+      if (this.selectedServer.url !== 'custom') {
+        this.connectionPending = true;
+
+        try {
+          await this.ESTABLISH_SOCKET_CONNECTION(this.selectedServer.url);
+
+          if (this.room) {
+            await this.joinRoom()
+              .catch(() => {});
+          }
+
+          this.connectionPending = false;
+        } catch (e) {
+          this.connectionPending = false;
+          this.serverError = `Failed to connect to ${this.selectedServer.url}`;
+          console.error(e);
+          throw e;
         }
-      });
+      }
     },
 
-    attemptConnectCustom() {
+    async attemptConnectCustom() {
       this.connectionPending = true;
       this.serverError = null;
-      this.$store
-        .dispatch('socketConnect', { address: this.GET_CUSTOM_SERVER_USER_INPUTTED_URL })
-        .then((result) => {
-          this.connectionPending = false;
-          if (result) {
-            this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
-          } else {
-            this.serverError = null;
-          }
-        })
-        .catch(() => {
-          this.connectionPending = false;
+
+      try {
+        const result = await this.ESTABLISH_SOCKET_CONNECTION(
+          this.GET_CUSTOM_SERVER_USER_INPUTTED_URL,
+        );
+
+        if (result) {
           this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
-        });
+        } else {
+          this.serverError = null;
+        }
+      } catch {
+        this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
+      }
+
+      this.connectionPending = false;
     },
 
     async recentConnect(recent) {
@@ -576,17 +579,18 @@ export default {
     },
 
     async joinRoom() {
-      if (!this.getConnected) {
+      if (!this.GET_SOCKET) {
         throw new Error('not connected to a server');
       }
+
       if (this.room === '' || this.room == null) {
         this.roomError = 'You must enter a room name!';
         throw new Error('no room specified');
       }
+
       try {
-        await this.$store.dispatch('joinRoom', {
-          user: this.GET_PLEX_USER,
-          roomName: this.room,
+        await this.JOIN_ROOM({
+          room: this.room,
           password: this.password,
         });
       } catch (e) {
