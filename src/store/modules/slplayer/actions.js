@@ -292,8 +292,8 @@ export default {
 
     commit('SET_PLAYER_VOLUME', rootGetters['settings/GET_SLPLAYERVOLUME']);
 
-    await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
-    await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     return result;
   },
 
