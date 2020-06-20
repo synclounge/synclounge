@@ -15,6 +15,7 @@ const persistedState = createPersistedState({
     'settings',
     'plex.user',
     'plexservers.lastServerId',
+    'plexservers.blockedServerIds',
   ],
 });
 

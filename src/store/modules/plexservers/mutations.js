@@ -8,4 +8,8 @@ export default {
   ADD_PLEX_SERVER: (state, server) => {
     Vue.set(state.servers, server.clientIdentifier, server);
   },
+
+  SET_BLOCKED_SERVER_IDS: (state, blockedIds) => {
+    state.blockedServerIds = blockedIds;
+  },
 };

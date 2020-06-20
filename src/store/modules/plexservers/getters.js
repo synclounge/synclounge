@@ -57,4 +57,6 @@ export default {
 
     return `${server.chosenConnection.uri}/photo/:/transcode/?${encodeUrlParams(params)}`;
   },
+
+  GET_BLOCKED_SERVER_IDS: (state) => state.blockedServerIds,
 };

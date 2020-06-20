@@ -4,11 +4,13 @@
       <h4 style="text-align:initial">
         Blocked Plex Servers
       </h4>
+
       <small>
         Used for autoplay functionality.
         Use this list to block SyncLounge from searching certain servers when attempting to
         autoplay content.
       </small>
+
       <v-select
         v-model="BLOCKEDSERVERS"
         label="Select"
@@ -20,21 +22,19 @@
         persistent-hint
       />
     </div>
-    <v-layout
-      row
-      wrap
-    >
-      <v-flex xs12 />
-    </v-layout>
+
     <v-divider />
+
     <div class="pt-4 text-xs-left">
       <h4 style="text-align:initial">
         Change display name
       </h4>
+
       <v-checkbox
         v-model="HIDEUSERNAME"
         label="Enabled"
       />
+
       <v-text-field
         v-if="HIDEUSERNAME"
         :value="GET_ALTUSERNAME"
@@ -52,19 +52,23 @@ import { mapGetters, mapMutations } from 'vuex';
 export default {
   name: 'Plexsettings',
   computed: {
-    ...mapGetters(['getPlex']),
+    ...mapGetters('plexservers', [
+      'GET_PLEX_SERVERS',
+      'GET_BLOCKED_SERVER_IDS',
+    ]),
+
     ...mapGetters('settings', [
       'GET_HIDEUSERNAME',
       'GET_ALTUSERNAME',
-      'GET_BLOCKEDSERVERS',
     ]),
 
     BLOCKEDSERVERS: {
       get() {
-        return this.GET_BLOCKEDSERVERS;
+        return this.GET_BLOCKED_SERVER_IDS;
       },
+
       set(value) {
-        this.SET_BLOCKEDSERVERS(value);
+        this.SET_BLOCKED_SERVER_IDS(value);
       },
     },
 
@@ -72,28 +76,28 @@ export default {
       get() {
         return this.GET_HIDEUSERNAME;
       },
+
       set(value) {
         this.SET_HIDEUSERNAME(value);
       },
     },
 
     localServersList() {
-      if (!this.getPlex || !this.getPlex.servers) {
-        return [];
-      }
-
-      return this.getPlex.servers.map((server) => ({
-        server: server.name,
+      return this.GET_PLEX_SERVERS.map((server) => ({
+        name: server.name,
         id: server.clientIdentifier,
       }));
     },
   },
 
   methods: {
+    ...mapMutations('plexservers', [
+      'SET_BLOCKED_SERVER_IDS',
+    ]),
+
     ...mapMutations('settings', [
       'SET_HIDEUSERNAME',
       'SET_ALTUSERNAME',
-      'SET_BLOCKEDSERVERS',
     ]),
   },
 };
