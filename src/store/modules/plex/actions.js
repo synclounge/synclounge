@@ -58,7 +58,6 @@ export default {
       } else if (device.provides.indexOf('server') !== -1) {
         // This is a Server
         const tempServer = new PlexServer(device);
-        tempServer.commit = commit;
         tempServer.chosenConnection = await dispatch('FIND_WORKING_CONNECTION', {
           connections: device.connections,
           accessToken: tempServer.accessToken,
@@ -92,9 +91,8 @@ export default {
     }
   },
 
-  TEST_PLEX_CONNECTION: ({ getters }, { connection, accessToken }) => axios.get(`${connection.uri}/media/providers`, {
+  TEST_PLEX_CONNECTION: ({ getters }, { connection, accessToken }) => axios.get(connection.uri, {
     headers: getters.GET_PLEX_BASE_PARAMS(accessToken),
-    timeout: 7500,
   }),
 
   FIND_WORKING_CONNECTION: async ({ dispatch }, { connections, accessToken }) => {

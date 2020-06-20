@@ -154,6 +154,7 @@ export default {
     getters, commit, dispatch, rootGetters,
   }) => {
     console.log('sync:', Date.now());
+    await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
     /* This is data from the host, we should react to this data by potentially changing
         what we're playing or seeking to get back in sync with the host.
 
@@ -218,7 +219,12 @@ export default {
       return false;
     }
 
-    if (getters.GET_HOST_TIMELINE.playerState === 'playing' && timeline.state === 'paused') {
+    // If we didn't find a good match or .... wtf??
+    if (timeline.playerState === 'stopped') {
+      return false;
+    }
+
+    if (getters.GET_HOST_TIMELINE.playerState === 'playing' && timeline.playerState === 'paused') {
       dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
       return dispatch('plexclients/PRESS_PLAY', null, { root: true });
     }

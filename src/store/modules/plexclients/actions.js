@@ -218,7 +218,7 @@ export default {
       : 0;
 
     const adjustedTime = playerPollData.playerState === 'playing'
-      ? playerPollData + timelineAge
+      ? playerPollData.time + timelineAge
       : playerPollData.time;
 
     const difference = Math.abs(adjustedHostTime - adjustedTime);
