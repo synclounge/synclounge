@@ -16,6 +16,7 @@
           >
         </v-col>
       </v-row>
+
       <v-stepper
         v-model="e1"
         style="background: rgba(0,0,0,0.3); color: white !important; border-radius: 20px"
@@ -29,7 +30,9 @@
           >
             Select a client
           </v-stepper-step>
+
           <v-divider />
+
           <v-stepper-step
             step="2"
             dark
@@ -37,7 +40,9 @@
           >
             Join a room
           </v-stepper-step>
+
           <v-divider />
+
           <v-stepper-step step="3">
             Sync
           </v-stepper-step>
@@ -70,6 +75,7 @@
             color="primary"
           />
         </div>
+
         <v-row
           v-else
           justify="center"
@@ -95,25 +101,26 @@
               dense
               style="background: none"
             >
-              <plexclient
-                v-for="i in GET_RECENT_PLEX_CLIENTS"
-                :key="i.clientIdentifier"
-                :selected="isClientSelected(i)"
-                :object="i"
-                style="cursor: pointer"
-                @click.native="
-                  previewClient(i);
-                  gotResponse = true;
-                "
-              />
+              <v-list-item-group
+                v-model="previewClientId"
+              >
+                <plexclient
+                  v-for="id in GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN"
+                  :key="id"
+                  :value="id"
+                  :client-id="id"
+                  style="cursor: pointer"
+                />
+              </v-list-item-group>
             </v-list>
           </v-col>
+
           <v-col
             md="6"
             lg="6"
           >
             <div
-              v-if="testClient"
+              v-if="previewClientId"
               class="pa-2"
             >
               <v-subheader>Selected Player</v-subheader>
@@ -128,38 +135,65 @@
                     style="height: 100px; width: auto; vertical-align: middle"
                   >
                 </v-col>
+
                 <v-col md="9">
                   <div class="selected-player-details pl-1">
-                    <h3>{{ testClient.name }}</h3>
+                    <h3>{{ previewClient.name }}</h3>
+
                     <div>
                       <label>Last seen</label>
-                      <span style="opacity:0.8">{{ lastSeenAgo(testClient.lastSeenAt) }}</span>
+                      <span style="opacity:0.8">{{ lastSeenAgo(previewClient.lastSeenAt) }}</span>
                     </div>
+
                     <div>
                       <label>Device</label>
-                      <span style="opacity:0.8">{{ testClient.device }}</span>
+                      <span style="opacity:0.8">{{ previewClient.device }}</span>
                     </div>
+
                     <div>
                       <label>Running</label>
-                      <span style="opacity:0.8">{{ testClient.product }}</span>
+                      <span style="opacity:0.8">{{ previewClient.product }}</span>
                     </div>
+
                     <div class="pb-2">
                       <label>Platform</label>
-                      <span style="opacity:0.8">{{ testClient.platform }}</span>
+                      <span style="opacity:0.8">{{ previewClient.platform }}</span>
                     </div>
+
                     <div
-                      v-if="testClientErrorMsg"
+                      v-if="previewClientErrorMsg"
                       class="red--text text--lighten-1"
                     >
-                      {{ testClientErrorMsg }}
+                      {{ previewClientErrorMsg }}
                     </div>
                   </div>
                 </v-col>
               </v-row>
+
               <v-row class="pt-2">
                 <v-col>
+                  <div v-if="gotResponse">
+                    <v-btn
+                      v-if="previewClient.chosenConnection"
+                      block
+                      color="primary"
+                      @click="chooseClient"
+                    >
+                      Connect
+                    </v-btn>
+
+                    <v-btn
+                      v-else
+                      block
+                      color="primary"
+                      @click="findPreviewConnection"
+                    >
+                      Try again
+                    </v-btn>
+                  </div>
+
                   <div
-                    v-if="!gotResponse"
+                    v-else
                     class="center spinner-orange"
                   >
                     <div style="width:100%;text-align:center">
@@ -171,39 +205,34 @@
                       />
                     </div>
                   </div>
-                  <div v-if="gotResponse">
-                    <v-btn
-                      block
-                      color="primary"
-                      @click.native="clientClicked()"
-                    >
-                      Connect
-                    </v-btn>
-                  </div>
+
                   <div
-                    v-if="testClient.product.indexOf('Web') > -1"
+                    v-if="previewClient.product.indexOf('Web') > -1"
                     class="warning--text"
                   >
                     Note: Plex Web is currently not supported.
                   </div>
+
                   <div
-                    v-if="testClient.product.indexOf('Plex for Android') > -1"
+                    v-if="previewClient.product.indexOf('Plex for Android') > -1"
                     class="warning--text"
                   >
                     Note: Plex for Android applications may not work properly. See "What clients are
                     supported?" in the
                     <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
                   </div>
+
                   <div
-                    v-if="testClient.product.indexOf('Plex for Windows') > -1"
+                    v-if="previewClient.product.indexOf('Plex for Windows') > -1"
                     class="warning--text"
                   >
                     Note: Plex Desktop applications may not work properly. See "What clients are
                     supported?" in the
                     <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
                   </div>
+
                   <div
-                    v-if="isHttps && testClient.clientIdentifier !== 'PTPLAYER9PLUS10'"
+                    v-if="isHttps && previewClient.clientIdentifier !== 'PTPLAYER9PLUS10'"
                     class="warning--text"
                   >
                     Note: You may not be able to connect to external Plex Clients while loading the
@@ -216,27 +245,30 @@
               </v-row>
             </div>
           </v-col>
+
           <v-col
             v-if="doReverse"
             md="6"
             lg="7"
           >
             <v-subheader>Plex Players</v-subheader>
+
             <v-list
               dense
               style="background: none"
+              :value="GET_CHOSEN_CLIENT_ID"
             >
-              <plexclient
-                v-for="i in GET_RECENT_PLEX_CLIENTS"
-                :key="i.clientIdentifier"
-                :selected="isClientSelected(i)"
-                :object="i"
-                style="cursor: pointer"
-                @click.native="
-                  previewClient(i);
-                  gotResponse = true;
-                "
-              />
+              <v-list-item-group
+                v-model="previewClientId"
+              >
+                <plexclient
+                  v-for="id in GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN"
+                  :key="id"
+                  :value="id"
+                  :client-id="id"
+                  style="cursor: pointer"
+                />
+              </v-list-item-group>
             </v-list>
           </v-col>
         </v-row>
@@ -247,70 +279,40 @@
 
 <script>
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import {
-  mapActions, mapGetters, mapState, mapMutations,
-} from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'Walkthrough',
+
   components: {
     plexclient: () => import('./plexclient.vue'),
   },
 
   data() {
     return {
-      testClient: null,
-      testClientErrorMsg: null,
+      previewClientErrorMsg: null,
       gotResponse: true,
       e1: '1',
       joinRoomModal: false,
-      platformMap: {
-        android: 'android',
-        'apple tv': 'atv',
-        chrome: 'chrome',
-        chromecast: 'chromecast',
-        dlna: 'dlna',
-        firefox: 'firefox',
-        'internet explorer': 'ie',
-        ios: 'ios',
-        ipad: 'ios',
-        iphone: 'ios',
-        kodi: 'kodi',
-        linux: 'linux',
-        nexus: 'android',
-        macos: 'macos',
-        'microsoft edge': 'msedge',
-        opera: 'opera',
-        osx: 'macos',
-        playstation: 'playstation',
-        'plex home theater': 'plex',
-        'plex media player': 'plex',
-        plexamp: 'plexamp',
-        plextogether: 'synclounge',
-        roku: 'roku',
-        safari: 'safari',
-        samsung: 'samsung',
-        synclounge: 'synclounge',
-        tivo: 'tivo',
-        tizen: 'samsung',
-        tvos: 'atv',
-        vizio: 'opera',
-        wiiu: 'wiiu',
-        windows: 'windows',
-        'windows phone': 'wp',
-        xbmc: 'xbmc',
-        xbox: 'xbox',
-      },
+      previewClientId: null,
     };
   },
+
   computed: {
-    ...mapState(['plex']),
-    ...mapGetters([
-      'GET_CHOSEN_CLIENT',
-      'getLogos',
-      'GET_RECENT_PLEX_CLIENTS',
+    ...mapGetters('plex', [
       'IS_DONE_FETCHING_DEVICES',
     ]),
+
+    ...mapGetters('plexclients', [
+      'GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN',
+      'GET_CHOSEN_CLIENT_ID',
+      'GET_PLEX_CLIENT',
+    ]),
+
+    ...mapGetters([
+      'getLogos',
+    ]),
+
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':
@@ -321,21 +323,15 @@ export default {
           return false;
       }
     },
+
     isHttps() {
       return window.location.protocol === 'https:';
     },
-    platform() {
-      if (!this.testClient || !this.testClient.platform) {
-        return '';
-      }
-      return (
-        this.platformMap[this.testClient.platform.toLowerCase()]
-        || this.platformMap[this.testClient.product.toLowerCase()]
-      );
+
+    previewClient() {
+      return this.GET_PLEX_CLIENT(this.previewClientId);
     },
-    platformClass() {
-      return [`platform-${this.platform}`];
-    },
+
     url() {
       if (!this.platform) {
         return 'platforms/plex.svg';
@@ -345,6 +341,7 @@ export default {
       }
       return `platforms/${this.platform}.svg`;
     },
+
     clients() {
       return this.plex.clients;
     },
@@ -365,59 +362,46 @@ export default {
     },
   },
 
-  mounted() {
-    this.FETCH_PLEX_DEVICES();
+  watch: {
+    async previewClientId(id) {
+      await this.findPreviewConnection();
+    },
   },
 
   methods: {
-    ...mapActions([
-      'CHOOSE_CLIENT',
-      'FETCH_PLEX_DEVICES',
-      'PLEX_CLIENT_FINDCONNECTION',
+    ...mapActions('plexclients', [
+      'FIND_AND_SET_CONNECTION',
     ]),
-    ...mapMutations([
+
+    ...mapActions('plex', [
+      'FETCH_PLEX_DEVICES',
+    ]),
+
+    ...mapMutations('plexclients', [
       'SET_CHOSEN_CLIENT_ID',
     ]),
 
-    previewClient(client) {
-      this.testClient = client;
-      this.testClientErrorMsg = null;
-    },
-
-    async clientClicked() {
-      const client = this.testClient;
+    async findPreviewConnection() {
+      this.previewClientErrorMsg = null;
       this.gotResponse = false;
-      this.testClientErrorMsg = null;
 
       try {
-        await this.PLEX_CLIENT_FINDCONNECTION(client);
-
-        this.SET_CHOSEN_CLIENT_ID(client.clientIdentifier);
-        this.gotResponse = true;
-        this.$router.push('/joinroom');
-      } catch {
-        if (client.clientIdentifier !== this.testClient.clientIdentifier) {
-          return;
-        }
-        this.gotResponse = true;
-        this.testClientErrorMsg = 'Unable to connect to client';
+        await this.FIND_AND_SET_CONNECTION(this.previewClientId);
+      } catch (e) {
+        console.log(e);
+        this.previewClientErrorMsg = 'Unable to connect to client';
       }
+
+      this.gotResponse = true;
     },
 
-    isClientSelected(client) {
-      if (client === this.testClient) {
-        return true;
-      }
-      return false;
+    async chooseClient() {
+      this.SET_CHOSEN_CLIENT_ID(this.previewClientId);
+      this.$router.push('/joinroom');
     },
 
     lastSeenAgo(clientTime) {
       return `${formatDistanceToNow(parseISO(clientTime))} ago`;
-    },
-
-    refreshPlexDevices() {
-      this.CHOOSE_CLIENT(null);
-      this.$store.commit('REFRESH_PLEXDEVICES');
     },
   },
 };

@@ -4,38 +4,38 @@ import xmlutils from '@/utils/xmlutils';
 import delay from '@/utils/delay';
 
 export default {
-  PLEX_CLIENT_FINDCONNECTION: async ({ commit }, client) => {
-    // TODO: use this to authenticate again lol
+  FIND_AND_SET_CONNECTION: async ({ dispatch, commit }, clientIdentifier) => {
+    const chosenConnection = await dispatch('FIND_CONNECTION', clientIdentifier);
+    commit('SET_CLIENT_CHOSEN_CONNECTION', { clientIdentifier, chosenConnection });
+  },
+
+  FIND_CONNECTION: ({ getters, dispatch }, clientIdentifier) => {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
 
-    if (client.clientIdentifier === 'PTPLAYER9PLUS10') {
+    if (clientIdentifier === 'PTPLAYER9PLUS10') {
       return true;
     }
 
-    try {
-      await promiseutils.any(client.connections.map(async (connection) => {
-        // We dont care about this result, some clients require a poll command before sending a subscription command
-        await client.hitApi('/player/timeline/poll', { wait: 0 }, connection, false, true)
-          .catch(() => { });
+    const client = getters.GET_PLEX_CLIENT(clientIdentifier);
 
-        await client.hitApi('/player/timeline/poll', { wait: 0 }, connection);
-
-        console.log('Got good response on', connection);
-        commit('PLEX_CLIENT_SET_CONNECTION', { client, connection });
-      }));
-
-      return true;
-    } catch (e) {
-      console.error('Error connecting to client', e);
-      throw e;
-    }
+    return promiseutils.any(
+      client.connections.map((connection) => dispatch(
+        'TEST_CONNECTION',
+        { connection, accessToken: client.accessToken },
+      ).then(() => connection)),
+    );
   },
 
-  PLEX_CLIENT_UPDATETIMELINE: (context, [client, timeline]) => {
-    console.log('Updating timeline for', client, 'with', timeline);
-  },
+  // Using fetch here so I can use the 'no-cors' mode
+  TEST_CONNECTION: ({ rootGetters }, { connection, accessToken }) => fetch(
+    `${connection.uri}/resources?${new URLSearchParams(
+      rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
+    )}`, {
+      mode: 'no-cors',
+    },
+  ),
 
   PLAY_MEDIA: async ({
     getters, commit, dispatch, rootGetters,

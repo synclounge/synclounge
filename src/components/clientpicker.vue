@@ -100,6 +100,7 @@ export default {
       'FETCH_PLEX_DEVICES',
       'CHOOSE_CLIENT',
     ]),
+
     async clientClicked() {
       const client = this.testClient;
       this.gotResponse = false;

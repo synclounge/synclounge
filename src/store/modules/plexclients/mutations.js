@@ -28,4 +28,8 @@ export default {
   SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: (state, commandId) => {
     state.previousSyncTimelineCommandId = commandId;
   },
+
+  SET_CLIENT_CHOSEN_CONNECTION: (state, { clientIdentifier, chosenConnection }) => {
+    Vue.set(state.clients[clientIdentifier], 'chosenConnection', chosenConnection);
+  },
 };

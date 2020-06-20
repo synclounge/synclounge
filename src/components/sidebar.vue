@@ -224,7 +224,7 @@
         >
           <v-list-item
             style="height:4em"
-            class="pb-0 mb-0"
+            class="pl-1 pr-1 pb-0 mb-0"
             tag="div"
           >
             <v-list-item-avatar @dblclick="transferHost(user.username)">

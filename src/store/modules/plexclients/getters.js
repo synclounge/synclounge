@@ -8,8 +8,11 @@ export default {
     .clients[clientIdentifier],
 
   GET_CHOSEN_CLIENT: (state) => state.clients[state.chosenClientId],
-  GET_RECENT_PLEX_CLIENTS: (state) => Object.values(state.clients)
-    .sort((a, b) => -a.lastSeenAt.localeCompare(b.lastSeenAt)),
+
+  GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN: (state) => Object.values(state.clients)
+    .sort((a, b) => -a.lastSeenAt.localeCompare(b.lastSeenAt))
+    .map((client) => client.clientIdentifier),
+
   GET_ACTIVE_MEDIA_METADATA: (state) => state.activeMediaMetadata,
 
   GET_ACTIVE_SERVER_ID: (state) => state.activeServerId,

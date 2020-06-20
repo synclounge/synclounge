@@ -1,22 +1,21 @@
 <template>
   <v-list-item
-    ref="test"
     :style="styleObj"
     v-bind="$attrs"
   >
     <v-list-item-avatar>
-      <img
+      <v-img
         class="clientLogo"
         :class="platformClass"
         :src="url"
-      >
+      />
     </v-list-item-avatar>
 
     <v-list-item-content>
       <v-list-item-title>
-        {{ object.name }}
+        {{ plexClient.name }}
         <v-chip
-          v-for="label in object.labels"
+          v-for="label in plexClient.labels"
           :key="label[0]"
           :color="label[1]"
           small
@@ -27,81 +26,48 @@
       </v-list-item-title>
 
       <v-list-item-subtitle>
-        {{ object.product }} - last seen {{ lastSeenAgo }}
+        {{ plexClient.product }} - last seen {{ lastSeenAgo }}
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { formatDistanceToNow, parseISO } from 'date-fns';
+import plexPlatformMap from '@/utils/plexplatformmap';
 
 export default {
   name: 'Plexclient',
+
   props: {
-    object: {
-      type: Object,
-      default: () => {},
+    clientId: {
+      type: String,
+      required: true,
     },
 
     selected: {
       type: Boolean,
     },
-
-    sidebar: {
-      type: Boolean,
-    },
   },
 
-  data: () => ({
-    platformMap: {
-      android: 'android',
-      'apple tv': 'atv',
-      chrome: 'chrome',
-      chromecast: 'chromecast',
-      dlna: 'dlna',
-      firefox: 'firefox',
-      'internet explorer': 'ie',
-      ios: 'ios',
-      ipad: 'ios',
-      iphone: 'ios',
-      kodi: 'kodi',
-      linux: 'linux',
-      nexus: 'android',
-      macos: 'macos',
-      'microsoft edge': 'msedge',
-      opera: 'opera',
-      osx: 'macos',
-      playstation: 'playstation',
-      'plex home theater': 'plex',
-      'plex media player': 'plex',
-      plexamp: 'plexamp',
-      plextogether: 'synclounge',
-      roku: 'roku',
-      safari: 'safari',
-      samsung: 'samsung',
-      synclounge: 'synclounge',
-      tivo: 'tivo',
-      tizen: 'samsung',
-      tvos: 'atv',
-      vizio: 'opera',
-      wiiu: 'wiiu',
-      windows: 'windows',
-      'windows phone': 'wp',
-      xbmc: 'xbmc',
-      xbox: 'xbox',
-    },
-  }),
-
   computed: {
+    ...mapGetters('plexclients', [
+      'GET_PLEX_CLIENT',
+    ]),
+
+    plexClient() {
+      return this.GET_PLEX_CLIENT(this.clientId);
+    },
+
     lastSeenAgo() {
-      return `${formatDistanceToNow(parseISO(this.object.lastSeenAt))} ago`;
+      return `${formatDistanceToNow(parseISO(this.plexClient.lastSeenAt))} ago`;
     },
 
     platform() {
       return (
-        this.platformMap[this.object.platform.toLowerCase()]
-        || this.platformMap[this.object.product.toLowerCase()]
+        plexPlatformMap[this.plexClient.platform.toLowerCase()]
+        || plexPlatformMap[this.plexClient.product.toLowerCase()]
       );
     },
 
