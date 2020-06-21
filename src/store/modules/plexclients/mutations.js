@@ -32,4 +32,8 @@ export default {
   SET_CLIENT_CHOSEN_CONNECTION: (state, { clientIdentifier, chosenConnection }) => {
     Vue.set(state.clients[clientIdentifier], 'chosenConnection', chosenConnection);
   },
+
+  SET_PLEX_CLIENT_TIMELINE_COMMAND_ID: (state, id) => {
+    state.plexClientTimelineCommmandId = id;
+  },
 };

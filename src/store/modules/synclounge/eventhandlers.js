@@ -182,13 +182,14 @@ export default {
   },
 
   DECISION_MAKER: async ({
-    getters, dispatch, rootGetters,
+    getters, dispatch, rootGetters, commit,
   }) => {
     // TODO: potentailly don't do anythign if we have no timeline data yet
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
     if (rootGetters['plexclients/ALREADY_SYNCED_ON_CURRENT_TIMELINE']) {
     // TODO: examine if I should throw error or handle it another way
+      console.log(rootGetters['plexclients/GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID']);
       throw new Error('Already synced with this timeline. Need to wait for new one to sync again');
     }
 
@@ -205,6 +206,8 @@ export default {
     if (rootGetters['settings/GET_AUTOPLAY']
     && getters.GET_HOST_TIMELINE.ratingKey !== getters.GET_HOST_LAST_RATING_KEY) {
       // If we have autoplay enabled and the host rating key has changed or if we aren't playign anything
+      console.log('Autoplaying because host changed ratingKey from: ', getters.GET_HOST_LAST_RATING_KEY, 'to', getters.GET_HOST_TIMELINE.ratingKey);
+      commit('SET_HOST_LAST_RATING_KEY', getters.GET_HOST_TIMELINE.ratingKey);
       return dispatch('FIND_AND_PLAY_NEW_MEDIA');
     }
 
@@ -236,10 +239,11 @@ export default {
     return dispatch('plexclients/SYNC', null, { root: true });
   },
 
-  FIND_AND_PLAY_NEW_MEDIA: async ({ getters, dispatch, commit }) => {
+  FIND_AND_PLAY_NEW_MEDIA: async ({ getters, dispatch }) => {
     await dispatch('DISPLAY_NOTIFICATION', `Searching Plex Servers for "${getters.GET_HOST_TIMELINE.rawTitle}"`, { root: true });
 
     const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH', getters.GET_HOST_TIMELINE, { root: true });
+
     if (bestMatch) {
       await dispatch('plexclients/PLAY_MEDIA', {
         // TODO: have timeline updates send out more info like mediaIdentifier etc
@@ -253,8 +257,6 @@ export default {
         `Failed to find a compatible copy of ${getters.GET_HOST_TIMELINE.title}. If you have access to the content try manually playing it.`,
         { root: true });
     }
-
-    commit('SET_HOST_LAST_RATING_KEY', getters.GET_HOST_TIMELINE.ratingKey);
   },
 
   HANDLE_DISCONNECT: async ({ commit, dispatch }, disconnectData) => {

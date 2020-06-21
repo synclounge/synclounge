@@ -149,7 +149,9 @@ export default {
     // TODO: do whatever was in the new timeline event handler here
   },
 
-  POLL_PLEX_CLIENT: async ({ getters, dispatch }) => {
+  POLL_PLEX_CLIENT: async ({ getters, dispatch, commit }) => {
+    commit('SET_PLEX_CLIENT_TIMELINE_COMMAND_ID', getters.GET_COMMAND_ID);
+
     const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE');
 
     await dispatch('UPDATE_PLEX_CLIENT_TIMELINE', timeline);
@@ -202,7 +204,7 @@ export default {
     // todo: also store the command id above because it might have changed during the awaits
     // TODO: also update this when pausing or playign so we don't have werid stuff
     if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
-      commit('SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID', getters.GET_PLEX_CLIENT_TIMELINE.commandID);
+      commit('SET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID', getters.GET_PLEX_CLIENT_TIMELINE_COMMAND_ID);
     }
   },
 

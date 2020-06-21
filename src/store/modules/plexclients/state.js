@@ -18,6 +18,7 @@ const state = () => ({
 
   // Timeline storage only for plex clients. For slplayer, we query its state directly
   plexClientTimeline: null,
+  plexClientTimelineCommmandId: null,
   commandId: 0,
 
   // Tracks the commandId of the timeline that was used to synchronize last, so it doesn't try and synchronize

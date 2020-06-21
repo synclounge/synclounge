@@ -67,7 +67,10 @@ export default {
   GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: (state) => state.previousSyncTimelineCommandId,
 
   ALREADY_SYNCED_ON_CURRENT_TIMELINE: (state, getters) => getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
-  && (!getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID
-    || getters.GET_PLEX_CLIENT_TIMELINE.commandID
+  && ((getters.GET_PLEX_CLIENT_TIMELINE_COMMAND_ID === null
+    && getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID !== null)
+    && getters.GET_PLEX_CLIENT_TIMELINE_COMMAND_ID
       <= getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID),
+
+  GET_PLEX_CLIENT_TIMELINE_COMMAND_ID: (state) => state.plexClientTimelineCommmandId,
 };
