@@ -68,33 +68,32 @@ export default {
       // MediaId Key, Offset, server MachineId,
       // Server Ip, Server Port, Server Protocol, Path
 
-      const command = '/player/playback/playMedia';
+      // TODO: potentially wait for stuff..
+      await dispatch('SEND_CLIENT_REQUEST', {
+        path: '/player/playback/playMedia',
+        params: {
+          wait: 0,
+          key: metadata.key,
+          offset: Math.round(offset) || 0,
+          machineIdentifier,
+          address: server.chosenConnection.address,
+          port: server.chosenConnection.port,
+          protocol: server.chosenConnection.protocol,
+          path: server.chosenConnection.uri + metadata.key,
+          token: server.accessToken,
+          ...mediaIndex && { mediaIndex },
+        },
+      });
 
-      const params = {
-        'X-Plex-Client-Identifier': 'SyncLounge',
-        key: metadata.key,
-        offset: Math.round(offset) || 0,
-        machineIdentifier,
-        address: server.chosenConnection.address,
-        port: server.chosenConnection.port,
-        protocol: server.chosenConnection.protocol,
-        path: server.chosenConnection.uri + metadata.key,
-        wait: 0,
-        token: server.accessToken,
-      };
-
-      if (mediaIndex) {
-        params.mediaIndex = mediaIndex;
-      }
-      await getters.GET_CHOSEN_CLIENT.hitApi(command, params);
-      await this.waitForMovement();
+      // TODO: fix wait for movement lol
+      // await this.waitForMovement();
     }
   },
 
   SEND_CLIENT_REQUEST: async ({ getters, commit }, { path, params }) => {
     const { data } = await getters.GET_CHOSEN_PLEX_CLIENT_AXIOS.get(path, {
       params: {
-        commandId: getters.GET_COMMAND_ID,
+        commandID: getters.GET_COMMAND_ID,
         type: 'video',
         ...params,
       },
@@ -109,7 +108,7 @@ export default {
 
   FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch }) => {
     const data = await dispatch('SEND_CLIENT_REQUEST', {
-      url: '/player/timeline/poll',
+      path: '/player/timeline/poll',
       params: {
         wait: 0,
       },
@@ -130,14 +129,19 @@ export default {
     if (!getters.GET_PLEX_CLIENT_TIMELINE
       || getters.GET_PLEX_CLIENT_TIMELINE.machineIdentifier !== timeline.machineIdentifier
       || getters.GET_PLEX_CLIENT_TIMELINE.ratingKey !== timeline.ratingKey) {
+      if (timeline.state === 'stopped') {
+        commit('SET_ACTIVE_MEDIA_METADATA', null);
+        commit('SET_ACTIVE_SERVER_ID', null);
+      } else {
       // If client has changed what it's playing
       // TODO: see what client sends when its stopped and set metadata and stuff to null instead if so
-      commit('SET_ACTIVE_MEDIA_METADATA', await dispatch('FETCH_PLEX_METADATA', {
-        machineIdentifier: timeline.machineIdentifier,
-        ratingKey: timeline.ratingKey,
-      }));
+        commit('SET_ACTIVE_MEDIA_METADATA', await dispatch('plexservers/FETCH_PLEX_METADATA', {
+          machineIdentifier: timeline.machineIdentifier,
+          ratingKey: timeline.ratingKey,
+        }, { root: true }));
 
-      commit('SET_ACTIVE_SERVER_ID', timeline.machineIdentifier);
+        commit('SET_ACTIVE_SERVER_ID', timeline.machineIdentifier);
+      }
       // TODO: do wahtever was in the playback changed event handler here
     }
 
@@ -275,7 +279,7 @@ export default {
       default: {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
         return dispatch('SEND_CLIENT_REQUEST', {
-          url: '/player/playback/play',
+          path: '/player/playback/play',
           params: {
             wait: 0,
           },
@@ -293,7 +297,7 @@ export default {
 
       default: {
         return dispatch('SEND_CLIENT_REQUEST', {
-          url: '/player/playback/pause',
+          path: '/player/playback/pause',
           params: {
             wait: 0,
           },
@@ -313,7 +317,7 @@ export default {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
         return dispatch('SEND_CLIENT_REQUEST', {
-          url: '/player/playback/stop',
+          path: '/player/playback/stop',
           params: {
             wait: 0,
           },
@@ -333,7 +337,7 @@ export default {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
         return dispatch('SEND_CLIENT_REQUEST', {
-          url: '/player/playback/seekTo',
+          path: '/player/playback/seekTo',
           params: {
             wait: 0,
             offset,
@@ -359,6 +363,7 @@ export default {
   }),
 
   SKIP_AHEAD: async (current, duration) => {
+    // TODO: lol this is broken fix pls
     const startedAt = Date.now();
     const now = this.lastTimelineObject.time;
     await this.seekTo(current + duration);

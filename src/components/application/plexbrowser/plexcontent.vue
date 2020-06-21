@@ -89,14 +89,14 @@
                     v-if="!playable"
                     style="background-color: #cc3f3f"
                     class="white--text"
-                    @click.native="pressStop()"
+                    @click="PRESS_STOP"
                   >
                     <v-icon /> Stop
                   </v-btn>
 
                   <div v-if="!playable">
                     <v-btn
-                      v-if="me.role !== 'host'"
+                      v-if="!AM_I_HOST"
                       :disabled="manualSyncQueued"
                       color="blue"
                       @click.native="doManualSync"
@@ -261,7 +261,7 @@
                           block
                           style="background-color: #cc3f3f"
                           class="white--text"
-                          @click.native="pressStop()"
+                          @click.native="PRESS_STOP"
                         >
                           <v-icon /> Stop
                         </v-btn>
@@ -269,7 +269,7 @@
 
                       <v-col cols="12">
                         <v-btn
-                          v-if="me.role !== 'host'"
+                          v-if="!AM_I_HOST"
                           block
                           :disabled="manualSyncQueued"
                           color="blue"
@@ -535,9 +535,10 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
+    ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT',
-
+      'GET_CHOSEN_CLIENT_ID',
+      'GET_ACTIVE_SERVER_ID',
     ]),
 
     ...mapGetters('plexservers', [
@@ -545,8 +546,12 @@ export default {
       'GET_PLEX_SERVER',
     ]),
 
-    me() {
-      return this.$store.state.me;
+    ...mapGetters('synclounge', [
+      'AM_I_HOST',
+    ]),
+
+    server() {
+      return this.GET_PLEX_SERVER(this.GET_ACTIVE_SERVER_ID);
     },
 
     manualSyncQueued() {
@@ -632,6 +637,7 @@ export default {
   methods: {
     ...mapActions('plexclients', [
       'PLAY_MEDIA',
+      'PRESS_STOP',
     ]),
 
     ...mapActions('plexservers', [
@@ -725,10 +731,6 @@ export default {
         units: ['h', 'm', 's'],
         round: true,
       });
-    },
-
-    pressStop() {
-      this.GET_CHOSEN_CLIENT.pressStop(() => {});
     },
 
     getStreamCount(streams, type) {

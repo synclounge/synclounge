@@ -1,43 +1,30 @@
 <template>
-  <v-card
-    :to="href"
-    color="blue darken-4"
+  <v-list-item
+    two-line
+    dense
     hover
-    style="height: 100%; width: 230px"
+    class="nowplaying"
+    :to="href"
   >
-    <v-row
-      justify="center"
-      align="center"
+    <v-list-item-avatar
+      class="ma-0"
+      tile
+      size="52"
     >
-      <v-col
-        md="2"
-        class="hidden-xs-only text-center"
-      >
-        <img
-          :src="thumb"
-          style="height: 52px; vertical-align: middle"
-        >
-      </v-col>
+      <v-img
+        contain
+        :src="thumb"
+      />
+    </v-list-item-avatar>
 
-      <v-col
-        cols="12"
-        md="10"
-        class="pl-3 pa-1 text-xs-left"
-        style="overflow: hidden; white-space: nowrap; line-height: 24px"
-      >
-        <div style="font-size: 18px">
-          Now Playing
-        </div>
+    <v-list-item-content>
+      <v-list-item-title>
+        Now Playing
+      </v-list-item-title>
 
-        <div>
-          <small>
-            <b>{{ getTitle(GET_ACTIVE_MEDIA_METADATA) }}</b> -
-            {{ getSecondaryTitle(GET_ACTIVE_MEDIA_METADATA) }}
-          </small>
-        </div>
-      </v-col>
-    </v-row>
-  </v-card>
+      <v-list-item-subtitle>{{ getTitle(GET_ACTIVE_MEDIA_METADATA) }} - {{ getSecondaryTitle(GET_ACTIVE_MEDIA_METADATA) }}</v-list-item-subtitle>
+    </v-list-item-content>
+  </v-list-item>
 </template>
 
 <script>
@@ -94,3 +81,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.nowplaying {
+  max-width: 300px;
+}
+</style>
