@@ -12,4 +12,8 @@ export default {
   SET_BLOCKED_SERVER_IDS: (state, blockedIds) => {
     state.blockedServerIds = blockedIds;
   },
+
+  SET_PLAY_QUEUE_ID: (state, id) => {
+    state.playQueueId = id;
+  },
 };

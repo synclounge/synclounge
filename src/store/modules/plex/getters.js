@@ -27,7 +27,7 @@ export default {
     'X-Plex-Platform': getters.GET_PLEX_PLATFORM_HEADER,
     'X-Plex-Platform-Version': browser.version,
     // 'X-Plex-Sync-Version': 2,
-    // 'X-Plex-Features': 'external-media,indirect-media',
+    'X-Plex-Features': 'external-media,indirect-media',
     'X-Plex-Model': 'hosted',
     'X-Plex-Device': getters.GET_PLEX_DEVICE_DEVICE_HEADER,
     'X-Plex-Device-Name': getters.GET_PLEX_DEVICE_NAME_HEADER,

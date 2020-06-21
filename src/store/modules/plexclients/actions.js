@@ -68,7 +68,13 @@ export default {
       // MediaId Key, Offset, server MachineId,
       // Server Ip, Server Port, Server Protocol, Path
 
+      await dispatch('plexservers/CREATE_PLAY_QUEUE', {
+        machineIdentifier,
+        ratingKey: metadata.ratingKey,
+      }, { root: true });
+
       // TODO: potentially wait for stuff..
+
       await dispatch('SEND_CLIENT_REQUEST', {
         path: '/player/playback/playMedia',
         params: {
@@ -81,6 +87,7 @@ export default {
           protocol: server.chosenConnection.protocol,
           path: server.chosenConnection.uri + metadata.key,
           token: server.accessToken,
+          containerKey: `/playQueues/${rootGetters['plexservers/GET_PLAY_QUEUE_ID']}`,
           ...mediaIndex && { mediaIndex },
         },
       });
@@ -133,8 +140,8 @@ export default {
         commit('SET_ACTIVE_MEDIA_METADATA', null);
         commit('SET_ACTIVE_SERVER_ID', null);
       } else {
-      // If client has changed what it's playing
-      // TODO: see what client sends when its stopped and set metadata and stuff to null instead if so
+        // If client has changed what it's playing
+        // TODO: see what client sends when its stopped and set metadata and stuff to null instead if so
         commit('SET_ACTIVE_MEDIA_METADATA', await dispatch('plexservers/FETCH_PLEX_METADATA', {
           machineIdentifier: timeline.machineIdentifier,
           ratingKey: timeline.ratingKey,
@@ -230,7 +237,7 @@ export default {
     const difference = Math.abs(adjustedHostTime - adjustedTime);
 
     const bothPaused = rootGetters['synclounge/GET_HOST_TIMELINE'].playerState === 'paused'
-       && playerPollData.playerState === 'paused';
+      && playerPollData.playerState === 'paused';
 
     console.log('difference: ', difference);
     if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY'] || (bothPaused && difference > 10)) {

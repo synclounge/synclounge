@@ -73,7 +73,7 @@ export default {
   CACHE_METADATA_TITLES: ({ commit }, { machineIdentifier, result }) => {
     // This data is used in our router breadcrumbs
     if (result.Metadata
-        && result.Metadata.length > 0
+      && result.Metadata.length > 0
     ) {
       result.Metadata.forEach((item) => {
         if (item.ratingKey) {
@@ -262,5 +262,19 @@ export default {
       .get(`/hubs/metadata/${ratingKey}/postplay`);
 
     return data.MediaContainer.Hub[0].Metadata[0];
+  },
+
+  CREATE_PLAY_QUEUE: async ({ getters, commit }, { machineIdentifier, ratingKey }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).post('/playQueues', null, {
+      params: {
+        type: 'video',
+        continuous: 1,
+        uri: `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${ratingKey}`,
+        own: 1,
+        includeExternalMedia: 1,
+      },
+    });
+
+    commit('SET_PLAY_QUEUE_ID', data.MediaContainer.playQueueID);
   },
 };
