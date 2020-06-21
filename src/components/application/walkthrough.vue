@@ -363,7 +363,7 @@ export default {
   },
 
   watch: {
-    async previewClientId(id) {
+    async previewClientId() {
       await this.findPreviewConnection();
     },
   },

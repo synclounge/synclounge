@@ -22,7 +22,10 @@
         Now Playing
       </v-list-item-title>
 
-      <v-list-item-subtitle>{{ getTitle(GET_ACTIVE_MEDIA_METADATA) }} - {{ getSecondaryTitle(GET_ACTIVE_MEDIA_METADATA) }}</v-list-item-subtitle>
+      <v-list-item-subtitle>
+        {{ getTitle(GET_ACTIVE_MEDIA_METADATA) }} - {{
+          getSecondaryTitle(GET_ACTIVE_MEDIA_METADATA) }}
+      </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
 </template>
