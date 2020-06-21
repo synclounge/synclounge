@@ -43,7 +43,7 @@
             </template>
 
             <v-list>
-              <v-list-item @click="handleDisconnect()">
+              <v-list-item @click="handleDisconnect">
                 <v-list-item-title class="user-menu-list">
                   Leave Room
                 </v-list-item-title>
@@ -52,8 +52,6 @@
           </v-menu>
         </v-list-item-icon>
       </v-list-item>
-
-      <v-divider />
 
       <v-list-item>
         <v-switch
@@ -65,43 +63,43 @@
         />
 
         <v-tooltip
-          v-else
+          v-else-if="playerState(GET_HOST_USER) !== 'stop'"
           bottom
           color="rgb(44, 44, 49)"
         >
-          <v-btn
-            v-if="playerState(GET_HOST_USER) !== 'stop'"
-            color="primary"
-            :disabled="!canPause"
-            style="min-width: 0; float: right;"
-            @click="sendPartyPauseLocal(playerState(GET_HOST_USER) === 'play_arrow')"
-          >
-            <v-icon v-if="playerState(GET_HOST_USER) === 'play_arrow'">
-              pause
-            </v-icon>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              color="primary"
+              :disabled="!canPause"
+              style="min-width: 0; float: right;"
+              v-on="on"
+              @click="sendPartyPauseLocal(playerState(GET_HOST_USER) === 'play_arrow')"
+            >
+              <v-icon v-if="playerState(GET_HOST_USER) === 'play_arrow'">
+                pause
+              </v-icon>
 
-            <v-icon v-else>
-              play_arrow
-            </v-icon>
-          </v-btn>
+              <v-icon v-else>
+                play_arrow
+              </v-icon>
+            </v-btn>
+          </template>
 
           <span>Party Pausing is currently {{ canPause ? 'enabled' : 'disabled' }} by the
             host</span>
         </v-tooltip>
+
+        <v-list-item-content
+          v-else
+        >
+          <v-list-item-subtitle>
+            Waiting for {{ GET_HOST_USER.username }} to start
+          </v-list-item-subtitle>
+        </v-list-item-content>
       </v-list-item>
 
-      <v-list-item
-        v-if="GET_ME.role !== 'host' && $route.path.indexOf('/player') === -1"
-        style="background: #E5A00D; border-radius: 7px"
-        class="pa-2 ma-3"
-      >
-        <span
-          class="mb-0 pb-0 pa-0"
-          style="color: rgb(44, 44, 49); "
-        >
-          Waiting for {{ GET_HOST_USER.username }} to start
-        </span>
-      </v-list-item>
+      <v-divider />
     </template>
 
     <div
@@ -112,14 +110,10 @@
         class="user-list"
         dense
         two-line
-        style="max-height: calc(50vh - 154px); background: none"
       >
         <v-list-item
           v-for="user in GET_USERS"
           :key="user.username"
-          style="height:4em"
-          class="pl-1 pr-1 pb-0 mb-0"
-          tag="div"
         >
           <v-list-item-avatar @dblclick="TRANSFER_HOST(user.username)">
             <img
@@ -403,6 +397,10 @@ export default {
 <style scoped>
 .user-list, .messages {
   overflow-y: auto;
+}
+
+.user-list {
+  max-height: calc(50vh - 154px);
 }
 
 .messages {
