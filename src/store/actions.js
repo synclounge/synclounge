@@ -34,17 +34,22 @@ export default {
   HANDLE_NEW_TIMELINE: async ({ commit, getters, dispatch }, timeline) => {
     // Check if we need to activate the upnext feature
     if (getters['synclounge/AM_I_HOST']) {
-      if (timeline.duration && timeline.time
-        && (timeline.duration - timeline.time) < 10000
+      if (timeline.playerState !== 'stopped'
+      && timeline.duration && timeline.time
+        && (timeline.duration - timeline.time) < 60000
         && getters['plexclients/GET_ACTIVE_MEDIA_METADATA'].type === 'episode'
       ) {
         if (!getters.GET_UP_NEXT_TRIGGERED) {
+          console.log('DOING UPNEXT AAAA');
           const item = await dispatch('plexservers/FETCH_POST_PLAY', {
             machineIdentifier: getters['plexclients/GET_ACTIVE_SERVER_ID'],
             ratingKey: getters['plexclients/GET_ACTIVE_MEDIA_METADATA'].ratingKey,
           });
+          console.log(item);
+          console.log(getters['plexclients/GET_ACTIVE_MEDIA_METADATA']);
 
-          if (item.grandparentTitle === getters['plexclients/GET_ACTIVE_MEDIA_METADATA'].grandparentTitle) {
+          if (item.grandparentRatingKey === getters['plexclients/GET_ACTIVE_MEDIA_METADATA'].grandparentRatingKey) {
+            console.log('IT MATCHESSSS');
             commit('SET_UP_NEXT_POST_PLAY_DATA', item);
           }
 

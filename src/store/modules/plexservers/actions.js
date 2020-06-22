@@ -214,7 +214,10 @@ export default {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
       .get(`/hubs/metadata/${ratingKey}/postplay`);
 
-    return data.MediaContainer.Hub[0].Metadata[0];
+    return {
+      ...data.MediaContainer.Hub[0].Metadata[0],
+      machineIdentifier,
+    };
   },
 
   CREATE_PLAY_QUEUE: async ({ getters, commit }, { machineIdentifier, ratingKey }) => {
