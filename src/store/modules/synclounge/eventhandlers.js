@@ -166,7 +166,7 @@ export default {
       return;
     }
 
-    if (!getters.GET_IS_SYNC_IN_PROGRESS) {
+    if (!getters.IS_SYNC_IN_PROGRESS) {
       // Basically a lock that only allows 1 sync at a time
       commit('SET_IS_SYNC_IN_PROGRESS', true);
 
