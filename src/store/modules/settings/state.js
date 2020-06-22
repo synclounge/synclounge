@@ -23,7 +23,6 @@ const state = () => ({
   altUsername: null,
   clientIdentifier: guid(),
   plexAuthToken: null,
-  recentRooms: [],
 });
 
 export default state;

@@ -16,6 +16,7 @@ const persistedState = createPersistedState({
     'plex.user',
     'plexservers.lastServerId',
     'plexservers.blockedServerIds',
+    'synclounge.recentRooms',
   ],
 });
 

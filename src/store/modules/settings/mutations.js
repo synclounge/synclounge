@@ -32,7 +32,4 @@ export default {
   SET_PLEX_AUTH_TOKEN: (state, token) => {
     state.plexAuthToken = token;
   },
-  SET_RECENT_ROOMS: (state, rooms) => {
-    state.recentRooms = rooms;
-  },
 };

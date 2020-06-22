@@ -8,8 +8,8 @@ export default {
   GET_CLIENTPOLLINTERVAL: (state, getters, rootState, rootGetters) => coalesce(
     state.clientPollInterval,
     rootGetters.GET_CONFIG.clientPollInterval,
-
   ),
+
   GET_SYNCMODE: (state, getters, rootState, rootGetters) => coalesce(state.syncMode,
     rootGetters.GET_CONFIG.syncMode),
 
@@ -24,7 +24,6 @@ export default {
   GET_SLPLAYERQUALITY: (state, getters, rootState, rootGetters) => coalesce(
     state.slPlayerQuality,
     rootGetters.GET_CONFIG.slPlayerQuality,
-
   ) || null,
 
   GET_SLPLAYERVOLUME: (state, getters, rootState, rootGetters) => coalesce(
@@ -42,5 +41,4 @@ export default {
   GET_CLIENTIDENTIFIER: (state) => state.clientIdentifier,
   GET_CUSTOM_SERVER_USER_INPUTTED_URL: (state) => state.customServerUserInputtedUrl,
   GET_PLEX_AUTH_TOKEN: (state) => state.plexAuthToken,
-  GET_RECENT_ROOMS: (state) => state.recentRooms,
 };

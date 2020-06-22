@@ -23,6 +23,7 @@ const state = () => ({
   srtt: null,
   isSyncInProgress: false,
   isManualSyncedQueued: false,
+  recentRooms: [],
 });
 
 export default state;

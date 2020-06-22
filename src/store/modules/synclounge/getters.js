@@ -110,4 +110,6 @@ export default {
   IS_SYNC_IN_PROGRESS: (state) => state.isSyncInProgress,
 
   IS_MANUAL_SYNC_QUEUED: (state) => state.isManualSyncedQueued,
+
+  GET_RECENT_ROOMS: (state) => state.recentRooms,
 };

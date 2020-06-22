@@ -13,14 +13,13 @@ export default {
     await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${_data.room}`, { root: true });
     // Add this item to our recently-connected list
     await dispatch(
-      'settings/ADD_RECENT_ROOM',
+      'ADD_RECENT_ROOM',
       {
         server: state.server,
         room: state.room,
         password: state.password,
-        time: new Date().getTime(),
+        time: Date.now(),
       },
-      { root: true },
     );
 
     getters.GET_SOCKET.on('poll-result',

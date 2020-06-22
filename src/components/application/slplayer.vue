@@ -253,6 +253,7 @@ export default {
       'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
       'GET_PLAYER_UI',
+      'GET_PLAYER_STATE',
     ]),
 
     ...mapGetters('settings', [
@@ -287,13 +288,17 @@ export default {
   },
 
   watch: {
+    GET_PLAYER_STATE(playerState) {
+      if (playerState === 'stopped') {
+        this.$router.push({ name: 'browse' });
+      }
+    },
+
     GET_ACTIVE_MEDIA_METADATA: {
       handler(newMetadata) {
         // This handles regular plex clients (nonslplayer) playback changes
         if (newMetadata) {
           this.setBackground(newMetadata);
-        } else {
-          this.$router.push('/browse');
         }
       },
       immediate: true,

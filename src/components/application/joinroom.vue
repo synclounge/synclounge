@@ -109,14 +109,17 @@
                     top
                     color="light-blue darken-4"
                   >
-                    <v-icon
-                      color="white"
-                      dark
-                      @click.stop="REMOVE_RECENT_ROOM(item)"
-                    >
-                      close
-                    </v-icon>
-                    >Remove
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-icon
+                        color="white"
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="REMOVE_RECENT_ROOM(item)"
+                      >
+                        close
+                      </v-icon>
+                    </template>
+                    Remove
                   </v-tooltip>
                 </v-list-item-action>
               </v-list-item>
@@ -131,6 +134,7 @@
           style="color:white !important"
         >
           <v-subheader>Select a server</v-subheader>
+
           <v-layout
             row
             wrap
@@ -236,31 +240,34 @@
               </v-card>
             </v-flex>
           </v-layout>
-          <v-text-field
-            v-if="selectedServer.url == 'custom'"
-            name="input-2"
-            label="Custom Server"
-            :value="GET_CUSTOM_SERVER_USER_INPUTTED_URL"
-            class="input-group pt-input"
-            @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
-          />
-          <v-layout
-            v-if="selectedServer.url == 'custom'"
-            row
-            wrap
-          >
-            <v-flex xs12>
-              <v-btn
-                class="pt-orange white--text pa-0 ma-0"
-                color="primary"
-                primary
-                style="width:100%"
-                @click.native="attemptConnectCustom()"
-              >
-                Connect
-              </v-btn>
-            </v-flex>
-          </v-layout>
+
+          <template v-if="selectedServer && selectedServer.url === 'custom'">
+            <v-text-field
+              name="input-2"
+              label="Custom Server"
+              :value="GET_CUSTOM_SERVER_USER_INPUTTED_URL"
+              class="input-group pt-input"
+              @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
+            />
+
+            <v-layout
+              row
+              wrap
+            >
+              <v-flex xs12>
+                <v-btn
+                  class="pt-orange white--text pa-0 ma-0"
+                  color="primary"
+                  primary
+                  style="width:100%"
+                  @click="attemptConnectCustom"
+                >
+                  Connect
+                </v-btn>
+              </v-flex>
+            </v-layout>
+          </template>
+
           <v-layout
             v-if="connectionPending && !serverError"
             row
@@ -374,7 +381,6 @@
 import Vue from 'vue';
 import { formatDistanceToNow } from 'date-fns';
 import axios from 'axios';
-
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 export default {
@@ -382,15 +388,13 @@ export default {
 
   data() {
     return {
-      selectedServer: '',
+      selectedServer: null,
       serverError: null,
       roomError: null,
       room: '',
       e1: 2,
       password: '',
       connectionPending: false,
-      thisServer: window.location.origin,
-      recents: null,
 
       results: {},
 
@@ -404,6 +408,7 @@ export default {
       'GET_SYNCLOUNGE_SERVERS',
       'GET_ROOM',
       'GET_SERVER',
+      'GET_RECENT_ROOMS',
     ]),
 
     ...mapGetters([
@@ -412,13 +417,11 @@ export default {
 
     ...mapGetters('settings', [
       'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
-      'GET_RECENT_ROOMS',
     ]),
   },
 
   watch: {
     selectedServer() {
-      // this.attemptConnect()
       this.serverError = null;
     },
 
@@ -429,12 +432,6 @@ export default {
     },
   },
 
-  mounted() {
-    this.testConnectionInterval = setInterval(() => {
-      this.testConnections();
-    }, 5000);
-  },
-
   beforeDestroy() {
     clearInterval(this.testConnectionInterval);
     this.destroyed = true;
@@ -443,16 +440,20 @@ export default {
   created() {
     if (this.GET_ROOM && this.GET_SOCKET && this.GET_SERVER) {
       this.$router.push('/browse');
+    } else {
+      this.testConnectionInterval = setInterval(() => {
+        this.testConnections();
+      }, 5000);
     }
   },
 
   methods: {
     ...mapMutations('settings', ['SET_CUSTOM_SERVER_USER_INPUTTED_URL']),
-    ...mapActions('settings', ['REMOVE_RECENT_ROOM']),
 
     ...mapActions('synclounge', [
       'JOIN_ROOM',
       'ESTABLISH_SOCKET_CONNECTION',
+      'REMOVE_RECENT_ROOM',
     ]),
 
     sinceNow(x) {
