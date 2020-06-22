@@ -311,7 +311,7 @@
             <v-col
               cols="12"
               md="6"
-              class="offset-md3"
+              class="offset-md-3"
             >
               <v-text-field
                 v-model="room"
@@ -327,7 +327,7 @@
             <v-col
               cols="12"
               md="6"
-              class="offset-md3"
+              class="offset-md-3"
             >
               <v-text-field
                 v-model="password"
@@ -342,7 +342,7 @@
             <v-col
               cols="12"
               md="6"
-              class="offset-md3"
+              class="offset-md-3"
             >
               <v-btn
                 block

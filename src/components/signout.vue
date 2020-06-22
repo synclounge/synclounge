@@ -3,7 +3,7 @@
     <v-col
       cols="12"
       md="8"
-      class="offset-md2"
+      class="offset-md-2"
     >
       <h1 class="white--text center-text pa-4">
         Successfully signed out
