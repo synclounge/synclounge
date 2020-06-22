@@ -61,7 +61,7 @@ export default {
 
     async createRoom() {
       await this.CREATE_AND_JOIN_ROOM();
-      this.$router.push('/browse');
+      this.$router.push({ name: 'browse' });
     },
   },
 };

@@ -8,23 +8,27 @@
         <v-card
           class="mx-auto"
           max-width="500"
+          :loading="loading"
         >
           <v-card-title>
-            Welcome to SyncLounge
+            <v-img
+              contain
+              :src="getLogos.light.long"
+            />
           </v-card-title>
+
+          <clientpicker
+            @loadingChange="loading = $event"
+            @clientConnectableChange="clientConnectable = $event"
+          />
 
           <v-card-actions>
             <v-btn
               color="primary"
+              :disabled="!clientConnectable"
               @click="joinInvite"
             >
               Join Invite
-            </v-btn>
-
-            <v-spacer />
-
-            <v-btn>
-              Advanced
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -37,7 +41,9 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  name: 'CreateRoom',
+  components: {
+    clientpicker: () => import('@/components/clientpicker.vue'),
+  },
 
   props: {
     server: {
@@ -51,9 +57,22 @@ export default {
     },
   },
 
+  data() {
+    return {
+      loading: false,
+
+      // Default true because default client is slplayer
+      clientConnectable: true,
+    };
+  },
+
   computed: {
     ...mapGetters([
       'getLogos',
+    ]),
+
+    ...mapGetters('plexclients', [
+      'GET_CHOSEN_CLIENT',
     ]),
   },
 
