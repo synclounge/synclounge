@@ -1,6 +1,7 @@
 {
   "name": "SyncLounge",
   "version": "2.0.0",
+  "description": "Synced playback of Plex content",
   "private": false,
   "author": "samcm",
   "repository": {

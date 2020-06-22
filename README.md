@@ -1,4 +1,4 @@
-<p align="center"><img src="https://synclounge.tv/assets/img/SL_LOGO_800x200_DARK.png" /></p>
+<p align="center"><img src="https://app.synclounge.tv/logo-long-dark.png" /></p>
 
 <p align="center">
   <a href="https://hub.docker.com/r/starbix/synclounge/builds/"><img src="https://img.shields.io/docker/build/starbix/synclounge.svg" alt="Build Status"></a>
