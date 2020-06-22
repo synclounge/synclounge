@@ -90,7 +90,7 @@
                   <v-icon
                     color="white"
                     class="pl-3"
-                    @click.native="PRESS_STOP"
+                    @click="PRESS_STOP"
                   >
                     close
                   </v-icon>
@@ -311,7 +311,7 @@ export default {
     this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
     this.eventbus.$on('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
-    this.eventbus.$on('playerclosebuttonclicked', this.DO_COMMAND_STOP);
+    this.eventbus.$on('playerclosebuttonclicked', this.PRESS_STOP);
 
     this.INIT_PLAYER_STATE();
     this.applyPlayerWatchers();
@@ -327,7 +327,7 @@ export default {
     this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
     this.eventbus.$off('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
-    this.eventbus.$off('playerclosebuttonclicked', this.DO_COMMAND_STOP);
+    this.eventbus.$off('playerclosebuttonclicked', this.PRESS_STOP);
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
   },
