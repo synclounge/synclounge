@@ -115,7 +115,7 @@ export default {
   data() {
     return {
       sheet: true,
-      maxTimer: 150000,
+      maxTimer: 15000,
       transitionBarWithStyle: {},
       timeoutId: null,
     };

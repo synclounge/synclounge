@@ -36,7 +36,7 @@ export default {
     if (getters['synclounge/AM_I_HOST']) {
       if (timeline.playerState !== 'stopped'
       && timeline.duration && timeline.time
-        && (timeline.duration - timeline.time) < 60000
+        && (timeline.duration - timeline.time) < 10000
         && getters['plexclients/GET_ACTIVE_MEDIA_METADATA'].type === 'episode'
       ) {
         if (!getters.GET_UP_NEXT_TRIGGERED) {
