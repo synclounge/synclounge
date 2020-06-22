@@ -78,4 +78,8 @@ export default {
   SET_IS_SYNC_IN_PROGRESS: (state, inProgress) => {
     state.isSyncInProgress = inProgress;
   },
+
+  SET_IS_MANUAL_SYNC_QUEUED: (state, isQueued) => {
+    state.isManualSyncQueued = isQueued;
+  },
 };

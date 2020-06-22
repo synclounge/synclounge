@@ -22,6 +22,7 @@ const state = () => ({
   // Smoothed round trip time
   srtt: null,
   isSyncInProgress: false,
+  isManualSyncedQueued: false,
 });
 
 export default state;

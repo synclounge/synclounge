@@ -146,9 +146,7 @@ export default {
     return dispatch('SYNCHRONIZE');
   },
 
-  SYNCHRONIZE: async ({
-    getters, commit, dispatch, rootGetters,
-  }) => {
+  SYNCHRONIZE: async ({ getters, commit, dispatch }) => {
     await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
     /* This is data from the host, we should react to this data by potentially changing
         what we're playing or seeking to get back in sync with the host.
@@ -160,7 +158,8 @@ export default {
       */
 
     // TODO: move this manual sync into this module
-    if (rootGetters.GET_MANUAL_SYNC_QUEUED) {
+    if (getters.IS_MANUAL_SYNC_QUEUED) {
+      // TODO: find a way to remove this event
       window.EventBus.$emit('host-playerstate-change');
       await dispatch('plexclients/SEEK_TO', getters.GET_HOST_TIMELINE.time, { root: true });
       commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });

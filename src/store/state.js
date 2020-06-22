@@ -2,7 +2,6 @@ const state = () => ({
   appTitle: 'SyncLounge',
   appVersion: process.env.VUE_APP_VERSION,
   background: null,
-  manualSyncQueued: false,
   upNextCache: {},
   configuration: JSON.parse(process.env.VUE_APP_CONFIGURATION),
   configurationFetched: false,

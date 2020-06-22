@@ -15,8 +15,6 @@ export default {
     },
   }),
 
-  GET_MANUAL_SYNC_QUEUED: (state) => state.manualSyncQueued,
-
   GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
   GET_UP_NEXT_POST_PLAY_DATA: (state) => state.upNextPostPlayData,
   GET_CONFIG: (state) => state.configuration,

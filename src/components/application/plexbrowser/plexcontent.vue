@@ -97,9 +97,9 @@
                   <div v-if="!playable">
                     <v-btn
                       v-if="!AM_I_HOST"
-                      :disabled="manualSyncQueued"
+                      :disabled="IS_MANUAL_SYNC_QUEUED"
                       color="blue"
-                      @click.native="doManualSync"
+                      @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
                     >
                       Manual sync
                     </v-btn>
@@ -261,7 +261,7 @@
                           block
                           style="background-color: #cc3f3f"
                           class="white--text"
-                          @click.native="PRESS_STOP"
+                          @click="PRESS_STOP"
                         >
                           <v-icon /> Stop
                         </v-btn>
@@ -271,9 +271,9 @@
                         <v-btn
                           v-if="!AM_I_HOST"
                           block
-                          :disabled="manualSyncQueued"
+                          :disabled="IS_MANUAL_SYNC_QUEUED"
                           color="blue"
-                          @click.native="doManualSync"
+                          @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
                         >
                           Manual sync
                         </v-btn>
@@ -395,7 +395,7 @@
             <v-col
               v-for="ep in subsetParentData"
               :key="ep.key"
-              sm="6"
+              cols="6"
               md="2"
               class="pb-3"
             >
@@ -422,7 +422,7 @@
             <v-col
               v-for="movie in related"
               :key="movie.key"
-              sm="4"
+              cols="4"
               md="1"
               class="ma-1"
             >
@@ -548,14 +548,11 @@ export default {
 
     ...mapGetters('synclounge', [
       'AM_I_HOST',
+      'IS_MANUAL_SYNC_QUEUED',
     ]),
 
     server() {
       return this.GET_PLEX_SERVER(this.GET_ACTIVE_SERVER_ID);
-    },
-
-    manualSyncQueued() {
-      return this.$store.state.manualSyncQueued;
     },
 
     hidden() {
@@ -652,6 +649,10 @@ export default {
       'SET_ACTIVE_METADATA',
     ]),
 
+    ...mapMutations('synclounge', [
+      'SET_IS_MANUAL_SYNC_QUEUED',
+    ]),
+
     async getNewData() {
       this.contents = await this.FETCH_PLEX_METADATA({
         ratingKey: this.ratingKey,
@@ -676,10 +677,6 @@ export default {
         });
       }
       this.setBackground();
-    },
-
-    doManualSync() {
-      this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
     },
 
     getLittleThumb(content) {

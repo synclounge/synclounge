@@ -79,8 +79,8 @@
                     <v-icon
                       color="white"
                       class="clickable"
-                      :disabled="manualSyncQueued"
-                      @click="doManualSync"
+                      :disabled="IS_MANUAL_SYNC_QUEUED"
+                      @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
                     >
                       compare_arrows
                     </v-icon>
@@ -158,9 +158,9 @@
           <v-col v-if="!AM_I_HOST">
             <v-btn
               block
-              :disabled="manualSyncQueued"
+              :disabled="IS_MANUAL_SYNC_QUEUED"
               color="blue"
-              @click.native="doManualSync"
+              @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
             >
               Manual sync
             </v-btn>
@@ -170,7 +170,7 @@
             <v-btn
               block
               color="primary"
-              @click.native="dialog = !dialog"
+              @click="dialog = !dialog"
             >
               Playback Settings
             </v-btn>
@@ -180,7 +180,7 @@
             <v-btn
               block
               color="error"
-              @click.native="DO_COMMAND_STOP"
+              @click="PRESS_STOP"
             >
               Stop playback
             </v-btn>
@@ -193,9 +193,7 @@
 
 <script>
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
-import {
-  mapActions, mapGetters, mapMutations, mapState,
-} from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
 
 import 'shaka-player/dist/controls.css';
@@ -240,8 +238,6 @@ export default {
   },
 
   computed: {
-    ...mapState(['manualSyncQueued']),
-
     ...mapGetters('slplayer', [
       'GET_SUBTITLE_STREAMS',
       'GET_AUDIO_STREAMS',
@@ -265,6 +261,7 @@ export default {
 
     ...mapGetters('synclounge', [
       'AM_I_HOST',
+      'IS_MANUAL_SYNC_QUEUED',
     ]),
 
     ...mapGetters('plexclients', [
@@ -379,6 +376,10 @@ export default {
       'SET_BACKGROUND',
     ]),
 
+    ...mapMutations('synclounge', [
+      'SET_IS_MANUAL_SYNC_QUEUED',
+    ]),
+
     getCastReceiverId() {
       return window.chrome && window.chrome.cast && window.chrome.cast.media
         ? window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID
@@ -414,10 +415,6 @@ export default {
 
         castReceiverAppId: this.getCastReceiverId(),
       };
-    },
-
-    doManualSync() {
-      this.$store.commit('SET_VALUE', ['manualSyncQueued', true]);
     },
 
     applyPlayerWatchers() {
