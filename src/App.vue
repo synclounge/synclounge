@@ -236,6 +236,11 @@ export default {
       'GET_CHOSEN_CLIENT_ID',
       'GET_ACTIVE_SERVER_ID',
       'GET_PLEX_CLIENT_TIMELINE',
+      'GET_ACTIVE_MEDIA_METADATA',
+    ]),
+
+    ...mapGetters('plexservers', [
+      'GET_PLEX_SERVER',
     ]),
 
     ...mapGetters('synclounge', [
@@ -303,9 +308,21 @@ export default {
       }
     },
 
-    GET_PLEX_CLIENT_TIMELINE() {
+    GET_ACTIVE_MEDIA_METADATA(newMetadata) {
       // This handles regular plex clients (nonslplayer) playback changes
-
+      if (this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
+        if (newMetadata) {
+          this.$router.push({
+            name: 'nowplaying',
+            params: {
+              machineIdentifier: newMetadata.machineIdentifier,
+              ratingKey: newMetadata.ratingKey,
+            },
+          });
+        } else if (this.$router.fullPath.indexOf('/nowplaying')) {
+          this.$router.push({ name: 'browse' });
+        }
+      }
     },
   },
 

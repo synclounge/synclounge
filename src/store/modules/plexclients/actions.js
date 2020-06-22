@@ -2,6 +2,7 @@ import router from '@/router';
 import promiseutils from '@/utils/promiseutils';
 import xmlutils from '@/utils/xmlutils';
 import delay from '@/utils/delay';
+import contentTitleUtils from '@/utils/contenttitleutils';
 
 export default {
   FIND_AND_SET_CONNECTION: async ({ dispatch, commit }, clientIdentifier) => {
@@ -50,6 +51,7 @@ export default {
 
       commit('SET_ACTIVE_MEDIA_METADATA', metadata);
       commit('SET_ACTIVE_SERVER_ID', machineIdentifier);
+      commit('plexservers/SET_LAST_SERVER_ID', machineIdentifier, { root: true });
       commit('slplayer/SET_MEDIA_INDEX', mediaIndex, { root: true });
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
 
@@ -132,7 +134,9 @@ export default {
     };
   },
 
-  UPDATE_PLEX_CLIENT_TIMELINE: async ({ getters, dispatch, commit }, timeline) => {
+  UPDATE_PLEX_CLIENT_TIMELINE: async ({
+    getters, rootGetters, dispatch, commit,
+  }, timeline) => {
     if (!getters.GET_PLEX_CLIENT_TIMELINE
       || getters.GET_PLEX_CLIENT_TIMELINE.machineIdentifier !== timeline.machineIdentifier
       || getters.GET_PLEX_CLIENT_TIMELINE.ratingKey !== timeline.ratingKey) {
@@ -142,14 +146,21 @@ export default {
       } else {
         // If client has changed what it's playing
         // TODO: see what client sends when its stopped and set metadata and stuff to null instead if so
-        commit('SET_ACTIVE_MEDIA_METADATA', await dispatch('plexservers/FETCH_PLEX_METADATA', {
+        const metadata = await dispatch('plexservers/FETCH_PLEX_METADATA', {
           machineIdentifier: timeline.machineIdentifier,
           ratingKey: timeline.ratingKey,
-        }, { root: true }));
+        }, { root: true });
+
+        commit('SET_ACTIVE_MEDIA_METADATA', metadata);
 
         commit('SET_ACTIVE_SERVER_ID', timeline.machineIdentifier);
+        commit('plexservers/SET_LAST_SERVER_ID', timeline.machineIdentifier, { root: true });
+
+        const serverName = rootGetters['plexservers/GET_PLEX_SERVER'](timeline.machineIdentifier).name;
+        dispatch('DISPLAY_NOTIFICATION',
+          `Now Playing: ${contentTitleUtils.getCombinedTitle(metadata)} from ${serverName}`,
+          { root: true });
       }
-      // TODO: do wahtever was in the playback changed event handler here
     }
 
     commit('SET_PLEX_CLIENT_TIMELINE', timeline);
@@ -194,7 +205,7 @@ export default {
 
   POLL_CLIENT: async ({ getters, dispatch }) => {
     const timelinePart = await dispatch('FETCH_TIMELINE_POLL_DATA');
-    await dispatch('HANDLE_NEW_TIMELINE', timelinePart, { root: true });
+    await dispatch('HANDLE_NEW_TIMELINE', timelinePart);
 
     return {
       ...getters.GET_ACTIVE_MEDIA_POLL_METADATA,
@@ -204,6 +215,37 @@ export default {
       playerProduct: getters.GET_CHOSEN_CLIENT.product,
       machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
     };
+  },
+
+  HANDLE_NEW_TIMELINE: async ({
+    commit, getters, rootGetters, dispatch,
+  }, timeline) => {
+    // Check if we need to activate the upnext feature
+    if (rootGetters['synclounge/AM_I_HOST']) {
+      if (timeline.playerState !== 'stopped' && timeline.duration && timeline.time
+        && (timeline.duration - timeline.time) < 10000
+        && getters.GET_ACTIVE_MEDIA_METADATA.type === 'episode'
+      ) {
+        if (!getters.GET_UP_NEXT_TRIGGERED) {
+          const item = await dispatch('plexservers/FETCH_POST_PLAY', {
+            machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
+            ratingKey: getters.GET_ACTIVE_MEDIA_METADATA.ratingKey,
+          }, { root: true });
+
+          if (item.grandparentRatingKey
+            === getters.GET_ACTIVE_MEDIA_METADATA.grandparentRatingKey) {
+            commit('SET_UP_NEXT_POST_PLAY_DATA', item, { root: true });
+          }
+
+          commit('SET_UP_NEXT_TRIGGERED', true, { root: true });
+        }
+      } else if (getters.GET_UP_NEXT_TRIGGERED) {
+        // If outside upnext period, reset triggered
+        commit('SET_UP_NEXT_TRIGGERED', false, { root: true });
+      }
+    }
+
+    return true;
   },
 
   UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: ({ commit, getters }) => {

@@ -196,6 +196,7 @@ import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 import {
   mapActions, mapGetters, mapMutations, mapState,
 } from 'vuex';
+import sizing from '@/mixins/sizing';
 
 import 'shaka-player/dist/controls.css';
 
@@ -217,6 +218,10 @@ export default {
     messages: () => import('@/components/messages.vue'),
     MessageInput: () => import('@/components/MessageInput.vue'),
   },
+
+  mixins: [
+    sizing,
+  ],
 
   data() {
     return {
@@ -249,7 +254,6 @@ export default {
       'GET_PLEX_SERVER',
       'GET_TITLE',
       'GET_SECONDARY_TITLE',
-      'GET_PLAYER_STATE',
       'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
       'GET_PLAYER_UI',
@@ -261,6 +265,14 @@ export default {
 
     ...mapGetters('synclounge', [
       'AM_I_HOST',
+    ]),
+
+    ...mapGetters('plexclients', [
+      'GET_ACTIVE_MEDIA_METADATA',
+    ]),
+
+    ...mapGetters('plexservers', [
+      'GET_MEDIA_IMAGE_URL',
     ]),
 
     bigPlayButton() {
@@ -278,10 +290,16 @@ export default {
   },
 
   watch: {
-    GET_PLAYER_STATE(playerState) {
-      if (playerState === 'stopped') {
-        this.$router.push('/browse');
-      }
+    GET_ACTIVE_MEDIA_METADATA: {
+      handler(newMetadata) {
+        // This handles regular plex clients (nonslplayer) playback changes
+        if (newMetadata) {
+          this.setBackground(newMetadata);
+        } else {
+          this.$router.push('/browse');
+        }
+      },
+      immediate: true,
     },
   },
 
@@ -355,6 +373,10 @@ export default {
       'SET_PLAYER_UI_CONFIGURATION',
       'SET_PLAYER',
       'SET_PLAYER_CONFIGURATION',
+    ]),
+
+    ...mapMutations([
+      'SET_BACKGROUND',
     ]),
 
     getCastReceiverId() {
@@ -468,6 +490,18 @@ export default {
       if (!e.target.classList.contains('shaka-close-button')) {
         this.SEND_PARTY_PLAY_PAUSE();
       }
+    },
+
+    setBackground(metadata) {
+      this.SET_BACKGROUND(
+        this.GET_MEDIA_IMAGE_URL({
+          machineIdentifier: metadata.machineIdentifier,
+          mediaUrl: metadata.art,
+          width: this.getAppWidth() / 4,
+          height: this.getAppHeight() / 4,
+          blur: 2,
+        }),
+      );
     },
   },
 };

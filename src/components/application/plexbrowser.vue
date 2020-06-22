@@ -415,6 +415,7 @@ export default {
 
   created() {
     this.SET_ACTIVE_METADATA(null);
+    // TODO: set random thumb background
   },
 
   methods: {
