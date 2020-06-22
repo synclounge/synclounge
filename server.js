@@ -85,6 +85,18 @@ router.get('/users', (req, res) => {
   return res.send(JSON.stringify({ users })).end();
 });
 
+const hostComparator = (a, b) => {
+  if (a.role === 'host') {
+    return -1;
+  }
+
+  if (b.role === 'host') {
+    return 1;
+  }
+
+  return 0;
+};
+
 socketServer.on('connection', (socket) => {
   function transferHost(user, newHostPredicate) {
     if (user.role !== 'host') {
@@ -111,6 +123,9 @@ socketServer.on('connection', (socket) => {
     newHost.role = 'host';
     room.hostUser = newHost;
     room.hostUsername = newHost.username;
+
+    room.users.sort(hostComparator);
+    // Resort to make host on top
     socket.broadcast.to(user.room).emit('host-swap', newHost);
   }
 
