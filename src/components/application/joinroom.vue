@@ -1,32 +1,28 @@
 <template>
-  <v-layout
-    row
-    wrap
-    justify-center
+  <v-row
+    justify="center"
   >
-    <v-flex
-      xs12
-      lg10
+    <v-col
+      cols="12"
+      lg="10"
       style="background: rgba(0,0,0,0.1); border-radius: 10px"
       class="pa-4"
     >
-      <v-layout
-        row
-        wrap
-        justify-center
+      <v-row
+        justify="center"
       >
-        <v-flex
-          xs12
-          md8
-          lg4
-          xl6
+        <v-col
+          cols="12"
+          md="8"
+          lg="4"
+          xl="6"
         >
-          <img
-            style="width:100%"
+          <v-img
             :src="getLogos.light.long"
-          >
-        </v-flex>
-      </v-layout>
+          />
+        </v-col>
+      </v-row>
+
       <v-stepper
         v-model="e1"
         style="background: rgba(0,0,0,0.3); border-radius: 20px"
@@ -40,34 +36,38 @@
           >
             Select a client
           </v-stepper-step>
+
           <v-divider />
+
           <v-stepper-step
             step="2"
             :complete="false"
           >
             Join a room
           </v-stepper-step>
+
           <v-divider />
+
           <v-stepper-step step="3">
             Sync
           </v-stepper-step>
         </v-stepper-header>
       </v-stepper>
-      <v-layout
-        row
-        wrap
-        justify-center
+
+      <v-row
+        justify="center"
       >
-        <v-flex
-          xs12
+        <v-col
+          cols="12"
           class="ml-4"
         >
           <h2 class="text-xs-left">
             Connect to a SyncLounge room
           </h2>
-        </v-flex>
-        <v-flex
-          xs12
+        </v-col>
+
+        <v-col
+          cols="12"
           class="ml-4"
         >
           <p>
@@ -75,11 +75,11 @@
             your location. Once you've chosen one that works for you it's time to create a room for
             your friends to join. If the room does not exist it will be created for you.
           </p>
-        </v-flex>
+        </v-col>
 
-        <v-flex
+        <v-col
           v-if="!GET_SOCKET && GET_RECENT_ROOMS.length > 0"
-          xs12
+          cols="12"
           class="nicelist pa-4"
           style="color:white !important;"
         >
@@ -91,19 +91,23 @@
                 :key="index"
                 @click="recentConnect(item)"
               >
-                <v-list-item-avatar>
-                  <img
+                <v-list-item-avatar
+                  width="32px"
+                >
+                  <v-img
                     :src="getLogos.light.small"
-                    style="width: 32px; height: auto"
-                  >
+                  />
                 </v-list-item-avatar>
+
                 <v-list-item-content>
                   <v-list-item-title>{{ item.name || item.server || 'Custom' }}</v-list-item-title>
+
                   <v-list-item-subtitle>
                     <b>{{ item.room }}</b>
                     <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span>
                   </v-list-item-subtitle>
                 </v-list-item-content>
+
                 <v-list-item-action>
                   <v-tooltip
                     top
@@ -125,43 +129,39 @@
               </v-list-item>
             </template>
           </v-list>
-        </v-flex>
+        </v-col>
 
-        <v-flex
+        <v-col
           v-if="!GET_SOCKET"
-          xs12
+          cols="12"
           class="nicelist pa-4"
           style="color:white !important"
         >
           <v-subheader>Select a server</v-subheader>
 
-          <v-layout
-            row
-            wrap
-            justify-center
-            align-center
+          <v-row
+            justify="center"
+            align="center"
           >
-            <v-flex
+            <v-col
               v-for="server in GET_SYNCLOUNGE_SERVERS"
               :key="server.url"
-              pa-2
-              xs12
-              md3
-              lg2
+              class="pa-2"
+              cols="12"
+              md="3"
+              lg="2"
             >
               <v-card
                 height="300px"
                 style="border-radius: 20px"
               >
-                <v-layout
-                  row
-                  wrap
-                  justify-start
-                  align-center
+                <v-row
+                  justify="center"
+                  align="center"
                   style="height: 100%"
                 >
-                  <v-flex
-                    xs12
+                  <v-col
+                    cols="12"
                     class="text-center pa-2"
                     style="height: 80px"
                   >
@@ -169,17 +169,19 @@
                       :src="server.image"
                       class="server-image"
                     >
-                  </v-flex>
-                  <v-flex
-                    xs12
+                  </v-col>
+
+                  <v-col
+                    cols="12"
                     class="text-center"
                   >
                     <h2>{{ server.name }}</h2>
                     <h4>{{ server.location }}</h4>
-                  </v-flex>
-                  <v-flex
+                  </v-col>
+
+                  <v-col
                     v-if="server.url !== 'custom'"
-                    xs12
+                    cols="12"
                     class="text-center"
                   >
                     <div v-if="results[server.url]">
@@ -190,6 +192,7 @@
                           :class="connectionQualityClass(results[server.url].latency)"
                         >{{ results[server.url].latency }}ms</span>
                       </div>
+
                       <div
                         v-else
                         class="text-center red--text"
@@ -197,9 +200,10 @@
                         error
                       </div>
                     </div>
-                  </v-flex>
-                  <v-flex
-                    xs12
+                  </v-col>
+
+                  <v-col
+                    cols="12"
                     class="text-center"
                   >
                     <div v-if="server.url !== 'custom'">
@@ -213,6 +217,7 @@
                             >{{ results[server.url].result || 'Unknown' }}</span>
                           </div>
                         </div>
+
                         <div
                           v-else
                           class="text-center red--text"
@@ -221,10 +226,10 @@
                         </div>
                       </div>
                     </div>
-                  </v-flex>
+                  </v-col>
 
-                  <v-flex
-                    xs12
+                  <v-col
+                    cols="12"
                     class="text-center pt-1 mt-4"
                   >
                     <v-btn
@@ -235,11 +240,11 @@
                     >
                       Connect
                     </v-btn>
-                  </v-flex>
-                </v-layout>
+                  </v-col>
+                </v-row>
               </v-card>
-            </v-flex>
-          </v-layout>
+            </v-col>
+          </v-row>
 
           <template v-if="selectedServer && selectedServer.url === 'custom'">
             <v-text-field
@@ -250,11 +255,8 @@
               @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
             />
 
-            <v-layout
-              row
-              wrap
-            >
-              <v-flex xs12>
+            <v-row>
+              <v-col cols="12">
                 <v-btn
                   class="pt-orange white--text pa-0 ma-0"
                   color="primary"
@@ -264,17 +266,15 @@
                 >
                   Connect
                 </v-btn>
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
           </template>
 
-          <v-layout
+          <v-row
             v-if="connectionPending && !serverError"
-            row
-            wrap
             class="pt-3"
           >
-            <v-flex xs12>
+            <v-col cols="12">
               <div style="width:100%;text-align:center">
                 <v-progress-circular
                   indeterminate
@@ -283,39 +283,35 @@
                   style="display:inline-block"
                 />
               </div>
-            </v-flex>
-          </v-layout>
-          <v-layout
+            </v-col>
+          </v-row>
+
+          <v-row
             v-if="serverError"
             class="pt-3 text-center"
-            row
-            wrap
           >
-            <v-flex
-              xs12
+            <v-col
+              cols="12"
               class="red--text"
             >
               <v-icon class="red--text">
                 info
               </v-icon>
               {{ serverError }}
-            </v-flex>
-          </v-layout>
-        </v-flex>
+            </v-col>
+          </v-row>
+        </v-col>
 
-        <v-flex
+        <v-col
           v-if="GET_SOCKET"
-          xs12
+          cols="12"
           class="text-center"
         >
-          <v-layout
-            row
-            wrap
-          >
-            <v-flex
-              xs12
-              md6
-              offset-md3
+          <v-row>
+            <v-col
+              cols="12"
+              md="6"
+              class="offset-md3"
             >
               <v-text-field
                 v-model="room"
@@ -324,13 +320,14 @@
                 name="input-2"
                 label="Room name"
                 :autofocus="true"
-                @keyup.enter.native="joinRoom()"
+                @keyup.enter.native="joinRoom"
               />
-            </v-flex>
-            <v-flex
-              xs12
-              md6
-              offset-md3
+            </v-col>
+
+            <v-col
+              cols="12"
+              md="6"
+              class="offset-md3"
             >
               <v-text-field
                 v-model="password"
@@ -338,43 +335,43 @@
                 origin="center center"
                 name="input-2"
                 label="Room password"
-                @keyup.enter.native="joinRoom()"
+                @keyup.enter.native="joinRoom"
               />
-            </v-flex>
-            <v-flex
-              xs12
-              md6
-              offset-md3
+            </v-col>
+
+            <v-col
+              cols="12"
+              md="6"
+              class="offset-md3"
             >
               <v-btn
                 block
                 color="primary"
-                @click.native="joinRoom()"
+                @click="joinRoom"
               >
                 Join
               </v-btn>
-            </v-flex>
-            <v-layout
+            </v-col>
+
+            <v-row
               v-if="roomError"
               class="pt-3 text-center"
-              row
-              wrap
             >
-              <v-flex
-                xs12
+              <v-col
+                cols="12"
                 class="red--text"
               >
                 <v-icon class="red--text">
                   info
                 </v-icon>
                 {{ roomError }}
-              </v-flex>
-            </v-layout>
-          </v-layout>
-        </v-flex>
-      </v-layout>
-    </v-flex>
-  </v-layout>
+              </v-col>
+            </v-row>
+          </v-row>
+        </v-col>
+      </v-row>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -395,9 +392,7 @@ export default {
       e1: 2,
       password: '',
       connectionPending: false,
-
       results: {},
-
       testConnectionInterval: null,
     };
   },
