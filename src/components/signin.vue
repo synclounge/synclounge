@@ -111,7 +111,6 @@ export default {
       this.authWindow = window.open(
         this.GET_PLEX_AUTH_URL(this.plexAuthResponse.code),
         '_blank',
-        'resizable=1,width=395,height=560',
       );
     },
 

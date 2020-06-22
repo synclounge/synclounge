@@ -102,7 +102,7 @@
               class="hoverBar"
               style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;"
             >
-              <v-col xs12 />
+              <v-col cols="12" />
             </v-row>
           </div>
         </transition>
