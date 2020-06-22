@@ -1,18 +1,15 @@
 <template>
-  <v-layout
-    wrap
-    row
-  >
-    <v-flex
-      xs12
-      md8
-      offset-md2
+  <v-row>
+    <v-col
+      cols="12"
+      md="8"
+      class="offset-md2"
     >
       <h1 class="white--text center-text pa-4">
         Successfully signed out
       </h1>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
