@@ -150,24 +150,37 @@
     <template
       v-if="GET_LAST_SERVER && searchResults.length == 0"
     >
-      <v-subheader v-if="subsetOnDeck.length > 0">
-        Continue watching from {{ GET_LAST_SERVER.name }}
-        <span
-          style="float:right; font-size:5rem; user-select: none;"
+      <v-row
+        v-if="subsetOnDeck.length > 0"
+        no-gutters
+      >
+        <v-col>
+          <v-subheader class="compact-header">
+            Continue watching from {{ GET_LAST_SERVER.name }}
+          </v-subheader>
+        </v-col>
+
+        <v-col
+          cols="auto"
+          class="ml-auto"
         >
           <v-icon
             style="cursor: pointer"
             :style="onDeckDownStyle"
             @click="onDeckDown"
-          >navigate_before</v-icon>
+          >
+            navigate_before
+          </v-icon>
 
           <v-icon
             :style="onDeckUpStyle"
             style="cursor: pointer"
             @click="onDeckUp"
-          >navigate_next</v-icon>
-        </span>
-      </v-subheader>
+          >
+            navigate_next
+          </v-icon>
+        </v-col>
+      </v-row>
 
       <v-row
         v-if="onDeck"
@@ -415,7 +428,7 @@ export default {
 
   created() {
     this.SET_ACTIVE_METADATA(null);
-    // TODO: set random thumb background
+    this.setRandomBackground();
   },
 
   methods: {
@@ -423,11 +436,17 @@ export default {
       'SEARCH_PLEX_SERVER',
       'FETCH_ON_DECK',
       'FETCH_PLEX_DEVICES',
+      'FETCH_RANDOM_THUMB_URL',
     ]),
 
     ...mapMutations([
       'SET_ACTIVE_METADATA',
+      'SET_BACKGROUND',
     ]),
+
+    async setRandomBackground() {
+      this.SET_BACKGROUND(await this.FETCH_RANDOM_THUMB_URL());
+    },
 
     async fetchOnDeck() {
       this.onDeck = await this.FETCH_ON_DECK({

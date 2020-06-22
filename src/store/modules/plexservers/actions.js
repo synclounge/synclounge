@@ -3,6 +3,7 @@ import scoreMedia from './mediascoring';
 
 export default {
   FETCH_RANDOM_ITEM: async ({ getters, dispatch }, machineIdentifier) => {
+    // TODO: probably do this better and more random etc lol because sort order is the same I think
     await dispatch('FETCH_ALL_LIBRARIES_IF_NEEDED', machineIdentifier);
     const libraryKeys = getters.GET_PLEX_SERVER(machineIdentifier).libraries
       .map((library) => library.key);
@@ -20,14 +21,14 @@ export default {
   },
 
   FETCH_RANDOM_THUMB_URL: async ({ getters, dispatch }) => {
-    await dispatch('FETCH_PLEX_DEVICES_IF_NEEDED');
+    await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
 
     const machineIdentifier = sample(getters.GET_CONNECTABLE_PLEX_SERVER_IDS);
     if (!machineIdentifier) {
       throw new Error('No valid servers found');
     }
 
-    const result = await dispatch('GET_RANDOM_ITEM', machineIdentifier);
+    const result = await dispatch('FETCH_RANDOM_ITEM', machineIdentifier);
     if (!result) {
       throw new Error('No result found');
     }
