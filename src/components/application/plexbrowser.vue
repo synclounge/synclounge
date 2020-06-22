@@ -5,7 +5,7 @@
       class="mb-3"
     >
       <v-col
-        sm="12"
+        cols="10"
         lg="4"
       >
         <v-text-field
@@ -20,7 +20,7 @@
         />
       </v-col>
 
-      <v-col>
+      <v-col cols="auto">
         <v-icon
           v-if="searchResults.length > 0"
           class="clickable red--text pt-3"
@@ -72,16 +72,14 @@
         <v-col
           v-for="movie in filteredMovies"
           :key="movie.ratingKey"
-          sm="6"
+          cols="6"
           md="3"
           lg="1"
-          class="pb-3 ma-2"
         >
           <plexthumb
             :content="movie"
             :machine-identifier="movie.machineIdentifier"
             show-server
-            search
             @contentSet="setContent(movie)"
           />
         </v-col>
@@ -100,16 +98,14 @@
         <v-col
           v-for="show in filteredShows"
           :key="show.ratingKey"
-          sm="6"
+          cols="6"
           md="3"
           lg="1"
-          class="pb-3 ma-2"
         >
           <plexthumb
             :content="show"
             :machine-identifier="show.machineIdentifier"
             show-server
-            search
             @contentSet="setContent(show)"
           />
         </v-col>
@@ -128,17 +124,15 @@
         <v-col
           v-for="episode in filteredEpisodes"
           :key="episode.ratingKey"
-          sm="6"
+          cols="6"
           md="3"
           lg="2"
-          class="pb-3 ma-2"
         >
           <plexthumb
             :content="episode"
             :machine-identifier="episode.machineIdentifier"
             show-server
             type="art"
-            search
             @contentSet="setContent(episode)"
           />
         </v-col>

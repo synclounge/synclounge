@@ -4,7 +4,6 @@
   >
     <v-row
       v-if="!browsingContent"
-      no-gutter
     >
       <v-col
         v-for="content in contents"
