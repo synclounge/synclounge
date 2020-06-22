@@ -83,7 +83,7 @@
 
         <v-icon
           v-if="GET_ROOM"
-          class="clickable"
+          class="clickable order-last"
           @click="TOGGLE_RIGHT_SIDEBAR_OPEN"
         >
           {{
