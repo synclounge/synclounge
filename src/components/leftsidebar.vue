@@ -8,10 +8,9 @@
   >
     <v-list-item v-if="GET_PLEX_USER">
       <v-list-item-avatar>
-        <img
-          class="pa-1"
+        <v-img
           :src="GET_PLEX_USER.thumb"
-        >
+        />
       </v-list-item-avatar>
 
       <v-list-item-content>
@@ -121,17 +120,22 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item @click.stop="donateDialog = true">
-        <v-list-item-icon>
-          <v-icon color="white">
-            favorite
-          </v-icon>
-        </v-list-item-icon>
+      <donate v-slot="{ on, attrs }">
+        <v-list-item
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-list-item-icon>
+            <v-icon color="white">
+              favorite
+            </v-icon>
+          </v-list-item-icon>
 
-        <v-list-item-content>
-          <v-list-item-title>Donate</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>Donate</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </donate>
 
       <v-spacer />
     </v-list>
@@ -182,16 +186,6 @@
         />
       </v-card>
     </v-dialog>
-
-    <v-dialog
-      v-model="donateDialog"
-      max-width="650px"
-    >
-      <donate
-        :donate-dialog="donateDialog"
-        :on-close="donateDialog = false"
-      />
-    </v-dialog>
   </v-navigation-drawer>
 </template>
 
@@ -201,16 +195,15 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 
 export default {
   components: {
-    ptsettings: () => import('./application/settings.vue'),
-    plexsettings: () => import('./application/plexsettings.vue'),
-    donate: () => import('./donate.vue'),
+    ptsettings: () => import('@/components/application/settings.vue'),
+    plexsettings: () => import('@/components/application/plexsettings.vue'),
+    donate: () => import('@/components/donate.vue'),
   },
 
   data() {
     return {
       ptsettingstoggle: false,
       plexsettingstoggle: false,
-      donateDialog: false,
     };
   },
 

@@ -68,15 +68,18 @@
           {{ item.title }}
         </v-btn>
 
-        <v-btn
-          small
-          tag="a"
-          class="hidden-sm-and-down"
-          text
-          @click="donateDialog = true"
-        >
-          Donate ♥
-        </v-btn>
+        <donate v-slot="{ on, attrs }">
+          <v-btn
+            small
+            tag="a"
+            class="hidden-sm-and-down"
+            text
+            v-bind="attrs"
+            v-on="on"
+          >
+            Donate ♥
+          </v-btn>
+        </donate>
 
         <v-icon
           v-if="GET_ROOM"
@@ -152,16 +155,6 @@
         </v-snackbar>
 
         <upnext v-if="GET_UP_NEXT_POST_PLAY_DATA" />
-
-        <v-dialog
-          v-model="donateDialog"
-          max-width="650px"
-        >
-          <donate
-            :donate-dialog="donateDialog"
-            :on-close="donateDialog = false"
-          />
-        </v-dialog>
       </v-container>
     </v-main>
   </v-app>
@@ -188,7 +181,6 @@ export default {
 
   data() {
     return {
-      donateDialog: false,
       appIsFullscreen: false,
 
       items: [
