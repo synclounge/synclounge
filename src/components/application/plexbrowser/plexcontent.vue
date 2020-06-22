@@ -644,6 +644,7 @@ export default {
       'FETCH_PLEX_METADATA',
       'FETCH_RELATED',
       'FETCH_MEDIA_CHILDREN',
+      'MARK_WATCHED',
     ]),
 
     ...mapMutations([
@@ -704,8 +705,9 @@ export default {
     },
 
     markWatched() {
-      this.server.markWatchedByRatingKey(this.contents.ratingKey, () => {
-        this.$parent.reset();
+      return this.MARK_WATCHED({
+        machineIdentifier: this.machineIdentifier,
+        ratingKey: this.contents.ratingKey,
       });
     },
 

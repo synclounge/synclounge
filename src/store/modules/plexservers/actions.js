@@ -230,4 +230,12 @@ export default {
 
     commit('SET_PLAY_QUEUE_ID', data.MediaContainer.playQueueID);
   },
+
+  MARK_WATCHED: ({ getters }, { machineIdentifier, ratingKey }) => getters
+    .GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/:/scrobble', {
+      params: {
+        identifier: 'com.plexapp.plugins.library',
+        key: ratingKey,
+      },
+    }),
 };

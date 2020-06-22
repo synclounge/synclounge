@@ -2,8 +2,6 @@ import axios from 'axios';
 
 import promiseutils from '@/utils/promiseutils';
 
-import PlexServer from './helpers/PlexServer';
-
 export default {
   REQUEST_PLEX_INIT_AUTH: ({ getters }) => axios.post('https://plex.tv/api/v2/pins', null, {
     headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
@@ -57,13 +55,16 @@ export default {
         commit('plexclients/ADD_PLEX_CLIENT', device, { root: true });
       } else if (device.provides.indexOf('server') !== -1) {
         // This is a Server
-        const tempServer = new PlexServer(device);
-        tempServer.chosenConnection = await dispatch('FIND_WORKING_CONNECTION', {
+        // TODO: potentially find connections async and not hold up the fetch devices
+        const chosenConnection = await dispatch('FIND_WORKING_CONNECTION', {
           connections: device.connections,
-          accessToken: tempServer.accessToken,
+          accessToken: device.accessToken,
         }).catch(() => null);
 
-        commit('plexservers/ADD_PLEX_SERVER', tempServer, { root: true });
+        commit('plexservers/ADD_PLEX_SERVER', {
+          ...device,
+          chosenConnection,
+        }, { root: true });
       }
     }));
 
