@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 import sizing from '@/mixins/sizing';
 
@@ -153,7 +153,7 @@ export default {
     },
 
     ratingKey: {
-      type: String,
+      type: [Number, String],
       required: true,
     },
   },
@@ -224,11 +224,17 @@ export default {
       'FETCH_MEDIA_CHILDREN',
     ]),
 
+    ...mapMutations([
+      'SET_ACTIVE_METADATA',
+    ]),
+
     async fetchMetadata() {
       this.metadata = await this.FETCH_PLEX_METADATA({
         ratingKey: this.ratingKey,
         machineIdentifier: this.machineIdentifier,
       });
+
+      this.SET_ACTIVE_METADATA(this.metadata);
 
       this.setBackground();
     },

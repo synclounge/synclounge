@@ -291,7 +291,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { debounce } from 'lodash-es';
 
 export default {
@@ -401,24 +401,40 @@ export default {
       }
       this.searchAllServers();
     },
+
+    GET_LAST_SERVER_ID: {
+      handler() {
+        if (this.GET_LAST_SERVER_ID) {
+          this.fetchOnDeck();
+        }
+      },
+      immediate: true,
+    },
+
   },
 
-  async mounted() {
-    if (this.GET_LAST_SERVER_ID) {
+  created() {
+    this.SET_ACTIVE_METADATA(null);
+  },
+
+  methods: {
+    ...mapActions('plexservers', [
+      'SEARCH_PLEX_SERVER',
+      'FETCH_ON_DECK',
+      'FETCH_PLEX_DEVICES',
+    ]),
+
+    ...mapMutations([
+      'SET_ACTIVE_METADATA',
+    ]),
+
+    async fetchOnDeck() {
       this.onDeck = await this.FETCH_ON_DECK({
         machineIdentifier: this.GET_LAST_SERVER_ID,
         start: 0,
         stop: 10,
       });
-    }
-  },
-
-  methods: {
-    ...mapActions(['FETCH_PLEX_DEVICES']),
-    ...mapActions('plexservers', [
-      'SEARCH_PLEX_SERVER',
-      'FETCH_ON_DECK',
-    ]),
+    },
 
     onDeckDown() {
       if (!this.onDeck) {

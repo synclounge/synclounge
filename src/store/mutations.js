@@ -30,4 +30,8 @@ export default {
   SET_CONFIGURATION_FETCH_ERROR: (state, error) => {
     state.configurationFetchError = error;
   },
+
+  SET_ACTIVE_METADATA: (state, metadata) => {
+    state.activeMetadata = metadata;
+  },
 };

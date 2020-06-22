@@ -2,7 +2,6 @@ const state = () => ({
   appTitle: 'SyncLounge',
   appVersion: process.env.VUE_APP_VERSION,
   background: null,
-  shownChat: false,
   manualSyncQueued: false,
   upNextCache: {},
   configuration: JSON.parse(process.env.VUE_APP_CONFIGURATION),
@@ -18,6 +17,9 @@ const state = () => ({
 
   // This stores the postplay data and controls whether the upnext component is visible
   upNextPostPlayData: null,
+
+  // Used to help with the crumbs
+  activeMetadata: null,
 });
 
 export default state;

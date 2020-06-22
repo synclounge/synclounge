@@ -90,29 +90,10 @@
       </v-toolbar-items>
 
       <template
-        v-if="crumbs && crumbs.length > 0"
+        v-if="showCrumbs"
         v-slot:extension
       >
-        <v-breadcrumbs
-          :items="crumbs"
-          class="text-xs-left"
-          style="justify-content: left"
-        >
-          <template v-slot:divider>
-            <v-icon>chevron_right</v-icon>
-          </template>
-
-          <template v-slot:item="props">
-            <v-breadcrumbs-item
-              :to="props.item.to"
-              :exact="true"
-            >
-              {{
-                props.item.text
-              }}
-            </v-breadcrumbs-item>
-          </template>
-        </v-breadcrumbs>
+        <crumbs />
       </template>
     </v-app-bar>
 
@@ -198,11 +179,12 @@ import fscreen from 'fscreen';
 
 export default {
   components: {
-    rightsidebar: () => import('./components/sidebar.vue'),
-    upnext: () => import('./components/upnext.vue'),
-    nowplayingchip: () => import('./components/nowplayingchip.vue'),
-    leftsidebar: () => import('./components/leftsidebar.vue'),
-    donate: () => import('./components/donate.vue'),
+    rightsidebar: () => import('@/components/sidebar.vue'),
+    upnext: () => import('@/components/upnext.vue'),
+    nowplayingchip: () => import('@/components/nowplayingchip.vue'),
+    leftsidebar: () => import('@/components/leftsidebar.vue'),
+    donate: () => import('@/components/donate.vue'),
+    crumbs: () => import('@/components/crumbs.vue'),
   },
 
   data() {
@@ -240,15 +222,12 @@ export default {
 
   computed: {
     ...mapGetters([
-      'getItemCache',
-      'getLibraryCache',
-      'getShortLink',
-      'GET_SYNCLOUNGE_SERVERS',
       'GET_UP_NEXT_POST_PLAY_DATA',
       'getLogos',
       'GET_CONFIG',
       'GET_CONFIGURATION_FETCHED',
       'GET_CONFIGURATION_FETCHED_ERROR',
+      'GET_ACTIVE_METADATA',
     ]),
 
     ...mapGetters('plex', [
@@ -261,10 +240,6 @@ export default {
       'GET_ACTIVE_SERVER_ID',
     ]),
 
-    ...mapGetters('plexservers', [
-      'GET_PLEX_SERVER',
-    ]),
-
     ...mapGetters('synclounge', [
       'GET_ROOM',
       'GET_SERVER',
@@ -272,79 +247,14 @@ export default {
 
     ...mapState(['isRightSidebarOpen']),
 
-    crumbs() {
-      if (
-        this.$route.path.indexOf('browse') === -1
-        && this.$route.path.indexOf('nowplaying') === -1
-      ) {
-        return [];
-      }
-      const getTitle = (ratingKey) => {
-        try {
-          return this.getItemCache[this.$route.params.machineIdentifier][ratingKey].title;
-        } catch (e) {
-          return 'Loading..';
-        }
-      };
-      const getLibrary = (id) => {
-        try {
-          return this.getLibraryCache[this.$route.params.machineIdentifier][id];
-        } catch (e) {
-          return 'Library';
-        }
-      };
-      const data = [
-        {
-          text: 'Home',
-          to: '/browse',
-        },
-      ];
-
-      const map = {
-        machineIdentifier: () => ({
-          text: this.GET_PLEX_SERVER(this.$route.params.machineIdentifier).name,
-          to: `/browse/${this.$route.params.machineIdentifier}`,
-        }),
-
-        sectionId: () => ({
-          text: getLibrary(this.$route.params.sectionId),
-          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}`,
-        }),
-
-        parentRatingKey: () => {
-          let to;
-          if (this.$route.params.grandparentRatingKey) {
-            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentRatingKey}/${this.$route.params.parentRatingKey}`;
-          } else {
-            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.parentRatingKey}`;
-          }
-          return {
-            text: getTitle(this.$route.params.parentRatingKey),
-            to,
-          };
-        },
-        grandparentRatingKey: () => ({
-          text: getTitle(this.$route.params.grandparentRatingKey),
-          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentRatingKey}/`,
-        }),
-
-        ratingKey: () => ({
-          text: getTitle(this.$route.params.ratingKey),
-          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/${this.$route.params.ratingKey}`,
-        }),
-      };
-
-      Object.keys(this.$route.params).forEach((param) => {
-        const link = map[param]();
-        if (link) {
-          data.push(link);
-        }
-      });
-      return data;
-    },
-
     showNowPlaying() {
       return this.GET_ACTIVE_SERVER_ID && this.$route.name === 'browse';
+    },
+
+    showCrumbs() {
+      // TODO: rewrite this logic but I'm lazy now
+      return !(this.$route.path.indexOf('browse') === -1
+        && this.$route.path.indexOf('nowplaying') === -1);
     },
 
     mainStyle() {

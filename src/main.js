@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import VueObserveVisibility from 'vue-observe-visibility';
 import VueClipboard from 'vue-clipboard2';
 import VueChatScroll from 'vue-chat-scroll';
 
@@ -10,7 +9,6 @@ import store from './store';
 
 Vue.use(VueChatScroll);
 Vue.use(VueClipboard);
-Vue.use(VueObserveVisibility);
 
 Vue.config.productionTip = false;
 

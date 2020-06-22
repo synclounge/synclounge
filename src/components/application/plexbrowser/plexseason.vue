@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 import sizing from '@/mixins/sizing';
 
@@ -142,7 +142,7 @@ export default {
     },
 
     ratingKey: {
-      type: String,
+      type: [Number, String],
       required: true,
     },
   },
@@ -189,22 +189,38 @@ export default {
     },
   },
 
-  async mounted() {
-    await this.fetchMetadata();
+  created() {
+    this.fetchMetadata();
   },
 
   methods: {
     ...mapActions('plexservers', [
-      'FETCH_SHOW',
+      'FETCH_SEASON',
+    ]),
+
+    ...mapMutations([
+      'SET_ACTIVE_METADATA',
     ]),
 
     async fetchMetadata() {
-      this.metadata = await this.FETCH_SHOW({
+      this.metadata = await this.FETCH_SEASON({
         machineIdentifier: this.machineIdentifier,
         ratingKey: this.ratingKey,
         start: 0,
         size: 500,
         excludeAllLeaves: 1,
+      });
+
+      // Plex gives us some weird metadata and we need to clean it up for crumbs
+      const { grandparentTitle, grandparentRatingKey, ...otherMetadata } = this.metadata;
+      this.SET_ACTIVE_METADATA({
+        machineIdentifier: this.machineIdentifier,
+        ...otherMetadata,
+        parentTitle: grandparentTitle,
+        parentRatingKey: grandparentRatingKey,
+        title: this.metadata.title2,
+        ratingKey: this.ratingKey,
+        type: 'season',
       });
 
       this.setBackground();

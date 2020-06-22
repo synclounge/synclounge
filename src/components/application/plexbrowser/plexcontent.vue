@@ -514,7 +514,7 @@ export default {
     },
 
     ratingKey: {
-      type: String,
+      type: [Number, String],
       required: true,
     },
   },
@@ -630,7 +630,7 @@ export default {
     },
   },
 
-  mounted() {
+  created() {
     this.getNewData();
   },
 
@@ -648,6 +648,7 @@ export default {
 
     ...mapMutations([
       'SET_BACKGROUND',
+      'SET_ACTIVE_METADATA',
     ]),
 
     async getNewData() {
@@ -655,6 +656,8 @@ export default {
         ratingKey: this.ratingKey,
         machineIdentifier: this.machineIdentifier,
       });
+
+      this.SET_ACTIVE_METADATA(this.contents);
 
       if (this.contents.type === 'episode') {
         this.parentData = await this.FETCH_MEDIA_CHILDREN({
@@ -672,10 +675,6 @@ export default {
         });
       }
       this.setBackground();
-    },
-
-    setContent(content) {
-      this.$router.push(`/browse/${this.serverId}/${content.ratingKey}`);
     },
 
     doManualSync() {
@@ -744,6 +743,7 @@ export default {
     },
 
     audioStreams(media) {
+      // TODO: fix this probably
       let result = '';
       for (let i = 0; i < media.length; i += 1) {
         const stream = media[i];

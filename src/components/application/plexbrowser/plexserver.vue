@@ -220,9 +220,6 @@ export default {
       browsingLibrary: null,
       selectedItem: null,
 
-      libraries: null,
-      status: 'loading..',
-
       recentlyAdded: null,
       onDeck: null,
 
@@ -234,6 +231,7 @@ export default {
   computed: {
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
+      'GET_PLEX_SERVER',
     ]),
 
     recentItemsPer() {
@@ -315,35 +313,42 @@ export default {
       return this.recentlyAdded.slice(this.recentlyAddedOffset,
         this.recentlyAddedOffset + this.recentItemsPer);
     },
+
+    libraries() {
+      return this.GET_PLEX_SERVER(this.machineIdentifier).libraries
+        ? this.GET_PLEX_SERVER(this.machineIdentifier).libraries
+          .filter((library) => library.type !== 'artist'
+            || library.agent !== 'tv.plex.agents.music')
+        : [];
+    },
   },
 
-  async mounted() {
-    await Promise.all([
-      this.fetchAllLibraries(),
-      this.fetchRecentlyAdded(),
-      this.fetchOnDeck(),
-    ]);
+  created() {
+    this.SET_ACTIVE_METADATA({
+      machineIdentifier: this.machineIdentifier,
+    });
+
+    this.fetchData();
   },
 
   methods: {
     ...mapActions('plexservers', [
       'FETCH_RECENTLY_ADDED_MEDIA',
-      'FETCH_ALL_LIBRARIES',
+      'FETCH_ALL_LIBRARIES_IF_NEEDED',
       'FETCH_ON_DECK',
     ]),
 
     ...mapMutations([
       'SET_BACKGROUND',
+      'SET_ACTIVE_METADATA',
     ]),
 
-    async fetchAllLibraries() {
-      try {
-        const libraries = await this.FETCH_ALL_LIBRARIES(this.machineIdentifier);
-        this.libraries = libraries.filter((library) => library.type !== 'artist'
-          || library.agent !== 'tv.plex.agents.music');
-      } catch (e) {
-        this.status = 'Error loading libraries!';
-      }
+    fetchData() {
+      return Promise.all([
+        this.FETCH_ALL_LIBRARIES_IF_NEEDED(this.machineIdentifier),
+        this.fetchRecentlyAdded(),
+        this.fetchOnDeck(),
+      ]);
     },
 
     async fetchRecentlyAdded() {

@@ -2,8 +2,9 @@ import { sample, maxBy } from 'lodash-es';
 import scoreMedia from './mediascoring';
 
 export default {
-  FETCH_RANDOM_ITEM: async ({ dispatch }, machineIdentifier) => {
-    const libraryKeys = await dispatch('FETCH_ALL_LIBRARIES', machineIdentifier)
+  FETCH_RANDOM_ITEM: async ({ getters, dispatch }, machineIdentifier) => {
+    await dispatch('FETCH_ALL_LIBRARIES_IF_NEEDED', machineIdentifier);
+    const libraryKeys = getters.GET_PLEX_SERVER(machineIdentifier).libraries
       .map((library) => library.key);
 
     const libraryKey = sample(libraryKeys);
@@ -62,63 +63,10 @@ export default {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)
       .get(`/library/metadata/${ratingKey}`);
 
-    // this.commit('SET_LIBRARYCACHE', [
-    //   data.MediaContainer.librarySectionID,
-    //   this.clientIdentifier,
-    //   data.MediaContainer.librarySectionTitle,
-    // ]);
-    return data.MediaContainer.Metadata[0];
-  },
-
-  CACHE_METADATA_TITLES: ({ commit }, { machineIdentifier, result }) => {
-    // This data is used in our router breadcrumbs
-    if (result.Metadata
-      && result.Metadata.length > 0
-    ) {
-      result.Metadata.forEach((item) => {
-        if (item.ratingKey) {
-          commit('SET_ITEMCACHE', [
-            item.ratingKey,
-            { title: item.title, machineIdentifier },
-          ], { root: true });
-        }
-
-        if (item.parentRatingKey) {
-          commit('SET_ITEMCACHE', [
-            item.parentRatingKey,
-            { title: item.parentTitle, machineIdentifier },
-          ], { root: true });
-        }
-
-        if (item.grandparentRatingKey) {
-          commit('SET_ITEMCACHE', [
-            item.grandparentRatingKey,
-            { title: item.grandparentTitle, machineIdentifier },
-          ], { root: true });
-        }
-      });
-    } else {
-      if (result.ratingKey) {
-        commit('SET_ITEMCACHE', [result.ratingKey, { title: result.title, machineIdentifier }]);
-      }
-
-      if (result.parentRatingKey) {
-        commit('SET_ITEMCACHE', [
-          result.parentRatingKey,
-          { title: result.parentTitle, machineIdentifier },
-        ], { root: true });
-      }
-
-      if (result.grandparentRatingKey) {
-        commit('SET_ITEMCACHE', [
-          result.grandparentRatingKey,
-          {
-            title: result.grandparentTitle,
-            machineIdentifier,
-          },
-        ], { root: true });
-      }
-    }
+    return {
+      ...data.MediaContainer.Metadata[0],
+      machineIdentifier,
+    };
   },
 
   SEARCH_UNBLOCKED_PLEX_SERVERS: ({ getters, dispatch }, query) => Promise.allSettled(
@@ -168,14 +116,19 @@ export default {
     return data.MediaContainer.Metadata;
   },
 
-  FETCH_ALL_LIBRARIES: async ({ getters }, machineIdentifier) => {
+  FETCH_ALL_LIBRARIES: async ({ getters, commit }, machineIdentifier) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/library/sections');
-    // if (data && data.MediaContainer) {
-    //   data.MediaContainer.Directory.forEach((library) => {
-    //     this.commit('SET_LIBRARYCACHE', [library.key, this.clientIdentifier, library.title]);
-    //   });
-    // }
-    return data.MediaContainer.Directory;
+
+    commit('SET_PLEX_SERVER_LIBRARIES', {
+      machineIdentifier,
+      libraries: data.MediaContainer.Directory,
+    });
+  },
+
+  FETCH_ALL_LIBRARIES_IF_NEEDED: async ({ getters, dispatch }, machineIdentifier) => {
+    if (!getters.GET_PLEX_SERVER(machineIdentifier).libraries) {
+      await dispatch('FETCH_ALL_LIBRARIES', machineIdentifier);
+    }
   },
 
   FETCH_RECENTLY_ADDED_MEDIA: async ({ getters }, machineIdentifier) => {
@@ -203,7 +156,7 @@ export default {
     }));
   },
 
-  FETCH_SHOW: async ({ getters }, {
+  FETCH_SEASON: async ({ getters }, {
     machineIdentifier, ratingKey, start, size, excludeAllLeaves,
   }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier)

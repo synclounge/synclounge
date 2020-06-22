@@ -9,9 +9,6 @@ function capitalizeFirstLetter(string) {
 const browser = detect();
 
 export default {
-  getItemCache: (state) => state.itemCache,
-  getLibraryCache: (state) => state.libraryCache,
-
   IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN']
     && getters.IS_USER_AUTHORIZED,
 

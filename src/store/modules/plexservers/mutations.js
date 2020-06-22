@@ -16,4 +16,8 @@ export default {
   SET_PLAY_QUEUE_ID: (state, id) => {
     state.playQueueId = id;
   },
+
+  SET_PLEX_SERVER_LIBRARIES: (state, { machineIdentifier, libraries }) => {
+    Vue.set(state.servers[machineIdentifier], 'libraries', libraries);
+  },
 };

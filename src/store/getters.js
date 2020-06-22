@@ -1,9 +1,7 @@
 export default {
   getAppVersion: (state) => state.appVersion,
   getBackground: (state) => state.background,
-  getShownChat: (state) => state.shownChat,
 
-  // SETTINGS
   getLogos: () => ({
     light: {
       long: 'logo-long-light.png',
@@ -25,4 +23,5 @@ export default {
   GET_AUTHENTICATION: (state) => state.configuration.authentication,
   GET_CONFIGURATION_FETCHED: (state) => state.configurationFectched,
   GET_CONFIGURATION_FETCHED_ERROR: (state) => state.configurationFetchedError,
+  GET_ACTIVE_METADATA: (state) => state.activeMetadata,
 };

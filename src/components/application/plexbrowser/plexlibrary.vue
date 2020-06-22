@@ -1,28 +1,9 @@
 <template>
   <v-container
     fluid
-    style=" overflow-y: auto"
   >
     <v-row
-      v-if="!contents && !browsingContent"
-      justify="center"
-      align="start"
-    >
-      <v-col
-        cols="12"
-        style="position:relative"
-      >
-        <v-progress-circular
-          style="left: 50%; top:50%"
-          :size="60"
-          indeterminate
-          class="amber--text"
-        />
-      </v-col>
-    </v-row>
-
-    <v-row
-      v-if="!browsingContent && contents"
+      v-if="!browsingContent"
       no-gutter
     >
       <v-col
@@ -40,21 +21,29 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row
+      v-if="!browsingContent && !stopNewContent"
+      justify="center"
+      align="start"
+    >
       <v-col
-        v-if="contents && !browsingContent && !stopNewContent"
-        v-observe-visibility="getMoreContent"
+        v-intersect="onIntersect"
         cols="12"
-        justify="center"
+        style="position:relative"
       >
-        Loading...
+        <v-progress-circular
+          style="left: 50%; top:50%"
+          :size="60"
+          indeterminate
+          class="amber--text"
+        />
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { sample } from 'lodash-es';
 
 import sizing from '@/mixins/sizing';
@@ -75,7 +64,7 @@ export default {
     },
 
     sectionId: {
-      type: String,
+      type: [String, Number],
       required: true,
     },
   },
@@ -95,17 +84,36 @@ export default {
   computed: {
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
+      'GET_PLEX_SERVER',
     ]),
   },
 
   created() {
-    this.getMoreContent();
+    this.setupCrumbs();
   },
 
   methods: {
     ...mapActions('plexservers', [
+      'FETCH_ALL_LIBRARIES_IF_NEEDED',
       'FETCH_LIBRARY_CONTENTS',
     ]),
+
+    ...mapMutations([
+      'SET_ACTIVE_METADATA',
+    ]),
+
+    async setupCrumbs() {
+      await this.FETCH_ALL_LIBRARIES_IF_NEEDED(this.machineIdentifier);
+
+      const library = this.GET_PLEX_SERVER(this.machineIdentifier).libraries
+        .find((lib) => lib.key === this.sectionId.toString());
+
+      this.SET_ACTIVE_METADATA({
+        machineIdentifier: this.machineIdentifier,
+        librarySectionID: this.sectionId,
+        librarySectionTitle: library.title,
+      });
+    },
 
     setContent(content) {
       this.browsingContent = content;
@@ -126,7 +134,13 @@ export default {
         }));
     },
 
-    async getMoreContent() {
+    async onIntersect(entries, observer, isIntersecting) {
+      if (isIntersecting) {
+        await this.fetchMoreContent();
+      }
+    },
+
+    async fetchMoreContent() {
       if (this.stopNewContent || this.busy) {
         return;
       }
@@ -147,6 +161,7 @@ export default {
       this.startingIndex += results.length;
 
       if (this.contents.length <= 100 && this.contents.length > 0) {
+        // First time we got content
         this.setBackground();
       }
 

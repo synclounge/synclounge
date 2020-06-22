@@ -99,6 +99,7 @@
 import { mapGetters } from 'vuex';
 import VanillaTilt from 'vanilla-tilt';
 import contentTitle from '@/mixins/contentTitle';
+import contentLinks from '@/utils/contentlinks';
 
 export default {
   mixins: [contentTitle],
@@ -201,57 +202,10 @@ export default {
     },
 
     link() {
-      switch (this.content.type) {
-        case 'episode': {
-          return {
-            name: 'content',
-            params: {
-              machineIdentifier: this.machineIdentifier,
-              sectionId: this.content.librarySectionID,
-              grandparentRatingKey: this.content.grandparentRatingKey,
-              parentRatingKey: this.content.parentRatingKey,
-              ratingKey: this.content.ratingKey,
-            },
-          };
-        }
-
-        case 'season': {
-          return {
-            name: 'season',
-            params: {
-              machineIdentifier: this.machineIdentifier,
-              sectionId: this.content.librarySectionID,
-              parentRatingKey: this.content.parentRatingKey,
-              ratingKey: this.content.ratingKey,
-            },
-          };
-        }
-
-        case 'series':
-        case 'show': {
-          return {
-            name: 'series',
-            params: {
-              machineIdentifier: this.machineIdentifier,
-              sectionId: this.content.librarySectionID,
-              ratingKey: this.content.ratingKey,
-            },
-          };
-        }
-
-        // Movie or other type
-        case 'movie':
-        default: {
-          return {
-            name: 'movie',
-            params: {
-              machineIdentifier: this.machineIdentifier,
-              sectionId: this.content.librarySectionID,
-              ratingKey: this.content.ratingKey,
-            },
-          };
-        }
-      }
+      return contentLinks.getContentLink({
+        ...this.content,
+        machineIdentifier: this.machineIdentifier,
+      });
     },
 
     showUnwatchedFlag() {
