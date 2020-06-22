@@ -33,8 +33,9 @@ export default {
     });
   },
 
-  GET_CHOSEN_PLEX_CLIENT_AXIOS: (state, getters) => getters
-    .GET_PLEX_CLIENT_AXIOS(getters.GET_CHOSEN_CLIENT_ID),
+  GET_CHOSEN_PLEX_CLIENT_AXIOS: (state, getters) => (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10'
+    ? null
+    : getters.GET_PLEX_CLIENT_AXIOS(getters.GET_CHOSEN_CLIENT_ID)),
 
   GET_ACTIVE_MEDIA_POLL_METADATA: (state, getters) => (getters.GET_ACTIVE_MEDIA_METADATA
     ? {
@@ -66,6 +67,7 @@ export default {
 
   GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: (state) => state.previousSyncTimelineCommandId,
 
+  // TODO: come back and reallly examine this logic
   ALREADY_SYNCED_ON_CURRENT_TIMELINE: (state, getters) => getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
   && ((getters.GET_PLEX_CLIENT_TIMELINE_COMMAND_ID === null
     && getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID !== null)
