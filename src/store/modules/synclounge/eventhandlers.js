@@ -1,18 +1,18 @@
 export default {
-  HANDLE_SUCCESSFUL_JOIN_RESULT: ({
+  HANDLE_SUCCESSFUL_JOIN_RESULT: async ({
     getters, state, commit, dispatch,
   }, {
-    _data, currentUsers, partyPausing,
-  }) => {
+      _data, currentUsers, partyPausing,
+    }) => {
     commit('CLEAR_MESSAGES');
 
     commit('SET_USERS', currentUsers);
     commit('SET_PARTYPAUSING', partyPausing);
     commit('SET_ROOM', _data.room);
 
-    dispatch('DISPLAY_NOTIFICATION', `Joined room: ${_data.room}`, { root: true });
+    await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${_data.room}`, { root: true });
     // Add this item to our recently-connected list
-    dispatch(
+    await dispatch(
       'settings/ADD_RECENT_ROOM',
       {
         server: state.server,
@@ -23,42 +23,35 @@ export default {
       { root: true },
     );
 
-    getters.GET_SOCKET.on('poll-result', (users, me, commandId) => {
-      dispatch('HANDLE_POLL_RESULT', { users, me, commandId });
-    });
+    getters.GET_SOCKET.on('poll-result',
+      (users, me, commandId) => dispatch('HANDLE_POLL_RESULT', { users, me, commandId }));
 
-    getters.GET_SOCKET.on('party-pausing-changed', (res) => {
-      dispatch('HANDLE_PARTY_PAUSING_CHANGED', res);
-    });
+    getters.GET_SOCKET.on('party-pausing-changed',
+      (res) => dispatch('HANDLE_PARTY_PAUSING_CHANGED', res));
 
-    getters.GET_SOCKET.on('party-pausing-pause', (res) => {
-      dispatch('HANDLE_PARTY_PAUSING_PAUSE', res);
-    });
+    getters.GET_SOCKET.on('party-pausing-pause',
+      (res) => dispatch('HANDLE_PARTY_PAUSING_PAUSE', res));
 
-    getters.GET_SOCKET.on('user-joined', (users, user) => {
-      dispatch('HANDLE_USER_JOINED', { users, user });
-    });
+    getters.GET_SOCKET.on('user-joined',
+      (users, user) => dispatch('HANDLE_USER_JOINED', { users, user }));
 
-    getters.GET_SOCKET.on('user-left', (users, user) => {
-      dispatch('HANDLE_USER_LEFT', { users, user });
-    });
+    getters.GET_SOCKET.on('user-left',
+      (users, user) => dispatch('HANDLE_USER_LEFT', { users, user }));
 
-    getters.GET_SOCKET.on('host-swap', (user) => {
-      dispatch('HANDLE_HOST_SWAP', user);
-    });
+    getters.GET_SOCKET.on('host-swap',
+      (user) => dispatch('HANDLE_HOST_SWAP', user));
 
-    state.socket.on('host-update', (hostData) => {
-      dispatch('HANDLE_HOST_UPDATE', hostData);
-    });
+    state.socket.on('host-update',
+      (hostData) => dispatch('HANDLE_HOST_UPDATE', hostData));
 
-    state.socket.on('disconnect', (disconnectData) => {
-      dispatch('HANDLE_DISCONNECT', disconnectData);
-    });
+    state.socket.on('disconnect',
+      (disconnectData) => dispatch('HANDLE_DISCONNECT', disconnectData));
 
     state.socket.on('new_message', (msgObj) => {
       commit('ADD_MESSAGE', msgObj);
     });
 
+    // Purposefully not awaited
     dispatch('START_CLIENT_POLLER');
   },
 
@@ -91,7 +84,7 @@ export default {
       type: 'alert',
     });
 
-    dispatch('DISPLAY_NOTIFICATION', messageText, { root: true });
+    await dispatch('DISPLAY_NOTIFICATION', messageText, { root: true });
 
     if (isPause) {
       await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
@@ -195,7 +188,7 @@ export default {
     if (getters.GET_HOST_TIMELINE.playerState === 'stopped') {
       // First, decide if we should stop playback
       if (timeline.playerState !== 'stopped') {
-        dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
+        await dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
         return dispatch('plexclients/PRESS_STOP', null, { root: true });
       }
 
@@ -221,7 +214,7 @@ export default {
     }
 
     if (getters.GET_HOST_TIMELINE.playerState === 'playing' && timeline.playerState === 'paused') {
-      dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
+      await dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
       return dispatch('plexclients/PRESS_PLAY', null, { root: true });
     }
 
