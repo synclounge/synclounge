@@ -311,7 +311,7 @@ export default {
               ratingKey: newMetadata.ratingKey,
             },
           });
-        } else if (this.$router.fullPath.indexOf('/nowplaying')) {
+        } else if (this.$route.fullPath.indexOf('/nowplaying')) {
           this.$router.push({ name: 'browse' });
         }
       }
