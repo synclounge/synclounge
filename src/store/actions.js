@@ -112,7 +112,8 @@ export default {
     }
   },
 
-  DISPLAY_NOTIFICATION: (context, message) => {
-    window.EventBus.$emit('notification', message);
+  DISPLAY_NOTIFICATION: ({ commit }, message) => {
+    commit('SET_SNACKBAR_MESSAGE', message);
+    commit('SET_SNACKBAR_OPEN', true);
   },
 };

@@ -24,4 +24,6 @@ export default {
   GET_CONFIGURATION_FETCHED: (state) => state.configurationFectched,
   GET_CONFIGURATION_FETCHED_ERROR: (state) => state.configurationFetchedError,
   GET_ACTIVE_METADATA: (state) => state.activeMetadata,
+  GET_SNACKBAR_MESSAGE: (state) => state.snackbarMessage,
+  GET_SNACKBAR_OPEN: (state) => state.snackbarOpen,
 };

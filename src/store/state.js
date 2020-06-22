@@ -20,6 +20,9 @@ const state = () => ({
 
   // Used to help with the crumbs
   activeMetadata: null,
+
+  snackbarMessage: null,
+  snackbarOpen: false,
 });
 
 export default state;

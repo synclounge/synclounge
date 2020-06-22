@@ -41,7 +41,7 @@
           color="primary"
           dark
           raised
-          @success="sendNotification()"
+          @success="onInviteCopied"
         >
           Invite
         </v-btn>
@@ -137,20 +137,17 @@
           </v-row>
         </v-container>
 
-        <template
-          v-else
-        >
-          <router-view />
-        </template>
+        <router-view v-else />
 
         <v-snackbar
-          v-model="snackbar"
+          :value="GET_SNACKBAR_OPEN"
           color="green darken-2"
           bottom
           :timeout="4000"
+          @input="SET_SNACKBAR_OPEN"
         >
           <div style="text-align:center; width:100%">
-            {{ snackbarMsg }}
+            {{ GET_SNACKBAR_MESSAGE }}
           </div>
         </v-snackbar>
 
@@ -174,7 +171,9 @@
 // Custom css
 import './assets/css/style.css';
 
-import { mapActions, mapGetters, mapState } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 import fscreen from 'fscreen';
 
 export default {
@@ -189,12 +188,8 @@ export default {
 
   data() {
     return {
-      fixed: false,
-      initialized: false,
       donateDialog: false,
-
-      snackbar: false,
-      snackbarMsg: false,
+      appIsFullscreen: false,
 
       items: [
         {
@@ -204,6 +199,7 @@ export default {
           title: 'Signout',
         },
       ],
+
       links: [
         {
           title: 'Github',
@@ -216,7 +212,6 @@ export default {
           href: 'https://discord.gg/fKQB3yt',
         },
       ],
-      appIsFullscreen: false,
     };
   },
 
@@ -228,6 +223,8 @@ export default {
       'GET_CONFIGURATION_FETCHED',
       'GET_CONFIGURATION_FETCHED_ERROR',
       'GET_ACTIVE_METADATA',
+      'GET_SNACKBAR_MESSAGE',
+      'GET_SNACKBAR_OPEN',
     ]),
 
     ...mapGetters('plex', [
@@ -238,6 +235,7 @@ export default {
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
       'GET_ACTIVE_SERVER_ID',
+      'GET_PLEX_CLIENT_TIMELINE',
     ]),
 
     ...mapGetters('synclounge', [
@@ -304,14 +302,14 @@ export default {
         this.SET_RIGHT_SIDEBAR_OPEN(true);
       }
     },
+
+    GET_PLEX_CLIENT_TIMELINE() {
+      // This handles regular plex clients (nonslplayer) playback changes
+
+    },
   },
 
   mounted() {
-    window.EventBus.$on('notification', (msg) => {
-      this.snackbarMsg = msg;
-      this.snackbar = true;
-    });
-
     fscreen.addEventListener('fullscreenchange', () => {
       const isFullscreen = fscreen.fullscreenElement !== null;
       this.appIsFullscreen = isFullscreen;
@@ -337,6 +335,7 @@ export default {
       'SET_RIGHT_SIDEBAR_OPEN',
       'TOGGLE_RIGHT_SIDEBAR_OPEN',
       'FETCH_CONFIG',
+      'DISPLAY_NOTIFICATION',
     ]),
 
     ...mapActions('plex', [
@@ -344,8 +343,12 @@ export default {
       'FETCH_PLEX_USER',
     ]),
 
-    sendNotification() {
-      window.EventBus.$emit('notification', 'Copied to clipboard');
+    ...mapMutations([
+      'SET_SNACKBAR_OPEN',
+    ]),
+
+    onInviteCopied() {
+      return this.DISPLAY_NOTIFICATION('Copied to clipboard');
     },
 
     goFullscreen() {

@@ -34,4 +34,12 @@ export default {
   SET_ACTIVE_METADATA: (state, metadata) => {
     state.activeMetadata = metadata;
   },
+
+  SET_SNACKBAR_MESSAGE: (state, message) => {
+    state.snackbarMessage = message;
+  },
+
+  SET_SNACKBAR_OPEN: (state, open) => {
+    state.snackbarOpen = open;
+  },
 };
