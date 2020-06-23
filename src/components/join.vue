@@ -70,10 +70,6 @@ export default {
     ...mapGetters([
       'getLogos',
     ]),
-
-    ...mapGetters('plexclients', [
-      'GET_CHOSEN_CLIENT',
-    ]),
   },
 
   methods: {

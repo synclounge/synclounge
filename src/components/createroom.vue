@@ -10,13 +10,21 @@
           max-width="500"
         >
           <v-card-title>
-            Welcome to SyncLounge
+            <v-img
+              contain
+              :src="getLogos.light.long"
+            />
           </v-card-title>
+
+          <clientpicker
+            @loadingChange="loading = $event"
+            @clientConnectableChange="clientConnectable = $event"
+          />
 
           <v-card-actions>
             <v-btn
               color="primary"
-              :disabled="!GET_SERVERS_HEALTH"
+              :disabled="!GET_SERVERS_HEALTH && !clientConnectable"
               @click="createRoom"
             >
               Create Room
@@ -38,7 +46,19 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  name: 'CreateRoom',
+  components: {
+    clientpicker: () => import('@/components/clientpicker.vue'),
+  },
+
+  data() {
+    return {
+      loading: false,
+
+      // Default true because default client is slplayer
+      clientConnectable: true,
+    };
+  },
+
   computed: {
     ...mapGetters([
       'getLogos',
