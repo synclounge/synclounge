@@ -79,7 +79,7 @@
             >
               <v-icon
                 v-clipboard="address"
-                class="mr-2 primary--text click-cursor"
+                class="mr-2 primary--text clickable"
                 @click="onAddressCopied"
               >
                 content_copy

@@ -156,7 +156,6 @@
       width="350"
     >
       <v-card
-        style="background-color: #151924"
         class="pa-3"
       >
         <div class="text-center">
@@ -173,7 +172,6 @@
       width="350"
     >
       <v-card
-        style="background-color: #151924"
         class="pa-3"
       >
         <div class="text-center">
