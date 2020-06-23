@@ -1,24 +1,15 @@
 {
   "name": "SyncLounge",
   "version": "2.0.0",
-  "description": "Synced playback of Plex content",
   "private": false,
+  "description": "Synced playback of Plex content",
   "author": "samcm",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/samcm/synclounge.git"
-  },
-  "bugs": {
-    "url": "https://github.com/samcm/synclounge/issues"
-  },
-  "license": "MIT",
-  "homepage": "https://synclounge.tv/",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "node server.js",
-    "server": "node server.js"
+    "server": "node server.js",
+    "start": "node server.js"
   },
   "dependencies": {
     "args-parser": "^1.1.0",
@@ -32,11 +23,11 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.4.4",
-    "@vue/cli-plugin-eslint": "^4.4.4",
-    "@vue/cli-plugin-router": "^4.4.4",
-    "@vue/cli-plugin-vuex": "^4.4.4",
-    "@vue/cli-service": "^4.4.4",
+    "@vue/cli-plugin-babel": "^4.4.5",
+    "@vue/cli-plugin-eslint": "^4.4.5",
+    "@vue/cli-plugin-router": "^4.4.5",
+    "@vue/cli-plugin-vuex": "^4.4.5",
+    "@vue/cli-service": "^4.4.5",
     "@vue/eslint-config-airbnb": "^5.0.2",
     "axios": "^0.19.2",
     "babel-eslint": "^10.1.0",
@@ -62,5 +53,14 @@
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.5.0",
     "vuex-persistedstate": "^3.0.1"
+  },
+  "bugs": {
+    "url": "https://github.com/samcm/synclounge/issues"
+  },
+  "homepage": "https://synclounge.tv/",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samcm/synclounge.git"
   }
 }
