@@ -3,7 +3,7 @@
     class="pt-2 pa-4"
     justify="center"
   >
-    <v-col md="6">
+    <v-col md="4">
       <v-card
         :loading="loading"
         style="background: rgba(0,0,0,0.3)"
@@ -17,7 +17,10 @@
         </v-alert>
 
         <v-card-title>
-          Sign in with Plex
+          <v-img
+            contain
+            :src="getLogos.light.long"
+          />
         </v-card-title>
 
         <v-card-text>
@@ -34,9 +37,11 @@
         <v-card-actions>
           <v-btn
             class="primary"
+            target="_blank"
             x-large
             text
-            :disabled="loading"
+            :disabled="loading || !plexAuthResponse"
+            :href="plexAuthUrl"
             @click="authenticate"
           >
             Sign in
@@ -58,15 +63,30 @@ export default {
       loading: false,
       authInterval: null,
       plexAuthResponse: null,
-      authWindow: null,
     };
   },
 
   computed: {
+    ...mapGetters([
+      'getLogos',
+    ]),
+
     ...mapGetters('plex', [
       'GET_PLEX_AUTH_URL',
       'IS_USER_AUTHORIZED',
     ]),
+
+    plexAuthUrl() {
+      if (!this.plexAuthResponse) {
+        return '';
+      }
+
+      return this.GET_PLEX_AUTH_URL(this.plexAuthResponse.code);
+    },
+  },
+
+  created() {
+    this.fetchInitialAuthCode();
   },
 
   methods: {
@@ -76,11 +96,14 @@ export default {
       'FETCH_PLEX_DEVICES_IF_NEEDED',
     ]),
 
-    async authenticate() {
+    async fetchInitialAuthCode() {
       this.loading = true;
       this.plexAuthResponse = await this.REQUEST_PLEX_INIT_AUTH();
+      this.loading = false;
+    },
 
-      this.openPlexAuthWindow();
+    async authenticate() {
+      this.loading = true;
 
       // Start checking for valid auth response
       // eslint-disable-next-line no-constant-condition
@@ -90,28 +113,18 @@ export default {
         // eslint-disable-next-line no-await-in-loop
         const isComplete = await this.isAuthComplete();
         if (isComplete) {
-          if (this.authWindow) {
-            this.authWindow.close();
-          }
-
           break;
         }
 
         // eslint-disable-next-line no-await-in-loop
         await delayPromise;
       }
+
       this.loading = false;
 
       if (this.IS_USER_AUTHORIZED) {
         this.$router.push(this.$route.query.redirect || '/');
       }
-    },
-
-    openPlexAuthWindow() {
-      this.authWindow = window.open(
-        this.GET_PLEX_AUTH_URL(this.plexAuthResponse.code),
-        '_blank',
-      );
     },
 
     async isAuthComplete() {
