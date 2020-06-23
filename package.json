@@ -12,10 +12,10 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "args-parser": "^1.1.0",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "minimist": "^1.2.5",
     "socket.io": "^2.3.0",
     "vue": "^2.6.11",
     "vue-router": "^3.3.4",

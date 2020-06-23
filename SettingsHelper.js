@@ -1,4 +1,4 @@
-const args = require('args-parser')(process.argv);
+const argv = require('minimist')(process.argv.slice(2));
 
 const { coalesce } = require('./src/utils/helpers');
 
@@ -191,12 +191,12 @@ module.exports = {
     for (let i = 0; i < fields.length; i++) {
       const setting = fields[i];
       // console.log('Processing setting', setting);
-      // console.log(`Args: '${args[setting.env]}'; '${args[setting.local]}'`);
+      // console.log(`Args: '${argv[setting.env]}'; '${argv[setting.local]}'`);
       // console.log(`ENV: '${process.env[setting.env]}'; '${process.env[setting.local]}'`);
       // console.log(`Settings: '${settings[setting.local]}'; '${setting.default}'`);
       const value = coalesce(
-        args[setting.env],
-        args[setting.local],
+        argv[setting.env],
+        argv[setting.local],
         process.env[setting.env],
         process.env[setting.local],
         settings[setting.env],
@@ -207,7 +207,7 @@ module.exports = {
 
       // Backwards compatibilty for PORT ENV setting
       if (setting.local === 'webapp_port' && output[setting.local] === 8088) {
-        const port = args.PORT || process.env.PORT || settings.PORT;
+        const port = argv.PORT || process.env.PORT || settings.PORT;
         if (port && port !== 8088) {
           console.log(`Please change 'PORT' to 'WEB_PORT'. Setting WEB_PORT to '${port}'`);
           output[setting.local] = port;
