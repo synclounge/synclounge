@@ -52,8 +52,6 @@
         :client-id="id"
       />
     </v-list-item-group>
-    </span>
-    </v-alert>
   </v-list>
 </template>
 
