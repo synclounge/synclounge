@@ -7,7 +7,7 @@
       <v-col>
         <v-card
           class="mx-auto"
-          max-width="500"
+          max-width="550"
           :loading="loading"
         >
           <v-card-title>

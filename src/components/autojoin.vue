@@ -8,16 +8,19 @@
         :loading="loading"
         class="pa-4"
       >
+        <v-card-title>
+          <v-img
+            contain
+            :src="getLogos.light.long"
+          />
+        </v-card-title>
+
         <v-alert
           v-if="error"
           type="error"
         >
           Unable to autojoin
         </v-alert>
-
-        <v-card-title>
-          Welcome to SyncLounge
-        </v-card-title>
 
         <v-card-actions>
           <v-btn
@@ -39,8 +42,6 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  name: 'AutoJoin',
-
   data() {
     return {
       error: false,
@@ -55,7 +56,7 @@ export default {
   },
 
   methods: {
-    ...mapActions([
+    ...mapActions('synclounge', [
       'JOIN_CONFIG_SYNCLOUNGE_SERVER',
     ]),
 
@@ -72,7 +73,7 @@ export default {
       this.loading = false;
 
       if (!this.error) {
-        this.$router.push('/browse');
+        this.$router.push({ name: 'browse' });
       }
     },
   },

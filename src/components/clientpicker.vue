@@ -4,9 +4,28 @@
   >
     <v-alert
       v-if="error"
+      prominent
       type="error"
     >
-      Unable to connect to client
+      <v-row align="center">
+        <v-col>
+          Unable to connect to client.
+        </v-col>
+
+        <v-col
+          v-if="isHttps"
+          cols="auto"
+        >
+          Try with http
+          <v-btn
+            :href="httpLink"
+            class="ml-1"
+            color="warning"
+          >
+            Try
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-alert>
 
     <v-subheader>
@@ -14,7 +33,8 @@
       <v-btn
         icon
         x-small
-        @click="FETCH_PLEX_DEVICES"
+        @click="
+          FETCH_PLEX_DEVICES"
       >
         <v-icon>refresh</v-icon>
       </v-btn>
@@ -32,6 +52,8 @@
         :client-id="id"
       />
     </v-list-item-group>
+    </span>
+    </v-alert>
   </v-list>
 </template>
 
@@ -58,6 +80,14 @@ export default {
       'GET_CHOSEN_CLIENT_ID',
       'GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN',
     ]),
+
+    isHttps() {
+      return window.location.protocol === 'https:';
+    },
+
+    httpLink() {
+      return `http:${window.location.href.substring(window.location.protocol.length)}`;
+    },
   },
 
   mounted() {
