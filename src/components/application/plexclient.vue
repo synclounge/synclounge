@@ -1,6 +1,5 @@
 <template>
   <v-list-item
-    :style="styleObj"
     v-bind="$attrs"
   >
     <v-list-item-avatar>
@@ -45,10 +44,6 @@ export default {
       type: String,
       required: true,
     },
-
-    selected: {
-      type: Boolean,
-    },
   },
 
   computed: {
@@ -83,18 +78,6 @@ export default {
         return 'platforms/synclounge.png';
       }
       return `platforms/${this.platform}.svg`;
-    },
-
-    styleObj() {
-      if (this.selected) {
-        return {
-          'font-weight': '700',
-          background: 'rgba(0,0,0,0.3)',
-        };
-      }
-      return {
-        opacity: '0.7',
-      };
     },
   },
 };
