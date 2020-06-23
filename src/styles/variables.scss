@@ -12,7 +12,6 @@ $material-dark-elevation-colors: (
 );
 
 $material-dark: (
-  'background': #00a86b,
   'surface': #151924,
   'app-bar': map-get($material-dark-elevation-colors, '4'),
   'bottom-navigation': map-get($material-dark-elevation-colors, '8'),

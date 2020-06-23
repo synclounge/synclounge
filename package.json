@@ -41,7 +41,7 @@
     "git-rev-sync": "^2.0.0",
     "humanize-duration": "^3.23.1",
     "lodash-es": "^4.17.15",
-    "sass": "^1.26.7",
+    "sass": "^1.26.9",
     "sass-loader": "^8.0.2",
     "shaka-player": "^3.0.1",
     "socket.io-client": "^2.3.0",
