@@ -3,7 +3,10 @@
     class="pt-2 pa-4"
     justify="center"
   >
-    <v-col md="4">
+    <v-col
+      md="6"
+      lg="5"
+    >
       <v-card
         :loading="loading"
         style="background: rgba(0,0,0,0.3)"
