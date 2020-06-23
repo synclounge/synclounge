@@ -8,6 +8,7 @@
         <v-card
           class="mx-auto"
           max-width="500"
+          :loading="loading"
         >
           <v-card-title>
             <v-img
@@ -24,7 +25,7 @@
           <v-card-actions>
             <v-btn
               color="primary"
-              :disabled="!GET_SERVERS_HEALTH && !clientConnectable"
+              :disabled="!GET_SERVERS_HEALTH || !clientConnectable"
               @click="createRoom"
             >
               Create Room
