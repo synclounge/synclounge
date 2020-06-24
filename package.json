@@ -48,7 +48,7 @@
     "string-similarity": "^4.0.1",
     "vanilla-tilt": "^1.7.0",
     "vue-chat-scroll": "^1.4.0",
-    "vue-cli-plugin-vuetify": "~2.0.5",
+    "vue-cli-plugin-vuetify": "~2.0.6",
     "vue-clipboard2": "^0.3.1",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.5.0",
