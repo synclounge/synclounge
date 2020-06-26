@@ -27,7 +27,7 @@
     "@vue/cli-plugin-eslint": "^4.4.5",
     "@vue/cli-plugin-router": "^4.4.5",
     "@vue/cli-plugin-vuex": "^4.4.6",
-    "@vue/cli-service": "^4.4.5",
+    "@vue/cli-service": "^4.4.6",
     "@vue/eslint-config-airbnb": "^5.0.2",
     "axios": "^0.19.2",
     "babel-eslint": "^10.1.0",
