@@ -183,7 +183,9 @@
         <v-col
           v-for="content in subsetOnDeck"
           :key="content.ratingKey"
-          cols="3"
+          cols="12"
+          sm="6"
+          md="3"
           class="pb-3 pa-2"
         >
           <plexthumb
