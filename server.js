@@ -307,7 +307,6 @@ socketServer.on('connection', (socket) => {
     if (socket.ourRoom == null) {
       // console.log('This user should join a room first')
       socket.emit('flowerror', 'You aren\' connected to a room! Use join');
-      socket.emit('rejoin');
       return;
     }
 
@@ -356,7 +355,6 @@ socketServer.on('connection', (socket) => {
     if (socket.ourRoom == null) {
       // console.log('This user should join a room first')
       socket.emit('flowerror', 'You aren\' connected to a room! Use join');
-      socket.emit('rejoin');
       return;
     }
     // console.log('New message in channel ' + socket.selfUser.room + ' from ' + socket.selfUser.username + ' saying ' + msg)
@@ -372,8 +370,16 @@ socketServer.on('connection', (socket) => {
 
   socket.on('party_pausing_change', (value) => {
     const user = socket.selfUser;
+
+    if (!user) {
+      return 'Invalid status';
+    }
+
     const room = socketServer.sockets.adapter.rooms[user.room];
-    if (!user || !room) return 'Invalid status';
+    if (!room) {
+      return 'Invalid status';
+    }
+
     if (user.role !== 'host') return 'You are not the host';
     room.partyPausing = value;
     socket.broadcast.to(socket.selfUser.room).emit('party-pausing-changed', { value, user });
@@ -383,10 +389,16 @@ socketServer.on('connection', (socket) => {
 
   socket.on('party_pausing_send', (isPause) => {
     const user = socket.selfUser;
+    if (!user) {
+      return false;
+    }
+
     const room = socketServer.sockets.adapter.rooms[user.room];
+
     if (!room || !room.partyPausing) {
       return false;
     }
+
     socket.broadcast.to(socket.selfUser.room).emit('party-pausing-pause', { isPause, user });
     socket.emit('party-pausing-pause', { isPause, user });
     return true;
@@ -395,7 +407,6 @@ socketServer.on('connection', (socket) => {
   socket.on('transfer_host', (data) => {
     if (socket.ourRoom == null) {
       socket.emit('flowerror', 'You aren\'t connected to a room! Use join');
-      socket.emit('rejoin');
       return;
     }
     transferHost(socket.selfUser, (user) => user.username === data.username);
