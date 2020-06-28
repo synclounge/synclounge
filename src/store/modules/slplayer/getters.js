@@ -134,7 +134,10 @@ export default {
     location: getters.GET_PLEX_SERVER_LOCATION,
     ...rootGetters['settings/GET_SLPLAYERQUALITY'] && { maxVideoBitrate: rootGetters['settings/GET_SLPLAYERQUALITY'] }, // only include if not null
     addDebugOverlay: 0,
-    autoAdjustQuality: 1,
+
+    // Shaka doesn't seem to support switching
+    // TODO: figure out how to make it work
+    autoAdjustQuality: 0,
     directStreamAudio: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
