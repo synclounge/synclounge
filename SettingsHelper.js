@@ -91,37 +91,12 @@ const fields = [
     type: 'boolean',
   },
   {
-    local: 'clientPollInterval',
-    env: 'CLIENTPOLLINTERVAL',
-    default: 1000,
-    type: 'number',
-  },
-  {
-    local: 'syncMode',
-    env: 'SYNCMODE',
-    default: 'cleanseek',
-    type: 'string',
-  },
-  {
-    local: 'syncFlexibility',
-    env: 'SYNCFLEXIBILITY',
-    default: 3000,
-    type: 'number',
-  },
-  {
     local: 'slPlayerQuality',
     env: 'SLPLAYERQUALITY',
     default: null,
     type: 'number',
     // null is allowed because null quality indicates Original
     nullable: true,
-  },
-  {
-    // Valid values are in the range [0, 1]
-    local: 'slPlayerVolume',
-    env: 'SLPLAYERVOLUME',
-    default: 1,
-    type: 'number',
   },
   {
     local: 'slPlayerForceTranscode',

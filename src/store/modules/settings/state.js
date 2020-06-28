@@ -1,14 +1,11 @@
 import guid from '@/utils/guid';
 
-// The state must return a function
-// to make the module reusable.
-// See: https://vuex.vuejs.org/en/modules.html#module-reuse
 // All of these settings are stored in localStorage and are persistent across reloads
 const state = () => ({
   autoplay: null,
-  clientPollInterval: null,
-  syncMode: null,
-  syncFlexibility: null,
+  clientPollInterval: 1000,
+  syncMode: 'cleanseek',
+  syncFlexibility: 3000,
   customServer: {
     name: 'Custom Server',
     location: 'Anywhere!',
@@ -17,7 +14,7 @@ const state = () => ({
   },
   customServerUserInputtedUrl: 'http://',
   slPlayerQuality: null,
-  slPlayerVolume: null,
+  slPlayerVolume: 1,
   slPlayerForceTranscode: null,
   hideUsername: false,
   altUsername: null,

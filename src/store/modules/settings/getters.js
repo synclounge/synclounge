@@ -5,18 +5,11 @@ export default {
   GET_AUTOPLAY: (state, getters, rootState, rootGetters) => coalesce(state.autoplay,
     rootGetters.GET_CONFIG.autoplay),
 
-  GET_CLIENTPOLLINTERVAL: (state, getters, rootState, rootGetters) => coalesce(
-    state.clientPollInterval,
-    rootGetters.GET_CONFIG.clientPollInterval,
-  ),
+  GET_CLIENTPOLLINTERVAL: (state) => state.clientPollInterval,
 
-  GET_SYNCMODE: (state, getters, rootState, rootGetters) => coalesce(state.syncMode,
-    rootGetters.GET_CONFIG.syncMode),
+  GET_SYNCMODE: (state) => state.syncMode,
 
-  GET_SYNCFLEXIBILITY: (state, getters, rootState, rootGetters) => coalesce(
-    state.syncFlexibility,
-    rootGetters.GET_CONFIG.syncFlexibility,
-  ),
+  GET_SYNCFLEXIBILITY: (state) => state.syncFlexibility,
 
   GET_CUSTOMSERVER: (state, getters, rootState, rootGetters) => coalesce(state.customServer,
     rootGetters.GET_CONFIG.customServer),
@@ -26,10 +19,7 @@ export default {
     rootGetters.GET_CONFIG.slPlayerQuality,
   ) || null,
 
-  GET_SLPLAYERVOLUME: (state, getters, rootState, rootGetters) => coalesce(
-    state.slPlayerVolume,
-    rootGetters.GET_CONFIG.slPlayerVolume,
-  ),
+  GET_SLPLAYERVOLUME: (state) => state.slPlayerVolume,
 
   GET_SLPLAYERFORCETRANSCODE: (state, getters, rootState, rootGetters) => coalesce(
     state.slPlayerForceTranscode,

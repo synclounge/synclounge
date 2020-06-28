@@ -1,21 +1,23 @@
 {
   "webroot": "",
   "webapp_port": 8088,
-  "accessUrl": "https://mysynclounge.com",
-
   "autoJoin": false,
   "autoJoinServer": "",
   "autoJoinRoom": "",
   "autoJoinPassword": "",
-
   "authentication": {
     "mechanism": "plex",
-    "type": ["server", "user"],
-    "authorized": ["MY_PLEX_SERVER_MACHINE_ID", "MY_PLEX_USER_EMAIL", "MY_PLEX_USER_NAME"]
+    "type": [
+      "server",
+      "user"
+    ],
+    "authorized": [
+      "MY_PLEX_SERVER_MACHINE_ID",
+      "MY_PLEX_USER_EMAIL",
+      "MY_PLEX_USER_NAME"
+    ]
   },
-
   "customServer": "",
-
   "servers": [
     {
       "name": "Custom Server 1",
@@ -39,15 +41,9 @@
       "defaultPassword": "DefaultPassword123"
     }
   ],
-
   "serverroot": "/slserver",
   "server_port": 8089,
-
   "autoplay": true,
-  "clientPollInterval": 1000,
-  "syncMode": "cleanseek",
-  "syncFlexibility": 3000,
   "slPlayerQuality": 10000,
-  "slPlayerVolume": 1,
   "slPlayerForceTranscode": false
 }
