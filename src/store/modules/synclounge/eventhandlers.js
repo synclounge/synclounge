@@ -194,7 +194,7 @@ export default {
     }
   },
 
-  HANDLE_DISCONNECT: async ({ getters, dispatch }) => {
+  HANDLE_DISCONNECT: async ({ dispatch }) => {
     await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
   },
 
