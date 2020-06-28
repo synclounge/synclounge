@@ -71,19 +71,6 @@ const fields = [
     default: [],
     type: 'array',
   },
-  // Server settings
-  {
-    local: 'serverroot',
-    env: 'SERVER_ROOT',
-    default: '/slserver',
-    type: 'string',
-  },
-  {
-    local: 'server_port',
-    env: 'SERVER_PORT',
-    default: '8089',
-    type: 'number',
-  },
   {
     local: 'autoplay',
     env: 'AUTOPLAY',
