@@ -226,7 +226,7 @@ export default {
         && (timeline.duration - timeline.time) < 10000
         && getters.GET_ACTIVE_MEDIA_METADATA.type === 'episode'
       ) {
-        if (!getters.GET_UP_NEXT_TRIGGERED) {
+        if (!rootGetters.GET_UP_NEXT_TRIGGERED) {
           const item = await dispatch('plexservers/FETCH_POST_PLAY', {
             machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
             ratingKey: getters.GET_ACTIVE_MEDIA_METADATA.ratingKey,
@@ -234,12 +234,16 @@ export default {
 
           if (item.grandparentRatingKey
             === getters.GET_ACTIVE_MEDIA_METADATA.grandparentRatingKey) {
-            commit('SET_UP_NEXT_POST_PLAY_DATA', item, { root: true });
+            const metadata = await dispatch('plexservers/FETCH_PLEX_METADATA', {
+              machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
+              ratingKey: item.ratingKey,
+            }, { root: true });
+            commit('SET_UP_NEXT_POST_PLAY_DATA', metadata, { root: true });
           }
 
           commit('SET_UP_NEXT_TRIGGERED', true, { root: true });
         }
-      } else if (getters.GET_UP_NEXT_TRIGGERED) {
+      } else if (rootGetters.GET_UP_NEXT_TRIGGERED) {
         // If outside upnext period, reset triggered
         commit('SET_UP_NEXT_TRIGGERED', false, { root: true });
       }

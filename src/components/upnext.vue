@@ -243,7 +243,9 @@ export default {
   animation-timing-function: linear;
   animation-fill-mode: forwards;
 }
+</style>
 
+<style>
 @keyframes timebar_progress_x{
   from  { transform: scaleX(1) }
   to    { transform: scaleX(0) }
