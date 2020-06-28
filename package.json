@@ -43,7 +43,7 @@
     "lodash-es": "^4.17.15",
     "sass": "^1.26.9",
     "sass-loader": "^8.0.2",
-    "shaka-player": "^3.0.1",
+    "shaka-player": "^2.5.13",
     "socket.io-client": "^2.3.0",
     "string-similarity": "^4.0.1",
     "vanilla-tilt": "^1.7.0",
