@@ -7,7 +7,7 @@
       <v-col>
         <v-card
           class="mx-auto"
-          max-width="500"
+          max-width="550"
           :loading="loading"
         >
           <v-card-title>
@@ -16,6 +16,13 @@
               :src="getLogos.light.long"
             />
           </v-card-title>
+
+          <v-alert
+            v-if="error"
+            type="error"
+          >
+            {{ error }}
+          </v-alert>
 
           <clientpicker
             @loadingChange="loading = $event"
@@ -55,6 +62,11 @@ export default {
       type: String,
       required: true,
     },
+
+    password: {
+      type: String,
+      default: null,
+    },
   },
 
   data() {
@@ -63,6 +75,8 @@ export default {
 
       // Default true because default client is slplayer
       clientConnectable: true,
+
+      error: null,
     };
   },
 
@@ -74,17 +88,25 @@ export default {
 
   methods: {
     ...mapActions('synclounge', [
-      'autoJoin',
+      'SET_AND_CONNECT_AND_JOIN_ROOM',
     ]),
 
     async joinInvite() {
-      await this.autoJoin({
-        server: this.server,
-        room: this.room,
-      });
-      // TODO: probably show error if this fails
+      this.error = null;
 
-      this.$router.push('/browse');
+      try {
+        await this.SET_AND_CONNECT_AND_JOIN_ROOM({
+          server: this.server,
+          room: this.room,
+          password: this.password,
+        });
+
+        this.$router.push({ name: 'browse' });
+      } catch (e) {
+        console.log(e);
+        throw e;
+        // this.error = e.message;
+      }
     },
   },
 };

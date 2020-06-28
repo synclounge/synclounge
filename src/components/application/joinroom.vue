@@ -314,12 +314,13 @@
               class="offset-md-3"
             >
               <v-text-field
-                v-model="room"
+                :value="GET_ROOM"
                 origin="center center"
                 :maxlength="25"
                 name="input-2"
                 label="Room name"
                 :autofocus="true"
+                @input="SET_ROOM"
                 @keyup.enter.native="joinRoom"
               />
             </v-col>
@@ -330,11 +331,12 @@
               class="offset-md-3"
             >
               <v-text-field
-                v-model="password"
+                :value="GET_PASSWORD"
                 transition="v-scale-transition"
                 origin="center center"
                 name="input-2"
                 label="Room password"
+                @input="SET_PASSWORD"
                 @keyup.enter.native="joinRoom"
               />
             </v-col>
@@ -388,9 +390,7 @@ export default {
       selectedServer: null,
       serverError: null,
       roomError: null,
-      room: '',
       e1: 2,
-      password: '',
       connectionPending: false,
       results: {},
       testConnectionInterval: null,
@@ -401,9 +401,11 @@ export default {
     ...mapGetters('synclounge', [
       'GET_SOCKET',
       'GET_SYNCLOUNGE_SERVERS',
-      'GET_ROOM',
       'GET_SERVER',
       'GET_RECENT_ROOMS',
+      'GET_ROOM',
+      'GET_PASSWORD',
+      'IS_IN_ROOM',
     ]),
 
     ...mapGetters([
@@ -420,10 +422,14 @@ export default {
       this.serverError = null;
     },
 
-    GET_ROOM() {
-      if (this.GET_SERVER && this.GET_ROOM) {
-        this.$router.push('/browse');
-      }
+    IS_IN_ROOM: {
+      handler(inRoom) {
+        if (inRoom) {
+          this.$router.push({ name: 'browse' });
+        }
+      },
+
+      immediate: true,
     },
   },
 
@@ -433,22 +439,25 @@ export default {
   },
 
   created() {
-    if (this.GET_ROOM && this.GET_SOCKET && this.GET_SERVER) {
-      this.$router.push('/browse');
-    } else {
-      this.testConnectionInterval = setInterval(() => {
-        this.testConnections();
-      }, 5000);
-    }
+    this.testConnectionInterval = setInterval(() => {
+      this.testConnections();
+    }, 5000);
   },
 
   methods: {
     ...mapMutations('settings', ['SET_CUSTOM_SERVER_USER_INPUTTED_URL']),
 
+    ...mapMutations('synclounge', [
+      'SET_ROOM',
+      'SET_PASSWORD',
+      'SET_SERVER',
+    ]),
+
     ...mapActions('synclounge', [
-      'JOIN_ROOM',
+      'JOIN_ROOM_AND_INIT',
       'ESTABLISH_SOCKET_CONNECTION',
       'REMOVE_RECENT_ROOM',
+      'ADD_EVENT_HANDLERS',
     ]),
 
     sinceNow(x) {
@@ -526,9 +535,11 @@ export default {
         this.connectionPending = true;
 
         try {
-          await this.ESTABLISH_SOCKET_CONNECTION(this.selectedServer.url);
+          this.SET_SERVER(this.selectedServer.url);
+          await this.ESTABLISH_SOCKET_CONNECTION();
+          await this.ADD_EVENT_HANDLERS();
 
-          if (this.room) {
+          if (this.GET_ROOM) {
             await this.joinRoom()
               .catch(() => {});
           }
@@ -548,9 +559,9 @@ export default {
       this.serverError = null;
 
       try {
-        const result = await this.ESTABLISH_SOCKET_CONNECTION(
-          this.GET_CUSTOM_SERVER_USER_INPUTTED_URL,
-        );
+        this.SET_SERVER(this.GET_CUSTOM_SERVER_USER_INPUTTED_URL);
+        const result = await this.ESTABLISH_SOCKET_CONNECTION();
+        await this.ADD_EVENT_HANDLERS();
 
         if (result) {
           this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
@@ -569,8 +580,9 @@ export default {
       this.selectedServer = {
         url: recent.server,
       };
-      this.room = recent.room;
-      this.password = recent.password;
+
+      this.SET_ROOM(recent.room);
+      this.SET_PASSWORD(recent.password);
       await this.attemptConnect();
     },
 
@@ -579,19 +591,15 @@ export default {
         throw new Error('not connected to a server');
       }
 
-      if (this.room === '' || this.room == null) {
+      if (this.GET_ROOM === '' || this.GET_ROOM == null) {
         this.roomError = 'You must enter a room name!';
         throw new Error('no room specified');
       }
 
       try {
-        await this.JOIN_ROOM({
-          room: this.room,
-          password: this.password,
-        });
+        await this.JOIN_ROOM_AND_INIT();
       } catch (e) {
         this.roomError = e;
-        throw e;
       }
     },
   },

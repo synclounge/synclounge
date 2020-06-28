@@ -16,7 +16,6 @@ export default new Router({
       name: 'CreateRoom',
       meta: {
         requiresAuth: true,
-        noAutoJoin: true,
       },
     },
     {
@@ -35,20 +34,9 @@ export default new Router({
       },
     },
     {
-      path: '/autojoin',
+      path: '/join/:server/:room/:password?',
       meta: {
         requiresAuth: true,
-        redirectAfterAuth: true,
-        requiresAutoJoinEnabled: true,
-      },
-      component: () => import('../components/autojoin.vue'),
-      name: 'autojoin',
-    },
-    {
-      path: '/join/:server/:room',
-      meta: {
-        requiresAuth: true,
-        noAutoJoin: true,
         redirectAfterAuth: true,
       },
       component: () => import('../components/join.vue'),
@@ -75,7 +63,6 @@ export default new Router({
       component: () => import('../components/application/joinroom.vue'),
       meta: {
         requiresAuth: true,
-        noAutoJoin: true,
       },
     },
     {

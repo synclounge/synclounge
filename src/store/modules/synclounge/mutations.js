@@ -86,4 +86,16 @@ export default {
   SET_RECENT_ROOMS: (state, rooms) => {
     state.recentRooms = rooms;
   },
+
+  SET_IS_SOCKET_CONNECTED: (state, isConnected) => {
+    state.isSocketConnected = isConnected;
+  },
+
+  SET_CLIENT_POLLER_CANCELER: (state, canceler) => {
+    state.clientPollerCanceler = canceler;
+  },
+
+  SET_IS_IN_ROOM: (state, isInRoom) => {
+    state.isInRoom = isInRoom;
+  },
 };

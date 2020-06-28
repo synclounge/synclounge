@@ -17,6 +17,13 @@
             />
           </v-card-title>
 
+          <v-alert
+            v-if="error"
+            type="error"
+          >
+            {{ error }}
+          </v-alert>
+
           <clientpicker
             @loadingChange="loading = $event"
             @clientConnectableChange="clientConnectable = $event"
@@ -25,7 +32,7 @@
           <v-card-actions>
             <v-btn
               color="primary"
-              :disabled="!GET_SERVERS_HEALTH || !clientConnectable"
+              :disabled="!GET_SERVERS_HEALTH || !clientConnectable || loading"
               @click="createRoom"
             >
               Create Room
@@ -54,6 +61,7 @@ export default {
   data() {
     return {
       loading: false,
+      error: null,
 
       // Default true because default client is slplayer
       clientConnectable: true,
@@ -63,6 +71,7 @@ export default {
   computed: {
     ...mapGetters([
       'getLogos',
+      'GET_CONFIG',
     ]),
 
     ...mapGetters('synclounge', [
@@ -71,7 +80,18 @@ export default {
   },
 
   created() {
-    this.FETCH_SERVERS_HEALTH();
+    this.fetchServersHealth();
+
+    if (this.GET_CONFIG.autoJoin) {
+      this.$router.push({
+        name: 'join',
+        params: {
+          server: this.GET_CONFIG.autoJoinServer,
+          room: this.GET_CONFIG.autoJoinRoom,
+          password: this.GET_CONFIG.autoJoinPassword,
+        },
+      });
+    }
   },
 
   methods: {
@@ -80,9 +100,26 @@ export default {
       'CREATE_AND_JOIN_ROOM',
     ]),
 
+    async fetchServersHealth() {
+      try {
+        await this.FETCH_SERVERS_HEALTH();
+      } catch (e) {
+        this.error = 'Unable to fetch servers health';
+      }
+    },
+
     async createRoom() {
-      await this.CREATE_AND_JOIN_ROOM();
-      this.$router.push({ name: 'browse' });
+      this.error = null;
+      this.loading = true;
+
+      try {
+        await this.CREATE_AND_JOIN_ROOM();
+        this.$router.push({ name: 'browse' });
+      } catch (e) {
+        this.error = e.message;
+      }
+
+      this.loading = false;
     },
   },
 };

@@ -82,7 +82,7 @@
         </donate>
 
         <v-icon
-          v-if="GET_ROOM"
+          v-if="IS_IN_ROOM"
           class="clickable order-last"
           @click="TOGGLE_RIGHT_SIDEBAR_OPEN"
         >
@@ -236,8 +236,10 @@ export default {
     ]),
 
     ...mapGetters('synclounge', [
+      'IS_IN_ROOM',
       'GET_ROOM',
       'GET_SERVER',
+      'GET_PASSWORD',
     ]),
 
     ...mapState(['isRightSidebarOpen']),
@@ -285,7 +287,7 @@ export default {
 
         const invitePart = this.$router.resolve({
           name: 'join',
-          params: { server: this.GET_SERVER, room: this.GET_ROOM },
+          params: { server: this.GET_SERVER, room: this.GET_ROOM, password: this.GET_PASSWORD },
         }).href;
 
         return `${window.location.origin}/${invitePart}`;
@@ -295,9 +297,8 @@ export default {
   },
 
   watch: {
-    GET_ROOM() {
-      // TODO: fix this is hacky
-      if (this.GET_ROOM) {
+    IS_IN_ROOM(isInRoom) {
+      if (isInRoom) {
         this.SET_RIGHT_SIDEBAR_OPEN(true);
       }
     },
@@ -328,15 +329,15 @@ export default {
     });
   },
 
-  created() {
+  async created() {
     if (this.GET_CONFIG.fetchConfig) {
-      this.FETCH_CONFIG();
+      await this.FETCH_CONFIG();
     }
 
     if (this.IS_AUTHENTICATED) {
       // Kick off a bunch of requests that we need for later
-      this.FETCH_PLEX_USER();
-      this.FETCH_PLEX_DEVICES_IF_NEEDED();
+      await this.FETCH_PLEX_USER();
+      await this.FETCH_PLEX_DEVICES_IF_NEEDED();
     }
   },
 

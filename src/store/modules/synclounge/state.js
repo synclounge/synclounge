@@ -5,7 +5,7 @@ const state = () => ({
   socket: null,
   server: null,
   room: null,
-  password: false,
+  password: null,
   users: [],
   messages: [],
   partyPausing: false,
@@ -24,6 +24,10 @@ const state = () => ({
   isSyncInProgress: false,
   isManualSyncedQueued: false,
   recentRooms: [],
+  isSocketConnected: false,
+  clientPollerCanceler: null,
+
+  isInRoom: false,
 });
 
 export default state;

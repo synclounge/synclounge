@@ -1,81 +1,110 @@
 import axios from 'axios';
 import socketConnect from '@/utils/socketconnect';
 import guid from '@/utils/guid';
-import delay from '@/utils/delay';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 import combineUrl from '@/utils/combineurl';
+import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 
 export default {
-  async autoJoin({ dispatch }, data) {
-    await dispatch('ESTABLISH_SOCKET_CONNECTION', data.server);
+  CONNECT_AND_JOIN_ROOM: async ({ getters, dispatch }) => {
+    await dispatch('ESTABLISH_SOCKET_CONNECTION');
+    await dispatch('JOIN_ROOM_AND_INIT');
 
-    if (data.room) {
-      await dispatch('JOIN_ROOM', {
-        room: data.room,
-        password: data.password,
-      });
-    }
+    // Add this item to our recently-connected list
+    await dispatch(
+      'ADD_RECENT_ROOM',
+      {
+        server: getters.GET_SERVER,
+        room: getters.GET_ROOM,
+        password: getters.GET_PASSWORD,
+        time: Date.now(),
+      },
+    );
+
+    await dispatch('ADD_EVENT_HANDLERS');
   },
 
-  ESTABLISH_SOCKET_CONNECTION: async ({ commit, getters }, address) => {
+  SET_AND_CONNECT_AND_JOIN_ROOM: ({ commit, dispatch }, { server, room, password }) => {
+    commit('SET_SERVER', server);
+    commit('SET_ROOM', room);
+    commit('SET_PASSWORD', password);
+    return dispatch('CONNECT_AND_JOIN_ROOM');
+  },
+
+  ESTABLISH_SOCKET_CONNECTION: async ({ commit, getters, dispatch }) => {
     // TODO: make wrapper method that disconnects the socket if it already exists
     if (getters.GET_SOCKET) {
-      getters.GET_SOCKET.disconnect();
+      await dispatch('DISCONNECT');
     }
 
-    const url = combineUrl('socket.io', address);
+    const url = combineUrl('socket.io', getters.GET_SERVER);
     const socket = await socketConnect(url.origin, { path: url.pathname });
     commit('SET_SOCKET', socket);
-    commit('SET_SERVER', address);
+    commit('SET_IS_SOCKET_CONNECTED', true);
   },
 
-  async JOIN_ROOM({
-    getters, commit, dispatch, rootGetters,
-  }, { room, password }) {
-    // Move this outside somewhere else
-
-    // TODO: remove this
-    commit('SET_PASSWORD', password);
+  JOIN_ROOM: async ({ getters, rootGetters }) => {
+    // Set this up before calling join so join-result handler is definitely there
+    const joinPromise = new Promise((resolve, reject) => {
+      // TODO: make the socket join args into one object instead (rewrite backend server)
+      getters.GET_SOCKET.once('join-result', (result, _data, details, currentUsers, partyPausing) => {
+        if (result) {
+          resolve({ currentUsers, partyPausing });
+        } else {
+          reject(result);
+        }
+      });
+    });
 
     getters.GET_SOCKET.emit(
       'join',
       {
         username: getters.GET_DISPLAY_USERNAME,
-        room,
-        password,
+        room: getters.GET_ROOM,
+        password: getters.GET_PASSWORD,
         avatarUrl: rootGetters['plex/GET_PLEX_USER'].thumb,
         uuid: getters.GET_UUID,
       },
     );
 
-    return new Promise((resolve, reject) => {
-      // TODO: make the socket join args into one object instead (rewrite backend server)
-      getters.GET_SOCKET.once('join-result', async (result, _data, details, currentUsers, partyPausing) => {
-        console.log('Got join result', result);
-
-        if (result) {
-          dispatch('HANDLE_SUCCESSFUL_JOIN_RESULT', {
-            _data, currentUsers, partyPausing,
-          });
-          resolve();
-        } else {
-          commit('SET_ROOM', null);
-          commit('SET_PASSWORD', null);
-          commit('SET_USERS', []);
-          reject();
-        }
-      });
-    });
+    return joinPromise;
   },
 
-  disconnectServer({ state, commit }) {
+  JOIN_ROOM_AND_INIT: async ({ getters, dispatch, commit }) => {
+    const { currentUsers, partyPausing } = await dispatch('JOIN_ROOM');
+
+    commit('SET_USERS', currentUsers);
+    commit('SET_PARTYPAUSING', partyPausing);
+    commit('SET_IS_IN_ROOM', true);
+
+    await dispatch('START_CLIENT_POLLER');
+
+    await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${getters.GET_ROOM}`, { root: true });
+  },
+
+  DISCONNECT: ({ getters, commit }) => {
     console.log('Decided we should disconnect from the SL Server.');
-    state.socket.disconnect();
-    commit('SET_ROOM', null);
-    commit('SET_PASSWORD', null);
+    // TODO: await thing here
+
+    // TODO: it is possible that the client could suddenly lose connection
+    // right now when we are trying to actually disconnect. Fix
+    const disconnectPromise = new Promise((resolve) => {
+      getters.GET_SOCKET.once('disconnect', (data) => {
+        resolve(data);
+      });
+    });
+
+    // Cancel poller
+    getters.GET_CLIENT_POLLER_CANCELER();
+
+    getters.GET_SOCKET.disconnect();
+    commit('SET_IS_IN_ROOM', false);
     commit('SET_USERS', []);
-    commit('SET_CONNECTED', false);
-    commit('SET_SERVER', null);
+    commit('SET_IS_SOCKET_CONNECTED', false);
+    commit('CLEAR_MESSAGES');
+    commit('SET_SOCKET', null);
+
+    return disconnectPromise;
   },
 
   SEND_MESSAGE({ state, commit, rootGetters }, msg) {
@@ -150,35 +179,17 @@ export default {
     return getters.GET_SERVERS_HEALTH;
   },
 
-  CREATE_AND_JOIN_ROOM: ({ getters, dispatch }) => {
-    const url = getters.GET_BEST_SERVER;
-    return dispatch('autoJoin', {
-      server: url,
-      room: guid(),
-    });
-  },
-
-  JOIN_CONFIG_SYNCLOUNGE_SERVER: ({ rootGetters, dispatch }) => dispatch('autoJoin', {
-    server: rootGetters.GET_CONFIG.autoJoinServer,
-    room: rootGetters.GET_CONFIG.autoJoinRoom,
-    password: rootGetters.GET_CONFIG.autoJoinPassword,
+  CREATE_AND_JOIN_ROOM: ({ getters, dispatch }) => dispatch('SET_AND_CONNECT_AND_JOIN_ROOM', {
+    server: getters.GET_BEST_SERVER,
+    room: guid(),
+    password: null,
   }),
 
-  START_CLIENT_POLLER: async ({ getters, dispatch, rootGetters }) => {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      if (!getters.GET_ROOM) {
-        // stop polling if we leave the room
-        break;
-      }
-
-      const delayPromise = delay(rootGetters['settings/GET_CLIENTPOLLINTERVAL']);
-
-      // eslint-disable-next-line no-await-in-loop
-      await dispatch('POLL');
-      // eslint-disable-next-line no-await-in-loop
-      await delayPromise;
-    }
+  START_CLIENT_POLLER: async ({ commit, dispatch, rootGetters }) => {
+    commit('SET_CLIENT_POLLER_CANCELER', cancelablePeriodicTask(
+      () => dispatch('POLL'),
+      () => rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
+    ));
   },
 
   POLL: async ({ dispatch, getters }) => {
@@ -205,6 +216,7 @@ export default {
       },
     });
 
+    // TODO: make sure this doesn't lead to memory leaks if we have bad conns etc
     commit('ADD_UNACKED_POLL', {
       pollNumber: getters.GET_POLL_NUMBER,
       timeSent: Date.now(),
@@ -232,6 +244,38 @@ export default {
       (room) => room.server !== roomToRemove.server || room.room !== roomToRemove.room,
     ),
   ),
+
+  ADD_EVENT_HANDLERS: ({ getters, commit, dispatch }) => {
+    getters.GET_SOCKET.on('poll-result',
+      (users, me, commandId) => dispatch('HANDLE_POLL_RESULT', { users, me, commandId }));
+
+    getters.GET_SOCKET.on('party-pausing-changed',
+      (res) => dispatch('HANDLE_PARTY_PAUSING_CHANGED', res));
+
+    getters.GET_SOCKET.on('party-pausing-pause',
+      (res) => dispatch('HANDLE_PARTY_PAUSING_PAUSE', res));
+
+    getters.GET_SOCKET.on('user-joined',
+      (users, user) => dispatch('HANDLE_USER_JOINED', { users, user }));
+
+    getters.GET_SOCKET.on('user-left',
+      (users, user) => dispatch('HANDLE_USER_LEFT', { users, user }));
+
+    getters.GET_SOCKET.on('host-swap',
+      (user) => dispatch('HANDLE_HOST_SWAP', user));
+
+    getters.GET_SOCKET.on('host-update',
+      (hostData) => dispatch('HANDLE_HOST_UPDATE', hostData));
+
+    getters.GET_SOCKET.on('disconnect',
+      (disconnectData) => dispatch('HANDLE_DISCONNECT', disconnectData));
+
+    getters.GET_SOCKET.on('new_message', (msgObj) => {
+      commit('ADD_MESSAGE', msgObj);
+    });
+
+    getters.GET_SOCKET.on('connect', () => dispatch('HANDLE_RECONNECT'));
+  },
 
   ...eventhandlers,
 };

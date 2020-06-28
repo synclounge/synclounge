@@ -157,7 +157,7 @@
                 </div>
               </template>
 
-              Watching on {{ user.playerProduct || 'Unknown Plex Client' }}
+              Watching on {{ user.playerProduct || `Unknown Plex Client` }}
               <span v-if="GET_PLEX_SERVER(user.machineIdentifier)">
                 <br>
                 via {{ GET_PLEX_SERVER(user.machineIdentifier).name }}
@@ -263,6 +263,7 @@ export default {
       'updatePartyPausing',
       'sendPartyPause',
       'TRANSFER_HOST',
+      'DISCONNECT',
     ]),
 
     ...mapActions([
@@ -319,8 +320,8 @@ export default {
       return arr;
     },
 
-    handleDisconnect() {
-      this.$store.dispatch('disconnectServer');
+    async handleDisconnect() {
+      await this.DISCONNECT();
       this.$router.push('/');
     },
 

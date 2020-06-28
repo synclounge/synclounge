@@ -88,12 +88,13 @@ export default {
     },
   },
 
-  mounted() {
-    this.FETCH_PLEX_DEVICES();
+  async created() {
+    await this.FETCH_PLEX_DEVICES_IF_NEEDED();
   },
 
   methods: {
     ...mapActions('plex', [
+      'FETCH_PLEX_DEVICES_IF_NEEDED',
       'FETCH_PLEX_DEVICES',
     ]),
 
@@ -115,6 +116,7 @@ export default {
         this.SET_CHOSEN_CLIENT_ID(id);
         this.$emit('clientConnectableChange', true);
       } catch (e) {
+        // TODO: maybe add lock or cancel test if user clicks on other client while previous is still checking
         console.log(e);
         this.error = true;
       }

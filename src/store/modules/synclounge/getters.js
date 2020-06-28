@@ -112,4 +112,12 @@ export default {
   IS_MANUAL_SYNC_QUEUED: (state) => state.isManualSyncedQueued,
 
   GET_RECENT_ROOMS: (state) => state.recentRooms,
+
+  GET_PASSWORD: (state) => state.password,
+
+  IS_SOCKET_CONNECTED: (state) => state.isSocketConnected,
+
+  GET_CLIENT_POLLER_CANCELER: (state) => state.clientPollerCanceler,
+
+  IS_IN_ROOM: (state) => state.isInRoom,
 };

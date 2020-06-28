@@ -1,59 +1,4 @@
 export default {
-  HANDLE_SUCCESSFUL_JOIN_RESULT: async ({
-    getters, state, commit, dispatch,
-  }, {
-      _data, currentUsers, partyPausing,
-    }) => {
-    commit('CLEAR_MESSAGES');
-
-    commit('SET_USERS', currentUsers);
-    commit('SET_PARTYPAUSING', partyPausing);
-    commit('SET_ROOM', _data.room);
-
-    await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${_data.room}`, { root: true });
-    // Add this item to our recently-connected list
-    await dispatch(
-      'ADD_RECENT_ROOM',
-      {
-        server: state.server,
-        room: state.room,
-        password: state.password,
-        time: Date.now(),
-      },
-    );
-
-    getters.GET_SOCKET.on('poll-result',
-      (users, me, commandId) => dispatch('HANDLE_POLL_RESULT', { users, me, commandId }));
-
-    getters.GET_SOCKET.on('party-pausing-changed',
-      (res) => dispatch('HANDLE_PARTY_PAUSING_CHANGED', res));
-
-    getters.GET_SOCKET.on('party-pausing-pause',
-      (res) => dispatch('HANDLE_PARTY_PAUSING_PAUSE', res));
-
-    getters.GET_SOCKET.on('user-joined',
-      (users, user) => dispatch('HANDLE_USER_JOINED', { users, user }));
-
-    getters.GET_SOCKET.on('user-left',
-      (users, user) => dispatch('HANDLE_USER_LEFT', { users, user }));
-
-    getters.GET_SOCKET.on('host-swap',
-      (user) => dispatch('HANDLE_HOST_SWAP', user));
-
-    state.socket.on('host-update',
-      (hostData) => dispatch('HANDLE_HOST_UPDATE', hostData));
-
-    state.socket.on('disconnect',
-      (disconnectData) => dispatch('HANDLE_DISCONNECT', disconnectData));
-
-    state.socket.on('new_message', (msgObj) => {
-      commit('ADD_MESSAGE', msgObj);
-    });
-
-    // Purposefully not awaited
-    dispatch('START_CLIENT_POLLER');
-  },
-
   HANDLE_POLL_RESULT: ({ commit, getters }, { users, commandId }) => {
     // Now we need to setup events for dealing with the PTServer.
     // We will regularly be recieving and sending data to and from the server.
@@ -61,7 +6,6 @@ export default {
 
     commit('UPDATE_SRTT', Date.now() - getters.GET_POLL_SENT_TIME(commandId));
     commit('DELETE_UNACKED_POLL', commandId);
-
     commit('SET_USERS', users);
   },
 
@@ -250,18 +194,12 @@ export default {
     }
   },
 
-  HANDLE_DISCONNECT: async ({ commit, dispatch }, disconnectData) => {
+  HANDLE_DISCONNECT: async ({ getters, dispatch }) => {
     await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
+  },
 
-    console.log('Disconnect data', disconnectData);
-    if (disconnectData === 'io client disconnect') {
-      console.log('We disconnected from the server');
-      commit('SET_ROOM', null);
-      commit('SET_PASSWORD', null);
-      commit('SET_USERS', []);
-      commit('SET_SERVER', null);
-    } else if (disconnectData === 'transport close') {
-      console.log('The server disconnected on us');
-    }
+  HANDLE_RECONNECT: ({ dispatch }) => {
+    console.log('Rejoining');
+    return dispatch('JOIN_ROOM_AND_INIT');
   },
 };
