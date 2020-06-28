@@ -61,7 +61,7 @@ export default {
         index,
         text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
       }),
-    ) : ([])),
+    ) : []),
 
   GET_QUALITIES: () => qualities,
 

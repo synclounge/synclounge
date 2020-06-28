@@ -169,16 +169,6 @@
           <v-col>
             <v-btn
               block
-              color="primary"
-              @click="dialog = !dialog"
-            >
-              Playback Settings
-            </v-btn>
-          </v-col>
-
-          <v-col>
-            <v-btn
-              block
               color="error"
               @click="PRESS_STOP"
             >
@@ -224,8 +214,6 @@ export default {
   data() {
     return {
       eventbus: window.EventBus,
-      dialog: false,
-      lastSentTimeline: {},
       metadataLoadedPromise: null,
 
       playerConfig: {
@@ -565,9 +553,6 @@ export default {
 
   /* Having to put shaka styling here since scoped rules don't seem to apply to them
     likely because its added dynamically */
-  .slplayer span {
-    color: black;
-  }
 
   .shaka-slplayer-button:disabled {
     opacity: 0.5;
