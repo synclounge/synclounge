@@ -399,6 +399,7 @@ export default {
   },
 
   WAIT_FOR_MOVEMENT: (startTime) => new Promise((resolve) => {
+    // TODO: fix this
     let time = 500;
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       time = 50;
