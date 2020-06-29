@@ -102,6 +102,7 @@
 
     <v-main
       :style="mainStyle"
+      class="main-content"
       app
     >
       <v-container
@@ -204,6 +205,7 @@ export default {
       'GET_ACTIVE_METADATA',
       'GET_SNACKBAR_MESSAGE',
       'GET_SNACKBAR_OPEN',
+      'GET_BACKGROUND',
     ]),
 
     ...mapGetters('plex', [
@@ -242,25 +244,15 @@ export default {
     },
 
     mainStyle() {
-      if (this.$store.getters.getBackground !== null) {
-        return {
-          'background-image': `url(${this.$store.getters.getBackground})`,
-          'background-repeat': 'no-repeat',
-          'background-size': 'cover',
-          'background-position': 'center',
-        };
-      }
-      return {};
+      return this.GET_BACKGROUND
+        ? { backgroundImage: `url(${this.GET_BACKGROUND})` }
+        : {};
     },
 
     containerStyle() {
-      const arr = [];
-      if (this.$store.getters.getBackground !== null) {
-        arr.push({
-          background: 'rgba(0,0,0,0.7)',
-        });
-      }
-      return arr;
+      return this.GET_BACKGROUND
+        ? { background: 'rgba(0,0,0,0.7)' }
+        : {};
     },
 
     inviteUrl() {
@@ -351,6 +343,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.main-content {
+  background-repeat: 'no-repeat';
+  background-size: 'cover';
+  background-position: 'center';
+}
+</style>
 
 <style>
 .a {
