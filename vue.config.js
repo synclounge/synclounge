@@ -17,7 +17,7 @@ try {
 }
 
 module.exports = {
-  publicPath: config.get('baseurl'),
+  publicPath: config.get('base_url'),
   lintOnSave: process.env.NODE_ENV !== 'production',
   productionSourceMap: false,
   transpileDependencies: ['vuetify'],
