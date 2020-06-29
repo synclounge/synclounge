@@ -26,7 +26,7 @@ nconf
       'default_slplayer_quality',
     ]),
   })
-  .file({ file: 'config.json' });
+  .file({ file: 'settings.json' });
 
 nconf.defaults(defaults);
 
