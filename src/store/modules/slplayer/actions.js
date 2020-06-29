@@ -15,7 +15,7 @@ const makeTimelineParams = ({ getters, rootGetters }) => ({
   ratingKey: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].ratingKey,
   key: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].key,
   // playbackTime: 591
-  // playQueueItemID: 19037144
+  playQueueItemID: rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].playQueueItemID,
   state: getters.GET_PLAYER_STATE,
   hasMDE: 1,
   time: Math.floor(getPlayerCurrentTimeMs(getters)),
@@ -335,5 +335,42 @@ export default {
   SEND_PARTY_PLAY_PAUSE: ({ dispatch, getters }) => {
     // If the player was actually paused (and not just paused for seeking)
     dispatch('synclounge/sendPartyPause', isPlayerPaused(getters), { root: true });
+  },
+
+  PLAY_NEXT: async ({ dispatch, commit, rootGetters }) => {
+    commit('plexclients/INCREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET', null, { root: true });
+    if (rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].source) {
+      // TODO: Fix this when switching back and remember the last machine id ugh alskdfjd
+      // If source is defined on selected item, then it is on a different server and we need to do more stuff.
+      // Source looks likes: "server://{MACHINE_IDENTIFIER}/com.plexapp.plugins.library"
+      const regex = /^server:\/\/(\w+)\//;
+      const machineIdentifier = rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].source.match(regex)[1];
+      commit('plexclients/SET_ACTIVE_SERVER_ID', machineIdentifier, { root: true });
+      commit('plexservers/SET_LAST_SERVER_ID', machineIdentifier, { root: true });
+
+      const metadata = await dispatch('plexservers/FETCH_PLEX_METADATA', {
+        machineIdentifier,
+        ratingKey: rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].ratingKey,
+      }, { root: true });
+
+      commit('plexclients/SET_ACTIVE_MEDIA_METADATA', metadata, { root: true });
+    } else {
+      if (rootGetters['plexclients/GET_ACTIVE_SERVER_ID'] !== rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER']) {
+        commit('plexclients/SET_ACTIVE_SERVER_ID', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER'], { root: true });
+        commit('plexservers/SET_LAST_SERVER_ID', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER'], { root: true });
+      }
+
+      commit('plexclients/SET_ACTIVE_MEDIA_METADATA', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'], { root: true });
+    }
+
+    // Assume same server machineIdentifier, but this may not always be okay to do. (TODO: figure it out)
+
+    // TODO: maybe plex indicates ongoing media index?
+    commit('SET_MEDIA_INDEX', 0);
+    commit('SET_OFFSET_MS', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].viewOffset || 0);
+
+    await dispatch('CHANGE_PLAYER_SRC');
+
+    // UPDATE play queue GET REQUEST
   },
 };

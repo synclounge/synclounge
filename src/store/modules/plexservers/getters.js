@@ -59,6 +59,4 @@ export default {
   },
 
   GET_BLOCKED_SERVER_IDS: (state) => state.blockedServerIds,
-
-  GET_PLAY_QUEUE_ID: (state) => state.playQueueId,
 };

@@ -195,6 +195,7 @@ import MediaSelectionFactory from '@/player/ui/mediaselection';
 import CloseButtonFactory from '@/player/ui/closebutton';
 import Forward30ButtonFactory from '@/player/ui/forward30button';
 import Replay10ButtonFactory from '@/player/ui/replay10button';
+import NextButtonFactory from '@/player/ui/nextbutton';
 
 shaka.log.setLevel(shaka.log.Level.ERROR);
 shaka.polyfill.installAll();
@@ -301,6 +302,7 @@ export default {
     shaka.ui.Controls.registerElement('close', new CloseButtonFactory(this.eventbus));
     shaka.ui.Controls.registerElement('forward30', new Forward30ButtonFactory());
     shaka.ui.Controls.registerElement('replay10', new Replay10ButtonFactory());
+    shaka.ui.Controls.registerElement('next', new NextButtonFactory());
   },
 
   async mounted() {
@@ -387,6 +389,7 @@ export default {
           'replay10',
           'play_pause',
           'forward30',
+          'next',
           'mute',
           'volume',
           'close',

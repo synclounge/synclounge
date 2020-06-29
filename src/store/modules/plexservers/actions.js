@@ -221,7 +221,7 @@ export default {
     };
   },
 
-  CREATE_PLAY_QUEUE: async ({ getters, commit }, { machineIdentifier, ratingKey }) => {
+  CREATE_PLAY_QUEUE: async ({ getters }, { machineIdentifier, ratingKey }) => {
     const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).post('/playQueues', null, {
       params: {
         type: 'video',
@@ -232,7 +232,7 @@ export default {
       },
     });
 
-    commit('SET_PLAY_QUEUE_ID', data.MediaContainer.playQueueID);
+    return data.MediaContainer;
   },
 
   MARK_WATCHED: ({ getters }, { machineIdentifier, ratingKey }) => getters

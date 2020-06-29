@@ -75,4 +75,13 @@ export default {
       <= getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID),
 
   GET_PLEX_CLIENT_TIMELINE_COMMAND_ID: (state) => state.plexClientTimelineCommmandId,
+
+  GET_ACTIVE_PLAY_QUEUE: (state) => state.activePlayQueue,
+
+  GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER: (state) => state.activePlayQueueMachineIdentifier,
+
+  GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: (state, getters) => (getters.GET_ACTIVE_PLAY_QUEUE
+    ? getters.GET_ACTIVE_PLAY_QUEUE
+      .Metadata[getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset]
+    : null),
 };
