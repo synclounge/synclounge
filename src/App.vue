@@ -10,22 +10,18 @@
       style="z-index: 5"
     >
       <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN" />
-      <a
-        href="https://synclounge.tv"
-        target="_blank"
-      >
-        <img
-          class="ma-1 hidden-xs-only"
-          style="height: 42px; width: auto; vertical-align: middle"
-          :src="getLogos.light.long"
-        >
 
-        <img
-          class="ma-1 hidden-sm-and-up"
-          style="height: 42px; width: auto; vertical-align: middle"
-          :src="getLogos.light.small"
+      <picture>
+        <source
+          :srcset="getLogos.light.small"
+          :media="smallLogoMedia"
         >
-      </a>
+        <img
+          height="42"
+          :src="getLogos.light.long"
+          style="vertical-align: middle"
+        >
+      </picture>
 
       <nowplayingchip
         v-if="showNowPlaying"
@@ -241,6 +237,10 @@ export default {
       // TODO: rewrite this logic but I'm lazy now
       return !(this.$route.path.indexOf('browse') === -1
         && this.$route.path.indexOf('nowplaying') === -1);
+    },
+
+    smallLogoMedia() {
+      return `(max-width: ${this.$vuetify.breakpoint.thresholds.xs}px)`;
     },
 
     mainStyle() {
