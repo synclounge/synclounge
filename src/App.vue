@@ -317,7 +317,6 @@ export default {
   },
 
   async created() {
-    console.log(process.env);
     if (this.IS_AUTHENTICATED) {
       // Kick off a bunch of requests that we need for later
       await this.FETCH_PLEX_USER();
