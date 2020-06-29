@@ -346,15 +346,8 @@ export default {
 
 <style scoped>
 .main-content {
-  background-repeat: 'no-repeat';
-  background-size: 'cover';
-  background-position: 'center';
-}
-</style>
-
-<style>
-.a {
-  color: unset !important;
-  text-decoration: none !important;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 </style>
