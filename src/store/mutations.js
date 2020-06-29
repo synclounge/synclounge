@@ -15,18 +15,6 @@ export default {
     state.upNextPostPlayData = data;
   },
 
-  SET_CONFIG: (state, data) => {
-    state.configuration = data;
-  },
-
-  SET_CONFIGURATION_FETCHED: (state, fetched) => {
-    state.configurationFetcehd = fetched;
-  },
-
-  SET_CONFIGURATION_FETCH_ERROR: (state, error) => {
-    state.configurationFetchError = error;
-  },
-
   SET_ACTIVE_METADATA: (state, metadata) => {
     state.activeMetadata = metadata;
   },

@@ -1,5 +1,3 @@
-import defaultSyncloungeServers from './defaultservers';
-
 const loadToNumber = (load) => {
   switch (load) {
     case 'low':
@@ -29,22 +27,10 @@ export default {
   GET_HOST_USER: (state, getters) => getters.GET_USERS.find((u) => u.role === 'host'),
   AM_I_HOST: (state, getters) => getters.GET_ME && getters.GET_ME.role === 'host',
 
-  GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => {
-    if (rootGetters.GET_CONFIG.servers && rootGetters.GET_CONFIG.servers.length > 0) {
-      if (rootGetters.GET_CONFIG.customServer) {
-        console.error(
-          "'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.",
-        );
-      }
-      return rootGetters.GET_CONFIG.servers;
-    }
-
-    if (rootGetters.GET_CONFIG.customServer) {
-      return defaultSyncloungeServers.concat([rootGetters.GET_CONFIG.customServer]);
-    }
-
-    return defaultSyncloungeServers.concat([rootGetters['settings/GET_CUSTOMSERVER']]);
-  },
+  GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => (
+    rootGetters.GET_CONFIG.customServer
+      ? rootGetters.GET_CONFIG.servers.concat([rootGetters.GET_CONFIG.customServer])
+      : rootGetters.GET_CONFIG.servers),
 
   GET_SERVERS_HEALTH: (state) => state.serversHealth,
 

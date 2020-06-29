@@ -7,7 +7,7 @@ Vue.use(Router);
 
 // ==================== Router registration ====================
 export default new Router({
-  base: process.env.webroot,
+  base: process.env.BASE_URL,
   mode: 'hash',
   routes: [
     {

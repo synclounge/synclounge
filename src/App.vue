@@ -110,19 +110,8 @@
         style="height: 100%"
         fluid
       >
-        <v-alert
-          v-if="GET_CONFIGURATION_FETCHED_ERROR"
-          width="100%"
-          :dismissible="true"
-          type="error"
-          class="mt-0 mb-0"
-        >
-          Failed to fetch config: {{ GET_CONFIGURATION_FETCHED_ERROR }}
-        </v-alert>
-
         <v-container
-          v-if="((GET_CONFIG.fetchConfig && !GET_CONFIGURATION_FETCHED)
-            || !IS_DONE_FETCHING_DEVICES) && $route.matched.some((record) => record.meta.protected)"
+          v-if="!IS_DONE_FETCHING_DEVICES && $route.matched.some((record) => record.meta.protected)"
           fill-height
         >
           <v-row
@@ -212,8 +201,6 @@ export default {
       'GET_UP_NEXT_POST_PLAY_DATA',
       'getLogos',
       'GET_CONFIG',
-      'GET_CONFIGURATION_FETCHED',
-      'GET_CONFIGURATION_FETCHED_ERROR',
       'GET_ACTIVE_METADATA',
       'GET_SNACKBAR_MESSAGE',
       'GET_SNACKBAR_OPEN',
@@ -280,7 +267,7 @@ export default {
       // TODO: investigate passwords and invites. Is there really a point of a password if the invite link contains it?
       // One alternative is to prompt for a password always instead, but maybe we don't need passwords at all
       if (this.GET_ROOM) {
-        if (this.GET_CONFIG.autoJoin) {
+        if (this.GET_CONFIG.autojoin) {
           // If autojoin, just link to main site
           return window.location.origin;
         }
@@ -330,10 +317,7 @@ export default {
   },
 
   async created() {
-    if (this.GET_CONFIG.fetchConfig) {
-      await this.FETCH_CONFIG();
-    }
-
+    console.log(process.env);
     if (this.IS_AUTHENTICATED) {
       // Kick off a bunch of requests that we need for later
       await this.FETCH_PLEX_USER();
@@ -346,7 +330,6 @@ export default {
       'SET_LEFT_SIDEBAR_OPEN',
       'SET_RIGHT_SIDEBAR_OPEN',
       'TOGGLE_RIGHT_SIDEBAR_OPEN',
-      'FETCH_CONFIG',
       'DISPLAY_NOTIFICATION',
     ]),
 

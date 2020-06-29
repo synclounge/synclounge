@@ -4,8 +4,6 @@ const state = () => ({
   background: null,
   upNextCache: {},
   configuration: JSON.parse(process.env.VUE_APP_CONFIGURATION),
-  configurationFetched: false,
-  configurationFetchError: false,
 
   isLeftSidebarOpen: false,
   isRightSidebarOpen: false,

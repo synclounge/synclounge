@@ -18,4 +18,4 @@ db.sqlite
 # Optional npm cache directory
 .npm
 
-settings.json
+config.json
