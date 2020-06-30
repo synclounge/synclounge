@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import generateGuid from '@/utils/guid';
+import guid from '@/utils/guid';
 import timeoutPromise from '@/utils/timeoutpromise';
 import delay from '@/utils/delay';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
@@ -62,7 +62,7 @@ export default {
 
   CHANGE_MAX_VIDEO_BITRATE: async ({ commit, dispatch }, bitrate) => {
     commit('settings/SET_SLPLAYERQUALITY', bitrate, { root: true });
-    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
+    await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   CHANGE_AUDIO_STREAM: async ({ getters, dispatch }, audioStreamID) => {
@@ -74,7 +74,7 @@ export default {
     });
 
     // Redo src
-    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
+    await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   CHANGE_SUBTITLE_STREAM: async ({ getters, dispatch }, subtitleStreamID) => {
@@ -86,36 +86,38 @@ export default {
     });
 
     // Redo src
-    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
+    await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
-  CHANGE_MEDIA_INDEX: ({ commit, dispatch }, index) => {
+  CHANGE_MEDIA_INDEX: async ({ commit, dispatch }, index) => {
     commit('SET_MEDIA_INDEX', index);
-    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
+    await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   // Changes the player src to the new one and restores the time afterwards
   UPDATE_PLAYER_SRC_AND_KEEP_TIME: async ({ getters, commit, dispatch }) => {
     // Set buffering on src change since player doesn't trigger it then
-    dispatch('CHANGE_PLAYER_STATE', 'buffering');
+    await dispatch('CHANGE_PLAYER_STATE', 'buffering');
     commit('SET_OFFSET_MS', getPlayerCurrentTimeMs(getters));
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
   CHANGE_PLAYER_SRC: async ({ commit, dispatch }) => {
-    commit('SET_SESSION', generateGuid());
+    commit('SET_SESSION', guid());
     await dispatch('SEND_PLEX_DECISION_REQUEST');
 
-    return Promise.all([
+    await Promise.all([
       dispatch('CHANGE_PLAYER_STATE', 'buffering'),
       dispatch('LOAD_PLAYER_SRC'),
     ]);
   },
 
-  SEND_PLEX_TIMELINE_UPDATE: ({ getters, rootGetters }) => axios.get(getters.GET_TIMELINE_URL, {
-    params: makeTimelineParams({ getters, rootGetters }),
-    timeout: 10000,
-  }),
+  SEND_PLEX_TIMELINE_UPDATE: async ({ getters, rootGetters }) => {
+    await axios.get(getters.GET_TIMELINE_URL, {
+      params: makeTimelineParams({ getters, rootGetters }),
+      timeout: 10000,
+    });
+  },
 
   FETCH_TIMELINE_POLL_DATA: ({ getters }) => (getters.GET_PLAYER_MEDIA_ELEMENT
     ? {
@@ -129,26 +131,26 @@ export default {
       playerState: getters.GET_PLAYER_STATE,
     }),
 
-  HANDLE_PLAYER_PLAYING: ({ dispatch, getters }) => {
+  HANDLE_PLAYER_PLAYING: async ({ dispatch, getters }) => {
     if (getters.IS_PLAYER_PLAYING()) {
-      dispatch('CHANGE_PLAYER_STATE', 'playing');
+      await dispatch('CHANGE_PLAYER_STATE', 'playing');
     }
   },
 
-  HANDLE_PLAYER_PAUSE: ({ dispatch, getters }) => {
+  HANDLE_PLAYER_PAUSE: async ({ dispatch, getters }) => {
     if (getters.IS_PLAYER_PAUSED()) {
       if (!getters.GET_PLAYER.isBuffering()) {
-        dispatch('CHANGE_PLAYER_STATE', 'paused');
+        await dispatch('CHANGE_PLAYER_STATE', 'paused');
       }
     }
   },
 
-  HANDLE_PLAYER_BUFFERING: ({ dispatch, getters }, event) => {
+  HANDLE_PLAYER_BUFFERING: async ({ dispatch, getters }, event) => {
     if (event.buffering) {
-      dispatch('CHANGE_PLAYER_STATE', 'buffering');
+      await dispatch('CHANGE_PLAYER_STATE', 'buffering');
     } else {
       // Report back if player is playing
-      dispatch('CHANGE_PLAYER_STATE',
+      await dispatch('CHANGE_PLAYER_STATE',
         getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing');
     }
   },
@@ -165,15 +167,17 @@ export default {
     getters.GET_PLAYER_MEDIA_ELEMENT.pause();
   },
 
-  PRESS_STOP: ({ dispatch }) => dispatch('CHANGE_PLAYER_STATE', 'stopped'),
+  PRESS_STOP: async ({ dispatch }) => {
+    await dispatch('CHANGE_PLAYER_STATE', 'stopped');
+  },
 
   SOFT_SEEK: ({ getters, commit }, seekToMs) => {
     if (!isTimeInBufferedRange(getters, seekToMs)) {
       throw new Error('Soft seek requested but not within buffered range');
     }
 
+    commit('SET_OFFSET_MS', seekToMs);
     commit('SET_PLAYER_CURRENT_TIME_MS', seekToMs);
-    return true;
   },
 
   NORMAL_SEEK: async ({ getters, commit }, seekToMs) => {
@@ -230,6 +234,7 @@ export default {
         iterations += 1;
       }
     } else {
+      commit('SET_OFFSET_MS', seekToMs);
       commit('SET_PLAYER_CURRENT_TIME_MS', seekToMs);
 
       const seekedPromise = new Promise((resolve) => {
@@ -259,7 +264,7 @@ export default {
     commit('SET_PLAYER_STATE', state);
     const plexTimelineUpdatePromise = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     await dispatch('synclounge/POLL', null, { root: true });
-    return plexTimelineUpdatePromise;
+    await plexTimelineUpdatePromise;
   },
 
   LOAD_PLAYER_SRC: async ({ getters, commit }) => {
@@ -285,13 +290,12 @@ export default {
 
   INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
     await dispatch('REGISTER_PLAYER_EVENTS');
-    const result = await dispatch('CHANGE_PLAYER_SRC');
+    await dispatch('CHANGE_PLAYER_SRC');
 
     commit('SET_PLAYER_VOLUME', rootGetters['settings/GET_SLPLAYERVOLUME']);
 
     await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
     await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
-    return result;
   },
 
   DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
@@ -338,14 +342,14 @@ export default {
     await dispatch('synclounge/sendPartyPause', getters.IS_PLAYER_PAUSED(), { root: true });
   },
 
-  PLAY_NEXT: ({ dispatch, commit }) => {
+  PLAY_NEXT: async ({ dispatch, commit }) => {
     commit('plexclients/INCREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET', null, { root: true });
-    return dispatch('PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
+    await dispatch('PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
   },
 
-  PLAY_PREVIOUS: ({ dispatch, commit }) => {
+  PLAY_PREVIOUS: async ({ dispatch, commit }) => {
     commit('plexclients/DECREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET', null, { root: true });
-    return dispatch('PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
+    await dispatch('PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
   },
 
   PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ dispatch, commit, rootGetters }) => {
