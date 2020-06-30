@@ -3,7 +3,7 @@ const makeQualityTemplate = (label, maxVideoBitrate) => ({
 });
 
 // eslint-disable-next-line import/prefer-default-export
-export const qualities = [
+const qualities = [
   makeQualityTemplate('Original', null),
   makeQualityTemplate('20 Mbps 1080p', 20000),
   makeQualityTemplate('12 Mbps 1080p', 12000),
@@ -19,3 +19,5 @@ export const qualities = [
   makeQualityTemplate('96 Kbps', 96),
   makeQualityTemplate('64 Kbps', 64),
 ];
+
+export default qualities;

@@ -1,6 +1,6 @@
 import { encodeUrlParams } from '@/utils/encoder';
 import contenttitleutils from '@/utils/contenttitleutils';
-import { qualities } from './qualities';
+import qualities from './qualities';
 
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
@@ -141,6 +141,7 @@ export default {
     directStreamAudio: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
+    // TODO: investigate subtitles support
     subtitles: 'burn',
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
@@ -164,5 +165,4 @@ export default {
 
   IS_PLAYER_PLAYING: (state, getters) => () => !getters.GET_PLAYER_MEDIA_ELEMENT.paused
   && !getters.GET_PLAYER.isBuffering(),
-
 };
