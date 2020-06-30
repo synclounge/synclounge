@@ -20,6 +20,8 @@ class CloseButton extends shaka.ui.Element {
   }
 }
 
-export default {
+const factory = {
   create: (rootElement, controls) => new CloseButton(rootElement, controls),
 };
+
+shaka.ui.Controls.registerElement('close', factory);

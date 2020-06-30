@@ -41,6 +41,8 @@ class Replay10Button extends shaka.ui.Element {
   }
 }
 
-export default {
+const factory = {
   create: (rootElement, controls) => new Replay10Button(rootElement, controls),
 };
+
+shaka.ui.Controls.registerElement('replay10', factory);

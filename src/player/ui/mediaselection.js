@@ -1,5 +1,7 @@
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
-import ShakaUtils from '@/player/ui/utils';
+import {
+  setDisplay, getDescendantIfExists, removeAllChildren, focusOnTheChosenItem, checkmarkIcon,
+} from '@/player/ui/utils';
 import store from '@/store';
 
 class MediaSelection extends shaka.ui.SettingsMenu {
@@ -32,27 +34,27 @@ class MediaSelection extends shaka.ui.SettingsMenu {
   updateMediaSelection() {
     // Hide menu if there is only the one version
     if (store.getters['slplayer/GET_MEDIA_LIST'].length <= 1) {
-      ShakaUtils.setDisplay(this.menu, false);
-      ShakaUtils.setDisplay(this.button, false);
+      setDisplay(this.menu, false);
+      setDisplay(this.button, false);
       return;
     }
 
     // Otherwise, restore it.
-    ShakaUtils.setDisplay(this.button, true);
+    setDisplay(this.button, true);
 
     // Remove old shaka-resolutions
     // 1. Save the back to menu button
-    const backButton = ShakaUtils.getFirstDescendantWithClassName(this.menu, 'shaka-back-to-overflow-button');
+    const backButton = getDescendantIfExists(this.menu, 'shaka-back-to-overflow-button');
 
     // 2. Remove everything
-    ShakaUtils.removeAllChildren(this.menu);
+    removeAllChildren(this.menu);
 
     // 3. Add the backTo Menu button back
     this.menu.appendChild(backButton);
 
     this.addMediaSelection();
 
-    ShakaUtils.focusOnTheChosenItem(this.menu);
+    focusOnTheChosenItem(this.menu);
   }
 
   addMediaSelection() {
@@ -72,7 +74,7 @@ class MediaSelection extends shaka.ui.SettingsMenu {
 
       if (media.index === store.getters['slplayer/GET_MEDIA_INDEX']) {
         button.setAttribute('aria-selected', 'true');
-        button.appendChild(ShakaUtils.checkmarkIcon());
+        button.appendChild(checkmarkIcon());
         span.classList.add('shaka-chosen-item');
         this.currentSelection.textContent = span.textContent;
       }
@@ -95,6 +97,8 @@ class MediaSelection extends shaka.ui.SettingsMenu {
   }
 }
 
-export default {
+const factory = {
   create: (rootElement, controls) => new MediaSelection(rootElement, controls),
 };
+
+shaka.ui.OverflowMenu.registerElement('media', factory);

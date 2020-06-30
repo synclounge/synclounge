@@ -187,15 +187,7 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
 
 import 'shaka-player/dist/controls.css';
-
-import BitrateSelectionFactory from '@/player/ui/bitrateselection';
-import SubtitleSelectionFactory from '@/player/ui/subtitleselection';
-import AudioSelectionFactory from '@/player/ui/audioselection';
-import MediaSelectionFactory from '@/player/ui/mediaselection';
-import CloseButtonFactory from '@/player/ui/closebutton';
-import Forward30ButtonFactory from '@/player/ui/forward30button';
-import Replay10ButtonFactory from '@/player/ui/replay10button';
-import NextButtonFactory from '@/player/ui/nextbutton';
+import '@/player/ui';
 
 shaka.log.setLevel(shaka.log.Level.ERROR);
 shaka.polyfill.installAll();
@@ -278,17 +270,6 @@ export default {
       },
       immediate: true,
     },
-  },
-
-  created() {
-    shaka.ui.OverflowMenu.registerElement('bitrate', BitrateSelectionFactory);
-    shaka.ui.OverflowMenu.registerElement('subtitle', SubtitleSelectionFactory);
-    shaka.ui.OverflowMenu.registerElement('audio', AudioSelectionFactory);
-    shaka.ui.OverflowMenu.registerElement('media', MediaSelectionFactory);
-    shaka.ui.Controls.registerElement('close', CloseButtonFactory);
-    shaka.ui.Controls.registerElement('forward30', Forward30ButtonFactory);
-    shaka.ui.Controls.registerElement('replay10', Replay10ButtonFactory);
-    shaka.ui.Controls.registerElement('next', NextButtonFactory);
   },
 
   mounted() {

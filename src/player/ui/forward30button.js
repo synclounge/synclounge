@@ -41,6 +41,8 @@ class Forward30Button extends shaka.ui.Element {
   }
 }
 
-export default {
+const factory = {
   create: (rootElement, controls) => new Forward30Button(rootElement, controls),
 };
+
+shaka.ui.Controls.registerElement('forward30', factory);

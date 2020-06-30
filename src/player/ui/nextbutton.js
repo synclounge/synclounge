@@ -45,6 +45,8 @@ class NextButton extends shaka.ui.Element {
   }
 }
 
-export default {
+const factory = {
   create: (rootElement, controls) => new NextButton(rootElement, controls),
 };
+
+shaka.ui.Controls.registerElement('next', factory);
