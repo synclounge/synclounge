@@ -15,6 +15,8 @@ const state = () => ({
   chosenClientId: 'PTPLAYER9PLUS10',
   activeMediaMetadata: null,
   activeServerId: null,
+  activePlayQueue: null,
+  activePlayQueueMachineIdentifier: null,
 
   // Timeline storage only for plex clients. For slplayer, we query its state directly
   plexClientTimeline: null,

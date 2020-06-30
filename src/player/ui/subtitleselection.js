@@ -1,29 +1,26 @@
-// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
-import ShakaUtils from '@/player/ui/utils';
+import {
+  setDisplay, getDescendantIfExists, removeAllChildren, focusOnTheChosenItem, checkmarkIcon,
+} from '@/player/ui/utils';
+import store from '@/store';
 
 class SubtitleSelection extends shaka.ui.SettingsMenu {
-  constructor(parent, controls, eventBus) {
-    super(parent, controls, 'subtitles');
-    this.eventBus = eventBus;
-    this.selectedSubtitleId = 0;
-    this.subtitleStreams = [];
-    this.eventListeners = [
-      {
-        event: 'subtitlestreamschanged',
-        fn: this.onSubtitleStreamsChanged.bind(this),
-      },
-      {
-        event: 'subtitlestreamidchanged',
-        fn: this.onSubtitleStreamIdChanged.bind(this),
-      },
-    ];
+  #watcherCancellers = [];
 
-    ShakaUtils.addEventListeners(this.eventListeners, this.eventBus);
-    this.eventBus.$once(
-      'slplayerdestroy',
-      () => ShakaUtils.removeEventListeners(this.eventListeners, this.eventBus),
-    );
+  constructor(parent, controls) {
+    super(parent, controls, 'subtitles');
+
+    this.#watcherCancellers = [
+      store.watch(
+        (state, getters) => getters['slplayer/GET_SUBTITLE_STREAMS'],
+        this.updateSubtitleSelection.bind(this),
+      ),
+
+      store.watch(
+        (state, getters) => getters['slplayer/GET_SUBTITLE_STREAM_ID'],
+        this.updateSubtitleSelection.bind(this),
+      ),
+    ];
 
     this.button.classList.add('shaka-subtitles-button');
     this.menu.classList.add('shaka-subtitles');
@@ -34,46 +31,34 @@ class SubtitleSelection extends shaka.ui.SettingsMenu {
     this.updateSubtitleSelection();
   }
 
-  onSubtitleStreamsChanged(streams) {
-    this.subtitleStreams = streams;
-    this.updateSubtitleSelection();
-  }
-
-  onSubtitleStreamIdChanged(id) {
-    if (id !== this.selectedSubtitleId) {
-      this.selectedSubtitleId = id;
-      this.updateSubtitleSelection();
-    }
-  }
-
   updateSubtitleSelection() {
     // Hide menu if there is only the None subtitle option
-    if (this.subtitleStreams.length <= 1) {
-      ShakaUtils.setDisplay(this.menu, false);
-      ShakaUtils.setDisplay(this.button, false);
+    if (store.getters['slplayer/GET_SUBTITLE_STREAMS'].length <= 1) {
+      setDisplay(this.menu, false);
+      setDisplay(this.button, false);
       return;
     }
 
     // Otherwise, restore it.
-    ShakaUtils.setDisplay(this.button, true);
+    setDisplay(this.button, true);
 
     // Remove old shaka-resolutions
     // 1. Save the back to menu button
-    const backButton = ShakaUtils.getFirstDescendantWithClassName(this.menu, 'shaka-back-to-overflow-button');
+    const backButton = getDescendantIfExists(this.menu, 'shaka-back-to-overflow-button');
 
     // 2. Remove everything
-    ShakaUtils.removeAllChildren(this.menu);
+    removeAllChildren(this.menu);
 
     // 3. Add the backTo Menu button back
     this.menu.appendChild(backButton);
 
     this.addSubtitleSelection();
 
-    ShakaUtils.focusOnTheChosenItem(this.menu);
+    focusOnTheChosenItem(this.menu);
   }
 
   addSubtitleSelection() {
-    this.subtitleStreams.forEach((subtitle) => {
+    store.getters['slplayer/GET_SUBTITLE_STREAMS'].forEach((subtitle) => {
       const button = document.createElement('button');
       button.classList.add('explicit-subtitle');
 
@@ -87,9 +72,9 @@ class SubtitleSelection extends shaka.ui.SettingsMenu {
         () => this.onSubtitleClicked(subtitle.id),
       );
 
-      if (subtitle.id === this.selectedSubtitleId) {
+      if (subtitle.id === store.getters['slplayer/GET_SUBTITLE_STREAM_ID']) {
         button.setAttribute('aria-selected', 'true');
-        button.appendChild(ShakaUtils.checkmarkIcon());
+        button.appendChild(checkmarkIcon());
         span.classList.add('shaka-chosen-item');
         this.currentSelection.textContent = span.textContent;
       }
@@ -99,18 +84,21 @@ class SubtitleSelection extends shaka.ui.SettingsMenu {
   }
 
   onSubtitleClicked(subtitleId) {
-    this.eventBus.$emit('subtitlestreamselectionchanged', subtitleId);
+    store.dispatch('slplayer/CHANGE_SUBTITLE_STREAM', subtitleId);
+  }
+
+  // TODO: replace this function name with "release" when upgrading to shaka 3
+  destroy() {
+    this.#watcherCancellers.forEach((canceller) => {
+      canceller();
+    });
+
+    super.destroy();
   }
 }
 
-class SubtitleSelectionFactory {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
-  }
+const factory = {
+  create: (rootElement, controls) => new SubtitleSelection(rootElement, controls),
+};
 
-  create(rootElement, controls) {
-    return new SubtitleSelection(rootElement, controls, this.eventBus);
-  }
-}
-
-export default SubtitleSelectionFactory;
+shaka.ui.OverflowMenu.registerElement('subtitle', factory);

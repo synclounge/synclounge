@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 
 class Replay10Button extends shaka.ui.Element {
@@ -30,7 +29,7 @@ class Replay10Button extends shaka.ui.Element {
   // Updates whether this should be enabled or disabled depending on
   // if we are > or < 30 seconds from end of video
   updateStatus() {
-    if (this.controls.getDisplayTime() > 10) {
+    if (this.controls.getDisplayTime() >= 10) {
       if (this.button.disabled) {
         // Enable
         this.button.disabled = false;
@@ -42,11 +41,8 @@ class Replay10Button extends shaka.ui.Element {
   }
 }
 
-// Factory that will create a button at run time.
-class Replay10ButtonFactory {
-  create(rootElement, controls) {
-    return new Replay10Button(rootElement, controls);
-  }
-}
+const factory = {
+  create: (rootElement, controls) => new Replay10Button(rootElement, controls),
+};
 
-export default Replay10ButtonFactory;
+shaka.ui.Controls.registerElement('replay10', factory);

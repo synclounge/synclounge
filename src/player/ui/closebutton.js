@@ -1,34 +1,27 @@
-// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
+import store from '@/store';
 
 class CloseButton extends shaka.ui.Element {
-  constructor(parent, controls, eventBus) {
+  constructor(parent, controls) {
     super(parent, controls);
-    this.eventBus = eventBus;
 
     // The actual button that will be displayed
     this.button = document.createElement('button');
     this.button.classList.add('shaka-close-button');
+    this.button.classList.add('shaka-slplayer-button');
     this.button.classList.add('material-icons-round');
     this.button.textContent = 'close';
     this.parent.appendChild(this.button);
 
     // Listen for clicks on the button to start the next playback
     this.eventManager.listen(this.button, 'click', () => {
-      this.eventBus.$emit('playerclosebuttonclicked');
+      store.dispatch('slplayer/PRESS_STOP');
     });
   }
 }
 
-// Factory that will create a button at run time.
-class CloseButtonFactory {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
-  }
+const factory = {
+  create: (rootElement, controls) => new CloseButton(rootElement, controls),
+};
 
-  create(rootElement, controls) {
-    return new CloseButton(rootElement, controls, this.eventBus);
-  }
-}
-
-export default CloseButtonFactory;
+shaka.ui.Controls.registerElement('close', factory);

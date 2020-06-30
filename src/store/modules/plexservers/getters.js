@@ -24,11 +24,22 @@ export default {
   GET_PLEX_SERVER_AXIOS: (state, getters, rootState, rootGetters) => (machineIdentifier) => {
     const server = getters.GET_PLEX_SERVER(machineIdentifier);
 
-    return axios.create({
+    const instance = axios.create({
       baseURL: server.chosenConnection.uri,
       timeout: 5000,
-      headers: rootGetters['plex/GET_PLEX_BASE_PARAMS'](server.accessToken),
     });
+
+    // TODO: replace this with actually sensible param merging once axios 0.20 comes out
+    instance.interceptors.request.use((config) => {
+      // eslint-disable-next-line no-param-reassign
+      config.params = {
+        ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](server.accessToken),
+        ...config.params,
+      };
+      return config;
+    });
+
+    return instance;
   },
 
   GET_LAST_SERVER_ID: (state) => state.lastServerId,
@@ -59,6 +70,4 @@ export default {
   },
 
   GET_BLOCKED_SERVER_IDS: (state) => state.blockedServerIds,
-
-  GET_PLAY_QUEUE_ID: (state) => state.playQueueId,
 };
