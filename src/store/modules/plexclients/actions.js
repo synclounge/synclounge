@@ -390,34 +390,38 @@ export default {
     }
   },
 
-  WAIT_FOR_MOVEMENT: (startTime) => new Promise((resolve) => {
+  WAIT_FOR_MOVEMENT: ({ dispatch }, startTime) => new Promise((resolve) => {
     // TODO: fix this
     let time = 500;
     if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
       time = 50;
     }
     const timer = setInterval(async () => {
-      const now = await this.getTimeline();
-      if (now.time !== startTime) {
+      const timeline = await dispatch('POLL_CLIENT');
+      if (timeline.time !== startTime) {
         console.log('Player has movement!');
         resolve();
+
         clearInterval(timer);
       }
     }, time);
   }),
 
-  SKIP_AHEAD: async (current, duration) => {
+  SKIP_AHEAD: async ({ getters, dispatch }, { current, duration }) => {
     // TODO: lol this is broken fix pls
     const startedAt = Date.now();
-    const now = this.lastTimelineObject.time;
-    await this.seekTo(current + duration);
-    await this.waitForMovement(now);
+    const now = getters.GET_PLEX_CLIENT_TIMELINE.time;
+    await dispatch('SEEK_TO', current + duration);
+    await dispatch('WAIT_FOR_MOVEMENT', now);
+
     // The client is now ready
-    await this.pressPause();
+    await dispatch('PRESS_PAUSE');
+
     // Calculate how long it took to get to our ready state
     const elapsed = Date.now() - startedAt;
     await delay(duration - elapsed);
-    await this.pressPlay();
+
+    await dispatch('PRESS_PLAY');
   },
 
   SOFT_SEEK: ({ getters, dispatch }, offset) => {
