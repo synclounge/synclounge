@@ -187,14 +187,7 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
 
 import 'shaka-player/dist/controls.css';
-
-import BitrateSelectionFactory from '@/player/ui/bitrateselection';
-import SubtitleSelectionFactory from '@/player/ui/subtitleselection';
-import AudioSelectionFactory from '@/player/ui/audioselection';
-import MediaSelectionFactory from '@/player/ui/mediaselection';
-import CloseButtonFactory from '@/player/ui/closebutton';
-import Forward30ButtonFactory from '@/player/ui/forward30button';
-import Replay10ButtonFactory from '@/player/ui/replay10button';
+import '@/player/ui';
 
 shaka.log.setLevel(shaka.log.Level.ERROR);
 shaka.polyfill.installAll();
@@ -213,9 +206,6 @@ export default {
 
   data() {
     return {
-      eventbus: window.EventBus,
-      metadataLoadedPromise: null,
-
       playerConfig: {
         streaming: {
           bufferingGoal: 120,
@@ -227,13 +217,6 @@ export default {
 
   computed: {
     ...mapGetters('slplayer', [
-      'GET_SUBTITLE_STREAMS',
-      'GET_AUDIO_STREAMS',
-      'GET_QUALITIES',
-      'GET_AUDIO_STREAM_ID',
-      'GET_SUBTITLE_STREAM_ID',
-      'GET_MEDIA_LIST',
-      'GET_MEDIA_INDEX',
       'GET_THUMB_URL',
       'GET_PLEX_SERVER',
       'GET_TITLE',
@@ -242,10 +225,6 @@ export default {
       'ARE_PLAYER_CONTROLS_SHOWN',
       'GET_PLAYER_UI',
       'GET_PLAYER_STATE',
-    ]),
-
-    ...mapGetters('settings', [
-      'GET_SLPLAYERQUALITY',
     ]),
 
     ...mapGetters('synclounge', [
@@ -293,18 +272,7 @@ export default {
     },
   },
 
-  created() {
-    shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.eventbus));
-    shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
-    shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
-    shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
-    shaka.ui.Controls.registerElement('close', new CloseButtonFactory(this.eventbus));
-    shaka.ui.Controls.registerElement('forward30', new Forward30ButtonFactory());
-    shaka.ui.Controls.registerElement('replay10', new Replay10ButtonFactory());
-  },
-
-  async mounted() {
-    await this.metadataLoadedPromise;
+  mounted() {
     this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
@@ -315,14 +283,7 @@ export default {
     this.bigPlayButton.addEventListener('click', this.onClick);
     this.smallPlayButton.addEventListener('click', this.onClick);
 
-    this.eventbus.$on('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
-    this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
-    this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
-    this.eventbus.$on('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
-    this.eventbus.$on('playerclosebuttonclicked', this.PRESS_STOP);
-
     this.INIT_PLAYER_STATE();
-    this.applyPlayerWatchers();
 
     window.addEventListener('keyup', this.onKeyUp);
   },
@@ -331,20 +292,11 @@ export default {
     window.removeEventListener('keyup', this.onKeyUp);
     this.bigPlayButton.removeEventListener('click', this.onClick);
     this.smallPlayButton.removeEventListener('click', this.onClick);
-    this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
-    this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
-    this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
-    this.eventbus.$off('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
-    this.eventbus.$off('playerclosebuttonclicked', this.PRESS_STOP);
-    this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
   },
 
   methods: {
     ...mapActions('slplayer', [
-      'CHANGE_MAX_VIDEO_BITRATE',
-      'CHANGE_AUDIO_STREAM',
-      'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
       'HANDLE_PLAYER_PLAYING',
@@ -384,13 +336,19 @@ export default {
       return {
         addBigPlayButton: true,
         controlPanelElements: [
+          'mute',
+          'volume',
+          'time_and_duration',
+
+          'spacer',
+
+          'previous',
           'replay10',
           'play_pause',
           'forward30',
-          'mute',
-          'volume',
+          'next',
           'close',
-          'time_and_duration',
+
           'spacer',
 
           'overflow_menu',
@@ -408,56 +366,6 @@ export default {
 
         castReceiverAppId: this.getCastReceiverId(),
       };
-    },
-
-    applyPlayerWatchers() {
-      this.$watch('GET_SUBTITLE_STREAMS', (newStreams) => {
-        this.eventbus.$emit('subtitlestreamschanged', newStreams);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_SUBTITLE_STREAM_ID', (newId) => {
-        this.eventbus.$emit('subtitlestreamidchanged', newId);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_AUDIO_STREAMS', (newStreams) => {
-        this.eventbus.$emit('audiotreamschanged', newStreams);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_AUDIO_STREAM_ID', (newId) => {
-        this.eventbus.$emit('audiotreamidchanged', newId);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_MEDIA_LIST', (newList) => {
-        this.eventbus.$emit('medialistchanged', newList);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_MEDIA_INDEX', (newIndex) => {
-        this.eventbus.$emit('mediaindexchanged', newIndex);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_QUALITIES', (newList) => {
-        this.eventbus.$emit('bitrateschanged', newList);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_SLPLAYERQUALITY', (newBitrate) => {
-        this.eventbus.$emit('bitratechanged', newBitrate);
-      }, {
-        immediate: true,
-      });
     },
 
     onKeyUp(event) {

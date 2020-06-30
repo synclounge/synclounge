@@ -45,6 +45,13 @@ export default {
     }) => {
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
 
+    commit('SET_ACTIVE_PLAY_QUEUE', await dispatch('plexservers/CREATE_PLAY_QUEUE', {
+      machineIdentifier,
+      ratingKey: metadata.ratingKey,
+    }, { root: true }));
+
+    commit('SET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER', machineIdentifier);
+
     if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
       // do raw stuff
       // commit the proper stuff
@@ -70,11 +77,6 @@ export default {
       // MediaId Key, Offset, server MachineId,
       // Server Ip, Server Port, Server Protocol, Path
 
-      await dispatch('plexservers/CREATE_PLAY_QUEUE', {
-        machineIdentifier,
-        ratingKey: metadata.ratingKey,
-      }, { root: true });
-
       // TODO: potentially wait for stuff..
 
       await dispatch('SEND_CLIENT_REQUEST', {
@@ -89,7 +91,7 @@ export default {
           protocol: server.chosenConnection.protocol,
           path: server.chosenConnection.uri + metadata.key,
           token: server.accessToken,
-          containerKey: `/playQueues/${rootGetters['plexservers/GET_PLAY_QUEUE_ID']}`,
+          containerKey: `/playQueues/${getters.GET_ACTIVE_PLAY_QUEUE.playQueueID}`,
           ...mediaIndex && { mediaIndex },
         },
       });
@@ -443,5 +445,12 @@ export default {
         return dispatch('SEEK_TO', offset);
       }
     }
+  },
+
+  UPDATE_ACTIVE_PLAY_QUEUE: async ({ getters, dispatch, commit }) => {
+    commit('SET_ACTIVE_PLAY_QUEUE', await dispatch('plexservers/FETCH_PLAY_QUEUE', {
+      machineIdentifier: getters.GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER,
+      playQueueID: getters.GET_ACTIVE_PLAY_QUEUE.playQueueID,
+    }, { root: true }));
   },
 };

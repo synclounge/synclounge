@@ -1,29 +1,26 @@
-// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
-import ShakaUtils from '@/player/ui/utils';
+import {
+  setDisplay, getDescendantIfExists, removeAllChildren, focusOnTheChosenItem, checkmarkIcon,
+} from '@/player/ui/utils';
+import store from '@/store';
 
 class MediaSelection extends shaka.ui.SettingsMenu {
-  constructor(parent, controls, eventBus) {
-    super(parent, controls, 'view_list');
-    this.eventBus = eventBus;
-    this.selectedMediaIndex = 0;
-    this.mediaList = [];
-    this.eventListeners = [
-      {
-        event: 'medialistchanged',
-        fn: this.onMediaListChanged.bind(this),
-      },
-      {
-        event: 'mediaindexchanged',
-        fn: this.onMediaIndexChanged.bind(this),
-      },
-    ];
+  #watcherCancellers = [];
 
-    ShakaUtils.addEventListeners(this.eventListeners, this.eventBus);
-    this.eventBus.$once(
-      'slplayerdestroy',
-      () => ShakaUtils.removeEventListeners(this.eventListeners, this.eventBus),
-    );
+  constructor(parent, controls) {
+    super(parent, controls, 'view_list');
+
+    this.#watcherCancellers = [
+      store.watch(
+        (state, getters) => getters['slplayer/GET_MEDIA_LIST'],
+        this.updateMediaSelection.bind(this),
+      ),
+
+      store.watch(
+        (state, getters) => getters['slplayer/GET_MEDIA_INDEX'],
+        this.updateMediaSelection.bind(this),
+      ),
+    ];
 
     this.button.classList.add('shaka-media-button');
     this.menu.classList.add('shaka-media');
@@ -34,46 +31,34 @@ class MediaSelection extends shaka.ui.SettingsMenu {
     this.updateMediaSelection();
   }
 
-  onMediaListChanged(streams) {
-    this.mediaList = streams;
-    this.updateMediaSelection();
-  }
-
-  onMediaIndexChanged(index) {
-    if (index !== this.selectedMediaIndex) {
-      this.selectedMediaIndex = index;
-      this.updateMediaSelection();
-    }
-  }
-
   updateMediaSelection() {
     // Hide menu if there is only the one version
-    if (this.mediaList.length <= 1) {
-      ShakaUtils.setDisplay(this.menu, false);
-      ShakaUtils.setDisplay(this.button, false);
+    if (store.getters['slplayer/GET_MEDIA_LIST'].length <= 1) {
+      setDisplay(this.menu, false);
+      setDisplay(this.button, false);
       return;
     }
 
     // Otherwise, restore it.
-    ShakaUtils.setDisplay(this.button, true);
+    setDisplay(this.button, true);
 
     // Remove old shaka-resolutions
     // 1. Save the back to menu button
-    const backButton = ShakaUtils.getFirstDescendantWithClassName(this.menu, 'shaka-back-to-overflow-button');
+    const backButton = getDescendantIfExists(this.menu, 'shaka-back-to-overflow-button');
 
     // 2. Remove everything
-    ShakaUtils.removeAllChildren(this.menu);
+    removeAllChildren(this.menu);
 
     // 3. Add the backTo Menu button back
     this.menu.appendChild(backButton);
 
     this.addMediaSelection();
 
-    ShakaUtils.focusOnTheChosenItem(this.menu);
+    focusOnTheChosenItem(this.menu);
   }
 
   addMediaSelection() {
-    this.mediaList.forEach((media) => {
+    store.getters['slplayer/GET_MEDIA_LIST'].forEach((media) => {
       const button = document.createElement('button');
       button.classList.add('explicit-media');
 
@@ -87,9 +72,9 @@ class MediaSelection extends shaka.ui.SettingsMenu {
         () => this.onMediaClicked(media.index),
       );
 
-      if (media.index === this.selectedMediaIndex) {
+      if (media.index === store.getters['slplayer/GET_MEDIA_INDEX']) {
         button.setAttribute('aria-selected', 'true');
-        button.appendChild(ShakaUtils.checkmarkIcon());
+        button.appendChild(checkmarkIcon());
         span.classList.add('shaka-chosen-item');
         this.currentSelection.textContent = span.textContent;
       }
@@ -99,18 +84,21 @@ class MediaSelection extends shaka.ui.SettingsMenu {
   }
 
   onMediaClicked(index) {
-    this.eventBus.$emit('mediaindexselectionchanged', index);
+    store.dispatch('slplayer/CHANGE_MEDIA_INDEX', index);
+  }
+
+  // TODO: replace this function name with "release" when upgrading to shaka 3
+  destroy() {
+    this.#watcherCancellers.forEach((canceller) => {
+      canceller();
+    });
+
+    super.destroy();
   }
 }
 
-class MediaSelectionFactory {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
-  }
+const factory = {
+  create: (rootElement, controls) => new MediaSelection(rootElement, controls),
+};
 
-  create(rootElement, controls) {
-    return new MediaSelection(rootElement, controls, this.eventBus);
-  }
-}
-
-export default MediaSelectionFactory;
+shaka.ui.OverflowMenu.registerElement('media', factory);
