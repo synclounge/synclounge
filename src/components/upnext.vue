@@ -26,6 +26,7 @@
           <v-col
             cols="3"
             sm="2"
+            align-self="center"
           >
             <v-img
               :src="thumb"
@@ -161,6 +162,7 @@ export default {
   methods: {
     ...mapActions('plexclients', [
       'PLAY_MEDIA',
+      'PLAY_NEXT',
     ]),
 
     ...mapMutations([
@@ -174,14 +176,7 @@ export default {
 
     async playMedia() {
       this.transitionBarWithStyle = {};
-      // TODO: I might need to fetch more...
-      await this.PLAY_MEDIA({
-        metadata: this.GET_UP_NEXT_POST_PLAY_DATA,
-        mediaIndex: 0,
-        machineIdentifier: this.GET_UP_NEXT_POST_PLAY_DATA.machineIdentifier,
-        offset: this.GET_UP_NEXT_POST_PLAY_DATA.viewOffset || 0,
-      });
-
+      await this.PLAY_NEXT();
       this.SET_UP_NEXT_POST_PLAY_DATA(null);
     },
 

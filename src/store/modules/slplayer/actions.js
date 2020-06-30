@@ -303,6 +303,7 @@ export default {
 
     commit('plexclients/SET_ACTIVE_MEDIA_METADATA', null, { root: true });
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
+    // Leaving play queue around for possible upnext
     await getters.GET_PLAYER_UI.destroy();
     commit('SET_OFFSET_MS', 0);
     commit('SET_PLAYER', null);
@@ -348,33 +349,7 @@ export default {
   },
 
   PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ dispatch, commit, rootGetters }) => {
-    if (rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].source) {
-      // TODO: Fix this when switching back and remember the last machine id ugh alskdfjd
-      // If source is defined on selected item, then it is on a different server and we need to do more stuff.
-      // Source looks likes: "server://{MACHINE_IDENTIFIER}/com.plexapp.plugins.library"
-      const regex = /^server:\/\/(\w+)\//;
-      const machineIdentifier = rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].source.match(regex)[1];
-      commit('plexclients/SET_ACTIVE_SERVER_ID', machineIdentifier, { root: true });
-      commit('plexservers/SET_LAST_SERVER_ID', machineIdentifier, { root: true });
-
-      const metadata = await dispatch('plexservers/FETCH_PLEX_METADATA', {
-        machineIdentifier,
-        ratingKey: rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].ratingKey,
-      }, { root: true });
-
-      commit('plexclients/SET_ACTIVE_MEDIA_METADATA', metadata, { root: true });
-    } else {
-      if (rootGetters['plexclients/GET_ACTIVE_SERVER_ID'] !== rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER']) {
-        console.log('nomatch');
-        commit('plexclients/SET_ACTIVE_SERVER_ID', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER'], { root: true });
-        commit('plexservers/SET_LAST_SERVER_ID', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER'], { root: true });
-      }
-
-      commit('plexclients/SET_ACTIVE_MEDIA_METADATA', {
-        machineIdentifier: rootGetters['plexclients/GET_ACTIVE_SERVER_ID'],
-        ...rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'],
-      }, { root: true });
-    }
+    await dispatch('plexclients/UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM', null, { root: true });
 
     // Assume same server machineIdentifier, but this may not always be okay to do. (TODO: figure it out)
 
@@ -384,7 +359,6 @@ export default {
 
     await dispatch('CHANGE_PLAYER_SRC');
 
-    // UPDATE play queue GET REQUEST
     await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
   },
 };

@@ -53,9 +53,6 @@ export default {
     commit('SET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER', machineIdentifier);
 
     if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
-      // do raw stuff
-      // commit the proper stuff
-
       commit('SET_ACTIVE_MEDIA_METADATA', metadata);
       commit('SET_ACTIVE_SERVER_ID', machineIdentifier);
       commit('plexservers/SET_LAST_SERVER_ID', machineIdentifier, { root: true });
@@ -69,8 +66,6 @@ export default {
         commit('slplayer/SET_PLAYER_STATE', 'buffering', { root: true });
         router.push('/player');
       }
-
-      // TODO: navigate there lol
     } else {
       // Play a media item given a mediaId key and a server to play from
       // We need the following variables to build our paramaters:
@@ -127,11 +122,13 @@ export default {
 
     const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type === 'video');
 
+    // Clients seem to respond with strings instead of numbers so need to parse
     return {
       ...videoTimeline,
       time: parseInt(videoTimeline.time, 10),
       duration: parseInt(videoTimeline.duration, 10),
       receivedAt: Date.now(),
+      playQueueItemID: parseInt(videoTimeline.playQueueItemID, 10),
       commandID: parseInt(data.MediaContainer[0].commandID, 10),
     };
   },
@@ -141,26 +138,24 @@ export default {
   }, timeline) => {
     if (!getters.GET_PLEX_CLIENT_TIMELINE
       || getters.GET_PLEX_CLIENT_TIMELINE.machineIdentifier !== timeline.machineIdentifier
-      || getters.GET_PLEX_CLIENT_TIMELINE.ratingKey !== timeline.ratingKey) {
+      || !getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM
+      || getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM.playQueueItemID !== timeline.playQueueItemID) {
       if (timeline.state === 'stopped') {
         commit('SET_ACTIVE_MEDIA_METADATA', null);
         commit('SET_ACTIVE_SERVER_ID', null);
+        // Leaving play queue around for possible upnext
       } else {
-        // If client has changed what it's playing
-        // TODO: see what client sends when its stopped and set metadata and stuff to null instead if so
-        const metadata = await dispatch('plexservers/FETCH_PLEX_METADATA', {
-          machineIdentifier: timeline.machineIdentifier,
-          ratingKey: timeline.ratingKey,
-        }, { root: true });
+        commit('SET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER', timeline.machineIdentifier);
+        commit('SET_ACTIVE_PLAY_QUEUE', await dispatch('plexservers/FETCH_PLAY_QUEUE', {
+          machineIdentifier: getters.GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER,
+          playQueueID: timeline.playQueueID,
+        }, { root: true }));
 
-        commit('SET_ACTIVE_MEDIA_METADATA', metadata);
+        await dispatch('UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
 
-        commit('SET_ACTIVE_SERVER_ID', timeline.machineIdentifier);
-        commit('plexservers/SET_LAST_SERVER_ID', timeline.machineIdentifier, { root: true });
-
-        const serverName = rootGetters['plexservers/GET_PLEX_SERVER'](timeline.machineIdentifier).name;
-        dispatch('DISPLAY_NOTIFICATION',
-          `Now Playing: ${contentTitleUtils.getCombinedTitle(metadata)} from ${serverName}`,
+        const serverName = rootGetters['plexservers/GET_PLEX_SERVER'](getters.GET_ACTIVE_SERVER_ID).name;
+        await dispatch('DISPLAY_NOTIFICATION',
+          `Now Playing: ${contentTitleUtils.getCombinedTitle(getters.GET_ACTIVE_MEDIA_METADATA)} from ${serverName}`,
           { root: true });
       }
     }
@@ -229,18 +224,12 @@ export default {
         && getters.GET_ACTIVE_MEDIA_METADATA.type === 'episode'
       ) {
         if (!rootGetters.GET_UP_NEXT_TRIGGERED) {
-          const item = await dispatch('plexservers/FETCH_POST_PLAY', {
-            machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
-            ratingKey: getters.GET_ACTIVE_MEDIA_METADATA.ratingKey,
-          }, { root: true });
-
-          if (item.grandparentRatingKey
-            === getters.GET_ACTIVE_MEDIA_METADATA.grandparentRatingKey) {
-            const metadata = await dispatch('plexservers/FETCH_PLEX_METADATA', {
-              machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
-              ratingKey: item.ratingKey,
-            }, { root: true });
-            commit('SET_UP_NEXT_POST_PLAY_DATA', metadata, { root: true });
+          if (getters.ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS) {
+            commit('SET_UP_NEXT_POST_PLAY_DATA',
+              await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM',
+                getters.GET_ACTIVE_PLAY_QUEUE
+                  .Metadata[getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset + 1]),
+              { root: true });
           }
 
           commit('SET_UP_NEXT_TRIGGERED', true, { root: true });
@@ -327,7 +316,6 @@ export default {
   },
 
   PRESS_PLAY: async ({ getters, dispatch }) => {
-    console.log('Press play');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_PLAY', null, { root: true });
@@ -346,7 +334,6 @@ export default {
   },
 
   PRESS_PAUSE: ({ getters, dispatch }) => {
-    console.log('Press play');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_PAUSE', null, { root: true });
@@ -364,7 +351,6 @@ export default {
   },
 
   PRESS_STOP: async ({ getters, dispatch }) => {
-    console.log('Press stop');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_STOP', null, { root: true });
@@ -452,5 +438,52 @@ export default {
       machineIdentifier: getters.GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER,
       playQueueID: getters.GET_ACTIVE_PLAY_QUEUE.playQueueID,
     }, { root: true }));
+  },
+
+  UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ getters, dispatch, commit }) => {
+    const metadata = await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM', getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM);
+    if (!getters.GET_ACTIVE_MEDIA_METADATA
+      || (metadata.ratingKey !== getters.GET_ACTIVE_MEDIA_METADATA.ratingKey
+        && getters.GET_ACTIVE_SERVER_ID !== metadata.machineIdentifier)) {
+      commit('SET_ACTIVE_SERVER_ID', metadata.machineIdentifier);
+      commit('plexservers/SET_LAST_SERVER_ID', metadata.machineIdentifier, { root: true });
+      commit('SET_ACTIVE_MEDIA_METADATA', metadata);
+    }
+  },
+
+  FETCH_METADATA_OF_PLAY_QUEUE_ITEM: ({ getters, dispatch }, playQueueItem) => {
+    if (playQueueItem.source) {
+      // If source is defined on selected item, then it is on a different server and we need to do more stuff.
+      // Source looks likes: "server://{MACHINE_IDENTIFIER}/com.plexapp.plugins.library"
+      const regex = /^server:\/\/(\w+)\//;
+      const machineIdentifier = playQueueItem.source.match(regex)[1];
+
+      return dispatch('plexservers/FETCH_PLEX_METADATA', {
+        machineIdentifier,
+        ratingKey: playQueueItem.ratingKey,
+      }, { root: true });
+    }
+
+    return {
+      machineIdentifier: getters.GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER,
+      ...playQueueItem,
+    };
+  },
+
+  PLAY_NEXT: ({ getters, dispatch }) => {
+    switch (getters.GET_CHOSEN_CLIENT_ID) {
+      case 'PTPLAYER9PLUS10': {
+        return dispatch('slplayer/PLAY_NEXT');
+      }
+
+      default: {
+        return dispatch('SEND_CLIENT_REQUEST', {
+          path: '/player/playback/skipNext',
+          params: {
+            wait: 0,
+          },
+        });
+      }
+    }
   },
 };
