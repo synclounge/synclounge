@@ -27,6 +27,8 @@ class NextButton extends shaka.ui.Element {
       // TODO: maybe await and lock this one at a time?
       store.dispatch('slplayer/PLAY_NEXT');
     });
+
+    this.updateButtonEnabled();
   }
 
   updateButtonEnabled() {

@@ -85,6 +85,7 @@ class BitrateSelection extends shaka.ui.SettingsMenu {
     store.dispatch('slplayer/CHANGE_MAX_VIDEO_BITRATE', bitrate);
   }
 
+  // TODO: replace this function name with "release" when upgrading to shaka 3
   destroy() {
     this.#watcherCancellers.forEach((canceller) => {
       canceller();

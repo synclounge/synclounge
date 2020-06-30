@@ -229,9 +229,6 @@ export default {
   computed: {
     ...mapGetters('slplayer', [
       'GET_SUBTITLE_STREAMS',
-      'GET_AUDIO_STREAMS',
-      'GET_QUALITIES',
-      'GET_AUDIO_STREAM_ID',
       'GET_SUBTITLE_STREAM_ID',
       'GET_MEDIA_LIST',
       'GET_MEDIA_INDEX',
@@ -293,7 +290,7 @@ export default {
   created() {
     shaka.ui.OverflowMenu.registerElement('bitrate', BitrateSelectionFactory);
     shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
-    shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
+    shaka.ui.OverflowMenu.registerElement('audio',  AudioSelectionFactory);
     shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
     shaka.ui.Controls.registerElement('close', CloseButtonFactory);
     shaka.ui.Controls.registerElement('forward30', Forward30ButtonFactory);
@@ -314,7 +311,6 @@ export default {
     this.smallPlayButton.addEventListener('click', this.onClick);
 
     this.eventbus.$on('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
-    this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
 
     this.INIT_PLAYER_STATE();
@@ -328,7 +324,6 @@ export default {
     this.bigPlayButton.removeEventListener('click', this.onClick);
     this.smallPlayButton.removeEventListener('click', this.onClick);
     this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
-    this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
@@ -336,7 +331,6 @@ export default {
 
   methods: {
     ...mapActions('slplayer', [
-      'CHANGE_AUDIO_STREAM',
       'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
@@ -413,18 +407,6 @@ export default {
 
       this.$watch('GET_SUBTITLE_STREAM_ID', (newId) => {
         this.eventbus.$emit('subtitlestreamidchanged', newId);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_AUDIO_STREAMS', (newStreams) => {
-        this.eventbus.$emit('audiotreamschanged', newStreams);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_AUDIO_STREAM_ID', (newId) => {
-        this.eventbus.$emit('audiotreamidchanged', newId);
       }, {
         immediate: true,
       });
