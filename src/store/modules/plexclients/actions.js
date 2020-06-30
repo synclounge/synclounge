@@ -442,9 +442,9 @@ export default {
 
   UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ getters, dispatch, commit }) => {
     const metadata = await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM', getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM);
-    if (!getters.GET_ACTIVE_MEDIA_METADATA
-      || (metadata.ratingKey !== getters.GET_ACTIVE_MEDIA_METADATA.ratingKey
-        && getters.GET_ACTIVE_SERVER_ID !== metadata.machineIdentifier)) {
+    if (!getters.GET_ACTIVE_MEDIA_METADATAUPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM
+      || metadata.ratingKey !== getters.GET_ACTIVE_MEDIA_METADATA.ratingKey
+        || getters.GET_ACTIVE_SERVER_ID !== metadata.machineIdentifier) {
       commit('SET_ACTIVE_SERVER_ID', metadata.machineIdentifier);
       commit('plexservers/SET_LAST_SERVER_ID', metadata.machineIdentifier, { root: true });
       commit('SET_ACTIVE_MEDIA_METADATA', metadata);
