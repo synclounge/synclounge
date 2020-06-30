@@ -337,8 +337,17 @@ export default {
     dispatch('synclounge/sendPartyPause', isPlayerPaused(getters), { root: true });
   },
 
-  PLAY_NEXT: async ({ dispatch, commit, rootGetters }) => {
+  PLAY_NEXT: ({ dispatch, commit }) => {
     commit('plexclients/INCREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET', null, { root: true });
+    return dispatch('PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
+  },
+
+  PLAY_PREVIOUS: ({ dispatch, commit }) => {
+    commit('plexclients/DECREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET', null, { root: true });
+    return dispatch('PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
+  },
+
+  PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ dispatch, commit, rootGetters }) => {
     if (rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].source) {
       // TODO: Fix this when switching back and remember the last machine id ugh alskdfjd
       // If source is defined on selected item, then it is on a different server and we need to do more stuff.

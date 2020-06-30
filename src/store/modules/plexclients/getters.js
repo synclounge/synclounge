@@ -89,4 +89,8 @@ export default {
     ? getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset
       < (getters.GET_ACTIVE_PLAY_QUEUE.size - 1)
     : false),
+
+  ACTIVE_PLAY_QUEUE_PREVIOUS_ITEM_EXISTS: (state, getters) => (getters.GET_ACTIVE_PLAY_QUEUE
+    ? getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset > 0
+    : false),
 };

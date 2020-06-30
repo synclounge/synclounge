@@ -48,4 +48,8 @@ export default {
   INCREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET: (state) => {
     state.activePlayQueue.playQueueSelectedItemOffset += 1;
   },
+
+  DECREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET: (state) => {
+    state.activePlayQueue.playQueueSelectedItemOffset -= 1;
+  },
 };

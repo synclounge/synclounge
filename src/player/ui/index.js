@@ -6,3 +6,4 @@ import './closebutton';
 import './forward30button';
 import './replay10button';
 import './nextbutton';
+import './previousbutton';

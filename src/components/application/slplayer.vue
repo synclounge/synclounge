@@ -336,14 +336,19 @@ export default {
       return {
         addBigPlayButton: true,
         controlPanelElements: [
+          'mute',
+          'volume',
+          'time_and_duration',
+
+          'spacer',
+
+          'previous',
           'replay10',
           'play_pause',
           'forward30',
           'next',
-          'mute',
-          'volume',
           'close',
-          'time_and_duration',
+
           'spacer',
 
           'overflow_menu',
