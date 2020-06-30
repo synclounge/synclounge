@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 
 class Forward30Button extends shaka.ui.Element {
@@ -42,11 +41,6 @@ class Forward30Button extends shaka.ui.Element {
   }
 }
 
-// Factory that will create a button at run time.
-class Forward30ButtonFactory {
-  create(rootElement, controls) {
-    return new Forward30Button(rootElement, controls);
-  }
-}
-
-export default Forward30ButtonFactory;
+export default {
+  create: (rootElement, controls) => new Forward30Button(rootElement, controls),
+};

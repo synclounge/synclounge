@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 
 class Replay10Button extends shaka.ui.Element {
@@ -42,11 +41,6 @@ class Replay10Button extends shaka.ui.Element {
   }
 }
 
-// Factory that will create a button at run time.
-class Replay10ButtonFactory {
-  create(rootElement, controls) {
-    return new Replay10Button(rootElement, controls);
-  }
-}
-
-export default Replay10ButtonFactory;
+export default {
+  create: (rootElement, controls) => new Replay10Button(rootElement, controls),
+};

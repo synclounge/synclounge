@@ -299,10 +299,10 @@ export default {
     shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
-    shaka.ui.Controls.registerElement('close', new CloseButtonFactory(this.eventbus));
-    shaka.ui.Controls.registerElement('forward30', new Forward30ButtonFactory());
-    shaka.ui.Controls.registerElement('replay10', new Replay10ButtonFactory());
-    shaka.ui.Controls.registerElement('next', new NextButtonFactory());
+    shaka.ui.Controls.registerElement('close', CloseButtonFactory);
+    shaka.ui.Controls.registerElement('forward30', Forward30ButtonFactory);
+    shaka.ui.Controls.registerElement('replay10', Replay10ButtonFactory);
+    shaka.ui.Controls.registerElement('next', NextButtonFactory);
   },
 
   async mounted() {
@@ -321,7 +321,6 @@ export default {
     this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
     this.eventbus.$on('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
-    this.eventbus.$on('playerclosebuttonclicked', this.PRESS_STOP);
 
     this.INIT_PLAYER_STATE();
     this.applyPlayerWatchers();
@@ -337,7 +336,6 @@ export default {
     this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
     this.eventbus.$off('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
-    this.eventbus.$off('playerclosebuttonclicked', this.PRESS_STOP);
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
   },

@@ -8,7 +8,7 @@ const state = () => ({
       product: 'SyncLounge',
       name: 'SyncLounge Player',
       labels: [['Recommended', 'green']],
-      lastSeenAt: Date.now().toISOString(),
+      lastSeenAt: new Date().toISOString(),
     },
   },
 

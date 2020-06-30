@@ -84,4 +84,9 @@ export default {
     ? getters.GET_ACTIVE_PLAY_QUEUE
       .Metadata[getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset]
     : null),
+
+  ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS: (state, getters) => (getters.GET_ACTIVE_PLAY_QUEUE
+    ? getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset
+      < (getters.GET_ACTIVE_PLAY_QUEUE.size - 1)
+    : false),
 };

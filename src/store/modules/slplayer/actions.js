@@ -356,11 +356,15 @@ export default {
       commit('plexclients/SET_ACTIVE_MEDIA_METADATA', metadata, { root: true });
     } else {
       if (rootGetters['plexclients/GET_ACTIVE_SERVER_ID'] !== rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER']) {
+        console.log('nomatch');
         commit('plexclients/SET_ACTIVE_SERVER_ID', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER'], { root: true });
         commit('plexservers/SET_LAST_SERVER_ID', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER'], { root: true });
       }
 
-      commit('plexclients/SET_ACTIVE_MEDIA_METADATA', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'], { root: true });
+      commit('plexclients/SET_ACTIVE_MEDIA_METADATA', {
+        machineIdentifier: rootGetters['plexclients/GET_ACTIVE_SERVER_ID'],
+        ...rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'],
+      }, { root: true });
     }
 
     // Assume same server machineIdentifier, but this may not always be okay to do. (TODO: figure it out)
