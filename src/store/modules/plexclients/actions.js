@@ -447,4 +447,10 @@ export default {
     }
   },
 
+  UPDATE_ACTIVE_PLAY_QUEUE: async ({ getters, dispatch, commit }) => {
+    commit('SET_ACTIVE_PLAY_QUEUE', await dispatch('plexservers/FETCH_PLAY_QUEUE', {
+      machineIdentifier: getters.GET_ACTIVE_PLAY_QUEUE_MACHINE_IDENTIFIER,
+      playQueueID: getters.GET_ACTIVE_PLAY_QUEUE.playQueueID,
+    }, { root: true }));
+  },
 };

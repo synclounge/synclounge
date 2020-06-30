@@ -29,7 +29,7 @@ class Replay10Button extends shaka.ui.Element {
   // Updates whether this should be enabled or disabled depending on
   // if we are > or < 30 seconds from end of video
   updateStatus() {
-    if (this.controls.getDisplayTime() > 10) {
+    if (this.controls.getDisplayTime() >= 10) {
       if (this.button.disabled) {
         // Enable
         this.button.disabled = false;

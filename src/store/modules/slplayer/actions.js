@@ -385,5 +385,6 @@ export default {
     await dispatch('CHANGE_PLAYER_SRC');
 
     // UPDATE play queue GET REQUEST
+    await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
   },
 };

@@ -235,6 +235,17 @@ export default {
     return data.MediaContainer;
   },
 
+  FETCH_PLAY_QUEUE: async ({ getters }, { machineIdentifier, playQueueID }) => {
+    const { data } = await getters.GET_PLEX_SERVER_AXIOS(machineIdentifier).get(`/playQueues/${playQueueID}`, {
+      params: {
+        own: 1,
+        includeExternalMedia: 1,
+      },
+    });
+
+    return data.MediaContainer;
+  },
+
   MARK_WATCHED: ({ getters }, { machineIdentifier, ratingKey }) => getters
     .GET_PLEX_SERVER_AXIOS(machineIdentifier).get('/:/scrobble', {
       params: {
