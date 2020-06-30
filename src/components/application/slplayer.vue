@@ -214,9 +214,6 @@ export default {
 
   data() {
     return {
-      eventbus: window.EventBus,
-      metadataLoadedPromise: null,
-
       playerConfig: {
         streaming: {
           bufferingGoal: 120,
@@ -228,10 +225,6 @@ export default {
 
   computed: {
     ...mapGetters('slplayer', [
-      'GET_SUBTITLE_STREAMS',
-      'GET_SUBTITLE_STREAM_ID',
-      'GET_MEDIA_LIST',
-      'GET_MEDIA_INDEX',
       'GET_THUMB_URL',
       'GET_PLEX_SERVER',
       'GET_TITLE',
@@ -291,15 +284,14 @@ export default {
     shaka.ui.OverflowMenu.registerElement('bitrate', BitrateSelectionFactory);
     shaka.ui.OverflowMenu.registerElement('subtitle', SubtitleSelectionFactory);
     shaka.ui.OverflowMenu.registerElement('audio', AudioSelectionFactory);
-    shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
+    shaka.ui.OverflowMenu.registerElement('media', MediaSelectionFactory);
     shaka.ui.Controls.registerElement('close', CloseButtonFactory);
     shaka.ui.Controls.registerElement('forward30', Forward30ButtonFactory);
     shaka.ui.Controls.registerElement('replay10', Replay10ButtonFactory);
     shaka.ui.Controls.registerElement('next', NextButtonFactory);
   },
 
-  async mounted() {
-    await this.metadataLoadedPromise;
+  mounted() {
     this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
@@ -310,10 +302,7 @@ export default {
     this.bigPlayButton.addEventListener('click', this.onClick);
     this.smallPlayButton.addEventListener('click', this.onClick);
 
-    this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
-
     this.INIT_PLAYER_STATE();
-    this.applyPlayerWatchers();
 
     window.addEventListener('keyup', this.onKeyUp);
   },
@@ -322,8 +311,6 @@ export default {
     window.removeEventListener('keyup', this.onKeyUp);
     this.bigPlayButton.removeEventListener('click', this.onClick);
     this.smallPlayButton.removeEventListener('click', this.onClick);
-    this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
-    this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -393,20 +380,6 @@ export default {
 
         castReceiverAppId: this.getCastReceiverId(),
       };
-    },
-
-    applyPlayerWatchers() {
-      this.$watch('GET_MEDIA_LIST', (newList) => {
-        this.eventbus.$emit('medialistchanged', newList);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_MEDIA_INDEX', (newIndex) => {
-        this.eventbus.$emit('mediaindexchanged', newIndex);
-      }, {
-        immediate: true,
-      });
     },
 
     onKeyUp(event) {
