@@ -10,22 +10,18 @@
       style="z-index: 5"
     >
       <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN" />
-      <a
-        href="https://synclounge.tv"
-        target="_blank"
-      >
-        <img
-          class="ma-1 hidden-xs-only"
-          style="height: 42px; width: auto; vertical-align: middle"
-          :src="getLogos.light.long"
-        >
 
-        <img
-          class="ma-1 hidden-sm-and-up"
-          style="height: 42px; width: auto; vertical-align: middle"
-          :src="getLogos.light.small"
+      <picture>
+        <source
+          :srcset="getLogos.light.small"
+          :media="smallLogoMedia"
         >
-      </a>
+        <img
+          height="42"
+          :src="getLogos.light.long"
+          style="vertical-align: middle"
+        >
+      </picture>
 
       <nowplayingchip
         v-if="showNowPlaying"
@@ -102,6 +98,7 @@
 
     <v-main
       :style="mainStyle"
+      class="main-content"
       app
     >
       <v-container
@@ -110,19 +107,8 @@
         style="height: 100%"
         fluid
       >
-        <v-alert
-          v-if="GET_CONFIGURATION_FETCHED_ERROR"
-          width="100%"
-          :dismissible="true"
-          type="error"
-          class="mt-0 mb-0"
-        >
-          Failed to fetch config: {{ GET_CONFIGURATION_FETCHED_ERROR }}
-        </v-alert>
-
         <v-container
-          v-if="((GET_CONFIG.fetchConfig && !GET_CONFIGURATION_FETCHED)
-            || !IS_DONE_FETCHING_DEVICES) && $route.matched.some((record) => record.meta.protected)"
+          v-if="!IS_DONE_FETCHING_DEVICES && $route.matched.some((record) => record.meta.protected)"
           fill-height
         >
           <v-row
@@ -212,11 +198,10 @@ export default {
       'GET_UP_NEXT_POST_PLAY_DATA',
       'getLogos',
       'GET_CONFIG',
-      'GET_CONFIGURATION_FETCHED',
-      'GET_CONFIGURATION_FETCHED_ERROR',
       'GET_ACTIVE_METADATA',
       'GET_SNACKBAR_MESSAGE',
       'GET_SNACKBAR_OPEN',
+      'GET_BACKGROUND',
     ]),
 
     ...mapGetters('plex', [
@@ -254,33 +239,27 @@ export default {
         && this.$route.path.indexOf('nowplaying') === -1);
     },
 
+    smallLogoMedia() {
+      return `(max-width: ${this.$vuetify.breakpoint.thresholds.xs}px)`;
+    },
+
     mainStyle() {
-      if (this.$store.getters.getBackground !== null) {
-        return {
-          'background-image': `url(${this.$store.getters.getBackground})`,
-          'background-repeat': 'no-repeat',
-          'background-size': 'cover',
-          'background-position': 'center',
-        };
-      }
-      return {};
+      return this.GET_BACKGROUND
+        ? { backgroundImage: `url(${this.GET_BACKGROUND})` }
+        : {};
     },
 
     containerStyle() {
-      const arr = [];
-      if (this.$store.getters.getBackground !== null) {
-        arr.push({
-          background: 'rgba(0,0,0,0.7)',
-        });
-      }
-      return arr;
+      return this.GET_BACKGROUND
+        ? { background: 'rgba(0,0,0,0.7)' }
+        : {};
     },
 
     inviteUrl() {
       // TODO: investigate passwords and invites. Is there really a point of a password if the invite link contains it?
       // One alternative is to prompt for a password always instead, but maybe we don't need passwords at all
       if (this.GET_ROOM) {
-        if (this.GET_CONFIG.autoJoin) {
+        if (this.GET_CONFIG.autojoin) {
           // If autojoin, just link to main site
           return window.location.origin;
         }
@@ -330,10 +309,6 @@ export default {
   },
 
   async created() {
-    if (this.GET_CONFIG.fetchConfig) {
-      await this.FETCH_CONFIG();
-    }
-
     if (this.IS_AUTHENTICATED) {
       // Kick off a bunch of requests that we need for later
       await this.FETCH_PLEX_USER();
@@ -346,7 +321,6 @@ export default {
       'SET_LEFT_SIDEBAR_OPEN',
       'SET_RIGHT_SIDEBAR_OPEN',
       'TOGGLE_RIGHT_SIDEBAR_OPEN',
-      'FETCH_CONFIG',
       'DISPLAY_NOTIFICATION',
     ]),
 
@@ -370,9 +344,10 @@ export default {
 };
 </script>
 
-<style>
-.a {
-  color: unset !important;
-  text-decoration: none !important;
+<style scoped>
+.main-content {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 </style>

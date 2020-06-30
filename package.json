@@ -7,16 +7,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "server": "node server.js",
-    "start": "node server.js"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "minimist": "^1.2.5",
-    "socket.io": "^2.3.0",
     "vue": "^2.6.11",
     "vue-router": "^3.3.4",
     "vuetify": "^2.3.2",
@@ -41,6 +35,7 @@
     "git-rev-sync": "^2.0.0",
     "humanize-duration": "^3.23.1",
     "lodash-es": "^4.17.15",
+    "nconf": "^0.10.0",
     "sass": "^1.26.9",
     "sass-loader": "^8.0.2",
     "shaka-player": "^2.5.13",

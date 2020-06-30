@@ -82,14 +82,10 @@ export default {
   created() {
     this.fetchServersHealth();
 
-    if (this.GET_CONFIG.autoJoin) {
+    if (this.GET_CONFIG.autojoin) {
       this.$router.push({
         name: 'join',
-        params: {
-          server: this.GET_CONFIG.autoJoinServer,
-          room: this.GET_CONFIG.autoJoinRoom,
-          password: this.GET_CONFIG.autoJoinPassword,
-        },
+        params: this.GET_CONFIG.autojoin,
       });
     }
   },

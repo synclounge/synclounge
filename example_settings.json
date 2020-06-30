@@ -41,8 +41,6 @@
       "defaultPassword": "DefaultPassword123"
     }
   ],
-  "serverroot": "/slserver",
-  "server_port": 8089,
   "autoplay": true,
   "slPlayerQuality": 10000,
   "slPlayerForceTranscode": false

@@ -1,6 +1,6 @@
 export default {
   getAppVersion: (state) => state.appVersion,
-  getBackground: (state) => state.background,
+  GET_BACKGROUND: (state) => state.background,
 
   getLogos: () => ({
     light: {
