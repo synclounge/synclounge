@@ -279,11 +279,20 @@ export default {
   LOAD_PLAYER_SRC: async ({ getters, commit }) => {
     // TODO: potentailly unload if already loaded to avoid load interrupted errors
     // However, while its loading, potentially   reporting the old time...
-    const result = await getters.GET_PLAYER.load(getters.GET_SRC_URL);
-    if (getters.GET_OFFSET_MS > 0) {
-      commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET_MS);
+    try {
+      const result = await getters.GET_PLAYER.load(getters.GET_SRC_URL);
+
+      if (getters.GET_OFFSET_MS > 0) {
+        commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET_MS);
+      }
+
+      return result;
+    } catch (e) {
+      // Ignore 7000 error (load interrupted)
+      if (e.code !== 7000) {
+        throw e;
+      }
     }
-    return result;
   },
 
   INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
