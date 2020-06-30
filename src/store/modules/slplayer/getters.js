@@ -156,4 +156,13 @@ export default {
     : null),
 
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
+
+  GET_PLEX_TIMELINE_UPDATER_CANCELER: (state) => state.plexTimelineUpdaterCanceler,
+
+  IS_PLAYER_PAUSED: (state, getters) => () => getters.GET_PLAYER_MEDIA_ELEMENT.paused
+  && !getters.GET_PLAYER_UI.getControls().isSeeking(),
+
+  IS_PLAYER_PLAYING: (state, getters) => () => !getters.GET_PLAYER_MEDIA_ELEMENT.paused
+  && !getters.GET_PLAYER.isBuffering(),
+
 };

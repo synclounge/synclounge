@@ -3,6 +3,7 @@ import axios from 'axios';
 import generateGuid from '@/utils/guid';
 import timeoutPromise from '@/utils/timeoutpromise';
 import delay from '@/utils/delay';
+import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 
 // These functions are a bit special since they use currentTime and duration, which can't
 // be tracked by vuex, so the cache isn't updated correctly
@@ -38,25 +39,20 @@ const isTimeInBufferedRange = (getters, timeMs) => {
   return false;
 };
 
-const isPlayerPaused = (getters) => getters.GET_PLAYER_MEDIA_ELEMENT.paused
-  && !getters.GET_PLAYER_UI.getControls().isSeeking();
+export default {
+  FETCH_ARE_PLAYER_CONTROLS_SHOWN: ({ getters }) => {
+    // This can't be a normal getter becasuse shaka isn't reactive
+    // eslint-disable-next-line no-underscore-dangle
+    if (!getters.GET_PLAYER_UI.getControls().enabled_) {
+      return false;
+    }
 
-const isPlayerPlaying = (getters) => !getters.GET_PLAYER_MEDIA_ELEMENT.paused
-  && !getters.GET_PLAYER.isBuffering();
-
-const arePlayerControlsShown = (getters) => {
-  // eslint-disable-next-line no-underscore-dangle
-  if (!getters.GET_PLAYER_UI.getControls().enabled_) {
-    return false;
-  }
-
-  // eslint-disable-next-line no-underscore-dangle
-  return getters.GET_PLAYER_UI.getControls().getControlsContainer().getAttribute('shown') != null
+    // eslint-disable-next-line no-underscore-dangle
+    return getters.GET_PLAYER_UI.getControls().getControlsContainer().getAttribute('shown') != null
     // eslint-disable-next-line no-underscore-dangle
     || getters.GET_PLAYER_UI.getControls().getControlsContainer().getAttribute('casting') != null;
-};
+  },
 
-export default {
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
     const { data } = await axios.get(getters.GET_DECISION_URL, {
       params: getters.GET_DECISION_AND_START_PARAMS,
@@ -134,13 +130,13 @@ export default {
     }),
 
   HANDLE_PLAYER_PLAYING: ({ dispatch, getters }) => {
-    if (isPlayerPlaying(getters)) {
+    if (getters.IS_PLAYER_PLAYING()) {
       dispatch('CHANGE_PLAYER_STATE', 'playing');
     }
   },
 
   HANDLE_PLAYER_PAUSE: ({ dispatch, getters }) => {
-    if (isPlayerPaused(getters)) {
+    if (getters.IS_PLAYER_PAUSED()) {
       if (!getters.GET_PLAYER.isBuffering()) {
         dispatch('CHANGE_PLAYER_STATE', 'paused');
       }
@@ -246,34 +242,24 @@ export default {
     }
   },
 
-  START_PERIODIC_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch }) => {
-    // Send out a timeline update to plex periodically.
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      if (!getters.GET_PLAYER_MEDIA_ELEMENT) {
-        return true;
-      }
-
-      const delayPromise = delay(10000);
-      // eslint-disable-next-line no-await-in-loop
-      await dispatch('SEND_PLEX_TIMELINE_UPDATE').catch((e) => e);
-      // eslint-disable-next-line no-await-in-loop
-      await delayPromise;
-    }
+  START_PERIODIC_PLEX_TIMELINE_UPDATE: async ({ commit, dispatch, rootGetters }) => {
+    commit('SET_PLEX_TIMELINE_UPDATER_CANCELER', cancelablePeriodicTask(
+      () => dispatch('SEND_PLEX_TIMELINE_UPDATE').catch(console.log),
+      () => rootGetters.GET_CONFIG.slplayer_plex_timeline_update_interval,
+    ));
   },
 
-  START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL: ({ commit, getters }) => {
-    commit('SET_PLAYER_CONTROLS_SHOWN_INTERVAL', setInterval(() => {
-      commit('UPDATE_PLAYER_CONTROLS_SHOWN', arePlayerControlsShown(getters));
-    }, 500));
+  START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL: ({ commit, dispatch, rootGetters }) => {
+    commit('SET_PLAYER_CONTROLS_SHOWN_INTERVAL', setInterval(async () => {
+      commit('UPDATE_PLAYER_CONTROLS_SHOWN', await dispatch('FETCH_ARE_PLAYER_CONTROLS_SHOWN'));
+    }, rootGetters.slplayer_controls_visible_checker_interval));
   },
 
   CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
     commit('SET_PLAYER_STATE', state);
-    const result = dispatch('SEND_PLEX_TIMELINE_UPDATE');
+    const plexTimelineUpdatePromise = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     await dispatch('synclounge/POLL', null, { root: true });
-    return result;
+    return plexTimelineUpdatePromise;
   },
 
   LOAD_PLAYER_SRC: async ({ getters, commit }) => {
@@ -303,14 +289,17 @@ export default {
 
     commit('SET_PLAYER_VOLUME', rootGetters['settings/GET_SLPLAYERVOLUME']);
 
-    dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
-    dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     return result;
   },
 
   DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     await dispatch('UNREGISTER_PLAYER_EVENTS');
+
+    getters.GET_PLEX_TIMELINE_UPDATER_CANCELER();
+    commit('SET_PLEX_TIMELINE_UPDATER_CANCELER', null);
 
     commit('plexclients/SET_ACTIVE_MEDIA_METADATA', null, { root: true });
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
@@ -329,7 +318,7 @@ export default {
     commit('REMOVE_BUFFERING_EVENT_LISTENER');
   },
 
-  PLAY_PAUSE_VIDEO: ({ getters, commit }) => {
+  PLAY_PAUSE_VIDEO: async ({ getters, dispatch }) => {
     if (!getPlayerDurationMs(getters)) {
       // Can't play yet.  Ignore.
       return;
@@ -337,16 +326,16 @@ export default {
 
     getters.GET_PLAYER.cancelTrickPlay();
 
-    if (isPlayerPaused(getters)) {
-      commit('PLAY');
+    if (getters.IS_PLAYER_PAUSED()) {
+      await dispatch('PRESS_PLAY');
     } else {
-      commit('PAUSE');
+      await dispatch('PRESS_PAUSE');
     }
   },
 
-  SEND_PARTY_PLAY_PAUSE: ({ dispatch, getters }) => {
+  SEND_PARTY_PLAY_PAUSE: async ({ dispatch, getters }) => {
     // If the player was actually paused (and not just paused for seeking)
-    dispatch('synclounge/sendPartyPause', isPlayerPaused(getters), { root: true });
+    await dispatch('synclounge/sendPartyPause', getters.IS_PLAYER_PAUSED(), { root: true });
   },
 
   PLAY_NEXT: ({ dispatch, commit }) => {

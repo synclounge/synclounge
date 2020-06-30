@@ -74,4 +74,8 @@ export default {
     state.player.removeEventListener('buffering', state.bufferingEventListener);
     state.bufferingEventListener = null;
   },
+
+  SET_PLEX_TIMELINE_UPDATER_CANCELER: (state, canceler) => {
+    state.plexTimelineUpdaterCanceler = canceler;
+  },
 };

@@ -96,6 +96,7 @@ export default {
 
     // Cancel poller
     getters.GET_CLIENT_POLLER_CANCELER();
+    commit('SET_CLIENT_POLLER_CANCELER', null);
 
     getters.GET_SOCKET.disconnect();
     commit('SET_IS_IN_ROOM', false);
