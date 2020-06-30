@@ -293,6 +293,8 @@ export default {
         throw e;
       }
     }
+
+    return false;
   },
 
   INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
