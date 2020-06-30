@@ -18,8 +18,7 @@ class NextButton extends shaka.ui.Element {
     this.#watcherCancellers = [
       store.watch(
         (state, getters) => getters['plexclients/ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS'],
-        (nextItemExists) => { this.setButtonEnabled(nextItemExists); },
-        { immediate: true },
+        this.updateButtonEnabled.bind(this),
       ),
     ];
 
@@ -30,8 +29,8 @@ class NextButton extends shaka.ui.Element {
     });
   }
 
-  setButtonEnabled(nextItemExists) {
-    this.button.disabled = !nextItemExists;
+  updateButtonEnabled() {
+    this.button.disabled = !store.getters['plexclients/ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS'];
   }
 
   // TODO: replace this function name with "release" when upgrading to shaka 3

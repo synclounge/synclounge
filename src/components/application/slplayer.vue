@@ -245,10 +245,6 @@ export default {
       'GET_PLAYER_STATE',
     ]),
 
-    ...mapGetters('settings', [
-      'GET_SLPLAYERQUALITY',
-    ]),
-
     ...mapGetters('synclounge', [
       'AM_I_HOST',
       'IS_MANUAL_SYNC_QUEUED',
@@ -295,7 +291,7 @@ export default {
   },
 
   created() {
-    shaka.ui.OverflowMenu.registerElement('bitrate', new BitrateSelectionFactory(this.eventbus));
+    shaka.ui.OverflowMenu.registerElement('bitrate', BitrateSelectionFactory);
     shaka.ui.OverflowMenu.registerElement('subtitle', new SubtitleSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('audio', new AudioSelectionFactory(this.eventbus));
     shaka.ui.OverflowMenu.registerElement('media', new MediaSelectionFactory(this.eventbus));
@@ -320,7 +316,6 @@ export default {
     this.eventbus.$on('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$on('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$on('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
-    this.eventbus.$on('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
 
     this.INIT_PLAYER_STATE();
     this.applyPlayerWatchers();
@@ -335,14 +330,12 @@ export default {
     this.eventbus.$off('subtitlestreamselectionchanged', this.CHANGE_SUBTITLE_STREAM);
     this.eventbus.$off('audiotreamselectionchanged', this.CHANGE_AUDIO_STREAM);
     this.eventbus.$off('mediaindexselectionchanged', this.CHANGE_MEDIA_INDEX);
-    this.eventbus.$off('bitrateselectionchanged', this.CHANGE_MAX_VIDEO_BITRATE);
     this.eventbus.$emit('slplayerdestroy');
     this.DESTROY_PLAYER_STATE();
   },
 
   methods: {
     ...mapActions('slplayer', [
-      'CHANGE_MAX_VIDEO_BITRATE',
       'CHANGE_AUDIO_STREAM',
       'CHANGE_SUBTITLE_STREAM',
       'CHANGE_MEDIA_INDEX',
@@ -444,18 +437,6 @@ export default {
 
       this.$watch('GET_MEDIA_INDEX', (newIndex) => {
         this.eventbus.$emit('mediaindexchanged', newIndex);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_QUALITIES', (newList) => {
-        this.eventbus.$emit('bitrateschanged', newList);
-      }, {
-        immediate: true,
-      });
-
-      this.$watch('GET_SLPLAYERQUALITY', (newBitrate) => {
-        this.eventbus.$emit('bitratechanged', newBitrate);
       }, {
         immediate: true,
       });

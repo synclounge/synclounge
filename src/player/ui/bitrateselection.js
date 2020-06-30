@@ -1,29 +1,24 @@
-// eslint-disable-next-line max-classes-per-file
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 import ShakaUtils from '@/player/ui/utils';
+import store from '@/store';
 
 class BitrateSelection extends shaka.ui.SettingsMenu {
-  constructor(parent, controls, eventBus) {
-    super(parent, controls, 'settings');
-    this.eventBus = eventBus;
-    this.selectedBitrate = 0;
-    this.bitrates = [];
-    this.eventListeners = [
-      {
-        event: 'bitrateschanged',
-        fn: this.onBitratesChanged.bind(this),
-      },
-      {
-        event: 'bitratechanged',
-        fn: this.onBitrateChanged.bind(this),
-      },
-    ];
+  #watcherCancellers = [];
 
-    ShakaUtils.addEventListeners(this.eventListeners, this.eventBus);
-    this.eventBus.$once(
-      'slplayerdestroy',
-      () => ShakaUtils.removeEventListeners(this.eventListeners, this.eventBus),
-    );
+  constructor(parent, controls) {
+    super(parent, controls, 'settings');
+
+    this.#watcherCancellers = [
+      store.watch(
+        (state, getters) => getters['slplayer/GET_QUALITIES'],
+        this.updateBitrateSelection.bind(this),
+      ),
+
+      store.watch(
+        (state, getters) => getters['settings/GET_SLPLAYERQUALITY'],
+        this.updateBitrateSelection.bind(this),
+      ),
+    ];
 
     this.button.classList.add('shaka-bitrate-button');
     this.menu.classList.add('shaka-bitrate');
@@ -34,21 +29,9 @@ class BitrateSelection extends shaka.ui.SettingsMenu {
     this.updateBitrateSelection();
   }
 
-  onBitratesChanged(streams) {
-    this.bitrates = streams;
-    this.updateBitrateSelection();
-  }
-
-  onBitrateChanged(id) {
-    if (id !== this.selectedBitrate) {
-      this.selectedBitrate = id;
-      this.updateBitrateSelection();
-    }
-  }
-
   updateBitrateSelection() {
     // Hide menu if no bitrates
-    if (this.bitrates.length <= 0) {
+    if (store.getters['slplayer/GET_QUALITIES'].length <= 0) {
       ShakaUtils.setDisplay(this.menu, false);
       ShakaUtils.setDisplay(this.button, false);
       return;
@@ -73,7 +56,7 @@ class BitrateSelection extends shaka.ui.SettingsMenu {
   }
 
   addBitrateSelection() {
-    this.bitrates.forEach((bitrateOption) => {
+    store.getters['slplayer/GET_QUALITIES'].forEach((bitrateOption) => {
       const button = document.createElement('button');
       button.classList.add('explicit-bitrate');
 
@@ -87,7 +70,7 @@ class BitrateSelection extends shaka.ui.SettingsMenu {
         () => this.onBitrateClicked(bitrateOption.maxVideoBitrate),
       );
 
-      if (bitrateOption.maxVideoBitrate === this.selectedBitrate) {
+      if (bitrateOption.maxVideoBitrate === store.getters['settings/GET_SLPLAYERQUALITY']) {
         button.setAttribute('aria-selected', 'true');
         button.appendChild(ShakaUtils.checkmarkIcon());
         span.classList.add('shaka-chosen-item');
@@ -99,18 +82,18 @@ class BitrateSelection extends shaka.ui.SettingsMenu {
   }
 
   onBitrateClicked(bitrate) {
-    this.eventBus.$emit('bitrateselectionchanged', bitrate);
+    store.dispatch('slplayer/CHANGE_MAX_VIDEO_BITRATE', bitrate);
+  }
+
+  destroy() {
+    this.#watcherCancellers.forEach((canceller) => {
+      canceller();
+    });
+
+    super.destroy();
   }
 }
 
-class BitrateSelectionFactory {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
-  }
-
-  create(rootElement, controls) {
-    return new BitrateSelection(rootElement, controls, this.eventBus);
-  }
-}
-
-export default BitrateSelectionFactory;
+export default {
+  create: (rootElement, controls) => new BitrateSelection(rootElement, controls),
+};
