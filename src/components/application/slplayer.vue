@@ -76,15 +76,20 @@
                     bottom
                     color="accent"
                   >
-                    <v-icon
-                      color="white"
-                      class="clickable"
-                      :disabled="IS_MANUAL_SYNC_QUEUED"
-                      @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
-                    >
-                      compare_arrows
-                    </v-icon>
-                    Manual Sync
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-icon
+                        color="white"
+                        class="clickable"
+                        :disabled="IS_MANUAL_SYNC_QUEUED"
+                        v-bind="attrs"
+                        @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
+                        v-on="on"
+                      >
+                        compare_arrows
+                      </v-icon>
+                    </template>
+
+                    <span>Manual Sync</span>
                   </v-tooltip>
 
                   <v-icon
