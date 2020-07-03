@@ -459,4 +459,12 @@ export default {
     opacity: 0.5;
     cursor: default;
   }
+
+  .shaka-play-button {
+    padding: 50px !important;
+  }
+
+  .shaka-spinner {
+    padding: 57px !important;
+  }
 </style>
