@@ -43,15 +43,17 @@ export default {
     commit('SET_IS_SOCKET_CONNECTED', true);
   },
 
-  JOIN_ROOM: async ({ getters, rootGetters }) => {
+  JOIN_ROOM: async ({ getters, rootGetters, dispatch }) => {
+    const clientPart = await dispatch('plexclients/POLL_CLIENT', null, { root: true });
+
     // Set this up before calling join so join-result handler is definitely there
     const joinPromise = new Promise((resolve, reject) => {
       // TODO: make the socket join args into one object instead (rewrite backend server)
-      getters.GET_SOCKET.once('join-result', (result, _data, details, currentUsers, partyPausing) => {
-        if (result) {
-          resolve({ currentUsers, partyPausing });
+      getters.GET_SOCKET.once('joinResult', ({ success, error, ...rest }) => {
+        if (success) {
+          resolve(rest);
         } else {
-          reject(result);
+          reject(error);
         }
       });
     });
@@ -59,22 +61,44 @@ export default {
     getters.GET_SOCKET.emit(
       'join',
       {
-        username: getters.GET_DISPLAY_USERNAME,
-        room: getters.GET_ROOM,
+        // TODO: rename to roomId
+        roomId: getters.GET_ROOM,
         password: getters.GET_PASSWORD,
-        avatarUrl: rootGetters['plex/GET_PLEX_USER'].thumb,
-        uuid: getters.GET_UUID,
+        desiredUsername: getters.GET_DISPLAY_USERNAME,
+        // TODO: add config optin for this
+        desiredPartyPausingEnabled: true,
+        thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
+        playerProduct: rootGetters['plexclients/GET_CHOSEN_CLIENT'].product,
+        ...clientPart,
       },
     );
 
     return joinPromise;
   },
 
-  JOIN_ROOM_AND_INIT: async ({ getters, dispatch, commit }) => {
-    const { currentUsers, partyPausing } = await dispatch('JOIN_ROOM');
+  JOIN_ROOM_AND_INIT: async ({
+    getters, rootGetters, dispatch, commit,
+  }) => {
+    const { user: { id, ...rest }, users, isPartyPausingEnabled } = await dispatch('JOIN_ROOM');
+    commit('SET_SOCKET_ID', id);
 
-    commit('SET_USERS', currentUsers);
-    commit('SET_PARTYPAUSING', partyPausing);
+    console.log('users', users);
+    commit('SET_USERS', users);
+
+    console.log('aaaaa');
+    // Add ourselves to user list
+    const stuff = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    console.log('stuff', stuff);
+    commit('SET_USER', {
+      id,
+      data: {
+        ...rest,
+        media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
+        ...stuff,
+      },
+    });
+
+    commit('SET_PARTYPAUSING', isPartyPausingEnabled);
     commit('SET_IS_IN_ROOM', true);
 
     await dispatch('START_CLIENT_POLLER');
@@ -256,13 +280,13 @@ export default {
     getters.GET_SOCKET.on('party-pausing-pause',
       (res) => dispatch('HANDLE_PARTY_PAUSING_PAUSE', res));
 
-    getters.GET_SOCKET.on('user-joined',
+    getters.GET_SOCKET.on('userJoined',
       (users, user) => dispatch('HANDLE_USER_JOINED', { users, user }));
 
-    getters.GET_SOCKET.on('user-left',
+    getters.GET_SOCKET.on('userLeft',
       (users, user) => dispatch('HANDLE_USER_LEFT', { users, user }));
 
-    getters.GET_SOCKET.on('host-swap',
+    getters.GET_SOCKET.on('hostSwap',
       (user) => dispatch('HANDLE_HOST_SWAP', user));
 
     getters.GET_SOCKET.on('host-update',

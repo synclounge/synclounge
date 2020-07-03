@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer
-    v-if="GET_HOST_USER"
+    v-if="IS_IN_ROOM"
     :value="isRightSidebarOpen"
     style="z-index: 6"
     app
@@ -15,10 +15,10 @@
           <v-list-item-title>{{ GET_ROOM }}</v-list-item-title>
 
           <v-list-item-subtitle
-            v-if="GET_USERS.length != 1"
+            v-if="Object.keys(GET_USERS).length != 1"
             class="participant-count"
           >
-            {{ GET_USERS.length }} people
+            {{ Object.keys(GET_USERS).length }} people
           </v-list-item-subtitle>
 
           <v-list-item-subtitle
@@ -55,7 +55,7 @@
 
       <v-list-item>
         <v-switch
-          v-if="isHost(GET_ME)"
+          v-if="AM_I_HOST"
           class="pa-0 mt-2 party-pausing-label"
           label="Party Pausing"
           :input-value="getPartyPausing"
@@ -63,7 +63,7 @@
         />
 
         <v-tooltip
-          v-else-if="playerState(GET_HOST_USER) !== 'stop'"
+          v-else-if="GET_HOST_USER.state !== 'stopped'"
           bottom
           color="rgb(44, 44, 49)"
         >
@@ -74,9 +74,9 @@
               :disabled="!canPause"
               style="min-width: 0; float: right;"
               v-on="on"
-              @click="sendPartyPauseLocal(playerState(GET_HOST_USER) === 'play_arrow')"
+              @click="sendPartyPauseLocal(GET_HOST_USER.state === 'playing')"
             >
-              <v-icon v-if="playerState(GET_HOST_USER) === 'play_arrow'">
+              <v-icon v-if="GET_HOST_USER.state === 'playing'">
                 pause
               </v-icon>
 
@@ -112,20 +112,21 @@
         two-line
       >
         <v-list-item
-          v-for="user in GET_USERS"
-          :key="user.username"
+          v-for="(user, id) in GET_USERS"
+          :key="id"
         >
-          <v-list-item-avatar @dblclick="TRANSFER_HOST(user.username)">
+          <v-list-item-avatar @dblclick="TRANSFER_HOST(id)">
             <img
-              :src="user.avatarUrl"
+              :src="user.thumb"
               :style="getImgStyle(user)"
             >
+
             <v-icon
-              v-if="user.playerState !== 'playing'"
+              v-if="user.state !== 'playing'"
               style="font-size: 26px; opacity: 0.8; position: absolute;
                 background-color: rgba(0,0,0,0.7)"
             >
-              {{ playerState(user) }}
+              {{ stateIcons[user.state] }}
             </v-icon>
           </v-list-item-avatar>
 
@@ -144,7 +145,7 @@
                   <v-list-item-title>
                     {{ user.username }}
                     <span
-                      v-if="user.uuid === GET_ME.uuid"
+                      v-if="id === GET_SOCKET_ID"
                       style="opacity: 0.6"
                     >
                       (you)
@@ -169,11 +170,11 @@
               class="d-flex justify-space-between"
             >
               <div>
-                {{ getCurrent(user) }}
+                {{ getTimeFromMs(user.time) }}
               </div>
 
               <div>
-                {{ getMax(user) }}
+                {{ getTimeFromMs(user.duration) }}
               </div>
             </div>
 
@@ -186,7 +187,7 @@
 
           <v-list-item-action>
             <v-tooltip
-              v-if="isHost(user) || AM_I_HOST"
+              v-if="user.isHost || AM_I_HOST"
               bottom
               color="rgb(44, 44, 49)"
               multi-line
@@ -197,13 +198,13 @@
                   v-bind="attrs"
                   style="color: #E5A00D"
                   v-on="on"
-                  @click="AM_I_HOST && !isHost(user) ? TRANSFER_HOST(user.username) : null"
+                  @click="AM_I_HOST && !user.isHost ? TRANSFER_HOST(id) : null"
                 >
-                  {{ getHostIconName(user) }}
+                  {{ getHostIconName(user.isHost) }}
                 </v-icon>
               </template>
 
-              <span>{{ getHostActionText(user) }}</span>
+              <span>{{ getHostActionText(user.isHost) }}</span>
             </v-tooltip>
           </v-list-item-action>
         </v-list-item>
@@ -234,6 +235,12 @@ export default {
 
   data() {
     return {
+      stateIcons: {
+        stopped: 'stop',
+        paused: 'pause',
+        playing: 'play_arrow',
+        buffering: 'av_timer',
+      },
       partyPauseCooldownRunning: false,
     };
   },
@@ -247,6 +254,8 @@ export default {
       'GET_ROOM',
       'GET_HOST_USER',
       'AM_I_HOST',
+      'IS_IN_ROOM',
+      'GET_SOCKET_ID',
     ]),
 
     ...mapGetters('plexservers', [
@@ -270,18 +279,14 @@ export default {
       'SET_RIGHT_SIDEBAR_OPEN',
     ]),
 
-    isHost(user) {
-      return user.role === 'host';
-    },
-
-    getHostIconName(user) {
-      return this.isHost(user)
+    getHostIconName(isHost) {
+      return isHost
         ? 'star'
         : 'star_outline';
     },
 
-    getHostActionText(user) {
-      return this.isHost(user)
+    getHostActionText(isHost) {
+      return isHost
         ? 'Host'
         : 'Transfer host';
     },
@@ -326,26 +331,11 @@ export default {
     },
 
     percent(user) {
-      let perc = (parseInt(user.time, 10) / parseInt(user.duration, 10)) * 100;
+      let perc = (user.time / user.duration) * 100;
       if (Number.isNaN(perc)) {
         perc = 0;
       }
       return perc;
-    },
-
-    getCurrent(user) {
-      if (Number.isNaN(user.time) || user.time === 0 || !user.time) {
-        return this.getTimeFromMs(0);
-      }
-      const time = parseInt(user.time, 10);
-      return this.getTimeFromMs(time);
-    },
-
-    getMax(user) {
-      if (Number.isNaN(user.duration)) {
-        return this.getTimeFromMs(0);
-      }
-      return this.getTimeFromMs(user.duration);
     },
 
     getTitle(user) {
@@ -353,24 +343,6 @@ export default {
         return user.title;
       }
       return 'Nothing';
-    },
-
-    playerState(user) {
-      if (user.playerState) {
-        if (user.playerState === 'stopped') {
-          return 'stop';
-        }
-        if (user.playerState === 'paused') {
-          return 'pause';
-        }
-        if (user.playerState === 'playing') {
-          return 'play_arrow';
-        }
-        if (user.playerState === 'buffering') {
-          return 'av_timer';
-        }
-      }
-      return 'stop';
     },
 
     getTimeFromMs(timeMs) {

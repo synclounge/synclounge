@@ -244,8 +244,8 @@ export default {
   },
 
   watch: {
-    GET_PLAYER_STATE(playerState) {
-      if (playerState === 'stopped') {
+    GET_PLAYER_STATE(state) {
+      if (state === 'stopped') {
         this.$router.push({ name: 'browse' });
       }
     },

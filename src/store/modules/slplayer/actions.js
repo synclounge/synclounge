@@ -123,12 +123,12 @@ export default {
     ? {
       time: getPlayerCurrentTimeMs(getters),
       duration: getPlayerDurationMs(getters),
-      playerState: getters.GET_PLAYER_STATE,
+      state: getters.GET_PLAYER_STATE,
     }
     : {
       time: 0,
       duration: 0,
-      playerState: getters.GET_PLAYER_STATE,
+      state: getters.GET_PLAYER_STATE,
     }),
 
   HANDLE_PLAYER_PLAYING: async ({ dispatch, getters }) => {

@@ -171,7 +171,7 @@ export default {
 
     await dispatch('UPDATE_PLEX_CLIENT_TIMELINE', timeline);
 
-    return getters.GET_PLEX_CLIENT_POLL_DATA;
+    return getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA();
   },
 
   // Same return as FETCH_TIMELINE_POLL_DATA but usees the cached data (if normal plex client rather than making a request)
@@ -183,7 +183,7 @@ export default {
       }
 
       default: {
-        return getters.GET_PLEX_CLIENT_POLL_DATA;
+        return getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA();
       }
     }
   },
@@ -205,12 +205,8 @@ export default {
     await dispatch('HANDLE_NEW_TIMELINE', timelinePart);
 
     return {
-      ...getters.GET_ACTIVE_MEDIA_POLL_METADATA,
+      media: getters.GET_ACTIVE_MEDIA_POLL_METADATA,
       ...timelinePart,
-
-      // TODO: fix up roduct below thign ugh
-      playerProduct: getters.GET_CHOSEN_CLIENT.product,
-      machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
     };
   },
 
@@ -219,7 +215,7 @@ export default {
   }, timeline) => {
     // Check if we need to activate the upnext feature
     if (rootGetters['synclounge/AM_I_HOST']) {
-      if (timeline.playerState !== 'stopped' && timeline.duration && timeline.time
+      if (timeline.state !== 'stopped' && timeline.duration && timeline.time
         && (timeline.duration - timeline.time) < 10000
         && getters.GET_ACTIVE_MEDIA_METADATA.type === 'episode'
       ) {
@@ -259,22 +255,13 @@ export default {
 
     // TODO: only do this if we are playign (but maybe we just did a play command>...)
 
-    // TODO: see if i need await
+    // I already adjust the time by age
     const playerPollData = await dispatch('FETCH_TIMELINE_POLL_DATA_CACHE');
 
-    // TODO: also assuming 0 rtt between us and player (is this wise)
-    const timelineAge = playerPollData.recievedAt
-      ? Date.now() - playerPollData.recievedAt
-      : 0;
+    const difference = Math.abs(adjustedHostTime - playerPollData.time);
 
-    const adjustedTime = playerPollData.playerState === 'playing'
-      ? playerPollData.time + timelineAge
-      : playerPollData.time;
-
-    const difference = Math.abs(adjustedHostTime - adjustedTime);
-
-    const bothPaused = rootGetters['synclounge/GET_HOST_TIMELINE'].playerState === 'paused'
-      && playerPollData.playerState === 'paused';
+    const bothPaused = rootGetters['synclounge/GET_HOST_TIMELINE'].state === 'paused'
+      && playerPollData.state === 'paused';
 
     console.log('difference: ', difference);
     if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY'] || (bothPaused && difference > 10)) {
@@ -282,7 +269,7 @@ export default {
       // Decide what seeking method we want to use
 
       if (rootGetters['settings/GET_SYNCMODE'] === 'cleanseek'
-        || rootGetters['synclounge/GET_HOST_TIMELINE'].playerState === 'paused') {
+        || rootGetters['synclounge/GET_HOST_TIMELINE'].state === 'paused') {
         return dispatch('SEEK_TO', adjustedHostTime);
       }
 

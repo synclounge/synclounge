@@ -18,14 +18,15 @@ const loadToNumber = (load) => {
 const healthScore = (health) => health.latency + loadToNumber(health.load) * 10;
 
 export default {
-  GET_ME: (state, getters) => getters.GET_USERS.find((u) => u.uuid === getters.GET_UUID),
+  GET_ME: (state, getters) => getters.GET_USERS[getters.GET_SOCKET_ID],
+  GET_SOCKET_ID: (state) => state.socketId,
   GET_ROOM: (state) => state.room,
   getPassword: (state) => state.password,
   GET_USERS: (state) => state.users,
   GET_MESSAGES: (state) => state.messages,
   getPartyPausing: (state) => state.partyPausing,
-  GET_HOST_USER: (state, getters) => getters.GET_USERS.find((u) => u.role === 'host'),
-  AM_I_HOST: (state, getters) => getters.GET_ME && getters.GET_ME.role === 'host',
+  GET_HOST_USER: (state, getters) => Object.values(getters.GET_USERS).find((u) => u.isHost),
+  AM_I_HOST: (state, getters) => getters.GET_ME && getters.GET_ME.isHost,
 
   GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => (
     rootGetters.GET_CONFIG.customServer
@@ -58,10 +59,10 @@ export default {
 
   // Gets the host's player time adjusted based on how long it's been since we got the message
   GET_HOST_PLAYER_TIME_ADJUSTED: (state, getters) => () => {
-    const hostAge = Date.now() - getters.GET_HOST_TIMELINE.recievedAt;
+    const hostAge = Date.now() - getters.GET_HOST_TIMELINE.receivedAt;
 
     // TODO: please veyr much examine the latency and maybe see if the server should calc
-    return getters.GET_HOST_TIMELINE.playerState === 'playing'
+    return getters.GET_HOST_TIMELINE.state === 'playing'
       ? getters.GET_HOST_TIMELINE.time + hostAge
         + (getters.GET_HOST_TIMELINE.latency || 0)
         + (getters.GET_HOST_TIMELINE.srttSnapsnotAtReception || 0) / 2

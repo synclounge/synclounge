@@ -68,14 +68,14 @@ export default {
 
   HANDLE_HOST_UPDATE: ({ getters, commit, dispatch }, timeline) => {
     if (!getters.GET_HOST_TIMELINE
-        || getters.GET_HOST_TIMELINE.playerState !== timeline.playerState
+        || getters.GET_HOST_TIMELINE.state !== timeline.state
         || Math.abs(timeline.time - getters.GET_HOST_TIMELINE.time) < 5000) {
       window.EventBus.$emit('host-playerstate-change');
     }
 
     commit('SET_HOST_TIMELINE', {
       ...timeline,
-      recievedAt: Date.now(),
+      receivedAt: Date.now(),
       srttSnapsnotAtReception: getters.GET_SRTT,
     });
 
@@ -128,9 +128,9 @@ export default {
       throw new Error('Already synced with this timeline. Need to wait for new one to sync again');
     }
 
-    if (getters.GET_HOST_TIMELINE.playerState === 'stopped') {
+    if (getters.GET_HOST_TIMELINE.state === 'stopped') {
       // First, decide if we should stop playback
-      if (timeline.playerState !== 'stopped') {
+      if (timeline.state !== 'stopped') {
         await dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
         return dispatch('plexclients/PRESS_STOP', null, { root: true });
       }
@@ -147,23 +147,23 @@ export default {
     }
 
     // TODO: examine if we want this or not
-    if (timeline.playerState === 'buffering') {
+    if (timeline.state === 'buffering') {
       return false;
     }
 
     // If we didn't find a good match or .... wtf??
-    if (timeline.playerState === 'stopped') {
+    if (timeline.state === 'stopped') {
       return false;
     }
 
-    if (getters.GET_HOST_TIMELINE.playerState === 'playing' && timeline.playerState === 'paused') {
+    if (getters.GET_HOST_TIMELINE.state === 'playing' && timeline.state === 'paused') {
       await dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
       return dispatch('plexclients/PRESS_PLAY', null, { root: true });
     }
 
-    if ((getters.GET_HOST_TIMELINE.playerState === 'paused'
-          || getters.GET_HOST_TIMELINE.playerState === 'buffering')
-          && timeline.playerState === 'playing') {
+    if ((getters.GET_HOST_TIMELINE.state === 'paused'
+          || getters.GET_HOST_TIMELINE.state === 'buffering')
+          && timeline.state === 'playing') {
       await dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
       return dispatch('plexclients/PRESS_PAUSE', null, { root: true });
     }

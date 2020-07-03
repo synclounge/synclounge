@@ -98,4 +98,12 @@ export default {
   SET_IS_IN_ROOM: (state, isInRoom) => {
     state.isInRoom = isInRoom;
   },
+
+  SET_SOCKET_ID: (state, id) => {
+    state.socketId = id;
+  },
+
+  SET_USER: (state, { id, data }) => {
+    Vue.set(state.users, id, data);
+  },
 };

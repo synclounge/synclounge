@@ -39,27 +39,30 @@ export default {
 
   GET_ACTIVE_MEDIA_POLL_METADATA: (state, getters) => (getters.GET_ACTIVE_MEDIA_METADATA
     ? {
-      title: contenttitleutils.getCombinedTitle(getters.GET_ACTIVE_MEDIA_METADATA),
-      rawTitle: getters.GET_ACTIVE_MEDIA_METADATA.title,
+      title: getters.GET_ACTIVE_MEDIA_METADATA.title,
       type: getters.GET_ACTIVE_MEDIA_METADATA.type,
       grandparentTitle: getters.GET_ACTIVE_MEDIA_METADATA.grandparentTitle,
       parentTitle: getters.GET_ACTIVE_MEDIA_METADATA.parentTitle,
       ratingKey: getters.GET_ACTIVE_MEDIA_METADATA.ratingKey,
+      machineIdentifier: getters.GET_ACTIVE_MEDIA_METADATA.machineIdentifier,
     }
     : {
       title: null,
-      rawTitle: null,
       type: null,
       grandparentTitle: null,
       parentTitle: null,
       ratingKey: null,
+      machineIdentifier: null,
     }),
 
-  GET_PLEX_CLIENT_POLL_DATA: (state, getters) => (getters.GET_PLEX_CLIENT_TIMELINE
+  GET_ADJUSTED_PLEX_CLIENT_POLL_DATA: (state, getters) => () => (getters.GET_PLEX_CLIENT_TIMELINE
     ? ({
-      time: getters.GET_PLEX_CLIENT_TIMELINE.time,
+      time: getters.GET_PLEX_CLIENT_TIMELINE.state === 'playing'
+        ? getters.GET_PLEX_CLIENT_TIMELINE.time + Date.now()
+          - getters.GET_PLEX_CLIENT_TIMELINE.receivedAt
+        : getters.GET_PLEX_CLIENT_TIMELINE.time,
       duration: getters.GET_PLEX_CLIENT_TIMELINE.duration,
-      playerState: getters.GET_PLEX_CLIENT_TIMELINE.state,
+      state: getters.GET_PLEX_CLIENT_TIMELINE.state,
     })
     : null),
 
