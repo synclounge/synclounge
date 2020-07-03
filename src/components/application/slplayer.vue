@@ -25,10 +25,10 @@
       </div>
 
       <v-fade-transition
-        v-show="ARE_PLAYER_CONTROLS_SHOWN"
         transition="fade-transition"
       >
         <v-row
+          v-show="ARE_PLAYER_CONTROLS_SHOWN"
           no-gutters
           class="pa-3 hidden-xs-only hoverBar"
         >
