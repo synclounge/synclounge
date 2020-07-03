@@ -24,94 +24,78 @@
         />
       </div>
 
-      <div>
-        <transition name="fade">
-          <div v-show="ARE_PLAYER_CONTROLS_SHOWN">
-            <v-row
-              style="position: absolute; top: 0; left: 0; z-index: 2"
-              class="pa-3 hidden-xs-only"
-            >
-              <v-col cols="auto">
-                <v-img
-                  contain
-                  :src="GET_THUMB_URL"
-                  class="plex-thumb"
-                />
-              </v-col>
+      <v-fade-transition
+        v-show="ARE_PLAYER_CONTROLS_SHOWN"
+        transition="fade-transition"
+      >
+        <v-row
+          no-gutters
+          class="pa-3 hidden-xs-only hoverBar"
+        >
+          <v-col>
+            <v-container fluid>
+              <v-row no-gutters>
+                <v-col cols="auto">
+                  <v-img
+                    contain
+                    :src="GET_THUMB_URL"
+                    class="plex-thumb"
+                  />
+                </v-col>
 
-              <v-col class="pl-3">
-                <v-container
-                  class="pa-0"
-                  fill-height
+                <v-col class="pl-3">
+                  <v-container
+                    fluid
+                    class="pa-0"
+                    fill-height
+                  >
+                    <v-row no-gutters>
+                      <v-col>
+                        <h1>{{ GET_TITLE }}</h1>
+                      </v-col>
+                    </v-row>
+
+                    <v-row no-gutters>
+                      <v-col>
+                        <h3>{{ GET_SECONDARY_TITLE }}</h3>
+                      </v-col>
+                    </v-row>
+
+                    <v-row no-gutters>
+                      <v-col>
+                        <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-col>
+
+          <v-col cols="auto">
+            <v-tooltip
+              v-if="!AM_I_HOST"
+              bottom
+              color="accent"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  color="white"
+                  class="clickable"
+                  :disabled="IS_MANUAL_SYNC_QUEUED"
+                  v-bind="attrs"
+                  @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
+                  v-on="on"
                 >
-                  <v-row no-gutters>
-                    <v-col>
-                      <h1>{{ GET_TITLE }}</h1>
-                    </v-col>
-                  </v-row>
+                  compare_arrows
+                </v-icon>
+              </template>
 
-                  <v-row no-gutters>
-                    <v-col>
-                      <h3>{{ GET_SECONDARY_TITLE }}</h3>
-                    </v-col>
-                  </v-row>
-
-                  <v-row no-gutters>
-                    <v-col>
-                      <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-col>
-            </v-row>
-
-            <v-row
-              style="position: absolute; top: 0; right: 0; z-index: 2"
-              class="pa-3 hidden-xs-only"
-            >
-              <v-col class="text-xs-right pa-1">
-                <div class="hidden-xs-only">
-                  <v-tooltip
-                    v-if="!AM_I_HOST"
-                    bottom
-                    color="accent"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-icon
-                        color="white"
-                        class="clickable"
-                        :disabled="IS_MANUAL_SYNC_QUEUED"
-                        v-bind="attrs"
-                        @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
-                        v-on="on"
-                      >
-                        compare_arrows
-                      </v-icon>
-                    </template>
-
-                    <span>Manual Sync</span>
-                  </v-tooltip>
-
-                  <v-icon
-                    color="white"
-                    class="pl-3"
-                    @click="PRESS_STOP"
-                  >
-                    close
-                  </v-icon>
-                </div>
-              </v-col>
-            </v-row>
-
-            <v-row
-              class="hoverBar"
-              style="height: 120px; width: 100%; pointer-events: none; position: absolute; top: 0;"
-            >
-              <v-col cols="12" />
-            </v-row>
-          </div>
-        </transition>
-      </div>
+              <span>Manual Sync</span>
+            </v-tooltip>
+          </v-col>
+        </v-row>
+      </v-fade-transition>
 
       <div
         v-if="$vuetify.breakpoint.mdAndDown"
@@ -435,8 +419,12 @@ export default {
     position: absolute;
     background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),
       color-stop(60%,rgba(0,0,0,.35)),to(transparent));
-    background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent)
+    background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent);
+    top: 0;
+    left: 0;
+    width: 100%;
   }
+
   .fade-enter-active, .fade-leave-active {
     transition: opacity 0.25s ease-out;
   }
