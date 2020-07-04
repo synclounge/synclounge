@@ -46,14 +46,7 @@ export default {
       ratingKey: getters.GET_ACTIVE_MEDIA_METADATA.ratingKey,
       machineIdentifier: getters.GET_ACTIVE_MEDIA_METADATA.machineIdentifier,
     }
-    : {
-      title: null,
-      type: null,
-      grandparentTitle: null,
-      parentTitle: null,
-      ratingKey: null,
-      machineIdentifier: null,
-    }),
+    : null),
 
   GET_ADJUSTED_PLEX_CLIENT_POLL_DATA: (state, getters) => () => (getters.GET_PLEX_CLIENT_TIMELINE
     ? ({

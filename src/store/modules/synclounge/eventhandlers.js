@@ -215,4 +215,27 @@ export default {
       data: secret,
     });
   },
+
+  HANDLE_PLAYER_STATE_UPDATE: ({ commit }, data) => {
+    // TODO: probalby sync if its from the hsot
+
+    commit('SET_USER_PLAYER_STATE', data);
+  },
+
+  HANDLE_MEDIA_UPDATE: ({ commit }, {
+    id, state, time, duration, media,
+  }) => {
+    // TODO: maybe sync or play new media thing
+    commit('SET_USER_PLAYER_STATE', {
+      id,
+      state,
+      time,
+      duration,
+    });
+
+    commit('SET_USER_MEDIA', {
+      id,
+      media,
+    });
+  },
 };

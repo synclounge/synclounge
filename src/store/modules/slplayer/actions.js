@@ -257,13 +257,13 @@ export default {
   START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL: ({ commit, dispatch, rootGetters }) => {
     commit('SET_PLAYER_CONTROLS_SHOWN_INTERVAL', setInterval(async () => {
       commit('UPDATE_PLAYER_CONTROLS_SHOWN', await dispatch('FETCH_ARE_PLAYER_CONTROLS_SHOWN'));
-    }, rootGetters.slplayer_controls_visible_checker_interval));
+    }, rootGetters.GET_CONFIG.slplayer_controls_visible_checker_interval));
   },
 
   CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
     commit('SET_PLAYER_STATE', state);
     const plexTimelineUpdatePromise = dispatch('SEND_PLEX_TIMELINE_UPDATE');
-    await dispatch('synclounge/HANDLE_PLAYER_STATE_UPDATE', null, { root: true });
+    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
     await plexTimelineUpdatePromise;
   },
 

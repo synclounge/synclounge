@@ -114,4 +114,17 @@ export default {
   DELETE_USER: (state, id) => {
     Vue.delete(state.users, id);
   },
+
+  SET_USER_PLAYER_STATE: (state, {
+    id, state: playerState, time, duration,
+  }) => {
+    Vue.set(state.users[id], 'state', playerState);
+    Vue.set(state.users[id], 'time', time);
+    Vue.set(state.users[id], 'duration', duration);
+    Vue.set(state.users[id], 'updatedAt', Date.now());
+  },
+
+  SET_USER_MEDIA: (state, { id, media }) => {
+    Vue.set(state.users[id], 'media', media);
+  },
 };

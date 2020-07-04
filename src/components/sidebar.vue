@@ -115,7 +115,7 @@
           v-for="(user, id) in GET_USERS"
           :key="id"
         >
-          <v-list-item-avatar @dblclick="TRANSFER_HOST(id)">
+          <v-list-item-avatar>
             <img
               :src="user.thumb"
               :style="getImgStyle(user)"
@@ -153,15 +153,15 @@
                   </v-list-item-title>
 
                   <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">
-                    {{ getTitle(user) }}
+                    {{ getTitle(user.media) }}
                   </v-list-item-subtitle>
                 </div>
               </template>
 
               Watching on {{ user.playerProduct || `Unknown Plex Client` }}
-              <span v-if="GET_PLEX_SERVER(user.machineIdentifier)">
+              <span v-if="user.media && GET_PLEX_SERVER(user.media.machineIdentifier)">
                 <br>
-                via {{ GET_PLEX_SERVER(user.machineIdentifier).name }}
+                via {{ GET_PLEX_SERVER(user.media.achineIdentifier).name }}
               </span>
             </v-tooltip>
 
@@ -227,11 +227,17 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 
+import contentTitle from '@/mixins/contentTitle';
+
 export default {
   components: {
     messages: () => import('@/components/messages.vue'),
     MessageInput: () => import('@/components/MessageInput.vue'),
   },
+
+  mixins: [
+    contentTitle,
+  ],
 
   data() {
     return {
@@ -276,6 +282,7 @@ export default {
   },
 
   created() {
+    console.log('interval', this.GET_CONFIG.sidebar_time_update_interval);
     this.timeUpdateIntervalId = setInterval(() => {
       this.nowTimestamp = Date.now();
     }, this.GET_CONFIG.sidebar_time_update_interval);
@@ -347,8 +354,8 @@ export default {
       this.$router.push('/');
     },
 
-    percent({ time, duration }) {
-      const perc = (this.getAdjustedTime(time) / duration) * 100;
+    percent({ duration, ...rest }) {
+      const perc = (this.getAdjustedTime(rest) / duration) * 100;
       if (Number.isNaN(perc)) {
         return 0;
       }
@@ -356,11 +363,10 @@ export default {
       return perc;
     },
 
-    getTitle(user) {
-      if (user.title && user.title.length > 0) {
-        return user.title;
-      }
-      return 'Nothing';
+    getTitle(media) {
+      return media
+        ? this.getCombinedTitle(media)
+        : 'Nothing';
     },
 
     getAdjustedTime({ updatedAt, state, time }) {

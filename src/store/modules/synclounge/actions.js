@@ -177,12 +177,11 @@ export default {
     }
   },
 
-  TRANSFER_HOST({ state }, username) {
-    if (state.socket.connected) {
-      state.socket.emit('transfer_host', {
-        username,
-      });
-    }
+  TRANSFER_HOST: async ({ dispatch }, id) => {
+    await dispatch('EMIT', {
+      name: 'transferHost',
+      data: id,
+    });
   },
 
   updatePartyPausing({ state, commit }, value) {
@@ -327,11 +326,20 @@ export default {
 
     getters.GET_SOCKET.on('slPing', (secret) => dispatch('HANDLE_SLPING', secret));
 
+    getters.GET_SOCKET.on('playerStateUpdate', (data) => dispatch('HANDLE_PLAYER_STATE_UPDATE', data));
+
+    getters.GET_SOCKET.on('mediaUpdate', (data) => dispatch('HANDLE_MEDIA_UPDATE', data));
+
     getters.GET_SOCKET.on('connect', () => dispatch('HANDLE_RECONNECT'));
   },
 
-  HANDLE_PLAYER_STATE_UPDATE: async ({ dispatch }) => {
-    // TODO: update the sidebar
+  PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }) => {
+    console.log('handle state update');
+    commit('SET_USER_PLAYER_STATE', {
+      ...await dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true }),
+      id: getters.GET_SOCKET_ID,
+    });
+
     await dispatch('EMIT', {
       name: 'playerStateUpdate',
       data: await dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true }),
