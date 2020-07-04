@@ -22,7 +22,6 @@ const state = () => ({
   isSyncInProgress: false,
   isManualSyncedQueued: false,
   recentRooms: [],
-  isSocketConnected: false,
   clientPollerCanceler: null,
 
   isInRoom: false,

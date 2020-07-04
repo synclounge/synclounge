@@ -31,6 +31,16 @@ export default {
     return dispatch('CONNECT_AND_JOIN_ROOM');
   },
 
+  WAIT_FOR_SLPING: ({ getters }) => new Promise((resolve, reject) => {
+    getters.GET_SOCKET.once('slPing', (secret) => {
+      resolve(secret);
+    });
+
+    getters.GET_SOCKET.once('disconnect', (disconnectData) => {
+      reject(disconnectData);
+    });
+  }),
+
   ESTABLISH_SOCKET_CONNECTION: async ({ commit, getters, dispatch }) => {
     // TODO: make wrapper method that disconnects the socket if it already exists
     if (getters.GET_SOCKET) {
@@ -42,8 +52,14 @@ export default {
       path: url.pathname,
       transports: ['websocket', 'polling'],
     });
+
     commit('SET_SOCKET', socket);
-    commit('SET_IS_SOCKET_CONNECTED', true);
+
+    // Wait for initial slPing
+    const secret = await dispatch('WAIT_FOR_SLPING');
+
+    // Explicitly handling the slping because we haven't registered the events yet
+    await dispatch('HANDLE_SLPING', secret);
   },
 
   JOIN_ROOM: async ({ getters, rootGetters, dispatch }) => {
@@ -132,8 +148,7 @@ export default {
 
     getters.GET_SOCKET.disconnect();
     commit('SET_IS_IN_ROOM', false);
-    commit('SET_USERS', []);
-    commit('SET_IS_SOCKET_CONNECTED', false);
+    commit('SET_USERS', {});
     commit('CLEAR_MESSAGES');
     commit('SET_SOCKET', null);
 
@@ -289,10 +304,10 @@ export default {
       (res) => dispatch('HANDLE_PARTY_PAUSING_PAUSE', res));
 
     getters.GET_SOCKET.on('userJoined',
-      (users, user) => dispatch('HANDLE_USER_JOINED', { users, user }));
+      (data) => dispatch('HANDLE_USER_JOINED', data));
 
     getters.GET_SOCKET.on('userLeft',
-      (users, user) => dispatch('HANDLE_USER_LEFT', { users, user }));
+      (data) => dispatch('HANDLE_USER_LEFT', data));
 
     getters.GET_SOCKET.on('hostSwap',
       (user) => dispatch('HANDLE_HOST_SWAP', user));
@@ -307,10 +322,13 @@ export default {
       commit('ADD_MESSAGE', msgObj);
     });
 
+    getters.GET_SOCKET.on('slPing', (secret) => dispatch('HANDLE_SLPING', secret));
+
     getters.GET_SOCKET.on('connect', () => dispatch('HANDLE_RECONNECT'));
   },
 
-  SEND_PLAYER_STATE_UPDATE: async ({ dispatch }) => {
+  HANDLE_PLAYER_STATE_UPDATE: async ({ dispatch }) => {
+    // TODO: update the sidebar
     await dispatch('EMIT', {
       name: 'playerStateUpdate',
       data: await dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true }),

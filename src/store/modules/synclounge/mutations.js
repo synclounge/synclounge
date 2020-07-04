@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import { format } from 'date-fns';
 
 export default {
   SET_USERS(state, value) {
@@ -21,7 +20,7 @@ export default {
   ADD_MESSAGE(state, msg) {
     state.messages.push({
       ...msg,
-      time: format(new Date(), 'h:mm a..aaa'),
+      time: Date.now(),
     });
   },
 
@@ -85,10 +84,6 @@ export default {
 
   SET_RECENT_ROOMS: (state, rooms) => {
     state.recentRooms = rooms;
-  },
-
-  SET_IS_SOCKET_CONNECTED: (state, isConnected) => {
-    state.isSocketConnected = isConnected;
   },
 
   SET_CLIENT_POLLER_CANCELER: (state, canceler) => {

@@ -18,6 +18,7 @@ const loadToNumber = (load) => {
 const healthScore = (health) => health.latency + loadToNumber(health.load) * 10;
 
 export default {
+  GET_USER: (state, getters) => (id) => getters.GET_USERS[id],
   GET_ME: (state, getters) => getters.GET_USERS[getters.GET_SOCKET_ID],
   GET_SOCKET_ID: (state) => state.socketId,
   GET_ROOM: (state) => state.room,
@@ -101,8 +102,6 @@ export default {
   GET_RECENT_ROOMS: (state) => state.recentRooms,
 
   GET_PASSWORD: (state) => state.password,
-
-  IS_SOCKET_CONNECTED: (state) => state.isSocketConnected,
 
   GET_CLIENT_POLLER_CANCELER: (state) => state.clientPollerCanceler,
 

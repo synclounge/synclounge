@@ -36,11 +36,18 @@ export default {
     }
   },
 
-  HANDLE_USER_JOINED: ({ commit }, { users, user }) => {
-    commit('SET_USERS', users);
+  HANDLE_USER_JOINED: ({ commit }, { id, ...rest }) => {
+    commit('SET_USER', {
+      id,
+      data: {
+        ...rest,
+        updatedAt: Date.now(),
+      },
+    });
+
     commit('ADD_MESSAGE', {
-      msg: `${user.username} joined`,
-      user,
+      text: `${rest.username} joined`,
+      senderId: id,
       type: 'alert',
     });
   },
@@ -198,8 +205,15 @@ export default {
     await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
   },
 
-  HANDLE_RECONNECT: ({ dispatch }) => {
+  HANDLE_RECONNECT: async ({ dispatch }) => {
     console.log('Rejoining');
-    return dispatch('JOIN_ROOM_AND_INIT');
+    await dispatch('JOIN_ROOM_AND_INIT');
+  },
+
+  HANDLE_SLPING: async ({ dispatch }, secret) => {
+    await dispatch('EMIT', {
+      name: 'slPong',
+      data: secret,
+    });
   },
 };
