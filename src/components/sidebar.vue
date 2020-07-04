@@ -170,7 +170,7 @@
               class="d-flex justify-space-between"
             >
               <div>
-                {{ getTimeFromMs(user.time) }}
+                {{ getTimeFromMs(getAdjustedTime(user)) }}
               </div>
 
               <div>
@@ -241,12 +241,20 @@ export default {
         playing: 'play_arrow',
         buffering: 'av_timer',
       },
+      timeUpdateIntervalId: null,
+
+      // This is updated periodically and is what makes the player times advance (if playing)
+      nowTimestamp: Date.now(),
       partyPauseCooldownRunning: false,
     };
   },
 
   computed: {
     ...mapState(['isRightSidebarOpen']),
+    ...mapGetters([
+      'GET_CONFIG',
+    ]),
+
     ...mapGetters('synclounge', [
       'GET_ME',
       'getPartyPausing',
@@ -265,6 +273,16 @@ export default {
     canPause() {
       return !this.partyPauseCooldownRunning && this.getPartyPausing;
     },
+  },
+
+  created() {
+    this.timeUpdateIntervalId = setInterval(() => {
+      this.nowTimestamp = Date.now();
+    }, this.GET_CONFIG.sidebar_time_update_interval);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.timeUpdateIntervalId);
   },
 
   methods: {
@@ -317,12 +335,11 @@ export default {
     },
 
     getImgStyle(user) {
-      const arr = [
+      return [
         {
           border: `3px solid ${this.getUserColor(user)}`,
         },
       ];
-      return arr;
     },
 
     async handleDisconnect() {
@@ -330,11 +347,12 @@ export default {
       this.$router.push('/');
     },
 
-    percent(user) {
-      let perc = (user.time / user.duration) * 100;
+    percent({ time, duration }) {
+      const perc = (this.getAdjustedTime(time) / duration) * 100;
       if (Number.isNaN(perc)) {
-        perc = 0;
+        return 0;
       }
+
       return perc;
     },
 
@@ -343,6 +361,12 @@ export default {
         return user.title;
       }
       return 'Nothing';
+    },
+
+    getAdjustedTime({ updatedAt, state, time }) {
+      return state === 'playing'
+        ? time + this.nowTimestamp - updatedAt
+        : time;
     },
 
     getTimeFromMs(timeMs) {

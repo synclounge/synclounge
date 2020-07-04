@@ -48,6 +48,7 @@ const defaults = {
 
   slplayer_plex_timeline_update_interval: 10000,
   slplayer_controls_visible_checker_interval: 500,
+  sidebar_time_update_interval: 500,
 };
 
 module.exports = defaults;

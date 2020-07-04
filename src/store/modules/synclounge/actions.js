@@ -80,21 +80,27 @@ export default {
     getters, rootGetters, dispatch, commit,
   }) => {
     const { user: { id, ...rest }, users, isPartyPausingEnabled } = await dispatch('JOIN_ROOM');
+    const updatedAt = Date.now();
     commit('SET_SOCKET_ID', id);
 
     console.log('users', users);
-    commit('SET_USERS', users);
+    commit('SET_USERS', Object.fromEntries(
+      Object.entries(users).map(([socketid, data]) => ([socketid, {
+        ...data,
+        updatedAt,
+      }])),
+    ));
 
-    console.log('aaaaa');
     // Add ourselves to user list
-    const stuff = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
-    console.log('stuff', stuff);
     commit('SET_USER', {
       id,
       data: {
         ...rest,
+        thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
         media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
-        ...stuff,
+        playerProduct: rootGetters['plexclients/GET_CHOSEN_CLIENT'].product,
+        updatedAt,
+        ...await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true }),
       },
     });
 
