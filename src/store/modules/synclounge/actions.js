@@ -38,7 +38,10 @@ export default {
     }
 
     const url = combineUrl('socket.io', getters.GET_SERVER);
-    const socket = await socketConnect(url.origin, { path: url.pathname });
+    const socket = await socketConnect(url.origin, {
+      path: url.pathname,
+      transports: ['websocket', 'polling'],
+    });
     commit('SET_SOCKET', socket);
     commit('SET_IS_SOCKET_CONNECTED', true);
   },
@@ -83,7 +86,6 @@ export default {
     const updatedAt = Date.now();
     commit('SET_SOCKET_ID', id);
 
-    console.log('users', users);
     commit('SET_USERS', Object.fromEntries(
       Object.entries(users).map(([socketid, data]) => ([socketid, {
         ...data,
@@ -107,7 +109,7 @@ export default {
     commit('SET_PARTYPAUSING', isPartyPausingEnabled);
     commit('SET_IS_IN_ROOM', true);
 
-    await dispatch('START_CLIENT_POLLER');
+    // await dispatch('START_CLIENT_POLLER');
 
     await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${getters.GET_ROOM}`, { root: true });
   },
@@ -306,6 +308,13 @@ export default {
     });
 
     getters.GET_SOCKET.on('connect', () => dispatch('HANDLE_RECONNECT'));
+  },
+
+  SEND_PLAYER_STATE_UPDATE: async ({ dispatch }) => {
+    await dispatch('EMIT', {
+      name: 'playerStateUpdate',
+      data: await dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true }),
+    });
   },
 
   ...eventhandlers,

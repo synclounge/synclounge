@@ -378,6 +378,7 @@ export default {
       if (s < 10) {
         s = `0${s}`;
       }
+
       let text = `${m}:${s}`;
       if (displayTime > 3600) {
         if (m < 10) {

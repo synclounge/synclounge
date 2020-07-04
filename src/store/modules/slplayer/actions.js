@@ -263,7 +263,7 @@ export default {
   CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
     commit('SET_PLAYER_STATE', state);
     const plexTimelineUpdatePromise = dispatch('SEND_PLEX_TIMELINE_UPDATE');
-    await dispatch('synclounge/POLL', null, { root: true });
+    await dispatch('synclounge/SEND_PLAYER_STATE_UPDATE', null, { root: true });
     await plexTimelineUpdatePromise;
   },
 
