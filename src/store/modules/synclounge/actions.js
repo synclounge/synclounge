@@ -160,21 +160,16 @@ export default {
     return disconnectPromise;
   },
 
-  SEND_MESSAGE({ state, commit, rootGetters }, msg) {
-    commit('ADD_MESSAGE', {
-      msg,
-      user: {
-        username: 'You',
-        thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
-      },
-      type: 'message',
+  SEND_MESSAGE: async ({ dispatch, getters }, msg) => {
+    await dispatch('ADD_MESSAGE', {
+      senderId: getters.GET_SOCKET_ID,
+      text: msg,
     });
-    if (state.socket.connected) {
-      state.socket.emit('send_message', {
-        msg,
-        type: 'message',
-      });
-    }
+
+    await dispatch('EMIT', {
+      name: 'sendMessage',
+      data: msg,
+    });
   },
 
   TRANSFER_HOST: async ({ dispatch }, id) => {
