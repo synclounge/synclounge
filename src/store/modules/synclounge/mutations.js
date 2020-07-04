@@ -18,10 +18,7 @@ export default {
   },
 
   ADD_MESSAGE(state, msg) {
-    state.messages.push({
-      ...msg,
-      time: Date.now(),
-    });
+    state.messages.push(msg);
   },
 
   CLEAR_MESSAGES(state) {
@@ -100,5 +97,21 @@ export default {
 
   SET_USER: (state, { id, data }) => {
     Vue.set(state.users, id, data);
+  },
+
+  SET_MESSAGES_USER_CACHE: (state, value) => {
+    state.messagesUserCache = value;
+  },
+
+  SET_MESSAGES_USER_CACHE_USER: (state, { id, data }) => {
+    Vue.set(state.messagesUserCache, id, data);
+  },
+
+  SET_HOST_ID: (state, hostId) => {
+    state.hostId = hostId;
+  },
+
+  DELETE_USER: (state, id) => {
+    Vue.delete(state.users, id);
   },
 };

@@ -18,16 +18,17 @@ const loadToNumber = (load) => {
 const healthScore = (health) => health.latency + loadToNumber(health.load) * 10;
 
 export default {
+  GET_MESSAGES_USER_CACHE_USER: (state) => (id) => state.messagesUserCache[id],
   GET_USER: (state, getters) => (id) => getters.GET_USERS[id],
-  GET_ME: (state, getters) => getters.GET_USERS[getters.GET_SOCKET_ID],
   GET_SOCKET_ID: (state) => state.socketId,
+  GET_HOST_ID: (state) => state.hostId,
   GET_ROOM: (state) => state.room,
   getPassword: (state) => state.password,
   GET_USERS: (state) => state.users,
   GET_MESSAGES: (state) => state.messages,
   getPartyPausing: (state) => state.partyPausing,
-  GET_HOST_USER: (state, getters) => Object.values(getters.GET_USERS).find((u) => u.isHost),
-  AM_I_HOST: (state, getters) => getters.GET_ME && getters.GET_ME.isHost,
+  GET_HOST_USER: (state, getters) => getters.GET_USER(getters.GET_HOST_ID),
+  AM_I_HOST: (state, getters) => getters.GET_HOST_ID === getters.GET_SOCKET_ID,
 
   GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => (
     rootGetters.GET_CONFIG.customServer

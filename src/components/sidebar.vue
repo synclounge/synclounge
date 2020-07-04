@@ -187,7 +187,7 @@
 
           <v-list-item-action>
             <v-tooltip
-              v-if="user.isHost || AM_I_HOST"
+              v-if="id === GET_HOST_ID || AM_I_HOST"
               bottom
               color="rgb(44, 44, 49)"
               multi-line
@@ -198,13 +198,13 @@
                   v-bind="attrs"
                   style="color: #E5A00D"
                   v-on="on"
-                  @click="AM_I_HOST && !user.isHost ? TRANSFER_HOST(id) : null"
+                  @click="AM_I_HOST && id !== GET_HOST_ID ? TRANSFER_HOST(id) : null"
                 >
-                  {{ getHostIconName(user.isHost) }}
+                  {{ getHostIconName(id === GET_HOST_ID) }}
                 </v-icon>
               </template>
 
-              <span>{{ getHostActionText(user.isHost) }}</span>
+              <span>{{ getHostActionText(id === GET_HOST_ID) }}</span>
             </v-tooltip>
           </v-list-item-action>
         </v-list-item>
@@ -256,11 +256,11 @@ export default {
     ]),
 
     ...mapGetters('synclounge', [
-      'GET_ME',
       'getPartyPausing',
       'GET_USERS',
       'GET_ROOM',
       'GET_HOST_USER',
+      'GET_HOST_ID',
       'AM_I_HOST',
       'IS_IN_ROOM',
       'GET_SOCKET_ID',

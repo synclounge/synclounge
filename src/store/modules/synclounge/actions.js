@@ -98,9 +98,12 @@ export default {
   JOIN_ROOM_AND_INIT: async ({
     getters, rootGetters, dispatch, commit,
   }) => {
-    const { user: { id, ...rest }, users, isPartyPausingEnabled } = await dispatch('JOIN_ROOM');
+    const {
+      user: { id, ...rest }, users, isPartyPausingEnabled, hostId,
+    } = await dispatch('JOIN_ROOM');
     const updatedAt = Date.now();
     commit('SET_SOCKET_ID', id);
+    commit('SET_HOST_ID', hostId);
 
     commit('SET_USERS', Object.fromEntries(
       Object.entries(users).map(([socketid, data]) => ([socketid, {
@@ -149,7 +152,9 @@ export default {
     getters.GET_SOCKET.disconnect();
     commit('SET_IS_IN_ROOM', false);
     commit('SET_USERS', {});
+    commit('SET_HOST_ID', null);
     commit('CLEAR_MESSAGES');
+    commit('SET_MESSAGES_USER_CACHE', {});
     commit('SET_SOCKET', null);
 
     return disconnectPromise;
@@ -293,7 +298,7 @@ export default {
     ),
   ),
 
-  ADD_EVENT_HANDLERS: ({ getters, commit, dispatch }) => {
+  ADD_EVENT_HANDLERS: ({ getters, dispatch }) => {
     getters.GET_SOCKET.on('poll-result',
       (users, me, commandId) => dispatch('HANDLE_POLL_RESULT', { users, me, commandId }));
 
@@ -309,8 +314,8 @@ export default {
     getters.GET_SOCKET.on('userLeft',
       (data) => dispatch('HANDLE_USER_LEFT', data));
 
-    getters.GET_SOCKET.on('hostSwap',
-      (user) => dispatch('HANDLE_HOST_SWAP', user));
+    getters.GET_SOCKET.on('newHost',
+      (hostId) => dispatch('HANDLE_NEW_HOST', hostId));
 
     getters.GET_SOCKET.on('host-update',
       (hostData) => dispatch('HANDLE_HOST_UPDATE', hostData));
@@ -318,9 +323,7 @@ export default {
     getters.GET_SOCKET.on('disconnect',
       (disconnectData) => dispatch('HANDLE_DISCONNECT', disconnectData));
 
-    getters.GET_SOCKET.on('new_message', (msgObj) => {
-      commit('ADD_MESSAGE', msgObj);
-    });
+    getters.GET_SOCKET.on('newMesage', (msg) => dispatch('ADD_MESSAGE', msg));
 
     getters.GET_SOCKET.on('slPing', (secret) => dispatch('HANDLE_SLPING', secret));
 
@@ -332,6 +335,25 @@ export default {
     await dispatch('EMIT', {
       name: 'playerStateUpdate',
       data: await dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true }),
+    });
+  },
+
+  ADD_MESSAGE: ({ getters, commit }, msg) => {
+    if (!getters.GET_MESSAGES_USER_CACHE_USER(msg.senderId)) {
+      // Cache user details so we can still display user avatar and username after user leaves
+      const { username, thumb } = getters.GET_USER(msg.senderId);
+
+      commit('SET_MESSAGES_USER_CACHE_USER', {
+        id: msg.senderId,
+        data: {
+          username, thumb,
+        },
+      });
+    }
+
+    commit('ADD_MESSAGE', {
+      ...msg,
+      time: Date.now(),
     });
   },
 

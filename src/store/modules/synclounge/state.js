@@ -5,6 +5,8 @@ const state = () => ({
   room: null,
   password: null,
   users: {},
+  hostId: null,
+  messagesUserCache: {},
   messages: [],
   partyPausing: false,
   hostTimeline: null,

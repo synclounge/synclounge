@@ -36,7 +36,7 @@ export default {
     }
   },
 
-  HANDLE_USER_JOINED: ({ commit }, { id, ...rest }) => {
+  HANDLE_USER_JOINED: async ({ commit, dispatch }, { id, ...rest }) => {
     commit('SET_USER', {
       id,
       data: {
@@ -45,31 +45,30 @@ export default {
       },
     });
 
-    commit('ADD_MESSAGE', {
-      text: `${rest.username} joined`,
+    await dispatch('ADD_MESSAGE', {
       senderId: id,
-      type: 'alert',
+      text: `${rest.username} joined`,
     });
   },
 
-  HANDLE_USER_LEFT: ({ commit }, { users, user }) => {
-    commit('SET_USERS', users);
-    commit('ADD_MESSAGE', {
-      msg: `${user.username} left the room`,
-      user,
-      type: 'alert',
+  HANDLE_USER_LEFT: async ({ getters, dispatch, commit }, { id, newHostId }) => {
+    await dispatch('ADD_MESSAGE', {
+      senderId: id,
+      text: `${getters.GET_USER(id).username} left the room`,
     });
-  },
 
-  HANDLE_HOST_SWAP: ({ commit }, user) => {
-    if (!user) {
-      return;
+    if (newHostId) {
+      await dispatch('HANDLE_NEW_HOST', newHostId);
     }
 
-    commit('ADD_MESSAGE', {
-      msg: `${user.username} is now the host`,
-      user,
-      type: 'alert',
+    commit('DELETE_USER', id);
+  },
+
+  HANDLE_NEW_HOST: async ({ getters, dispatch, commit }, hostId) => {
+    commit('SET_HOST_ID', hostId);
+    await dispatch('ADD_MESSAGE', {
+      senderId: hostId,
+      text: `${getters.GET_USER(hostId).username} is now the host`,
     });
   },
 

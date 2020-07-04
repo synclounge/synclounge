@@ -30,11 +30,11 @@ export default {
 
   computed: {
     ...mapGetters('synclounge', [
-      'GET_USER',
+      'GET_MESSAGES_USER_CACHE_USER',
     ]),
 
     sender() {
-      return this.GET_USER(this.message.senderId);
+      return this.GET_MESSAGES_USER_CACHE_USER(this.message.senderId);
     },
   },
 };
