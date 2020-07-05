@@ -49,13 +49,9 @@ export default {
       .reduce((prev, curr) => (curr.score < prev.score ? curr : prev)).url
     : null),
 
-  GET_SOCKET: (state) => state.socket,
-
   GET_DISPLAY_USERNAME: (state, getters, rootState, rootGetters) => (rootGetters['settings/GET_HIDEUSERNAME']
     ? rootGetters['settings/GET_ALTUSERNAME']
     : rootGetters['plex/GET_PLEX_USER'].username || rootGetters['plex/GET_PLEX_USER'].title),
-
-  GET_UUID: (state) => state.uuid,
 
   GET_HOST_TIMELINE: (state) => state.hostTimeline,
 
@@ -85,12 +81,6 @@ export default {
     return 'good';
   },
 
-  GET_POLL_NUMBER: (state) => state.pollNumber,
-
-  GET_SRTT: (state) => state.srtt,
-
-  GET_POLL_SENT_TIME: (state) => (pollNumber) => state.unackedPolls[pollNumber],
-
   GET_SERVER: (state) => state.server,
 
   // Used to detect if the host changes
@@ -103,8 +93,6 @@ export default {
   GET_RECENT_ROOMS: (state) => state.recentRooms,
 
   GET_PASSWORD: (state) => state.password,
-
-  GET_CLIENT_POLLER_CANCELER: (state) => state.clientPollerCanceler,
 
   IS_IN_ROOM: (state) => state.isInRoom,
 };

@@ -161,7 +161,7 @@
               Watching on {{ user.playerProduct || `Unknown Plex Client` }}
               <span v-if="user.media && GET_PLEX_SERVER(user.media.machineIdentifier)">
                 <br>
-                via {{ GET_PLEX_SERVER(user.media.achineIdentifier).name }}
+                via {{ GET_PLEX_SERVER(user.media.machineIdentifier).name }}
               </span>
             </v-tooltip>
 

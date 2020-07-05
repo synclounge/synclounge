@@ -3,6 +3,7 @@ import promiseutils from '@/utils/promiseutils';
 import xmlutils from '@/utils/xmlutils';
 import delay from '@/utils/delay';
 import contentTitleUtils from '@/utils/contenttitleutils';
+import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 
 export default {
   FIND_AND_SET_CONNECTION: async ({ dispatch, commit }, clientIdentifier) => {
@@ -59,6 +60,8 @@ export default {
       commit('slplayer/SET_MEDIA_INDEX', mediaIndex, { root: true });
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
 
+      await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
+
       if (router.currentRoute.name === 'player') {
         await dispatch('slplayer/CHANGE_PLAYER_SRC', null, { root: true });
       } else {
@@ -113,6 +116,7 @@ export default {
   },
 
   FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch }) => {
+    const startedAt = Date.now();
     const data = await dispatch('SEND_CLIENT_REQUEST', {
       path: '/player/timeline/poll',
       params: {
@@ -120,12 +124,18 @@ export default {
       },
     });
 
+    // Measure time it takes and adjust playback time if playing
+    const latency = (Date.now() - startedAt) / 2;
+
     const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type === 'video');
 
     // Clients seem to respond with strings instead of numbers so need to parse
+    const time = parseInt(videoTimeline.time, 10);
     return {
       ...videoTimeline,
-      time: parseInt(videoTimeline.time, 10),
+      time: videoTimeline.state === 'playing'
+        ? time + latency
+        : time,
       duration: parseInt(videoTimeline.duration, 10),
       receivedAt: Date.now(),
       playQueueItemID: parseInt(videoTimeline.playQueueItemID, 10),
@@ -140,6 +150,8 @@ export default {
       || getters.GET_PLEX_CLIENT_TIMELINE.machineIdentifier !== timeline.machineIdentifier
       || !getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM
       || getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM.playQueueItemID !== timeline.playQueueItemID) {
+      // If we are playing something different
+
       if (timeline.state === 'stopped') {
         commit('SET_ACTIVE_MEDIA_METADATA', null);
         commit('SET_ACTIVE_SERVER_ID', null);
@@ -158,20 +170,32 @@ export default {
           `Now Playing: ${contentTitleUtils.getCombinedTitle(getters.GET_ACTIVE_MEDIA_METADATA)} from ${serverName}`,
           { root: true });
       }
-    }
 
-    commit('SET_PLEX_CLIENT_TIMELINE', timeline);
-    // TODO: do whatever was in the new timeline event handler here
+      // Media changed
+      commit('SET_PLEX_CLIENT_TIMELINE', timeline);
+      await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
+    } else if (getters.GET_PLEX_CLIENT_TIMELINE.state !== timeline.state
+      || getters.GET_PLEX_CLIENT_TIMELINE.duration !== timeline.duration
+      || Math.abs(getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA().time - timeline.time)
+        > rootGetters.GET_CONFIG.plex_client_time_delta_state_change_threshold) {
+      // If we had a player state change
+      commit('SET_PLEX_CLIENT_TIMELINE', timeline);
+
+      await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
+    }
   },
 
   POLL_PLEX_CLIENT: async ({ getters, dispatch, commit }) => {
-    commit('SET_PLEX_CLIENT_TIMELINE_COMMAND_ID', getters.GET_COMMAND_ID);
-
+    // Saving it because making client request increments it
+    // TODO: can I actually save it or is it reactive ahaha D:
+    const currentCommandId = getters.GET_COMMAND_ID;
     const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE');
+    commit('SET_PLEX_CLIENT_TIMELINE_COMMAND_ID', currentCommandId);
 
     await dispatch('UPDATE_PLEX_CLIENT_TIMELINE', timeline);
 
-    return getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA();
+    // TODO: fix this args
+    await dispatch('HANDLE_NEW_TIMELINE', getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA());
   },
 
   // Same return as FETCH_TIMELINE_POLL_DATA but usees the cached data (if normal plex client rather than making a request)
@@ -188,27 +212,24 @@ export default {
     }
   },
 
-  FETCH_TIMELINE_POLL_DATA: ({ getters, dispatch }) => {
+  FETCH_TIMELINE_POLL_DATA: async ({ getters, dispatch }) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true });
       }
 
       default: {
-        return dispatch('POLL_PLEX_CLIENT');
+        await dispatch('POLL_PLEX_CLIENT');
+        return getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA();
       }
     }
   },
 
-  POLL_CLIENT: async ({ getters, dispatch }) => {
-    const timelinePart = await dispatch('FETCH_TIMELINE_POLL_DATA');
-    await dispatch('HANDLE_NEW_TIMELINE', timelinePart);
-
-    return {
-      media: getters.GET_ACTIVE_MEDIA_POLL_METADATA,
-      ...timelinePart,
-    };
-  },
+  FETCH_JOIN_PLAYER_DATA: async ({ getters, dispatch }) => ({
+    ...await dispatch('FETCH_TIMELINE_POLL_DATA'),
+    media: getters.GET_ACTIVE_MEDIA_POLL_METADATA,
+    playerProduct: getters.GET_CHOSEN_CLIENT.product,
+  }),
 
   HANDLE_NEW_TIMELINE: async ({
     commit, getters, rootGetters, dispatch,
@@ -475,6 +496,24 @@ export default {
           },
         });
       }
+    }
+  },
+
+  START_CLIENT_POLLER_IF_NEEDED: ({
+    getters, commit, dispatch, rootGetters,
+  }) => {
+    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
+      commit('SET_CLIENT_POLLER_CANCELER', cancelablePeriodicTask(
+        () => dispatch('POLL_PLEX_CLIENT'),
+        () => rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
+      ));
+    }
+  },
+
+  CANCEL_CLIENT_POLLER_IF_NEEDED: ({ getters, commit }) => {
+    if (getters.GET_CLIENT_POLLER_CANCELER) {
+      getters.GET_CLIENT_POLLER_CANCELER();
+      commit('SET_CLIENT_POLLER_CANCELER', null);
     }
   },
 };

@@ -1,9 +1,10 @@
 import axios from 'axios';
-import socketConnect from '@/utils/socketconnect';
 import guid from '@/utils/guid';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 import combineUrl from '@/utils/combineurl';
-import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
+import {
+  open, close, on, waitForEvent, isConnected, emit,
+} from '@/socket';
 
 export default {
   CONNECT_AND_JOIN_ROOM: async ({ getters, dispatch }) => {
@@ -20,8 +21,6 @@ export default {
         time: Date.now(),
       },
     );
-
-    await dispatch('ADD_EVENT_HANDLERS');
   },
 
   SET_AND_CONNECT_AND_JOIN_ROOM: ({ commit, dispatch }, { server, room, password }) => {
@@ -31,55 +30,37 @@ export default {
     return dispatch('CONNECT_AND_JOIN_ROOM');
   },
 
-  WAIT_FOR_SLPING: ({ getters }) => new Promise((resolve, reject) => {
-    getters.GET_SOCKET.once('slPing', (secret) => {
-      resolve(secret);
-    });
-
-    getters.GET_SOCKET.once('disconnect', (disconnectData) => {
-      reject(disconnectData);
-    });
-  }),
-
-  ESTABLISH_SOCKET_CONNECTION: async ({ commit, getters, dispatch }) => {
+  ESTABLISH_SOCKET_CONNECTION: async ({ getters, dispatch }) => {
     // TODO: make wrapper method that disconnects the socket if it already exists
-    if (getters.GET_SOCKET) {
+    if (isConnected()) {
       await dispatch('DISCONNECT');
     }
 
     const url = combineUrl('socket.io', getters.GET_SERVER);
-    const socket = await socketConnect(url.origin, {
+    await open(url.origin, {
       path: url.pathname,
       transports: ['websocket', 'polling'],
     });
 
-    commit('SET_SOCKET', socket);
-
     // Wait for initial slPing
-    const secret = await dispatch('WAIT_FOR_SLPING');
+    // Doing it this way rather than adding the normal listener because there is no guarentee on the order
+    // of event handlers so, if I did a one time listener for slping just to wait, that handler might be fired first,
+    // which means it will do stuff before actually responding to the ping (which the normal handler does).
+    // I am not very happy with this but I don't know of a easy better way atm. Maybe reactive streams in the future,
+    // but that's a bit over my head now
+    const secret = await waitForEvent('slPing');
 
     // Explicitly handling the slping because we haven't registered the events yet
     await dispatch('HANDLE_SLPING', secret);
+    await dispatch('ADD_EVENT_HANDLERS');
   },
 
   JOIN_ROOM: async ({ getters, rootGetters, dispatch }) => {
-    const clientPart = await dispatch('plexclients/POLL_CLIENT', null, { root: true });
+    const joinPlayerData = await dispatch('plexclients/FETCH_JOIN_PLAYER_DATA', null, { root: true });
 
-    // Set this up before calling join so join-result handler is definitely there
-    const joinPromise = new Promise((resolve, reject) => {
-      // TODO: make the socket join args into one object instead (rewrite backend server)
-      getters.GET_SOCKET.once('joinResult', ({ success, error, ...rest }) => {
-        if (success) {
-          resolve(rest);
-        } else {
-          reject(error);
-        }
-      });
-    });
-
-    getters.GET_SOCKET.emit(
-      'join',
-      {
+    emit({
+      eventName: 'join',
+      data: {
         // TODO: rename to roomId
         roomId: getters.GET_ROOM,
         password: getters.GET_PASSWORD,
@@ -87,12 +68,16 @@ export default {
         // TODO: add config optin for this
         desiredPartyPausingEnabled: true,
         thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
-        playerProduct: rootGetters['plexclients/GET_CHOSEN_CLIENT'].product,
-        ...clientPart,
+        ...joinPlayerData,
       },
-    );
+    });
 
-    return joinPromise;
+    const { success, error, ...rest } = await waitForEvent('joinResult');
+    if (!success) {
+      throw new Error(error);
+    }
+
+    return rest;
   },
 
   JOIN_ROOM_AND_INIT: async ({
@@ -128,53 +113,40 @@ export default {
     commit('SET_PARTYPAUSING', isPartyPausingEnabled);
     commit('SET_IS_IN_ROOM', true);
 
-    // await dispatch('START_CLIENT_POLLER');
+    await dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
 
     await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${getters.GET_ROOM}`, { root: true });
   },
 
-  DISCONNECT: ({ getters, commit }) => {
+  DISCONNECT: async ({ commit, dispatch }) => {
     console.log('Decided we should disconnect from the SL Server.');
-    // TODO: await thing here
-
-    // TODO: it is possible that the client could suddenly lose connection
-    // right now when we are trying to actually disconnect. Fix
-    const disconnectPromise = new Promise((resolve) => {
-      getters.GET_SOCKET.once('disconnect', (data) => {
-        resolve(data);
-      });
-    });
 
     // Cancel poller
-    getters.GET_CLIENT_POLLER_CANCELER();
-    commit('SET_CLIENT_POLLER_CANCELER', null);
+    await dispatch('plexclients/CANCEL_CLIENT_POLLER_IF_NEEDED', null, { root: true });
 
-    getters.GET_SOCKET.disconnect();
+    close();
     commit('SET_IS_IN_ROOM', false);
     commit('SET_USERS', {});
     commit('SET_HOST_ID', null);
     commit('CLEAR_MESSAGES');
     commit('SET_MESSAGES_USER_CACHE', {});
-    commit('SET_SOCKET', null);
-
-    return disconnectPromise;
   },
 
   SEND_MESSAGE: async ({ dispatch, getters }, msg) => {
-    await dispatch('ADD_MESSAGE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE', {
       senderId: getters.GET_SOCKET_ID,
       text: msg,
     });
 
-    await dispatch('EMIT', {
-      name: 'sendMessage',
+    emit({
+      eventName: 'sendMessage',
       data: msg,
     });
   },
 
-  TRANSFER_HOST: async ({ dispatch }, id) => {
-    await dispatch('EMIT', {
-      name: 'transferHost',
+  TRANSFER_HOST: (context, id) => {
+    emit({
+      eventName: 'transferHost',
       data: id,
     });
   },
@@ -232,50 +204,6 @@ export default {
     password: null,
   }),
 
-  START_CLIENT_POLLER: async ({ commit, dispatch, rootGetters }) => {
-    commit('SET_CLIENT_POLLER_CANCELER', cancelablePeriodicTask(
-      () => dispatch('POLL'),
-      () => rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
-    ));
-  },
-
-  POLL: async ({ dispatch, getters }) => {
-    const clientPart = await dispatch('plexclients/POLL_CLIENT', null, { root: true });
-    const status = getters.GET_STATUS(clientPart.time);
-
-    dispatch('EMIT_POLL', {
-      ...clientPart,
-      status,
-      uuid: getters.GET_UUID,
-    });
-  },
-
-  EMIT_POLL: ({ getters, dispatch, commit }, data) => {
-    dispatch('EMIT', {
-      name: 'poll',
-      data: {
-        ...data,
-        commandId: getters.GET_POLL_NUMBER,
-        // RTT / 2 because this is just the time it takes for a message to get to the server,
-        // not a complete round trip. The receiver should add this latency as well as 1/2 their srtt
-        // to the server when calculating delays
-        latency: getters.GET_SRTT / 2,
-      },
-    });
-
-    // TODO: make sure this doesn't lead to memory leaks if we have bad conns etc
-    commit('ADD_UNACKED_POLL', {
-      pollNumber: getters.GET_POLL_NUMBER,
-      timeSent: Date.now(),
-    });
-
-    commit('INCREMENT_POLL_NUMBER');
-  },
-
-  EMIT: ({ getters }, { name, data }) => {
-    getters.GET_SOCKET.emit(name, data);
-  },
-
   ADD_RECENT_ROOM: ({ commit, getters }, newRoom) => commit(
     'SET_RECENT_ROOMS',
     Array.of(newRoom).concat(
@@ -292,56 +220,65 @@ export default {
     ),
   ),
 
-  ADD_EVENT_HANDLERS: ({ getters, dispatch }) => {
-    getters.GET_SOCKET.on('poll-result',
-      (users, me, commandId) => dispatch('HANDLE_POLL_RESULT', { users, me, commandId }));
+  ADD_EVENT_HANDLERS: ({ dispatch }) => {
+    const makeHandler = (action) => (data) => dispatch(action, data);
 
-    getters.GET_SOCKET.on('party-pausing-changed',
-      (res) => dispatch('HANDLE_PARTY_PAUSING_CHANGED', res));
+    const registerListener = ({ eventName, action }) => on(eventName, makeHandler(action));
 
-    getters.GET_SOCKET.on('party-pausing-pause',
-      (res) => dispatch('HANDLE_PARTY_PAUSING_PAUSE', res));
-
-    getters.GET_SOCKET.on('userJoined',
-      (data) => dispatch('HANDLE_USER_JOINED', data));
-
-    getters.GET_SOCKET.on('userLeft',
-      (data) => dispatch('HANDLE_USER_LEFT', data));
-
-    getters.GET_SOCKET.on('newHost',
-      (hostId) => dispatch('HANDLE_NEW_HOST', hostId));
-
-    getters.GET_SOCKET.on('host-update',
-      (hostData) => dispatch('HANDLE_HOST_UPDATE', hostData));
-
-    getters.GET_SOCKET.on('disconnect',
-      (disconnectData) => dispatch('HANDLE_DISCONNECT', disconnectData));
-
-    getters.GET_SOCKET.on('newMesage', (msg) => dispatch('ADD_MESSAGE', msg));
-
-    getters.GET_SOCKET.on('slPing', (secret) => dispatch('HANDLE_SLPING', secret));
-
-    getters.GET_SOCKET.on('playerStateUpdate', (data) => dispatch('HANDLE_PLAYER_STATE_UPDATE', data));
-
-    getters.GET_SOCKET.on('mediaUpdate', (data) => dispatch('HANDLE_MEDIA_UPDATE', data));
-
-    getters.GET_SOCKET.on('connect', () => dispatch('HANDLE_RECONNECT'));
+    registerListener({ eventName: 'userJoined', action: 'HANDLE_USER_JOINED' });
+    registerListener({ eventName: 'userLeft', action: 'HANDLE_USER_LEFT' });
+    registerListener({ eventName: 'newHost', action: 'HANDLE_NEW_HOST' });
+    registerListener({ eventName: 'newMesage', action: 'ADD_MESSAGE_AND_CACHE' });
+    registerListener({ eventName: 'slPing', action: 'HANDLE_SLPING' });
+    registerListener({ eventName: 'playerStateUpdate', action: 'HANDLE_PLAYER_STATE_UPDATE' });
+    registerListener({ eventName: 'mediaUpdate', action: 'HANDLE_MEDIA_UPDATE' });
+    registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
+    registerListener({ eventName: 'connect', action: 'HANDLE_RECONNECT' });
   },
 
   PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }) => {
+    // TODO: only send message if in room, check in room
+    // TODO : maybe sync?
+    const pollData = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
     console.log('handle state update');
     commit('SET_USER_PLAYER_STATE', {
-      ...await dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true }),
+      ...pollData,
       id: getters.GET_SOCKET_ID,
     });
 
-    await dispatch('EMIT', {
-      name: 'playerStateUpdate',
-      data: await dispatch('slplayer/FETCH_TIMELINE_POLL_DATA', null, { root: true }),
+    emit({
+      eventName: 'playerStateUpdate',
+      data: pollData,
     });
   },
 
-  ADD_MESSAGE: ({ getters, commit }, msg) => {
+  PROCESS_MEDIA_UPDATE: async ({
+    dispatch, getters, commit, rootGetters,
+  }) => {
+    // TODO: only send message if in room, check in room
+    // TODO: Potentially sync
+    const pollData = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+
+    commit('SET_USER_MEDIA', {
+      id: getters.GET_SOCKET_ID,
+      media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
+    });
+
+    commit('SET_USER_PLAYER_STATE', {
+      ...pollData,
+      id: getters.GET_SOCKET_ID,
+    });
+
+    emit({
+      eventName: 'mediaUpdate',
+      data: {
+        media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
+        ...pollData,
+      },
+    });
+  },
+
+  ADD_MESSAGE_AND_CACHE: ({ getters, commit }, msg) => {
     if (!getters.GET_MESSAGES_USER_CACHE_USER(msg.senderId)) {
       // Cache user details so we can still display user avatar and username after user leaves
       const { username, thumb } = getters.GET_USER(msg.senderId);

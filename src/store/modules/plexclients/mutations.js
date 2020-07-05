@@ -52,4 +52,8 @@ export default {
   DECREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET: (state) => {
     state.activePlayQueue.playQueueSelectedItemOffset -= 1;
   },
+
+  SET_CLIENT_POLLER_CANCELER: (state, canceler) => {
+    state.clientPollerCanceler = canceler;
+  },
 };

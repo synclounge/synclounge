@@ -230,8 +230,6 @@ export default {
     ]),
 
     bigPlayButton() {
-      window.player = this.GET_PLAYER;
-      window.playerUi = this.GET_PLAYER_UI;
       // eslint-disable-next-line no-underscore-dangle
       return this.GET_PLAYER_UI.controls_.playButton_.button;
     },
@@ -262,6 +260,7 @@ export default {
   },
 
   mounted() {
+    // TODO: monitor upnext stuff interval probably or idk state change timeugh
     this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
     this.SET_PLAYER_CONFIGURATION(this.playerConfig);
     this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,

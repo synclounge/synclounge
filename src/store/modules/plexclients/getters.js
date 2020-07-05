@@ -1,5 +1,4 @@
 import axios from 'axios';
-import contenttitleutils from '@/utils/contenttitleutils';
 
 export default {
   GET_CHOSEN_CLIENT_ID: (state) => state.chosenClientId,
@@ -89,4 +88,6 @@ export default {
   ACTIVE_PLAY_QUEUE_PREVIOUS_ITEM_EXISTS: (state, getters) => (getters.GET_ACTIVE_PLAY_QUEUE
     ? getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset > 0
     : false),
+
+  GET_CLIENT_POLLER_CANCELER: (state) => state.clientPollerCanceler,
 };

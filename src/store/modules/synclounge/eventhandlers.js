@@ -1,14 +1,6 @@
+import { emit } from '@/socket';
+
 export default {
-  HANDLE_POLL_RESULT: ({ commit, getters }, { users, commandId }) => {
-    // Now we need to setup events for dealing with the PTServer.
-    // We will regularly be recieving and sending data to and from the server.
-    // We want to make sure we are listening for all the server events
-
-    commit('UPDATE_SRTT', Date.now() - getters.GET_POLL_SENT_TIME(commandId));
-    commit('DELETE_UNACKED_POLL', commandId);
-    commit('SET_USERS', users);
-  },
-
   HANDLE_PARTY_PAUSING_CHANGED: ({ commit }, { value, user }) => {
     commit('ADD_MESSAGE', {
       msg: `Party Pausing has been turned ${value ? 'on' : 'off'}`,
@@ -45,14 +37,14 @@ export default {
       },
     });
 
-    await dispatch('ADD_MESSAGE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE', {
       senderId: id,
       text: `${rest.username} joined`,
     });
   },
 
   HANDLE_USER_LEFT: async ({ getters, dispatch, commit }, { id, newHostId }) => {
-    await dispatch('ADD_MESSAGE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE', {
       senderId: id,
       text: `${getters.GET_USER(id).username} left the room`,
     });
@@ -66,7 +58,7 @@ export default {
 
   HANDLE_NEW_HOST: async ({ getters, dispatch, commit }, hostId) => {
     commit('SET_HOST_ID', hostId);
-    await dispatch('ADD_MESSAGE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE', {
       senderId: hostId,
       text: `${getters.GET_USER(hostId).username} is now the host`,
     });
@@ -89,6 +81,7 @@ export default {
   },
 
   SYNCHRONIZE: async ({ getters, commit, dispatch }) => {
+    // TODO: do i need this
     await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
     /* This is data from the host, we should react to this data by potentially changing
         what we're playing or seeking to get back in sync with the host.
@@ -209,9 +202,9 @@ export default {
     await dispatch('JOIN_ROOM_AND_INIT');
   },
 
-  HANDLE_SLPING: async ({ dispatch }, secret) => {
-    await dispatch('EMIT', {
-      name: 'slPong',
+  HANDLE_SLPING: async (context, secret) => {
+    emit({
+      eventName: 'slPong',
       data: secret,
     });
   },
