@@ -232,6 +232,7 @@ export default {
     registerListener({ eventName: 'slPing', action: 'HANDLE_SLPING' });
     registerListener({ eventName: 'playerStateUpdate', action: 'HANDLE_PLAYER_STATE_UPDATE' });
     registerListener({ eventName: 'mediaUpdate', action: 'HANDLE_MEDIA_UPDATE' });
+    registerListener({ eventName: 'setPartyPausingEnabled', action: 'HANDLE_SET_PARTY_PAUSING_ENABLED' });
     registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
     registerListener({ eventName: 'connect', action: 'HANDLE_RECONNECT' });
   },

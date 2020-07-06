@@ -1,11 +1,10 @@
 import { emit } from '@/socket';
 
 export default {
-  HANDLE_PARTY_PAUSING_CHANGED: ({ commit }, { value, user }) => {
-    commit('ADD_MESSAGE', {
-      msg: `Party Pausing has been turned ${value ? 'on' : 'off'}`,
-      user,
-      type: 'alert',
+  HANDLE_SET_PARTY_PAUSING_ENABLED: async ({ getters, dispatch, commit }, value) => {
+    await dispatch('ADD_MESSAGE_AND_CACHE', {
+      senderId: getters.GET_HOST_ID,
+      text: `Party Pausing has been turned ${value ? 'on' : 'off'}`,
     });
 
     commit('SET_PARTYPAUSING', value);
