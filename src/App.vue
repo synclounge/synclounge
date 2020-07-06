@@ -168,16 +168,6 @@ export default {
   data() {
     return {
       appIsFullscreen: false,
-
-      items: [
-        {
-          title: 'Preferences',
-        },
-        {
-          title: 'Signout',
-        },
-      ],
-
       links: [
         {
           title: 'Github',
