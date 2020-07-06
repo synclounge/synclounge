@@ -8,13 +8,26 @@ function capitalizeFirstLetter(string) {
 
 const browser = detect();
 
+const plexDeviceName = () => {
+  switch (browser.name) {
+    case 'edge-chromium': {
+      // Plex doesn't like edge-chromium device name, so send it what plex web does
+      return 'Microsoft Edge';
+    }
+
+    default: {
+      return capitalizeFirstLetter(browser.name);
+    }
+  }
+};
+
 export default {
   IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN']
     && getters.IS_USER_AUTHORIZED,
 
   GET_PLEX_PRODUCT_HEADER: () => 'SyncLounge',
   GET_PLEX_DEVICE_DEVICE_HEADER: () => browser.os,
-  GET_PLEX_DEVICE_NAME_HEADER: () => capitalizeFirstLetter(browser.name),
+  GET_PLEX_DEVICE_NAME_HEADER: () => plexDeviceName(),
   GET_PLEX_PLATFORM_HEADER: () => capitalizeFirstLetter(browser.name),
 
   GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters, rootState, rootGetters) => ({
