@@ -4,54 +4,29 @@ import guid from '@/utils/guid';
 import timeoutPromise from '@/utils/timeoutpromise';
 import delay from '@/utils/delay';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
-
-// These functions are a bit special since they use currentTime and duration, which can't
-// be tracked by vuex, so the cache isn't updated correctly
-const getPlayerCurrentTimeMs = (getters) => (getters.GET_PLAYER_MEDIA_ELEMENT.currentTime * 1000)
-  || getters.GET_OFFSET_MS;
-
-const getPlayerDurationMs = (getters) => getters.GET_PLAYER_MEDIA_ELEMENT.duration * 1000;
-
-const makeTimelineParams = ({ getters, rootGetters }) => ({
-  ratingKey: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].ratingKey,
-  key: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].key,
-  // playbackTime: 591
-  playQueueItemID: rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].playQueueItemID,
-  state: getters.GET_PLAYER_STATE,
-  hasMDE: 1,
-  time: Math.floor(getPlayerCurrentTimeMs(getters)),
-  duration: Math.floor(getPlayerDurationMs(getters)),
-  'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
-  ...getters.GET_PART_PARAMS,
-});
-
-const isTimeInBufferedRange = (getters, timeMs) => {
-  const bufferedTimeRange = getters.GET_PLAYER_MEDIA_ELEMENT.buffered;
-
-  // There can be multiple ranges
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < bufferedTimeRange.length; ++i) {
-    if (timeMs >= bufferedTimeRange.start(i) * 1000 && timeMs <= bufferedTimeRange.end(i) * 1000) {
-      return true;
-    }
-  }
-
-  return false;
-};
+import {
+  play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
+  isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
+  waitForEvent, destroy, cancelTrickPlay, load, getPlaybackRate, setPlaybackRate, setCurrentTimeMs,
+  setVolume, addEventListener, removeEventListener,
+} from '@/player';
 
 export default {
-  FETCH_ARE_PLAYER_CONTROLS_SHOWN: ({ getters }) => {
-    // This can't be a normal getter becasuse shaka isn't reactive
-    // eslint-disable-next-line no-underscore-dangle
-    if (!getters.GET_PLAYER_UI.getControls().enabled_) {
-      return false;
-    }
+  MAKE_TIMELINE_PARAMS: async ({ getters, rootGetters, dispatch }) => ({
+    ratingKey: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].ratingKey,
+    key: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].key,
+    // playbackTime: 591
+    playQueueItemID: rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].playQueueItemID,
+    state: getters.GET_PLAYER_STATE,
+    hasMDE: 1,
+    time: Math.floor(await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK')),
+    duration: Math.floor(getDurationMs()),
+    'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
+    ...getters.GET_PART_PARAMS,
+  }),
 
-    // eslint-disable-next-line no-underscore-dangle
-    return getters.GET_PLAYER_UI.getControls().getControlsContainer().getAttribute('shown') != null
-    // eslint-disable-next-line no-underscore-dangle
-    || getters.GET_PLAYER_UI.getControls().getControlsContainer().getAttribute('casting') != null;
-  },
+  FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK: ({ getters }) => getCurrentTimeMs()
+    || getters.GET_OFFSET_MS,
 
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
     const { data } = await axios.get(getters.GET_DECISION_URL, {
@@ -95,10 +70,10 @@ export default {
   },
 
   // Changes the player src to the new one and restores the time afterwards
-  UPDATE_PLAYER_SRC_AND_KEEP_TIME: async ({ getters, commit, dispatch }) => {
+  UPDATE_PLAYER_SRC_AND_KEEP_TIME: async ({ commit, dispatch }) => {
     // Set buffering on src change since player doesn't trigger it then
     await dispatch('CHANGE_PLAYER_STATE', 'buffering');
-    commit('SET_OFFSET_MS', getPlayerCurrentTimeMs(getters));
+    commit('SET_OFFSET_MS', await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK'));
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
@@ -112,17 +87,17 @@ export default {
     ]);
   },
 
-  SEND_PLEX_TIMELINE_UPDATE: async ({ getters, rootGetters }) => {
+  SEND_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch }) => {
     await axios.get(getters.GET_TIMELINE_URL, {
-      params: makeTimelineParams({ getters, rootGetters }),
+      params: await dispatch('MAKE_TIMELINE_PARAMS'),
       timeout: 10000,
     });
   },
 
-  FETCH_TIMELINE_POLL_DATA: ({ getters }) => (getters.GET_PLAYER_MEDIA_ELEMENT
+  FETCH_TIMELINE_POLL_DATA: async ({ getters, dispatch }) => (isMediaElementAttached()
     ? {
-      time: getPlayerCurrentTimeMs(getters),
-      duration: getPlayerDurationMs(getters),
+      time: await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK'),
+      duration: getDurationMs(),
       state: getters.GET_PLAYER_STATE,
     }
     : {
@@ -131,40 +106,37 @@ export default {
       state: getters.GET_PLAYER_STATE,
     }),
 
-  HANDLE_PLAYER_PLAYING: async ({ dispatch, getters }) => {
-    if (getters.IS_PLAYER_PLAYING()) {
+  HANDLE_PLAYER_PLAYING: async ({ dispatch }) => {
+    if (isPlaying()) {
       await dispatch('CHANGE_PLAYER_STATE', 'playing');
     }
   },
 
-  HANDLE_PLAYER_PAUSE: async ({ dispatch, getters }) => {
-    if (getters.IS_PLAYER_PAUSED()) {
-      if (!getters.GET_PLAYER.isBuffering()) {
-        await dispatch('CHANGE_PLAYER_STATE', 'paused');
-      }
+  HANDLE_PLAYER_PAUSE: async ({ dispatch }) => {
+    if (isPresentationPaused() && !isBuffering()) {
+      await dispatch('CHANGE_PLAYER_STATE', 'paused');
     }
   },
 
-  HANDLE_PLAYER_BUFFERING: async ({ dispatch, getters }, event) => {
+  HANDLE_PLAYER_BUFFERING: async ({ dispatch }, event) => {
     if (event.buffering) {
       await dispatch('CHANGE_PLAYER_STATE', 'buffering');
     } else {
       // Report back if player is playing
-      await dispatch('CHANGE_PLAYER_STATE',
-        getters.GET_PLAYER_MEDIA_ELEMENT.paused ? 'paused' : 'playing');
+      await dispatch('CHANGE_PLAYER_STATE', isPaused() ? 'paused' : 'playing');
     }
   },
 
-  HANDLE_PLAYER_VOLUME_CHANGE: ({ getters, commit }) => {
-    commit('settings/SET_SLPLAYERVOLUME', getters.GET_PLAYER_MEDIA_ELEMENT.volume, { root: true });
+  HANDLE_PLAYER_VOLUME_CHANGE: ({ commit }) => {
+    commit('settings/SET_SLPLAYERVOLUME', getVolume(), { root: true });
   },
 
-  PRESS_PLAY: ({ getters }) => {
-    getters.GET_PLAYER_MEDIA_ELEMENT.play();
+  PRESS_PLAY: () => {
+    play();
   },
 
-  PRESS_PAUSE: ({ getters }) => {
-    getters.GET_PLAYER_MEDIA_ELEMENT.pause();
+  PRESS_PAUSE: () => {
+    pause();
   },
 
   PRESS_STOP: async ({ dispatch }) => {
@@ -177,12 +149,13 @@ export default {
     }
 
     commit('SET_OFFSET_MS', seekToMs);
-    commit('SET_PLAYER_CURRENT_TIME_MS', seekToMs);
+    setCurrentTimeMs(seekToMs);
   },
 
-  NORMAL_SEEK: async ({ getters, commit }, seekToMs) => {
+  NORMAL_SEEK: async ({ dispatch, getters, commit }, seekToMs) => {
+    // TODO: rewrite this entirely.
     // TODO: check the logic here to make sense if the seek time is in the past ...
-    if (Math.abs(seekToMs - getPlayerCurrentTimeMs(getters)) < 3000
+    if (Math.abs(seekToMs - await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK')) < 3000
     && getters.GET_PLAYER_STATE === 'playing') {
       let cancelled = false;
 
@@ -196,7 +169,7 @@ export default {
       while (true) {
         // eslint-disable-next-line no-underscore-dangle
         if (cancelled || getters.GET_PLAYER_STATE !== 'playing') {
-          commit('SET_PLAYER_PLAYBACK_RATE', 1.0);
+          setPlaybackRate(1);
           throw new Error('Slow seek was stop due to buffering or pausing');
         }
 
@@ -205,27 +178,28 @@ export default {
         // 25 here because interval is 25ms
         const expectedHostTimeMs = seekToMs + (25 * iterations);
 
-        const difference = expectedHostTimeMs - getPlayerCurrentTimeMs(getters);
+        // eslint-disable-next-line no-await-in-loop
+        const difference = expectedHostTimeMs - await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK');
         const absDifference = Math.abs(difference);
 
         if (absDifference < 30) {
-          commit('SET_PLAYER_PLAYBACK_RATE', 1.0);
+          setPlaybackRate(1);
           return true;
         }
 
         if (absDifference > 5000) {
-          commit('SET_PLAYER_PLAYBACK_RATE', 1.0);
+          setPlaybackRate(1);
           throw new Error('Slow seek was stopped as we are beyond 5000ms');
         }
 
         if (difference > 0) {
-          if (getters.GET_PLAYER.getPlaybackRate() < 1.02) {
+          if (getPlaybackRate() < 1.02) {
             // Speed up
-            commit('SET_PLAYER_PLAYBACK_RATE', getters.GET_PLAYER.getPlaybackRate() + 0.0001);
+            setPlaybackRate(getPlaybackRate() + 0.0001);
           }
-        } else if (getters.GET_PLAYER.getPlaybackRate() > 0.98) {
+        } else if (getPlaybackRate() > 0.98) {
           // Slow down
-          commit('SET_PLAYER_PLAYBACK_RATE', getters.GET_PLAYER.getPlaybackRate() - 0.0001);
+          setPlaybackRate(getPlaybackRate() - 0.0001);
         }
 
         // eslint-disable-next-line no-await-in-loop
@@ -235,15 +209,9 @@ export default {
       }
     } else {
       commit('SET_OFFSET_MS', seekToMs);
-      commit('SET_PLAYER_CURRENT_TIME_MS', seekToMs);
+      setCurrentTimeMs(seekToMs);
 
-      const seekedPromise = new Promise((resolve) => {
-        getters.GET_PLAYER_MEDIA_ELEMENT.addEventListener('seeked', (e) => {
-          resolve(e.data);
-        }, { once: true });
-      });
-
-      return timeoutPromise(seekedPromise, 15000);
+      return timeoutPromise(waitForEvent('seeked'), 15000);
     }
   },
 
@@ -254,9 +222,9 @@ export default {
     ));
   },
 
-  START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL: ({ commit, dispatch, rootGetters }) => {
-    commit('SET_PLAYER_CONTROLS_SHOWN_INTERVAL', setInterval(async () => {
-      commit('UPDATE_PLAYER_CONTROLS_SHOWN', await dispatch('FETCH_ARE_PLAYER_CONTROLS_SHOWN'));
+  START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL: ({ commit, rootGetters }) => {
+    commit('SET_PLAYER_CONTROLS_SHOWN_INTERVAL', setInterval(() => {
+      commit('UPDATE_PLAYER_CONTROLS_SHOWN', areControlsShown());
     }, rootGetters.GET_CONFIG.slplayer_controls_visible_checker_interval));
   },
 
@@ -267,14 +235,14 @@ export default {
     await plexTimelineUpdatePromise;
   },
 
-  LOAD_PLAYER_SRC: async ({ getters, commit }) => {
+  LOAD_PLAYER_SRC: async ({ getters }) => {
     // TODO: potentailly unload if already loaded to avoid load interrupted errors
     // However, while its loading, potentially   reporting the old time...
     try {
-      const result = await getters.GET_PLAYER.load(getters.GET_SRC_URL);
+      const result = await load(getters.GET_SRC_URL);
 
       if (getters.GET_OFFSET_MS > 0) {
-        commit('SET_PLAYER_CURRENT_TIME_MS', getters.GET_OFFSET_MS);
+        setCurrentTimeMs(getters.GET_OFFSET_MS);
       }
 
       return result;
@@ -288,11 +256,11 @@ export default {
     return false;
   },
 
-  INIT_PLAYER_STATE: async ({ rootGetters, commit, dispatch }) => {
+  INIT_PLAYER_STATE: async ({ rootGetters, dispatch }) => {
     await dispatch('REGISTER_PLAYER_EVENTS');
     await dispatch('CHANGE_PLAYER_SRC');
 
-    commit('SET_PLAYER_VOLUME', rootGetters['settings/GET_SLPLAYERVOLUME']);
+    setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
 
     await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
     await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
@@ -308,38 +276,40 @@ export default {
     commit('plexclients/SET_ACTIVE_MEDIA_METADATA', null, { root: true });
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
     // Leaving play queue around for possible upnext
-    await getters.GET_PLAYER_UI.destroy();
+    await destroy();
     commit('SET_OFFSET_MS', 0);
-    commit('SET_PLAYER', null);
-    commit('SET_PLAYER_UI', null);
   },
 
   REGISTER_PLAYER_EVENTS: ({ commit, dispatch }) => {
-    commit('ADD_BUFFERING_EVENT_LISTENER', (e) => dispatch('HANDLE_PLAYER_BUFFERING', e));
+    const listener = (e) => dispatch('HANDLE_PLAYER_BUFFERING', e);
+    addEventListener('buffering', listener);
+    commit('SET_BUFFERING_EVENT_LISTENER', listener);
   },
 
-  UNREGISTER_PLAYER_EVENTS: ({ commit }) => {
-    commit('REMOVE_BUFFERING_EVENT_LISTENER');
+  UNREGISTER_PLAYER_EVENTS: ({ getters, commit }) => {
+    removeEventListener('buffering', getters.GET_BUFFERING_EVENT_LISTENER);
+    commit('SET_BUFFERING_EVENT_LISTENER', null);
   },
 
-  PLAY_PAUSE_VIDEO: async ({ getters, dispatch }) => {
-    if (!getPlayerDurationMs(getters)) {
+  PLAY_PAUSE_VIDEO: async ({ dispatch }) => {
+    // TODO: probably move into player file
+    if (!getDurationMs()) {
       // Can't play yet.  Ignore.
       return;
     }
 
-    getters.GET_PLAYER.cancelTrickPlay();
+    cancelTrickPlay();
 
-    if (getters.IS_PLAYER_PAUSED()) {
+    if (isPresentationPaused()) {
       await dispatch('PRESS_PLAY');
     } else {
       await dispatch('PRESS_PAUSE');
     }
   },
 
-  SEND_PARTY_PLAY_PAUSE: async ({ dispatch, getters }) => {
+  SEND_PARTY_PLAY_PAUSE: async ({ dispatch }) => {
     // If the player was actually paused (and not just paused for seeking)
-    await dispatch('synclounge/sendPartyPause', getters.IS_PLAYER_PAUSED(), { root: true });
+    await dispatch('synclounge/sendPartyPause', isPresentationPaused(), { root: true });
   },
 
   PLAY_NEXT: async ({ dispatch, commit }) => {

@@ -171,19 +171,14 @@
 </template>
 
 <script>
-import shaka from 'shaka-player/dist/shaka-player.ui.debug';
+
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
+import { initializePlayer } from '@/player';
 
 import 'shaka-player/dist/controls.css';
-import '@/player/ui';
-
-shaka.log.setLevel(shaka.log.Level.ERROR);
-shaka.polyfill.installAll();
 
 export default {
-  name: 'Slplayer',
-
   components: {
     messages: () => import('@/components/messages.vue'),
     MessageInput: () => import('@/components/MessageInput.vue'),
@@ -210,9 +205,7 @@ export default {
       'GET_PLEX_SERVER',
       'GET_TITLE',
       'GET_SECONDARY_TITLE',
-      'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
-      'GET_PLAYER_UI',
       'GET_PLAYER_STATE',
     ]),
 
@@ -261,12 +254,12 @@ export default {
 
   mounted() {
     // TODO: monitor upnext stuff interval probably or idk state change timeugh
-    this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
-    this.SET_PLAYER_CONFIGURATION(this.playerConfig);
-    this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
-      this.$refs.videoPlayer));
-
-    this.SET_PLAYER_UI_CONFIGURATION(this.getPlayerUiOptions());
+    initializePlayer({
+      mediaElement: this.$refs.videoPlayer,
+      playerConfig: this.playerConfig,
+      videoContainer: this.$refs.videoPlayerContainer,
+      overlayConfig: this.getPlayerUiOptions(),
+    });
 
     this.bigPlayButton.addEventListener('click', this.onClick);
     this.smallPlayButton.addEventListener('click', this.onClick);
@@ -296,13 +289,6 @@ export default {
       'DESTROY_PLAYER_STATE',
       'PLAY_PAUSE_VIDEO',
       'SEND_PARTY_PLAY_PAUSE',
-    ]),
-
-    ...mapMutations('slplayer', [
-      'SET_PLAYER_UI',
-      'SET_PLAYER_UI_CONFIGURATION',
-      'SET_PLAYER',
-      'SET_PLAYER_CONFIGURATION',
     ]),
 
     ...mapMutations([

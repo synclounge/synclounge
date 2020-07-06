@@ -96,8 +96,6 @@ export default {
   GET_OFFSET_MS: (state) => state.offsetMs,
 
   GET_PLAYER_STATE: (state) => state.playerState,
-  GET_PLAYER: (state) => state.player,
-  GET_PLAYER_UI: (state) => state.playerUi,
 
   GET_TITLE: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
     ? contenttitleutils.getTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
@@ -152,17 +150,9 @@ export default {
 
   ARE_PLAYER_CONTROLS_SHOWN: (state) => state.playerControlsShown,
 
-  GET_PLAYER_MEDIA_ELEMENT: (state) => (state.player
-    ? state.player.getMediaElement()
-    : null),
-
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
 
   GET_PLEX_TIMELINE_UPDATER_CANCELER: (state) => state.plexTimelineUpdaterCanceler,
 
-  IS_PLAYER_PAUSED: (state, getters) => () => getters.GET_PLAYER_MEDIA_ELEMENT.paused
-  && !getters.GET_PLAYER_UI.getControls().isSeeking(),
-
-  IS_PLAYER_PLAYING: (state, getters) => () => !getters.GET_PLAYER_MEDIA_ELEMENT.paused
-  && !getters.GET_PLAYER.isBuffering(),
+  GET_BUFFERING_EVENT_LISTENER: (state) => state.bufferingEventListener,
 };
