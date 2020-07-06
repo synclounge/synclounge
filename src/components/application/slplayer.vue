@@ -174,7 +174,7 @@
 
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
-import { initializePlayer } from '@/player';
+import { initialize, getSmallPlayButton, getBigPlayButton } from '@/player';
 
 import 'shaka-player/dist/controls.css';
 
@@ -221,17 +221,6 @@ export default {
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
     ]),
-
-    bigPlayButton() {
-      // eslint-disable-next-line no-underscore-dangle
-      return this.GET_PLAYER_UI.controls_.playButton_.button;
-    },
-
-    smallPlayButton() {
-      // eslint-disable-next-line no-underscore-dangle
-      return this.GET_PLAYER_UI.getControls().elements_
-        .find((element) => element instanceof shaka.ui.SmallPlayButton).button;
-    },
   },
 
   watch: {
@@ -254,15 +243,15 @@ export default {
 
   mounted() {
     // TODO: monitor upnext stuff interval probably or idk state change timeugh
-    initializePlayer({
+    initialize({
       mediaElement: this.$refs.videoPlayer,
       playerConfig: this.playerConfig,
       videoContainer: this.$refs.videoPlayerContainer,
       overlayConfig: this.getPlayerUiOptions(),
     });
 
-    this.bigPlayButton.addEventListener('click', this.onClick);
-    this.smallPlayButton.addEventListener('click', this.onClick);
+    getSmallPlayButton().addEventListener('click', this.onClick);
+    getBigPlayButton().addEventListener('click', this.onClick);
 
     this.INIT_PLAYER_STATE();
 
@@ -271,8 +260,8 @@ export default {
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
-    this.bigPlayButton.removeEventListener('click', this.onClick);
-    this.smallPlayButton.removeEventListener('click', this.onClick);
+    getSmallPlayButton().removeEventListener('click', this.onClick);
+    getBigPlayButton().removeEventListener('click', this.onClick);
     this.DESTROY_PLAYER_STATE();
   },
 
