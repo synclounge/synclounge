@@ -8,7 +8,8 @@ import {
   play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
   waitForEvent, destroy, cancelTrickPlay, load, getPlaybackRate, setPlaybackRate, setCurrentTimeMs,
-  setVolume, addEventListener, removeEventListener,
+  setVolume, addEventListener, removeEventListener, initialize, getSmallPlayButton,
+  getBigPlayButton,
 } from '@/player';
 
 export default {
@@ -129,6 +130,12 @@ export default {
 
   HANDLE_PLAYER_VOLUME_CHANGE: ({ commit }) => {
     commit('settings/SET_SLPLAYERVOLUME', getVolume(), { root: true });
+  },
+
+  HANDLE_PLAYER_CLICK: async ({ dispatch }, e) => {
+    if (!e.target.classList.contains('shaka-close-button')) {
+      await dispatch('SEND_PARTY_PLAY_PAUSE');
+    }
   },
 
   PRESS_PLAY: () => {
@@ -256,7 +263,8 @@ export default {
     return false;
   },
 
-  INIT_PLAYER_STATE: async ({ rootGetters, dispatch }) => {
+  INIT_PLAYER_STATE: async ({ rootGetters, dispatch }, data) => {
+    await initialize(data);
     await dispatch('REGISTER_PLAYER_EVENTS');
     await dispatch('CHANGE_PLAYER_SRC');
 
@@ -281,14 +289,23 @@ export default {
   },
 
   REGISTER_PLAYER_EVENTS: ({ commit, dispatch }) => {
-    const listener = (e) => dispatch('HANDLE_PLAYER_BUFFERING', e);
-    addEventListener('buffering', listener);
-    commit('SET_BUFFERING_EVENT_LISTENER', listener);
+    const bufferingListener = (e) => dispatch('HANDLE_PLAYER_BUFFERING', e);
+    addEventListener('buffering', bufferingListener);
+    commit('SET_BUFFERING_EVENT_LISTENER', bufferingListener);
+
+    const clickListener = (e) => dispatch('HANDLE_PLAYER_CLICK', e);
+    getSmallPlayButton().addEventListener('click', this.onClick);
+    getBigPlayButton().addEventListener('click', this.onClick);
+    commit('SET_CLICK_EVENT_LISTENER', clickListener);
   },
 
   UNREGISTER_PLAYER_EVENTS: ({ getters, commit }) => {
     removeEventListener('buffering', getters.GET_BUFFERING_EVENT_LISTENER);
     commit('SET_BUFFERING_EVENT_LISTENER', null);
+
+    getSmallPlayButton().removeEventListener('click', getters.GET_CLICK_EVENT_LISTENER);
+    getBigPlayButton().removeEventListener('click', getters.GET_CLICK_EVENT_LISTENER);
+    commit('SET_CLICK_EVENT_LISTENER', null);
   },
 
   PLAY_PAUSE_VIDEO: async ({ dispatch }) => {

@@ -7,7 +7,7 @@
       <div
         ref="videoPlayerContainer"
         class="slplayer"
-        @click="onClick"
+        @click="HANDLE_PLAYER_CLICK"
       >
         <video
           ref="videoPlayer"
@@ -174,7 +174,6 @@
 
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
-import { initialize, getSmallPlayButton, getBigPlayButton } from '@/player';
 
 import 'shaka-player/dist/controls.css';
 
@@ -241,27 +240,21 @@ export default {
     },
   },
 
-  mounted() {
+  async mounted() {
     // TODO: monitor upnext stuff interval probably or idk state change timeugh
-    initialize({
+
+    await this.INIT_PLAYER_STATE({
       mediaElement: this.$refs.videoPlayer,
       playerConfig: this.playerConfig,
       videoContainer: this.$refs.videoPlayerContainer,
       overlayConfig: this.getPlayerUiOptions(),
     });
 
-    getSmallPlayButton().addEventListener('click', this.onClick);
-    getBigPlayButton().addEventListener('click', this.onClick);
-
-    this.INIT_PLAYER_STATE();
-
     window.addEventListener('keyup', this.onKeyUp);
   },
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
-    getSmallPlayButton().removeEventListener('click', this.onClick);
-    getBigPlayButton().removeEventListener('click', this.onClick);
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -272,6 +265,7 @@ export default {
       'HANDLE_PLAYER_PLAYING',
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
+      'HANDLE_PLAYER_CLICK',
 
       'PRESS_STOP',
       'INIT_PLAYER_STATE',
@@ -343,12 +337,6 @@ export default {
           this.PLAY_PAUSE_VIDEO();
         }
 
-        this.SEND_PARTY_PLAY_PAUSE();
-      }
-    },
-
-    onClick(e) {
-      if (!e.target.classList.contains('shaka-close-button')) {
         this.SEND_PARTY_PLAY_PAUSE();
       }
     },

@@ -10,6 +10,7 @@ const state = () => ({
   playerControlsShown: true,
   playerControlsShownInterval: null,
   bufferingEventListener: null,
+  clickEventListener: null,
   plexTimelineUpdaterCanceler: null,
 });
 

@@ -8,10 +8,11 @@ shaka.polyfill.installAll();
 let player = null;
 let overlay = null;
 
-export const initialize = ({
+export const initialize = async ({
   mediaElement, playerConfig, videoContainer, overlayConfig,
 }) => {
-  player = new shaka.Player(mediaElement);
+  player = new shaka.Player();
+  await player.attach(mediaElement, false);
   player.configure(playerConfig);
 
   overlay = new shaka.ui.Overlay(player, videoContainer, mediaElement);
@@ -84,10 +85,10 @@ export const setCurrentTimeMs = (timeMs) => {
 };
 
 // eslint-disable-next-line no-underscore-dangle
-export const getSmallPlayButton = overlay.getControls().elements_
+export const getSmallPlayButton = () => overlay.getControls().elements_
   .find((element) => element instanceof shaka.ui.SmallPlayButton).button;
 
 // eslint-disable-next-line no-underscore-dangle
-export const getBigPlayButton = overlay.getControls().playButton_.button;
+export const getBigPlayButton = () => overlay.getControls().playButton_.button;
 
 export const destroy = () => overlay.destroy();

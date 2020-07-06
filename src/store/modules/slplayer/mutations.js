@@ -37,6 +37,10 @@ export default {
     state.bufferingEventListener = listener;
   },
 
+  SET_CLICK_EVENT_LISTENER: (state, listener) => {
+    state.clickEventListener = listener;
+  },
+
   SET_PLEX_TIMELINE_UPDATER_CANCELER: (state, canceler) => {
     state.plexTimelineUpdaterCanceler = canceler;
   },

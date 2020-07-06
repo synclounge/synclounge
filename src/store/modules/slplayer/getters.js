@@ -155,4 +155,6 @@ export default {
   GET_PLEX_TIMELINE_UPDATER_CANCELER: (state) => state.plexTimelineUpdaterCanceler,
 
   GET_BUFFERING_EVENT_LISTENER: (state) => state.bufferingEventListener,
+
+  GET_CLICK_EVENT_LISTENER: (state) => state.clickEventListener,
 };
