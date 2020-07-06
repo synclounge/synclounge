@@ -28,7 +28,7 @@ export default {
   GET_PLEX_PRODUCT_HEADER: () => 'SyncLounge',
   GET_PLEX_DEVICE_DEVICE_HEADER: () => browser.os,
   GET_PLEX_DEVICE_NAME_HEADER: () => plexDeviceName(),
-  GET_PLEX_PLATFORM_HEADER: () => capitalizeFirstLetter(browser.name),
+  GET_PLEX_PLATFORM_HEADER: () => plexDeviceName(),
 
   GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Product': getters.GET_PLEX_PRODUCT_HEADER,
