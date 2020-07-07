@@ -215,9 +215,10 @@ export default {
   ),
 
   ADD_EVENT_HANDLERS: ({ dispatch }) => {
+    console.log('add event handleers...');
     const makeHandler = (action) => (data) => dispatch(action, data);
 
-    const registerListener = ({ eventName, action }) => on(eventName, makeHandler(action));
+    const registerListener = ({ eventName, action }) => on({ eventName, handler: makeHandler(action) });
 
     registerListener({ eventName: 'userJoined', action: 'HANDLE_USER_JOINED' });
     registerListener({ eventName: 'userLeft', action: 'HANDLE_USER_LEFT' });

@@ -29,9 +29,7 @@ export const emit = ({ eventName, data }) => {
 };
 
 export const on = ({ eventName, handler }) => {
-  socket.on(eventName, (data) => {
-    handler({ socket, data });
-  });
+  socket.on(eventName, handler);
 };
 
 export const waitForEvent = (eventName) => new Promise((resolve, reject) => {
