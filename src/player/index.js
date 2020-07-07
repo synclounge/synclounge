@@ -26,7 +26,7 @@ export const isPresentationPaused = () => isPaused()
 
 export const isBuffering = () => player.isBuffering();
 
-export const isPlaying = () => player.getMediaElement().paused && !isBuffering();
+export const isPlaying = () => !isPaused() && !isBuffering();
 
 export const getCurrentTimeMs = () => player.getMediaElement().currentTime * 1000;
 
@@ -61,18 +61,21 @@ export const isTimeInBufferedRange = (timeMs) => {
 
 export const isMediaElementAttached = () => player && player.getMediaElement != null;
 
-export const addEventListener = (args) => player.getMediaElement().addEventListener(...args);
+export const addEventListener = (...args) => player.addEventListener(...args);
 
-export const removeEventListener = (args) => player.getMediaElement().removeEventListener(...args);
+export const removeEventListener = (...args) => player.removeEventListener(...args);
+
+const addMediaElementEventListener = (...args) => player.getMediaElement()
+  .addEventListener(...args);
 
 // TODO: potentialy make cancellable
-export const waitForEvent = (type) => new Promise((resolve) => {
-  addEventListener(type, resolve, { once: true });
+export const waitForMediaElementEvent = (type) => new Promise((resolve) => {
+  addMediaElementEventListener(type, resolve, { once: true });
 });
 
 export const cancelTrickPlay = () => player.cancelTrickPlay();
 
-export const load = (args) => player.load(...args);
+export const load = (...args) => player.load(...args);
 
 export const getPlaybackRate = () => player.getPlaybackRate();
 

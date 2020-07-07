@@ -151,24 +151,18 @@ export default {
     });
   },
 
-  updatePartyPausing({ state, commit }, value) {
-    commit('SET_PARTYPAUSING', value);
-    if (state.socket.connected) {
-      state.socket.emit('party_pausing_change', value);
-    }
+  SEND_SET_PARTY_PAUSING_ENABLED: (context, value) => {
+    emit({
+      eventName: 'setPartyPausingEnabled',
+      data: value,
+    });
   },
 
-  sendPartyPause: ({ getters, dispatch }, isPause) => {
-    if (getters.GET_SOCKET.connected && getters.getPartyPausing) {
-      getters.GET_SOCKET.emit('party_pausing_send', isPause, async (response) => {
-        console.log('Response from send', response);
-        if (response) {
-          if (isPause) {
-            await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
-          } else {
-            await dispatch('plexclients/PRESS_PLAY', null, { root: true });
-          }
-        }
+  sendPartyPause: ({ getters }, isPause) => {
+    if (!getters.AM_I_HOST && getters.getPartyPausing) {
+      emit({
+        eventName: 'partyPause',
+        data: isPause,
       });
     }
   },

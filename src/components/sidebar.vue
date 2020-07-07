@@ -59,7 +59,7 @@
           class="pa-0 mt-2 party-pausing-label"
           label="Party Pausing"
           :input-value="getPartyPausing"
-          @change="updatePartyPausing"
+          @change="SEND_SET_PARTY_PAUSING_ENABLED"
         />
 
         <v-tooltip
@@ -294,7 +294,7 @@ export default {
 
   methods: {
     ...mapActions('synclounge', [
-      'updatePartyPausing',
+      'SEND_SET_PARTY_PAUSING_ENABLED',
       'sendPartyPause',
       'TRANSFER_HOST',
       'DISCONNECT',

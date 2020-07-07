@@ -294,8 +294,8 @@ export default {
     commit('SET_BUFFERING_EVENT_LISTENER', bufferingListener);
 
     const clickListener = (e) => dispatch('HANDLE_PLAYER_CLICK', e);
-    getSmallPlayButton().addEventListener('click', this.onClick);
-    getBigPlayButton().addEventListener('click', this.onClick);
+    getSmallPlayButton().addEventListener('click', clickListener);
+    getBigPlayButton().addEventListener('click', clickListener);
     commit('SET_CLICK_EVENT_LISTENER', clickListener);
   },
 
