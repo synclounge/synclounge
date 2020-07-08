@@ -36,7 +36,7 @@
     "humanize-duration": "^3.23.1",
     "lodash-es": "^4.17.15",
     "nconf": "^0.10.0",
-    "sass": "^1.26.9",
+    "sass": "^1.26.10",
     "sass-loader": "^8.0.2",
     "shaka-player": "^2.5.13",
     "socket.io-client": "^2.3.0",
