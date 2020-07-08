@@ -101,7 +101,7 @@ export default {
           password: this.password,
         });
 
-        this.$router.push({ name: 'browse' });
+        // this.$router.push({ name: 'browse' });
       } catch (e) {
         console.log(e);
         throw e;

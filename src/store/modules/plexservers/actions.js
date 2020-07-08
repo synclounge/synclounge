@@ -91,7 +91,6 @@ export default {
           ...metadata,
           machineIdentifier: hostTimeline.machineIdentifier,
           mediaIndex: hostTimeline.mediaIndex,
-          offset: hostTimeline.time,
         };
         // eslint-disable-next-line no-empty
       } catch { }
@@ -100,8 +99,7 @@ export default {
     const results = await dispatch('SEARCH_UNBLOCKED_PLEX_SERVERS', hostTimeline.rawTitle);
 
     const bestResult = maxBy(results, (result) => scoreMedia(result, hostTimeline));
-
-    console.log(bestResult);
+    // TODO: I may need to fetch the full metadata here probably. test it pls
     return bestResult;
   },
 

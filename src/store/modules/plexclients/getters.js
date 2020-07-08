@@ -90,4 +90,9 @@ export default {
     : false),
 
   GET_CLIENT_POLLER_CANCELER: (state) => state.clientPollerCanceler,
+
+  IS_THIS_MEDIA_PLAYING: (state, getters) => (media) => (getters.GET_ACTIVE_MEDIA_METADATA
+    ? getters.GET_ACTIVE_MEDIA_METADATA.machineIdentifier === media.machineIdentifier
+      && getters.GET_ACTIVE_MEDIA_METADATA.ratingKey === media.ratingKey
+    : false),
 };

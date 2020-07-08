@@ -33,14 +33,6 @@ export default {
     state.server = server;
   },
 
-  SET_HOST_TIMELINE: (state, timeline) => {
-    state.hostTimeline = timeline;
-  },
-
-  SET_HOST_LAST_RATING_KEY: (state, ratingKey) => {
-    state.hostLastRatingKey = ratingKey;
-  },
-
   SET_IS_SYNC_IN_PROGRESS: (state, inProgress) => {
     state.isSyncInProgress = inProgress;
   },

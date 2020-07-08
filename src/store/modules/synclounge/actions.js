@@ -116,6 +116,10 @@ export default {
     await dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
 
     await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${getters.GET_ROOM}`, { root: true });
+
+    // TODO: sync
+    // TODO: examine reconnect flow again
+    await dispatch('SYNCHRONIZE');
   },
 
   DISCONNECT: async ({ commit, dispatch }) => {
@@ -215,10 +219,12 @@ export default {
   ),
 
   ADD_EVENT_HANDLERS: ({ dispatch }) => {
-    console.log('add event handleers...');
     const makeHandler = (action) => (data) => dispatch(action, data);
 
-    const registerListener = ({ eventName, action }) => on({ eventName, handler: makeHandler(action) });
+    const registerListener = ({ eventName, action }) => on({
+      eventName,
+      handler: makeHandler(action),
+    });
 
     registerListener({ eventName: 'userJoined', action: 'HANDLE_USER_JOINED' });
     registerListener({ eventName: 'userLeft', action: 'HANDLE_USER_LEFT' });
@@ -291,6 +297,132 @@ export default {
       ...msg,
       time: Date.now(),
     });
+  },
+
+  SYNCHRONIZE: async ({ getters, commit, dispatch }) => {
+    if (getters.AM_I_HOST) {
+      return;
+    }
+
+    // TODO: do i need this
+    await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
+    /* This is data from the host, we should react to this data by potentially changing
+        what we're playing or seeking to get back in sync with the host.
+
+        We need to limit how ourself to make sure we dont hit the client too hard.
+        We'll only fetch new data if our data is older than 1000ms.
+        If we need to fetch new data, we'll do that and then decide
+        if we need to seek or start playing something.
+      */
+
+    // TODO: move this manual sync into this module
+    if (getters.IS_MANUAL_SYNC_QUEUED) {
+      // TODO: make manual sync an immediate sync thing
+      // TODO: find a way to remove this event
+      window.EventBus.$emit('host-playerstate-change');
+      await dispatch('plexclients/SEEK_TO', getters.GET_HOST_TIMELINE.time, { root: true });
+      commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
+      return;
+    }
+
+    if (!getters.IS_SYNC_IN_PROGRESS) {
+      // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
+      commit('SET_IS_SYNC_IN_PROGRESS', true);
+
+      try {
+        await dispatch('DECISION_MAKER');
+      } catch (e) {
+        console.log('Error caught in sync logic', e);
+      }
+
+      commit('SET_IS_SYNC_IN_PROGRESS', false);
+    }
+  },
+
+  DECISION_MAKER: async ({ getters, dispatch, rootGetters }) => {
+    // TODO: potentailly don't do anythign if we have no timeline data yet
+    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+
+    if (rootGetters['plexclients/ALREADY_SYNCED_ON_CURRENT_TIMELINE']) {
+    // TODO: examine if I should throw error or handle it another way
+      console.log(rootGetters['plexclients/GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID']);
+      throw new Error('Already synced with this timeline. Need to wait for new one to sync again');
+    }
+
+    if (getters.GET_HOST_USER.state === 'stopped') {
+      // First, decide if we should stop playback
+      if (timeline.state !== 'stopped') {
+        await dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
+        await dispatch('plexclients/PRESS_STOP', null, { root: true });
+        return;
+      }
+
+      return;
+    }
+
+    // Logic for deciding whether we should play somethign different
+    if (rootGetters['settings/GET_AUTOPLAY']) {
+      const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH', getters.GET_HOST_USER.media, { root: true });
+      if (bestMatch) {
+        if (!rootGetters['plexclients/IS_THIS_MEDIA_PLAYING'](bestMatch)) {
+          // If we aren't playing the best match, play it
+          await dispatch('PLAY_MEDIA_AND_SYNC_TIME', bestMatch);
+          return;
+        }
+        // TODO: fix
+      } else {
+        await dispatch('DISPLAY_NOTIFICATION',
+          `Failed to find a compatible copy of ${getters.GET_HOST_USER.media.title}. If you have access to the content try manually playing it.`,
+          { root: true });
+      }
+      // If we have autoplay enabled and the host rating key has changed or if we aren't playign anything
+      await dispatch('FIND_AND_PLAY_NEW_MEDIA');
+      return;
+    }
+
+    await dispatch('SYNCHRONIZE_PLAYER_STATE');
+  },
+
+  SYNCHRONIZE_PLAYER_STATE: async ({ getters, dispatch }) => {
+    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+
+    // TODO: examine if we want this or not
+    if (timeline.state === 'buffering') {
+      return;
+    }
+
+    // If we didn't find a good match or .... wtf??
+    if (timeline.state === 'stopped') {
+      return;
+    }
+
+    if (getters.GET_HOST_USER.state === 'playing' && timeline.state === 'paused') {
+      await dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
+      await dispatch('plexclients/PRESS_PLAY', null, { root: true });
+      return;
+    }
+
+    if ((getters.GET_HOST_USER.state === 'paused'
+          || getters.GET_HOST_USER.state === 'buffering')
+          && timeline.state === 'playing') {
+      await dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
+      await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
+      return;
+    }
+
+    // TODO: potentially update the player state if we paused or played so we know in the sync
+    await dispatch('plexclients/SYNC', null, { root: true });
+  },
+
+  PLAY_MEDIA_AND_SYNC_TIME: async ({ getters, dispatch }, media) => {
+    await dispatch('plexclients/PLAY_MEDIA', {
+      // TODO: have timeline updates send out more info like mediaIdentifier etc
+      mediaIndex: media.mediaIndex || 0,
+      // TODO: potentially play ahead a bit by the time it takes to buffer / transcode. (figure out how to calculate that)
+      offset: getters.GET_HOST_USER.time || 0,
+      metadata: media,
+      machineIdentifier: media.machineIdentifier,
+    }, { root: true });
   },
 
   ...eventhandlers,

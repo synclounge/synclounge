@@ -28,7 +28,9 @@ export const isBuffering = () => player.isBuffering();
 
 export const isPlaying = () => !isPaused() && !isBuffering();
 
-export const getCurrentTimeMs = () => player.getMediaElement().currentTime * 1000;
+export const getCurrentTimeMs = () => (player
+  ? player.getMediaElement().currentTime * 1000
+  : null);
 
 export const getDurationMs = () => player.getMediaElement().duration * 1000;
 
@@ -94,4 +96,9 @@ export const getSmallPlayButton = () => overlay.getControls().elements_
 // eslint-disable-next-line no-underscore-dangle
 export const getBigPlayButton = () => overlay.getControls().playButton_.button;
 
-export const destroy = () => overlay.destroy();
+export const destroy = async () => {
+  const savedOverlay = overlay;
+  player = null;
+  overlay = null;
+  await savedOverlay.destroy();
+};

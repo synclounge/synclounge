@@ -44,6 +44,7 @@ export default {
   }, {
       mediaIndex, offset, metadata, machineIdentifier,
     }) => {
+    console.log('play media');
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
 
     commit('SET_ACTIVE_PLAY_QUEUE', await dispatch('plexservers/CREATE_PLAY_QUEUE', {
@@ -460,6 +461,7 @@ export default {
       commit('SET_ACTIVE_SERVER_ID', metadata.machineIdentifier);
       commit('plexservers/SET_LAST_SERVER_ID', metadata.machineIdentifier, { root: true });
       commit('SET_ACTIVE_MEDIA_METADATA', metadata);
+      // TODO: synclounge media update?
     }
   },
 

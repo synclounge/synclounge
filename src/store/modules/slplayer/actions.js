@@ -7,9 +7,9 @@ import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import {
   play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
-  waitForEvent, destroy, cancelTrickPlay, load, getPlaybackRate, setPlaybackRate, setCurrentTimeMs,
-  setVolume, addEventListener, removeEventListener, initialize, getSmallPlayButton,
-  getBigPlayButton,
+  waitForMediaElementEvent, destroy, cancelTrickPlay, load, getPlaybackRate, setPlaybackRate,
+  setCurrentTimeMs, setVolume, addEventListener, removeEventListener, initialize,
+  getSmallPlayButton, getBigPlayButton,
 } from '@/player';
 
 export default {
@@ -218,7 +218,7 @@ export default {
       commit('SET_OFFSET_MS', seekToMs);
       setCurrentTimeMs(seekToMs);
 
-      return timeoutPromise(waitForEvent('seeked'), 15000);
+      return timeoutPromise(waitForMediaElementEvent('seeked'), 15000);
     }
   },
 
@@ -236,9 +236,13 @@ export default {
   },
 
   CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
+    console.log('change palyer state', state);
     commit('SET_PLAYER_STATE', state);
     const plexTimelineUpdatePromise = dispatch('SEND_PLEX_TIMELINE_UPDATE');
-    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
+    if (state !== 'stopped') {
+      await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
+    }
+
     await plexTimelineUpdatePromise;
   },
 
@@ -286,6 +290,10 @@ export default {
     // Leaving play queue around for possible upnext
     await destroy();
     commit('SET_OFFSET_MS', 0);
+
+    // Send out stop media update
+    console.log('HELLLOOOOOOOOOOOOOOOOOO');
+    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
   },
 
   REGISTER_PLAYER_EVENTS: ({ commit, dispatch }) => {

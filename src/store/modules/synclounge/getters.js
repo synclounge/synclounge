@@ -23,7 +23,6 @@ export default {
   GET_SOCKET_ID: (state) => state.socketId,
   GET_HOST_ID: (state) => state.hostId,
   GET_ROOM: (state) => state.room,
-  getPassword: (state) => state.password,
   GET_USERS: (state) => state.users,
   GET_MESSAGES: (state) => state.messages,
   getPartyPausing: (state) => state.partyPausing,
@@ -53,20 +52,6 @@ export default {
     ? rootGetters['settings/GET_ALTUSERNAME']
     : rootGetters['plex/GET_PLEX_USER'].username || rootGetters['plex/GET_PLEX_USER'].title),
 
-  GET_HOST_TIMELINE: (state) => state.hostTimeline,
-
-  // Gets the host's player time adjusted based on how long it's been since we got the message
-  GET_HOST_PLAYER_TIME_ADJUSTED: (state, getters) => () => {
-    const hostAge = Date.now() - getters.GET_HOST_TIMELINE.receivedAt;
-
-    // TODO: please veyr much examine the latency and maybe see if the server should calc
-    return getters.GET_HOST_TIMELINE.state === 'playing'
-      ? getters.GET_HOST_TIMELINE.time + hostAge
-        + (getters.GET_HOST_TIMELINE.latency || 0)
-        + (getters.GET_HOST_TIMELINE.srttSnapsnotAtReception || 0) / 2
-      : getters.GET_HOST_TIMELINE.time;
-  },
-
   GET_STATUS: (state, getters, rootState, rootGetters) => (clientTime) => {
     if (!getters.GET_HOST_TIMELINE || Number.isNaN(getters.GET_HOST_TIMELINE.time)) {
       return 'error';
@@ -82,9 +67,6 @@ export default {
   },
 
   GET_SERVER: (state) => state.server,
-
-  // Used to detect if the host changes
-  GET_HOST_LAST_RATING_KEY: (state) => state.hostLastRatingKey,
 
   IS_SYNC_IN_PROGRESS: (state) => state.isSyncInProgress,
 
