@@ -24,4 +24,5 @@ export default {
   GET_ACTIVE_METADATA: (state) => state.activeMetadata,
   GET_SNACKBAR_MESSAGE: (state) => state.snackbarMessage,
   GET_SNACKBAR_OPEN: (state) => state.snackbarOpen,
+  GET_NAVIGATE_TO_PLAYER: (state) => state.navigateToPlayer,
 };

@@ -12,6 +12,8 @@ const state = () => ({
   bufferingEventListener: null,
   clickEventListener: null,
   plexTimelineUpdaterCanceler: null,
+  isPlayerInitialized: false,
+  playerInitializedPromiseResolver: null,
 });
 
 export default state;

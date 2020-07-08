@@ -157,4 +157,8 @@ export default {
   GET_BUFFERING_EVENT_LISTENER: (state) => state.bufferingEventListener,
 
   GET_CLICK_EVENT_LISTENER: (state) => state.clickEventListener,
+
+  IS_PLAYER_INITIALIZED: (state) => state.isPlayerInitialized,
+
+  GET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state) => state.playerInitializedPromiseResolver,
 };

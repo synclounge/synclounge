@@ -26,4 +26,8 @@ export default {
   SET_SNACKBAR_OPEN: (state, open) => {
     state.snackbarOpen = open;
   },
+
+  SET_NAVIGATE_TO_PLAYER: (state, navigate) => {
+    state.navigateToPlayer = navigate;
+  },
 };

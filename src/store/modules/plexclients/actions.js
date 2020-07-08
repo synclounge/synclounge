@@ -1,4 +1,3 @@
-import router from '@/router';
 import promiseutils from '@/utils/promiseutils';
 import xmlutils from '@/utils/xmlutils';
 import delay from '@/utils/delay';
@@ -63,12 +62,10 @@ export default {
 
       await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
-      if (router.currentRoute.name === 'player') {
+      if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {
         await dispatch('slplayer/CHANGE_PLAYER_SRC', null, { root: true });
       } else {
-        // TODO: fix this is so hacky
-        commit('slplayer/SET_PLAYER_STATE', 'buffering', { root: true });
-        router.push('/player');
+        await dispatch('slplayer/NAVIGATE_AND_INITIALIZE_PLAYER', null, { root: true });
       }
     } else {
       // Play a media item given a mediaId key and a server to play from

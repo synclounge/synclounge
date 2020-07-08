@@ -2,7 +2,6 @@ const state = () => ({
   appTitle: 'SyncLounge',
   appVersion: process.env.VUE_APP_VERSION,
   background: null,
-  upNextCache: {},
   configuration: JSON.parse(process.env.VUE_APP_CONFIGURATION),
 
   isLeftSidebarOpen: false,
@@ -20,6 +19,7 @@ const state = () => ({
 
   snackbarMessage: null,
   snackbarOpen: false,
+  navigateToPlayer: false,
 });
 
 export default state;

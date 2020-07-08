@@ -192,6 +192,7 @@ export default {
       'GET_SNACKBAR_MESSAGE',
       'GET_SNACKBAR_OPEN',
       'GET_BACKGROUND',
+      'GET_NAVIGATE_TO_PLAYER',
     ]),
 
     ...mapGetters('plex', [
@@ -288,6 +289,13 @@ export default {
         }
       }
     },
+
+    GET_NAVIGATE_TO_PLAYER(navigate) {
+      if (navigate) {
+        this.$router.push({ name: 'player' });
+        this.SET_NAVIGATE_TO_PLAYER(false);
+      }
+    },
   },
 
   mounted() {
@@ -321,6 +329,7 @@ export default {
 
     ...mapMutations([
       'SET_SNACKBAR_OPEN',
+      'SET_NAVIGATE_TO_PLAYER',
     ]),
 
     onInviteCopied() {

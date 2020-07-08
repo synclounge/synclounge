@@ -44,4 +44,12 @@ export default {
   SET_PLEX_TIMELINE_UPDATER_CANCELER: (state, canceler) => {
     state.plexTimelineUpdaterCanceler = canceler;
   },
+
+  SET_IS_PLAYER_INITIALIZED: (state, isInitialized) => {
+    state.isPlayerInitialized = isInitialized;
+  },
+
+  SET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state, resolver) => {
+    state.playerInitializedPromiseResolver = resolver;
+  },
 };

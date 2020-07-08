@@ -267,15 +267,38 @@ export default {
     return false;
   },
 
-  INIT_PLAYER_STATE: async ({ rootGetters, dispatch }, data) => {
+  NAVIGATE_AND_INITIALIZE_PLAYER: ({ commit }) => {
+    // I don't really like this. I'd rather have the player be part of the main app rather than a vue route
+    // TODO: above
+    commit('SET_PLAYER_STATE', 'buffering');
+    // TODO: this is bad practice, so if you know a better way...
+    let resolver = null;
+    const initializePromise = new Promise((resolve) => {
+      resolver = resolve;
+    });
+
+    commit('SET_PLAYER_INITIALIZED_PROMISE_RESOLVER', resolver);
+    commit('SET_NAVIGATE_TO_PLAYER', true, { root: true });
+
+    return initializePromise;
+  },
+
+  INIT_PLAYER_STATE: async ({
+    getters, rootGetters, commit, dispatch,
+  }, data) => {
     await initialize(data);
     await dispatch('REGISTER_PLAYER_EVENTS');
+    await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
     await dispatch('CHANGE_PLAYER_SRC');
 
-    setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
-
     await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
-    await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+
+    if (getters.GET_PLAYER_INITIALIZED_PROMISE_RESOLVER) {
+      getters.GET_PLAYER_INITIALIZED_PROMISE_RESOLVER();
+      commit('SET_PLAYER_INITIALIZED_PROMISE_RESOLVER', null);
+    }
+    commit('SET_IS_PLAYER_INITIALIZED', true);
   },
 
   DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
@@ -288,6 +311,7 @@ export default {
     commit('plexclients/SET_ACTIVE_MEDIA_METADATA', null, { root: true });
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
     // Leaving play queue around for possible upnext
+    commit('SET_IS_PLAYER_INITIALIZED', false);
     await destroy();
     commit('SET_OFFSET_MS', 0);
 

@@ -119,7 +119,7 @@ export default {
 
     // TODO: sync
     // TODO: examine reconnect flow again
-    await dispatch('SYNCHRONIZE');
+    await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
   },
 
   DISCONNECT: async ({ commit, dispatch }) => {
@@ -375,9 +375,6 @@ export default {
           `Failed to find a compatible copy of ${getters.GET_HOST_USER.media.title}. If you have access to the content try manually playing it.`,
           { root: true });
       }
-      // If we have autoplay enabled and the host rating key has changed or if we aren't playign anything
-      await dispatch('FIND_AND_PLAY_NEW_MEDIA');
-      return;
     }
 
     await dispatch('_SYNCHRONIZE_PLAYER_STATE');
@@ -400,6 +397,7 @@ export default {
 
   // Private version without lock. Please use the locking version unless you know what you are doing
   _SYNCHRONIZE_PLAYER_STATE: async ({ getters, dispatch }) => {
+    console.log('_SYNCHRONIZE_PLAYER_STATE');
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
     // TODO: examine if we want this or not
