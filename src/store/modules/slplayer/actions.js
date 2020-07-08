@@ -292,7 +292,6 @@ export default {
     commit('SET_OFFSET_MS', 0);
 
     // Send out stop media update
-    console.log('HELLLOOOOOOOOOOOOOOOOOO');
     await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
   },
 

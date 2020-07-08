@@ -282,7 +282,6 @@ export default {
   },
 
   created() {
-    console.log('interval', this.GET_CONFIG.sidebar_time_update_interval);
     this.timeUpdateIntervalId = setInterval(() => {
       this.nowTimestamp = Date.now();
     }, this.GET_CONFIG.sidebar_time_update_interval);
