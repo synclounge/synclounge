@@ -1,5 +1,4 @@
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
-import '@/player/ui';
 
 shaka.log.setLevel(shaka.log.Level.ERROR);
 shaka.polyfill.installAll();
