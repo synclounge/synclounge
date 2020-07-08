@@ -64,16 +64,6 @@ export default {
     });
   },
 
-  HANDLE_HOST_UPDATE: ({ getters, dispatch }, timeline) => {
-    if (!getters.GET_HOST_TIMELINE
-        || getters.GET_HOST_TIMELINE.state !== timeline.state
-        || Math.abs(timeline.time - getters.GET_HOST_TIMELINE.time) < 5000) {
-      window.EventBus.$emit('host-playerstate-change');
-    }
-
-    return dispatch('SYNCHRONIZE');
-  },
-
   HANDLE_DISCONNECT: async ({ dispatch }) => {
     await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
   },
@@ -81,6 +71,7 @@ export default {
   HANDLE_RECONNECT: async ({ dispatch }) => {
     console.log('Rejoining');
     await dispatch('JOIN_ROOM_AND_INIT');
+    // TODO: EXAMINE THIS AND FIGURE OUT HOW TO SYNC
   },
 
   HANDLE_SLPING: async (context, secret) => {
@@ -90,9 +81,13 @@ export default {
     });
   },
 
-  HANDLE_PLAYER_STATE_UPDATE: ({ commit }, data) => {
+  HANDLE_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }, data) => {
     // TODO: probalby sync if its from the hsot
     commit('SET_USER_PLAYER_STATE', data);
+
+    if (data.id === getters.GET_HOST_ID) {
+      await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
+    }
   },
 
   HANDLE_MEDIA_UPDATE: async ({
@@ -115,7 +110,7 @@ export default {
     });
 
     if (id === getters.GET_HOST_ID) {
-      await dispatch('SYNCHRONIZE');
+      await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
     }
   },
 };

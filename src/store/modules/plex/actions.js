@@ -125,6 +125,8 @@ export default {
       console.log('No insecure connections found');
     }
 
+    // TODO: display better errors for this
+
     // Finally try relay connections if we failed everywhere else.
     const relayConnections = connections.filter((connection) => connection.relay);
     return promiseutils.any(relayConnections.map((connection) => dispatch('TEST_PLEX_CONNECTION', { connection, accessToken }).then(() => connection)));

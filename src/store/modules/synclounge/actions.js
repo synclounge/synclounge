@@ -299,13 +299,22 @@ export default {
     });
   },
 
-  SYNCHRONIZE: async ({ getters, commit, dispatch }) => {
+  MANUAL_SYNC: async ({ getters, dispatch, commit }) => {
+    // TODO: do this    // TODO: move this manual sync into this module
+    if (getters.IS_MANUAL_SYNC_QUEUED) {
+      // TODO: make manual sync an immediate sync thing
+      // TODO: find a way to remove this event
+      window.EventBus.$emit('host-playerstate-change');
+      await dispatch('plexclients/SEEK_TO', getters.GET_HOST_TIMELINE.time, { root: true });
+      commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
+    }
+  },
+
+  SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
     if (getters.AM_I_HOST) {
       return;
     }
 
-    // TODO: do i need this
-    await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
     /* This is data from the host, we should react to this data by potentially changing
         what we're playing or seeking to get back in sync with the host.
 
@@ -315,22 +324,12 @@ export default {
         if we need to seek or start playing something.
       */
 
-    // TODO: move this manual sync into this module
-    if (getters.IS_MANUAL_SYNC_QUEUED) {
-      // TODO: make manual sync an immediate sync thing
-      // TODO: find a way to remove this event
-      window.EventBus.$emit('host-playerstate-change');
-      await dispatch('plexclients/SEEK_TO', getters.GET_HOST_TIMELINE.time, { root: true });
-      commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
-      return;
-    }
-
     if (!getters.IS_SYNC_IN_PROGRESS) {
       // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
       commit('SET_IS_SYNC_IN_PROGRESS', true);
 
       try {
-        await dispatch('DECISION_MAKER');
+        await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE');
       } catch (e) {
         console.log('Error caught in sync logic', e);
       }
@@ -339,7 +338,8 @@ export default {
     }
   },
 
-  DECISION_MAKER: async ({ getters, dispatch, rootGetters }) => {
+  // Interal action without lock. Use the one with the lock to stop multiple syncs from happening at once
+  _SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, dispatch, rootGetters }) => {
     // TODO: potentailly don't do anythign if we have no timeline data yet
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
@@ -380,10 +380,26 @@ export default {
       return;
     }
 
-    await dispatch('SYNCHRONIZE_PLAYER_STATE');
+    await dispatch('_SYNCHRONIZE_PLAYER_STATE');
   },
 
-  SYNCHRONIZE_PLAYER_STATE: async ({ getters, dispatch }) => {
+  SYNCHRONIZE_PLAYER_STATE: async ({ dispatch, getters, commit }) => {
+    if (!getters.IS_SYNC_IN_PROGRESS) {
+      // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
+      commit('SET_IS_SYNC_IN_PROGRESS', true);
+
+      try {
+        await dispatch('_SYNCHRONIZE_PLAYER_STATE');
+      } catch (e) {
+        console.log('Error caught in sync logic', e);
+      }
+
+      commit('SET_IS_SYNC_IN_PROGRESS', false);
+    }
+  },
+
+  // Private version without lock. Please use the locking version unless you know what you are doing
+  _SYNCHRONIZE_PLAYER_STATE: async ({ getters, dispatch }) => {
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
     // TODO: examine if we want this or not
