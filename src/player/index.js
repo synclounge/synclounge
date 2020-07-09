@@ -1,54 +1,38 @@
-import shaka from 'shaka-player/dist/shaka-player.ui.debug';
+import {
+  getPlayer, setPlayer, getOverlay, setOverlay,
+} from './state';
 
-shaka.log.setLevel(shaka.log.Level.ERROR);
-shaka.polyfill.installAll();
-
-// TODO: maybe keep player around???? and just reattach it???????
-let player = null;
-let overlay = null;
-
-export const initialize = async ({
-  mediaElement, playerConfig, videoContainer, overlayConfig,
-}) => {
-  player = new shaka.Player();
-  await player.attach(mediaElement, false);
-  player.configure(playerConfig);
-
-  overlay = new shaka.ui.Overlay(player, videoContainer, mediaElement);
-  overlay.configure(overlayConfig);
-};
-
-export const isPaused = () => player.getMediaElement().paused;
+export const isPaused = () => getPlayer().getMediaElement().paused;
 
 export const isPresentationPaused = () => isPaused()
-  && !overlay.getControls().isSeeking();
+  && !getOverlay().getControls().isSeeking();
 
-export const isBuffering = () => player.isBuffering();
+export const isBuffering = () => getPlayer().isBuffering();
 
 export const isPlaying = () => !isPaused() && !isBuffering();
 
-export const getCurrentTimeMs = () => (player
-  ? player.getMediaElement().currentTime * 1000
+export const getCurrentTimeMs = () => (getPlayer()
+  ? getPlayer().getMediaElement().currentTime * 1000
   : null);
 
-export const getDurationMs = () => player.getMediaElement().duration * 1000;
+export const getDurationMs = () => getPlayer().getMediaElement().duration * 1000;
 
-export const getVolume = () => player.getMediaElement().volume;
+export const getVolume = () => getPlayer().getMediaElement().volume;
 
 export const setVolume = (volume) => {
-  player.getMediaElement().volume = volume;
+  getPlayer().getMediaElement().volume = volume;
 };
 
-export const play = () => player.getMediaElement().play();
-export const pause = () => player.getMediaElement().pause();
+export const play = () => getPlayer().getMediaElement().play();
+export const pause = () => getPlayer().getMediaElement().pause();
 
 // eslint-disable-next-line no-underscore-dangle
-export const areControlsShown = () => overlay.getControls().enabled_
-    && (overlay.getControls().getControlsContainer().getAttribute('shown') != null
-    || overlay.getControls().getControlsContainer().getAttribute('casting') != null);
+export const areControlsShown = () => getOverlay().getControls().enabled_
+    && (getOverlay().getControls().getControlsContainer().getAttribute('shown') != null
+    || getOverlay().getControls().getControlsContainer().getAttribute('casting') != null);
 
 export const isTimeInBufferedRange = (timeMs) => {
-  const bufferedTimeRange = player.getMediaElement().buffered;
+  const bufferedTimeRange = getPlayer().getMediaElement().buffered;
 
   // There can be multiple ranges
   for (let i = 0; i < bufferedTimeRange.length; i += 1) {
@@ -60,13 +44,13 @@ export const isTimeInBufferedRange = (timeMs) => {
   return false;
 };
 
-export const isMediaElementAttached = () => player && player.getMediaElement != null;
+export const isMediaElementAttached = () => getPlayer() && getPlayer().getMediaElement != null;
 
-export const addEventListener = (...args) => player.addEventListener(...args);
+export const addEventListener = (...args) => getPlayer().addEventListener(...args);
 
-export const removeEventListener = (...args) => player.removeEventListener(...args);
+export const removeEventListener = (...args) => getPlayer().removeEventListener(...args);
 
-const addMediaElementEventListener = (...args) => player.getMediaElement()
+const addMediaElementEventListener = (...args) => getPlayer().getMediaElement()
   .addEventListener(...args);
 
 // TODO: potentialy make cancellable
@@ -74,30 +58,29 @@ export const waitForMediaElementEvent = (type) => new Promise((resolve) => {
   addMediaElementEventListener(type, resolve, { once: true });
 });
 
-export const cancelTrickPlay = () => player.cancelTrickPlay();
+export const cancelTrickPlay = () => getPlayer().cancelTrickPlay();
 
-export const load = (...args) => player.load(...args);
+export const load = (...args) => getPlayer().load(...args);
 
-export const getPlaybackRate = () => player.getPlaybackRate();
+export const getPlaybackRate = () => getPlayer().getPlaybackRate();
 
 export const setPlaybackRate = (rate) => {
-  player.getMediaElement().playbackRate = rate;
+  getPlayer().getMediaElement().playbackRate = rate;
 };
 
 export const setCurrentTimeMs = (timeMs) => {
-  player.getMediaElement().currentTime = timeMs / 1000;
+  getPlayer().getMediaElement().currentTime = timeMs / 1000;
 };
 
-// eslint-disable-next-line no-underscore-dangle
-export const getSmallPlayButton = () => overlay.getControls().elements_
-  .find((element) => element instanceof shaka.ui.SmallPlayButton).button;
+export const getSmallPlayButton = () => getOverlay().getControls().getControlsContainer()
+  .getElementsByClassName('shaka-small-play-button')[0];
 
-// eslint-disable-next-line no-underscore-dangle
-export const getBigPlayButton = () => overlay.getControls().playButton_.button;
+export const getBigPlayButton = () => getOverlay().getControls().getControlsContainer()
+  .getElementsByClassName('shaka-play-button')[0];
 
 export const destroy = async () => {
-  const savedOverlay = overlay;
-  player = null;
-  overlay = null;
+  const savedOverlay = getOverlay();
+  setPlayer(null);
+  setOverlay(null);
   await savedOverlay.destroy();
 };

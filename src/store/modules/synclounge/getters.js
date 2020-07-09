@@ -77,4 +77,12 @@ export default {
   GET_PASSWORD: (state) => state.password,
 
   IS_IN_ROOM: (state) => state.isInRoom,
+
+  // eslint-disable-next-line no-nested-ternary
+  GET_ADJUSTED_HOST_TIME: (state, getters) => () => (getters.GET_HOST_USER
+    ? getters.GET_HOST_USER.state === 'playing'
+      ? getters.GET_HOST_USER.time + Date.now()
+          - getters.GET_HOST_USER.updatedAt
+      : getters.GET_HOST_USER.time
+    : null),
 };

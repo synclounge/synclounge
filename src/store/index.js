@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
-import playerUiPlugins from '@/player/ui';
 import actions from './actions';
 import state from './state';
 import mutations from './mutations';
@@ -30,7 +29,6 @@ const store = new Vuex.Store({
   modules,
   plugins: [
     persistedState,
-    playerUiPlugins,
   ],
 });
 

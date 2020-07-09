@@ -240,9 +240,8 @@ export default {
 
   PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }) => {
     // TODO: only send message if in room, check in room
-    // TODO : maybe sync?
     const pollData = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
-    console.log('handle state update');
+
     commit('SET_USER_PLAYER_STATE', {
       ...pollData,
       id: getters.GET_SOCKET_ID,
@@ -252,11 +251,14 @@ export default {
       eventName: 'playerStateUpdate',
       data: pollData,
     });
+
+    await dispatch('SYNC_PLAYER_STATE');
   },
 
   PROCESS_MEDIA_UPDATE: async ({
     dispatch, getters, commit, rootGetters,
   }) => {
+    console.log('media update');
     // TODO: only send message if in room, check in room
     // TODO: Potentially sync
     const pollData = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
@@ -278,6 +280,8 @@ export default {
         ...pollData,
       },
     });
+
+    await dispatch('SYNC_PLAYER_STATE');
   },
 
   ADD_MESSAGE_AND_CACHE: ({ getters, commit }, msg) => {
@@ -305,7 +309,7 @@ export default {
       // TODO: make manual sync an immediate sync thing
       // TODO: find a way to remove this event
       window.EventBus.$emit('host-playerstate-change');
-      await dispatch('plexclients/SEEK_TO', getters.GET_HOST_TIMELINE.time, { root: true });
+      await dispatch('plexclients/SEEK_TO', getters.GET_ADJUSTED_HOST_TIME(), { root: true });
       commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
     }
   },
@@ -340,6 +344,7 @@ export default {
 
   // Interal action without lock. Use the one with the lock to stop multiple syncs from happening at once
   _SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, dispatch, rootGetters }) => {
+    console.log('_SYNC_MEDIA_AND_PLAYER_STATE');
     // TODO: potentailly don't do anythign if we have no timeline data yet
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
@@ -377,16 +382,20 @@ export default {
       }
     }
 
-    await dispatch('_SYNCHRONIZE_PLAYER_STATE');
+    await dispatch('_SYNC_PLAYER_STATE');
   },
 
-  SYNCHRONIZE_PLAYER_STATE: async ({ dispatch, getters, commit }) => {
+  SYNC_PLAYER_STATE: async ({ dispatch, getters, commit }) => {
+    if (getters.AM_I_HOST) {
+      return;
+    }
+
     if (!getters.IS_SYNC_IN_PROGRESS) {
       // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
       commit('SET_IS_SYNC_IN_PROGRESS', true);
 
       try {
-        await dispatch('_SYNCHRONIZE_PLAYER_STATE');
+        await dispatch('_SYNC_PLAYER_STATE');
       } catch (e) {
         console.log('Error caught in sync logic', e);
       }
@@ -396,8 +405,8 @@ export default {
   },
 
   // Private version without lock. Please use the locking version unless you know what you are doing
-  _SYNCHRONIZE_PLAYER_STATE: async ({ getters, dispatch }) => {
-    console.log('_SYNCHRONIZE_PLAYER_STATE');
+  _SYNC_PLAYER_STATE: async ({ getters, dispatch }) => {
+    console.log('_SYNC_PLAYER_STATE');
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
     // TODO: examine if we want this or not
@@ -430,7 +439,6 @@ export default {
 
   PLAY_MEDIA_AND_SYNC_TIME: async ({ getters, dispatch }, media) => {
     await dispatch('plexclients/PLAY_MEDIA', {
-      // TODO: have timeline updates send out more info like mediaIdentifier etc
       mediaIndex: media.mediaIndex || 0,
       // TODO: potentially play ahead a bit by the time it takes to buffer / transcode. (figure out how to calculate that)
       offset: getters.GET_HOST_USER.time || 0,

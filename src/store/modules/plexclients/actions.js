@@ -135,7 +135,7 @@ export default {
         ? time + latency
         : time,
       duration: parseInt(videoTimeline.duration, 10),
-      receivedAt: Date.now(),
+      updatedAt: Date.now(),
       playQueueItemID: parseInt(videoTimeline.playQueueItemID, 10),
       commandID: parseInt(data.MediaContainer[0].commandID, 10),
     };
@@ -270,7 +270,7 @@ export default {
   SYNC: async ({ getters, dispatch, rootGetters }) => {
     await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
-    const adjustedHostTime = rootGetters['synclounge/GET_HOST_PLAYER_TIME_ADJUSTED']();
+    const adjustedHostTime = rootGetters['synclounge/GET_ADJUSTED_HOST_TIME']();
 
     // TODO: only do this if we are playign (but maybe we just did a play command>...)
 
@@ -279,7 +279,7 @@ export default {
 
     const difference = Math.abs(adjustedHostTime - playerPollData.time);
 
-    const bothPaused = rootGetters['synclounge/GET_HOST_TIMELINE'].state === 'paused'
+    const bothPaused = rootGetters['synclounge/GET_HOST_USER'].state === 'paused'
       && playerPollData.state === 'paused';
 
     console.log('difference: ', difference);
@@ -288,7 +288,7 @@ export default {
       // Decide what seeking method we want to use
 
       if (rootGetters['settings/GET_SYNCMODE'] === 'cleanseek'
-        || rootGetters['synclounge/GET_HOST_TIMELINE'].state === 'paused') {
+        || rootGetters['synclounge/GET_HOST_USER'].state === 'paused') {
         return dispatch('SEEK_TO', adjustedHostTime);
       }
 

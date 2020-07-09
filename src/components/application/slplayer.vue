@@ -174,6 +174,7 @@
 
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
+import initialize from '@/player/init';
 
 import 'shaka-player/dist/controls.css';
 
@@ -244,12 +245,14 @@ export default {
   async mounted() {
     // TODO: monitor upnext stuff interval probably or idk state change timeugh
 
-    await this.INIT_PLAYER_STATE({
+    await initialize({
       mediaElement: this.$refs.videoPlayer,
       playerConfig: this.playerConfig,
       videoContainer: this.$refs.videoPlayerContainer,
       overlayConfig: this.getPlayerUiOptions(),
     });
+
+    await this.INIT_PLAYER_STATE();
 
     window.addEventListener('keyup', this.onKeyUp);
   },

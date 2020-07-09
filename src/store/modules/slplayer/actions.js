@@ -8,7 +8,7 @@ import {
   play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
   waitForMediaElementEvent, destroy, cancelTrickPlay, load, getPlaybackRate, setPlaybackRate,
-  setCurrentTimeMs, setVolume, addEventListener, removeEventListener, initialize,
+  setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
   getSmallPlayButton, getBigPlayButton,
 } from '@/player';
 
@@ -236,7 +236,6 @@ export default {
   },
 
   CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
-    console.log('change palyer state', state);
     commit('SET_PLAYER_STATE', state);
     const plexTimelineUpdatePromise = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     if (state !== 'stopped') {
@@ -285,8 +284,7 @@ export default {
 
   INIT_PLAYER_STATE: async ({
     getters, rootGetters, commit, dispatch,
-  }, data) => {
-    await initialize(data);
+  }) => {
     await dispatch('REGISTER_PLAYER_EVENTS');
     await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);

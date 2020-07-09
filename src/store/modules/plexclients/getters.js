@@ -51,7 +51,7 @@ export default {
     ? ({
       time: getters.GET_PLEX_CLIENT_TIMELINE.state === 'playing'
         ? getters.GET_PLEX_CLIENT_TIMELINE.time + Date.now()
-          - getters.GET_PLEX_CLIENT_TIMELINE.receivedAt
+          - getters.GET_PLEX_CLIENT_TIMELINE.updatedAt
         : getters.GET_PLEX_CLIENT_TIMELINE.time,
       duration: getters.GET_PLEX_CLIENT_TIMELINE.duration,
       state: getters.GET_PLEX_CLIENT_TIMELINE.state,

@@ -1,23 +1,26 @@
-import io from 'socket.io-client';
-
 let socket = null;
 
-export const open = (url, options) => new Promise(((resolve, reject) => {
-  socket = io(url, options);
+export const open = async (url, options) => {
+  // Dynamically import socket.io
+  const io = await import('socket.io-client');
 
-  socket.once('connect', () => {
-    resolve(socket);
-  });
+  return new Promise(((resolve, reject) => {
+    socket = io.connect(url, options);
 
-  // TODO: do I need all these events?
-  socket.once('connect_error', () => {
-    reject(new Error('connect_error'));
-  });
+    socket.once('connect', () => {
+      resolve(socket);
+    });
 
-  socket.once('connect_timeout', () => {
-    reject(new Error('connect_timeout'));
-  });
-}));
+    // TODO: do I need all these events?
+    socket.once('connect_error', () => {
+      reject(new Error('connect_error'));
+    });
+
+    socket.once('connect_timeout', () => {
+      reject(new Error('connect_timeout'));
+    });
+  }));
+};
 
 export const close = () => {
   socket.close();
