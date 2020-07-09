@@ -68,7 +68,7 @@ export default {
 
   GET_SERVER: (state) => state.server,
 
-  IS_SYNC_IN_PROGRESS: (state) => state.isSyncInProgress,
+  GET_SYNC_CANCEL_TOKEN: (state) => state.syncCancelToken,
 
   IS_MANUAL_SYNC_QUEUED: (state) => state.isManualSyncedQueued,
 
@@ -78,11 +78,12 @@ export default {
 
   IS_IN_ROOM: (state) => state.isInRoom,
 
+  // Note: the host should really always have a playback rate of 1
   // eslint-disable-next-line no-nested-ternary
   GET_ADJUSTED_HOST_TIME: (state, getters) => () => (getters.GET_HOST_USER
     ? getters.GET_HOST_USER.state === 'playing'
-      ? getters.GET_HOST_USER.time + Date.now()
-          - getters.GET_HOST_USER.updatedAt
+      ? getters.GET_HOST_USER.time + (Date.now()
+          - getters.GET_HOST_USER.updatedAt) * getters.GET_HOST_USER.playbackRate
       : getters.GET_HOST_USER.time
     : null),
 };

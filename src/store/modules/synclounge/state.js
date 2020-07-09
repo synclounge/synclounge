@@ -9,7 +9,7 @@ const state = () => ({
   messages: [],
   isPartyPausingEnabled: false,
   serversHealth: null,
-  isSyncInProgress: false,
+  syncCancelToken: null,
   isManualSyncedQueued: false,
   recentRooms: [],
 

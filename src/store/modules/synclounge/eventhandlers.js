@@ -73,7 +73,7 @@ export default {
     commit('SET_USER_PLAYER_STATE', data);
 
     if (data.id === getters.GET_HOST_ID) {
-      await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
+      await dispatch('SYNC_PLAYER_STATE');
     }
   },
 
@@ -82,7 +82,6 @@ export default {
   }, {
       id, state, time, duration, media,
     }) => {
-    console.log('media update');
     // TODO: maybe sync or play new media thing
     commit('SET_USER_PLAYER_STATE', {
       id,

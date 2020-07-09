@@ -1,4 +1,5 @@
 import axios from 'axios';
+import CAF from 'caf';
 import guid from '@/utils/guid';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 import combineUrl from '@/utils/combineurl';
@@ -257,7 +258,6 @@ export default {
   PROCESS_MEDIA_UPDATE: async ({
     dispatch, getters, commit, rootGetters,
   }) => {
-    console.log('media update');
     // TODO: only send message if in room, check in room
     // TODO: Potentially sync
     const pollData = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
@@ -307,7 +307,6 @@ export default {
     if (getters.IS_MANUAL_SYNC_QUEUED) {
       // TODO: make manual sync an immediate sync thing
       // TODO: find a way to remove this event
-      window.EventBus.$emit('host-playerstate-change');
       await dispatch('plexclients/SEEK_TO', getters.GET_ADJUSTED_HOST_TIME(), { root: true });
       commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
     }
@@ -327,22 +326,23 @@ export default {
         if we need to seek or start playing something.
       */
 
-    if (!getters.IS_SYNC_IN_PROGRESS) {
+    if (!getters.GET_SYNC_CANCEL_TOKEN) {
       // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
-      commit('SET_IS_SYNC_IN_PROGRESS', true);
+      // eslint-disable-next-line new-cap
+      commit('SET_SYNC_CANCEL_TOKEN', new CAF.cancelToken());
 
       try {
-        await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE');
+        await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE', getters.GET_SYNC_CANCEL_TOKEN.signal);
       } catch (e) {
         console.log('Error caught in sync logic', e);
       }
 
-      commit('SET_IS_SYNC_IN_PROGRESS', false);
+      commit('SET_SYNC_CANCEL_TOKEN', null);
     }
   },
 
   // Interal action without lock. Use the one with the lock to stop multiple syncs from happening at once
-  _SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, dispatch, rootGetters }) => {
+  _SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, dispatch, rootGetters }, cancelSignal) => {
     console.log('_SYNC_MEDIA_AND_PLAYER_STATE');
     // TODO: potentailly don't do anythign if we have no timeline data yet
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
@@ -381,7 +381,7 @@ export default {
       }
     }
 
-    await dispatch('_SYNC_PLAYER_STATE');
+    await dispatch('_SYNC_PLAYER_STATE', cancelSignal);
   },
 
   SYNC_PLAYER_STATE: async ({ dispatch, getters, commit }) => {
@@ -389,22 +389,23 @@ export default {
       return;
     }
 
-    if (!getters.IS_SYNC_IN_PROGRESS) {
+    if (!getters.GET_SYNC_CANCEL_TOKEN) {
       // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
-      commit('SET_IS_SYNC_IN_PROGRESS', true);
+      // eslint-disable-next-line new-cap
+      commit('SET_SYNC_CANCEL_TOKEN', new CAF.cancelToken());
 
       try {
-        await dispatch('_SYNC_PLAYER_STATE');
+        await dispatch('_SYNC_PLAYER_STATE', getters.GET_SYNC_CANCEL_TOKEN.signal);
       } catch (e) {
         console.log('Error caught in sync logic', e);
       }
 
-      commit('SET_IS_SYNC_IN_PROGRESS', false);
+      commit('SET_SYNC_CANCEL_TOKEN', null);
     }
   },
 
   // Private version without lock. Please use the locking version unless you know what you are doing
-  _SYNC_PLAYER_STATE: async ({ getters, dispatch }) => {
+  _SYNC_PLAYER_STATE: async ({ getters, dispatch }, cancelSignal) => {
     console.log('_SYNC_PLAYER_STATE');
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
@@ -433,7 +434,8 @@ export default {
     }
 
     // TODO: potentially update the player state if we paused or played so we know in the sync
-    await dispatch('plexclients/SYNC', null, { root: true });
+    await dispatch('plexclients/SYNC', cancelSignal, { root: true });
+    console.log('done sync');
   },
 
   PLAY_MEDIA_AND_SYNC_TIME: async ({ getters, dispatch }, media) => {

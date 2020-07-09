@@ -12,9 +12,6 @@ Vue.use(VueClipboard);
 
 Vue.config.productionTip = false;
 
-// Our Event bus
-window.EventBus = new Vue();
-
 router.beforeEach((to, from, next) => {
   if (!store.getters['plex/IS_AUTHENTICATED'] && to.matched.some((record) => record.meta.requiresAuth)) {
     if (to.matched.some((record) => record.meta.redirectAfterAuth)) {

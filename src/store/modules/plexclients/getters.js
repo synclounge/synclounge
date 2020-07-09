@@ -54,6 +54,8 @@ export default {
           - getters.GET_PLEX_CLIENT_TIMELINE.updatedAt
         : getters.GET_PLEX_CLIENT_TIMELINE.time,
       duration: getters.GET_PLEX_CLIENT_TIMELINE.duration,
+      // Assume all other Plex clients only support playback rate of 1 (maybe this will change in the future)
+      playbackRate: 1,
       state: getters.GET_PLEX_CLIENT_TIMELINE.state,
     })
     : null),

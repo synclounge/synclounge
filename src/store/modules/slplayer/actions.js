@@ -1,13 +1,12 @@
 import axios from 'axios';
+import CAF from 'caf';
 
 import guid from '@/utils/guid';
-import timeoutPromise from '@/utils/timeoutpromise';
-import delay from '@/utils/delay';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import {
   play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
-  waitForMediaElementEvent, destroy, cancelTrickPlay, load, getPlaybackRate, setPlaybackRate,
+  waitForMediaElementEvent, destroy, cancelTrickPlay, load, setPlaybackRate, getPlaybackRate,
   setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
   getSmallPlayButton, getBigPlayButton,
 } from '@/player';
@@ -99,11 +98,13 @@ export default {
     ? {
       time: await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK'),
       duration: getDurationMs(),
+      playbackRate: getPlaybackRate(),
       state: getters.GET_PLAYER_STATE,
     }
     : {
       time: 0,
       duration: 0,
+      playbackRate: 0,
       state: getters.GET_PLAYER_STATE,
     }),
 
@@ -138,6 +139,10 @@ export default {
     }
   },
 
+  HANDLE_PLAYER_RATE_CHANGE: async ({ dispatch }) => {
+    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
+  },
+
   PRESS_PLAY: () => {
     play();
   },
@@ -151,6 +156,7 @@ export default {
   },
 
   SOFT_SEEK: ({ getters, commit }, seekToMs) => {
+    // TODO: prob fix
     if (!isTimeInBufferedRange(getters, seekToMs)) {
       throw new Error('Soft seek requested but not within buffered range');
     }
@@ -159,67 +165,66 @@ export default {
     setCurrentTimeMs(seekToMs);
   },
 
-  NORMAL_SEEK: async ({ dispatch, getters, commit }, seekToMs) => {
+  SPEED_SEEK: async ({ dispatch, rootGetters }, { cancelSignal, seekToMs }) => {
+    console.log('speed seek');
+    const currentTimeMs = await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK');
+    const difference = seekToMs - currentTimeMs;
+    const rate = 1 + (Math.sign(difference) * rootGetters.GET_CONFIG.slplayer_speed_sync_rate);
+    const timeUntilSynced = (seekToMs - currentTimeMs) / (rate - 1);
+    console.log('ms until synced: ', timeUntilSynced);
+
+    const main = CAF(function* main(signal) {
+      setPlaybackRate(rate);
+      try {
+        yield CAF.delay(signal, timeUntilSynced);
+      } finally {
+        setPlaybackRate(1);
+      }
+    });
+
+    return main(cancelSignal);
+  },
+
+  NORMAL_SEEK: async ({ commit }, { cancelSignal, seekToMs }) => {
+    console.log('normal seek');
+    commit('SET_OFFSET_MS', seekToMs);
+    setCurrentTimeMs(seekToMs);
+
+    // TODO: throw that vlaue in the config
+    const timeoutToken = CAF.timeout(15000, 'Took too long!');
+
+    const anySignal = CAF.signalRace([
+      cancelSignal,
+      timeoutToken.signal,
+    ]);
+
+    const main = CAF(function* main(signal) {
+      yield waitForMediaElementEvent({ signal, type: 'seeked' });
+    });
+
+    try {
+      await main(anySignal);
+    } finally {
+      timeoutToken.abort();
+    }
+  },
+
+  SPEED_OR_NORMAL_SEEK: async ({ dispatch, getters, rootGetters }, { cancelSignal, seekToMs }) => {
+    // TODO: maybe separate functino for skip ahead probably lol
     // TODO: rewrite this entirely.
     // TODO: check the logic here to make sense if the seek time is in the past ...
-    if (Math.abs(seekToMs - await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK')) < 3000
-    && getters.GET_PLAYER_STATE === 'playing') {
-      let cancelled = false;
 
-      window.EventBus.$once('host-playerstate-change', () => {
-        cancelled = true;
-      });
-
-      let iterations = 0;
-
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        // eslint-disable-next-line no-underscore-dangle
-        if (cancelled || getters.GET_PLAYER_STATE !== 'playing') {
-          setPlaybackRate(1);
-          throw new Error('Slow seek was stop due to buffering or pausing');
-        }
-
-        const delayPromise = delay(25);
-
-        // 25 here because interval is 25ms
-        const expectedHostTimeMs = seekToMs + (25 * iterations);
-
-        // eslint-disable-next-line no-await-in-loop
-        const difference = expectedHostTimeMs - await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK');
-        const absDifference = Math.abs(difference);
-
-        if (absDifference < 30) {
-          setPlaybackRate(1);
-          return true;
-        }
-
-        if (absDifference > 5000) {
-          setPlaybackRate(1);
-          throw new Error('Slow seek was stopped as we are beyond 5000ms');
-        }
-
-        if (difference > 0) {
-          if (getPlaybackRate() < 1.02) {
-            // Speed up
-            setPlaybackRate(getPlaybackRate() + 0.0001);
-          }
-        } else if (getPlaybackRate() > 0.98) {
-          // Slow down
-          setPlaybackRate(getPlaybackRate() - 0.0001);
-        }
-
-        // eslint-disable-next-line no-await-in-loop
-        await delayPromise;
-
-        iterations += 1;
-      }
-    } else {
-      commit('SET_OFFSET_MS', seekToMs);
-      setCurrentTimeMs(seekToMs);
-
-      return timeoutPromise(waitForMediaElementEvent('seeked'), 15000);
+    // TODO: make sure this doesnt happen when buffering
+    const currentTimeMs = await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK');
+    const difference = seekToMs - currentTimeMs;
+    if (Math.abs(difference) <= rootGetters.GET_CONFIG.slplayer_speed_sync_max_diff
+        && getters.GET_PLAYER_STATE === 'playing') {
+      // TODO: lol
+      return dispatch('SPEED_SEEK', { cancelSignal, seekToMs });
     }
+
+    // TODO: more lol
+    return dispatch('NORMAL_SEEK', { cancelSignal, seekToMs });
   },
 
   START_PERIODIC_PLEX_TIMELINE_UPDATE: async ({ commit, dispatch, rootGetters }) => {

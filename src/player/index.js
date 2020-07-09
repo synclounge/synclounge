@@ -53,8 +53,15 @@ export const removeEventListener = (...args) => getPlayer().removeEventListener(
 const addMediaElementEventListener = (...args) => getPlayer().getMediaElement()
   .addEventListener(...args);
 
+const removeMediaElementEventListener = (...args) => getPlayer().getMediaElement()
+  .removeEventListener(...args);
+
 // TODO: potentialy make cancellable
-export const waitForMediaElementEvent = (type) => new Promise((resolve) => {
+export const waitForMediaElementEvent = ({ signal, type }) => new Promise((resolve) => {
+  signal.pr.catch(() => {
+    removeMediaElementEventListener(type, resolve);
+  });
+
   addMediaElementEventListener(type, resolve, { once: true });
 });
 

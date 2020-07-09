@@ -10,6 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "caf": "^9.1.0",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-router": "^3.3.4",

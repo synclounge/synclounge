@@ -33,8 +33,8 @@ export default {
     state.server = server;
   },
 
-  SET_IS_SYNC_IN_PROGRESS: (state, inProgress) => {
-    state.isSyncInProgress = inProgress;
+  SET_SYNC_CANCEL_TOKEN: (state, token) => {
+    state.syncCancelToken = token;
   },
 
   SET_IS_MANUAL_SYNC_QUEUED: (state, isQueued) => {
@@ -74,11 +74,12 @@ export default {
   },
 
   SET_USER_PLAYER_STATE: (state, {
-    id, state: playerState, time, duration,
+    id, state: playerState, time, duration, playbackRate,
   }) => {
     Vue.set(state.users[id], 'state', playerState);
     Vue.set(state.users[id], 'time', time);
     Vue.set(state.users[id], 'duration', duration);
+    Vue.set(state.users[id], 'playbackRate', playbackRate);
     Vue.set(state.users[id], 'updatedAt', Date.now());
   },
 

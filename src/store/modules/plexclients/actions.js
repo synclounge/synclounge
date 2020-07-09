@@ -267,7 +267,7 @@ export default {
     }
   },
 
-  SYNC: async ({ getters, dispatch, rootGetters }) => {
+  SYNC: async ({ getters, dispatch, rootGetters }, cancelSignal) => {
     await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
     const adjustedHostTime = rootGetters['synclounge/GET_ADJUSTED_HOST_TIME']();
@@ -289,9 +289,10 @@ export default {
 
       if (rootGetters['settings/GET_SYNCMODE'] === 'cleanseek'
         || rootGetters['synclounge/GET_HOST_USER'].state === 'paused') {
-        return dispatch('SEEK_TO', adjustedHostTime);
+        return dispatch('SEEK_TO', { cancelSignal, offset: adjustedHostTime });
       }
 
+      // TODO: add cancel
       return dispatch('SKIP_AHEAD', { offset: adjustedHostTime, duration: 10000 });
     }
 
@@ -375,11 +376,11 @@ export default {
     }
   },
 
-  SEEK_TO: async ({ getters, dispatch }, offset) => {
+  SEEK_TO: async ({ getters, dispatch }, { cancelSignal, offset }) => {
     console.log('Seek to');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
-        return dispatch('slplayer/NORMAL_SEEK', offset, { root: true });
+        return dispatch('slplayer/SPEED_OR_NORMAL_SEEK', { cancelSignal, seekToMs: offset }, { root: true });
       }
 
       default: {
@@ -417,6 +418,7 @@ export default {
     // TODO: lol this is broken fix pls
     const startedAt = Date.now();
     const now = getters.GET_PLEX_CLIENT_TIMELINE.time;
+    // TODO: CUSTOM SLPLAYER UGH
     await dispatch('SEEK_TO', current + duration);
     await dispatch('WAIT_FOR_MOVEMENT', now);
 

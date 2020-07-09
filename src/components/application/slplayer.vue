@@ -19,8 +19,8 @@
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
-
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
+          @ratechange="HANDLE_PLAYER_RATE_CHANGE"
         />
       </div>
 
@@ -192,6 +192,7 @@ export default {
     return {
       playerConfig: {
         streaming: {
+          // TODO: make this config
           bufferingGoal: 120,
         },
       },
@@ -270,6 +271,7 @@ export default {
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
       'HANDLE_PLAYER_CLICK',
+      'HANDLE_PLAYER_RATE_CHANGE',
 
       'PRESS_STOP',
       'INIT_PLAYER_STATE',

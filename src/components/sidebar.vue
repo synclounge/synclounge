@@ -368,9 +368,11 @@ export default {
         : 'Nothing';
     },
 
-    getAdjustedTime({ updatedAt, state, time }) {
+    getAdjustedTime({
+      updatedAt, state, time, playbackRate,
+    }) {
       return state === 'playing'
-        ? time + this.nowTimestamp - updatedAt
+        ? time + (this.nowTimestamp - updatedAt) * playbackRate
         : time;
     },
 
