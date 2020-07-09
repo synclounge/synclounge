@@ -1,4 +1,4 @@
-import { emit } from '@/socket';
+import { emit, waitForEvent } from '@/socket';
 
 export default {
   HANDLE_SET_PARTY_PAUSING_ENABLED: async ({ getters, dispatch, commit }, value) => {
@@ -62,14 +62,18 @@ export default {
       senderId: hostId,
       text: `${getters.GET_USER(hostId).username} is now the host`,
     });
+
+    await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
   },
 
   HANDLE_DISCONNECT: async ({ dispatch }) => {
+    console.log('disconnect');
     await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
   },
 
   HANDLE_RECONNECT: async ({ dispatch }) => {
     console.log('Rejoining');
+    await waitForEvent('slPing');
     await dispatch('JOIN_ROOM_AND_INIT');
     // TODO: EXAMINE THIS AND FIGURE OUT HOW TO SYNC
   },
