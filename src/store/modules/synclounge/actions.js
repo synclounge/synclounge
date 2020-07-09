@@ -83,6 +83,8 @@ export default {
   JOIN_ROOM_AND_INIT: async ({
     getters, rootGetters, dispatch, commit,
   }) => {
+    // Note: this is also called on rejoining, so be careful not to register handlers twice
+    // or duplicate tasks
     const {
       user: { id, ...rest }, users, isPartyPausingEnabled, hostId,
     } = await dispatch('JOIN_ROOM');
@@ -110,15 +112,11 @@ export default {
       },
     });
 
-    commit('SET_PARTYPAUSING', isPartyPausingEnabled);
+    commit('SET_IS_PARTY_PAUSING_ENABLED', isPartyPausingEnabled);
     commit('SET_IS_IN_ROOM', true);
 
     await dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
-
     await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${getters.GET_ROOM}`, { root: true });
-
-    // TODO: sync
-    // TODO: examine reconnect flow again
     await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
   },
 
@@ -163,7 +161,7 @@ export default {
   },
 
   sendPartyPause: ({ getters }, isPause) => {
-    if (!getters.AM_I_HOST && getters.getPartyPausing) {
+    if (!getters.AM_I_HOST && getters.IS_PARTY_PAUSING_ENABLED) {
       emit({
         eventName: 'partyPause',
         data: isPause,
@@ -234,6 +232,7 @@ export default {
     registerListener({ eventName: 'playerStateUpdate', action: 'HANDLE_PLAYER_STATE_UPDATE' });
     registerListener({ eventName: 'mediaUpdate', action: 'HANDLE_MEDIA_UPDATE' });
     registerListener({ eventName: 'setPartyPausingEnabled', action: 'HANDLE_SET_PARTY_PAUSING_ENABLED' });
+    registerListener({ eventName: 'partyPause', action: 'HANDLE_PARTY_PAUSE' });
     registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
     registerListener({ eventName: 'connect', action: 'HANDLE_RECONNECT' });
   },

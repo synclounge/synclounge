@@ -58,7 +58,7 @@
           v-if="AM_I_HOST"
           class="pa-0 mt-2 party-pausing-label"
           label="Party Pausing"
-          :input-value="getPartyPausing"
+          :input-value="IS_PARTY_PAUSING_ENABLED"
           @change="SEND_SET_PARTY_PAUSING_ENABLED"
         />
 
@@ -262,7 +262,7 @@ export default {
     ]),
 
     ...mapGetters('synclounge', [
-      'getPartyPausing',
+      'IS_PARTY_PAUSING_ENABLED',
       'GET_USERS',
       'GET_ROOM',
       'GET_HOST_USER',
@@ -277,7 +277,7 @@ export default {
     ]),
 
     canPause() {
-      return !this.partyPauseCooldownRunning && this.getPartyPausing;
+      return !this.partyPauseCooldownRunning && this.IS_PARTY_PAUSING_ENABLED;
     },
   },
 

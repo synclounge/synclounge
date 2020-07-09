@@ -25,7 +25,7 @@ export default {
   GET_ROOM: (state) => state.room,
   GET_USERS: (state) => state.users,
   GET_MESSAGES: (state) => state.messages,
-  getPartyPausing: (state) => state.partyPausing,
+  IS_PARTY_PAUSING_ENABLED: (state) => state.isPartyPausingEnabled,
   GET_HOST_USER: (state, getters) => getters.GET_USER(getters.GET_HOST_ID),
   AM_I_HOST: (state, getters) => getters.GET_HOST_ID === getters.GET_SOCKET_ID,
 

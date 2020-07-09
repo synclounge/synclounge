@@ -501,7 +501,7 @@ export default {
   START_CLIENT_POLLER_IF_NEEDED: ({
     getters, commit, dispatch, rootGetters,
   }) => {
-    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
+    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10' && !getters.GET_CLIENT_POLLER_CANCELER) {
       commit('SET_CLIENT_POLLER_CANCELER', cancelablePeriodicTask(
         () => dispatch('POLL_PLEX_CLIENT'),
         () => rootGetters['settings/GET_CLIENTPOLLINTERVAL'],

@@ -7,7 +7,7 @@ const state = () => ({
   hostId: null,
   messagesUserCache: {},
   messages: [],
-  partyPausing: false,
+  isPartyPausingEnabled: false,
   serversHealth: null,
   isSyncInProgress: false,
   isManualSyncedQueued: false,

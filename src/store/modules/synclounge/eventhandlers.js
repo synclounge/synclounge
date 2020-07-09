@@ -7,24 +7,7 @@ export default {
       text: `Party Pausing has been turned ${value ? 'on' : 'off'}`,
     });
 
-    commit('SET_PARTYPAUSING', value);
-  },
-
-  HANDLE_PARTY_PAUSING_PAUSE: async ({ commit, dispatch }, { isPause, user }) => {
-    const messageText = `${user.username} pressed ${isPause ? 'pause' : 'play'}`;
-    commit('ADD_MESSAGE', {
-      msg: messageText,
-      user,
-      type: 'alert',
-    });
-
-    await dispatch('DISPLAY_NOTIFICATION', messageText, { root: true });
-
-    if (isPause) {
-      await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
-    } else {
-      await dispatch('plexclients/PRESS_PLAY', null, { root: true });
-    }
+    commit('SET_IS_PARTY_PAUSING_ENABLED', value);
   },
 
   HANDLE_USER_JOINED: async ({ commit, dispatch }, { id, ...rest }) => {
@@ -115,6 +98,23 @@ export default {
 
     if (id === getters.GET_HOST_ID) {
       await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
+    }
+  },
+
+  HANDLE_PARTY_PAUSE: async ({ getters, dispatch }, { senderId, isPause }) => {
+    // TODO: maybe stop it from looking at host after party pausing until host also updates or acks that it got the party pause?
+    const text = `${getters.GET_USER(senderId).username} pressed ${isPause ? 'pause' : 'play'}`;
+    await dispatch('ADD_MESSAGE_AND_CACHE', {
+      senderId,
+      text,
+    });
+
+    await dispatch('DISPLAY_NOTIFICATION', text, { root: true });
+
+    if (isPause) {
+      await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
+    } else {
+      await dispatch('plexclients/PRESS_PLAY', null, { root: true });
     }
   },
 };

@@ -13,8 +13,8 @@ export default {
     state.password = value;
   },
 
-  SET_PARTYPAUSING(state, value) {
-    state.partyPausing = value;
+  SET_IS_PARTY_PAUSING_ENABLED(state, isEnabled) {
+    state.isPartyPausingEnabled = isEnabled;
   },
 
   ADD_MESSAGE(state, msg) {
