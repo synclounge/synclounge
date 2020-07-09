@@ -2,7 +2,7 @@ import stringSimilarity from 'string-similarity';
 
 // Higher is closer
 const scoreMedia = (result, hostTimeline) => {
-  const titleScore = stringSimilarity.compareTwoStrings(hostTimeline.rawTitle, result.title);
+  const titleScore = stringSimilarity.compareTwoStrings(hostTimeline.title, result.title);
   // TODO: send parent title and score with it
 
   const parentTitleScore = (hostTimeline.parentTitle && result.parentTitle)
