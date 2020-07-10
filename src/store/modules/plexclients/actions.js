@@ -59,7 +59,7 @@ export default {
       commit('plexservers/SET_LAST_SERVER_ID', machineIdentifier, { root: true });
       commit('slplayer/SET_MEDIA_INDEX', mediaIndex, { root: true });
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
-
+      commit('slplayer/SET_PLAYER_STATE', 'buffering', { root: true });
       await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
       if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {

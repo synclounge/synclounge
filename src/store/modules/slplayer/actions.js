@@ -71,8 +71,6 @@ export default {
 
   // Changes the player src to the new one and restores the time afterwards
   UPDATE_PLAYER_SRC_AND_KEEP_TIME: async ({ commit, dispatch }) => {
-    // Set buffering on src change since player doesn't trigger it then
-    await dispatch('CHANGE_PLAYER_STATE', 'buffering');
     commit('SET_OFFSET_MS', await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK'));
     await dispatch('CHANGE_PLAYER_SRC');
   },
@@ -276,7 +274,7 @@ export default {
   NAVIGATE_AND_INITIALIZE_PLAYER: ({ commit }) => {
     // I don't really like this. I'd rather have the player be part of the main app rather than a vue route
     // TODO: above
-    commit('SET_PLAYER_STATE', 'buffering');
+
     // TODO: this is bad practice, so if you know a better way...
     let resolver = null;
     const initializePromise = new Promise((resolve) => {
