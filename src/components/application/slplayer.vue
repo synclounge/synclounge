@@ -201,7 +201,6 @@ export default {
   watch: {
     GET_PLAYER_STATE(state) {
       if (state === 'stopped') {
-        console.log('gonnna browse');
         this.$router.push({ name: 'browse' });
       }
     },

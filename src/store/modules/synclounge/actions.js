@@ -312,13 +312,19 @@ export default {
     });
   },
 
-  MANUAL_SYNC: async ({ getters, dispatch, commit }) => {
-    console.log('manual sync');
+  CANCEL_IN_PROGRESS_SYNC: ({ getters, commit }) => {
+    // TODO: if the slplayer is currently being initialized, wait for that to finish
     if (getters.GET_SYNC_CANCEL_TOKEN) {
       // If sync in progress, cancel it
-      getters.GET_SYNC_CANCEL_TOKEN.abort('Aborted for manual sync');
+      getters.GET_SYNC_CANCEL_TOKEN.abort('Sync cancelled');
+      console.log('sync cancelled');
       commit('SET_SYNC_CANCEL_TOKEN', null);
     }
+  },
+
+  MANUAL_SYNC: async ({ getters, dispatch, commit }) => {
+    console.log('manual sync');
+    await dispatch('CANCEL_IN_PROGRESS_SYNC');
 
     // eslint-disable-next-line new-cap
     commit('SET_SYNC_CANCEL_TOKEN', new CAF.cancelToken());

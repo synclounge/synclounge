@@ -46,6 +46,7 @@ export default {
       text: `${getters.GET_USER(hostId).username} is now the host`,
     });
 
+    await dispatch('CANCEL_IN_PROGRESS_SYNC');
     await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
   },
 
@@ -73,6 +74,7 @@ export default {
     commit('SET_USER_PLAYER_STATE', data);
 
     if (data.id === getters.GET_HOST_ID) {
+      await dispatch('CANCEL_IN_PROGRESS_SYNC');
       await dispatch('SYNC_PLAYER_STATE');
     }
   },
@@ -96,6 +98,7 @@ export default {
     });
 
     if (id === getters.GET_HOST_ID) {
+      await dispatch('CANCEL_IN_PROGRESS_SYNC');
       await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
     }
   },

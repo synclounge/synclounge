@@ -115,8 +115,11 @@ export default {
   },
 
   HANDLE_PLAYER_PAUSE: async ({ dispatch }) => {
-    // Filter out the pause event that shaka raises when seeking to unbuffered range
-    if (isPresentationPaused() && !isBuffering()) {
+    if (isBuffering()) {
+      // If we are buffering, then we don't need to actually change the state, but we should send out
+      // a new state update to synclounge since we have seeked
+      await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
+    } else if (isPresentationPaused()) {
       await dispatch('CHANGE_PLAYER_STATE', 'paused');
     }
   },
@@ -220,11 +223,9 @@ export default {
     const difference = seekToMs - currentTimeMs;
     if (Math.abs(difference) <= rootGetters.GET_CONFIG.slplayer_speed_sync_max_diff
         && getters.GET_PLAYER_STATE === 'playing') {
-      // TODO: lol
       return dispatch('SPEED_SEEK', { cancelSignal, seekToMs });
     }
 
-    // TODO: more lol
     return dispatch('NORMAL_SEEK', { cancelSignal, seekToMs });
   },
 
