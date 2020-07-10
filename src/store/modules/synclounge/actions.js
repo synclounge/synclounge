@@ -247,7 +247,7 @@ export default {
     };
   },
 
-  PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }) => {
+  PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }, noSync) => {
     // TODO: only send message if in room, check in room
     const playerState = await dispatch('FETCH_PLAYER_STATE');
 
@@ -261,7 +261,9 @@ export default {
       data: playerState,
     });
 
-    await dispatch('SYNC_PLAYER_STATE');
+    if (playerState.state !== 'buffering' && !noSync) {
+      await dispatch('SYNC_PLAYER_STATE');
+    }
   },
 
   PROCESS_MEDIA_UPDATE: async ({

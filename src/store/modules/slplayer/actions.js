@@ -115,6 +115,7 @@ export default {
   },
 
   HANDLE_PLAYER_PAUSE: async ({ dispatch }) => {
+    // Filter out the pause event that shaka raises when seeking to unbuffered range
     if (isPresentationPaused() && !isBuffering()) {
       await dispatch('CHANGE_PLAYER_STATE', 'paused');
     }
@@ -137,10 +138,6 @@ export default {
     if (!e.target.classList.contains('shaka-close-button')) {
       await dispatch('SEND_PARTY_PLAY_PAUSE');
     }
-  },
-
-  HANDLE_PLAYER_RATE_CHANGE: async ({ dispatch }) => {
-    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
   },
 
   PRESS_PLAY: () => {
@@ -176,9 +173,13 @@ export default {
     const main = CAF(function* main(signal) {
       setPlaybackRate(rate);
       try {
+        // Nosync process
+        dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', true, { root: true });
         yield CAF.delay(signal, timeUntilSynced);
       } finally {
         setPlaybackRate(1);
+        // Nosync process
+        dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', true, { root: true });
       }
     });
 
