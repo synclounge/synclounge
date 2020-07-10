@@ -10,9 +10,7 @@ const state = () => ({
   isPartyPausingEnabled: false,
   serversHealth: null,
   syncCancelToken: null,
-  isManualSyncedQueued: false,
   recentRooms: [],
-
   isInRoom: false,
 });
 

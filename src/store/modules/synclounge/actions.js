@@ -311,13 +311,25 @@ export default {
   },
 
   MANUAL_SYNC: async ({ getters, dispatch, commit }) => {
-    // TODO: do this    // TODO: move this manual sync into this module
-    if (getters.IS_MANUAL_SYNC_QUEUED) {
-      // TODO: make manual sync an immediate sync thing
-      // TODO: find a way to remove this event
-      await dispatch('plexclients/SEEK_TO', getters.GET_ADJUSTED_HOST_TIME(), { root: true });
-      commit('SET_MANUAL_SYNC_QUEUED', false, { root: true });
+    console.log('manual sync');
+    if (getters.GET_SYNC_CANCEL_TOKEN) {
+      // If sync in progress, cancel it
+      getters.GET_SYNC_CANCEL_TOKEN.abort('Aborted for manual sync');
+      commit('SET_SYNC_CANCEL_TOKEN', null);
     }
+
+    // eslint-disable-next-line new-cap
+    commit('SET_SYNC_CANCEL_TOKEN', new CAF.cancelToken());
+    try {
+      await dispatch('plexclients/SEEK_TO', {
+        cancelSignal: null,
+        offest: getters.GET_ADJUSTED_HOST_TIME(),
+      }, { root: true });
+    } catch (e) {
+      console.log('Error caught in sync logic', e);
+    }
+
+    commit('SET_SYNC_CANCEL_TOKEN', null);
   },
 
   SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, commit, dispatch }) => {

@@ -387,6 +387,7 @@ export default {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
         return dispatch('SEND_CLIENT_REQUEST', {
+          cancelSignal,
           path: '/player/playback/seekTo',
           params: {
             wait: 0,

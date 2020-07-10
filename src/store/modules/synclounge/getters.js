@@ -72,8 +72,6 @@ export default {
 
   GET_SYNC_CANCEL_TOKEN: (state) => state.syncCancelToken,
 
-  IS_MANUAL_SYNC_QUEUED: (state) => state.isManualSyncedQueued,
-
   GET_RECENT_ROOMS: (state) => state.recentRooms,
 
   GET_PASSWORD: (state) => state.password,

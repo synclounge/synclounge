@@ -37,10 +37,6 @@ export default {
     state.syncCancelToken = token;
   },
 
-  SET_IS_MANUAL_SYNC_QUEUED: (state, isQueued) => {
-    state.isManualSyncQueued = isQueued;
-  },
-
   SET_RECENT_ROOMS: (state, rooms) => {
     state.recentRooms = rooms;
   },

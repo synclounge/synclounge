@@ -71,29 +71,6 @@
               </v-row>
             </v-container>
           </v-col>
-
-          <v-col cols="auto">
-            <v-tooltip
-              v-if="!AM_I_HOST"
-              bottom
-              color="accent"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  color="white"
-                  class="clickable"
-                  :disabled="IS_MANUAL_SYNC_QUEUED"
-                  v-bind="attrs"
-                  @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
-                  v-on="on"
-                >
-                  compare_arrows
-                </v-icon>
-              </template>
-
-              <span>Manual Sync</span>
-            </v-tooltip>
-          </v-col>
         </v-row>
       </v-fade-transition>
 
@@ -147,9 +124,8 @@
           <v-col v-if="!AM_I_HOST">
             <v-btn
               block
-              :disabled="IS_MANUAL_SYNC_QUEUED"
               color="blue"
-              @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
+              @click="MANUAL_SYNC"
             >
               Manual sync
             </v-btn>
@@ -212,7 +188,6 @@ export default {
 
     ...mapGetters('synclounge', [
       'AM_I_HOST',
-      'IS_MANUAL_SYNC_QUEUED',
     ]),
 
     ...mapGetters('plexclients', [
@@ -284,8 +259,8 @@ export default {
       'SET_BACKGROUND',
     ]),
 
-    ...mapMutations('synclounge', [
-      'SET_IS_MANUAL_SYNC_QUEUED',
+    ...mapActions('synclounge', [
+      'MANUAL_SYNC',
     ]),
 
     getCastReceiverId() {
@@ -311,6 +286,7 @@ export default {
           'forward30',
           'next',
           'close',
+          'manual_sync',
 
           'spacer',
 
