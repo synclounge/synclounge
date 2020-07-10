@@ -52,18 +52,20 @@ export default {
     ? rootGetters['settings/GET_ALTUSERNAME']
     : rootGetters['plex/GET_PLEX_USER'].username || rootGetters['plex/GET_PLEX_USER'].title),
 
-  GET_STATUS: (state, getters, rootState, rootGetters) => (clientTime) => {
-    if (!getters.GET_HOST_TIMELINE || Number.isNaN(getters.GET_HOST_TIMELINE.time)) {
-      return 'error';
+  GET_SYNC_STATE: (state, getters, rootState, rootGetters) => (clientTime) => {
+    if (!getters.GET_HOST_USER) {
+      return 'unknown';
     }
 
-    const difference = Math.abs(clientTime - getters.GET_HOST_PLAYER_TIME_ADJUSTED());
-
-    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY']) {
-      return 'notok';
+    if (getters.AM_I_HOST) {
+      return 'synced';
     }
 
-    return 'good';
+    const difference = Math.abs(clientTime - getters.GET_ADJUSTED_HOST_TIME());
+
+    return difference > rootGetters['settings/GET_SYNCFLEXIBILITY']
+      ? 'unsynced'
+      : 'synced';
   },
 
   GET_SERVER: (state) => state.server,

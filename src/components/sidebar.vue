@@ -118,7 +118,7 @@
           <v-list-item-avatar>
             <img
               :src="user.thumb"
-              :style="getImgStyle(user)"
+              :style="getImgStyle(user.syncState)"
             >
 
             <v-icon
@@ -323,27 +323,24 @@ export default {
       this.sendPartyPause(isPause);
     },
 
-    getUserColor(user) {
-      if (user.status === 'good' || user.role === 'host') {
-        return '#0de47499';
-      }
-      if (user.status === 'ok') {
-        return '#0a630b';
-      }
-      if (user.status === 'notok') {
-        return '#FFB300';
-      }
-      if (user.status === 'unknown' || user.status === 'error') {
-        return '#F44336';
-      }
+    getSyncStateColor(syncState) {
+      switch (syncState) {
+        case 'synced':
+          return '#0de47499';
 
-      return '#F44336';
+        case 'unsynced':
+          return '#FFB300';
+
+        case 'unknown':
+        default:
+          return '#F44336';
+      }
     },
 
-    getImgStyle(user) {
+    getImgStyle(syncState) {
       return [
         {
-          border: `3px solid ${this.getUserColor(user)}`,
+          border: `3px solid ${this.getSyncStateColor(syncState)}`,
         },
       ];
     },

@@ -238,18 +238,27 @@ export default {
     registerListener({ eventName: 'connect', action: 'HANDLE_RECONNECT' });
   },
 
+  FETCH_PLAYER_STATE: async ({ getters, dispatch }) => {
+    const { time, ...rest } = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    return {
+      ...rest,
+      time,
+      syncState: getters.GET_SYNC_STATE(time),
+    };
+  },
+
   PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }) => {
     // TODO: only send message if in room, check in room
-    const pollData = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const playerState = await dispatch('FETCH_PLAYER_STATE');
 
     commit('SET_USER_PLAYER_STATE', {
-      ...pollData,
+      ...playerState,
       id: getters.GET_SOCKET_ID,
     });
 
     emit({
       eventName: 'playerStateUpdate',
-      data: pollData,
+      data: playerState,
     });
 
     await dispatch('SYNC_PLAYER_STATE');
@@ -259,8 +268,7 @@ export default {
     dispatch, getters, commit, rootGetters,
   }) => {
     // TODO: only send message if in room, check in room
-    // TODO: Potentially sync
-    const pollData = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const playerState = await dispatch('FETCH_PLAYER_STATE');
 
     commit('SET_USER_MEDIA', {
       id: getters.GET_SOCKET_ID,
@@ -268,7 +276,7 @@ export default {
     });
 
     commit('SET_USER_PLAYER_STATE', {
-      ...pollData,
+      ...playerState,
       id: getters.GET_SOCKET_ID,
     });
 
@@ -276,7 +284,7 @@ export default {
       eventName: 'mediaUpdate',
       data: {
         media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
-        ...pollData,
+        ...playerState,
       },
     });
 
