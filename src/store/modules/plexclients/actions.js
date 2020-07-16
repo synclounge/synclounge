@@ -171,7 +171,9 @@ export default {
 
       // Media changed
       commit('SET_PLEX_CLIENT_TIMELINE', timeline);
-      await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
+      if (rootGetters['synclounge/IS_IN_ROOM']) {
+        await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
+      }
     } else if (getters.GET_PLEX_CLIENT_TIMELINE.state !== timeline.state
       || getters.GET_PLEX_CLIENT_TIMELINE.duration !== timeline.duration
       || Math.abs(getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA().time - timeline.time)
