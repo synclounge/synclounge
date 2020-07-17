@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 export default {
   GET_CHOSEN_CLIENT_ID: (state) => state.chosenClientId,
 
@@ -17,24 +15,6 @@ export default {
   GET_ACTIVE_SERVER_ID: (state) => state.activeServerId,
 
   GET_PLEX_CLIENT_TIMELINE: (state) => state.plexClientTimeline,
-
-  GET_PLEX_CLIENT_AXIOS: (state, getters, rootState, rootGetters) => (clientIdentifier) => {
-    const client = getters.GET_PLEX_CLIENT(clientIdentifier);
-
-    return axios.create({
-      baseURL: client.chosenConnection.uri,
-      // TODO: examine this timeout...
-      timeout: 5000,
-      headers: {
-        ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](client.accessToken),
-        'X-Plex-Target-Client-Identifier': clientIdentifier,
-      },
-    });
-  },
-
-  GET_CHOSEN_PLEX_CLIENT_AXIOS: (state, getters) => (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10'
-    ? null
-    : getters.GET_PLEX_CLIENT_AXIOS(getters.GET_CHOSEN_CLIENT_ID)),
 
   GET_ACTIVE_MEDIA_POLL_METADATA: (state, getters) => (getters.GET_ACTIVE_MEDIA_METADATA
     ? {

@@ -7,5 +7,5 @@ const options = {
 };
 
 export default {
-  parseXML: (xml) => parser.parse(xml, options),
+  parse: (xml) => parser.parse(xml, options),
 };

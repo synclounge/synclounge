@@ -1,8 +1,8 @@
-import promiseutils from '@/utils/promiseutils';
-import xmlutils from '@/utils/xmlutils';
 import delay from '@/utils/delay';
+import promiseutils from '@/utils/promiseutils';
 import contentTitleUtils from '@/utils/contenttitleutils';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
+import { fetchXmlAndTransform } from '@/utils/fetchutils';
 
 export default {
   FIND_AND_SET_CONNECTION: async ({ dispatch, commit }, clientIdentifier) => {
@@ -19,24 +19,39 @@ export default {
       return true;
     }
 
-    const client = getters.GET_PLEX_CLIENT(clientIdentifier);
+    // Test request has to be a timeline request since some clients don't properly set cors headers
 
-    return promiseutils.any(
-      client.connections.map((connection) => dispatch(
-        'TEST_CONNECTION',
-        { connection, accessToken: client.accessToken },
-      ).then(() => connection)),
-    );
+    const { connections, accessToken } = getters.GET_PLEX_CLIENT(clientIdentifier);
+    return dispatch('FIND_WORKING_CONNECTION', { connections, accessToken });
   },
 
-  // Using fetch here so I can use the 'no-cors' mode
-  TEST_CONNECTION: ({ rootGetters }, { connection, accessToken }) => fetch(
-    `${connection.uri}/resources?${new URLSearchParams(
-      rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
-    )}`, {
-      mode: 'no-cors',
-    },
-  ),
+  FIND_WORKING_CONNECTION: async ({ dispatch }, { connections, accessToken }) => {
+    const controller = new AbortController();
+    const workingConnection = await promiseutils.any(
+      connections.map((connection) => dispatch(
+        'TEST_PLEX_CLIENT_CONNECTION',
+        { connection, accessToken, signal: controller.signal },
+      )),
+    );
+
+    // Abort other connection attempts since we found one
+    controller.abort();
+
+    return workingConnection;
+  },
+
+  TEST_PLEX_CLIENT_CONNECTION: async ({ dispatch }, { connection, ...rest }) => {
+    await dispatch('SEND_CLIENT_REQUEST_WITH_URI', {
+      path: '/player/timeline/poll',
+      params: {
+        wait: 0,
+      },
+      uri: connection.uri,
+      ...rest,
+    });
+
+    return connection;
+  },
 
   PLAY_MEDIA: async ({
     getters, commit, dispatch, rootGetters,
@@ -75,7 +90,7 @@ export default {
 
       // TODO: potentially wait for stuff..
 
-      await dispatch('SEND_CLIENT_REQUEST', {
+      await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
         path: '/player/playback/playMedia',
         params: {
           wait: 0,
@@ -97,25 +112,49 @@ export default {
     }
   },
 
-  SEND_CLIENT_REQUEST: async ({ getters, commit }, { path, params }) => {
-    const { data } = await getters.GET_CHOSEN_PLEX_CLIENT_AXIOS.get(path, {
-      params: {
-        commandID: getters.GET_COMMAND_ID,
+  RESERVE_COMMAND_ID: ({ getters, commit }) => {
+    const id = getters.GET_COMMAND_ID;
+    commit('INCREMENT_COMMAND_ID');
+    return id;
+  },
+
+  SEND_CLIENT_REQUEST_WITH_URI: async ({ dispatch, rootGetters }, {
+    clientIdentifier, accessToken, uri, path, params, signal,
+  }) => {
+    const commandID = await dispatch('RESERVE_COMMAND_ID');
+
+    return fetchXmlAndTransform(
+      `${uri}${path}`,
+      {
+        commandID,
         type: 'video',
         ...params,
       },
-      transformResponse: xmlutils.parseXML,
-    });
-
-    // TODO: maybe potentially increment it even if it fails
-    commit('INCREMENT_COMMAND_ID');
-
-    return data;
+      {
+        headers: {
+          ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
+          'X-Plex-Target-Client-Identifier': clientIdentifier,
+        },
+        signal,
+      },
+    );
   },
+
+  SEND_CLIENT_REQUEST: ({ dispatch, getters }, { clientIdentifier, ...rest }) => {
+    const { accessToken, chosenConnection: { uri } } = getters.GET_PLEX_CLIENT(clientIdentifier);
+    return dispatch('SEND_CLIENT_REQUEST_WITH_URI', {
+      accessToken, uri, clientIdentifier, ...rest,
+    });
+  },
+
+  SEND_CHOSEN_CLIENT_REQUEST: ({ dispatch, getters }, args) => dispatch('SEND_CLIENT_REQUEST', {
+    clientIdentifier: getters.GET_CHOSEN_CLIENT_ID,
+    ...args,
+  }),
 
   FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch }) => {
     const startedAt = Date.now();
-    const data = await dispatch('SEND_CLIENT_REQUEST', {
+    const data = await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
       path: '/player/timeline/poll',
       params: {
         wait: 0,
@@ -332,7 +371,7 @@ export default {
 
       default: {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
-        return dispatch('SEND_CLIENT_REQUEST', {
+        return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
           path: '/player/playback/play',
           params: {
             wait: 0,
@@ -349,7 +388,7 @@ export default {
       }
 
       default: {
-        return dispatch('SEND_CLIENT_REQUEST', {
+        return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
           path: '/player/playback/pause',
           params: {
             wait: 0,
@@ -368,7 +407,7 @@ export default {
       default: {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
-        return dispatch('SEND_CLIENT_REQUEST', {
+        return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
           path: '/player/playback/stop',
           params: {
             wait: 0,
@@ -388,7 +427,7 @@ export default {
       default: {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
-        return dispatch('SEND_CLIENT_REQUEST', {
+        return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
           cancelSignal,
           path: '/player/playback/seekTo',
           params: {

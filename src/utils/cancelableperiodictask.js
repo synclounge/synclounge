@@ -1,6 +1,7 @@
 const makeCancelablePeriodicTask = (periodicTaskFunc, intervalTimeFunc) => {
   let timerId = null;
   const cancel = () => {
+    // TODO: this fails if cancel is called while awaiting the periodicTaskFunc
     clearTimeout(timerId);
   };
 
