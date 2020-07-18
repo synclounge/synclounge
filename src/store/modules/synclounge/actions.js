@@ -357,10 +357,11 @@ export default {
     if (!getters.GET_SYNC_CANCEL_TOKEN) {
       // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
       // eslint-disable-next-line new-cap
-      commit('SET_SYNC_CANCEL_TOKEN', new CAF.cancelToken());
+      const token = new CAF.cancelToken();
+      commit('SET_SYNC_CANCEL_TOKEN', token);
 
       try {
-        await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE', getters.GET_SYNC_CANCEL_TOKEN.signal);
+        await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE', token.signal);
       } catch (e) {
         console.log('Error caught in sync logic', e);
       }
@@ -420,10 +421,11 @@ export default {
     if (!getters.GET_SYNC_CANCEL_TOKEN) {
       // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
       // eslint-disable-next-line new-cap
-      commit('SET_SYNC_CANCEL_TOKEN', new CAF.cancelToken());
+      const token = new CAF.cancelToken();
+      commit('SET_SYNC_CANCEL_TOKEN', token);
 
       try {
-        await dispatch('_SYNC_PLAYER_STATE', getters.GET_SYNC_CANCEL_TOKEN.signal);
+        await dispatch('_SYNC_PLAYER_STATE', token.signal);
       } catch (e) {
         console.log('Error caught in sync logic', e);
       }
