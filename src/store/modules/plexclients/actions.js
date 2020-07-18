@@ -237,7 +237,8 @@ export default {
     try {
       const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE');
 
-      if (getters.GET_LAST_PLAY_MEDIA_COMMAND_ID != null && timeline.commandID < getters.GET_LAST_PLAY_MEDIA_COMMAND_ID) {
+      if (getters.GET_LAST_PLAY_MEDIA_COMMAND_ID != null
+        && timeline.commandID < getters.GET_LAST_PLAY_MEDIA_COMMAND_ID) {
       // Plex remote control api says:
       // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia commandID."
         return;
