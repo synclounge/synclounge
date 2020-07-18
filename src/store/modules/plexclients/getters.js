@@ -77,4 +77,6 @@ export default {
     ? getters.GET_ACTIVE_MEDIA_METADATA.machineIdentifier === media.machineIdentifier
       && getters.GET_ACTIVE_MEDIA_METADATA.ratingKey === media.ratingKey
     : false),
+
+  GET_LAST_PLAY_MEDIA_COMMAND_ID: (state) => state.lastPlayMediaCommandId,
 };

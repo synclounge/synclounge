@@ -28,8 +28,6 @@ export default {
 
     commit('settings/SET_PLEX_AUTH_TOKEN', data.authToken, { root: true });
 
-    // TODO: fetch this on demand and stuff
-    // TODO: make this cancellable?
     await dispatch('FETCH_PLEX_USER', signal);
   },
 

@@ -27,6 +27,7 @@ const state = () => ({
   // multiple times with the same data and instead waits for a fresh one
   previousSyncTimelineCommandId: null,
   clientPollerCanceler: null,
+  lastPlayMediaCommandId: null,
 });
 
 export default state;

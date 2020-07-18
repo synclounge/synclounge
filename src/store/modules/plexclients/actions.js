@@ -90,6 +90,10 @@ export default {
 
       // TODO: potentially wait for stuff..
 
+      // Plex remote control API says:
+      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia commandID."
+      const commandId = getters.GET_COMMAND_ID;
+
       await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
         path: '/player/playback/playMedia',
         params: {
@@ -106,6 +110,8 @@ export default {
           ...mediaIndex && { mediaIndex },
         },
       });
+
+      commit('SET_LAST_PLAY_MEDIA_COMMAND_ID', commandId);
 
       // TODO: fix wait for movement lol
       // await this.waitForMovement();
@@ -227,14 +233,31 @@ export default {
   POLL_PLEX_CLIENT: async ({ getters, dispatch, commit }) => {
     // Saving it because making client request increments it
     // TODO: can I actually save it or is it reactive ahaha D:
-    const currentCommandId = getters.GET_COMMAND_ID;
-    const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE');
-    commit('SET_PLEX_CLIENT_TIMELINE_COMMAND_ID', currentCommandId);
+    let currentCommandId = getters.GET_COMMAND_ID;
+    try {
+      const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE');
 
-    await dispatch('UPDATE_PLEX_CLIENT_TIMELINE', timeline);
+      if (getters.GET_LAST_PLAY_MEDIA_COMMAND_ID != null && timeline.commandID < getters.GET_LAST_PLAY_MEDIA_COMMAND_ID) {
+      // Plex remote control api says:
+      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia commandID."
+        return;
+      }
 
-    // TODO: fix this args
-    await dispatch('HANDLE_NEW_TIMELINE', getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA());
+      if (timeline.commandID > getters.GET_COMMAND_ID) {
+      // If the client has a higher command ID, bump our id up to that
+        currentCommandId = timeline.commandID;
+        commit('SET_COMMAND_ID', timeline.commandID + 1);
+      }
+
+      commit('SET_PLEX_CLIENT_TIMELINE_COMMAND_ID', currentCommandId);
+
+      await dispatch('UPDATE_PLEX_CLIENT_TIMELINE', timeline);
+
+      // TODO: fix this args
+      await dispatch('HANDLE_NEW_TIMELINE', getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA());
+    } catch (e) {
+      console.warn('Failed fetching client timeline: ', e);
+    }
   },
 
   // Same return as FETCH_TIMELINE_POLL_DATA but usees the cached data (if normal plex client rather than making a request)
@@ -502,7 +525,6 @@ export default {
       commit('SET_ACTIVE_SERVER_ID', metadata.machineIdentifier);
       commit('plexservers/SET_LAST_SERVER_ID', metadata.machineIdentifier, { root: true });
       commit('SET_ACTIVE_MEDIA_METADATA', metadata);
-      await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
     }
   },
 

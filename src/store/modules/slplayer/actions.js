@@ -375,6 +375,7 @@ export default {
 
   PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ dispatch, commit, rootGetters }) => {
     await dispatch('plexclients/UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM', null, { root: true });
+    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
     // Assume same server machineIdentifier, but this may not always be okay to do. (TODO: figure it out)
 

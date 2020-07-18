@@ -21,6 +21,10 @@ export default {
     state.activeServerId = id;
   },
 
+  SET_COMMAND_ID: (state, id) => {
+    state.commandId = id;
+  },
+
   INCREMENT_COMMAND_ID: (state) => {
     state.commandId += 1;
   },
@@ -55,5 +59,9 @@ export default {
 
   SET_CLIENT_POLLER_CANCELER: (state, canceler) => {
     state.clientPollerCanceler = canceler;
+  },
+
+  SET_LAST_PLAY_MEDIA_COMMAND_ID: (state, id) => {
+    state.lastPlayMediaCommandId = id;
   },
 };
