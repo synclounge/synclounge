@@ -1,6 +1,6 @@
 import { detect } from 'detect-browser';
 import { intersection } from 'lodash-es';
-import { encodeUrlParams } from '@/utils/encoder';
+import { makeUrl } from '@/utils/fetchutils';
 
 function capitalizeFirstLetter(string) {
   return string[0].toUpperCase() + string.slice(1);
@@ -62,7 +62,7 @@ export default {
       code,
     };
 
-    return `https://app.plex.tv/auth#?${encodeUrlParams(urlParams)}`;
+    return makeUrl('https://app.plex.tv/auth#', urlParams);
   },
 
   IS_DONE_FETCHING_DEVICES: (state) => state.doneFetchingDevices,

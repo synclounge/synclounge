@@ -1,4 +1,4 @@
-const makeUrl = (url, params) => {
+export const makeUrl = (url, params) => {
   if (!params) {
     return url;
   }

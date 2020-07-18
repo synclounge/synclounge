@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { difference, intersection } from 'lodash-es';
-import { encodeUrlParams } from '@/utils/encoder';
+import { makeUrl } from '@/utils/fetchutils';
 
 export default {
   GET_PLEX_SERVERS: (state) => Object.values(state.servers),
@@ -55,7 +55,6 @@ export default {
   GET_MEDIA_IMAGE_URL: (state, getters, rootState, rootGetters) => ({
     machineIdentifier, mediaUrl, width, height, blur,
   }) => {
-    // TODO: rewrite this once https://github.com/axios/axios/issues/2190 gets fixed
     const server = getters.GET_PLEX_SERVER(machineIdentifier);
 
     const params = {
@@ -66,7 +65,7 @@ export default {
       blur: blur || 0,
     };
 
-    return `${server.chosenConnection.uri}/photo/:/transcode/?${encodeUrlParams(params)}`;
+    return makeUrl(`${server.chosenConnection.uri}/photo/:/transcode/`, params);
   },
 
   GET_BLOCKED_SERVER_IDS: (state) => state.blockedServerIds,

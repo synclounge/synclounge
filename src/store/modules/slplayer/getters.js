@@ -1,4 +1,4 @@
-import { encodeUrlParams } from '@/utils/encoder';
+import { makeUrl } from '@/utils/fetchutils';
 import contenttitleutils from '@/utils/contenttitleutils';
 import qualities from './qualities';
 
@@ -26,7 +26,7 @@ export default {
     ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media[getters.GET_MEDIA_INDEX].Part[0].id
     : null),
 
-  GET_SRC_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd?${encodeUrlParams(getters.GET_DECISION_AND_START_PARAMS)}`,
+  GET_SRC_URL: (state, getters) => makeUrl(`${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd`, getters.GET_DECISION_AND_START_PARAMS),
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
 
