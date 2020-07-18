@@ -96,7 +96,7 @@ export default {
 
   TEST_PLEX_CONNECTION: async ({ getters }, { connection, accessToken, signal }) => {
     await queryFetch(
-      `${connection.uri}/resources`,
+      connection.uri,
       getters.GET_PLEX_BASE_PARAMS(accessToken),
       { signal },
     );
