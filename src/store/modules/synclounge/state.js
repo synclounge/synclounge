@@ -1,32 +1,16 @@
-import guid from '@/utils/guid';
-
 const state = () => ({
-  uuid: guid(),
-  socket: null,
+  socketId: null,
   server: null,
   room: null,
   password: null,
-  users: [],
+  users: {},
+  hostId: null,
+  messagesUserCache: {},
   messages: [],
-  partyPausing: false,
-  hostTimeline: null,
-  hostLastRatingKey: null,
-  rawTitle: null,
+  isPartyPausingEnabled: false,
   serversHealth: null,
-
-  // This is used to calculate RTT between us and synclounge server
-  // It is a map between poll number and time sent
-  unackedPolls: {},
-  pollNumber: 0,
-
-  // Smoothed round trip time
-  srtt: null,
-  isSyncInProgress: false,
-  isManualSyncedQueued: false,
+  syncCancelToken: null,
   recentRooms: [],
-  isSocketConnected: false,
-  clientPollerCanceler: null,
-
   isInRoom: false,
 });
 

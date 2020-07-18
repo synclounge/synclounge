@@ -1,7 +1,8 @@
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
+import { setDisplay } from '@/player/ui/utils';
 
 export default (store) => {
-  class NextButton extends shaka.ui.Element {
+  class ManualSyncButton extends shaka.ui.Element {
     #watcherCancellers = [];
 
     constructor(parent, controls) {
@@ -9,30 +10,29 @@ export default (store) => {
 
       // The actual button that will be displayed
       this.button = document.createElement('button');
-      this.button.classList.add('shaka-nextbutton');
+      this.button.classList.add('shaka-manualsync-button');
       this.button.classList.add('shaka-slplayer-button');
       this.button.classList.add('material-icons-round');
-      this.button.textContent = 'skip_next';
+      this.button.textContent = 'sync';
       this.parent.appendChild(this.button);
 
       this.#watcherCancellers = [
         store.watch(
-          (state, getters) => getters['plexclients/ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS'],
-          this.updateButtonEnabled.bind(this),
+          (state, getters) => getters['synclounge/AM_I_HOST'],
+          this.updateButtonDisplay.bind(this),
         ),
       ];
 
       // Listen for clicks on the button to start the next playback
       this.eventManager.listen(this.button, 'click', () => {
-        // TODO: maybe await and lock this one at a time?
-        store.dispatch('slplayer/PLAY_NEXT');
+        store.dispatch('synclounge/MANUAL_SYNC');
       });
 
-      this.updateButtonEnabled();
+      this.updateButtonDisplay();
     }
 
-    updateButtonEnabled() {
-      this.button.disabled = !store.getters['plexclients/ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS'];
+    updateButtonDisplay() {
+      setDisplay(this.button, !store.getters['synclounge/AM_I_HOST']);
     }
 
     // TODO: replace this function name with "release" when upgrading to shaka 3
@@ -46,8 +46,8 @@ export default (store) => {
   }
 
   const factory = {
-    create: (rootElement, controls) => new NextButton(rootElement, controls),
+    create: (rootElement, controls) => new ManualSyncButton(rootElement, controls),
   };
 
-  shaka.ui.Controls.registerElement('next', factory);
+  shaka.ui.Controls.registerElement('manual_sync', factory);
 };

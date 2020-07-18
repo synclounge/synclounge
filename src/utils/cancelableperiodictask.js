@@ -1,32 +1,19 @@
-import delay from '@/utils/delay';
-
-// This is used in a similar way as intervals except if the periodic task is async and may take longer
-// than the interval, so each interval, we wait for whatever is longer
 const makeCancelablePeriodicTask = (periodicTaskFunc, intervalTimeFunc) => {
-  let isCancelled = false;
-  const cancelTask = () => {
-    isCancelled = true;
+  let timerId = null;
+  const cancel = () => {
+    // TODO: this fails if cancel is called while awaiting the periodicTaskFunc
+    clearTimeout(timerId);
   };
 
-  const periodicTaskExecutor = async () => {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      if (isCancelled) {
-        break;
-      }
-
-      // eslint-disable-next-line no-await-in-loop
-      await Promise.all([
-        delay(intervalTimeFunc()),
-        periodicTaskFunc(),
-      ]);
-    }
+  const poll = async () => {
+    // TODO: potential deep cancellation of the task?
+    await periodicTaskFunc();
+    timerId = setTimeout(poll, intervalTimeFunc());
   };
 
-  // Purposefully don't await this
-  periodicTaskExecutor();
+  poll();
 
-  return cancelTask;
+  return cancel;
 };
 
 export default makeCancelablePeriodicTask;

@@ -48,6 +48,17 @@ const defaults = {
 
   slplayer_plex_timeline_update_interval: 10000,
   slplayer_controls_visible_checker_interval: 500,
+
+  // Controlls the max time difference cutoff for syncing by changing the playback speed
+  slplayer_speed_sync_max_diff: 10000,
+
+  // The playback rate (1 +/- rate) that is used when speed syncing
+  slplayer_speed_sync_rate: 0.2,
+  sidebar_time_update_interval: 500,
+
+  // If the plex client's time changes by this much from the expected time, trigger a state change
+  plex_client_time_delta_state_change_threshold: 500,
+  plex_auth_check_interval: 1000,
 };
 
 module.exports = defaults;

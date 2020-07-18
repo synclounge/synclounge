@@ -97,9 +97,8 @@
                   <div v-if="!playable">
                     <v-btn
                       v-if="!AM_I_HOST"
-                      :disabled="IS_MANUAL_SYNC_QUEUED"
                       color="blue"
-                      @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
+                      @click="MANUAL_SYNC"
                     >
                       Manual sync
                     </v-btn>
@@ -271,9 +270,8 @@
                         <v-btn
                           v-if="!AM_I_HOST"
                           block
-                          :disabled="IS_MANUAL_SYNC_QUEUED"
                           color="blue"
-                          @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
+                          @click="MANUAL_SYNC"
                         >
                           Manual sync
                         </v-btn>
@@ -548,7 +546,6 @@ export default {
 
     ...mapGetters('synclounge', [
       'AM_I_HOST',
-      'IS_MANUAL_SYNC_QUEUED',
     ]),
 
     server() {
@@ -649,8 +646,8 @@ export default {
       'SET_ACTIVE_METADATA',
     ]),
 
-    ...mapMutations('synclounge', [
-      'SET_IS_MANUAL_SYNC_QUEUED',
+    ...mapActions('synclounge', [
+      'MANUAL_SYNC',
     ]),
 
     async getNewData() {

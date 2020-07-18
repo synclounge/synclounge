@@ -1,4 +1,4 @@
-import { sample, maxBy } from 'lodash-es';
+import { sample } from 'lodash-es';
 import scoreMedia from './mediascoring';
 
 export default {
@@ -89,20 +89,29 @@ export default {
 
         return {
           ...metadata,
-          machineIdentifier: hostTimeline.machineIdentifier,
           mediaIndex: hostTimeline.mediaIndex,
-          offset: hostTimeline.time,
         };
         // eslint-disable-next-line no-empty
       } catch { }
     }
 
-    const results = await dispatch('SEARCH_UNBLOCKED_PLEX_SERVERS', hostTimeline.rawTitle);
+    const results = await dispatch('SEARCH_UNBLOCKED_PLEX_SERVERS', hostTimeline.title);
+    if (results.length <= 0) {
+      return null;
+    }
 
-    const bestResult = maxBy(results, (result) => scoreMedia(result, hostTimeline));
+    const bestResult = results.map((result) => ({
+      result,
+      score: scoreMedia(result, hostTimeline),
+    }))
+      .reduce((prev, current) => (prev.score > current.score ? prev : current)).result;
 
-    console.log(bestResult);
-    return bestResult;
+    const metadata = await dispatch('FETCH_PLEX_METADATA', {
+      ratingKey: bestResult.ratingKey,
+      machineIdentifier: bestResult.machineIdentifier,
+    });
+
+    return metadata;
   },
 
   FETCH_ON_DECK: async ({ getters }, { machineIdentifier, start, size }) => {

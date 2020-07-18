@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer
-    v-if="GET_HOST_USER"
+    v-if="IS_IN_ROOM"
     :value="isRightSidebarOpen"
     style="z-index: 6"
     app
@@ -15,10 +15,10 @@
           <v-list-item-title>{{ GET_ROOM }}</v-list-item-title>
 
           <v-list-item-subtitle
-            v-if="GET_USERS.length != 1"
+            v-if="Object.keys(GET_USERS).length != 1"
             class="participant-count"
           >
-            {{ GET_USERS.length }} people
+            {{ Object.keys(GET_USERS).length }} people
           </v-list-item-subtitle>
 
           <v-list-item-subtitle
@@ -55,15 +55,15 @@
 
       <v-list-item>
         <v-switch
-          v-if="isHost(GET_ME)"
+          v-if="AM_I_HOST"
           class="pa-0 mt-2 party-pausing-label"
           label="Party Pausing"
-          :input-value="getPartyPausing"
-          @change="updatePartyPausing"
+          :input-value="IS_PARTY_PAUSING_ENABLED"
+          @change="SEND_SET_PARTY_PAUSING_ENABLED"
         />
 
         <v-tooltip
-          v-else-if="playerState(GET_HOST_USER) !== 'stop'"
+          v-else-if="GET_HOST_USER.state !== 'stopped'"
           bottom
           color="rgb(44, 44, 49)"
         >
@@ -74,9 +74,9 @@
               :disabled="!canPause"
               style="min-width: 0; float: right;"
               v-on="on"
-              @click="sendPartyPauseLocal(playerState(GET_HOST_USER) === 'play_arrow')"
+              @click="sendPartyPauseLocal(GET_HOST_USER.state === 'playing')"
             >
-              <v-icon v-if="playerState(GET_HOST_USER) === 'play_arrow'">
+              <v-icon v-if="GET_HOST_USER.state === 'playing'">
                 pause
               </v-icon>
 
@@ -112,20 +112,21 @@
         two-line
       >
         <v-list-item
-          v-for="user in GET_USERS"
-          :key="user.username"
+          v-for="(user, id) in GET_USERS"
+          :key="id"
         >
-          <v-list-item-avatar @dblclick="TRANSFER_HOST(user.username)">
+          <v-list-item-avatar>
             <img
-              :src="user.avatarUrl"
-              :style="getImgStyle(user)"
+              :src="user.thumb"
+              :style="getImgStyle(user.syncState)"
             >
+
             <v-icon
-              v-if="user.playerState !== 'playing'"
+              v-if="user.state !== 'playing'"
               style="font-size: 26px; opacity: 0.8; position: absolute;
                 background-color: rgba(0,0,0,0.7)"
             >
-              {{ playerState(user) }}
+              {{ stateIcons[user.state] }}
             </v-icon>
           </v-list-item-avatar>
 
@@ -144,7 +145,7 @@
                   <v-list-item-title>
                     {{ user.username }}
                     <span
-                      v-if="user.uuid === GET_ME.uuid"
+                      v-if="id === GET_SOCKET_ID"
                       style="opacity: 0.6"
                     >
                       (you)
@@ -152,15 +153,15 @@
                   </v-list-item-title>
 
                   <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">
-                    {{ getTitle(user) }}
+                    {{ getTitle(user.media) }}
                   </v-list-item-subtitle>
                 </div>
               </template>
 
               Watching on {{ user.playerProduct || `Unknown Plex Client` }}
-              <span v-if="GET_PLEX_SERVER(user.machineIdentifier)">
+              <span v-if="user.media && GET_PLEX_SERVER(user.media.machineIdentifier)">
                 <br>
-                via {{ GET_PLEX_SERVER(user.machineIdentifier).name }}
+                via {{ GET_PLEX_SERVER(user.media.machineIdentifier).name }}
               </span>
             </v-tooltip>
 
@@ -169,11 +170,11 @@
               class="d-flex justify-space-between"
             >
               <div>
-                {{ getCurrent(user) }}
+                {{ getTimeFromMs(getAdjustedTime(user)) }}
               </div>
 
               <div>
-                {{ getMax(user) }}
+                {{ getTimeFromMs(user.duration) }}
               </div>
             </div>
 
@@ -186,7 +187,7 @@
 
           <v-list-item-action>
             <v-tooltip
-              v-if="isHost(user) || AM_I_HOST"
+              v-if="id === GET_HOST_ID || AM_I_HOST"
               bottom
               color="rgb(44, 44, 49)"
               multi-line
@@ -197,13 +198,13 @@
                   v-bind="attrs"
                   style="color: #E5A00D"
                   v-on="on"
-                  @click="AM_I_HOST && !isHost(user) ? TRANSFER_HOST(user.username) : null"
+                  @click="AM_I_HOST && id !== GET_HOST_ID ? TRANSFER_HOST(id) : null"
                 >
-                  {{ getHostIconName(user) }}
+                  {{ getHostIconName(id === GET_HOST_ID) }}
                 </v-icon>
               </template>
 
-              <span>{{ getHostActionText(user) }}</span>
+              <span>{{ getHostActionText(id === GET_HOST_ID) }}</span>
             </v-tooltip>
           </v-list-item-action>
         </v-list-item>
@@ -226,27 +227,49 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 
+import contentTitle from '@/mixins/contentTitle';
+
 export default {
   components: {
     messages: () => import('@/components/messages.vue'),
     MessageInput: () => import('@/components/MessageInput.vue'),
   },
 
+  mixins: [
+    contentTitle,
+  ],
+
   data() {
     return {
+      stateIcons: {
+        stopped: 'stop',
+        paused: 'pause',
+        playing: 'play_arrow',
+        buffering: 'av_timer',
+      },
+      timeUpdateIntervalId: null,
+
+      // This is updated periodically and is what makes the player times advance (if playing)
+      nowTimestamp: Date.now(),
       partyPauseCooldownRunning: false,
     };
   },
 
   computed: {
     ...mapState(['isRightSidebarOpen']),
+    ...mapGetters([
+      'GET_CONFIG',
+    ]),
+
     ...mapGetters('synclounge', [
-      'GET_ME',
-      'getPartyPausing',
+      'IS_PARTY_PAUSING_ENABLED',
       'GET_USERS',
       'GET_ROOM',
       'GET_HOST_USER',
+      'GET_HOST_ID',
       'AM_I_HOST',
+      'IS_IN_ROOM',
+      'GET_SOCKET_ID',
     ]),
 
     ...mapGetters('plexservers', [
@@ -254,13 +277,23 @@ export default {
     ]),
 
     canPause() {
-      return !this.partyPauseCooldownRunning && this.getPartyPausing;
+      return !this.partyPauseCooldownRunning && this.IS_PARTY_PAUSING_ENABLED;
     },
+  },
+
+  created() {
+    this.timeUpdateIntervalId = setInterval(() => {
+      this.nowTimestamp = Date.now();
+    }, this.GET_CONFIG.sidebar_time_update_interval);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.timeUpdateIntervalId);
   },
 
   methods: {
     ...mapActions('synclounge', [
-      'updatePartyPausing',
+      'SEND_SET_PARTY_PAUSING_ENABLED',
       'sendPartyPause',
       'TRANSFER_HOST',
       'DISCONNECT',
@@ -270,18 +303,14 @@ export default {
       'SET_RIGHT_SIDEBAR_OPEN',
     ]),
 
-    isHost(user) {
-      return user.role === 'host';
-    },
-
-    getHostIconName(user) {
-      return this.isHost(user)
+    getHostIconName(isHost) {
+      return isHost
         ? 'star'
         : 'star_outline';
     },
 
-    getHostActionText(user) {
-      return this.isHost(user)
+    getHostActionText(isHost) {
+      return isHost
         ? 'Host'
         : 'Transfer host';
     },
@@ -294,30 +323,26 @@ export default {
       this.sendPartyPause(isPause);
     },
 
-    getUserColor(user) {
-      if (user.status === 'good' || user.role === 'host') {
-        return '#0de47499';
-      }
-      if (user.status === 'ok') {
-        return '#0a630b';
-      }
-      if (user.status === 'notok') {
-        return '#FFB300';
-      }
-      if (user.status === 'unknown' || user.status === 'error') {
-        return '#F44336';
-      }
+    getSyncStateColor(syncState) {
+      switch (syncState) {
+        case 'synced':
+          return '#0de47499';
 
-      return '#F44336';
+        case 'unsynced':
+          return '#FFB300';
+
+        case 'unknown':
+        default:
+          return '#F44336';
+      }
     },
 
-    getImgStyle(user) {
-      const arr = [
+    getImgStyle(syncState) {
+      return [
         {
-          border: `3px solid ${this.getUserColor(user)}`,
+          border: `3px solid ${this.getSyncStateColor(syncState)}`,
         },
       ];
-      return arr;
     },
 
     async handleDisconnect() {
@@ -325,52 +350,27 @@ export default {
       this.$router.push('/');
     },
 
-    percent(user) {
-      let perc = (parseInt(user.time, 10) / parseInt(user.duration, 10)) * 100;
+    percent({ duration, ...rest }) {
+      const perc = (this.getAdjustedTime(rest) / duration) * 100;
       if (Number.isNaN(perc)) {
-        perc = 0;
+        return 0;
       }
+
       return perc;
     },
 
-    getCurrent(user) {
-      if (Number.isNaN(user.time) || user.time === 0 || !user.time) {
-        return this.getTimeFromMs(0);
-      }
-      const time = parseInt(user.time, 10);
-      return this.getTimeFromMs(time);
+    getTitle(media) {
+      return media
+        ? this.getCombinedTitle(media)
+        : 'Nothing';
     },
 
-    getMax(user) {
-      if (Number.isNaN(user.duration)) {
-        return this.getTimeFromMs(0);
-      }
-      return this.getTimeFromMs(user.duration);
-    },
-
-    getTitle(user) {
-      if (user.title && user.title.length > 0) {
-        return user.title;
-      }
-      return 'Nothing';
-    },
-
-    playerState(user) {
-      if (user.playerState) {
-        if (user.playerState === 'stopped') {
-          return 'stop';
-        }
-        if (user.playerState === 'paused') {
-          return 'pause';
-        }
-        if (user.playerState === 'playing') {
-          return 'play_arrow';
-        }
-        if (user.playerState === 'buffering') {
-          return 'av_timer';
-        }
-      }
-      return 'stop';
+    getAdjustedTime({
+      updatedAt, state, time, playbackRate,
+    }) {
+      return state === 'playing'
+        ? time + (this.nowTimestamp - updatedAt) * playbackRate
+        : time;
     },
 
     getTimeFromMs(timeMs) {
@@ -382,6 +382,7 @@ export default {
       if (s < 10) {
         s = `0${s}`;
       }
+
       let text = `${m}:${s}`;
       if (displayTime > 3600) {
         if (m < 10) {

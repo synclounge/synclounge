@@ -7,7 +7,7 @@
       <div
         ref="videoPlayerContainer"
         class="slplayer"
-        @click="onClick"
+        @click="HANDLE_PLAYER_CLICK"
       >
         <video
           ref="videoPlayer"
@@ -19,7 +19,6 @@
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
-
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
         />
       </div>
@@ -70,29 +69,6 @@
                 </v-col>
               </v-row>
             </v-container>
-          </v-col>
-
-          <v-col cols="auto">
-            <v-tooltip
-              v-if="!AM_I_HOST"
-              bottom
-              color="accent"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  color="white"
-                  class="clickable"
-                  :disabled="IS_MANUAL_SYNC_QUEUED"
-                  v-bind="attrs"
-                  @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
-                  v-on="on"
-                >
-                  compare_arrows
-                </v-icon>
-              </template>
-
-              <span>Manual Sync</span>
-            </v-tooltip>
           </v-col>
         </v-row>
       </v-fade-transition>
@@ -147,9 +123,8 @@
           <v-col v-if="!AM_I_HOST">
             <v-btn
               block
-              :disabled="IS_MANUAL_SYNC_QUEUED"
               color="blue"
-              @click="SET_IS_MANUAL_SYNC_QUEUED(true)"
+              @click="MANUAL_SYNC"
             >
               Manual sync
             </v-btn>
@@ -171,19 +146,14 @@
 </template>
 
 <script>
-import shaka from 'shaka-player/dist/shaka-player.ui.debug';
+
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
+import initialize from '@/player/init';
 
 import 'shaka-player/dist/controls.css';
-import '@/player/ui';
-
-shaka.log.setLevel(shaka.log.Level.ERROR);
-shaka.polyfill.installAll();
 
 export default {
-  name: 'Slplayer',
-
   components: {
     messages: () => import('@/components/messages.vue'),
     MessageInput: () => import('@/components/MessageInput.vue'),
@@ -197,6 +167,7 @@ export default {
     return {
       playerConfig: {
         streaming: {
+          // TODO: make this config
           bufferingGoal: 120,
         },
       },
@@ -210,15 +181,12 @@ export default {
       'GET_PLEX_SERVER',
       'GET_TITLE',
       'GET_SECONDARY_TITLE',
-      'GET_PLAYER',
       'ARE_PLAYER_CONTROLS_SHOWN',
-      'GET_PLAYER_UI',
       'GET_PLAYER_STATE',
     ]),
 
     ...mapGetters('synclounge', [
       'AM_I_HOST',
-      'IS_MANUAL_SYNC_QUEUED',
     ]),
 
     ...mapGetters('plexclients', [
@@ -228,24 +196,11 @@ export default {
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
     ]),
-
-    bigPlayButton() {
-      window.player = this.GET_PLAYER;
-      window.playerUi = this.GET_PLAYER_UI;
-      // eslint-disable-next-line no-underscore-dangle
-      return this.GET_PLAYER_UI.controls_.playButton_.button;
-    },
-
-    smallPlayButton() {
-      // eslint-disable-next-line no-underscore-dangle
-      return this.GET_PLAYER_UI.getControls().elements_
-        .find((element) => element instanceof shaka.ui.SmallPlayButton).button;
-    },
   },
 
   watch: {
-    GET_PLAYER_STATE(playerState) {
-      if (playerState === 'stopped') {
+    GET_PLAYER_STATE(state) {
+      if (state === 'stopped') {
         this.$router.push({ name: 'browse' });
       }
     },
@@ -261,26 +216,23 @@ export default {
     },
   },
 
-  mounted() {
-    this.SET_PLAYER(new shaka.Player(this.$refs.videoPlayer));
-    this.SET_PLAYER_CONFIGURATION(this.playerConfig);
-    this.SET_PLAYER_UI(new shaka.ui.Overlay(this.GET_PLAYER, this.$refs.videoPlayerContainer,
-      this.$refs.videoPlayer));
+  async mounted() {
+    // TODO: monitor upnext stuff interval probably or idk state change timeugh
 
-    this.SET_PLAYER_UI_CONFIGURATION(this.getPlayerUiOptions());
+    await initialize({
+      mediaElement: this.$refs.videoPlayer,
+      playerConfig: this.playerConfig,
+      videoContainer: this.$refs.videoPlayerContainer,
+      overlayConfig: this.getPlayerUiOptions(),
+    });
 
-    this.bigPlayButton.addEventListener('click', this.onClick);
-    this.smallPlayButton.addEventListener('click', this.onClick);
-
-    this.INIT_PLAYER_STATE();
+    await this.INIT_PLAYER_STATE();
 
     window.addEventListener('keyup', this.onKeyUp);
   },
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
-    this.bigPlayButton.removeEventListener('click', this.onClick);
-    this.smallPlayButton.removeEventListener('click', this.onClick);
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -291,6 +243,7 @@ export default {
       'HANDLE_PLAYER_PLAYING',
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
+      'HANDLE_PLAYER_CLICK',
 
       'PRESS_STOP',
       'INIT_PLAYER_STATE',
@@ -299,19 +252,12 @@ export default {
       'SEND_PARTY_PLAY_PAUSE',
     ]),
 
-    ...mapMutations('slplayer', [
-      'SET_PLAYER_UI',
-      'SET_PLAYER_UI_CONFIGURATION',
-      'SET_PLAYER',
-      'SET_PLAYER_CONFIGURATION',
-    ]),
-
     ...mapMutations([
       'SET_BACKGROUND',
     ]),
 
-    ...mapMutations('synclounge', [
-      'SET_IS_MANUAL_SYNC_QUEUED',
+    ...mapActions('synclounge', [
+      'MANUAL_SYNC',
     ]),
 
     getCastReceiverId() {
@@ -337,6 +283,7 @@ export default {
           'forward30',
           'next',
           'close',
+          'manual_sync',
 
           'spacer',
 
@@ -369,12 +316,6 @@ export default {
           this.PLAY_PAUSE_VIDEO();
         }
 
-        this.SEND_PARTY_PLAY_PAUSE();
-      }
-    },
-
-    onClick(e) {
-      if (!e.target.classList.contains('shaka-close-button')) {
         this.SEND_PARTY_PLAY_PAUSE();
       }
     },

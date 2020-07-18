@@ -21,13 +21,15 @@ const persistedState = createPersistedState({
 });
 
 const store = new Vuex.Store({
-  // strict: process.env.NODE_ENV !== 'production',
+  strict: process.env.NODE_ENV !== 'production',
   state,
   mutations,
   actions,
   getters,
   modules,
-  plugins: [persistedState],
+  plugins: [
+    persistedState,
+  ],
 });
 
 export default store;

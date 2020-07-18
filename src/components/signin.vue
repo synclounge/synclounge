@@ -57,21 +57,21 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import delay from '@/utils/delay';
+import CAF from 'caf';
 
 export default {
-  name: 'Signin',
   data() {
     return {
       loading: false,
-      authInterval: null,
       plexAuthResponse: null,
+      cancelToken: null,
     };
   },
 
   computed: {
     ...mapGetters([
       'getLogos',
+      'GET_CONFIG',
     ]),
 
     ...mapGetters('plex', [
@@ -92,48 +92,60 @@ export default {
     this.fetchInitialAuthCode();
   },
 
+  beforeDestroy() {
+    if (this.cancelToken) {
+      this.cancelToken.abort();
+      this.cancelToken = null;
+    }
+  },
+
   methods: {
     ...mapActions('plex', [
-      'REQUEST_PLEX_INIT_AUTH',
+      'FETCH_PLEX_INIT_AUTH',
       'REQUEST_PLEX_AUTH_TOKEN',
       'FETCH_PLEX_DEVICES_IF_NEEDED',
     ]),
 
     async fetchInitialAuthCode() {
       this.loading = true;
-      this.plexAuthResponse = await this.REQUEST_PLEX_INIT_AUTH();
+      // eslint-disable-next-line new-cap
+      this.cancelToken = new CAF.cancelToken();
+      this.plexAuthResponse = await this.FETCH_PLEX_INIT_AUTH(this.cancelToken.signal);
+      this.cancelToken = null;
       this.loading = false;
     },
 
     async authenticate() {
       this.loading = true;
+      // eslint-disable-next-line new-cap
+      this.cancelToken = new CAF.cancelToken();
+      await this.plexAuthChecker(this.cancelToken.signal);
 
-      // Start checking for valid auth response
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        const delayPromise = delay(2000);
-
-        // eslint-disable-next-line no-await-in-loop
-        const isComplete = await this.isAuthComplete();
-        if (isComplete) {
-          break;
-        }
-
-        // eslint-disable-next-line no-await-in-loop
-        await delayPromise;
-      }
-
-      this.loading = false;
-
+      await this.FETCH_PLEX_DEVICES_IF_NEEDED();
       if (this.IS_USER_AUTHORIZED) {
         this.$router.push(this.$route.query.redirect || '/');
       }
+      this.loading = false;
     },
 
-    async isAuthComplete() {
+    plexAuthChecker: CAF(function* plexAuthChecker(signal) {
+      while (true) {
+        yield CAF.delay(signal, this.GET_CONFIG.plex_auth_check_interval);
+
+        const isComplete = yield this.isAuthComplete(signal);
+        if (isComplete) {
+          return;
+        }
+      }
+    }),
+
+    async isAuthComplete(signal) {
       try {
-        await this.REQUEST_PLEX_AUTH_TOKEN(this.plexAuthResponse.id);
-        await this.FETCH_PLEX_DEVICES_IF_NEEDED();
+        await this.REQUEST_PLEX_AUTH_TOKEN({
+          signal,
+          id: this.plexAuthResponse.id,
+        });
+
         return true;
       } catch {
         return false;

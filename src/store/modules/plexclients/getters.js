@@ -1,6 +1,3 @@
-import axios from 'axios';
-import contenttitleutils from '@/utils/contenttitleutils';
-
 export default {
   GET_CHOSEN_CLIENT_ID: (state) => state.chosenClientId,
 
@@ -19,47 +16,27 @@ export default {
 
   GET_PLEX_CLIENT_TIMELINE: (state) => state.plexClientTimeline,
 
-  GET_PLEX_CLIENT_AXIOS: (state, getters, rootState, rootGetters) => (clientIdentifier) => {
-    const client = getters.GET_PLEX_CLIENT(clientIdentifier);
-
-    return axios.create({
-      baseURL: client.chosenConnection.uri,
-      // TODO: examine this timeout...
-      timeout: 5000,
-      headers: {
-        ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](client.accessToken),
-        'X-Plex-Target-Client-Identifier': clientIdentifier,
-      },
-    });
-  },
-
-  GET_CHOSEN_PLEX_CLIENT_AXIOS: (state, getters) => (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10'
-    ? null
-    : getters.GET_PLEX_CLIENT_AXIOS(getters.GET_CHOSEN_CLIENT_ID)),
-
   GET_ACTIVE_MEDIA_POLL_METADATA: (state, getters) => (getters.GET_ACTIVE_MEDIA_METADATA
     ? {
-      title: contenttitleutils.getCombinedTitle(getters.GET_ACTIVE_MEDIA_METADATA),
-      rawTitle: getters.GET_ACTIVE_MEDIA_METADATA.title,
+      title: getters.GET_ACTIVE_MEDIA_METADATA.title,
       type: getters.GET_ACTIVE_MEDIA_METADATA.type,
       grandparentTitle: getters.GET_ACTIVE_MEDIA_METADATA.grandparentTitle,
       parentTitle: getters.GET_ACTIVE_MEDIA_METADATA.parentTitle,
       ratingKey: getters.GET_ACTIVE_MEDIA_METADATA.ratingKey,
+      machineIdentifier: getters.GET_ACTIVE_MEDIA_METADATA.machineIdentifier,
     }
-    : {
-      title: null,
-      rawTitle: null,
-      type: null,
-      grandparentTitle: null,
-      parentTitle: null,
-      ratingKey: null,
-    }),
+    : null),
 
-  GET_PLEX_CLIENT_POLL_DATA: (state, getters) => (getters.GET_PLEX_CLIENT_TIMELINE
+  GET_ADJUSTED_PLEX_CLIENT_POLL_DATA: (state, getters) => () => (getters.GET_PLEX_CLIENT_TIMELINE
     ? ({
-      time: getters.GET_PLEX_CLIENT_TIMELINE.time,
+      time: getters.GET_PLEX_CLIENT_TIMELINE.state === 'playing'
+        ? getters.GET_PLEX_CLIENT_TIMELINE.time + Date.now()
+          - getters.GET_PLEX_CLIENT_TIMELINE.updatedAt
+        : getters.GET_PLEX_CLIENT_TIMELINE.time,
       duration: getters.GET_PLEX_CLIENT_TIMELINE.duration,
-      playerState: getters.GET_PLEX_CLIENT_TIMELINE.state,
+      // Assume all other Plex clients only support playback rate of 1 (maybe this will change in the future)
+      playbackRate: 1,
+      state: getters.GET_PLEX_CLIENT_TIMELINE.state,
     })
     : null),
 
@@ -93,4 +70,13 @@ export default {
   ACTIVE_PLAY_QUEUE_PREVIOUS_ITEM_EXISTS: (state, getters) => (getters.GET_ACTIVE_PLAY_QUEUE
     ? getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset > 0
     : false),
+
+  GET_CLIENT_POLLER_CANCELER: (state) => state.clientPollerCanceler,
+
+  IS_THIS_MEDIA_PLAYING: (state, getters) => (media) => (getters.GET_ACTIVE_MEDIA_METADATA
+    ? getters.GET_ACTIVE_MEDIA_METADATA.machineIdentifier === media.machineIdentifier
+      && getters.GET_ACTIVE_MEDIA_METADATA.ratingKey === media.ratingKey
+    : false),
+
+  GET_LAST_PLAY_MEDIA_COMMAND_ID: (state) => state.lastPlayMediaCommandId,
 };

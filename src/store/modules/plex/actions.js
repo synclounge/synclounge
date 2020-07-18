@@ -1,19 +1,26 @@
-import axios from 'axios';
-
 import promiseutils from '@/utils/promiseutils';
+import { fetchJson, queryFetch } from '@/utils/fetchutils';
 
 export default {
-  REQUEST_PLEX_INIT_AUTH: ({ getters }) => axios.post('https://plex.tv/api/v2/pins', null, {
-    headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
-    params: {
-      strong: true,
-    },
-  }).then(({ data }) => data),
-
-  REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit, dispatch }, id) => {
-    const { data } = await axios.get(`https://plex.tv/api/v2/pins/${id}`, {
+  FETCH_PLEX_INIT_AUTH: async ({ getters }, signal) => fetchJson(
+    'https://plex.tv/api/v2/pins',
+    { strong: true },
+    {
+      method: 'POST',
       headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
-    });
+      signal,
+    },
+  ),
+
+  REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit, dispatch }, { signal, id }) => {
+    const data = await fetchJson(
+      `https://plex.tv/api/v2/pins/${id}`,
+      null,
+      {
+        headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
+        signal,
+      },
+    );
 
     if (!data.authToken) {
       throw new Error("Plex didn't give authToken");
@@ -21,32 +28,27 @@ export default {
 
     commit('settings/SET_PLEX_AUTH_TOKEN', data.authToken, { root: true });
 
-    // TODO: fetch this on demand and stuff
-    await dispatch('FETCH_PLEX_USER');
+    await dispatch('FETCH_PLEX_USER', signal);
   },
 
-  FETCH_PLEX_USER: async ({ getters, commit }) => {
-    const { data } = await axios.get('https://plex.tv/api/v2/user', {
-      params: {
-        includeSubscriptions: 1,
-        includeProviders: 1,
-        includeSettings: 1,
-        includeSharedSettings: 1,
-      },
-      headers: getters.GET_PLEX_BASE_PARAMS(),
-    });
+  FETCH_PLEX_USER: async ({ getters, commit }, signal) => {
+    const data = await fetchJson('https://plex.tv/api/v2/user', {
+      ...getters.GET_PLEX_BASE_PARAMS(),
+      includeSubscriptions: 1,
+      includeProviders: 1,
+      includeSettings: 1,
+      includeSharedSettings: 1,
+    }, { signal });
 
     commit('SET_PLEX_USER', data);
   },
 
   // Private function, please use FETCH_PLEX_DEVICES instead
   _FETCH_PLEX_DEVICES: async ({ commit, dispatch, getters }) => {
-    const { data: devices } = await axios.get('https://plex.tv/api/v2/resources', {
-      params: {
-        includeHttps: 1,
-        includeRelay: 1,
-      },
-      headers: getters.GET_PLEX_BASE_PARAMS(),
+    const devices = await fetchJson('https://plex.tv/api/v2/resources', {
+      ...getters.GET_PLEX_BASE_PARAMS(),
+      includeHttps: 1,
+      includeRelay: 1,
     });
 
     await Promise.allSettled(devices.map(async (device) => {
@@ -56,7 +58,7 @@ export default {
       } else if (device.provides.indexOf('server') !== -1) {
         // This is a Server
         // TODO: potentially find connections async and not hold up the fetch devices
-        const chosenConnection = await dispatch('FIND_WORKING_CONNECTION', {
+        const chosenConnection = await dispatch('FIND_WORKING_CONNECTION_PREFERRED', {
           connections: device.connections,
           accessToken: device.accessToken,
         }).catch(() => null);
@@ -92,11 +94,32 @@ export default {
     }
   },
 
-  TEST_PLEX_CONNECTION: ({ getters }, { connection, accessToken }) => axios.get(connection.uri, {
-    headers: getters.GET_PLEX_BASE_PARAMS(accessToken),
-  }),
+  TEST_PLEX_CONNECTION: async ({ getters }, { connection, accessToken, signal }) => {
+    await queryFetch(
+      `${connection.uri}/resources`,
+      getters.GET_PLEX_BASE_PARAMS(accessToken),
+      { signal },
+    );
+
+    return connection;
+  },
 
   FIND_WORKING_CONNECTION: async ({ dispatch }, { connections, accessToken }) => {
+    const controller = new AbortController();
+    const workingConnection = await promiseutils.any(
+      connections.map((connection) => dispatch(
+        'TEST_PLEX_CONNECTION',
+        { connection, accessToken, signal: controller.signal },
+      )),
+    );
+
+    // Abort other connection attempts since we found one
+    controller.abort();
+
+    return workingConnection;
+  },
+
+  FIND_WORKING_CONNECTION_PREFERRED: async ({ dispatch }, { connections, accessToken }) => {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
@@ -104,29 +127,26 @@ export default {
     const nonRelayConnections = connections.filter((connection) => !connection.relay);
     // Prefer secure connections first.
     const secureConnections = nonRelayConnections.filter((connection) => connection.protocol === 'https');
-    const insecureConnections = nonRelayConnections.filter((connection) => connection.protocol === 'http');
 
     try {
-      const secureConnection = await promiseutils.any(
-        secureConnections.map((connection) => dispatch('TEST_PLEX_CONNECTION', { connection, accessToken }).then(() => connection)),
-      );
-      return secureConnection;
+      return dispatch('FIND_WORKING_CONNECTION', { connections: secureConnections, accessToken });
     } catch (e) {
-      console.log('No secure connections found');
+      console.warn('No secure connections found');
     }
 
     // If we are using synclounge over https, we can't access connections over http because
     // most modern web browsers block mixed content
-
+    const insecureConnections = nonRelayConnections.filter((connection) => connection.protocol === 'http');
     try {
-      const insecureConnection = await promiseutils.any(insecureConnections.map((connection) => dispatch('TEST_PLEX_CONNECTION', { connection, accessToken }).then(() => connection)));
-      return insecureConnection;
+      return dispatch('FIND_WORKING_CONNECTION', { connections: insecureConnections, accessToken });
     } catch (e) {
-      console.log('No insecure connections found');
+      console.warn('No insecure connections found');
     }
+
+    // TODO: display better errors for this
 
     // Finally try relay connections if we failed everywhere else.
     const relayConnections = connections.filter((connection) => connection.relay);
-    return promiseutils.any(relayConnections.map((connection) => dispatch('TEST_PLEX_CONNECTION', { connection, accessToken }).then(() => connection)));
+    return dispatch('FIND_WORKING_CONNECTION', { connections: relayConnections, accessToken });
   },
 };
