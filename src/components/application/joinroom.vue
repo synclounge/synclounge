@@ -86,48 +86,47 @@
           <v-subheader>Recent Rooms</v-subheader>
 
           <v-list class="pa-0">
-            <template v-for="(item, index) in GET_RECENT_ROOMS.slice(0, 3)">
-              <v-list-item
-                :key="index"
-                @click="recentConnect(item)"
+            <v-list-item
+              v-for="(item, index) in GET_RECENT_ROOMS.slice(0, 3)"
+              :key="index"
+              @click="recentConnect(item)"
+            >
+              <v-list-item-avatar
+                width="32px"
               >
-                <v-list-item-avatar
-                  width="32px"
+                <v-img
+                  src="@/assets/images/logos/logo-small-light.png"
+                />
+              </v-list-item-avatar>
+
+              <v-list-item-content>
+                <v-list-item-title>{{ item.name || item.server || 'Custom' }}</v-list-item-title>
+
+                <v-list-item-subtitle>
+                  <b>{{ item.room }}</b>
+                  <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+
+              <v-list-item-action>
+                <v-tooltip
+                  top
+                  color="light-blue darken-4"
                 >
-                  <v-img
-                    src="@/assets/images/logos/logo-small-light.png"
-                  />
-                </v-list-item-avatar>
-
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.name || item.server || 'Custom' }}</v-list-item-title>
-
-                  <v-list-item-subtitle>
-                    <b>{{ item.room }}</b>
-                    <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span>
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-
-                <v-list-item-action>
-                  <v-tooltip
-                    top
-                    color="light-blue darken-4"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-icon
-                        color="white"
-                        v-bind="attrs"
-                        v-on="on"
-                        @click="REMOVE_RECENT_ROOM(item)"
-                      >
-                        close
-                      </v-icon>
-                    </template>
-                    Remove
-                  </v-tooltip>
-                </v-list-item-action>
-              </v-list-item>
-            </template>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      color="white"
+                      v-bind="attrs"
+                      v-on="on"
+                      @click.stop="REMOVE_RECENT_ROOM(item)"
+                    >
+                      close
+                    </v-icon>
+                  </template>
+                  Remove
+                </v-tooltip>
+              </v-list-item-action>
+            </v-list-item>
           </v-list>
         </v-col>
 
