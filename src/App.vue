@@ -13,12 +13,12 @@
 
       <picture>
         <source
-          :srcset="getLogos.light.small"
+          srcset="@/assets/images/logos/logo-small-light.png"
           :media="smallLogoMedia"
         >
         <img
           height="42"
-          :src="getLogos.light.long"
+          src="@/assets/images/logos/logo-long-light.png"
           style="vertical-align: middle"
         >
       </picture>
@@ -186,7 +186,6 @@ export default {
   computed: {
     ...mapGetters([
       'GET_UP_NEXT_POST_PLAY_DATA',
-      'getLogos',
       'GET_CONFIG',
       'GET_ACTIVE_METADATA',
       'GET_SNACKBAR_MESSAGE',

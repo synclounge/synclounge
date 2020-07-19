@@ -12,7 +12,7 @@
         >
           <img
             style="width:100%"
-            :src="getLogos.light.long "
+            src="@/assets/images/logos/logo-long-light.png"
           >
         </v-col>
       </v-row>
@@ -307,10 +307,6 @@ export default {
       'GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN',
       'GET_CHOSEN_CLIENT_ID',
       'GET_PLEX_CLIENT',
-    ]),
-
-    ...mapGetters([
-      'getLogos',
     ]),
 
     doReverse() {

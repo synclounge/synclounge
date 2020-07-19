@@ -13,7 +13,7 @@
           <v-card-title>
             <v-img
               contain
-              :src="getLogos.light.long"
+              src="@/assets/images/logos/logo-long-light.png"
             />
           </v-card-title>
 
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions } from 'vuex';
 
 export default {
   components: {
@@ -78,12 +78,6 @@ export default {
 
       error: null,
     };
-  },
-
-  computed: {
-    ...mapGetters([
-      'getLogos',
-    ]),
   },
 
   methods: {

@@ -32,7 +32,7 @@ export default {
 
   GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Product': getters.GET_PLEX_PRODUCT_HEADER,
-    'X-Plex-Version': rootGetters.getAppVersion,
+    'X-Plex-Version': process.env.VUE_APP_VERSION,
     'X-Plex-Client-Identifier': rootGetters['settings/GET_CLIENTIDENTIFIER'],
     'X-Plex-Platform': getters.GET_PLEX_PLATFORM_HEADER,
     'X-Plex-Platform-Version': browser.version,

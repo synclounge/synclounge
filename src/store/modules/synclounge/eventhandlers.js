@@ -39,7 +39,6 @@ export default {
   },
 
   HANDLE_NEW_HOST: async ({ getters, dispatch, commit }, hostId) => {
-    // TODO: synchronize!
     commit('SET_HOST_ID', hostId);
     await dispatch('ADD_MESSAGE_AND_CACHE', {
       senderId: hostId,

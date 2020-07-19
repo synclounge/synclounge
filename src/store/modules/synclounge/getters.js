@@ -36,16 +36,18 @@ export default {
 
   GET_SERVERS_HEALTH: (state) => state.serversHealth,
 
+  GET_SERVER_HEALTH: (state) => (url) => state.serversHealth[url],
+
   GET_SERVER_HEALTH_SCORES: (state, getters) => (getters.GET_SERVERS_HEALTH
-    ? getters.GET_SERVERS_HEALTH.map((health) => ({
-      score: healthScore(health),
-      url: health.url,
-    }))
+    ? Object.fromEntries(Object.entries(getters.GET_SERVERS_HEALTH).map(([url, health]) => [
+      url,
+      healthScore(health),
+    ]))
     : null),
 
   GET_BEST_SERVER: (state, getters) => (getters.GET_SERVER_HEALTH_SCORES
-    ? getters.GET_SERVER_HEALTH_SCORES
-      .reduce((prev, curr) => (curr.score < prev.score ? curr : prev)).url
+    ? Object.entries(getters.GET_SERVER_HEALTH_SCORES)
+      .reduce((prev, curr) => (curr[1] < prev[1] ? curr : prev))[0]
     : null),
 
   GET_DISPLAY_USERNAME: (state, getters, rootState, rootGetters) => (rootGetters['settings/GET_HIDEUSERNAME']

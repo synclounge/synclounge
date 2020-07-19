@@ -18,7 +18,7 @@
           xl="6"
         >
           <v-img
-            :src="getLogos.light.long"
+            src="@/assets/images/logos/logo-long-light.png"
           />
         </v-col>
       </v-row>
@@ -78,7 +78,7 @@
         </v-col>
 
         <v-col
-          v-if="!GET_SOCKET && GET_RECENT_ROOMS.length > 0"
+          v-if="!GET_SOCKET_ID && GET_RECENT_ROOMS.length > 0"
           cols="12"
           class="nicelist pa-4"
           style="color:white !important;"
@@ -95,7 +95,7 @@
                   width="32px"
                 >
                   <v-img
-                    :src="getLogos.light.small"
+                    src="@/assets/images/logos/logo-small-light.png"
                   />
                 </v-list-item-avatar>
 
@@ -132,7 +132,7 @@
         </v-col>
 
         <v-col
-          v-if="!GET_SOCKET"
+          v-if="!GET_SOCKET_ID"
           cols="12"
           class="nicelist pa-4"
           style="color:white !important"
@@ -179,54 +179,40 @@
                     <h4>{{ server.location }}</h4>
                   </v-col>
 
-                  <v-col
-                    v-if="server.url !== 'custom'"
-                    cols="12"
-                    class="text-center"
-                  >
-                    <div v-if="results[server.url]">
-                      <div v-if="results[server.url].alive">
+                  <template v-if="GET_SERVERS_HEALTH && server.url !== 'custom'">
+                    <template v-if="GET_SERVER_HEALTH(server.url)">
+                      <v-col
+                        cols="12"
+                        class="text-center"
+                      >
                         Ping:
                         <span
                           class="thick--text"
-                          :class="connectionQualityClass(results[server.url].latency)"
-                        >{{ results[server.url].latency }}ms</span>
-                      </div>
+                          :class="connectionQualityClass(GET_SERVER_HEALTH(server.url).latency)"
+                        >{{ GET_SERVER_HEALTH(server.url).latency }}ms</span>
+                      </v-col>
 
-                      <div
-                        v-else
-                        class="text-center red--text"
+                      <v-col
+                        cols="12"
+                        class="text-center"
                       >
-                        error
-                      </div>
-                    </div>
-                  </v-col>
-
-                  <v-col
-                    cols="12"
-                    class="text-center"
-                  >
-                    <div v-if="server.url !== 'custom'">
-                      <div v-if="results[server.url]">
-                        <div v-if="results[server.url].alive">
-                          <div>
-                            Load:
-                            <span
-                              class="thick--text"
-                              :class="loadQualityClass(results[server.url].result)"
-                            >{{ results[server.url].result || 'Unknown' }}</span>
-                          </div>
+                        <div>
+                          Load:
+                          <span
+                            class="thick--text"
+                            :class="loadQualityClass(GET_SERVER_HEALTH(server.url).load)"
+                          >{{ GET_SERVER_HEALTH(server.url).load }}</span>
                         </div>
+                      </v-col>
+                    </template>
 
-                        <div
-                          v-else
-                          class="text-center red--text"
-                        >
-                          error
-                        </div>
-                      </div>
+                    <div
+                      v-else
+                      class="text-center red--text"
+                    >
+                      error
                     </div>
-                  </v-col>
+                  </template>
 
                   <v-col
                     cols="12"
@@ -244,9 +230,61 @@
                 </v-row>
               </v-card>
             </v-col>
+
+            <v-col
+
+              class="pa-2"
+              cols="12"
+              md="3"
+              lg="2"
+            >
+              <v-card
+                height="300px"
+                style="border-radius: 20px"
+              >
+                <v-row
+                  justify="center"
+                  align="center"
+                  style="height: 100%"
+                >
+                  <v-col
+                    cols="12"
+                    class="text-center pa-2"
+                    style="height: 80px"
+                  >
+                    <img
+                      src="@/assets/images/synclounge-white.png"
+                      class="server-image"
+                    >
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    class="text-center"
+                  >
+                    <h2>Custom Server</h2>
+                    <h4>Anywhere!</h4>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    class="text-center pt-1 mt-4"
+                  >
+                    <v-btn
+                      color="primary"
+                      :disabled="connectionPending"
+                      class="connect-button"
+                      @click="serverSelected({custom: true})"
+                    >
+                      Connect
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-col>
           </v-row>
 
-          <template v-if="selectedServer && selectedServer.url === 'custom'">
+          <template v-if="selectedServer && selectedServer.custom">
             <v-text-field
               name="input-2"
               label="Custom Server"
@@ -303,7 +341,7 @@
         </v-col>
 
         <v-col
-          v-if="GET_SOCKET"
+          v-if="GET_SOCKET_ID"
           cols="12"
           class="text-center"
         >
@@ -377,14 +415,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import { formatDistanceToNow } from 'date-fns';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-import { fetchJson } from '@/utils/fetchutils';
 
 export default {
-  name: 'Joinroom',
-
   data() {
     return {
       selectedServer: null,
@@ -392,24 +426,21 @@ export default {
       roomError: null,
       e1: 2,
       connectionPending: false,
-      results: {},
       testConnectionInterval: null,
     };
   },
 
   computed: {
     ...mapGetters('synclounge', [
-      'GET_SOCKET',
+      'GET_SOCKET_ID',
       'GET_SYNCLOUNGE_SERVERS',
       'GET_SERVER',
       'GET_RECENT_ROOMS',
       'GET_ROOM',
       'GET_PASSWORD',
       'IS_IN_ROOM',
-    ]),
-
-    ...mapGetters([
-      'getLogos',
+      'GET_SERVER_HEALTH',
+      'GET_SERVERS_HEALTH',
     ]),
 
     ...mapGetters('settings', [
@@ -435,13 +466,14 @@ export default {
 
   beforeDestroy() {
     clearInterval(this.testConnectionInterval);
-    this.destroyed = true;
   },
 
-  created() {
-    this.testConnectionInterval = setInterval(() => {
-      this.testConnections();
-    }, 5000);
+  async created() {
+    await this.FETCH_SERVERS_HEALTH();
+
+    // TODO: rewrite this with a generator
+    this.testConnectionInterval = setInterval(() => this.FETCH_SERVERS_HEALTH(),
+      5000);
   },
 
   methods: {
@@ -458,6 +490,7 @@ export default {
       'ESTABLISH_SOCKET_CONNECTION',
       'REMOVE_RECENT_ROOM',
       'ADD_EVENT_HANDLERS',
+      'FETCH_SERVERS_HEALTH',
     ]),
 
     sinceNow(x) {
@@ -499,57 +532,28 @@ export default {
           this.password = this.selectedServer.defaultPassword;
         }
       }
-      if (this.selectedServer.url !== 'custom') {
+
+      if (!this.selectedServer.custom) {
         await this.attemptConnect();
       }
-    },
-
-    async testConnections() {
-      return Promise.all(this.GET_SYNCLOUNGE_SERVERS.map(async (server) => {
-        if (server.url !== 'custom') {
-          const start = new Date().getTime();
-          try {
-            const res = await fetchJson(`${server.url}/health`);
-
-            Vue.set(this.results, server.url, {
-              alive: true,
-              latency: Math.abs(start - new Date().getTime()),
-              result: res.data.load || null,
-            });
-          } catch {
-            Vue.set(this.results, server.url, {
-              alive: false,
-              latency: Math.abs(start - new Date().getTime()),
-              result: null,
-            });
-          }
-        }
-      }));
     },
 
     async attemptConnect() {
       this.serverError = null;
 
-      if (this.selectedServer.url !== 'custom') {
-        this.connectionPending = true;
+      try {
+        this.SET_SERVER(this.selectedServer.url);
+        await this.ESTABLISH_SOCKET_CONNECTION();
 
-        try {
-          this.SET_SERVER(this.selectedServer.url);
-          await this.ESTABLISH_SOCKET_CONNECTION();
-          await this.ADD_EVENT_HANDLERS();
-
-          if (this.GET_ROOM) {
-            await this.joinRoom()
-              .catch(() => {});
-          }
-
-          this.connectionPending = false;
-        } catch (e) {
-          this.connectionPending = false;
-          this.serverError = `Failed to connect to ${this.selectedServer.url}`;
-          console.error(e);
-          throw e;
+        if (this.GET_ROOM) {
+          await this.joinRoom()
+            .catch(() => {});
         }
+      } catch (e) {
+        this.serverError = `Failed to connect to ${this.selectedServer.url}`;
+        console.error(e);
+      } finally {
+        this.connectionPending = false;
       }
     },
 
@@ -560,18 +564,18 @@ export default {
       try {
         this.SET_SERVER(this.GET_CUSTOM_SERVER_USER_INPUTTED_URL);
         const result = await this.ESTABLISH_SOCKET_CONNECTION();
-        await this.ADD_EVENT_HANDLERS();
 
         if (result) {
           this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
         } else {
           this.serverError = null;
         }
-      } catch {
+      } catch (e) {
         this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
+        console.error(e);
+      } finally {
+        this.connectionPending = false;
       }
-
-      this.connectionPending = false;
     },
 
     async recentConnect(recent) {
@@ -586,7 +590,7 @@ export default {
     },
 
     async joinRoom() {
-      if (!this.GET_SOCKET) {
+      if (!this.GET_SOCKET_ID) {
         throw new Error('not connected to a server');
       }
 

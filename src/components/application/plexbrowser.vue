@@ -252,7 +252,7 @@
                 >
                   <v-col cols="4">
                     <v-img
-                      :src="getLogos.plex.standard"
+                      src="@/assets/images/logos/plexlogo.png"
                       height="110px"
                       contain
                     />
@@ -326,10 +326,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'getLogos',
-    ]),
-
     ...mapGetters('plexservers', [
       'GET_LAST_SERVER',
       'GET_LAST_SERVER_ID',

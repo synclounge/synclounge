@@ -17,7 +17,7 @@
 
         <div class="ml-auto">
           <img
-            :src="getLogos.light.small"
+            src="@/assets/images/logos/logo-small-light.png"
             height="50"
           >
         </div>
@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions } from 'vuex';
 
 export default {
   data() {
@@ -124,12 +124,6 @@ export default {
         BCH: '1K3ULWzW9dLyGbtpnNqUysHuj1suZFXtx4',
       },
     };
-  },
-
-  computed: {
-    ...mapGetters([
-      'getLogos',
-    ]),
   },
 
   methods: {

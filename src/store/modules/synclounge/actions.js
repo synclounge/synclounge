@@ -8,20 +8,9 @@ import {
 } from '@/socket';
 
 export default {
-  CONNECT_AND_JOIN_ROOM: async ({ getters, dispatch }) => {
+  CONNECT_AND_JOIN_ROOM: async ({ dispatch }) => {
     await dispatch('ESTABLISH_SOCKET_CONNECTION');
     await dispatch('JOIN_ROOM_AND_INIT');
-
-    // Add this item to our recently-connected list
-    await dispatch(
-      'ADD_RECENT_ROOM',
-      {
-        server: getters.GET_SERVER,
-        room: getters.GET_ROOM,
-        password: getters.GET_PASSWORD,
-        time: Date.now(),
-      },
-    );
   },
 
   SET_AND_CONNECT_AND_JOIN_ROOM: ({ commit, dispatch }, { server, room, password }) => {
@@ -31,17 +20,19 @@ export default {
     return dispatch('CONNECT_AND_JOIN_ROOM');
   },
 
-  ESTABLISH_SOCKET_CONNECTION: async ({ getters, dispatch }) => {
+  ESTABLISH_SOCKET_CONNECTION: async ({ getters, commit, dispatch }) => {
     // TODO: make wrapper method that disconnects the socket if it already exists
     if (isConnected()) {
       await dispatch('DISCONNECT');
     }
 
     const url = combineUrl('socket.io', getters.GET_SERVER);
-    await open(url.origin, {
+    const { id } = await open(url.origin, {
       path: url.pathname,
       transports: ['websocket', 'polling'],
     });
+
+    commit('SET_SOCKET_ID', id);
 
     // Wait for initial slPing
     // Doing it this way rather than adding the normal listener because there is no guarentee on the order
@@ -90,7 +81,18 @@ export default {
       user: { id, ...rest }, users, isPartyPausingEnabled, hostId,
     } = await dispatch('JOIN_ROOM');
     const updatedAt = Date.now();
-    commit('SET_SOCKET_ID', id);
+
+    // Add this item to our recently-connected list
+    await dispatch(
+      'ADD_RECENT_ROOM',
+      {
+        server: getters.GET_SERVER,
+        room: getters.GET_ROOM,
+        password: getters.GET_PASSWORD,
+        time: Date.now(),
+      },
+    );
+
     commit('SET_HOST_ID', hostId);
 
     commit('SET_USERS', Object.fromEntries(
@@ -171,7 +173,7 @@ export default {
   },
 
   FETCH_SERVERS_HEALTH: async ({ getters, rootGetters, commit }) => {
-    const start = new Date().getTime();
+    const start = Date.now();
     const controller = new AbortController();
 
     const timeout = setTimeout(() => {
@@ -180,27 +182,20 @@ export default {
 
     const results = await Promise.allSettled(getters.GET_SYNCLOUNGE_SERVERS
       .filter((server) => server.url !== 'custom')
-      .map(async ({ url }) => ({
-        ...fetchJson(`${url}/health`, null, { signal: controller.signal }),
-        latency: new Date().getTime() - start,
+      .map(async ({ url }) => [
         url,
-      })));
+        {
+          ...await fetchJson(`${url}/health`, null, { signal: controller.signal }),
+          latency: Date.now() - start,
+        },
+      ]));
 
     clearTimeout(timeout);
 
-    const aliveServerHealths = results.filter((result) => result.status === 'fulfilled')
-      .map(({ value }) => value);
+    const aliveServerHealths = Object.fromEntries(results.filter((result) => result.status === 'fulfilled')
+      .map(({ value }) => value));
 
     commit('SET_SERVERS_HEALTH', aliveServerHealths);
-  },
-
-  GET_OR_FETCH_SERVERS_HEALTH: async ({ dispatch, getters }) => {
-    if (getters.GET_SERVERS_HEALTH) {
-      return getters.GET_SERVERS_HEALTH;
-    }
-
-    await dispatch('FETCH_SERVERS_HEALTH');
-    return getters.GET_SERVERS_HEALTH;
   },
 
   CREATE_AND_JOIN_ROOM: ({ getters, dispatch }) => dispatch('SET_AND_CONNECT_AND_JOIN_ROOM', {
@@ -209,13 +204,13 @@ export default {
     password: null,
   }),
 
-  ADD_RECENT_ROOM: ({ commit, getters }, newRoom) => commit(
+  ADD_RECENT_ROOM: ({ commit, getters, rootGetters }, newRoom) => commit(
     'SET_RECENT_ROOMS',
     Array.of(newRoom).concat(
       getters.GET_RECENT_ROOMS.filter(
         (room) => room.server !== newRoom.server || room.room !== newRoom.room,
       ),
-    ),
+    ).slice(0, rootGetters.GET_CONFIG.synclounge_max_recent_room_history),
   ),
 
   REMOVE_RECENT_ROOM: ({ commit, getters }, roomToRemove) => commit(

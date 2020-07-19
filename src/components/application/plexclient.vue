@@ -71,13 +71,13 @@ export default {
     },
 
     url() {
-      if (!this.platform) {
-        return 'platforms/plex.svg';
+      if (this.platform) {
+        // eslint-disable-next-line global-require, import/no-dynamic-require
+        return require(`@/assets/images/platforms/${this.platform}.svg`);
       }
-      if (this.platform === 'synclounge') {
-        return 'platforms/synclounge.png';
-      }
-      return `platforms/${this.platform}.svg`;
+
+      // eslint-disable-next-line global-require
+      return require('@/assets/images/platforms/plex.svg');
     },
   },
 };

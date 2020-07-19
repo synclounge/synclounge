@@ -70,10 +70,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'getLogos',
-    ]),
-
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
       'GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN',

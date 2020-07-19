@@ -61,6 +61,8 @@ const defaults = {
   plex_auth_check_interval: 1000,
 
   socket_server_health_timeout: 2000,
+
+  synclounge_max_recent_room_history: 100,
 };
 
 module.exports = defaults;

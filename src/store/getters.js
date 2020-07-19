@@ -1,20 +1,5 @@
 export default {
-  getAppVersion: (state) => state.appVersion,
   GET_BACKGROUND: (state) => state.background,
-
-  getLogos: () => ({
-    light: {
-      long: 'logo-long-light.png',
-      small: 'logo-small-light.png',
-    },
-    dark: {
-      long: 'logo-long-dark.png',
-    },
-    plex: {
-      standard: 'plexlogo.png',
-    },
-  }),
-
   GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
   GET_UP_NEXT_POST_PLAY_DATA: (state) => state.upNextPostPlayData,
   GET_CONFIG: (state) => state.configuration,

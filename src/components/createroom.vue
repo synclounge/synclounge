@@ -13,7 +13,7 @@
           <v-card-title>
             <v-img
               contain
-              :src="getLogos.light.long"
+              src="@/assets/images/logos/logo-long-light.png"
             />
           </v-card-title>
 
@@ -70,7 +70,6 @@ export default {
 
   computed: {
     ...mapGetters([
-      'getLogos',
       'GET_CONFIG',
     ]),
 
@@ -79,14 +78,14 @@ export default {
     ]),
   },
 
-  created() {
-    this.fetchServersHealth();
-
+  async created() {
     if (this.GET_CONFIG.autojoin) {
       this.$router.push({
         name: 'join',
         params: this.GET_CONFIG.autojoin,
       });
+    } else {
+      await this.fetchServersHealth();
     }
   },
 

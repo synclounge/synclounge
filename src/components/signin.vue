@@ -22,7 +22,7 @@
         <v-card-title>
           <v-img
             contain
-            :src="getLogos.light.long"
+            src="@/assets/images/logos/logo-long-light.png"
           />
         </v-card-title>
 
@@ -70,7 +70,6 @@ export default {
 
   computed: {
     ...mapGetters([
-      'getLogos',
       'GET_CONFIG',
     ]),
 
