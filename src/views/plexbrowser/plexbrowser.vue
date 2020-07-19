@@ -306,7 +306,7 @@ import { debounce } from 'lodash-es';
 export default {
   name: 'Plexbrowser',
   components: {
-    plexthumb: () => import('./plexbrowser/plexthumb.vue'),
+    plexthumb: () => import('@/components/plex/plexthumb.vue'),
   },
 
   data() {

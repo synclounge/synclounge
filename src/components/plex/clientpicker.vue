@@ -60,7 +60,7 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   components: {
-    plexclient: () => import('@/components/application/plexclient.vue'),
+    plexclient: () => import('@/components/plex/plexclient.vue'),
   },
 
   data() {

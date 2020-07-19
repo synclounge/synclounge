@@ -285,7 +285,7 @@ export default {
   name: 'Walkthrough',
 
   components: {
-    plexclient: () => import('./plexclient.vue'),
+    plexclient: () => import('@/components/plex/plexclient.vue'),
   },
 
   data() {

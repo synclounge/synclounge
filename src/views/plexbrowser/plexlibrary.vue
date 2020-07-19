@@ -49,7 +49,7 @@ import sizing from '@/mixins/sizing';
 
 export default {
   components: {
-    plexthumb: () => import('./plexthumb.vue'),
+    plexthumb: () => import('@/components/plex/plexthumb.vue'),
   },
 
   mixins: [

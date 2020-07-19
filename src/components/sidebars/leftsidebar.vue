@@ -193,8 +193,8 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 
 export default {
   components: {
-    ptsettings: () => import('@/components/application/settings.vue'),
-    plexsettings: () => import('@/components/application/plexsettings.vue'),
+    ptsettings: () => import('@/components/settings.vue'),
+    plexsettings: () => import('@/components/plex/plexsettings.vue'),
     donate: () => import('@/components/donate.vue'),
   },
 

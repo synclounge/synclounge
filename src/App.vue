@@ -157,10 +157,10 @@ import fscreen from 'fscreen';
 
 export default {
   components: {
-    rightsidebar: () => import('@/components/sidebar.vue'),
+    rightsidebar: () => import('@/components/sidebars/rightsidebar.vue'),
     upnext: () => import('@/components/upnext.vue'),
     nowplayingchip: () => import('@/components/nowplayingchip.vue'),
-    leftsidebar: () => import('@/components/leftsidebar.vue'),
+    leftsidebar: () => import('@/components/sidebars/leftsidebar.vue'),
     donate: () => import('@/components/donate.vue'),
     crumbs: () => import('@/components/crumbs.vue'),
   },

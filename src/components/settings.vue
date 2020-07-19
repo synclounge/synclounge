@@ -106,6 +106,7 @@ export default {
       'GET_SYNCFLEXIBILITY',
       'GET_SYNCMODE',
     ]),
+
     syncmode: {
       get() {
         return this.GET_SYNCMODE;
@@ -115,6 +116,7 @@ export default {
       },
     },
   },
+
   methods: {
     ...mapMutations('settings', [
       'SET_AUTOPLAY',

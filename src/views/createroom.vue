@@ -32,10 +32,16 @@
           <v-card-actions>
             <v-btn
               color="primary"
-              :disabled="!clientConnectable"
-              @click="joinInvite"
+              :disabled="!GET_SERVERS_HEALTH || !clientConnectable || loading"
+              @click="createRoom"
             >
-              Join Invite
+              Create Room
+            </v-btn>
+
+            <v-spacer />
+
+            <v-btn to="/clientselect">
+              Advanced
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -45,64 +51,70 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   components: {
-    clientpicker: () => import('@/components/clientpicker.vue'),
-  },
-
-  props: {
-    server: {
-      type: String,
-      required: true,
-    },
-
-    room: {
-      type: String,
-      required: true,
-    },
-
-    password: {
-      type: String,
-      default: null,
-    },
+    clientpicker: () => import('@/components/plex/clientpicker.vue'),
   },
 
   data() {
     return {
       loading: false,
+      error: null,
 
       // Default true because default client is slplayer
       clientConnectable: true,
-
-      error: null,
     };
+  },
+
+  computed: {
+    ...mapGetters([
+      'GET_CONFIG',
+    ]),
+
+    ...mapGetters('synclounge', [
+      'GET_SERVERS_HEALTH',
+    ]),
+  },
+
+  async created() {
+    if (this.GET_CONFIG.autojoin) {
+      this.$router.push({
+        name: 'join',
+        params: this.GET_CONFIG.autojoin,
+      });
+    } else {
+      await this.fetchServersHealth();
+    }
   },
 
   methods: {
     ...mapActions('synclounge', [
-      'SET_AND_CONNECT_AND_JOIN_ROOM',
+      'FETCH_SERVERS_HEALTH',
+      'CREATE_AND_JOIN_ROOM',
     ]),
 
-    async joinInvite() {
+    async fetchServersHealth() {
+      try {
+        await this.FETCH_SERVERS_HEALTH();
+      } catch (e) {
+        this.error = 'Unable to fetch servers health';
+      }
+    },
+
+    async createRoom() {
       this.error = null;
+      this.loading = true;
 
       try {
-        await this.SET_AND_CONNECT_AND_JOIN_ROOM({
-          server: this.server,
-          room: this.room,
-          password: this.password,
-        });
-
-        if (this.$route.name === 'join') {
-          this.$router.push({ name: 'browse' });
-        }
+        await this.CREATE_AND_JOIN_ROOM();
+        this.$router.push({ name: 'browse' });
       } catch (e) {
-        console.log(e);
-        throw e;
-        // this.error = e.message;
+        this.error = e.message;
       }
+
+      this.loading = false;
     },
   },
 };

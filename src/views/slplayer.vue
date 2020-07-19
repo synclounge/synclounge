@@ -155,8 +155,8 @@ import 'shaka-player/dist/controls.css';
 
 export default {
   components: {
-    messages: () => import('@/components/messages.vue'),
-    MessageInput: () => import('@/components/MessageInput.vue'),
+    messages: () => import('@/components/messaging/messages.vue'),
+    MessageInput: () => import('@/components/messaging/MessageInput.vue'),
   },
 
   mixins: [

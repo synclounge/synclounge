@@ -12,59 +12,57 @@ export default new Router({
   routes: [
     {
       path: '/',
-      component: () => import('../components/createroom.vue'),
+      component: () => import('@/views/createroom.vue'),
       name: 'CreateRoom',
       meta: {
         requiresAuth: true,
       },
     },
+
     {
       path: '/signin',
       name: 'Signin',
       meta: {
         requiresNoAuth: true,
       },
-      component: () => import('../components/signin.vue'),
+      component: () => import('@/views/signin.vue'),
     },
+
     {
       path: '/signout',
-      component: () => import('../components/signout.vue'),
+      component: () => import('@/views/signout.vue'),
       meta: {
         requiresAuth: true,
       },
     },
+
     {
       path: '/join/:server/:room/:password?',
       meta: {
         requiresAuth: true,
         redirectAfterAuth: true,
       },
-      component: () => import('../components/join.vue'),
+      component: () => import('@/views/join.vue'),
       props: true,
       name: 'join',
     },
+
     {
       path: '/clientselect',
-      component: () => import('../components/application/walkthrough.vue'),
+      component: () => import('@/views/walkthrough.vue'),
       meta: {
         requiresAuth: true,
       },
     },
-    {
-      path: '/clientpicker',
-      name: 'ClientPicker',
-      component: () => import('../components/clientpicker.vue'),
-      meta: {
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/joinroom',
-      component: () => import('../components/application/joinroom.vue'),
+      component: () => import('@/views/joinroom.vue'),
       meta: {
         requiresAuth: true,
       },
     },
+
     {
       path: '/player',
       name: 'player',
@@ -72,8 +70,9 @@ export default new Router({
         requiresAuth: true,
         protected: true,
       },
-      component: () => import('../components/application/slplayer.vue'),
+      component: () => import('@/views/slplayer.vue'),
     },
+
     {
       path: '/nowplaying/:machineIdentifier/:ratingKey',
       meta: {
@@ -82,7 +81,7 @@ export default new Router({
       },
       name: 'nowplaying',
       props: true,
-      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
+      component: () => import('@/views/plexbrowser/plexcontent.vue'),
     },
 
     {
@@ -92,8 +91,9 @@ export default new Router({
         protected: true,
       },
       name: 'browse',
-      component: () => import('../components/application/plexbrowser.vue'),
+      component: () => import('@/views/plexbrowser/plexbrowser.vue'),
     },
+
     {
       path: '/browse/:machineIdentifier',
       meta: {
@@ -102,8 +102,9 @@ export default new Router({
       },
       name: 'server',
       props: true,
-      component: () => import('../components/application/plexbrowser/plexserver.vue'),
+      component: () => import('@/views/plexbrowser/plexserver.vue'),
     },
+
     {
       path: '/browse/:machineIdentifier/:sectionId',
       meta: {
@@ -112,8 +113,9 @@ export default new Router({
       },
       props: true,
       name: 'library',
-      component: () => import('../components/application/plexbrowser/plexlibrary.vue'),
+      component: () => import('@/views/plexbrowser/plexlibrary.vue'),
     },
+
     {
       path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
       meta: {
@@ -122,8 +124,9 @@ export default new Router({
       },
       name: 'movie',
       props: true,
-      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
+      component: () => import('@/views/plexbrowser/plexcontent.vue'),
     },
+
     {
       path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
       meta: {
@@ -132,8 +135,9 @@ export default new Router({
       },
       name: 'series',
       props: true,
-      component: () => import('../components/application/plexbrowser/plexseries.vue'),
+      component: () => import('@/views/plexbrowser/plexseries.vue'),
     },
+
     {
       path: '/browse/:machineIdentifier/:sectionId/tv/:parentRatingKey/:ratingKey',
       meta: {
@@ -142,8 +146,9 @@ export default new Router({
       },
       name: 'season',
       props: true,
-      component: () => import('../components/application/plexbrowser/plexseason.vue'),
+      component: () => import('@/views/plexbrowser/plexseason.vue'),
     },
+
     {
       path:
         '/browse/:machineIdentifier/:sectionId/tv/:grandparentRatingKey/:parentRatingKey/:ratingKey',
@@ -153,7 +158,7 @@ export default new Router({
       },
       name: 'content',
       props: true,
-      component: () => import('../components/application/plexbrowser/plexcontent.vue'),
+      component: () => import('@/views/plexbrowser/plexcontent.vue'),
     },
   ],
 });

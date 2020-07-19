@@ -21,7 +21,7 @@ import { mapGetters } from 'vuex';
 
 export default {
   components: {
-    message: () => import('./message.vue'),
+    message: () => import('@/components/messaging/message.vue'),
   },
 
   computed: {
