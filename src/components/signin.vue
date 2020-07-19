@@ -56,8 +56,10 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import CAF from 'caf';
+
+import getCookie from '@/utils/getcookie';
 
 export default {
   data() {
@@ -87,8 +89,13 @@ export default {
     },
   },
 
-  created() {
-    this.fetchInitialAuthCode();
+  async created() {
+    const cookieToken = getCookie('mpt');
+    if (cookieToken) {
+      await this.cookieAuth(cookieToken);
+    } else {
+      await this.regularAuth();
+    }
   },
 
   beforeDestroy() {
@@ -103,7 +110,31 @@ export default {
       'FETCH_PLEX_INIT_AUTH',
       'REQUEST_PLEX_AUTH_TOKEN',
       'FETCH_PLEX_DEVICES_IF_NEEDED',
+      'FETCH_PLEX_USER',
     ]),
+
+    ...mapMutations('plex', [
+      'SET_PLEX_AUTH_TOKEN',
+    ]),
+
+    async regularAuth() {
+      await this.fetchInitialAuthCode();
+    },
+
+    async cookieAuth(token) {
+      // Used by Organizr: https://github.com/causefx/Organizr/issues/1344
+      this.loading = true;
+      this.SET_PLEX_AUTH_TOKEN(token);
+      try {
+        await this.FETCH_PLEX_USER();
+        await this.postAuth();
+        this.loading = false;
+      } catch (e) {
+        // If this fails, then the auth token is probably invalid
+        this.SET_PLEX_AUTH_TOKEN(null);
+        await this.regularAuth();
+      }
+    },
 
     async fetchInitialAuthCode() {
       this.loading = true;
@@ -120,11 +151,15 @@ export default {
       this.cancelToken = new CAF.cancelToken();
       await this.plexAuthChecker(this.cancelToken.signal);
 
+      await this.postAuth();
+      this.loading = false;
+    },
+
+    async postAuth() {
       await this.FETCH_PLEX_DEVICES_IF_NEEDED();
       if (this.IS_USER_AUTHORIZED) {
         this.$router.push(this.$route.query.redirect || '/');
       }
-      this.loading = false;
     },
 
     plexAuthChecker: CAF(function* plexAuthChecker(signal) {

@@ -22,18 +22,19 @@ const plexDeviceName = () => {
 };
 
 export default {
-  IS_AUTHENTICATED: (state, getters, rootState, rootGetters) => !!rootGetters['settings/GET_PLEX_AUTH_TOKEN']
+  IS_AUTHENTICATED: (state, getters) => !!getters.GET_PLEX_AUTH_TOKEN
     && getters.IS_USER_AUTHORIZED,
 
   GET_PLEX_PRODUCT_HEADER: () => 'SyncLounge',
   GET_PLEX_DEVICE_DEVICE_HEADER: () => browser.os,
   GET_PLEX_DEVICE_NAME_HEADER: () => plexDeviceName(),
   GET_PLEX_PLATFORM_HEADER: () => plexDeviceName(),
+  GET_PLEX_DEVICE_SCREEN_RESOLUTION_HEADER: () => `${window.screen.availWidth}x${window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
 
-  GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters, rootState, rootGetters) => ({
+  GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters) => ({
     'X-Plex-Product': getters.GET_PLEX_PRODUCT_HEADER,
     'X-Plex-Version': process.env.VUE_APP_VERSION,
-    'X-Plex-Client-Identifier': rootGetters['settings/GET_CLIENTIDENTIFIER'],
+    'X-Plex-Client-Identifier': getters.GET_CLIENT_IDENTIFIER,
     'X-Plex-Platform': getters.GET_PLEX_PLATFORM_HEADER,
     'X-Plex-Platform-Version': browser.version,
     // 'X-Plex-Sync-Version': 2,
@@ -41,24 +42,28 @@ export default {
     'X-Plex-Model': 'hosted',
     'X-Plex-Device': getters.GET_PLEX_DEVICE_DEVICE_HEADER,
     'X-Plex-Device-Name': getters.GET_PLEX_DEVICE_NAME_HEADER,
-    'X-Plex-Device-Screen-Resolution':
-      `${window.screen.availWidth}x${window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
+    'X-Plex-Device-Screen-Resolution': getters.GET_PLEX_DEVICE_SCREEN_RESOLUTION_HEADER,
     'X-Plex-Language': 'en',
   }),
 
-  GET_PLEX_BASE_PARAMS: (state, getters, rootState, rootGetters) => (accessToken) => ({
+  GET_PLEX_BASE_PARAMS: (state, getters) => (accessToken) => ({
     ...getters.GET_PLEX_INITIAL_AUTH_PARAMS,
-    'X-Plex-Token': accessToken || rootGetters['settings/GET_PLEX_AUTH_TOKEN'],
+    'X-Plex-Token': accessToken || getters.GET_PLEX_AUTH_TOKEN,
   }),
 
-  GET_PLEX_AUTH_URL: (state, getters, rootState, rootGetters) => (code) => {
+  GET_PLEX_AUTH_URL: (state, getters) => (code) => {
     const urlParams = {
       'context[device][product]': getters.GET_PLEX_PRODUCT_HEADER,
+      'context[device][version]': process.env.VUE_APP_VERSION,
+      'context[device][platform]': getters.GET_PLEX_PLATFORM_HEADER,
+      'context[device][platformVersion]': browser.version,
+      'context[device][device]': getters.GET_PLEX_DEVICE_DEVICE_HEADER,
+      'context[device][name]': getters.GET_PLEX_DEVICE_NAME_HEADER,
+      'context[device][model]': 'hosted',
+      'context[device][screenResolution]': getters.GET_PLEX_DEVICE_SCREEN_RESOLUTION_HEADER,
       'context[device][environment]': 'bundled',
       'context[device][layout]': 'desktop',
-      'context[device][platform]': getters.GET_PLEX_PLATFORM_HEADER,
-      'context[device][device]': getters.GET_PLEX_DEVICE_DEVICE_HEADER,
-      clientID: rootGetters['settings/GET_CLIENTIDENTIFIER'],
+      clientID: getters.GET_CLIENT_IDENTIFIER,
       code,
     };
 
@@ -84,4 +89,7 @@ export default {
 
   IS_AUTHENTICATION_TYPE_NONE: (state, getters, rootState, rootGetters) => rootGetters
     .GET_AUTHENTICATION.mechanism === 'none',
+
+  GET_PLEX_AUTH_TOKEN: (state) => state.plexAuthToken,
+  GET_CLIENT_IDENTIFIER: (state) => state.clientIdentifier,
 };

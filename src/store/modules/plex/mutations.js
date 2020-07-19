@@ -10,4 +10,8 @@ export default {
   SET_PLEX_USER: (state, user) => {
     state.user = user;
   },
+
+  SET_PLEX_AUTH_TOKEN: (state, token) => {
+    state.plexAuthToken = token;
+  },
 };

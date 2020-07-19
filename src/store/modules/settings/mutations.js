@@ -29,7 +29,4 @@ export default {
   SET_SLPLAYERVOLUME: (state, volume) => {
     state.slPlayerVolume = volume;
   },
-  SET_PLEX_AUTH_TOKEN: (state, token) => {
-    state.plexAuthToken = token;
-  },
 };

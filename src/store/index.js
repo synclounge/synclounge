@@ -14,6 +14,8 @@ const persistedState = createPersistedState({
   paths: [
     'settings',
     'plex.user',
+    'plex.plexAuthToken',
+    'plex.clientIdentifier',
     'plexservers.lastServerId',
     'plexservers.blockedServerIds',
     'synclounge.recentRooms',

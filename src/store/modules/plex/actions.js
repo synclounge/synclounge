@@ -26,7 +26,7 @@ export default {
       throw new Error("Plex didn't give authToken");
     }
 
-    commit('settings/SET_PLEX_AUTH_TOKEN', data.authToken, { root: true });
+    commit('SET_PLEX_AUTH_TOKEN', data.authToken);
 
     await dispatch('FETCH_PLEX_USER', signal);
   },

@@ -308,8 +308,19 @@ export default {
   async created() {
     if (this.IS_AUTHENTICATED) {
       // Kick off a bunch of requests that we need for later
-      await this.FETCH_PLEX_USER();
-      await this.FETCH_PLEX_DEVICES_IF_NEEDED();
+      try {
+        await this.FETCH_PLEX_USER();
+        await this.FETCH_PLEX_DEVICES_IF_NEEDED();
+      } catch (e) {
+        // If these fail, then the auth token is probably invalid
+        this.SET_PLEX_AUTH_TOKEN(null);
+        this.$router.push({
+          name: 'Signin',
+          query: {
+            redirect: this.$route.fullPathh,
+          },
+        });
+      }
     }
   },
 
@@ -329,6 +340,10 @@ export default {
     ...mapMutations([
       'SET_SNACKBAR_OPEN',
       'SET_NAVIGATE_TO_PLAYER',
+    ]),
+
+    ...mapMutations('plex', [
+      'SET_PLEX_AUTH_TOKEN',
     ]),
 
     onInviteCopied() {

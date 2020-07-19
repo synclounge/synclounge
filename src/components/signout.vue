@@ -26,7 +26,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('settings', [
+    ...mapMutations('plex', [
       'SET_PLEX_AUTH_TOKEN',
     ]),
   },

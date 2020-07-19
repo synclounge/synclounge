@@ -3,9 +3,7 @@ export const makeUrl = (url, params) => {
     return url;
   }
 
-  const urlObj = new URL(url);
-  urlObj.search = new URLSearchParams(params).toString();
-  return urlObj.toString();
+  return `${url}?${new URLSearchParams(params)}`;
 };
 
 const safeFetch = async (...args) => {
