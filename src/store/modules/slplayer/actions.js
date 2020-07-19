@@ -1,7 +1,7 @@
-import axios from 'axios';
 import CAF from 'caf';
 
 import guid from '@/utils/guid';
+import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import {
   play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
@@ -29,9 +29,7 @@ export default {
     || getters.GET_OFFSET_MS,
 
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
-    const { data } = await axios.get(getters.GET_DECISION_URL, {
-      params: getters.GET_DECISION_AND_START_PARAMS,
-    });
+    const data = await fetchJson(getters.GET_DECISION_URL, getters.GET_DECISION_AND_START_PARAMS);
     commit('SET_PLEX_DECISION', data);
   },
 
@@ -41,24 +39,20 @@ export default {
   },
 
   CHANGE_AUDIO_STREAM: async ({ getters, dispatch }, audioStreamID) => {
-    await axios.put(getters.GET_PART_URL, null, {
-      params: {
-        audioStreamID,
-        ...getters.GET_PART_PARAMS,
-      },
-    });
+    await queryFetch(getters.GET_PART_URL, {
+      audioStreamID,
+      ...getters.GET_PART_PARAMS,
+    }, { method: 'PUT' });
 
     // Redo src
     await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
 
   CHANGE_SUBTITLE_STREAM: async ({ getters, dispatch }, subtitleStreamID) => {
-    await axios.put(getters.GET_PART_URL, null, {
-      params: {
-        subtitleStreamID,
-        ...getters.GET_PART_PARAMS,
-      },
-    });
+    await queryFetch(getters.GET_PART_URL, {
+      subtitleStreamID,
+      ...getters.GET_PART_PARAMS,
+    }, { method: 'PUT' });
 
     // Redo src
     await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
@@ -86,10 +80,7 @@ export default {
   },
 
   SEND_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch }) => {
-    await axios.get(getters.GET_TIMELINE_URL, {
-      params: await dispatch('MAKE_TIMELINE_PARAMS'),
-      timeout: 10000,
-    });
+    await queryFetch(getters.GET_TIMELINE_URL, await dispatch('MAKE_TIMELINE_PARAMS'));
   },
 
   FETCH_TIMELINE_POLL_DATA: async ({ getters, dispatch }) => (isMediaElementAttached()

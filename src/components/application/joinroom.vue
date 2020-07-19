@@ -379,8 +379,8 @@
 <script>
 import Vue from 'vue';
 import { formatDistanceToNow } from 'date-fns';
-import axios from 'axios';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
+import { fetchJson } from '@/utils/fetchutils';
 
 export default {
   name: 'Joinroom',
@@ -505,27 +505,26 @@ export default {
     },
 
     async testConnections() {
-      this.GET_SYNCLOUNGE_SERVERS.forEach((server) => {
+      return Promise.all(this.GET_SYNCLOUNGE_SERVERS.map(async (server) => {
         if (server.url !== 'custom') {
           const start = new Date().getTime();
-          axios
-            .get(`${server.url}/health`)
-            .then((res) => {
-              Vue.set(this.results, server.url, {
-                alive: true,
-                latency: Math.abs(start - new Date().getTime()),
-                result: res.data.load || null,
-              });
-            })
-            .catch(() => {
-              Vue.set(this.results, server.url, {
-                alive: false,
-                latency: Math.abs(start - new Date().getTime()),
-                result: null,
-              });
+          try {
+            const res = await fetchJson(`${server.url}/health`);
+
+            Vue.set(this.results, server.url, {
+              alive: true,
+              latency: Math.abs(start - new Date().getTime()),
+              result: res.data.load || null,
             });
+          } catch {
+            Vue.set(this.results, server.url, {
+              alive: false,
+              latency: Math.abs(start - new Date().getTime()),
+              result: null,
+            });
+          }
         }
-      });
+      }));
     },
 
     async attemptConnect() {

@@ -59,6 +59,8 @@ const defaults = {
   // If the plex client's time changes by this much from the expected time, trigger a state change
   plex_client_time_delta_state_change_threshold: 500,
   plex_auth_check_interval: 1000,
+
+  socket_server_health_timeout: 2000,
 };
 
 module.exports = defaults;

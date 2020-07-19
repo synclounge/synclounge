@@ -352,7 +352,10 @@ export default {
     },
 
     async fetchRecentlyAdded() {
-      this.recentlyAdded = await this.FETCH_RECENTLY_ADDED_MEDIA(this.machineIdentifier);
+      // TODO: handle abort stuff
+      this.recentlyAdded = await this.FETCH_RECENTLY_ADDED_MEDIA({
+        machineIdentifier: this.machineIdentifier,
+      });
       if (this.recentlyAdded) {
         this.setBackground();
       }

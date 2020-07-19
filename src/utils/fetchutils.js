@@ -17,9 +17,16 @@ const safeFetch = async (...args) => {
   return response;
 };
 
+export const queryFetch = (url, queryParams, init) => safeFetch(
+  makeUrl(url, queryParams),
+  init,
+);
+
 export const fetchJson = async (url, queryParams, { headers, ...rest } = {}) => {
-  const response = await safeFetch(
-    makeUrl(url, queryParams), {
+  const response = await queryFetch(
+    url,
+    queryParams,
+    {
       headers: {
         Accept: 'application/json',
         ...headers,
@@ -31,21 +38,8 @@ export const fetchJson = async (url, queryParams, { headers, ...rest } = {}) => 
   return response.json();
 };
 
-export const queryFetch = (url, queryParams, init) => safeFetch(
-  makeUrl(url, queryParams),
-  init,
-);
-
-export const fetchXmlAndTransform = async (url, queryParams, { headers, ...rest }) => {
-  const response = await safeFetch(
-    makeUrl(url, queryParams), {
-      headers: {
-        Accept: 'application/json',
-        ...headers,
-      },
-      ...rest,
-    },
-  );
+export const fetchXmlAndTransform = async (...args) => {
+  const response = await queryFetch(...args);
 
   const text = await response.text();
 

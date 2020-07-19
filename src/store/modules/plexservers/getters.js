@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { difference, intersection } from 'lodash-es';
 import { makeUrl } from '@/utils/fetchutils';
 
@@ -20,27 +19,6 @@ export default {
 
   IS_PLEX_SERVER_UNBLOCKED: (state, getters) => (machineIdentifier) => getters
     .GET_UNBLOCKED_PLEX_SERVER_IDS.includes(machineIdentifier),
-
-  GET_PLEX_SERVER_AXIOS: (state, getters, rootState, rootGetters) => (machineIdentifier) => {
-    const server = getters.GET_PLEX_SERVER(machineIdentifier);
-
-    const instance = axios.create({
-      baseURL: server.chosenConnection.uri,
-      timeout: 5000,
-    });
-
-    // TODO: replace this with actually sensible param merging once axios 0.20 comes out
-    instance.interceptors.request.use((config) => {
-      // eslint-disable-next-line no-param-reassign
-      config.params = {
-        ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](server.accessToken),
-        ...config.params,
-      };
-      return config;
-    });
-
-    return instance;
-  },
 
   GET_LAST_SERVER_ID: (state) => state.lastServerId,
   GET_LAST_SERVER: (state, getters) => getters.GET_PLEX_SERVER(getters.GET_LAST_SERVER_ID),

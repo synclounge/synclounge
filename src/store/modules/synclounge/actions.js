@@ -1,8 +1,8 @@
-import axios from 'axios';
 import CAF from 'caf';
 import guid from '@/utils/guid';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 import combineUrl from '@/utils/combineurl';
+import { fetchJson } from '@/utils/fetchutils';
 import {
   open, close, on, waitForEvent, isConnected, emit,
 } from '@/socket';
@@ -170,15 +170,23 @@ export default {
     }
   },
 
-  FETCH_SERVERS_HEALTH: async ({ getters, commit }) => {
+  FETCH_SERVERS_HEALTH: async ({ getters, rootGetters, commit }) => {
     const start = new Date().getTime();
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, rootGetters.GET_CONFIG.socket_server_health_timeout);
+
     const results = await Promise.allSettled(getters.GET_SYNCLOUNGE_SERVERS
       .filter((server) => server.url !== 'custom')
       .map(async ({ url }) => ({
-        ...(await axios.get(`${url}/health`, { timeout: 2000 }).data),
+        ...fetchJson(`${url}/health`, null, { signal: controller.signal }),
         latency: new Date().getTime() - start,
         url,
       })));
+
+    clearTimeout(timeout);
 
     const aliveServerHealths = results.filter((result) => result.status === 'fulfilled')
       .map(({ value }) => value);
