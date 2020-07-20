@@ -375,7 +375,7 @@ export default {
       this.gotResponse = false;
 
       try {
-        await this.FIND_AND_SET_CONNECTION(this.previewClientId);
+        await this.FIND_AND_SET_CONNECTION({ clientIdentifier: this.previewClientId });
       } catch (e) {
         console.log(e);
         this.previewClientErrorMsg = 'Unable to connect to client';

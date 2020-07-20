@@ -102,14 +102,14 @@ export default {
       'SET_CHOSEN_CLIENT_ID',
     ]),
 
-    async onClientClicked(id) {
+    async onClientClicked(clientIdentifier) {
       this.$emit('loadingChange', true);
       this.$emit('clientConnectableChange', false);
       this.error = false;
 
       try {
-        await this.FIND_AND_SET_CONNECTION(id);
-        this.SET_CHOSEN_CLIENT_ID(id);
+        await this.FIND_AND_SET_CONNECTION({ clientIdentifier });
+        this.SET_CHOSEN_CLIENT_ID(clientIdentifier);
         this.$emit('clientConnectableChange', true);
       } catch (e) {
         // TODO: maybe add lock or cancel test if user clicks on other client while previous is still checking

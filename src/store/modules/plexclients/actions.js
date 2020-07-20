@@ -5,12 +5,12 @@ import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import { fetchXmlAndTransform } from '@/utils/fetchutils';
 
 export default {
-  FIND_AND_SET_CONNECTION: async ({ dispatch, commit }, clientIdentifier) => {
-    const chosenConnection = await dispatch('FIND_CONNECTION', clientIdentifier);
+  FIND_AND_SET_CONNECTION: async ({ dispatch, commit }, { clientIdentifier, signal }) => {
+    const chosenConnection = await dispatch('FIND_CONNECTION', { clientIdentifier, signal });
     commit('SET_CLIENT_CHOSEN_CONNECTION', { clientIdentifier, chosenConnection });
   },
 
-  FIND_CONNECTION: ({ getters, dispatch }, clientIdentifier) => {
+  FIND_CONNECTION: ({ getters, dispatch }, { clientIdentifier, signal }) => {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
@@ -20,17 +20,23 @@ export default {
     }
 
     // Test request has to be a timeline request since some clients don't properly set cors headers
-
     const { connections, accessToken } = getters.GET_PLEX_CLIENT(clientIdentifier);
-    return dispatch('FIND_WORKING_CONNECTION', { connections, accessToken });
+
+    return dispatch('FIND_WORKING_CONNECTION', {
+      clientIdentifier, connections, accessToken, signal,
+    });
   },
 
-  FIND_WORKING_CONNECTION: async ({ dispatch }, { connections, accessToken }) => {
+  FIND_WORKING_CONNECTION: async ({ dispatch }, {
+    connections, accessToken, clientIdentifier, signal,
+  }) => {
     const controller = new AbortController();
     const workingConnection = await promiseutils.any(
       connections.map((connection) => dispatch(
         'TEST_PLEX_CLIENT_CONNECTION',
-        { connection, accessToken, signal: controller.signal },
+        {
+          connection, accessToken, clientIdentifier, signal: controller.signal,
+        },
       )),
     );
 
