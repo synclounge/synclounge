@@ -119,7 +119,7 @@
             <v-col>
               <v-progress-circular
                 indeterminate
-                :size="60"
+                size="60"
                 class="amber--text"
               />
             </v-col>
@@ -132,7 +132,7 @@
           :value="GET_SNACKBAR_OPEN"
           color="green darken-2"
           bottom
-          :timeout="4000"
+          timeout="4000"
           @input="SET_SNACKBAR_OPEN"
         >
           <div style="text-align:center; width:100%">

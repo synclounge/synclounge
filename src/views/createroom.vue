@@ -78,6 +78,10 @@ export default {
       'GET_CONFIG',
     ]),
 
+    ...mapGetters('plexclients', [
+      'GET_CHOSEN_CLIENT_ID',
+    ]),
+
     ...mapGetters('synclounge', [
       'GET_SERVERS_HEALTH',
     ]),
@@ -115,6 +119,7 @@ export default {
       try {
         await this.CREATE_AND_JOIN_ROOM();
 
+        console.log(this.$route.name);
         if (this.$route.name === 'CreateRoom') {
           if (this.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
             this.$router.push({ name: 'browse' });

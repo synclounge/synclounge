@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 
 export default {
@@ -83,6 +83,12 @@ export default {
 
       error: null,
     };
+  },
+
+  computed: {
+    ...mapGetters('plexclients', [
+      'GET_CHOSEN_CLIENT_ID',
+    ]),
   },
 
   methods: {
