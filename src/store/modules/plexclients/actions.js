@@ -449,6 +449,7 @@ export default {
 
   SEEK_TO: async ({ getters, dispatch }, { cancelSignal, offset }) => {
     console.log('Seek to');
+    // TODO: adjust time by latency if playing
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/SPEED_OR_NORMAL_SEEK', { cancelSignal, seekToMs: offset }, { root: true });

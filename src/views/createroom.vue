@@ -52,11 +52,16 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import redirection from '@/mixins/redirection';
 
 export default {
   components: {
     clientpicker: () => import('@/components/plex/clientpicker.vue'),
   },
+
+  mixins: [
+    redirection,
+  ],
 
   data() {
     return {
@@ -109,7 +114,14 @@ export default {
 
       try {
         await this.CREATE_AND_JOIN_ROOM();
-        this.$router.push({ name: 'browse' });
+
+        if (this.$route.name === 'CreateRoom') {
+          if (this.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
+            this.$router.push({ name: 'browse' });
+          } else {
+            this.redirectToMediaPage();
+          }
+        }
       } catch (e) {
         this.error = e.message;
       }

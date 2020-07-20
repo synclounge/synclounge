@@ -154,6 +154,7 @@ import {
   mapActions, mapGetters, mapMutations, mapState,
 } from 'vuex';
 import fscreen from 'fscreen';
+import redirection from '@/mixins/redirection';
 
 export default {
   components: {
@@ -164,6 +165,10 @@ export default {
     donate: () => import('@/components/donate.vue'),
     crumbs: () => import('@/components/crumbs.vue'),
   },
+
+  mixins: [
+    redirection,
+  ],
 
   data() {
     return {
@@ -272,20 +277,10 @@ export default {
       }
     },
 
-    GET_ACTIVE_MEDIA_METADATA(newMetadata) {
+    GET_ACTIVE_MEDIA_METADATA() {
       // This handles regular plex clients (nonslplayer) playback changes
-      if (this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
-        if (newMetadata) {
-          this.$router.push({
-            name: 'nowplaying',
-            params: {
-              machineIdentifier: newMetadata.machineIdentifier,
-              ratingKey: newMetadata.ratingKey,
-            },
-          });
-        } else if (this.$route.fullPath.indexOf('/nowplaying') > -1) {
-          this.$router.push({ name: 'browse' });
-        }
+      if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
+        this.redirectToMediaPage();
       }
     },
 

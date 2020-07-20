@@ -46,11 +46,16 @@
 
 <script>
 import { mapActions } from 'vuex';
+import redirection from '@/mixins/redirection';
 
 export default {
   components: {
     clientpicker: () => import('@/components/plex/clientpicker.vue'),
   },
+
+  mixins: [
+    redirection,
+  ],
 
   props: {
     server: {
@@ -96,7 +101,11 @@ export default {
         });
 
         if (this.$route.name === 'join') {
-          this.$router.push({ name: 'browse' });
+          if (this.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
+            this.$router.push({ name: 'browse' });
+          } else {
+            this.redirectToMediaPage();
+          }
         }
       } catch (e) {
         console.log(e);

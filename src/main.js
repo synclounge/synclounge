@@ -16,21 +16,20 @@ router.beforeEach((to, from, next) => {
   if (!store.getters['plex/IS_AUTHENTICATED'] && to.matched.some((record) => record.meta.requiresAuth)) {
     if (to.matched.some((record) => record.meta.redirectAfterAuth)) {
       next({
-        path: '/signin',
+        name: 'Signin',
         query: {
           redirect: to.fullPath,
         },
       });
     } else {
-      next('/signin');
+      next({ name: 'Signin' });
     }
   } else if (to.matched.some((record) => record.meta.requiresNoAuth) && store.getters['plex/IS_AUTHENTICATED']) {
-    next('/');
+    next({ name: 'CreateRoom' });
   } else if (!store.getters['synclounge/IS_IN_ROOM'] && to.matched.some((record) => record.meta.protected)) {
     // this route requires us to be in a room with a client selected
     // if not, redirect to the needed stage
-
-    next('/');
+    next({ name: 'CreateRoom' });
   } else {
     next();
   }
