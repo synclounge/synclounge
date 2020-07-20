@@ -280,6 +280,7 @@
 <script>
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
+import plexPlatformMap from '@/utils/plexplatformmap';
 
 export default {
   name: 'Walkthrough',
@@ -328,14 +329,21 @@ export default {
       return this.GET_PLEX_CLIENT(this.previewClientId);
     },
 
+    platform() {
+      return (
+        plexPlatformMap[this.previewClient.platform.toLowerCase()]
+        || plexPlatformMap[this.previewClient.product.toLowerCase()]
+      );
+    },
+
     url() {
-      if (!this.platform) {
-        return 'platforms/plex.svg';
+      if (this.platform) {
+        // eslint-disable-next-line global-require, import/no-dynamic-require
+        return require(`@/assets/images/platforms/${this.platform}.svg`);
       }
-      if (this.platform === 'synclounge') {
-        return 'platforms/synclounge.png';
-      }
-      return `platforms/${this.platform}.svg`;
+
+      // eslint-disable-next-line global-require
+      return require('@/assets/images/platforms/plex.svg');
     },
 
     nohttpslink() {
