@@ -154,6 +154,11 @@ export default {
     setCurrentTimeMs(seekToMs);
   },
 
+  PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE: async ({ dispatch }, signal) => {
+    await waitForMediaElementEvent({ signal, type: 'ratechange' });
+    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', true, { root: true });
+  },
+
   SPEED_SEEK: async ({ dispatch, rootGetters }, { cancelSignal, seekToMs }) => {
     console.log('speed seek');
     const currentTimeMs = await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK');
@@ -164,14 +169,15 @@ export default {
 
     const main = CAF(function* main(signal) {
       setPlaybackRate(rate);
+
       try {
-        // Nosync process
-        dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', true, { root: true });
+        // Nosync process. Purposefully not awaited
+        dispatch('PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE', signal);
         yield CAF.delay(signal, timeUntilSynced);
       } finally {
         setPlaybackRate(1);
-        // Nosync process
-        dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', true, { root: true });
+        // Nosync process. Purposefully not awaited
+        dispatch('PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE', signal);
       }
     });
 
