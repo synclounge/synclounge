@@ -30,4 +30,8 @@ export default {
   SET_NAVIGATE_TO_PLAYER: (state, navigate) => {
     state.navigateToPlayer = navigate;
   },
+
+  SET_CONFIGURATION: (state, configuration) => {
+    state.configuration = configuration;
+  },
 };

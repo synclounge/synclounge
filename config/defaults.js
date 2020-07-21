@@ -1,6 +1,4 @@
 const defaults = {
-  base_url: '/',
-
   servers: [
     {
       name: 'SyncLounge AU1',

@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <leftsidebar />
-    <rightsidebar />
+    <rightsidebar v-if="IS_IN_ROOM" />
 
     <v-app-bar
       app
@@ -108,7 +108,8 @@
         fluid
       >
         <v-container
-          v-if="!IS_DONE_FETCHING_DEVICES && $route.matched.some((record) => record.meta.protected)"
+          v-if="!GET_CONFIG
+            || !IS_DONE_FETCHING_DEVICES && $route.matched.some((record) => record.meta.protected)"
           fill-height
         >
           <v-row
@@ -292,15 +293,8 @@ export default {
     },
   },
 
-  mounted() {
-    fscreen.addEventListener('fullscreenchange', () => {
-      const isFullscreen = fscreen.fullscreenElement !== null;
-      this.appIsFullscreen = isFullscreen;
-      document.body.classList.toggle('is-fullscreen', isFullscreen);
-    });
-  },
-
   async created() {
+    await this.FETCH_CONFIG();
     if (this.IS_AUTHENTICATED) {
       // Kick off a bunch of requests that we need for later
       try {
@@ -319,12 +313,21 @@ export default {
     }
   },
 
+  mounted() {
+    fscreen.addEventListener('fullscreenchange', () => {
+      const isFullscreen = fscreen.fullscreenElement !== null;
+      this.appIsFullscreen = isFullscreen;
+      document.body.classList.toggle('is-fullscreen', isFullscreen);
+    });
+  },
+
   methods: {
     ...mapActions([
       'SET_LEFT_SIDEBAR_OPEN',
       'SET_RIGHT_SIDEBAR_OPEN',
       'TOGGLE_RIGHT_SIDEBAR_OPEN',
       'DISPLAY_NOTIFICATION',
+      'FETCH_CONFIG',
     ]),
 
     ...mapActions('plex', [

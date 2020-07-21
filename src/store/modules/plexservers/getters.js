@@ -24,10 +24,9 @@ export default {
   GET_LAST_SERVER: (state, getters) => getters.GET_PLEX_SERVER(getters.GET_LAST_SERVER_ID),
 
   DOES_USER_HAVE_AUTHORIZED_SERVER: (state, getters, rootState, rootGetters) => rootGetters
-    .GET_AUTHENTICATION.type
-   && rootGetters.GET_AUTHENTICATION.type.includes('server')
+    .GET_CONFIG?.authentication?.type.includes('server')
   && intersection(
-    getters.GET_PLEX_SERVER_IDS, rootGetters.GET_AUTHENTICATION.authorized,
+    getters.GET_PLEX_SERVER_IDS, rootGetters.GET_CONFIG.authentication.authorized,
   ).length > 0,
 
   GET_MEDIA_IMAGE_URL: (state, getters, rootState, rootGetters) => ({

@@ -80,15 +80,14 @@ export default {
     || getters.IS_PLEX_USER_AUTHORIZED,
 
   IS_PLEX_USER_AUTHORIZED: (state, getters, rootState, rootGetters) => rootGetters
-    .GET_AUTHENTICATION.type
-  && rootGetters.GET_AUTHENTICATION.type.includes('user')
+    .GET_CONFIG?.authentication?.type.includes('user')
     && intersection(
       [getters.GET_PLEX_USER.username, getters.GET_PLEX_USER.email],
       rootGetters.GET_AUTHENTICATION.authorized,
     ).length > 0,
 
   IS_AUTHENTICATION_TYPE_NONE: (state, getters, rootState, rootGetters) => rootGetters
-    .GET_AUTHENTICATION.mechanism === 'none',
+    .GET_CONFIG?.authentication.mechanism === 'none',
 
   GET_PLEX_AUTH_TOKEN: (state) => state.plexAuthToken,
   GET_CLIENT_IDENTIFIER: (state) => state.clientIdentifier,

@@ -1,6 +1,5 @@
 <template>
   <v-navigation-drawer
-    v-if="IS_IN_ROOM"
     :value="isRightSidebarOpen"
     style="z-index: 6"
     app
@@ -268,7 +267,6 @@ export default {
       'GET_HOST_USER',
       'GET_HOST_ID',
       'AM_I_HOST',
-      'IS_IN_ROOM',
       'GET_SOCKET_ID',
     ]),
 

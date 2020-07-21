@@ -1,11 +1,11 @@
 const path = require('path');
 const git = require('git-rev-sync');
 
-const config = require('./config');
+const saveConfig = require('./config');
 
-console.log(config.get());
+const config = saveConfig('public/config.json');
+console.log(config);
 
-process.env.VUE_APP_CONFIGURATION = JSON.stringify(config.get());
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
 try {
@@ -18,7 +18,6 @@ try {
 }
 
 module.exports = {
-  publicPath: config.get('base_url'),
   lintOnSave: process.env.NODE_ENV !== 'production',
   productionSourceMap: false,
   transpileDependencies: ['vuetify'],
