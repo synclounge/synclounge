@@ -1,1 +1,22 @@
-node_modules
+.DS_Store
+node_modules/
+dist/
+npm-debug.log
+test/unit/coverage
+test/e2e/reports
+selenium-debug.log
+.idea/
+ptinvites.json
+db.sqlite
+.tmp
+.vscode
+
+# local env files
+.env.local
+.env.*.local
+
+# Optional npm cache directory
+.npm
+
+.github
+public/config.json
