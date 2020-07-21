@@ -28,8 +28,11 @@ export default {
   },
 
   FIND_WORKING_CONNECTION: async ({ dispatch }, {
+    // TODO: come back and fix this
+    // eslint-disable-next-line no-unused-vars
     connections, accessToken, clientIdentifier, signal,
   }) => {
+    // TODO: figure out how to combine these two signals and abort requests when either fires
     const controller = new AbortController();
     const workingConnection = await promiseutils.any(
       connections.map((connection) => dispatch(
