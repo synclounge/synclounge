@@ -49,6 +49,7 @@ export default {
 
   JOIN_ROOM: async ({ getters, rootGetters, dispatch }) => {
     const joinPlayerData = await dispatch('plexclients/FETCH_JOIN_PLAYER_DATA', null, { root: true });
+    // TODO: transmit syncFlexibility instead of syncState and have everyone calculate if they are in sync.
 
     emit({
       eventName: 'join',
