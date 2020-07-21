@@ -15,6 +15,10 @@ try {
   // Sometimes on CI stuff they build with .git being present
   // TODO: find better way to do this
   process.env.VUE_APP_GIT_DATE = new Date().toISOString();
+
+  if (process.env.SOURCE_COMMIT) {
+    process.env.VUE_APP_GIT_HASH = process.env.SOURCE_COMMIT.substring(0, 7);
+  }
 }
 
 module.exports = {
