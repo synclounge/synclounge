@@ -13,7 +13,8 @@ try {
   process.env.VUE_APP_GIT_DATE = git.date().toISOString();
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
-  process.env.VUE_APP_GIT_DATE = Date.now().toISOString();
+  // TODO: find better way to do this
+  process.env.VUE_APP_GIT_DATE = new Date().toISOString();
 }
 
 module.exports = {

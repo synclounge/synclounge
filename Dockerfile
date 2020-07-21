@@ -1,14 +1,18 @@
 # build environment
-FROM node:latest-alpine as build-stage
+FROM node:current-alpine as build-stage
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+
+
+ARG SERVERS='{"name":"Local Server","location":"Local","url":"/","image":"synclounge-white.png"}'
 RUN npm run build
 
 # production environment
-FROM node:latest-alpine as production-stage
+FROM node:current-alpine as production-stage
 WORKDIR /app
 COPY --from=build-stage /app/dist .
 RUN npm install -g syncloungesocket@2.0.5
-CMD ["syncloungesocket", "--static_path", "."] 
+ARG BASE_URL
+ENTRYPOINT ["syncloungesocket", "--static_path", "."]
