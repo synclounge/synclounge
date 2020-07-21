@@ -198,6 +198,7 @@ export default {
       'GET_SNACKBAR_OPEN',
       'GET_BACKGROUND',
       'GET_NAVIGATE_TO_PLAYER',
+      'GET_CONFIGURATION_PROMISE',
     ]),
 
     ...mapGetters('plex', [
@@ -294,7 +295,7 @@ export default {
   },
 
   async created() {
-    await this.FETCH_CONFIG();
+    await this.GET_CONFIGURATION_PROMISE;
     if (this.IS_AUTHENTICATED) {
       // Kick off a bunch of requests that we need for later
       try {
@@ -327,7 +328,6 @@ export default {
       'SET_RIGHT_SIDEBAR_OPEN',
       'TOGGLE_RIGHT_SIDEBAR_OPEN',
       'DISPLAY_NOTIFICATION',
-      'FETCH_CONFIG',
     ]),
 
     ...mapActions('plex', [

@@ -14,7 +14,7 @@ Vue.config.productionTip = false;
 
 router.beforeEach(async (to, from, next) => {
   if (!store.getters.GET_CONFIG) {
-    await store.dispatch('GET_CONFIGURATION_PROMISE');
+    await store.dispatch('FETCH_CONFIG');
   }
 
   if (!store.getters['plex/IS_AUTHENTICATED']
