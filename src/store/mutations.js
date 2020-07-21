@@ -34,4 +34,8 @@ export default {
   SET_CONFIGURATION: (state, configuration) => {
     state.configuration = configuration;
   },
+
+  SET_CONFIGURATION_PROMISE: (state, promise) => {
+    state.configurationPromise = promise;
+  },
 };

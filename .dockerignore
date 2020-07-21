@@ -18,5 +18,13 @@ db.sqlite
 # Optional npm cache directory
 .npm
 
+.git
+.gitignore
 .github
+.travis.yml
+Dockerfile
+.dockerignore
+**/README.md
+**/LICENSE
+
 public/config.json
