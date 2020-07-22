@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-ARG SERVERS='[{"name":"Local Server","location":"Local","url":"/","image":"synclounge-white.png"}]'
+ARG SERVERS='[{"name":"Local Server","location":"Local","url":"","image":"synclounge-white.png"}]'
 RUN npm run build
 
 # production environment
