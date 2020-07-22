@@ -11,7 +11,7 @@ RUN npm run build
 # production environment
 FROM node:current-alpine as production-stage
 WORKDIR /app
-RUN npm install -g syncloungesocket@2.0.5 nconf fs
+RUN npm install -g syncloungesocket@2.0.6 nconf fs
 COPY docker-entrypoint.sh .
 COPY config config
 COPY --from=build-stage /app/dist dist
