@@ -29,6 +29,7 @@ try {
 
 module.exports = {
   lintOnSave: process.env.NODE_ENV !== 'production',
+  integrity: true,
   productionSourceMap: false,
   transpileDependencies: ['vuetify'],
   configureWebpack: {
