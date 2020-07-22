@@ -1,7 +1,4 @@
 const defaults = {
-  port: 8088,
-  base_url: '/',
-
   servers: [
     {
       name: 'SyncLounge AU1',

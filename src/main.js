@@ -12,8 +12,13 @@ Vue.use(VueClipboard);
 
 Vue.config.productionTip = false;
 
-router.beforeEach((to, from, next) => {
-  if (!store.getters['plex/IS_AUTHENTICATED'] && to.matched.some((record) => record.meta.requiresAuth)) {
+router.beforeEach(async (to, from, next) => {
+  if (!store.getters.GET_CONFIG) {
+    await store.dispatch('FETCH_CONFIG');
+  }
+
+  if (!store.getters['plex/IS_AUTHENTICATED']
+    && to.matched.some((record) => record.meta.requiresAuth)) {
     if (to.matched.some((record) => record.meta.redirectAfterAuth)) {
       next({
         name: 'Signin',

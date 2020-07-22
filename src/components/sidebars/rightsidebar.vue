@@ -1,6 +1,5 @@
 <template>
   <v-navigation-drawer
-    v-if="IS_IN_ROOM"
     :value="isRightSidebarOpen"
     style="z-index: 6"
     app
@@ -63,7 +62,7 @@
         />
 
         <v-tooltip
-          v-else-if="GET_HOST_USER.state !== 'stopped'"
+          v-else-if="GET_HOST_USER && GET_HOST_USER.state !== 'stopped'"
           bottom
           color="rgb(44, 44, 49)"
         >
@@ -94,7 +93,7 @@
           v-else
         >
           <v-list-item-subtitle>
-            Waiting for {{ GET_HOST_USER.username }} to start
+            Waiting for {{ GET_HOST_USER ? GET_HOST_USER.username : 'host' }} to start
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -268,7 +267,6 @@ export default {
       'GET_HOST_USER',
       'GET_HOST_ID',
       'AM_I_HOST',
-      'IS_IN_ROOM',
       'GET_SOCKET_ID',
     ]),
 

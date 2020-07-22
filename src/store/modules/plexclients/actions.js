@@ -466,7 +466,7 @@ export default {
           path: '/player/playback/seekTo',
           params: {
             wait: 0,
-            offset,
+            offset: Math.round(offset),
           },
         });
       }

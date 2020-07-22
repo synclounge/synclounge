@@ -40,4 +40,6 @@ export const waitForEvent = (eventName) => new Promise((resolve, reject) => {
   socket.once('disconnect', reject);
 });
 
-export const isConnected = () => socket && socket.connected;
+export const isConnected = () => socket?.connected;
+
+export const getId = () => socket?.id;

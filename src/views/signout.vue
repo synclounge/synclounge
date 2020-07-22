@@ -18,7 +18,7 @@ import { mapMutations } from 'vuex';
 export default {
   name: 'Signout',
 
-  mounted() {
+  created() {
     this.SET_PLEX_AUTH_TOKEN(null);
     setTimeout(() => {
       window.location.reload();

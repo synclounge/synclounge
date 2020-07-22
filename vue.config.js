@@ -1,11 +1,11 @@
 const path = require('path');
 const git = require('git-rev-sync');
 
-const config = require('./config');
+const saveConfig = require('./config');
 
-console.log(config.get());
+const config = saveConfig('public/config.json');
+console.log(config);
 
-process.env.VUE_APP_CONFIGURATION = JSON.stringify(config.get());
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
 try {
@@ -13,11 +13,15 @@ try {
   process.env.VUE_APP_GIT_DATE = git.date().toISOString();
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
-  process.env.VUE_APP_GIT_DATE = Date.now().toISOString();
+  // TODO: find better way to do this
+  process.env.VUE_APP_GIT_DATE = new Date().toISOString();
+
+  if (process.env.SOURCE_COMMIT) {
+    process.env.VUE_APP_GIT_HASH = process.env.SOURCE_COMMIT.substring(0, 7);
+  }
 }
 
 module.exports = {
-  publicPath: config.get('base_url'),
   lintOnSave: process.env.NODE_ENV !== 'production',
   productionSourceMap: false,
   transpileDependencies: ['vuetify'],

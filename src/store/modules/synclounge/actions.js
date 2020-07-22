@@ -26,7 +26,8 @@ export default {
       await dispatch('DISCONNECT');
     }
 
-    const url = combineUrl('socket.io', getters.GET_SERVER);
+    const properBase = new URL(getters.GET_SERVER, window.location);
+    const url = combineUrl('socket.io', properBase.toString());
     const { id } = await open(url.origin, {
       path: url.pathname,
       transports: ['websocket', 'polling'],
@@ -49,6 +50,7 @@ export default {
 
   JOIN_ROOM: async ({ getters, rootGetters, dispatch }) => {
     const joinPlayerData = await dispatch('plexclients/FETCH_JOIN_PLAYER_DATA', null, { root: true });
+    // TODO: transmit syncFlexibility instead of syncState and have everyone calculate if they are in sync.
 
     emit({
       eventName: 'join',

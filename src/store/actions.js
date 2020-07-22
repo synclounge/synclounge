@@ -1,3 +1,5 @@
+import { fetchJson } from '@/utils/fetchutils';
+
 export default {
   SET_LEFT_SIDEBAR_OPEN: ({ commit }, open) => {
     commit('SET_LEFT_SIDEBAR_OPEN', open);
@@ -14,5 +16,13 @@ export default {
   DISPLAY_NOTIFICATION: ({ commit }, message) => {
     commit('SET_SNACKBAR_MESSAGE', message);
     commit('SET_SNACKBAR_OPEN', true);
+  },
+
+  FETCH_CONFIG: async ({ commit }) => {
+    const configPromise = fetchJson('config.json');
+    commit('SET_CONFIGURATION_PROMISE', configPromise);
+    const config = await configPromise;
+
+    commit('SET_CONFIGURATION', config);
   },
 };

@@ -1,6 +1,7 @@
 const state = () => ({
   background: null,
-  configuration: JSON.parse(process.env.VUE_APP_CONFIGURATION),
+  configuration: null,
+  configurationPromise: null,
 
   isLeftSidebarOpen: false,
   isRightSidebarOpen: false,
