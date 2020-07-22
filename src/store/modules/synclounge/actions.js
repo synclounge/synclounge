@@ -27,10 +27,14 @@ export default {
     }
 
     const url = combineUrl('socket.io', getters.GET_SERVER);
-    const { id } = await open(url.origin, {
-      path: url.pathname,
-      transports: ['websocket', 'polling'],
-    });
+    const { id } = getters.GET_SERVER === ''
+      ? await open({
+        transports: ['websocket', 'polling'],
+      })
+      : await open(url.origin, {
+        path: url.pathname,
+        transports: ['websocket', 'polling'],
+      });
 
     commit('SET_SOCKET_ID', id);
 

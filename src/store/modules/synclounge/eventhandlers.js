@@ -1,4 +1,4 @@
-import { emit, waitForEvent } from '@/socket';
+import { emit, waitForEvent, getId } from '@/socket';
 
 export default {
   HANDLE_SET_PARTY_PAUSING_ENABLED: async ({ getters, dispatch, commit }, value) => {
@@ -54,9 +54,10 @@ export default {
     await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
   },
 
-  HANDLE_RECONNECT: async ({ dispatch }) => {
+  HANDLE_RECONNECT: async ({ dispatch, commit }) => {
     console.log('Rejoining');
     await waitForEvent('slPing');
+    commit('SET_SOCKET_ID', getId());
     await dispatch('JOIN_ROOM_AND_INIT');
     // TODO: EXAMINE THIS AND FIGURE OUT HOW TO SYNC
   },
