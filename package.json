@@ -14,7 +14,7 @@
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-router": "^3.3.4",
-    "vuetify": "^2.3.4",
+    "vuetify": "^2.3.5",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
@@ -43,7 +43,7 @@
     "string-similarity": "^4.0.1",
     "vanilla-tilt": "^1.7.0",
     "vue-chat-scroll": "^1.4.0",
-    "vue-cli-plugin-vuetify": "~2.0.7",
+    "vue-cli-plugin-vuetify": "^2.0.7",
     "vue-clipboard2": "^0.3.1",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.6.0",
