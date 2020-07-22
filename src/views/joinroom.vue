@@ -546,7 +546,6 @@ export default {
 
         if (this.GET_ROOM) {
           await this.joinRoom()
-            .catch(() => {});
         }
       } catch (e) {
         this.serverError = `Failed to connect to ${this.selectedServer.url}`;
