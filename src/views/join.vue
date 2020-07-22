@@ -60,7 +60,7 @@ export default {
   props: {
     server: {
       type: String,
-      required: true,
+      default: '',
     },
 
     room: {

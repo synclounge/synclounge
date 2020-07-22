@@ -263,10 +263,14 @@ export default {
 
         const invitePart = this.$router.resolve({
           name: 'join',
-          params: { server: this.GET_SERVER, room: this.GET_ROOM, password: this.GET_PASSWORD },
+          params: {
+            ...(this.GET_SERVER.length > 0 && { server: this.GET_SERVER }),
+            room: this.GET_ROOM,
+            password: this.GET_PASSWORD,
+          },
         }).href;
 
-        return `${window.location.origin}/${invitePart}`;
+        return new URL(invitePart, window.location).toString();
       }
       return '';
     },
