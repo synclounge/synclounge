@@ -86,7 +86,7 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>SyncLounge v{{ process.env.VUE_APP_VERSION }}</v-list-item-title>
+          <v-list-item-title>SyncLounge v{{ version }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -223,6 +223,10 @@ export default {
 
     updatedAt() {
       return `${formatDistanceToNow(this.date)} ago`;
+    },
+
+    version() {
+      return process.env.VUE_APP_VERSION;
     },
   },
 
