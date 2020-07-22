@@ -6,8 +6,6 @@ RUN npm install
 COPY . .
 
 ARG SERVERS='[{"name":"Local Server","location":"Local","url":"","image":"synclounge-white.png"}]'
-ARG SOURCE_COMMIT
-ARG SOURCE_BRANCH
 RUN npm run build
 
 # production environment

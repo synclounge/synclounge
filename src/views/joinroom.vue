@@ -545,7 +545,7 @@ export default {
         await this.ESTABLISH_SOCKET_CONNECTION();
 
         if (this.GET_ROOM) {
-          await this.joinRoom()
+          await this.joinRoom();
         }
       } catch (e) {
         this.serverError = `Failed to connect to ${this.selectedServer.url}`;
@@ -600,6 +600,7 @@ export default {
       try {
         await this.JOIN_ROOM_AND_INIT();
       } catch (e) {
+        console.error(e);
         this.roomError = e;
       }
     },
