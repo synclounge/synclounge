@@ -11,6 +11,7 @@ process.env.VUE_APP_VERSION = require('./package.json').version;
 try {
   process.env.VUE_APP_GIT_HASH = git.short();
   process.env.VUE_APP_GIT_DATE = git.date().toISOString();
+  process.env.VUE_APP_GIT_BRANCH = git.branch();
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
   // TODO: find better way to do this
@@ -19,6 +20,10 @@ try {
 
   if (process.env.SOURCE_COMMIT) {
     process.env.VUE_APP_GIT_HASH = process.env.SOURCE_COMMIT.substring(0, 7);
+  }
+
+  if (process.env.SOURCE_BRANCH) {
+    process.env.VUE_APP_GIT_BRANCH = process.env.SOURCE_BRANCH;
   }
 }
 
