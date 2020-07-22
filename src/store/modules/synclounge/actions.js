@@ -26,15 +26,12 @@ export default {
       await dispatch('DISCONNECT');
     }
 
-    const url = combineUrl('socket.io', getters.GET_SERVER);
-    const { id } = getters.GET_SERVER === ''
-      ? await open({
-        transports: ['websocket', 'polling'],
-      })
-      : await open(url.origin, {
-        path: url.pathname,
-        transports: ['websocket', 'polling'],
-      });
+    const properBase = new URL(getters.GET_SERVER, window.location);
+    const url = combineUrl('socket.io', properBase.toString());
+    const { id } = await open(url.origin, {
+      path: url.pathname,
+      transports: ['websocket', 'polling'],
+    });
 
     commit('SET_SOCKET_ID', id);
 
