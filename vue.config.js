@@ -45,7 +45,7 @@ module.exports = {
   // pluginOptions: {
   //   webpackBundleAnalyzer: {
   //     openAnalyzer: false,
-  //     analyzerMode: 'server',
+  //     analyzerMode: process.env.VUE_CLI_MODERN_MODE ? 'server' : 'disabled',
   //   },
   // },
 

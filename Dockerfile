@@ -10,11 +10,18 @@ ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
 RUN npm run build
 
+# dependency build environment
+FROM node:current-alpine as dependency-stage
+WORKDIR /app
+## Install build toolchain, install node deps and compile native add-ons
+RUN apk add --no-cache python make g++
+RUN NPM_CONFIG_PREFIX=/app/.npm-global npm install -g syncloungesocket@2.0.6 nconf
+COPY docker-entrypoint.sh .
+COPY config config
+
 # production environment
 FROM node:current-alpine as production-stage
 WORKDIR /app
-RUN npm install -g syncloungesocket@2.0.6 nconf fs
-COPY docker-entrypoint.sh .
-COPY config config
 COPY --from=build-stage /app/dist dist
+COPY --from=dependency-stage /app .
 ENTRYPOINT ["./docker-entrypoint.sh"]
