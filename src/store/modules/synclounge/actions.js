@@ -135,6 +135,9 @@ export default {
     commit('SET_IS_IN_ROOM', false);
     commit('SET_USERS', {});
     commit('SET_HOST_ID', null);
+    commit('SET_SERVER', null);
+    commit('SET_ROOM', null);
+    commit('SET_SOCKET_ID', null);
     commit('CLEAR_MESSAGES');
     commit('SET_MESSAGES_USER_CACHE', {});
   },
