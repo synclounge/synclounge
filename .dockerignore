@@ -26,5 +26,6 @@ Dockerfile
 .dockerignore
 **/README.md
 **/LICENSE
+hooks
 
 public/config.json
