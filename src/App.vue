@@ -283,10 +283,14 @@ export default {
       }
     },
 
-    GET_ACTIVE_MEDIA_METADATA() {
+    GET_ACTIVE_MEDIA_METADATA(metadata) {
       // This handles regular plex clients (nonslplayer) playback changes
       if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
-        this.redirectToMediaPage();
+        if (metadata) {
+          this.redirectToMediaPage();
+        } else if (this.$route.fullPath.indexOf('/nowplaying') > -1) {
+          this.$router.push({ name: 'browse' });
+        }
       }
     },
 

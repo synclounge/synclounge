@@ -88,6 +88,7 @@ export default {
   computed: {
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
+      'GET_ACTIVE_MEDIA_METADATA',
     ]),
   },
 
@@ -107,7 +108,7 @@ export default {
         });
 
         if (this.$route.name === 'join') {
-          if (this.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
+          if (this.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' || !this.GET_ACTIVE_MEDIA_METADATA) {
             this.$router.push({ name: 'browse' });
           } else {
             this.redirectToMediaPage();
