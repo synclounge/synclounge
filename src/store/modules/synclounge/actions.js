@@ -252,6 +252,69 @@ export default {
     };
   },
 
+  CANCEL_UPNEXT: ({ getters, commit }) => {
+    if (getters.GET_UPNEXT_TIMEOUT_ID != null) {
+      console.log('cancel upnext');
+      clearTimeout(getters.GET_UPNEXT_TIMEOUT_ID);
+      commit('SET_UPNEXT_TIMEOUT_ID', null);
+    }
+  },
+
+  DISPLAY_UPNEXT: async ({ rootGetters, dispatch, commit }) => {
+    console.log('DISPLAY_UPNEXT');
+    if (rootGetters['plexclients/ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS']) {
+      commit(
+        'SET_UP_NEXT_POST_PLAY_DATA',
+        await dispatch('plexclients/FETCH_METADATA_OF_PLAY_QUEUE_ITEM',
+          rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE'].Metadata[
+            rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE'].playQueueSelectedItemOffset + 1],
+          { root: true }),
+        { root: true },
+      );
+    }
+
+    commit('SET_UP_NEXT_TRIGGERED', true);
+  },
+
+  SCHEDULE_UPNEXT: async ({ rootGetters, dispatch, commit }, playerState) => {
+    if (playerState.duration && playerState.time) {
+      console.log('schedule upnext');
+      const timeUntilUpnextTrigger = playerState.duration - playerState.time
+        - rootGetters.GET_CONFIG.synclounge_upnext_trigger_time_from_end;
+      console.log('timeUntilUpnextTrigger', timeUntilUpnextTrigger);
+
+      commit('SET_UPNEXT_TIMEOUT_ID', setTimeout(() => dispatch('DISPLAY_UPNEXT'),
+        timeUntilUpnextTrigger));
+    }
+  },
+
+  CALC_IS_IN_UPNEXT_REGION: async ({ rootGetters }, playerState) => playerState.duration
+    && playerState.time
+      && (playerState.duration - playerState.time)
+        < rootGetters.GET_CONFIG.synclounge_upnext_trigger_time_from_end,
+
+  PROCESS_UPNEXT: async ({
+    getters, rootGetters, dispatch, commit,
+  }, playerState) => {
+    // Cancel any timers because the state has changed and previous is now invalid
+    await dispatch('CANCEL_UPNEXT');
+
+    // Check if we need to activate the upnext feature
+    if (getters.AM_I_HOST && playerState.state !== 'stopped' && !rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
+      // If in region and not already scheduled
+      if (await dispatch('CALC_IS_IN_UPNEXT_REGION', playerState)) {
+        if (!getters.GET_UP_NEXT_TRIGGERED) {
+          // Display upnext immediately
+          await dispatch('DISPLAY_UPNEXT');
+        }
+      } else if (playerState.state === 'playing') {
+        await dispatch('SCHEDULE_UPNEXT', playerState);
+      }
+    } else if (getters.GET_UP_NEXT_TRIGGERED) {
+      commit('SET_UP_NEXT_TRIGGERED', false);
+    }
+  },
+
   PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }, noSync) => {
     // TODO: only send message if in room, check in room
     const playerState = await dispatch('FETCH_PLAYER_STATE');
@@ -265,6 +328,8 @@ export default {
       eventName: 'playerStateUpdate',
       data: playerState,
     });
+
+    await dispatch('PROCESS_UPNEXT', playerState);
 
     if (playerState.state !== 'buffering' && !noSync) {
       await dispatch('SYNC_PLAYER_STATE');

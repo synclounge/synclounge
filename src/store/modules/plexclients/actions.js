@@ -262,11 +262,8 @@ export default {
       commit('SET_PLEX_CLIENT_TIMELINE_COMMAND_ID', currentCommandId);
 
       await dispatch('UPDATE_PLEX_CLIENT_TIMELINE', timeline);
-
-      // TODO: fix this args
-      await dispatch('HANDLE_NEW_TIMELINE', getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA());
     } catch (e) {
-      console.warn('Failed fetching client timeline: ', e);
+      console.error('Failed fetching client timeline: ', e);
     }
   },
 
@@ -302,35 +299,6 @@ export default {
     media: getters.GET_ACTIVE_MEDIA_POLL_METADATA,
     playerProduct: getters.GET_CHOSEN_CLIENT.product,
   }),
-
-  HANDLE_NEW_TIMELINE: async ({
-    commit, getters, rootGetters, dispatch,
-  }, timeline) => {
-    // Check if we need to activate the upnext feature
-    if (rootGetters['synclounge/AM_I_HOST']) {
-      if (timeline.state !== 'stopped' && timeline.duration && timeline.time
-        && (timeline.duration - timeline.time) < 10000
-        && getters.GET_ACTIVE_MEDIA_METADATA.type === 'episode'
-      ) {
-        if (!rootGetters.GET_UP_NEXT_TRIGGERED) {
-          if (getters.ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS) {
-            commit('SET_UP_NEXT_POST_PLAY_DATA',
-              await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM',
-                getters.GET_ACTIVE_PLAY_QUEUE
-                  .Metadata[getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset + 1]),
-              { root: true });
-          }
-
-          commit('SET_UP_NEXT_TRIGGERED', true, { root: true });
-        }
-      } else if (rootGetters.GET_UP_NEXT_TRIGGERED) {
-        // If outside upnext period, reset triggered
-        commit('SET_UP_NEXT_TRIGGERED', false, { root: true });
-      }
-    }
-
-    return true;
-  },
 
   UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: ({ commit, getters }) => {
     // TODO: make sure all them hit here and fix the id lol
@@ -561,7 +529,7 @@ export default {
   PLAY_NEXT: ({ getters, dispatch }) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
-        return dispatch('slplayer/PLAY_NEXT');
+        return dispatch('slplayer/PLAY_NEXT', null, { root: true });
       }
 
       default: {

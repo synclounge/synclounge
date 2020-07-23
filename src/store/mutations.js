@@ -7,10 +7,6 @@ export default {
   SET_RIGHT_SIDEBAR_OPEN: (state, open) => { state.isRightSidebarOpen = open; },
   TOGGLE_RIGHT_SIDEBAR_OPEN: (state) => { state.isRightSidebarOpen = !state.isRightSidebarOpen; },
 
-  SET_UP_NEXT_TRIGGERED: (state, triggered) => {
-    state.upNextTriggered = triggered;
-  },
-
   SET_UP_NEXT_POST_PLAY_DATA: (state, data) => {
     state.upNextPostPlayData = data;
   },

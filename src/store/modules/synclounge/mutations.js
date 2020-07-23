@@ -83,4 +83,13 @@ export default {
   SET_USER_MEDIA: (state, { id, media }) => {
     Vue.set(state.users[id], 'media', media);
   },
+
+  SET_UPNEXT_TIMEOUT_ID: (state, id) => {
+    state.upnextTimeoutId = id;
+  },
+
+  SET_UP_NEXT_TRIGGERED: (state, triggered) => {
+    state.upNextTriggered = triggered;
+  },
+
 };
