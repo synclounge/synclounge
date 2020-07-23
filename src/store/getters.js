@@ -1,6 +1,5 @@
 export default {
   GET_BACKGROUND: (state) => state.background,
-  GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
   GET_UP_NEXT_POST_PLAY_DATA: (state) => state.upNextPostPlayData,
   GET_CONFIG: (state) => state.configuration,
   GET_ACTIVE_METADATA: (state) => state.activeMetadata,

@@ -88,4 +88,8 @@ export default {
           - getters.GET_HOST_USER.updatedAt) * getters.GET_HOST_USER.playbackRate
       : getters.GET_HOST_USER.time
     : null),
+
+  GET_UPNEXT_TIMEOUT_ID: (state) => state.upnextTimeoutId,
+
+  GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
 };

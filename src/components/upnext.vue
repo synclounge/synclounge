@@ -116,7 +116,6 @@ export default {
   data() {
     return {
       sheet: true,
-      maxTimer: 15000,
       transitionBarWithStyle: {},
       timeoutId: null,
     };
@@ -124,6 +123,7 @@ export default {
 
   computed: {
     ...mapGetters([
+      'GET_CONFIG',
       'GET_UP_NEXT_POST_PLAY_DATA',
     ]),
 
@@ -183,10 +183,10 @@ export default {
     startTimer() {
       this.timeoutId = setTimeout(() => {
         this.playMedia();
-      }, this.maxTimer);
+      }, this.GET_CONFIG.synclounge_upnext_popup_lifetime);
 
       this.transitionBarWithStyle = {
-        animationDuration: `${this.maxTimer / 1000}s`,
+        animationDuration: `${this.GET_CONFIG.synclounge_upnext_popup_lifetime / 1000}s`,
         animationName: 'timebar_progress_x',
       };
     },
