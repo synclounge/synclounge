@@ -41,10 +41,10 @@
     "shaka-player": "^2.5.13",
     "socket.io-client": "^2.3.0",
     "string-similarity": "^4.0.1",
+    "v-clipboard": "^2.2.3",
     "vanilla-tilt": "^1.7.0",
     "vue-chat-scroll": "^1.4.0",
     "vue-cli-plugin-vuetify": "^2.0.7",
-    "vue-clipboard2": "^0.3.1",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.6.0",
     "vuex-persistedstate": "^3.0.1"

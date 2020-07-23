@@ -34,10 +34,10 @@
         <v-btn
           v-if="inviteUrl"
           v-clipboard="inviteUrl"
+          v-clipboard:success="onInviteCopied"
           color="primary"
           dark
           raised
-          @success="onInviteCopied"
         >
           Invite
         </v-btn>

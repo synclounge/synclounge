@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import VueClipboard from 'vue-clipboard2';
+import Clipboard from 'v-clipboard';
 import VueChatScroll from 'vue-chat-scroll';
 
 import vuetify from './plugins/vuetify';
@@ -8,7 +8,7 @@ import router from './router';
 import store from './store';
 
 Vue.use(VueChatScroll);
-Vue.use(VueClipboard);
+Vue.use(Clipboard);
 
 Vue.config.productionTip = false;
 
