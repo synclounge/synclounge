@@ -565,7 +565,7 @@ export default {
       }
 
       default: {
-        return dispatch('SEND_CLIENT_REQUEST', {
+        return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
           path: '/player/playback/skipNext',
           params: {
             wait: 0,
