@@ -9,17 +9,6 @@ ARG SERVERS='[{"name":"Local Server","location":"Local","url":"","image":"synclo
 ARG SOURCE_BRANCH
 ARG REVISION
 
-LABEL org.opencontainers.image.created=$BUILD_DATE
-LABEL org.opencontainers.image.title="SyncLounge"
-LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
-LABEL org.opencontainers.image.url="https://synclounge.tv/"
-LABEL org.opencontainers.image.revision=$REVISION
-LABEL org.opencontainers.image.source="https://github.com/samcm/synclounge"
-LABEL org.opencontainers.image.vendor="SyncLounge"
-LABEL org.opencontainers.image.version=$VERSION
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
-
 RUN npm run build
 
 # dependency build environment
@@ -34,6 +23,20 @@ COPY config config
 # production environment
 FROM node:current-alpine as production-stage
 WORKDIR /app
-COPY --from=build-stage /app/dist dist
 COPY --from=dependency-stage /app .
+
+ARG REVISION
+
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.title="SyncLounge"
+LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
+LABEL org.opencontainers.image.url="https://synclounge.tv/"
+LABEL org.opencontainers.image.revision=$REVISION
+LABEL org.opencontainers.image.source="https://github.com/samcm/synclounge"
+LABEL org.opencontainers.image.vendor="SyncLounge"
+LABEL org.opencontainers.image.version=$VERSION
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
+
+COPY --from=build-stage /app/dist dist
 ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -1,5 +1,5 @@
-[github-docker-badge]: https://github.com/actions/ttshivers/workflows/Docker/badge.svg
-[docker-version-badge]: https://images.microbadger.com/badges/version/ttshivers/synclounge:latest.sv
+[github-docker-badge]: https://github.com/ttshivers/synclounge/workflows/Docker/badge.svg
+[docker-version-badge]: https://images.microbadger.com/badges/version/ttshivers/synclounge:latest.svg
 [docker-latest-size-badge]: https://images.microbadger.com/badges/image/ttshivers/synclounge:latest.svg
 [docker-pulls-badge]: https://img.shields.io/docker/pulls/ttshivers/synclounge.svg
 [license-badge]: https://img.shields.io/badge/License-MIT-yellow.svg
