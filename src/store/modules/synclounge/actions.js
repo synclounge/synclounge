@@ -236,7 +236,7 @@ export default {
     registerListener({ eventName: 'userJoined', action: 'HANDLE_USER_JOINED' });
     registerListener({ eventName: 'userLeft', action: 'HANDLE_USER_LEFT' });
     registerListener({ eventName: 'newHost', action: 'HANDLE_NEW_HOST' });
-    registerListener({ eventName: 'newMesage', action: 'ADD_MESSAGE_AND_CACHE' });
+    registerListener({ eventName: 'newMessage', action: 'ADD_MESSAGE_AND_CACHE' });
     registerListener({ eventName: 'slPing', action: 'HANDLE_SLPING' });
     registerListener({ eventName: 'playerStateUpdate', action: 'HANDLE_PLAYER_STATE_UPDATE' });
     registerListener({ eventName: 'mediaUpdate', action: 'HANDLE_MEDIA_UPDATE' });
