@@ -219,7 +219,7 @@ export default {
     },
 
     date() {
-      return new Date(parseInt(process.env.VUE_APP_GIT_DATE, 10));
+      return new Date(parseInt(process.env.VUE_APP_GIT_DATE, 10) * 1000);
     },
 
     updatedAt() {

@@ -18,7 +18,7 @@ try {
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
   // TODO: find better way to do this
-  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || Date.now();
+  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || Math.floor(Date.now() / 1000);
 
   if (process.env.SOURCE_COMMIT) {
     process.env.VUE_APP_GIT_HASH = process.env.VUE_APP_GIT_HASH
