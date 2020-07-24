@@ -92,4 +92,6 @@ export default {
   GET_UPNEXT_TIMEOUT_ID: (state) => state.upnextTimeoutId,
 
   GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
+
+  ARE_NOTIFICATIONS_ENABLED: (state) => state.areNotificationsEnabled,
 };

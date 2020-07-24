@@ -4,7 +4,9 @@
       <h4 style="text-align:initial">
         Plex Client Polling Interval
       </h4>
-      <div> {{ GET_CLIENTPOLLINTERVAL }}</div>
+
+      <div> {{ GET_CLIENTPOLLINTERVAL }} </div>
+
       <v-slider
         class="pa-0 ma-0"
         :value="GET_CLIENTPOLLINTERVAL"
@@ -16,7 +18,9 @@
         @change="SET_CLIENTPOLLINTERVAL"
       />
     </div>
+
     <v-divider />
+
     <div
       style="text-align:center"
       class="pt-4"
@@ -24,7 +28,9 @@
       <h4 style="text-align:initial">
         Sync Flexibility
       </h4>
-      <div> {{ GET_SYNCFLEXIBILITY }}</div>
+
+      <div> {{ GET_SYNCFLEXIBILITY }} </div>
+
       <v-slider
         class="pa-0 ma-0"
         :value="GET_SYNCFLEXIBILITY"
@@ -36,7 +42,9 @@
         @change="SET_SYNCFLEXIBILITY"
       />
     </div>
+
     <v-divider />
+
     <div
       style="text-align:center"
       class="pt-4"
@@ -44,12 +52,14 @@
       <h4 style="text-align:initial">
         Syncing Method
       </h4>
+
       <v-radio-group v-model="syncmode">
         <v-radio
           label="Clean Seek"
           class="pa-0 ma-0"
           value="cleanseek"
         />
+
         <v-radio
           label="Skip Ahead"
           class="pa-0 ma-0"
@@ -59,6 +69,7 @@
         />
       </v-radio-group>
     </div>
+
     <div
       style="text-align:center"
       class="pt-4"
@@ -66,6 +77,7 @@
       <h4 style="text-align:initial">
         Autoplay
       </h4>
+
       <v-switch
         label="Enabled"
         hint="If enabled SyncLounge will attempt to automatically play the
@@ -74,6 +86,7 @@
         @change="SET_AUTOPLAY"
       />
     </div>
+
     <div
       style="text-align:center"
       class="pt-4"
@@ -81,20 +94,37 @@
       <h4 style="text-align:initial">
         SLPlayer Force Transcode
       </h4>
+
       <v-switch
         label="Enabled"
         :input-value="GET_SLPLAYERFORCETRANSCODE"
         @change="SET_SLPLAYERFORCETRANSCODE"
       />
-      <small>
-        WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.
-      </small>
     </div>
+
+    <div
+      style="text-align:center"
+      class="pt-4"
+    >
+      <h4 style="text-align:initial">
+        Chat Notifications
+      </h4>
+
+      <v-switch
+        label="Enabled"
+        :input-value="ARE_NOTIFICATIONS_ENABLED"
+        @change="CHANGE_NOTIFICATIONS_ENABLED"
+      />
+    </div>
+
+    <small>
+      WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.
+    </small>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'Settings',
@@ -107,10 +137,15 @@ export default {
       'GET_SYNCMODE',
     ]),
 
+    ...mapGetters('synclounge', [
+      'ARE_NOTIFICATIONS_ENABLED',
+    ]),
+
     syncmode: {
       get() {
         return this.GET_SYNCMODE;
       },
+
       set(value) {
         this.SET_SYNCMODE(value);
       },
@@ -124,6 +159,10 @@ export default {
       'SET_CLIENTPOLLINTERVAL',
       'SET_SYNCFLEXIBILITY',
       'SET_SYNCMODE',
+    ]),
+
+    ...mapActions('synclounge', [
+      'CHANGE_NOTIFICATIONS_ENABLED',
     ]),
   },
 };

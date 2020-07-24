@@ -490,6 +490,7 @@ export default {
       'REMOVE_RECENT_ROOM',
       'ADD_EVENT_HANDLERS',
       'FETCH_SERVERS_HEALTH',
+      'REQUEST_ALLOW_NOTIFICATIONS_IF_DEFAULT',
     ]),
 
     sinceNow(x) {

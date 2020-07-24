@@ -236,7 +236,7 @@ export default {
     registerListener({ eventName: 'userJoined', action: 'HANDLE_USER_JOINED' });
     registerListener({ eventName: 'userLeft', action: 'HANDLE_USER_LEFT' });
     registerListener({ eventName: 'newHost', action: 'HANDLE_NEW_HOST' });
-    registerListener({ eventName: 'newMesage', action: 'ADD_MESSAGE_AND_CACHE' });
+    registerListener({ eventName: 'newMesage', action: 'ADD_MESSAGE_AND_CACHE_AND_NOTIFY' });
     registerListener({ eventName: 'slPing', action: 'HANDLE_SLPING' });
     registerListener({ eventName: 'playerStateUpdate', action: 'HANDLE_PLAYER_STATE_UPDATE' });
     registerListener({ eventName: 'mediaUpdate', action: 'HANDLE_MEDIA_UPDATE' });
@@ -366,10 +366,23 @@ export default {
     await dispatch('SYNC_PLAYER_STATE');
   },
 
+  ADD_MESSAGE_AND_CACHE_AND_NOTIFY: async ({ getters, dispatch }, msg) => {
+    await dispatch('ADD_MESSAGE_AND_CACHE', msg);
+
+    if (getters.ARE_NOTIFICATIONS_ENABLED) {
+      const { username, thumb } = getters.GET_MESSAGES_USER_CACHE_USER(msg.senderId);
+
+      Notification(username, {
+        body: msg.text,
+        icon: thumb,
+      });
+    }
+  },
+
   ADD_MESSAGE_AND_CACHE: ({ getters, commit }, msg) => {
+    const { username, thumb } = getters.GET_USER(msg.senderId);
     if (!getters.GET_MESSAGES_USER_CACHE_USER(msg.senderId)) {
       // Cache user details so we can still display user avatar and username after user leaves
-      const { username, thumb } = getters.GET_USER(msg.senderId);
 
       commit('SET_MESSAGES_USER_CACHE_USER', {
         id: msg.senderId,
@@ -549,6 +562,29 @@ export default {
       metadata: media,
       machineIdentifier: media.machineIdentifier,
     }, { root: true });
+  },
+
+  REQUEST_ALLOW_NOTIFICATIONS_IF_DEFAULT: async ({ dispatch }) => {
+    if (Notification.permission === 'default') {
+      await dispatch('REQUEST_ALLOW_NOTIFICATIONS');
+    }
+  },
+
+  REQUEST_ALLOW_NOTIFICATIONS: async ({ commit }) => {
+    const permission = await Notification.requestPermission();
+    commit('SET_ARE_NOTIFICATIONS_ENABLED', permission === 'granted');
+  },
+
+  CHANGE_NOTIFICATIONS_ENABLED: async ({ commit, dispatch }, enabled) => {
+    if (enabled) {
+      if (Notification.permission === 'granted') {
+        commit('SET_ARE_NOTIFICATIONS_ENABLED', true);
+      } else {
+        await dispatch('REQUEST_ALLOW_NOTIFICATIONS');
+      }
+    } else {
+      commit('SET_ARE_NOTIFICATIONS_ENABLED', false);
+    }
   },
 
   ...eventhandlers,
