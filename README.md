@@ -1,13 +1,22 @@
-<p align="center"><img src="https://app.synclounge.tv/logo-long-dark.png" /></p>
+[github-docker-badge]: https://github.com/actions/ttshivers/workflows/Docker/badge.svg
+[docker-version-badge]: https://images.microbadger.com/badges/version/ttshivers/synclounge:latest.sv
+[docker-latest-size-badge]: https://images.microbadger.com/badges/image/ttshivers/synclounge:latest.svg
+[docker-pulls-badge]: https://img.shields.io/docker/pulls/ttshivers/synclounge.svg
+[license-badge]: https://img.shields.io/badge/License-MIT-yellow.svg
 
-<p align="center">
-  <a href="https://hub.docker.com/r/starbix/synclounge/builds/"><img src="https://img.shields.io/docker/build/starbix/synclounge.svg" alt="Build Status"></a>
-  <a href="https://microbadger.com/images/starbix/synclounge:latest"><img src="https://images.microbadger.com/badges/version/starbix/synclounge:latest.svg" alt="Version"></a>
-  <a href="https://microbadger.com/images/starbix/synclounge:latest"><img src="https://images.microbadger.com/badges/image/starbix/synclounge:latest.svg" alt="Size"></a>
-  <a href="https://hub.docker.com/r/starbix/synclounge/"><img src="https://img.shields.io/docker/pulls/starbix/synclounge.svg" alt="Pulls"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
-  <br>
-</p>
+[docker-action-link]: http://github.com/ttshivers/synclounge/actions?query=workflow%3ADocker+branch%3Amaster "Docker action"
+[dockerhub-link]: https://hub.docker.com/r/ttshivers/synclounge "Docker images of SyncLounge"
+[docker-microbadger-link]: https://microbadger.com/images/ttshivers/synclounge:latest "Docker size"
+[license-link]: https://opensource.org/licenses/MIT "MIT License"
+
+![SyncLounge](https://app.synclounge.tv/logo-long-dark.png)
+
+[![Docker][github-docker-badge]][docker-action-link]
+[![Version][docker-version-badge]][docker-microbadger-link]
+[![Size][docker-latest-size-badge]][docker-microbadger-link]
+[![Pulls][docker-pulls-badge]][dockerhub-link]
+[![License][license-badge]][license-link]
+
 
 SyncLounge (Previously PlexTogether) is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
 
