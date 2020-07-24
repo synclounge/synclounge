@@ -1,5 +1,7 @@
 const path = require('path');
-const git = require('git-rev-sync');
+const LCL = require('last-commit-log');
+
+const lcl = new LCL();
 
 const saveConfig = require('./config');
 
@@ -9,13 +11,14 @@ console.log(config);
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
 try {
-  process.env.VUE_APP_GIT_HASH = process.env.VUE_APP_GIT_HASH || git.short();
-  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || git.date().toISOString();
-  process.env.VUE_APP_GIT_BRANCH = process.env.VUE_APP_GIT_BRANCH || git.branch();
+  const lastCommit = lcl.getLastCommitSync();
+  process.env.VUE_APP_GIT_HASH = process.env.VUE_APP_GIT_HASH || lastCommit.shortHash;
+  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || lastCommit.committer.date;
+  process.env.VUE_APP_GIT_BRANCH = process.env.VUE_APP_GIT_BRANCH || lastCommit.gitBranch;
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
   // TODO: find better way to do this
-  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || new Date().toISOString();
+  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || Date.now();
 
   if (process.env.SOURCE_COMMIT) {
     process.env.VUE_APP_GIT_HASH = process.env.VUE_APP_GIT_HASH
