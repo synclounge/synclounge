@@ -102,3 +102,5 @@ Twitter:
 
 SyncLounge is licensed under MIT License. See the ``LICENSE.txt`` file.
 SyncLounge is in no way affiliated with Plex Inc.
+
+Using [Material Design libraries](https://material.io/) provided under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode)
