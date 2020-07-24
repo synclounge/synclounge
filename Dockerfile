@@ -15,7 +15,7 @@ FROM node:current-alpine as dependency-stage
 WORKDIR /app
 ## Install build toolchain, install node deps and compile native add-ons
 RUN apk add --no-cache python make g++
-RUN NPM_CONFIG_PREFIX=/app/.npm-global NPM_CONFIG_CACHE=/home/node/.cache npm install --unsafe-perm -g syncloungesocket@2.0.6 nconf
+RUN NPM_CONFIG_PREFIX=/app/.npm-global NPM_CONFIG_CACHE=/home/node/.cache npm install --unsafe-perm -g syncloungesocket@2.0.7 nconf
 COPY docker-entrypoint.sh .
 COPY config config
 

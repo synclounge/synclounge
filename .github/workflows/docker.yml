@@ -37,6 +37,7 @@ jobs:
             --build-arg SOURCE_BRANCH=${SOURCE_BRANCH} \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
+            --ulimit nofile=65536:65536 \
             ${TAGS} --file ./Dockerfile ./
       -
         name: Set up Docker Buildx
