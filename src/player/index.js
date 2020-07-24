@@ -11,9 +11,8 @@ export const isBuffering = () => getPlayer().isBuffering();
 
 export const isPlaying = () => !isPaused() && !isBuffering();
 
-export const getCurrentTimeMs = () => (getPlayer()
-  ? getPlayer().getMediaElement().currentTime * 1000
-  : null);
+export const getCurrentTimeMs = () => getPlayer()?.getMediaElement()
+  .currentTime * 1000;
 
 export const getDurationMs = () => getPlayer().getMediaElement().duration * 1000;
 
@@ -44,7 +43,7 @@ export const isTimeInBufferedRange = (timeMs) => {
   return false;
 };
 
-export const isMediaElementAttached = () => getPlayer() && getPlayer().getMediaElement != null;
+export const isMediaElementAttached = () => getPlayer()?.getMediaElement != null;
 
 export const addEventListener = (...args) => getPlayer().addEventListener(...args);
 

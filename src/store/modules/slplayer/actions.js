@@ -70,18 +70,10 @@ export default {
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
-  CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }, blockStateChange) => {
+  CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
     commit('SET_SESSION', guid());
     await dispatch('SEND_PLEX_DECISION_REQUEST');
-
-    if (blockStateChange) {
-      await dispatch('LOAD_PLAYER_SRC');
-    } else {
-      await Promise.all([
-        dispatch('CHANGE_PLAYER_STATE', 'buffering'),
-        dispatch('LOAD_PLAYER_SRC'),
-      ]);
-    }
+    await dispatch('LOAD_PLAYER_SRC');
 
     // TODO: potentially avoid sending updates on media change since we already do that
     if (getters.GET_MASK_PLAYER_STATE) {
@@ -101,7 +93,7 @@ export default {
       state: getters.GET_PLAYER_STATE,
     }
     : {
-      time: 0,
+      time: getters.GET_OFFSET_MS,
       duration: 0,
       playbackRate: 0,
       state: getters.GET_PLAYER_STATE,
@@ -389,7 +381,7 @@ export default {
     commit('SET_MASK_PLAYER_STATE', true);
     await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
-    await dispatch('CHANGE_PLAYER_SRC', true);
+    await dispatch('CHANGE_PLAYER_SRC');
 
     await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
   },
