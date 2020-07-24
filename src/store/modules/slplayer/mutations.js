@@ -52,4 +52,8 @@ export default {
   SET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state, resolver) => {
     state.playerInitializedPromiseResolver = resolver;
   },
+
+  SET_MASK_PLAYER_STATE: (state, mask) => {
+    state.maskPlayerState = mask;
+  },
 };

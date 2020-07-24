@@ -14,6 +14,10 @@ const state = () => ({
   plexTimelineUpdaterCanceler: null,
   isPlayerInitialized: false,
   playerInitializedPromiseResolver: null,
+
+  // This is used to signal whether to mask the player state (time, etc) when sending updates
+  // before the media is loaded
+  maskPlayerState: false,
 });
 
 export default state;

@@ -25,8 +25,9 @@ export default {
     ...getters.GET_PART_PARAMS,
   }),
 
-  FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK: ({ getters }) => getCurrentTimeMs()
-    || getters.GET_OFFSET_MS,
+  FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK: ({ getters }) => (getters.GET_MASK_PLAYER_STATE
+    ? getters.GET_OFFSET_MS
+    : getCurrentTimeMs() || getters.GET_OFFSET_MS),
 
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
     const data = await fetchJson(getters.GET_DECISION_URL, getters.GET_DECISION_AND_START_PARAMS);
@@ -69,14 +70,23 @@ export default {
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
-  CHANGE_PLAYER_SRC: async ({ commit, dispatch }) => {
+  CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }, blockStateChange) => {
     commit('SET_SESSION', guid());
     await dispatch('SEND_PLEX_DECISION_REQUEST');
 
-    await Promise.all([
-      dispatch('CHANGE_PLAYER_STATE', 'buffering'),
-      dispatch('LOAD_PLAYER_SRC'),
-    ]);
+    if (blockStateChange) {
+      await dispatch('LOAD_PLAYER_SRC');
+    } else {
+      await Promise.all([
+        dispatch('CHANGE_PLAYER_STATE', 'buffering'),
+        dispatch('LOAD_PLAYER_SRC'),
+      ]);
+    }
+
+    // TODO: potentially avoid sending updates on media change since we already do that
+    if (getters.GET_MASK_PLAYER_STATE) {
+      commit('SET_MASK_PLAYER_STATE', false);
+    }
   },
 
   SEND_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch }) => {
@@ -372,15 +382,14 @@ export default {
 
   PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ dispatch, commit, rootGetters }) => {
     await dispatch('plexclients/UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM', null, { root: true });
-    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
-
-    // Assume same server machineIdentifier, but this may not always be okay to do. (TODO: figure it out)
 
     // TODO: maybe plex indicates ongoing media index?
     commit('SET_MEDIA_INDEX', 0);
     commit('SET_OFFSET_MS', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].viewOffset || 0);
+    commit('SET_MASK_PLAYER_STATE', true);
+    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
-    await dispatch('CHANGE_PLAYER_SRC');
+    await dispatch('CHANGE_PLAYER_SRC', true);
 
     await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
   },

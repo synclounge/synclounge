@@ -78,6 +78,7 @@
                     >
                       Play Now
                     </v-btn>
+
                     <v-btn
                       @click="cancelPressed"
                     >
@@ -159,6 +160,10 @@ export default {
     this.startTimer();
   },
 
+  beforeDestroy() {
+    this.cancelTimer();
+  },
+
   methods: {
     ...mapActions('plexclients', [
       'PLAY_MEDIA',
@@ -176,8 +181,9 @@ export default {
 
     async playMedia() {
       this.transitionBarWithStyle = {};
-      await this.PLAY_NEXT();
+      const metadata = this.GET_UP_NEXT_POST_PLAY_DATA;
       this.SET_UP_NEXT_POST_PLAY_DATA(null);
+      await this.PLAY_NEXT(metadata);
     },
 
     startTimer() {
@@ -197,8 +203,9 @@ export default {
     },
 
     cancelTimer() {
-      if (this.timeoutId > -1) {
+      if (this.timeoutId != null) {
         clearTimeout(this.timeoutId);
+        this.timeoutId = null;
         this.transitionBarWithStyle = {};
       }
     },
@@ -212,13 +219,13 @@ export default {
   position: relative;
 }
 
-.c-timebar{
+.c-timebar {
     width: 100%;
     height: 100%;
     position: relative;
 }
 
-.c-timebar__background{
+.c-timebar__background {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -227,7 +234,7 @@ export default {
   z-index: 1;
 }
 
-.c-timebar__remaining{
+.c-timebar__remaining {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -241,12 +248,12 @@ export default {
 </style>
 
 <style>
-@keyframes timebar_progress_x{
+@keyframes timebar_progress_x {
   from  { transform: scaleX(1) }
   to    { transform: scaleX(0) }
 }
 
-@keyframes timebar_progress_y{
+@keyframes timebar_progress_y {
   from  { transform: scaleY(1) }
   to    { transform: scaleY(0) }
 }

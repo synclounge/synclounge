@@ -84,10 +84,11 @@ export default {
       commit('slplayer/SET_MEDIA_INDEX', mediaIndex, { root: true });
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
       commit('slplayer/SET_PLAYER_STATE', 'buffering', { root: true });
+      commit('slplayer/SET_MASK_PLAYER_STATE', true, { root: true });
       await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
       if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {
-        await dispatch('slplayer/CHANGE_PLAYER_SRC', null, { root: true });
+        await dispatch('slplayer/CHANGE_PLAYER_SRC', true, { root: true });
       } else {
         await dispatch('slplayer/NAVIGATE_AND_INITIALIZE_PLAYER', null, { root: true });
       }
@@ -526,10 +527,20 @@ export default {
     };
   },
 
-  PLAY_NEXT: ({ getters, dispatch }) => {
+  PLAY_NEXT: ({ getters, rootGetters, dispatch }, metadata) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
-        return dispatch('slplayer/PLAY_NEXT', null, { root: true });
+        if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {
+          return dispatch('slplayer/PLAY_NEXT', null, { root: true });
+        }
+
+        const { viewOffset: offset, machineIdentifier } = metadata;
+        return dispatch('PLAY_MEDIA', {
+          mediaIndex: 0,
+          offset,
+          machineIdentifier,
+          metadata,
+        });
       }
 
       default: {

@@ -129,8 +129,6 @@ export default {
   },
 
   DISCONNECT: async ({ commit, dispatch }) => {
-    console.log('Decided we should disconnect from the SL Server.');
-
     // Cancel poller
     await dispatch('plexclients/CANCEL_CLIENT_POLLER_IF_NEEDED', null, { root: true });
 
@@ -260,14 +258,12 @@ export default {
 
   CANCEL_UPNEXT: ({ getters, commit }) => {
     if (getters.GET_UPNEXT_TIMEOUT_ID != null) {
-      console.log('cancel upnext');
       clearTimeout(getters.GET_UPNEXT_TIMEOUT_ID);
       commit('SET_UPNEXT_TIMEOUT_ID', null);
     }
   },
 
   DISPLAY_UPNEXT: async ({ rootGetters, dispatch, commit }) => {
-    console.log('DISPLAY_UPNEXT');
     if (rootGetters['plexclients/ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS']) {
       commit(
         'SET_UP_NEXT_POST_PLAY_DATA',
@@ -284,10 +280,8 @@ export default {
 
   SCHEDULE_UPNEXT: async ({ rootGetters, dispatch, commit }, playerState) => {
     if (playerState.duration && playerState.time) {
-      console.log('schedule upnext');
       const timeUntilUpnextTrigger = playerState.duration - playerState.time
         - rootGetters.GET_CONFIG.synclounge_upnext_trigger_time_from_end;
-      console.log('timeUntilUpnextTrigger', timeUntilUpnextTrigger);
 
       commit('SET_UPNEXT_TIMEOUT_ID', setTimeout(() => dispatch('DISPLAY_UPNEXT'),
         timeUntilUpnextTrigger));
@@ -348,6 +342,16 @@ export default {
     // TODO: only send message if in room, check in room
     const playerState = await dispatch('FETCH_PLAYER_STATE');
 
+    if (playerState.state !== 'stopped') {
+      if (rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
+        commit('SET_UP_NEXT_POST_PLAY_DATA', null, { root: true });
+      }
+
+      if (getters.GET_UP_NEXT_TRIGGERED) {
+        commit('SET_UP_NEXT_TRIGGERED', false);
+      }
+    }
+
     commit('SET_USER_MEDIA', {
       id: getters.GET_SOCKET_ID,
       media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
@@ -373,14 +377,11 @@ export default {
     await dispatch('ADD_MESSAGE_AND_CACHE', msg);
 
     if (getters.ARE_SOUND_NOTIFICATIONS_ENABLED) {
-      console.log('play sound');
       notificationAudio.play();
     }
 
     if (getters.ARE_NOTIFICATIONS_ENABLED) {
       const { username, thumb } = getters.GET_MESSAGES_USER_CACHE_USER(msg.senderId);
-
-      console.log('hasFocus', document.hasFocus());
 
       // TODO: notifications don't work when on http. Maybe make alternative popup thing?
       // eslint-disable-next-line no-new
