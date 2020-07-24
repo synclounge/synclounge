@@ -1,5 +1,5 @@
 # build environment
-FROM node:current-alpine as build-stage
+FROM --platform=$BUILDPLATFORM node:current-alpine as build-stage
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --loglevel verbose
