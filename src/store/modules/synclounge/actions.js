@@ -6,6 +6,9 @@ import { fetchJson } from '@/utils/fetchutils';
 import {
   open, close, on, waitForEvent, isConnected, emit,
 } from '@/socket';
+import notificationSound from '@/assets/sounds/notification_simple-01.wav';
+
+const notificationAudio = new Audio(notificationSound);
 
 export default {
   CONNECT_AND_JOIN_ROOM: async ({ dispatch }) => {
@@ -369,9 +372,17 @@ export default {
   ADD_MESSAGE_AND_CACHE_AND_NOTIFY: async ({ getters, dispatch }, msg) => {
     await dispatch('ADD_MESSAGE_AND_CACHE', msg);
 
+    if (getters.ARE_SOUND_NOTIFICATIONS_ENABLED) {
+      console.log('play sound');
+      notificationAudio.play();
+    }
+
     if (getters.ARE_NOTIFICATIONS_ENABLED) {
       const { username, thumb } = getters.GET_MESSAGES_USER_CACHE_USER(msg.senderId);
 
+      console.log('hasFocus', document.hasFocus());
+
+      // TODO: notifications don't work when on http. Maybe make alternative popup thing?
       // eslint-disable-next-line no-new
       new Notification(username, {
         body: msg.text,
@@ -563,12 +574,6 @@ export default {
       metadata: media,
       machineIdentifier: media.machineIdentifier,
     }, { root: true });
-  },
-
-  REQUEST_ALLOW_NOTIFICATIONS_IF_DEFAULT: async ({ dispatch }) => {
-    if (Notification.permission === 'default') {
-      await dispatch('REQUEST_ALLOW_NOTIFICATIONS');
-    }
   },
 
   REQUEST_ALLOW_NOTIFICATIONS: async ({ commit }) => {

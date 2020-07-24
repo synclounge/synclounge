@@ -103,7 +103,6 @@ export default {
     ...mapActions('synclounge', [
       'FETCH_SERVERS_HEALTH',
       'CREATE_AND_JOIN_ROOM',
-      'REQUEST_ALLOW_NOTIFICATIONS_IF_DEFAULT',
     ]),
 
     async fetchServersHealth() {
@@ -120,7 +119,6 @@ export default {
       this.loading = true;
 
       try {
-        this.REQUEST_ALLOW_NOTIFICATIONS_IF_DEFAULT();
         await this.CREATE_AND_JOIN_ROOM();
 
         if (this.$route.name === 'CreateRoom') {

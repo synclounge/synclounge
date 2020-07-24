@@ -102,21 +102,6 @@
       />
     </div>
 
-    <div
-      style="text-align:center"
-      class="pt-4"
-    >
-      <h4 style="text-align:initial">
-        Chat Notifications
-      </h4>
-
-      <v-switch
-        label="Enabled"
-        :input-value="ARE_NOTIFICATIONS_ENABLED"
-        @change="CHANGE_NOTIFICATIONS_ENABLED"
-      />
-    </div>
-
     <small>
       WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.
     </small>
@@ -124,7 +109,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'Settings',
@@ -135,10 +120,6 @@ export default {
       'GET_CLIENTPOLLINTERVAL',
       'GET_SYNCFLEXIBILITY',
       'GET_SYNCMODE',
-    ]),
-
-    ...mapGetters('synclounge', [
-      'ARE_NOTIFICATIONS_ENABLED',
     ]),
 
     syncmode: {
@@ -159,10 +140,6 @@ export default {
       'SET_CLIENTPOLLINTERVAL',
       'SET_SYNCFLEXIBILITY',
       'SET_SYNCMODE',
-    ]),
-
-    ...mapActions('synclounge', [
-      'CHANGE_NOTIFICATIONS_ENABLED',
     ]),
   },
 };

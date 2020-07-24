@@ -29,26 +29,17 @@
         </v-list-item-content>
 
         <v-list-item-icon>
-          <v-menu>
-            <template v-slot:activator="{ on }">
-              <v-btn
-                icon
-                class="ma-0 pa-0"
-                dark
-                v-on="on"
-              >
-                <v-icon>more_vert</v-icon>
-              </v-btn>
-            </template>
-
-            <v-list>
-              <v-list-item @click="handleDisconnect">
-                <v-list-item-title class="user-menu-list">
-                  Leave Room
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          <chatsettings v-slot="{ on, attrs }">
+            <v-btn
+              icon
+              class="ma-0 pa-0"
+              dark
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon>more_vert</v-icon>
+            </v-btn>
+          </chatsettings>
         </v-list-item-icon>
       </v-list-item>
 
@@ -212,7 +203,6 @@
       <v-divider />
 
       <messages
-        v-if="$vuetify.breakpoint.lgAndUp"
         class="messages"
       />
     </div>
@@ -232,6 +222,7 @@ export default {
   components: {
     messages: () => import('@/components/messaging/messages.vue'),
     MessageInput: () => import('@/components/messaging/MessageInput.vue'),
+    chatsettings: () => import('@/components/sidebars/chatsettings.vue'),
   },
 
   mixins: [
@@ -294,7 +285,6 @@ export default {
       'SEND_SET_PARTY_PAUSING_ENABLED',
       'sendPartyPause',
       'TRANSFER_HOST',
-      'DISCONNECT',
     ]),
 
     ...mapActions([
@@ -341,11 +331,6 @@ export default {
           border: `3px solid ${this.getSyncStateColor(syncState)}`,
         },
       ];
-    },
-
-    async handleDisconnect() {
-      await this.DISCONNECT();
-      this.$router.push('/');
     },
 
     percent({ duration, ...rest }) {
@@ -429,8 +414,5 @@ export default {
 }
 .v-list__tile {
   padding: 0;
-}
-.user-menu-list {
-  padding: 0 16px;
 }
 </style>

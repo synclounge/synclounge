@@ -95,4 +95,8 @@ export default {
   SET_ARE_NOTIFICATIONS_ENABLED: (state, enabled) => {
     state.areNotificationsEnabled = enabled;
   },
+
+  SET_ARE_SOUND_NOTIFICATIONS_ENABLED: (state, enabled) => {
+    state.areSoundNotificationsEnabled = enabled;
+  },
 };

@@ -95,14 +95,12 @@ export default {
   methods: {
     ...mapActions('synclounge', [
       'SET_AND_CONNECT_AND_JOIN_ROOM',
-      'REQUEST_ALLOW_NOTIFICATIONS_IF_DEFAULT',
     ]),
 
     async joinInvite() {
       this.error = null;
 
       try {
-        this.REQUEST_ALLOW_NOTIFICATIONS_IF_DEFAULT();
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
           server: this.server,
           room: this.room,

@@ -18,6 +18,7 @@ const state = () => ({
   // It is reset to false when the player gets out of the upNext time zone (at the end of episode)
   upNextTriggered: false,
   areNotificationsEnabled: false,
+  areSoundNotificationsEnabled: false,
 });
 
 export default state;
