@@ -222,7 +222,7 @@ export default {
   components: {
     messages: () => import('@/components/messaging/messages.vue'),
     MessageInput: () => import('@/components/messaging/MessageInput.vue'),
-    chatsettings: () => import('@/components/sidebars/chatsettings.vue'),
+    chatsettings: () => import('@/components/chatsettings.vue'),
   },
 
   mixins: [
