@@ -12,22 +12,15 @@ process.env.VUE_APP_VERSION = require('./package.json').version;
 
 try {
   const lastCommit = lcl.getLastCommitSync();
-  process.env.VUE_APP_GIT_HASH = process.env.VUE_APP_GIT_HASH || lastCommit.shortHash;
-  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || lastCommit.committer.date;
-  process.env.VUE_APP_GIT_BRANCH = process.env.VUE_APP_GIT_BRANCH || lastCommit.gitBranch;
+  process.env.VUE_APP_GIT_HASH = lastCommit.shortHash;
+  process.env.VUE_APP_GIT_DATE = lastCommit.committer.date;
+  process.env.VUE_APP_GIT_BRANCH = lastCommit.gitBranch;
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
   // TODO: find better way to do this
-  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || Math.floor(Date.now() / 1000);
-
-  if (process.env.SOURCE_COMMIT) {
-    process.env.VUE_APP_GIT_HASH = process.env.VUE_APP_GIT_HASH
-      || process.env.SOURCE_COMMIT.substring(0, 7);
-  }
-
-  if (process.env.SOURCE_BRANCH) {
-    process.env.VUE_APP_GIT_BRANCH = process.env.VUE_APP_GIT_BRANCH || process.env.SOURCE_BRANCH;
-  }
+  process.env.VUE_APP_GIT_DATE = Math.floor(Date.now() / 1000);
+  process.env.VUE_APP_GIT_HASH = process.env.REVISION;
+  process.env.VUE_APP_GIT_BRANCH = process.env.SOURCE_BRANCH;
 }
 
 module.exports = {
