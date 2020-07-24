@@ -52,6 +52,10 @@ module.exports = {
   //   },
   // },
 
+  // devServer: {
+  //   disableHostCheck: true,
+  // },
+
   css: {
     extract: process.env.NODE_ENV === 'production' ? {
       ignoreOrder: true,

@@ -1,0 +1,84 @@
+<template>
+  <v-menu
+    v-model="menu"
+    :close-on-content-click="false"
+    offset-x
+  >
+    <template v-slot:activator="stuff">
+      <slot
+        v-bind="stuff"
+      />
+    </template>
+
+    <v-card>
+      <v-list>
+        <v-list-item>
+          <v-list-item-action>
+            <v-switch
+              :input-value="ARE_NOTIFICATIONS_ENABLED"
+              @change="CHANGE_NOTIFICATIONS_ENABLED"
+            />
+          </v-list-item-action>
+
+          <v-list-item-title>Popup notifications</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-action>
+            <v-switch
+              :input-value="ARE_SOUND_NOTIFICATIONS_ENABLED"
+              @change="SET_ARE_SOUND_NOTIFICATIONS_ENABLED"
+            />
+          </v-list-item-action>
+
+          <v-list-item-title>Sound notifications</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <v-card-actions>
+        <v-spacer />
+
+        <v-btn
+          color="primary"
+          text
+          @click="handleDisconnect"
+        >
+          Leave Room
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-menu>
+</template>
+
+<script>
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+
+export default {
+  data: () => ({
+    menu: false,
+  }),
+
+  computed: {
+    ...mapGetters('synclounge', [
+      'ARE_NOTIFICATIONS_ENABLED',
+      'ARE_SOUND_NOTIFICATIONS_ENABLED',
+    ]),
+  },
+
+  methods: {
+    ...mapActions('synclounge', [
+      'DISCONNECT',
+      'CHANGE_NOTIFICATIONS_ENABLED',
+    ]),
+
+    ...mapMutations('synclounge', [
+      'SET_ARE_SOUND_NOTIFICATIONS_ENABLED',
+    ]),
+
+    async handleDisconnect() {
+      await this.DISCONNECT();
+      this.$router.push('/');
+    },
+  },
+};
+</script>
