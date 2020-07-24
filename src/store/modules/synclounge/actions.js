@@ -372,7 +372,8 @@ export default {
     if (getters.ARE_NOTIFICATIONS_ENABLED) {
       const { username, thumb } = getters.GET_MESSAGES_USER_CACHE_USER(msg.senderId);
 
-      Notification(username, {
+      // eslint-disable-next-line no-new
+      new Notification(username, {
         body: msg.text,
         icon: thumb,
       });
