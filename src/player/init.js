@@ -1,9 +1,10 @@
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
+import SubtitlesOctopus from 'libass-wasm';
 import store from '@/store';
 import playerUiPlugins from '@/player/ui';
 
 import {
-  getPlayer, setPlayer, getOverlay, setOverlay,
+  getPlayer, setPlayer, getOverlay, setOverlay, setSubtitleOctopusFactory,
 } from './state';
 
 playerUiPlugins(store);
@@ -20,6 +21,8 @@ const initialize = async ({
 
   setOverlay(new shaka.ui.Overlay(getPlayer(), videoContainer, mediaElement));
   getOverlay().configure(overlayConfig);
+
+  setSubtitleOctopusFactory((options) => new SubtitlesOctopus(options));
 };
 
 export default initialize;

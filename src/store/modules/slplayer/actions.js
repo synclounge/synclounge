@@ -1,7 +1,7 @@
 import CAF from 'caf';
 
 import guid from '@/utils/guid';
-import { fetchJson, queryFetch } from '@/utils/fetchutils';
+import { fetchJson, queryFetch, fetchText, makeUrl } from '@/utils/fetchutils';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import {
   play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
@@ -10,6 +10,8 @@ import {
   setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
   getSmallPlayButton, getBigPlayButton,
 } from '@/player';
+
+import { disposeSubtitleOctopusInstance, setSubtitleContent, setSubtitleUrl } from '@/player/state';
 
 export default {
   MAKE_TIMELINE_PARAMS: async ({ getters, rootGetters, dispatch }) => ({
@@ -70,10 +72,31 @@ export default {
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
+  CHANGE_SUBTITLES: async ({ getters }) => {
+    if (getters.GET_SUBTITLE_STREAM_ID) {
+      // TODO: see if burned
+      // We must fetch the subtitles ourselves since it is passed to a web worker and they can't
+      // make cross-origin requests
+      console.log('should fetch ugh');
+      // const data = await fetchText(getters.GET_SUBTITLE_BASE_URL,
+      //   getters.GET_DECISION_AND_START_PARAMS);
+      //const resp = await queryFetch(getters.GET_SUBTITLE_BASE_URL, getters.GET_DECISION_AND_START_PARAMS);
+      console.log('done fetching');
+      //setSubtitleContent(data);
+
+      setSubtitleUrl(makeUrl(getters.GET_SUBTITLE_BASE_URL, getters.GET_DECISION_AND_START_PARAMS));
+    } else {
+      // Remove instance since subtitles disabled
+      disposeSubtitleOctopusInstance();
+    }
+  },
+
   CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
     commit('SET_SESSION', guid());
+
     await dispatch('SEND_PLEX_DECISION_REQUEST');
     await dispatch('LOAD_PLAYER_SRC');
+    await dispatch('CHANGE_SUBTITLES');
 
     // TODO: potentially avoid sending updates on media change since we already do that
     if (getters.GET_MASK_PLAYER_STATE) {
@@ -314,6 +337,7 @@ export default {
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
     // Leaving play queue around for possible upnext
     commit('SET_IS_PLAYER_INITIALIZED', false);
+    disposeSubtitleOctopusInstance();
     await destroy();
     commit('SET_OFFSET_MS', 0);
 

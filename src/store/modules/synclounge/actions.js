@@ -1,7 +1,7 @@
 import CAF from 'caf';
 import guid from '@/utils/guid';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
-import combineUrl from '@/utils/combineurl';
+import { combineAbsoluteUrl } from '@/utils/combineurl';
 import { fetchJson } from '@/utils/fetchutils';
 import {
   open, close, on, waitForEvent, isConnected, emit,
@@ -30,7 +30,7 @@ export default {
     }
 
     const properBase = new URL(getters.GET_SERVER, window.location);
-    const url = combineUrl('socket.io', properBase.toString());
+    const url = combineAbsoluteUrl('socket.io', properBase.toString());
     const { id } = await open(url.origin, {
       path: url.pathname,
       transports: ['websocket', 'polling'],

@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 const LCL = require('last-commit-log');
 
 const lcl = new LCL();
@@ -36,6 +37,18 @@ module.exports = {
       },
     },
     node: false,
+
+    plugins: [
+      new CopyPlugin({
+        patterns: [
+          {
+            context: path.resolve(__dirname, 'node_modules', 'libass-wasm', 'dist', 'js'),
+            from: 'subtitles-octopus-worker*',
+            to: 'libraries/',
+          },
+        ],
+      }),
+    ],
   },
 
   // pluginOptions: {

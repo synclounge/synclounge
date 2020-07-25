@@ -11,6 +11,7 @@ export default {
     ? getters.GET_PLEX_SERVER.accessToken
     : undefined),
 
+  // TODO: move this stuff into plexservers probably
   GET_PLEX_SERVER_URL: (state, getters) => (getters.GET_PLEX_SERVER
     ? getters.GET_PLEX_SERVER.chosenConnection.uri
     : undefined),
@@ -27,6 +28,8 @@ export default {
     : null),
 
   GET_SRC_URL: (state, getters) => makeUrl(`${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd`, getters.GET_DECISION_AND_START_PARAMS),
+
+  GET_SUBTITLE_BASE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/subtitles`,
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
 
@@ -140,7 +143,8 @@ export default {
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
     // TODO: investigate subtitles support
-    subtitles: 'burn',
+    subtitles: 'auto',
+    advancedSubtitles: 'text',
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,

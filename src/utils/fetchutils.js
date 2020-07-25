@@ -20,6 +20,11 @@ export const queryFetch = (url, queryParams, init) => safeFetch(
   init,
 );
 
+export const fetchText = async (...args) => {
+  const response = await queryFetch(...args);
+  return response.text();
+};
+
 export const fetchJson = async (url, queryParams, { headers, ...rest } = {}) => {
   const response = await queryFetch(
     url,
@@ -37,9 +42,7 @@ export const fetchJson = async (url, queryParams, { headers, ...rest } = {}) => 
 };
 
 export const fetchXmlAndTransform = async (...args) => {
-  const response = await queryFetch(...args);
-
-  const text = await response.text();
+  const text = await fetchText(...args);
 
   const xmlutils = (await import('@/utils/xmlutils')).default;
   return xmlutils.parse(text);
