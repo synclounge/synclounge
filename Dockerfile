@@ -25,7 +25,9 @@ FROM node:current-alpine as production-stage
 WORKDIR /app
 COPY --from=dependency-stage /app .
 
+ARG VERSION
 ARG REVISION
+ARG BUILD_DATE
 
 LABEL org.opencontainers.image.created=$BUILD_DATE
 LABEL org.opencontainers.image.title="SyncLounge"
