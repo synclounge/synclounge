@@ -54,22 +54,6 @@ export default {
     ? rootGetters['settings/GET_ALTUSERNAME']
     : rootGetters['plex/GET_PLEX_USER'].username || rootGetters['plex/GET_PLEX_USER'].title),
 
-  GET_SYNC_STATE: (state, getters, rootState, rootGetters) => (clientTime) => {
-    if (!getters.GET_HOST_USER) {
-      return 'unknown';
-    }
-
-    if (getters.AM_I_HOST) {
-      return 'synced';
-    }
-
-    const difference = Math.abs(clientTime - getters.GET_ADJUSTED_HOST_TIME());
-
-    return difference > rootGetters['settings/GET_SYNCFLEXIBILITY']
-      ? 'unsynced'
-      : 'synced';
-  },
-
   GET_SERVER: (state) => state.server,
 
   GET_SYNC_CANCEL_TOKEN: (state) => state.syncCancelToken,

@@ -39,7 +39,7 @@
         hint="Sets the acceptable distance away from the host in milliseconds.
         Default is 3000ms (3 seconds)."
         persistent-hint
-        @change="SET_SYNCFLEXIBILITY"
+        @change="UPDATE_SYNC_FLEXIBILITY"
       />
     </div>
 
@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'Settings',
@@ -134,13 +134,17 @@ export default {
   },
 
   methods: {
+    ...mapActions('synclounge', [
+      'UPDATE_SYNC_FLEXIBILITY',
+    ]),
+
     ...mapMutations('settings', [
       'SET_AUTOPLAY',
       'SET_SLPLAYERFORCETRANSCODE',
       'SET_CLIENTPOLLINTERVAL',
-      'SET_SYNCFLEXIBILITY',
       'SET_SYNCMODE',
     ]),
+
   },
 };
 </script>
