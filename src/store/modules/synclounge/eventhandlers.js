@@ -103,6 +103,10 @@ export default {
     }
   },
 
+  HANDLE_SYNC_FLEXIBILITY_UPDATE: ({ commit }, data) => {
+    commit('SET_USER_SYNC_FLEXIBILITY', data);
+  },
+
   HANDLE_PARTY_PAUSE: async ({ getters, dispatch }, { senderId, isPause }) => {
     // TODO: maybe stop it from looking at host after party pausing until host also updates or acks that it got the party pause?
     const text = `${getters.GET_USER(senderId).username} pressed ${isPause ? 'pause' : 'play'}`;

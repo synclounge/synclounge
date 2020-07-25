@@ -70,18 +70,21 @@ export default {
   },
 
   SET_USER_PLAYER_STATE: (state, {
-    id, state: playerState, time, duration, playbackRate, syncState,
+    id, state: playerState, time, duration, playbackRate,
   }) => {
     Vue.set(state.users[id], 'state', playerState);
     Vue.set(state.users[id], 'time', time);
     Vue.set(state.users[id], 'duration', duration);
     Vue.set(state.users[id], 'playbackRate', playbackRate);
-    Vue.set(state.users[id], 'syncState', syncState);
     Vue.set(state.users[id], 'updatedAt', Date.now());
   },
 
   SET_USER_MEDIA: (state, { id, media }) => {
     Vue.set(state.users[id], 'media', media);
+  },
+
+  SET_USER_SYNC_FLEXIBILITY: (state, { id, syncFlexibility }) => {
+    Vue.set(state.users[id], 'syncFlexibility', syncFlexibility);
   },
 
   SET_UPNEXT_TIMEOUT_ID: (state, id) => {

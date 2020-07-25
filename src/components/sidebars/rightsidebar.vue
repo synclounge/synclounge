@@ -108,7 +108,7 @@
           <v-list-item-avatar>
             <img
               :src="user.thumb"
-              :style="getImgStyle(user.syncState)"
+              :style="getImgStyle(user)"
             >
 
             <v-icon
@@ -259,6 +259,7 @@ export default {
       'GET_HOST_ID',
       'AM_I_HOST',
       'GET_SOCKET_ID',
+      'GET_ADJUSTED_HOST_TIME',
     ]),
 
     ...mapGetters('plexservers', [
@@ -311,24 +312,22 @@ export default {
       this.sendPartyPause(isPause);
     },
 
-    getSyncStateColor(syncState) {
-      switch (syncState) {
-        case 'synced':
-          return '#0de47499';
-
-        case 'unsynced':
-          return '#FFB300';
-
-        case 'unknown':
-        default:
-          return '#F44336';
+    getSyncStateColor({ syncFlexibility, ...rest }) {
+      if (!this.GET_HOST_USER) {
+        return '#F44336';
       }
+
+      const difference = Math.abs(this.getAdjustedTime(rest) - this.GET_ADJUSTED_HOST_TIME());
+
+      return difference > syncFlexibility
+        ? '#FFB300'
+        : '#0de47499';
     },
 
-    getImgStyle(syncState) {
+    getImgStyle(user) {
       return [
         {
-          border: `3px solid ${this.getSyncStateColor(syncState)}`,
+          border: `3px solid ${this.getSyncStateColor(user)}`,
         },
       ];
     },

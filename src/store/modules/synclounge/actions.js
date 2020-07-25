@@ -53,18 +53,17 @@ export default {
 
   JOIN_ROOM: async ({ getters, rootGetters, dispatch }) => {
     const joinPlayerData = await dispatch('plexclients/FETCH_JOIN_PLAYER_DATA', null, { root: true });
-    // TODO: transmit syncFlexibility instead of syncState and have everyone calculate if they are in sync.
 
     emit({
       eventName: 'join',
       data: {
-        // TODO: rename to roomId
         roomId: getters.GET_ROOM,
         password: getters.GET_PASSWORD,
         desiredUsername: getters.GET_DISPLAY_USERNAME,
-        // TODO: add config optin for this
+        // TODO: add config option for this
         desiredPartyPausingEnabled: true,
         thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
+        syncFlexibility: rootGetters['settings/GET_SYNCFLEXIBILITY'],
         ...joinPlayerData,
       },
     });
@@ -115,6 +114,7 @@ export default {
         thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
         media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
         playerProduct: rootGetters['plexclients/GET_CHOSEN_CLIENT'].product,
+        syncFlexibility: rootGetters['settings/GET_SYNCFLEXIBILITY'],
         updatedAt,
         ...await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true }),
       },
@@ -241,19 +241,11 @@ export default {
     registerListener({ eventName: 'slPing', action: 'HANDLE_SLPING' });
     registerListener({ eventName: 'playerStateUpdate', action: 'HANDLE_PLAYER_STATE_UPDATE' });
     registerListener({ eventName: 'mediaUpdate', action: 'HANDLE_MEDIA_UPDATE' });
+    registerListener({ eventName: 'syncFlexibilityUpdate', action: 'HANDLE_SYNC_FLEXIBILITY_UPDATE' });
     registerListener({ eventName: 'setPartyPausingEnabled', action: 'HANDLE_SET_PARTY_PAUSING_ENABLED' });
     registerListener({ eventName: 'partyPause', action: 'HANDLE_PARTY_PAUSE' });
     registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
     registerListener({ eventName: 'connect', action: 'HANDLE_RECONNECT' });
-  },
-
-  FETCH_PLAYER_STATE: async ({ getters, dispatch }) => {
-    const { time, ...rest } = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
-    return {
-      ...rest,
-      time,
-      syncState: getters.GET_SYNC_STATE(time),
-    };
   },
 
   CANCEL_UPNEXT: ({ getters, commit }) => {
@@ -317,7 +309,7 @@ export default {
 
   PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }, noSync) => {
     // TODO: only send message if in room, check in room
-    const playerState = await dispatch('FETCH_PLAYER_STATE');
+    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
     commit('SET_USER_PLAYER_STATE', {
       ...playerState,
@@ -340,7 +332,7 @@ export default {
     dispatch, getters, commit, rootGetters,
   }) => {
     // TODO: only send message if in room, check in room
-    const playerState = await dispatch('FETCH_PLAYER_STATE');
+    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
     if (playerState.state !== 'stopped') {
       if (rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
@@ -592,6 +584,23 @@ export default {
     } else {
       commit('SET_ARE_NOTIFICATIONS_ENABLED', false);
     }
+  },
+
+  SEND_SYNC_FLEXIBILITY_UPDATE: ({ rootGetters }) => {
+    emit({
+      eventName: 'syncFlexibilityUpdate',
+      data: rootGetters['settings/GET_SYNCFLEXIBILITY'],
+    });
+  },
+
+  UPDATE_SYNC_FLEXIBILITY: ({ getters, dispatch, commit }, syncFlexibility) => {
+    commit('settings/SET_SYNCFLEXIBILITY', syncFlexibility, { root: true });
+    commit('SET_USER_SYNC_FLEXIBILITY', {
+      id: getters.GET_SOCKET_ID,
+      syncFlexibility,
+    });
+
+    return dispatch('SEND_SYNC_FLEXIBILITY_UPDATE');
   },
 
   ...eventhandlers,
