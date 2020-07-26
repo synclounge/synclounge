@@ -152,6 +152,7 @@ import sizing from '@/mixins/sizing';
 import initialize from '@/player/init';
 
 import 'shaka-player/dist/controls.css';
+import 'libjass/libjass.css';
 
 export default {
   components: {
@@ -425,5 +426,12 @@ export default {
 
   .shaka-spinner {
     padding: 57px !important;
+  }
+
+  .libjass-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
   }
 </style>

@@ -1,9 +1,17 @@
-import { combineRelativeUrl } from '@/utils/combineurl';
+import libjass from 'libjass';
+
+import { queryFetch } from '@/utils/fetchutils';
+
+libjass.debugMode = true;
 
 let player = null;
 let overlay = null;
-let subtitleOctopusFactory = null;
-let subtitleOctopusInstance = null;
+let videoClock = null;
+let subtitleRenderer = null;
+
+const settings = {
+
+};
 
 export const getPlayer = () => player;
 export const setPlayer = (newPlayer) => {
@@ -15,53 +23,74 @@ export const setOverlay = (newOverlay) => {
   overlay = newOverlay;
 };
 
-export const setSubtitleOctopusFactory = (newFactory) => {
-  subtitleOctopusFactory = newFactory;
+/**
+   * Resize the subtitles to the dimensions of the video element.
+   *
+   * This method accounts for letterboxing if the video element's size is not the same ratio as the video resolution.
+   */
+const resizeSubtitleContainer = () => {
+  // Handle letterboxing around the video. If the width or height are greater than the video can be, then consider that dead space.
+
+  const {
+    videoWidth, videoHeight, offsetWidth, offsetHeight,
+  } = getPlayer().getMediaElement();
+
+  const ratio = Math.min(offsetWidth / videoWidth, offsetHeight / videoHeight);
+  const subsWrapperWidth = videoWidth * ratio;
+  const subsWrapperHeight = videoHeight * ratio;
+  const subsWrapperLeft = (offsetWidth - subsWrapperWidth) / 2;
+  const subsWrapperTop = (offsetHeight - subsWrapperHeight) / 2;
+
+  subtitleRenderer.resize(subsWrapperWidth, subsWrapperHeight, subsWrapperLeft, subsWrapperTop);
 };
 
-const getSubtitleOctopusInstance = () => subtitleOctopusInstance;
-const makeSubtitleOctopusInstance = (options) => {
-  console.log('media element', getPlayer().getMediaElement());
-  subtitleOctopusInstance = subtitleOctopusFactory({
-    video: getPlayer().getMediaElement(),
-    workerUrl: combineRelativeUrl('libraries/subtitles-octopus-worker.js', process.env.BASE_URL),
-    legacyWorkerUrl: combineRelativeUrl('libraries/subtitles-octopus-worker-legacy.js', process.env.BASE_URL),
-    debug: true,
-    ...options,
-  });
-};
+export const cleanupSubtitlesWrapper = () => {
+  if (videoClock) {
+    // eslint-disable-next-line no-underscore-dangle
+    videoClock._eventListeners.clear();
+  }
 
-export const setSubtitleContent = (subContent) => {
-  if (getSubtitleOctopusInstance()) {
-    // If subtitles enabled, get stream thing
-    getSubtitleOctopusInstance().setTrack(subContent);
-  } else {
-    makeSubtitleOctopusInstance({
-      subContent,
-    });
+  if (subtitleRenderer) {
+    subtitleRenderer.libjassSubsWrapper.remove();
+    subtitleRenderer = null;
   }
 };
 
-export const setSubtitleUrl = (subUrl) => {
-  if (getSubtitleOctopusInstance()) {
-    // If subtitles enabled, get stream thing
-    getSubtitleOctopusInstance().setTrackByUrl(subUrl);
-  } else {
-    makeSubtitleOctopusInstance({
-      subUrl,
-    });
+const getOrMakeVideoClock = () => {
+  if (!videoClock) {
+    videoClock = new libjass.renderers.VideoClock(getPlayer().getMediaElement());
   }
+
+  return videoClock;
 };
 
-export const removeSubtitles = () => {
-  if (getSubtitleOctopusInstance()) {
-    getSubtitleOctopusInstance().freeTrack();
-  }
+const initRenderer = (ass) => {
+  subtitleRenderer = new libjass.renderers.WebRenderer(
+    ass,
+    getOrMakeVideoClock(),
+    document.createElement('div'),
+    settings,
+  );
+
+  const parent = getPlayer().getMediaElement().parentNode;
+
+  parent.insertBefore(
+    subtitleRenderer.libjassSubsWrapper,
+    getPlayer().getMediaElement(),
+  );
+
+  resizeSubtitleContainer();
 };
 
-export const disposeSubtitleOctopusInstance = () => {
-  if (subtitleOctopusInstance != null) {
-    subtitleOctopusInstance.dispose();
-    subtitleOctopusInstance = null;
-  }
+export const setSubtitleUrl = async (subUrl) => {
+  const response = await queryFetch(subUrl);
+  const parser = new libjass.parser.StreamParser(new libjass.parser.BrowserReadableStream(response.body, 'utf-8'));
+  const ass = await parser.minimalASS;
+
+  initRenderer(ass);
+};
+
+export const disposeSubtitles = () => {
+  cleanupSubtitlesWrapper();
+  videoClock = null;
 };
