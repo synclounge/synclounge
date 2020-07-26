@@ -150,6 +150,7 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
 import initialize from '@/player/init';
+import { resizeSubtitleContainer } from '@/player/state';
 
 import 'shaka-player/dist/controls.css';
 import 'libjass/libjass.css';
@@ -248,10 +249,12 @@ export default {
     await this.INIT_PLAYER_STATE();
 
     window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('resize', resizeSubtitleContainer);
   },
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('resize', resizeSubtitleContainer);
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -426,6 +429,16 @@ export default {
 
   .shaka-spinner {
     padding: 57px !important;
+  }
+
+  .libjass-wrapper {
+    height: calc(100vh - 64px);
+  }
+
+  @media screen and (max-width: 1264px) {
+    div.libjass-wrapper {
+      height: calc(0.5625 * 100vw);
+    }
   }
 
   .libjass-wrapper {

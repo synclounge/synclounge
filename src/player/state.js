@@ -24,12 +24,15 @@ export const setOverlay = (newOverlay) => {
 };
 
 /**
-   * Resize the subtitles to the dimensions of the video element.
-   *
-   * This method accounts for letterboxing if the video element's size is not the same ratio as the video resolution.
-   */
-const resizeSubtitleContainer = () => {
+ * Resize the subtitles to the dimensions of the video element.
+ *
+ * This method accounts for letterboxing if the video element's size is not the same ratio as the video resolution.
+ */
+export const resizeSubtitleContainer = () => {
   // Handle letterboxing around the video. If the width or height are greater than the video can be, then consider that dead space.
+  if (!subtitleRenderer) {
+    return;
+  }
 
   const {
     videoWidth, videoHeight, offsetWidth, offsetHeight,
