@@ -2,7 +2,7 @@ import CAF from 'caf';
 
 import guid from '@/utils/guid';
 import {
-  fetchJson, queryFetch, makeUrl,
+  fetchJson, queryFetch,
 } from '@/utils/fetchutils';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import {
@@ -74,6 +74,7 @@ export default {
   },
 
   CHANGE_SUBTITLES: async ({ getters }) => {
+    console.log('CHANGE_SUBTITLES');
     cleanupSubtitlesWrapper();
 
     if (getters.GET_SUBTITLE_STREAM_ID) {
@@ -82,10 +83,8 @@ export default {
       // make cross-origin requests
 
       console.log('should fetch ugh');
-
-      await setSubtitleUrl(makeUrl(getters.GET_SUBTITLE_BASE_URL,
-        getters.GET_DECISION_AND_START_PARAMS));
-      console.log('done fetching');
+      await setSubtitleUrl(getters.GET_SUBTITLE_BASE_URL,
+        getters.GET_DECISION_AND_START_PARAMS);
       console.log('done set');
     }
   },
