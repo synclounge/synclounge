@@ -31,10 +31,9 @@ jobs:
             VERSION=${GITHUB_REF#refs/tags/v}
           fi
 
-          TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
-
-          
           VERSION="${VERSION}-subfolder"
+
+          TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
 
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
           echo ::set-output name=version::${VERSION}
