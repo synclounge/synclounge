@@ -109,11 +109,9 @@ export default {
     ? contenttitleutils.getSecondaryTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
     : null),
 
-  GET_PART_PARAMS: (state, getters, rootState, rootGetters) => ({
-    'X-Plex-Text-Format': 'plain',
-    'X-Plex-Provider-Version': 1.3,
-    ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
-  }),
+  GET_PART_PARAMS: (state, getters, rootState, rootGetters) => rootGetters['plex/GET_PLEX_BASE_PARAMS'](
+    getters.GET_PLEX_SERVER_ACCESS_TOKEN,
+  ),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
     const base = 'append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)';

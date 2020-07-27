@@ -49,6 +49,8 @@ export default {
   GET_PLEX_BASE_PARAMS: (state, getters) => (accessToken) => ({
     ...getters.GET_PLEX_INITIAL_AUTH_PARAMS,
     'X-Plex-Token': accessToken || getters.GET_PLEX_AUTH_TOKEN,
+    'X-Plex-Text-Format': 'plain',
+    'X-Plex-Provider-Version': 1.3,
   }),
 
   GET_PLEX_AUTH_URL: (state, getters) => (code) => {

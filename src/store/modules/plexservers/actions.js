@@ -79,6 +79,18 @@ export default {
     const data = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: `/library/metadata/${ratingKey}`,
+      params: {
+        includeConcerts: 1,
+        includeExtras: 1,
+        includeOnDeck: 1,
+        includePopularLeaves: 1,
+        includePreferences: 1,
+        includeChapters: 1,
+        includeStations: 1,
+        includeExternalMedia: 1,
+        asyncAugmentMetadata: 1,
+        checkFiles: 1,
+      },
       signal,
     });
 
@@ -273,6 +285,7 @@ export default {
         uri: `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${ratingKey}`,
         own: 1,
         includeExternalMedia: 1,
+        includeChapters: 1,
       },
       signal,
     });
@@ -287,6 +300,8 @@ export default {
       params: {
         own: 1,
         includeExternalMedia: 1,
+        includeChapters: 1,
+
       },
       signal,
     });
