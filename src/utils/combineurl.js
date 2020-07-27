@@ -1,4 +1,4 @@
-export const combineAbsoluteUrl = (url, base) => {
+const combineUrl = (url, base) => {
   // Make sure base ends in a /
   const fixedBase = base.charAt(base.length - 1) === '/'
     ? base
@@ -7,6 +7,4 @@ export const combineAbsoluteUrl = (url, base) => {
   return new URL(url, fixedBase);
 };
 
-export const combineRelativeUrl = (url, base) => (base.charAt(base.length - 1) === '/'
-  ? `${base}${url}`
-  : `${base}/${url}`);
+export default combineUrl;
