@@ -44,4 +44,5 @@ LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
 
 
 ARG BASE_URL
+ENV BASE_URL ${BASE_URL}
 ENTRYPOINT ["./docker-entrypoint.sh"]
