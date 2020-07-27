@@ -437,19 +437,10 @@ export default {
   }
 
   .libjass-wrapper {
-    height: calc(100vh - 64px);
-  }
-
-  @media screen and (max-width: 1264px) {
-    div.libjass-wrapper {
-      height: calc(0.5625 * 100vw);
-    }
-  }
-
-  .libjass-wrapper {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
+    height: 100%;
   }
 </style>
