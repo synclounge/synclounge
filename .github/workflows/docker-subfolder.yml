@@ -1,4 +1,4 @@
-name: Docker
+name: Docker Subfolder
 
 on:
   push:
@@ -30,6 +30,8 @@ jobs:
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
           fi
+
+          VERSION="${VERSION}-subfolder"
 
           TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
 
