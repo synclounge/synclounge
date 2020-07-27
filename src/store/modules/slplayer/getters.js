@@ -74,11 +74,12 @@ export default {
     return selectedAudioStream ? parseInt(selectedAudioStream.id, 10) : 0;
   },
 
-  GET_SUBTITLE_STREAM_ID: (state, getters) => {
-    const selectedSubtitleStream = getters.GET_DECISION_STREAMS
-      .find((stream) => stream.streamType === '3' && stream.selected === '1');
-    return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
-  },
+  GET_SUBTITLE_STREAM: (state, getters) => getters.GET_DECISION_STREAMS
+    .find((stream) => stream.streamType === '3' && stream.selected === '1'),
+
+  GET_SUBTITLE_STREAM_ID: (state, getters) => (getters.GET_SUBTITLE_STREAM
+    ? parseInt(getters.GET_SUBTITLE_STREAM.id, 10)
+    : 0),
 
   // TODO: fix this 0 fallback
   GET_MEDIA_INDEX: (state) => state.mediaIndex,

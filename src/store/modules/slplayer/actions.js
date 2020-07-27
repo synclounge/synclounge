@@ -74,11 +74,7 @@ export default {
   },
 
   CHANGE_SUBTITLES: async ({ getters }) => {
-    if (getters.GET_SUBTITLE_STREAM_ID) {
-      // TODO: see if burned
-      // We must fetch the subtitles ourselves since it is passed to a web worker and they can't
-      // make cross-origin requests
-
+    if (!getters.GET_SUBTITLE_STREAM?.burn) {
       await setSubtitleUrl(makeUrl(getters.GET_SUBTITLE_BASE_URL,
         getters.GET_DECISION_AND_START_PARAMS));
     } else {
