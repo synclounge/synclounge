@@ -19,6 +19,7 @@
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
+          @seeked="HANDLE_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
         />
       </div>
@@ -266,6 +267,7 @@ export default {
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
       'HANDLE_PLAYER_CLICK',
+      'HANDLE_SEEKED',
 
       'PRESS_STOP',
       'INIT_PLAYER_STATE',

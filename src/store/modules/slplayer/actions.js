@@ -2,7 +2,7 @@ import CAF from 'caf';
 
 import guid from '@/utils/guid';
 import {
-  fetchJson, queryFetch,
+  fetchJson, queryFetch, makeUrl,
 } from '@/utils/fetchutils';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import {
@@ -12,7 +12,7 @@ import {
   setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
   getSmallPlayButton, getBigPlayButton,
 } from '@/player';
-import { disposeSubtitles, cleanupSubtitlesWrapper, setSubtitleUrl } from '@/player/state';
+import { destroySubtitles, setSubtitleUrl, destroyAss } from '@/player/state';
 
 export default {
   MAKE_TIMELINE_PARAMS: async ({ getters, rootGetters, dispatch }) => ({
@@ -74,24 +74,23 @@ export default {
   },
 
   CHANGE_SUBTITLES: async ({ getters }) => {
-    console.log('CHANGE_SUBTITLES');
-    cleanupSubtitlesWrapper();
-
     if (getters.GET_SUBTITLE_STREAM_ID) {
       // TODO: see if burned
       // We must fetch the subtitles ourselves since it is passed to a web worker and they can't
       // make cross-origin requests
 
-      console.log('should fetch ugh');
-      await setSubtitleUrl(getters.GET_SUBTITLE_BASE_URL,
-        getters.GET_DECISION_AND_START_PARAMS);
-      console.log('done set');
+      await setSubtitleUrl(makeUrl(getters.GET_SUBTITLE_BASE_URL,
+        getters.GET_DECISION_AND_START_PARAMS));
+    } else {
+      destroyAss();
     }
   },
 
   CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
     commit('SET_SESSION', guid());
 
+    // Abort subtitle requests now or else we get ugly errors from the server closing it.
+    destroyAss();
     await dispatch('SEND_PLEX_DECISION_REQUEST');
     await dispatch('LOAD_PLAYER_SRC');
     await dispatch('CHANGE_SUBTITLES');
@@ -154,6 +153,8 @@ export default {
       await dispatch('SEND_PARTY_PLAY_PAUSE');
     }
   },
+
+  HANDLE_SEEKED: async ({ dispatch }) => dispatch('CHANGE_SUBTITLES'),
 
   PRESS_PLAY: () => {
     play();
@@ -335,7 +336,7 @@ export default {
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
     // Leaving play queue around for possible upnext
     commit('SET_IS_PLAYER_INITIALIZED', false);
-    disposeSubtitles();
+    destroySubtitles();
     await destroy();
     commit('SET_OFFSET_MS', 0);
 

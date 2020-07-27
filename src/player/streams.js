@@ -7,7 +7,7 @@ const makeReaderDecoder = (encoding, reader) => {
   const decoder = new TextDecoder(encoding, { ignoreBOM: true });
   const readAndDecode = async () => {
     const { value, done } = await reader.read();
-    const text = decoder.decode(value, { stream: !done });
+    const text = value ? decoder.decode(value, { stream: !done }) : '';
 
     return { text, done };
   };
@@ -15,6 +15,7 @@ const makeReaderDecoder = (encoding, reader) => {
   return readAndDecode;
 };
 
+// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/read
 async function* fetchLineGenerator(url, signal) {
   const reader = await fetchBodyReader(url, null, { signal });
 
@@ -22,7 +23,6 @@ async function* fetchLineGenerator(url, signal) {
   let { text: buffer, done } = await readerDecoder();
 
   while (true) {
-    console.log('loop of fetchLineGenerator ');
     const firstNewlineIndex = buffer.indexOf('\n');
     if (firstNewlineIndex === -1) {
       // If no new line
@@ -36,10 +36,8 @@ async function* fetchLineGenerator(url, signal) {
       } else {
         // If reader isn't done, read more
         let text;
-                console.log('before decode');
         // eslint-disable-next-line no-await-in-loop
         ({ text, done } = await readerDecoder());
-        console.log('done reader decode');
         buffer += text;
       }
     } else {
@@ -50,36 +48,21 @@ async function* fetchLineGenerator(url, signal) {
   }
 }
 
-async function* repeatedRunner(url, signal) {
-  while (true) {
-    console.log('loop of repeatedRunner');
-    const asyncGenerator = fetchLineGenerator(url, signal);
-    // TODO: error?
-    // eslint-disable-next-line no-await-in-loop
-    let { value, done } = await asyncGenerator.next();
-    while (!done) {
-      yield value;
-      // eslint-disable-next-line no-await-in-loop
-      ({ value, done } = await asyncGenerator.next());
-    }
-  }
-}
-
 const extractValue = async (nextPromise) => {
-  const { value } = await nextPromise;
-  console.log('value: ', value);
-  return value;
+  try {
+    const { value } = await nextPromise;
+    return value;
+  } catch (e) {
+    return null;
+  }
 };
 
 const resiliantStreamFactory = (url, signal) => {
-  const asyncGenerator = repeatedRunner(url, signal);
+  const asyncGenerator = fetchLineGenerator(url, signal);
 
-  // Return it in a format that StreamParser expe cts
+  // Return it in a format that StreamParser expects
   return {
-    nextLine: () => {
-      console.log('nextLine called');
-      return extractValue(asyncGenerator.next());
-    },
+    nextLine: () => extractValue(asyncGenerator.next()),
   };
 };
 
