@@ -67,7 +67,7 @@ export default {
   }, {
       mediaIndex, offset, metadata, machineIdentifier,
     }) => {
-    console.log('play media');
+    console.debug('PLAY_MEDIA');
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
 
     commit('SET_ACTIVE_PLAY_QUEUE', await dispatch('plexservers/CREATE_PLAY_QUEUE', {
@@ -420,7 +420,7 @@ export default {
   },
 
   SEEK_TO: async ({ getters, dispatch }, { cancelSignal, offset }) => {
-    console.log('Seek to');
+    console.debug('SEEK_TO', offset);
     // TODO: adjust time by latency if playing
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
@@ -528,6 +528,7 @@ export default {
   },
 
   PLAY_NEXT: ({ getters, rootGetters, dispatch }, metadata) => {
+    console.debug('plexclients/PLAY_NEXT');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {

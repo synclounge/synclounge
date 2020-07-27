@@ -83,6 +83,7 @@ export default {
   },
 
   CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
+    console.debug('CHANGE_PLAYER_SRC');
     commit('SET_SESSION', guid());
 
     // Abort subtitle requests now or else we get ugly errors from the server closing it.
@@ -190,7 +191,7 @@ export default {
   },
 
   SPEED_SEEK: async ({ dispatch, rootGetters }, { cancelSignal, seekToMs }) => {
-    console.log('speed seek');
+    console.debug('SPEED_SEEK', seekToMs);
     const currentTimeMs = await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK');
     const difference = seekToMs - currentTimeMs;
     const rate = 1 + (Math.sign(difference) * rootGetters.GET_CONFIG.slplayer_speed_sync_rate);
@@ -215,7 +216,7 @@ export default {
   },
 
   NORMAL_SEEK: async ({ commit }, { cancelSignal, seekToMs }) => {
-    console.log('normal seek');
+    console.debug('NORMAL_SEEK', seekToMs);
     commit('SET_OFFSET_MS', seekToMs);
     setCurrentTimeMs(seekToMs);
 
@@ -299,6 +300,7 @@ export default {
   },
 
   NAVIGATE_AND_INITIALIZE_PLAYER: ({ commit }) => {
+    console.debug('NAVIGATE_AND_INITIALIZE_PLAYER');
     // I don't really like this. I'd rather have the player be part of the main app rather than a vue route
     // TODO: above
 
@@ -317,6 +319,7 @@ export default {
   INIT_PLAYER_STATE: async ({
     getters, rootGetters, commit, dispatch,
   }) => {
+    console.debug('INIT_PLAYER_STATE');
     await dispatch('REGISTER_PLAYER_EVENTS');
     await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
@@ -393,6 +396,7 @@ export default {
   },
 
   PLAY_NEXT: async ({ dispatch, commit }) => {
+    console.debug('slplayer/PLAY_NEXT');
     commit('plexclients/INCREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET', null, { root: true });
     await dispatch('PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
   },

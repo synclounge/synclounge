@@ -256,6 +256,7 @@ export default {
   },
 
   DISPLAY_UPNEXT: async ({ rootGetters, dispatch, commit }) => {
+    console.debug('DISPLAY_UPNEXT');
     if (rootGetters['plexclients/ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS']) {
       commit(
         'SET_UP_NEXT_POST_PLAY_DATA',
@@ -275,6 +276,7 @@ export default {
       const timeUntilUpnextTrigger = playerState.duration - playerState.time
         - rootGetters.GET_CONFIG.synclounge_upnext_trigger_time_from_end;
 
+      console.debug('SCHEDULE_UPNEXT', timeUntilUpnextTrigger);
       commit('SET_UPNEXT_TIMEOUT_ID', setTimeout(() => dispatch('DISPLAY_UPNEXT'),
         timeUntilUpnextTrigger));
     }
@@ -414,7 +416,7 @@ export default {
   },
 
   MANUAL_SYNC: async ({ getters, dispatch, commit }) => {
-    console.log('manual sync');
+    console.debug('MANUAL_SYNC', getters.GET_ADJUSTED_HOST_TIME());
     await dispatch('CANCEL_IN_PROGRESS_SYNC');
 
     // eslint-disable-next-line new-cap
@@ -422,7 +424,7 @@ export default {
     try {
       await dispatch('plexclients/SEEK_TO', {
         cancelSignal: null,
-        offest: getters.GET_ADJUSTED_HOST_TIME(),
+        offset: getters.GET_ADJUSTED_HOST_TIME(),
       }, { root: true });
     } catch (e) {
       console.log('Error caught in sync logic', e);
@@ -463,13 +465,12 @@ export default {
 
   // Interal action without lock. Use the one with the lock to stop multiple syncs from happening at once
   _SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, dispatch, rootGetters }, cancelSignal) => {
-    console.log('_SYNC_MEDIA_AND_PLAYER_STATE');
+    console.debug('_SYNC_MEDIA_AND_PLAYER_STATE');
     // TODO: potentailly don't do anythign if we have no timeline data yet
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
     if (rootGetters['plexclients/ALREADY_SYNCED_ON_CURRENT_TIMELINE']) {
     // TODO: examine if I should throw error or handle it another way
-      console.log(rootGetters['plexclients/GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID']);
       throw new Error('Already synced with this timeline. Need to wait for new one to sync again');
     }
 
@@ -527,7 +528,7 @@ export default {
 
   // Private version without lock. Please use the locking version unless you know what you are doing
   _SYNC_PLAYER_STATE: async ({ getters, dispatch }, cancelSignal) => {
-    console.log('_SYNC_PLAYER_STATE');
+    console.debug('_SYNC_PLAYER_STATE');
     const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
 
     // TODO: examine if we want this or not
