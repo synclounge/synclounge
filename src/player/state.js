@@ -12,7 +12,6 @@ let assAbortController = null;
 
 const settings = {
   preciseOutlines: true,
-  preRenderTime: 20,
 };
 
 export const getPlayer = () => player;
@@ -117,7 +116,6 @@ export const setSubtitleUrl = async (url) => {
   const ass = await makeAss(url);
 
   if (subtitleRenderer) {
-    // TODO: see if this is at right place
     // eslint-disable-next-line no-underscore-dangle
     subtitleRenderer._ass = ass;
   } else {

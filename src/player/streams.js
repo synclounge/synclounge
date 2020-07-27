@@ -1,6 +1,4 @@
 import { fetchBodyReader } from '@/utils/fetchutils';
-// 400 metal
-// 300 ceramic
 
 const makeReaderDecoder = (encoding, reader) => {
   // TODO: investivgate ignoreBOM. libjass had it but do I need or want it?
