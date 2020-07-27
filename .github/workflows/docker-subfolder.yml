@@ -25,6 +25,7 @@ jobs:
           DOCKER_IMAGE=ttshivers/synclounge
           DOCKER_PLATFORMS=linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
           VERSION=latest
+          BASE_URL="/synclounge"
           SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
 
           if [[ $GITHUB_REF == refs/tags/* ]]; then
@@ -42,6 +43,7 @@ jobs:
             --build-arg REVISION=${GITHUB_SHA:0:7} \
             --build-arg SOURCE_BRANCH=${SOURCE_BRANCH} \
             --build-arg VERSION=${{ steps.package-version.outputs.current-version}} \
+            --build-arg BASE_URL=${BASE_URL} \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
             ${TAGS} --file ./Dockerfile ./
