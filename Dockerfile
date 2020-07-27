@@ -6,6 +6,7 @@ RUN npm ci --loglevel verbose
 COPY . .
 
 ARG SERVERS='[{"name":"Local Server","location":"Local","url":"","image":"synclounge-white.png"}]'
+ARG BASE_URL
 ARG SOURCE_BRANCH
 ARG REVISION
 
@@ -28,6 +29,7 @@ COPY --from=dependency-stage /app .
 ARG VERSION
 ARG REVISION
 ARG BUILD_DATE
+ARG BASE_URL
 
 LABEL org.opencontainers.image.created=$BUILD_DATE
 LABEL org.opencontainers.image.title="SyncLounge"
