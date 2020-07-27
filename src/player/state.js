@@ -2,8 +2,6 @@ import libjass from 'libjass';
 
 import resiliantStreamFactory from './streams';
 
-libjass.debugMode = true;
-
 let player = null;
 let overlay = null;
 let videoClock = null;
