@@ -1,10 +1,7 @@
 import CAF from 'caf';
 
 import guid from '@/utils/guid';
-import {
-  fetchJson, queryFetch, makeUrl,
-} from '@/utils/fetchutils';
-import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
+import { fetchJson, queryFetch, makeUrl } from '@/utils/fetchutils';
 import {
   play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
@@ -98,9 +95,16 @@ export default {
     }
   },
 
-  SEND_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch }) => {
-    await queryFetch(getters.GET_TIMELINE_URL, await dispatch('MAKE_TIMELINE_PARAMS'));
-  },
+  SEND_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch },
+    { signal, ...extraParams } = {},
+  ) => queryFetch(
+    getters.GET_TIMELINE_URL,
+    {
+      ...await dispatch('MAKE_TIMELINE_PARAMS'),
+      ...extraParams,
+    },
+    { signal },
+  ),
 
   FETCH_TIMELINE_POLL_DATA: async ({ getters, dispatch }) => (isMediaElementAttached()
     ? {
@@ -256,10 +260,28 @@ export default {
   },
 
   START_PERIODIC_PLEX_TIMELINE_UPDATE: async ({ commit, dispatch, rootGetters }) => {
-    commit('SET_PLEX_TIMELINE_UPDATER_CANCELER', cancelablePeriodicTask(
-      () => dispatch('SEND_PLEX_TIMELINE_UPDATE').catch(console.log),
-      () => rootGetters.GET_CONFIG.slplayer_plex_timeline_update_interval,
-    ));
+    // eslint-disable-next-line new-cap
+    const cancelToken = new CAF.cancelToken();
+
+    commit('SET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN', cancelToken);
+
+    const main = CAF(function* plexTimelineUpdater(signal) {
+      while (true) {
+        yield CAF.delay(signal, rootGetters.GET_CONFIG.slplayer_plex_timeline_update_interval);
+
+        try {
+          yield dispatch('SEND_PLEX_TIMELINE_UPDATE', signal);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+
+    try {
+      await main(cancelToken.signal);
+    } catch (e) {
+      console.debug('PLEX_TIMELINE_UPDATER canceled');
+    }
   },
 
   START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL: ({ commit, rootGetters }) => {
@@ -325,13 +347,22 @@ export default {
     setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
     await dispatch('CHANGE_PLAYER_SRC');
 
-    await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    // Purposefully not awaited
+    dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
 
     if (getters.GET_PLAYER_INITIALIZED_PROMISE_RESOLVER) {
       getters.GET_PLAYER_INITIALIZED_PROMISE_RESOLVER();
       commit('SET_PLAYER_INITIALIZED_PROMISE_RESOLVER', null);
     }
+
     commit('SET_IS_PLAYER_INITIALIZED', true);
+  },
+
+  CANCEL_PERIODIC_PLEX_TIMELINE_UPDATE: ({ getters, commit }) => {
+    if (getters.GET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN) {
+      getters.GET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN.abort();
+      commit('SET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN', null);
+    }
   },
 
   DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
@@ -408,7 +439,11 @@ export default {
   },
 
   PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ dispatch, commit, rootGetters }) => {
-    // TODO: when in this method, do a special plex timeinline update ping on previous metadata with query string continue 0
+    await dispatch('CANCEL_PERIODIC_PLEX_TIMELINE_UPDATE');
+    await dispatch('SEND_PLEX_TIMELINE_UPDATE', {
+      state: 'stopped',
+      continuing: 1,
+    });
 
     await dispatch('plexclients/UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM', null, { root: true });
     // TODO: maybe plex indicates ongoing media index?
@@ -418,6 +453,9 @@ export default {
     await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
     await dispatch('CHANGE_PLAYER_SRC');
+
+    // Purposefully not awaited
+    dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
 
     await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
   },

@@ -41,8 +41,8 @@ export default {
     state.clickEventListener = listener;
   },
 
-  SET_PLEX_TIMELINE_UPDATER_CANCELER: (state, canceler) => {
-    state.plexTimelineUpdaterCanceler = canceler;
+  SET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN: (state, token) => {
+    state.plexTimelineUpdaterCancelToken = token;
   },
 
   SET_IS_PLAYER_INITIALIZED: (state, isInitialized) => {

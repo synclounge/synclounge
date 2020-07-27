@@ -155,7 +155,7 @@ export default {
 
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
 
-  GET_PLEX_TIMELINE_UPDATER_CANCELER: (state) => state.plexTimelineUpdaterCanceler,
+  GET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN: (state) => state.plexTimelineUpdaterCancelToken,
 
   GET_BUFFERING_EVENT_LISTENER: (state) => state.bufferingEventListener,
 
