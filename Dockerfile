@@ -2,13 +2,13 @@
 FROM --platform=$BUILDPLATFORM node:current-alpine as build-stage
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --loglevel verbose
+RUN npm ci
 COPY . .
 
 ARG SERVERS='[{"name":"Local Server","location":"Local","url":"","image":"synclounge-white.png"}]'
-ARG BASE_URL
 ARG SOURCE_BRANCH
 ARG REVISION
+ARG BASE_URL
 
 RUN npm run build
 
@@ -25,11 +25,11 @@ COPY config config
 FROM node:current-alpine as production-stage
 WORKDIR /app
 COPY --from=dependency-stage /app .
+COPY --from=build-stage /app/dist dist
 
 ARG VERSION
 ARG REVISION
 ARG BUILD_DATE
-ARG BASE_URL
 
 LABEL org.opencontainers.image.created=$BUILD_DATE
 LABEL org.opencontainers.image.title="SyncLounge"
@@ -42,5 +42,6 @@ LABEL org.opencontainers.image.version=$VERSION
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
 
-COPY --from=build-stage /app/dist dist
+
+ARG BASE_URL
 ENTRYPOINT ["./docker-entrypoint.sh"]

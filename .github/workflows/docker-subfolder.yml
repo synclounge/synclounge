@@ -1,4 +1,4 @@
-name: Docker
+name: Docker Subfolder
 
 on:
   push:
@@ -32,6 +32,9 @@ jobs:
           fi
 
           TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
+
+          
+          VERSION="${VERSION}-subfolder"
 
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
           echo ::set-output name=version::${VERSION}
