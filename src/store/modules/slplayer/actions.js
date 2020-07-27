@@ -152,6 +152,16 @@ export default {
 
   HANDLE_SEEKED: async ({ dispatch }) => dispatch('CHANGE_SUBTITLES'),
 
+  HANDLE_PICTURE_IN_PICTURE_CHANGE: async ({ getters, commit, dispatch }) => {
+    commit('SET_IS_IN_PICTURE_IN_PICTURE', document.pictureInPictureElement != null);
+    if (getters.IS_IN_PICTURE_IN_PICTURE && getters.GET_SUBTITLE_STREAM_ID
+      && !getters.GET_SUBTITLE_STREAM?.burn) {
+      // If we are in picture and picture, we must burn subtitles
+      // Redo src
+      await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
+    }
+  },
+
   PRESS_PLAY: () => {
     play();
   },
@@ -332,6 +342,7 @@ export default {
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
     // Leaving play queue around for possible upnext
     commit('SET_IS_PLAYER_INITIALIZED', false);
+    commit('SET_IS_IN_PICTURE_IN_PICTURE', false);
     destroySubtitles();
     await destroy();
     commit('SET_OFFSET_MS', 0);

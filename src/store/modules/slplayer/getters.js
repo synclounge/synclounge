@@ -144,8 +144,8 @@ export default {
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
     // TODO: investigate subtitles support
-    subtitles: 'auto',
-    advancedSubtitles: 'text',
+    subtitles: getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
+    ...(!getters.IS_IN_PICTURE_IN_PICTURE && { advancedSubtitles: 'text' }),
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
@@ -168,4 +168,6 @@ export default {
   GET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state) => state.playerInitializedPromiseResolver,
 
   GET_MASK_PLAYER_STATE: (state) => state.maskPlayerState,
+
+  IS_IN_PICTURE_IN_PICTURE: (state) => state.isInPictureInPicture,
 };

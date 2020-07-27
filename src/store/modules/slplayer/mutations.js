@@ -56,4 +56,8 @@ export default {
   SET_MASK_PLAYER_STATE: (state, mask) => {
     state.maskPlayerState = mask;
   },
+
+  SET_IS_IN_PICTURE_IN_PICTURE: (state, isIn) => {
+    state.isInPictureInPicture = isIn;
+  },
 };

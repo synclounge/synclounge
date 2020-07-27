@@ -21,6 +21,8 @@
           @playing="HANDLE_PLAYER_PLAYING"
           @seeked="HANDLE_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
+          @enterpictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
+          @leavepictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
         />
       </div>
 
@@ -268,6 +270,7 @@ export default {
       'HANDLE_PLAYER_VOLUME_CHANGE',
       'HANDLE_PLAYER_CLICK',
       'HANDLE_SEEKED',
+      'HANDLE_PICTURE_IN_PICTURE_CHANGE',
 
       'PRESS_STOP',
       'INIT_PLAYER_STATE',

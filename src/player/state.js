@@ -105,6 +105,13 @@ export const destroyAss = () => {
   if (assAbortController) {
     assAbortController.abort();
     assAbortController = null;
+    // eslint-disable-next-line no-underscore-dangle
+    subtitleRenderer._ass._dialogues = [];
+    // eslint-disable-next-line no-underscore-dangle
+    subtitleRenderer._ass._attachments = [];
+
+    // Resizing clears out rendered subtitles
+    resizeSubtitleContainer();
   }
 };
 
