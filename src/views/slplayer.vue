@@ -19,7 +19,10 @@
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
+          @seeked="HANDLE_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
+          @enterpictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
+          @leavepictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
         />
       </div>
 
@@ -150,8 +153,10 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
 import initialize from '@/player/init';
+import { resizeSubtitleContainer } from '@/player/state';
 
 import 'shaka-player/dist/controls.css';
+import 'libjass/libjass.css';
 
 export default {
   components: {
@@ -247,10 +252,12 @@ export default {
     await this.INIT_PLAYER_STATE();
 
     window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('resize', resizeSubtitleContainer);
   },
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('resize', resizeSubtitleContainer);
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -262,6 +269,8 @@ export default {
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
       'HANDLE_PLAYER_CLICK',
+      'HANDLE_SEEKED',
+      'HANDLE_PICTURE_IN_PICTURE_CHANGE',
 
       'PRESS_STOP',
       'INIT_PLAYER_STATE',
@@ -425,5 +434,22 @@ export default {
 
   .shaka-spinner {
     padding: 57px !important;
+  }
+
+  .libjass-wrapper {
+    height: calc(100vh - 64px);
+  }
+
+  @media screen and (max-width: 1264px) {
+    div.libjass-wrapper {
+      height: calc(0.5625 * 100vw);
+    }
+  }
+
+  .libjass-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
   }
 </style>

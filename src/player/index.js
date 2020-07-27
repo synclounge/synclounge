@@ -7,7 +7,7 @@ export const isPaused = () => getPlayer().getMediaElement().paused;
 export const isPresentationPaused = () => isPaused()
   && !getOverlay().getControls().isSeeking();
 
-export const isBuffering = () => getPlayer().isBuffering();
+export const isBuffering = () => getPlayer()?.isBuffering();
 
 export const isPlaying = () => !isPaused() && !isBuffering();
 

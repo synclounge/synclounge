@@ -11,6 +11,7 @@ export default {
     ? getters.GET_PLEX_SERVER.accessToken
     : undefined),
 
+  // TODO: move this stuff into plexservers probably
   GET_PLEX_SERVER_URL: (state, getters) => (getters.GET_PLEX_SERVER
     ? getters.GET_PLEX_SERVER.chosenConnection.uri
     : undefined),
@@ -27,6 +28,8 @@ export default {
     : null),
 
   GET_SRC_URL: (state, getters) => makeUrl(`${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd`, getters.GET_DECISION_AND_START_PARAMS),
+
+  GET_SUBTITLE_BASE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/subtitles`,
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
 
@@ -71,11 +74,12 @@ export default {
     return selectedAudioStream ? parseInt(selectedAudioStream.id, 10) : 0;
   },
 
-  GET_SUBTITLE_STREAM_ID: (state, getters) => {
-    const selectedSubtitleStream = getters.GET_DECISION_STREAMS
-      .find((stream) => stream.streamType === '3' && stream.selected === '1');
-    return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
-  },
+  GET_SUBTITLE_STREAM: (state, getters) => getters.GET_DECISION_STREAMS
+    .find((stream) => stream.streamType === '3' && stream.selected === '1'),
+
+  GET_SUBTITLE_STREAM_ID: (state, getters) => (getters.GET_SUBTITLE_STREAM
+    ? parseInt(getters.GET_SUBTITLE_STREAM.id, 10)
+    : 0),
 
   // TODO: fix this 0 fallback
   GET_MEDIA_INDEX: (state) => state.mediaIndex,
@@ -140,7 +144,8 @@ export default {
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
     // TODO: investigate subtitles support
-    subtitles: 'burn',
+    subtitles: getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
+    ...(!getters.IS_IN_PICTURE_IN_PICTURE && { advancedSubtitles: 'text' }),
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
@@ -163,4 +168,6 @@ export default {
   GET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state) => state.playerInitializedPromiseResolver,
 
   GET_MASK_PLAYER_STATE: (state) => state.maskPlayerState,
+
+  IS_IN_PICTURE_IN_PICTURE: (state) => state.isInPictureInPicture,
 };

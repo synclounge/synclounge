@@ -1,7 +1,9 @@
 import CAF from 'caf';
 
 import guid from '@/utils/guid';
-import { fetchJson, queryFetch } from '@/utils/fetchutils';
+import {
+  fetchJson, queryFetch, makeUrl,
+} from '@/utils/fetchutils';
 import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import {
   play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
@@ -10,6 +12,7 @@ import {
   setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
   getSmallPlayButton, getBigPlayButton,
 } from '@/player';
+import { destroySubtitles, setSubtitleUrl, destroyAss } from '@/player/state';
 
 export default {
   MAKE_TIMELINE_PARAMS: async ({ getters, rootGetters, dispatch }) => ({
@@ -70,10 +73,23 @@ export default {
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
+  CHANGE_SUBTITLES: async ({ getters }) => {
+    if (!getters.GET_SUBTITLE_STREAM?.burn) {
+      await setSubtitleUrl(makeUrl(getters.GET_SUBTITLE_BASE_URL,
+        getters.GET_DECISION_AND_START_PARAMS));
+    } else {
+      destroyAss();
+    }
+  },
+
   CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
     commit('SET_SESSION', guid());
+
+    // Abort subtitle requests now or else we get ugly errors from the server closing it.
+    destroyAss();
     await dispatch('SEND_PLEX_DECISION_REQUEST');
     await dispatch('LOAD_PLAYER_SRC');
+    await dispatch('CHANGE_SUBTITLES');
 
     // TODO: potentially avoid sending updates on media change since we already do that
     if (getters.GET_MASK_PLAYER_STATE) {
@@ -131,6 +147,18 @@ export default {
   HANDLE_PLAYER_CLICK: async ({ dispatch }, e) => {
     if (!e.target.classList.contains('shaka-close-button')) {
       await dispatch('SEND_PARTY_PLAY_PAUSE');
+    }
+  },
+
+  HANDLE_SEEKED: async ({ dispatch }) => dispatch('CHANGE_SUBTITLES'),
+
+  HANDLE_PICTURE_IN_PICTURE_CHANGE: async ({ getters, commit, dispatch }) => {
+    commit('SET_IS_IN_PICTURE_IN_PICTURE', document.pictureInPictureElement != null);
+    if (getters.IS_IN_PICTURE_IN_PICTURE && getters.GET_SUBTITLE_STREAM_ID
+      && !getters.GET_SUBTITLE_STREAM?.burn) {
+      // If we are in picture and picture, we must burn subtitles
+      // Redo src
+      await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
     }
   },
 
@@ -314,6 +342,8 @@ export default {
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
     // Leaving play queue around for possible upnext
     commit('SET_IS_PLAYER_INITIALIZED', false);
+    commit('SET_IS_IN_PICTURE_IN_PICTURE', false);
+    destroySubtitles();
     await destroy();
     commit('SET_OFFSET_MS', 0);
 
