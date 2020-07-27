@@ -8,7 +8,6 @@ COPY . .
 ARG SERVERS='[{"name":"Local Server","location":"Local","url":"","image":"synclounge-white.png"}]'
 ARG SOURCE_BRANCH
 ARG REVISION
-ARG BASE_URL
 
 RUN npm run build
 
@@ -42,7 +41,4 @@ LABEL org.opencontainers.image.version=$VERSION
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
 
-
-ARG BASE_URL
-ENV BASE_URL ${BASE_URL}
 ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -24,11 +24,12 @@ try {
 }
 
 module.exports = {
+  // Relative publicPath to support subfolders
+  publicPath: '',
   lintOnSave: process.env.NODE_ENV !== 'production',
   productionSourceMap: false,
   transpileDependencies: ['vuetify'],
   configureWebpack: {
-    devtool: process.env.NODE_ENV === 'production' ? false : 'cheap-eval-source-map',
     resolve: {
       alias: {
         // Alias @ to /src folder for ES/TS imports
