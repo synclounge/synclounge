@@ -272,7 +272,7 @@ export default {
   },
 
   SCHEDULE_UPNEXT: async ({ rootGetters, dispatch, commit }, playerState) => {
-    if (playerState.duration && playerState.time) {
+    if (playerState.duration && !Number.isNaN(playerState.time)) {
       const timeUntilUpnextTrigger = playerState.duration - playerState.time
         - rootGetters.GET_CONFIG.synclounge_upnext_trigger_time_from_end;
 
@@ -304,6 +304,8 @@ export default {
       } else if (playerState.state === 'playing') {
         await dispatch('SCHEDULE_UPNEXT', playerState);
       }
+
+      commit('SET_UP_NEXT_TRIGGERED', false);
     } else if (getters.GET_UP_NEXT_TRIGGERED) {
       commit('SET_UP_NEXT_TRIGGERED', false);
     }
@@ -340,10 +342,10 @@ export default {
       if (rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
         commit('SET_UP_NEXT_POST_PLAY_DATA', null, { root: true });
       }
+    }
 
-      if (getters.GET_UP_NEXT_TRIGGERED) {
-        commit('SET_UP_NEXT_TRIGGERED', false);
-      }
+    if (getters.GET_UP_NEXT_TRIGGERED) {
+      commit('SET_UP_NEXT_TRIGGERED', false);
     }
 
     commit('SET_USER_MEDIA', {

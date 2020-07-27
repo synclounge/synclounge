@@ -176,7 +176,7 @@ export default {
   },
 
   SOFT_SEEK: ({ getters, commit }, seekToMs) => {
-    // TODO: prob fix
+    console.debug('SOFT_SEEK', seekToMs);
     if (!isTimeInBufferedRange(getters, seekToMs)) {
       throw new Error('Soft seek requested but not within buffered range');
     }
@@ -335,6 +335,7 @@ export default {
   },
 
   DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
+    console.debug('DESTROY_PLAYER_STATE');
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     await dispatch('UNREGISTER_PLAYER_EVENTS');
 
