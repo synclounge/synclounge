@@ -1,5 +1,3 @@
-import libjass from 'libjass';
-
 import resiliantStreamFactory from './streams';
 
 let player = null;
@@ -66,7 +64,8 @@ const synchronizeClock = () => {
   }
 };
 
-const getOrMakeVideoClock = () => {
+const getOrMakeVideoClock = async () => {
+  const libjass = await import('libjass');
   if (!videoClock) {
     videoClock = new libjass.renderers.VideoClock(getPlayer().getMediaElement());
   }
@@ -76,10 +75,11 @@ const getOrMakeVideoClock = () => {
   return videoClock;
 };
 
-const initRenderer = (ass) => {
+const initRenderer = async (ass) => {
+  const libjass = await import('libjass');
   subtitleRenderer = new libjass.renderers.WebRenderer(
     ass,
-    getOrMakeVideoClock(),
+    await getOrMakeVideoClock(),
     document.createElement('div'),
     settings,
   );
@@ -94,7 +94,8 @@ const initRenderer = (ass) => {
   resizeSubtitleContainer();
 };
 
-const makeAss = (url) => {
+const makeAss = async (url) => {
+  const libjass = await import('libjass');
   assAbortController = new AbortController();
   const stream = resiliantStreamFactory(url, assAbortController.signal);
   const parser = new libjass.parser.StreamParser(stream);
@@ -124,7 +125,7 @@ export const setSubtitleUrl = async (url) => {
     // eslint-disable-next-line no-underscore-dangle
     subtitleRenderer._ass = ass;
   } else {
-    initRenderer(ass);
+    await initRenderer(ass);
   }
 };
 
