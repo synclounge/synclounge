@@ -49,8 +49,8 @@ export default {
     state.isPlayerInitialized = isInitialized;
   },
 
-  SET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state, resolver) => {
-    state.playerInitializedPromiseResolver = resolver;
+  SET_PLAYER_INITIALIZED_DEFERRED_PROMISE: (state, deferred) => {
+    state.playerInitializedDeferredPromise = deferred;
   },
 
   SET_MASK_PLAYER_STATE: (state, mask) => {

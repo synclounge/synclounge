@@ -68,6 +68,8 @@ export const cancelTrickPlay = () => getPlayer().cancelTrickPlay();
 
 export const load = (...args) => getPlayer().load(...args);
 
+export const unload = (...args) => getPlayer().unload(...args);
+
 export const getPlaybackRate = () => getPlayer().getPlaybackRate();
 
 export const setPlaybackRate = (rate) => {
