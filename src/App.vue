@@ -33,7 +33,7 @@
       <v-toolbar-items>
         <v-btn
           v-if="inviteUrl"
-          v-clipboard="inviteUrl"
+          v-clipboard="() => inviteUrl"
           v-clipboard:success="onInviteCopied"
           color="primary"
           dark
