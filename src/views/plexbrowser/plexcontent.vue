@@ -711,12 +711,21 @@ export default {
         offset = this.contents.viewOffset;
       }
 
-      await this.PLAY_MEDIA({
-        metadata: this.contents,
-        mediaIndex,
-        machineIdentifier: this.machineIdentifier,
-        offset,
-      });
+      try {
+        await this.PLAY_MEDIA({
+          metadata: this.contents,
+          mediaIndex,
+          machineIdentifier: this.machineIdentifier,
+          offset,
+        });
+      } catch (e) {
+        if (e.code === 7000) {
+          console.debug('Player initialization aborted');
+        } else {
+          throw e;
+        }
+      }
+
       this.dialog = false;
     },
 

@@ -163,7 +163,7 @@ export default {
 
   IS_PLAYER_INITIALIZED: (state) => state.isPlayerInitialized,
 
-  GET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state) => state.playerInitializedPromiseResolver,
+  GET_PLAYER_INITIALIZED_DEFERRED_PROMISE: (state) => state.playerInitializedDeferredPromise,
 
   GET_MASK_PLAYER_STATE: (state) => state.maskPlayerState,
 

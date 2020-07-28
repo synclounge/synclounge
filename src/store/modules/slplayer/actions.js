@@ -7,9 +7,10 @@ import {
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
   waitForMediaElementEvent, destroy, cancelTrickPlay, load, setPlaybackRate, getPlaybackRate,
   setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
-  getSmallPlayButton, getBigPlayButton, unload, getLoadMode,
+  getSmallPlayButton, getBigPlayButton, unload,
 } from '@/player';
 import { destroySubtitles, setSubtitleUrl, destroyAss } from '@/player/state';
+import Deferred from '@/utils/deferredpromise';
 
 export default {
   MAKE_TIMELINE_PARAMS: async ({ getters, rootGetters, dispatch }) => ({
@@ -305,15 +306,11 @@ export default {
     // TODO: potentailly unload if already loaded to avoid load interrupted errors
     // However, while its loading, potentially   reporting the old time...
     await unload();
-    const result = await load(getters.GET_SRC_URL);
-    console.log('load result', result);
-    console.log('LoadMode', getLoadMode());
+    await load(getters.GET_SRC_URL);
 
     if (getters.GET_OFFSET_MS > 0) {
       setCurrentTimeMs(getters.GET_OFFSET_MS);
     }
-
-    return result;
   },
 
   NAVIGATE_AND_INITIALIZE_PLAYER: ({ commit }) => {
@@ -322,33 +319,37 @@ export default {
     // TODO: above
 
     // TODO: this is bad practice, so if you know a better way...
-    let resolver = null;
-    const initializePromise = new Promise((resolve) => {
-      resolver = resolve;
-    });
+    const deferred = Deferred();
 
-    commit('SET_PLAYER_INITIALIZED_PROMISE_RESOLVER', resolver);
+    commit('SET_PLAYER_INITIALIZED_DEFERRED_PROMISE', deferred);
     commit('SET_NAVIGATE_TO_PLAYER', true, { root: true });
 
-    return initializePromise;
+    return deferred.promise;
   },
 
   INIT_PLAYER_STATE: async ({
     getters, rootGetters, commit, dispatch,
   }) => {
     console.debug('INIT_PLAYER_STATE');
-    await dispatch('REGISTER_PLAYER_EVENTS');
-    await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
-    setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
-    await dispatch('CHANGE_PLAYER_SRC');
-    console.log('ok im here');
 
-    // Purposefully not awaited
-    dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    try {
+      await dispatch('REGISTER_PLAYER_EVENTS');
+      await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+      setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
+      await dispatch('CHANGE_PLAYER_SRC');
 
-    if (getters.GET_PLAYER_INITIALIZED_PROMISE_RESOLVER) {
-      getters.GET_PLAYER_INITIALIZED_PROMISE_RESOLVER();
-      commit('SET_PLAYER_INITIALIZED_PROMISE_RESOLVER', null);
+      // Purposefully not awaited
+      dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    } catch (e) {
+      if (getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE) {
+        getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE.reject(e);
+        commit('SET_PLAYER_INITIALIZED_DEFERRED_PROMISE', null);
+      }
+    }
+
+    if (getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE) {
+      getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE.resolve();
+      commit('SET_PLAYER_INITIALIZED_DEFERRED_PROMISE', null);
     }
 
     commit('SET_IS_PLAYER_INITIALIZED', true);

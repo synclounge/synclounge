@@ -166,7 +166,6 @@ export default {
 
   methods: {
     ...mapActions('plexclients', [
-      'PLAY_MEDIA',
       'PLAY_NEXT',
     ]),
 
@@ -183,7 +182,15 @@ export default {
       this.transitionBarWithStyle = {};
       const metadata = this.GET_UP_NEXT_POST_PLAY_DATA;
       this.SET_UP_NEXT_POST_PLAY_DATA(null);
-      await this.PLAY_NEXT(metadata);
+      try {
+        await this.PLAY_NEXT(metadata);
+      } catch (e) {
+        if (e.code === 7000) {
+          console.debug('Player initialization aborted');
+        } else {
+          throw e;
+        }
+      }
     },
 
     startTimer() {
