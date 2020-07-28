@@ -10,7 +10,7 @@ import {
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
   waitForMediaElementEvent, destroy, cancelTrickPlay, load, setPlaybackRate, getPlaybackRate,
   setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
-  getSmallPlayButton, getBigPlayButton,
+  getSmallPlayButton, getBigPlayButton, unload, getLoadMode,
 } from '@/player';
 import { destroySubtitles, setSubtitleUrl, destroyAss } from '@/player/state';
 
@@ -269,6 +269,7 @@ export default {
   },
 
   CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
+    console.debug('CHANGE_PLAYER_STATE', state);
     commit('SET_PLAYER_STATE', state);
     const plexTimelineUpdatePromise = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     if (state !== 'stopped') {
@@ -281,22 +282,16 @@ export default {
   LOAD_PLAYER_SRC: async ({ getters }) => {
     // TODO: potentailly unload if already loaded to avoid load interrupted errors
     // However, while its loading, potentially   reporting the old time...
-    try {
-      const result = await load(getters.GET_SRC_URL);
+    await unload();
+    const result = await load(getters.GET_SRC_URL);
+    console.log('load result', result);
+    console.log('LoadMode', getLoadMode());
 
-      if (getters.GET_OFFSET_MS > 0) {
-        setCurrentTimeMs(getters.GET_OFFSET_MS);
-      }
-
-      return result;
-    } catch (e) {
-      // Ignore 7000 error (load interrupted)
-      if (e.code !== 7000) {
-        throw e;
-      }
+    if (getters.GET_OFFSET_MS > 0) {
+      setCurrentTimeMs(getters.GET_OFFSET_MS);
     }
 
-    return false;
+    return result;
   },
 
   NAVIGATE_AND_INITIALIZE_PLAYER: ({ commit }) => {
@@ -324,6 +319,7 @@ export default {
     await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
     await dispatch('CHANGE_PLAYER_SRC');
+    console.log('ok im here');
 
     await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
 
