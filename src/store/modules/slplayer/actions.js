@@ -365,7 +365,7 @@ export default {
     }
   },
 
-  DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
+  DESTROY_PLAYER_STATE: async ({ commit, dispatch }) => {
     console.debug('DESTROY_PLAYER_STATE');
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     await dispatch('UNREGISTER_PLAYER_EVENTS');
