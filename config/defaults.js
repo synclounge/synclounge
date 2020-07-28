@@ -51,6 +51,8 @@ const defaults = {
 
   // The playback rate (1 +/- rate) that is used when speed syncing
   slplayer_speed_sync_rate: 0.5,
+
+  slplayer_seek_timeout: 15000,
   sidebar_time_update_interval: 500,
 
   // If the plex client's time changes by this much from the expected time, trigger a state change

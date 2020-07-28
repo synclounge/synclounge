@@ -219,13 +219,13 @@ export default {
     return main(cancelSignal);
   },
 
-  NORMAL_SEEK: async ({ commit }, { cancelSignal, seekToMs }) => {
+  NORMAL_SEEK: async ({ rootGetters, commit }, { cancelSignal, seekToMs }) => {
     console.debug('NORMAL_SEEK', seekToMs);
     commit('SET_OFFSET_MS', seekToMs);
     setCurrentTimeMs(seekToMs);
 
-    // TODO: throw that vlaue in the config
-    const timeoutToken = CAF.timeout(15000, 'Took too long!');
+    const timeoutToken = CAF.timeout(rootGetters.GET_CONFIG.slplayer_seek_timeout,
+      'Normal seek took too long');
 
     const anySignal = CAF.signalRace([
       cancelSignal,
