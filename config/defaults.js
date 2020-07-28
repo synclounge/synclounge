@@ -65,6 +65,8 @@ const defaults = {
   // TODO: investigate the average length of closing credits
   synclounge_upnext_trigger_time_from_end: 45000,
   synclounge_upnext_popup_lifetime: 60000,
+
+  force_slplayer: false,
 };
 
 module.exports = defaults;
