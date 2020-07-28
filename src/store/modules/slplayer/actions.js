@@ -365,9 +365,7 @@ export default {
     console.debug('DESTROY_PLAYER_STATE');
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     await dispatch('UNREGISTER_PLAYER_EVENTS');
-
-    getters.GET_PLEX_TIMELINE_UPDATER_CANCELER();
-    commit('SET_PLEX_TIMELINE_UPDATER_CANCELER', null);
+    await dispatch('CANCEL_PERIODIC_PLEX_TIMELINE_UPDATE');
 
     commit('plexclients/SET_ACTIVE_MEDIA_METADATA', null, { root: true });
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
