@@ -11,7 +11,7 @@ const state = () => ({
   playerControlsShownInterval: null,
   bufferingEventListener: null,
   clickEventListener: null,
-  plexTimelineUpdaterCanceler: null,
+  plexTimelineUpdaterCancelToken: null,
   isPlayerInitialized: false,
   playerInitializedPromiseResolver: null,
 

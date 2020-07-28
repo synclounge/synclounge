@@ -1,7 +1,7 @@
 import CAF from 'caf';
 import guid from '@/utils/guid';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
-import combineUrl from '@/utils/combineurl';
+import { combineUrl, combineRelativeUrlParts } from '@/utils/combineurl';
 import { fetchJson } from '@/utils/fetchutils';
 import {
   open, close, on, waitForEvent, isConnected, emit,
@@ -191,7 +191,7 @@ export default {
       .map(async ({ url }) => [
         url,
         {
-          ...await fetchJson(`${url}/health`, null, { signal: controller.signal }),
+          ...await fetchJson(combineRelativeUrlParts(url, 'health'), null, { signal: controller.signal }),
           latency: Date.now() - start,
         },
       ]));
