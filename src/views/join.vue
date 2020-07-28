@@ -25,6 +25,7 @@
           </v-alert>
 
           <clientpicker
+            v-if="!GET_CONFIG.force_slplayer"
             @loadingChange="loading = $event"
             @clientConnectableChange="clientConnectable = $event"
           />
@@ -86,6 +87,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters([
+      'GET_CONFIG',
+    ]),
+
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
       'GET_ACTIVE_MEDIA_METADATA',

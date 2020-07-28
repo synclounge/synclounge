@@ -25,6 +25,7 @@
           </v-alert>
 
           <clientpicker
+            v-if="!GET_CONFIG.force_slplayer"
             @loadingChange="loading = $event"
             @clientConnectableChange="clientConnectable = $event"
           />
