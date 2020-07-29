@@ -156,7 +156,7 @@ export default {
     }
   },
 
-  HANDLE_SEEKING: async ({ dispatch }) => {
+  HANDLE_SEEKING: async () => {
     console.debug('HANDLE_SEEKING');
     destroyAss();
   },
