@@ -19,6 +19,7 @@
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
+          @seeking="HANDLE_SEEKING"
           @seeked="HANDLE_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
           @enterpictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
@@ -269,6 +270,7 @@ export default {
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
       'HANDLE_PLAYER_CLICK',
+      'HANDLE_SEEKING',
       'HANDLE_SEEKED',
       'HANDLE_PICTURE_IN_PICTURE_CHANGE',
 

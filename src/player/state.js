@@ -95,15 +95,18 @@ const initRenderer = async (ass) => {
 };
 
 const makeAss = async (url) => {
+  console.debug('makeAss');
   const libjass = await import('libjass');
   assAbortController = new AbortController();
   const stream = resiliantStreamFactory(url, assAbortController.signal);
+
   const parser = new libjass.parser.StreamParser(stream);
   return parser.minimalASS;
 };
 
 export const destroyAss = () => {
   if (assAbortController) {
+    console.debug('destroyAss');
     assAbortController.abort();
     assAbortController = null;
     // eslint-disable-next-line no-underscore-dangle
@@ -119,13 +122,21 @@ export const destroyAss = () => {
 export const setSubtitleUrl = async (url) => {
   destroyAss();
 
-  const ass = await makeAss(url);
+  try {
+    const ass = await makeAss(url);
 
-  if (subtitleRenderer) {
+    if (subtitleRenderer) {
     // eslint-disable-next-line no-underscore-dangle
-    subtitleRenderer._ass = ass;
-  } else {
-    await initRenderer(ass);
+      subtitleRenderer._ass = ass;
+    } else {
+      await initRenderer(ass);
+    }
+  } catch (e) {
+    if (assAbortController) {
+      // If there is no abort controller, we have just aborted
+      // If there is one, then something went wrong
+      throw e;
+    }
   }
 };
 

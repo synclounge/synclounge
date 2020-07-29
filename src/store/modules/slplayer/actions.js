@@ -156,7 +156,15 @@ export default {
     }
   },
 
-  HANDLE_SEEKED: async ({ dispatch }) => dispatch('CHANGE_SUBTITLES'),
+  HANDLE_SEEKING: async ({ dispatch }) => {
+    console.debug('HANDLE_SEEKING');
+    destroyAss();
+  },
+
+  HANDLE_SEEKED: async ({ dispatch }) => {
+    console.debug('HANDLE_SEEKED');
+    await dispatch('CHANGE_SUBTITLES');
+  },
 
   HANDLE_PICTURE_IN_PICTURE_CHANGE: async ({ getters, commit, dispatch }) => {
     commit('SET_IS_IN_PICTURE_IN_PICTURE', document.pictureInPictureElement != null);
