@@ -27,7 +27,6 @@ module.exports = {
   // Relative publicPath to support subfolders
   publicPath: '',
   lintOnSave: process.env.NODE_ENV !== 'production',
-  productionSourceMap: false,
   transpileDependencies: ['vuetify'],
   configureWebpack: {
     resolve: {
