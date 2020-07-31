@@ -40,6 +40,8 @@ export default {
       width: Math.round(width),
       height: Math.round(height),
       blur: blur || 0,
+      upscale: 1,
+      minSize: 1,
     };
 
     return makeUrl(`${server.chosenConnection.uri}/photo/:/transcode/`, params);

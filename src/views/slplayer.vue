@@ -398,8 +398,8 @@ export default {
       );
     },
 
-    handleTimeUpdate({ timeStamp }) {
-      this.videoTimeStamp = timeStamp;
+    handleTimeUpdate() {
+      this.videoTimeStamp = this.$refs.videoPlayer.currentTime * 1000;
     },
   },
 };
@@ -455,6 +455,7 @@ export default {
   .skip-intro {
     transition-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
     transition: margin 250ms;
+    z-index: 2;
   }
 
   .skip-intro.above-controls {

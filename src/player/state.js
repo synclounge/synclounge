@@ -26,7 +26,7 @@ export const areControlsShown = () => !getOverlay() || (getOverlay()?.getControl
     || getOverlay()?.getControls().getControlsContainer().getAttribute('casting') != null));
 
 export const getControlsOffset = (fallbackHeight) => (areControlsShown()
-  ? (getPlayer()?.getMediaElement().offsetHeight || fallbackHeight) * 0.025 + 48 || 0
+  ? (getPlayer()?.getMediaElement()?.offsetHeight || fallbackHeight) * 0.025 + 48 || 0
   : 0);
 
 /**
