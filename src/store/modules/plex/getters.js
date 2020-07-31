@@ -1,5 +1,5 @@
 import { detect } from 'detect-browser';
-import { intersection } from 'lodash-es';
+import { intersection } from '@/utils/lightlodash';
 import { makeUrl } from '@/utils/fetchutils';
 
 function capitalizeFirstLetter(string) {

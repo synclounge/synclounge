@@ -1,4 +1,4 @@
-import { difference, intersection } from 'lodash-es';
+import { difference, intersection } from '@/utils/lightlodash';
 import { makeUrl } from '@/utils/fetchutils';
 
 export default {

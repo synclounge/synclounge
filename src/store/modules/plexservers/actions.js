@@ -1,4 +1,4 @@
-import { sample } from 'lodash-es';
+import { sample } from '@/utils/lightlodash';
 import { fetchJson } from '@/utils/fetchutils';
 import scoreMedia from './mediascoring';
 

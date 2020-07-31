@@ -301,7 +301,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-import { debounce } from 'lodash-es';
+import { debounce } from '@/utils/lightlodash';
 
 export default {
   name: 'Plexbrowser',
