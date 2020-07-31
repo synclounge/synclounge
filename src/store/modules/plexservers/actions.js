@@ -97,8 +97,11 @@ export default {
       signal,
     });
 
+    // TODO: fix how I store markers
+
     return {
       ...data.MediaContainer.Metadata[0],
+      Marker: data.MediaContainer.Marker,
       machineIdentifier,
     };
   },
