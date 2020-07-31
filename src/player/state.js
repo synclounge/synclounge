@@ -20,6 +20,15 @@ export const setOverlay = (newOverlay) => {
   overlay = newOverlay;
 };
 
+// eslint-disable-next-line no-underscore-dangle
+export const areControlsShown = () => !getOverlay() || (getOverlay()?.getControls().enabled_
+    && (getOverlay()?.getControls().getControlsContainer().getAttribute('shown') != null
+    || getOverlay()?.getControls().getControlsContainer().getAttribute('casting') != null));
+
+export const getControlsOffset = (fallbackHeight) => (areControlsShown()
+  ? (getPlayer()?.getMediaElement().offsetHeight || fallbackHeight) * 0.025 + 48 || 0
+  : 0);
+
 /**
  * Resize the subtitles to the dimensions of the video element.
  *
@@ -31,15 +40,18 @@ export const resizeSubtitleContainer = () => {
     return;
   }
 
+  const bottomOffset = getControlsOffset();
+  console.debug('resizeSubtitleContainer', bottomOffset);
+
   const {
     videoWidth, videoHeight, offsetWidth, offsetHeight,
   } = getPlayer().getMediaElement();
 
-  const ratio = Math.min(offsetWidth / videoWidth, offsetHeight / videoHeight);
+  const ratio = Math.min(offsetWidth / videoWidth, (offsetHeight - bottomOffset) / videoHeight);
   const subsWrapperWidth = videoWidth * ratio;
   const subsWrapperHeight = videoHeight * ratio;
   const subsWrapperLeft = (offsetWidth - subsWrapperWidth) / 2;
-  const subsWrapperTop = (offsetHeight - subsWrapperHeight) / 2;
+  const subsWrapperTop = ((offsetHeight - bottomOffset) - subsWrapperHeight) / 2;
 
   subtitleRenderer.resize(subsWrapperWidth, subsWrapperHeight, subsWrapperLeft, subsWrapperTop);
 };
@@ -94,6 +106,18 @@ const initRenderer = async (ass) => {
   resizeSubtitleContainer();
 };
 
+const handleStreamError = async (assPromise) => {
+  try {
+    await assPromise;
+  } catch (e) {
+    if (assAbortController) {
+      // If there is no abort controller, we have just aborted
+      // If there is one, then something went wrong
+      throw e;
+    }
+  }
+};
+
 const makeAss = async (url) => {
   console.debug('makeAss');
   const libjass = await import('libjass');
@@ -101,6 +125,9 @@ const makeAss = async (url) => {
   const stream = resiliantStreamFactory(url, assAbortController.signal);
 
   const parser = new libjass.parser.StreamParser(stream);
+  // Purposefully not awaited because we never get the full file at once
+  // We still need to catch abort errors to clean up console
+  handleStreamError(parser.ass);
   return parser.minimalASS;
 };
 
@@ -130,8 +157,9 @@ export const setSubtitleUrl = async (url) => {
     const ass = await makeAss(url);
 
     if (subtitleRenderer) {
-    // eslint-disable-next-line no-underscore-dangle
+      // eslint-disable-next-line no-underscore-dangle
       subtitleRenderer._ass = ass;
+      resizeSubtitleContainer();
     } else {
       await initRenderer(ass);
     }

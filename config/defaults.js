@@ -44,7 +44,7 @@ const defaults = {
   default_sync_mode: 'cleanseek',
 
   slplayer_plex_timeline_update_interval: 10000,
-  slplayer_controls_visible_checker_interval: 500,
+  slplayer_controls_visible_checker_interval: 250,
 
   // Controlls the max time difference cutoff for syncing by changing the playback speed
   slplayer_speed_sync_max_diff: 10000,

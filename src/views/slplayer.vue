@@ -24,7 +24,22 @@
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
           @enterpictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
           @leavepictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
+          @timeupdate="handleTimeUpdate"
         />
+
+        <v-btn
+          v-if="AM_I_HOST && isInIntro"
+          absolute
+          bottom
+          right
+          large
+          class="skip-intro"
+          :class="ARE_PLAYER_CONTROLS_SHOWN ? 'above-controls' : null"
+          :style="skipIntroButtonStyle"
+          @click="SKIP_INTRO"
+        >
+          Skip Intro
+        </v-btn>
       </div>
 
       <v-fade-transition
@@ -154,7 +169,7 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
 import initialize from '@/player/init';
-import { resizeSubtitleContainer } from '@/player/state';
+import { resizeSubtitleContainer, getControlsOffset } from '@/player/state';
 
 import 'shaka-player/dist/controls.css';
 import 'libjass/libjass.css';
@@ -171,6 +186,8 @@ export default {
 
   data() {
     return {
+      videoTimeStamp: 0,
+
       playerConfig: {
         streaming: {
           // TODO: make this config
@@ -178,7 +195,7 @@ export default {
 
           retryParameters: {
             timeout: 0, // timeout in ms, after which we abort; 0 means never
-            maxAttempts: 9999, // the maximum number of requests before we fail
+            maxAttempts: 10, // the maximum number of requests before we fail
             baseDelay: 1000, // the base delay in ms between retries
             backoffFactor: 2, // the multiplicative backoff factor between retries
             fuzzFactor: 0.5, // the fuzz factor to apply to each retry delay
@@ -188,7 +205,7 @@ export default {
         manifest: {
           retryParameters: {
             timeout: 0, // timeout in ms, after which we abort; 0 means never
-            maxAttempts: 9999, // the maximum number of requests before we fail
+            maxAttempts: 10, // the maximum number of requests before we fail
             baseDelay: 1000, // the base delay in ms between retries
             backoffFactor: 2, // the multiplicative backoff factor between retries
             fuzzFactor: 0.5, // the fuzz factor to apply to each retry delay
@@ -215,11 +232,26 @@ export default {
 
     ...mapGetters('plexclients', [
       'GET_ACTIVE_MEDIA_METADATA',
+      'GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER',
     ]),
 
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
     ]),
+
+    skipIntroButtonStyle() {
+      return this.ARE_PLAYER_CONTROLS_SHOWN
+        ? {
+          'margin-bottom': `${getControlsOffset(this.$refs?.videoPlayerContainer?.offsetHeight)}px`,
+        }
+        : {};
+    },
+
+    isInIntro() {
+      return this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER
+        && this.videoTimeStamp >= this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.startTimeOffset
+        && this.videoTimeStamp < this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.endTimeOffset;
+    },
   },
 
   watch: {
@@ -238,6 +270,10 @@ export default {
       },
       immediate: true,
     },
+
+    ARE_PLAYER_CONTROLS_SHOWN() {
+      resizeSubtitleContainer();
+    },
   },
 
   async mounted() {
@@ -253,12 +289,12 @@ export default {
     await this.INIT_PLAYER_STATE();
 
     window.addEventListener('keyup', this.onKeyUp);
-    window.addEventListener('resize', resizeSubtitleContainer);
+    window.addEventListener('resize', this.resizeSubtitles);
   },
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
-    window.removeEventListener('resize', resizeSubtitleContainer);
+    window.removeEventListener('resize', this.resizeSubtitles);
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -279,6 +315,7 @@ export default {
       'DESTROY_PLAYER_STATE',
       'PLAY_PAUSE_VIDEO',
       'SEND_PARTY_PLAY_PAUSE',
+      'SKIP_INTRO',
     ]),
 
     ...mapMutations([
@@ -360,6 +397,10 @@ export default {
         }),
       );
     },
+
+    handleTimeUpdate({ timeStamp }) {
+      this.videoTimeStamp = timeStamp;
+    },
   },
 };
 </script>
@@ -409,6 +450,15 @@ export default {
     vertical-align: middle;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .skip-intro {
+    transition-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+    transition: margin 250ms;
+  }
+
+  .skip-intro.above-controls {
+    transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 </style>
 
