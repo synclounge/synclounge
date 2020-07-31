@@ -399,7 +399,7 @@ export default {
     },
 
     handleTimeUpdate() {
-      this.videoTimeStamp = this.$refs.videoPlayer.currentTime * 1000;
+      this.videoTimeStamp = this.$refs?.videoPlayer?.currentTime * 1000;
     },
   },
 };
