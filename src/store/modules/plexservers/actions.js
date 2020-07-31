@@ -89,7 +89,10 @@ export default {
         includeStations: 1,
         includeExternalMedia: 1,
         asyncAugmentMetadata: 1,
+        asyncRefreshLocalMediaAgent: 1,
+        asyncRefreshAnalysis: 1,
         checkFiles: 1,
+        includeMarkers: 1,
       },
       signal,
     });

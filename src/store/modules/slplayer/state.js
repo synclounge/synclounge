@@ -7,7 +7,7 @@ const state = () => ({
   mediaIndex: 0,
   offsetMs: 0,
   playerState: 'stopped',
-  playerControlsShown: true,
+  playerControlsShown: false,
   playerControlsShownInterval: null,
   bufferingEventListener: null,
   clickEventListener: null,

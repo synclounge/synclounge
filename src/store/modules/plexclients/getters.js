@@ -79,4 +79,10 @@ export default {
     : false),
 
   GET_LAST_PLAY_MEDIA_COMMAND_ID: (state) => state.lastPlayMediaCommandId,
+
+  GET_ACTIVE_MEDIA_METADATA_MARKERS: (state, getters) => getters
+    .GET_ACTIVE_MEDIA_METADATA?.Marker || [],
+
+  GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER: (state, getters) => getters
+    .GET_ACTIVE_MEDIA_METADATA_MARKERS.find((marker) => marker.type === 'intro'),
 };

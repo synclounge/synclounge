@@ -25,11 +25,6 @@ export const setVolume = (volume) => {
 export const play = () => getPlayer().getMediaElement().play();
 export const pause = () => getPlayer().getMediaElement().pause();
 
-// eslint-disable-next-line no-underscore-dangle
-export const areControlsShown = () => getOverlay().getControls().enabled_
-    && (getOverlay().getControls().getControlsContainer().getAttribute('shown') != null
-    || getOverlay().getControls().getControlsContainer().getAttribute('casting') != null);
-
 export const isTimeInBufferedRange = (timeMs) => {
   const bufferedTimeRange = getPlayer().getMediaElement().buffered;
 

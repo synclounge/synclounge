@@ -3,13 +3,16 @@ import CAF from 'caf';
 import guid from '@/utils/guid';
 import { fetchJson, queryFetch, makeUrl } from '@/utils/fetchutils';
 import {
-  play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
+  play, pause, getDurationMs, getCurrentTimeMs, isTimeInBufferedRange,
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
   waitForMediaElementEvent, destroy, cancelTrickPlay, load, setPlaybackRate, getPlaybackRate,
   setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
-  getSmallPlayButton, getBigPlayButton, unload,
+  getSmallPlayButton, getBigPlayButton, unload, addMediaElementEventListener,
+  removeMediaElementEventListener,
 } from '@/player';
-import { destroySubtitles, setSubtitleUrl, destroyAss } from '@/player/state';
+import {
+  destroySubtitles, setSubtitleUrl, destroyAss, areControlsShown, resizeSubtitleContainer,
+} from '@/player/state';
 import Deferred from '@/utils/deferredpromise';
 
 export default {
@@ -350,6 +353,7 @@ export default {
       dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
     } catch (e) {
       if (getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE) {
+        // TODO: potentially close player
         getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE.reject(e);
         commit('SET_PLAYER_INITIALIZED_DEFERRED_PROMISE', null);
       }
@@ -373,6 +377,7 @@ export default {
   DESTROY_PLAYER_STATE: async ({ commit, dispatch }) => {
     console.debug('DESTROY_PLAYER_STATE');
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    commit('UPDATE_PLAYER_CONTROLS_SHOWN', false);
     await dispatch('UNREGISTER_PLAYER_EVENTS');
     await dispatch('CANCEL_PERIODIC_PLEX_TIMELINE_UPDATE');
 
@@ -461,5 +466,9 @@ export default {
     dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
 
     await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
+  },
+
+  SKIP_INTRO: () => {
+    console.debug('SKIP_INTRO');
   },
 };
