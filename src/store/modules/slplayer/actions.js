@@ -7,11 +7,10 @@ import {
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
   waitForMediaElementEvent, destroy, cancelTrickPlay, load, setPlaybackRate, getPlaybackRate,
   setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
-  getSmallPlayButton, getBigPlayButton, unload, addMediaElementEventListener,
-  removeMediaElementEventListener,
+  getSmallPlayButton, getBigPlayButton, unload,
 } from '@/player';
 import {
-  destroySubtitles, setSubtitleUrl, destroyAss, areControlsShown, resizeSubtitleContainer,
+  destroySubtitles, setSubtitleUrl, destroyAss, areControlsShown,
 } from '@/player/state';
 import Deferred from '@/utils/deferredpromise';
 
@@ -468,7 +467,11 @@ export default {
     await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
   },
 
-  SKIP_INTRO: () => {
+  SKIP_INTRO: ({ commit, rootGetters }) => {
     console.debug('SKIP_INTRO');
+    const introEnd = rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER'].endTimeOffset;
+
+    commit('SET_OFFSET_MS', introEnd);
+    setCurrentTimeMs(introEnd);
   },
 };

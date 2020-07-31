@@ -24,9 +24,11 @@
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
           @enterpictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
           @leavepictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
+          @timeupdate="handleTimeUpdate"
         />
 
         <v-btn
+          v-if="AM_I_HOST && isInIntro"
           absolute
           bottom
           right
@@ -184,6 +186,8 @@ export default {
 
   data() {
     return {
+      videoTimeStamp: 0,
+
       playerConfig: {
         streaming: {
           // TODO: make this config
@@ -191,7 +195,7 @@ export default {
 
           retryParameters: {
             timeout: 0, // timeout in ms, after which we abort; 0 means never
-            maxAttempts: 9999, // the maximum number of requests before we fail
+            maxAttempts: 10, // the maximum number of requests before we fail
             baseDelay: 1000, // the base delay in ms between retries
             backoffFactor: 2, // the multiplicative backoff factor between retries
             fuzzFactor: 0.5, // the fuzz factor to apply to each retry delay
@@ -201,7 +205,7 @@ export default {
         manifest: {
           retryParameters: {
             timeout: 0, // timeout in ms, after which we abort; 0 means never
-            maxAttempts: 9999, // the maximum number of requests before we fail
+            maxAttempts: 10, // the maximum number of requests before we fail
             baseDelay: 1000, // the base delay in ms between retries
             backoffFactor: 2, // the multiplicative backoff factor between retries
             fuzzFactor: 0.5, // the fuzz factor to apply to each retry delay
@@ -228,6 +232,7 @@ export default {
 
     ...mapGetters('plexclients', [
       'GET_ACTIVE_MEDIA_METADATA',
+      'GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER',
     ]),
 
     ...mapGetters('plexservers', [
@@ -240,6 +245,12 @@ export default {
           'margin-bottom': `${getControlsOffset(this.$refs?.videoPlayerContainer?.offsetHeight)}px`,
         }
         : {};
+    },
+
+    isInIntro() {
+      return this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER
+        && this.videoTimeStamp >= this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.startTimeOffset
+        && this.videoTimeStamp < this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.endTimeOffset;
     },
   },
 
@@ -385,6 +396,10 @@ export default {
           blur: 2,
         }),
       );
+    },
+
+    handleTimeUpdate({ timeStamp }) {
+      this.videoTimeStamp = timeStamp;
     },
   },
 };
