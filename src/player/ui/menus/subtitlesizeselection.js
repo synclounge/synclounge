@@ -2,39 +2,39 @@ import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 import {
   setDisplay, getDescendantIfExists, removeAllChildren, focusOnTheChosenItem, checkmarkIcon,
 } from '@/player/ui/utils';
-import { subtitleColors } from '@/utils/subtitleutils';
+import { subtitleSizes } from '@/utils/subtitleutils';
 
 export default (store) => {
-  class SubtitleColorSelection extends shaka.ui.SettingsMenu {
+  class SubtitleSizeSelection extends shaka.ui.SettingsMenu {
     #watcherCancellers = [];
 
     constructor(parent, controls) {
-      super(parent, controls, 'color_lens');
+      super(parent, controls, 'format_size');
 
       this.#watcherCancellers = [
         store.watch(
           (state, getters) => getters['slplayer/IS_USING_NATIVE_SUBTITLES'],
-          this.updateSubtitleColorSelection.bind(this),
+          this.updateSubtitleSizeSelection.bind(this),
         ),
 
         store.watch(
-          (state, getters) => getters['slplayer/GET_SUBTITLE_COLOR'],
-          this.updateSubtitleColorSelection.bind(this),
+          (state, getters) => getters['slplayer/GET_SUBTITLE_SIZE'],
+          this.updateSubtitleSizeSelection.bind(this),
         ),
       ];
 
-      this.button.classList.add('shaka-subtitle-color-button');
-      this.menu.classList.add('shaka-subtitle-color');
+      this.button.classList.add('shaka-subtitle-size-button');
+      this.menu.classList.add('shaka-subtitle-size');
 
-      this.backSpan.textContent = 'Subtitle Color';
-      this.nameSpan.textContent = 'Subtitle Color';
+      this.backSpan.textContent = 'Subtitle Size';
+      this.nameSpan.textContent = 'Subtitle Size';
 
-      this.updateSubtitleColorSelection();
+      this.updateSubtitleSizeSelection();
     }
 
-    updateSubtitleColorSelection() {
+    updateSubtitleSizeSelection() {
       // Hide menu if there is nothing to choose or burning subtitles
-      if (Object.keys(subtitleColors).length <= 1
+      if (Object.keys(subtitleSizes).length <= 1
         || !store.getters['slplayer/IS_USING_NATIVE_SUBTITLES']) {
         setDisplay(this.menu, false);
         setDisplay(this.button, false);
@@ -54,15 +54,15 @@ export default (store) => {
       // 3. Add the backTo Menu button back
       this.menu.appendChild(backButton);
 
-      this.addSubtitleColorSelection();
+      this.addSubtitleSizeSelection();
 
       focusOnTheChosenItem(this.menu);
     }
 
-    addSubtitleColorSelection() {
-      Object.entries(subtitleColors).forEach(([name, color]) => {
+    addSubtitleSizeSelection() {
+      Object.entries(subtitleSizes).forEach(([name, size]) => {
         const button = document.createElement('button');
-        button.classList.add('explicit-subtitle-color');
+        button.classList.add('explicit-subtitle-size');
 
         const span = document.createElement('span');
         span.textContent = name;
@@ -71,10 +71,10 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onSubtitleColorClicked(color),
+          () => this.onSubtitleSizeClicked(size),
         );
 
-        if (color === store.getters['slplayer/GET_SUBTITLE_COLOR']) {
+        if (size === store.getters['slplayer/GET_SUBTITLE_SIZE']) {
           button.setAttribute('aria-selected', 'true');
           button.appendChild(checkmarkIcon());
           span.classList.add('shaka-chosen-item');
@@ -85,8 +85,8 @@ export default (store) => {
       });
     }
 
-    onSubtitleColorClicked(color) {
-      store.dispatch('slplayer/CHANGE_SUBTITLE_COLOR', color);
+    onSubtitleSizeClicked(size) {
+      store.dispatch('slplayer/CHANGE_SUBTITLE_SIZE', size);
     }
 
     // TODO: replace this function name with "release" when upgrading to shaka 3
@@ -100,8 +100,8 @@ export default (store) => {
   }
 
   const factory = {
-    create: (rootElement, controls) => new SubtitleColorSelection(rootElement, controls),
+    create: (rootElement, controls) => new SubtitleSizeSelection(rootElement, controls),
   };
 
-  shaka.ui.OverflowMenu.registerElement('subtitlecolor', factory);
+  shaka.ui.OverflowMenu.registerElement('subtitlesize', factory);
 };

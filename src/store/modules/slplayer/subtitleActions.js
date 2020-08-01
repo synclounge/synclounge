@@ -232,5 +232,6 @@ export default {
   CHANGE_SUBTITLE_SIZE: async ({ commit, dispatch }, size) => {
     commit('SET_SUBTITLE_SIZE', size);
     await dispatch('PUBLISH_SUBTITLE_SIZE');
+    await dispatch('RERENDER_SUBTITLE_CONTAINER');
   },
 };
