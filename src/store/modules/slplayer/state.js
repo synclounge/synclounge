@@ -1,4 +1,5 @@
 import guid from '@/utils/guid';
+import { subtitlePositions, subtitleSizes, subtitleColors } from '@/utils/subtitleutils';
 
 const state = () => ({
   session: null,
@@ -19,6 +20,14 @@ const state = () => ({
   // before the media is loaded
   maskPlayerState: false,
   isInPictureInPicture: false,
+
+  // Subtitle state
+  originalSubtitleResolutionXCache: null,
+  originalSubtitleResolutionYCache: null,
+
+  subtitleSize: subtitleSizes.Normal,
+  subtitlePosition: subtitlePositions.Bottom,
+  subtitleColor: subtitleColors.White,
 });
 
 export default state;

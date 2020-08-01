@@ -1,18 +1,16 @@
 import CAF from 'caf';
 
 import guid from '@/utils/guid';
-import { fetchJson, queryFetch, makeUrl } from '@/utils/fetchutils';
+import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import {
   play, pause, getDurationMs, getCurrentTimeMs, isTimeInBufferedRange,
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
   waitForMediaElementEvent, destroy, cancelTrickPlay, load, setPlaybackRate, getPlaybackRate,
-  setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
+  setCurrentTimeMs, setVolume, addEventListener, removeEventListener, areControlsShown,
   getSmallPlayButton, getBigPlayButton, unload,
 } from '@/player';
-import {
-  destroySubtitles, setSubtitleUrl, destroyAss, areControlsShown,
-} from '@/player/state';
 import Deferred from '@/utils/deferredpromise';
+import subtitleActions from './subtitleActions';
 
 export default {
   MAKE_TIMELINE_PARAMS: async ({ getters, rootGetters, dispatch }) => ({
@@ -73,12 +71,11 @@ export default {
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
-  CHANGE_SUBTITLES: async ({ getters }) => {
+  CHANGE_SUBTITLES: async ({ getters, dispatch }) => {
     if (getters.GET_SUBTITLE_STREAM_ID && !getters.GET_SUBTITLE_STREAM.burn) {
-      await setSubtitleUrl(makeUrl(getters.GET_SUBTITLE_BASE_URL,
-        getters.GET_DECISION_AND_START_PARAMS));
+      await dispatch('SET_SUBTITLE_URL');
     } else {
-      destroyAss();
+      await dispatch('DESTROY_ASS');
     }
   },
 
@@ -87,7 +84,7 @@ export default {
     commit('SET_SESSION', guid());
 
     // Abort subtitle requests now or else we get ugly errors from the server closing it.
-    destroyAss();
+    await dispatch('DESTROY_ASS');
     await dispatch('SEND_PLEX_DECISION_REQUEST');
     await dispatch('LOAD_PLAYER_SRC');
     await dispatch('CHANGE_SUBTITLES');
@@ -158,9 +155,9 @@ export default {
     }
   },
 
-  HANDLE_SEEKING: async () => {
+  HANDLE_SEEKING: async ({ dispatch }) => {
     console.debug('HANDLE_SEEKING');
-    destroyAss();
+    await dispatch('DESTROY_ASS');
   },
 
   HANDLE_SEEKED: async ({ dispatch }) => {
@@ -385,7 +382,7 @@ export default {
     // Leaving play queue around for possible upnext
     commit('SET_IS_PLAYER_INITIALIZED', false);
     commit('SET_IS_IN_PICTURE_IN_PICTURE', false);
-    destroySubtitles();
+    await dispatch('DESTROY_SUBTITLES');
     await destroy();
     commit('SET_OFFSET_MS', 0);
 
@@ -474,4 +471,6 @@ export default {
     commit('SET_OFFSET_MS', introEnd);
     setCurrentTimeMs(introEnd);
   },
+
+  ...subtitleActions,
 };

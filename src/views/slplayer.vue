@@ -169,7 +169,7 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
 import initialize from '@/player/init';
-import { resizeSubtitleContainer, getControlsOffset } from '@/player/state';
+import { getControlsOffset } from '@/player';
 
 import 'shaka-player/dist/controls.css';
 import 'libjass/libjass.css';
@@ -272,7 +272,7 @@ export default {
     },
 
     ARE_PLAYER_CONTROLS_SHOWN() {
-      resizeSubtitleContainer();
+      return this.RESIZE_SUBTITLE_CONTAINER();
     },
   },
 
@@ -289,12 +289,12 @@ export default {
     await this.INIT_PLAYER_STATE();
 
     window.addEventListener('keyup', this.onKeyUp);
-    window.addEventListener('resize', this.resizeSubtitles);
+    window.addEventListener('resize', this.RESIZE_SUBTITLE_CONTAINER);
   },
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
-    window.removeEventListener('resize', this.resizeSubtitles);
+    window.removeEventListener('resize', this.RESIZE_SUBTITLE_CONTAINER);
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -316,6 +316,7 @@ export default {
       'PLAY_PAUSE_VIDEO',
       'SEND_PARTY_PLAY_PAUSE',
       'SKIP_INTRO',
+      'RESIZE_SUBTITLE_CONTAINER',
     ]),
 
     ...mapMutations([

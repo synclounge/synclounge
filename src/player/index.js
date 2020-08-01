@@ -2,6 +2,15 @@ import {
   getPlayer, setPlayer, getOverlay, setOverlay,
 } from './state';
 
+// eslint-disable-next-line no-underscore-dangle
+export const areControlsShown = () => !getOverlay() || (getOverlay()?.getControls().enabled_
+    && (getOverlay()?.getControls().getControlsContainer().getAttribute('shown') != null
+    || getOverlay()?.getControls().getControlsContainer().getAttribute('casting') != null));
+
+export const getControlsOffset = (fallbackHeight) => (areControlsShown()
+  ? (getPlayer()?.getMediaElement()?.offsetHeight || fallbackHeight) * 0.025 + 48 || 0
+  : 0);
+
 export const isPaused = () => getPlayer().getMediaElement().paused;
 
 export const isPresentationPaused = () => isPaused()
@@ -80,6 +89,27 @@ export const getSmallPlayButton = () => getOverlay().getControls().getControlsCo
 
 export const getBigPlayButton = () => getOverlay().getControls().getControlsContainer()
   .getElementsByClassName('shaka-play-button')[0];
+
+export const getDimensions = () => {
+  const {
+    videoWidth, videoHeight, offsetWidth, offsetHeight,
+  } = getPlayer().getMediaElement();
+
+  return {
+    videoWidth, videoHeight, offsetWidth, offsetHeight,
+  };
+};
+
+export const insertElementBeforeVideo = (element) => {
+  const parent = getPlayer().getMediaElement().parentNode;
+
+  parent.insertBefore(
+    element,
+    getPlayer().getMediaElement(),
+  );
+};
+
+export const getMediaElement = () => getPlayer().getMediaElement();
 
 export const destroy = async () => {
   const savedOverlay = getOverlay();
