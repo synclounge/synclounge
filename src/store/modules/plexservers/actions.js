@@ -299,9 +299,12 @@ export default {
         type: 'video',
         continuous: 1,
         uri: `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${ratingKey}`,
+        repeat: 0,
         own: 1,
-        includeExternalMedia: 1,
         includeChapters: 1,
+        includeMarkers: 1,
+        includeGeolocation: 1,
+        includeExternalMedia: 1,
       },
       signal,
     });
