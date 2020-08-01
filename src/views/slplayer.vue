@@ -272,7 +272,7 @@ export default {
     },
 
     ARE_PLAYER_CONTROLS_SHOWN() {
-      return this.RESIZE_SUBTITLE_CONTAINER();
+      return this.RERENDER_SUBTITLE_CONTAINER();
     },
   },
 
@@ -289,12 +289,12 @@ export default {
     await this.INIT_PLAYER_STATE();
 
     window.addEventListener('keyup', this.onKeyUp);
-    window.addEventListener('resize', this.RESIZE_SUBTITLE_CONTAINER);
+    window.addEventListener('resize', this.RERENDER_SUBTITLE_CONTAINER);
   },
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
-    window.removeEventListener('resize', this.RESIZE_SUBTITLE_CONTAINER);
+    window.removeEventListener('resize', this.RERENDER_SUBTITLE_CONTAINER);
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -316,7 +316,7 @@ export default {
       'PLAY_PAUSE_VIDEO',
       'SEND_PARTY_PLAY_PAUSE',
       'SKIP_INTRO',
-      'RESIZE_SUBTITLE_CONTAINER',
+      'RERENDER_SUBTITLE_CONTAINER',
     ]),
 
     ...mapMutations([
@@ -361,9 +361,10 @@ export default {
         overflowMenuButtons: [
           'picture_in_picture',
           'cast',
-          'bitrate',
+          'subtitlecolor',
           'subtitle',
           'audio',
+          'bitrate',
           'media',
         ],
 

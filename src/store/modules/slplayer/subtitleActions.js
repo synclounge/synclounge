@@ -4,7 +4,7 @@ import {
   insertElementBeforeVideo, getMediaElement,
 } from '@/player';
 import resiliantStreamFactory from '@/utils/streams';
-import { hexToLibjassColor, subtitleSettings } from '@/utils/subtitleutils';
+import { hexToLibjassColor, subtitleSettings, getBestOutlineColor } from '@/utils/subtitleutils';
 
 let videoClock = null;
 let subtitleRenderer = null;
@@ -77,8 +77,12 @@ export default {
     const defaultStyle = subtitleRenderer.ass.styles.get('Default');
     // eslint-disable-next-line no-underscore-dangle
     defaultStyle._primaryColor = await hexToLibjassColor(getters.GET_SUBTITLE_COLOR);
-    // TODO: see when to make outline black...
-  // defaultStyle._outlineColor = null;
+
+    // eslint-disable-next-line no-underscore-dangle
+    defaultStyle._outlineColor = await hexToLibjassColor(
+      // eslint-disable-next-line no-underscore-dangle
+      getBestOutlineColor(defaultStyle._primaryColor),
+    );
   },
 
   PUBLISH_SUBTITLE_SIZE: async ({ getters, dispatch }) => {
@@ -95,14 +99,14 @@ export default {
       / getters.GET_SUBTITLE_SIZE;
   },
 
-  RESIZE_SUBTITLE_CONTAINER: async ({ dispatch }) => {
+  RERENDER_SUBTITLE_CONTAINER: async ({ dispatch }) => {
     // Handle letterboxing around the video. If the width or height are greater than the video can be, then consider that dead space.
     if (!subtitleRenderer) {
       return;
     }
 
     const bottomOffset = getControlsOffset();
-    console.debug('RESIZE_SUBTITLE_CONTAINER', bottomOffset);
+    console.debug('RERENDER_SUBTITLE_CONTAINER', bottomOffset);
 
     const {
       videoWidth, videoHeight, offsetWidth, offsetHeight,
@@ -137,7 +141,7 @@ export default {
         commit('SET_ORIGINAL_SUBTITLE_RESOLUTION_Y_CACHE', null);
 
         // Resizing clears out rendered subtitles
-        await dispatch('RESIZE_SUBTITLE_CONTAINER');
+        await dispatch('RERENDER_SUBTITLE_CONTAINER');
       }
     }
   },
@@ -188,7 +192,7 @@ export default {
       }
 
       await dispatch('PUBLISH_SUBTITLE_SIZE');
-      await dispatch('RESIZE_SUBTITLE_CONTAINER');
+      await dispatch('RERENDER_SUBTITLE_CONTAINER');
     } catch (e) {
       if (assAbortController) {
         // If there is no abort controller, we have just aborted
@@ -214,17 +218,18 @@ export default {
     videoClock = null;
   },
 
-  UPDATE_SUBTITLE_COLOR: async ({ commit, dispatch }, color) => {
+  CHANGE_SUBTITLE_COLOR: async ({ commit, dispatch }, color) => {
     commit('SET_SUBTITLE_COLOR', color);
     await dispatch('PUBLISH_SUBTITLE_COLOR');
+    await dispatch('RERENDER_SUBTITLE_CONTAINER');
   },
 
-  UPDATE_SUBTITLE_POSITION: async ({ commit, dispatch }, position) => {
+  CHANGE_SUBTITLE_POSITION: async ({ commit, dispatch }, position) => {
     commit('SET_SUBTITLE_POSITION', position);
     await dispatch('PUBLISH_SUBTITLE_POSITION');
   },
 
-  UPDATE_SUBTITLE_SIZE: async ({ commit, dispatch }, size) => {
+  CHANGE_SUBTITLE_SIZE: async ({ commit, dispatch }, size) => {
     commit('SET_SUBTITLE_SIZE', size);
     await dispatch('PUBLISH_SUBTITLE_SIZE');
   },

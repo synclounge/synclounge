@@ -72,7 +72,7 @@ export default {
   },
 
   CHANGE_SUBTITLES: async ({ getters, dispatch }) => {
-    if (getters.GET_SUBTITLE_STREAM_ID && !getters.GET_SUBTITLE_STREAM.burn) {
+    if (getters.IS_USING_NATIVE_SUBTITLES) {
       await dispatch('SET_SUBTITLE_URL');
     } else {
       await dispatch('DESTROY_ASS');
@@ -167,8 +167,7 @@ export default {
 
   HANDLE_PICTURE_IN_PICTURE_CHANGE: async ({ getters, commit, dispatch }) => {
     commit('SET_IS_IN_PICTURE_IN_PICTURE', document.pictureInPictureElement != null);
-    if (getters.IS_IN_PICTURE_IN_PICTURE && getters.GET_SUBTITLE_STREAM_ID
-      && !getters.GET_SUBTITLE_STREAM?.burn) {
+    if (getters.IS_IN_PICTURE_IN_PICTURE && getters.IS_USING_NATIVE_SUBTITLES) {
       // If we are in picture and picture, we must burn subtitles
       // Redo src
       await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');

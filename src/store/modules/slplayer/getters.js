@@ -178,4 +178,7 @@ export default {
   GET_SUBTITLE_POSITION: (state) => state.subtitlePosition,
 
   GET_SUBTITLE_COLOR: (state) => state.subtitleColor,
+
+  IS_USING_NATIVE_SUBTITLES: (state, getters) => getters.GET_SUBTITLE_STREAM_ID
+    && !getters.GET_SUBTITLE_STREAM?.burn,
 };
