@@ -80,4 +80,8 @@ export default {
   SET_SUBTITLE_COLOR: (state, color) => {
     state.subtitleColor = color;
   },
+
+  SET_SUBTITLE_OFFSET: (state, offset) => {
+    state.subtitleOffset = offset;
+  },
 };

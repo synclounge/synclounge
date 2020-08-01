@@ -359,15 +359,18 @@ export default {
         ],
 
         overflowMenuButtons: [
-          'picture_in_picture',
-          'cast',
-          'subtitlecolor',
-          'subtitleposition',
-          'subtitlesize',
-          'subtitle',
-          'audio',
-          'bitrate',
           'media',
+          'bitrate',
+          'audio',
+
+          'subtitle',
+          'subtitleoffset',
+          'subtitlesize',
+          'subtitleposition',
+          'subtitlecolor',
+
+          'cast',
+          'picture_in_picture',
         ],
 
         castReceiverAppId: this.getCastReceiverId(),

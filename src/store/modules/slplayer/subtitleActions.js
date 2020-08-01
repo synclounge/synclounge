@@ -232,4 +232,23 @@ export default {
     await dispatch('PUBLISH_SUBTITLE_SIZE');
     await dispatch('RERENDER_SUBTITLE_CONTAINER');
   },
+
+  CHANGE_SUBTITLE_OFFSET: async ({
+    getters, rootGetters, commit, dispatch,
+  }, offsetIncrement) => {
+    console.debug('CHANGE_SUBTITLE_OFFSET', offsetIncrement);
+    if (offsetIncrement === 0) {
+      // Reset
+      commit('SET_SUBTITLE_OFFSET', 0);
+    } else {
+      commit('SET_SUBTITLE_OFFSET', getters.GET_SUBTITLE_OFFSET + offsetIncrement);
+    }
+
+    // TODO: give this a signal
+    await dispatch('plexservers/UPDATE_STREAM', {
+      machineIdentifier: rootGetters['plexclients/GET_ACTIVE_SERVER_ID'],
+      id: getters.GET_SUBTITLE_STREAM.id,
+      offset: getters.GET_SUBTITLE_OFFSET,
+    }, { root: true });
+  },
 };

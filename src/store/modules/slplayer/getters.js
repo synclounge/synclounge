@@ -181,4 +181,9 @@ export default {
 
   IS_USING_NATIVE_SUBTITLES: (state, getters) => getters.GET_SUBTITLE_STREAM_ID
     && !getters.GET_SUBTITLE_STREAM?.burn,
+
+  GET_SUBTITLE_OFFSET: (state) => state.subtitleOffset,
+
+  IS_SUBTITLE_STREAM_NATIVE_SIDECAR: (state, getters) => getters.IS_USING_NATIVE_SUBTITLES
+   && getters.GET_SUBTITLE_STREAM?.file,
 };

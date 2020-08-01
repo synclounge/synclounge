@@ -28,6 +28,7 @@ const state = () => ({
   subtitleSize: subtitleSizes.Normal,
   subtitlePosition: subtitlePositions.Bottom,
   subtitleColor: subtitleColors.White,
+  subtitleOffset: 0,
 });
 
 export default state;
