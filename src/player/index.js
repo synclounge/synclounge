@@ -20,6 +20,8 @@ export const isBuffering = () => getPlayer()?.isBuffering();
 
 export const isPlaying = () => !isPaused() && !isBuffering();
 
+export const getCurrentTime = () => getPlayer()?.getMediaElement().currentTime;
+
 export const getCurrentTimeMs = () => getPlayer()?.getMediaElement()
   .currentTime * 1000;
 

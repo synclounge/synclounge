@@ -1,10 +1,11 @@
 import { makeUrl } from '@/utils/fetchutils';
 import {
   getControlsOffset, isPaused, getPlaybackRate, getCurrentTimeMs, getDimensions,
-  insertElementBeforeVideo, getMediaElement,
+  insertElementBeforeVideo, getMediaElement, getCurrentTime,
 } from '@/player';
 import resiliantStreamFactory from '@/utils/streams';
 import { hexToLibjassColor, subtitleSettings, getBestOutlineColor } from '@/utils/subtitleutils';
+import VideoClock from '@/utils/videoclock';
 
 let videoClock = null;
 let subtitleRenderer = null;
@@ -54,10 +55,16 @@ export default {
     }
   },
 
-  GET_OR_MAKE_VIDEO_CLOCK: async ({ dispatch }) => {
+  GET_OR_MAKE_VIDEO_CLOCK: async ({ getters, dispatch }) => {
     const libjass = await import('libjass');
+
     if (!videoClock) {
-      videoClock = new libjass.renderers.VideoClock(getMediaElement());
+      videoClock = new VideoClock(
+        getMediaElement(),
+        new libjass.renderers.AutoClock(() => Math.max(getCurrentTime()
+          + (getters.GET_SUBTITLE_OFFSET / 1000), 0), 100),
+
+      );
     }
 
     await dispatch('SYNCHRONIZE_SUBTITLE_CLOCK');
@@ -243,6 +250,9 @@ export default {
     } else {
       commit('SET_SUBTITLE_OFFSET', getters.GET_SUBTITLE_OFFSET + offsetIncrement);
     }
+
+    // eslint-disable-next-line no-underscore-dangle
+    videoClock._autoClock.seeking();
 
     // TODO: give this a signal
     await dispatch('plexservers/UPDATE_STREAM', {

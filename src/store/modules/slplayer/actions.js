@@ -33,7 +33,7 @@ export default {
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
     const data = await fetchJson(getters.GET_DECISION_URL, getters.GET_DECISION_AND_START_PARAMS);
     commit('SET_PLEX_DECISION', data);
-    commit('SET_SUBTITLE_OFFSET', getters.GET_SUBTITLE_STREAM?.offset || 0);
+    commit('SET_SUBTITLE_OFFSET', parseInt(getters.GET_SUBTITLE_STREAM?.offset || 0, 10));
   },
 
   CHANGE_MAX_VIDEO_BITRATE: async ({ commit, dispatch }, bitrate) => {
