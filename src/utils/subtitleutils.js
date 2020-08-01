@@ -3,9 +3,9 @@ export const subtitleSettings = {
 };
 
 export const subtitlePositions = {
-  Bottom: 2,
-  Middle: 5,
   Top: 8,
+  Middle: 5,
+  Bottom: 2,
 };
 
 export const subtitleSizes = {
@@ -18,6 +18,14 @@ export const subtitleSizes = {
 
 export const subtitleColors = {
   White: 'FFFFFF',
+  Yellow: 'FFEE00',
+  Black: '000000',
+  Cyan: '00FFFF',
+  Blue: '0000FF',
+  Green: '00FF00',
+  Magenta: 'EE00EE',
+  Red: 'FF0000',
+  Gray: '808080',
 };
 
 export const hexToLibjassColor = async (hex) => {
