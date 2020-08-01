@@ -1,5 +1,5 @@
 import { sample } from '@/utils/lightlodash';
-import { fetchJson } from '@/utils/fetchutils';
+import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import scoreMedia from './mediascoring';
 
 export default {
@@ -48,6 +48,18 @@ export default {
   }) => {
     const { accessToken, chosenConnection: { uri } } = getters.GET_PLEX_SERVER(machineIdentifier);
     return fetchJson(
+      `${uri}${path}`, {
+        ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
+        ...params,
+      }, rest,
+    );
+  },
+
+  QUERY_PLEX_SERVER: ({ getters, rootGetters }, {
+    machineIdentifier, path, params, ...rest
+  }) => {
+    const { accessToken, chosenConnection: { uri } } = getters.GET_PLEX_SERVER(machineIdentifier);
+    return queryFetch(
       `${uri}${path}`, {
         ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
         ...params,
@@ -319,6 +331,18 @@ export default {
     params: {
       identifier: 'com.plexapp.plugins.library',
       key: ratingKey,
+    },
+    signal,
+  }),
+
+  UPDATE_STREAM: ({ dispatch }, {
+    machineIdentifier, id, offset, signal,
+  }) => dispatch('QUERY_PLEX_SERVER', {
+    machineIdentifier,
+    method: 'PUT',
+    path: `/library/streams/${id}`,
+    params: {
+      offset,
     },
     signal,
   }),

@@ -168,4 +168,22 @@ export default {
   GET_MASK_PLAYER_STATE: (state) => state.maskPlayerState,
 
   IS_IN_PICTURE_IN_PICTURE: (state) => state.isInPictureInPicture,
+
+  GET_ORIGINAL_SUBTITLE_RESOLUTION_X_CACHE: (state) => state.originalSubtitleResolutionXCache,
+
+  GET_ORIGINAL_SUBTITLE_RESOLUTION_Y_CACHE: (state) => state.originalSubtitleResolutionYCache,
+
+  GET_SUBTITLE_SIZE: (state) => state.subtitleSize,
+
+  GET_SUBTITLE_POSITION: (state) => state.subtitlePosition,
+
+  GET_SUBTITLE_COLOR: (state) => state.subtitleColor,
+
+  IS_USING_NATIVE_SUBTITLES: (state, getters) => getters.GET_SUBTITLE_STREAM_ID
+    && !getters.GET_SUBTITLE_STREAM?.burn,
+
+  GET_SUBTITLE_OFFSET: (state) => state.subtitleOffset,
+
+  IS_SUBTITLE_STREAM_NATIVE_SIDECAR: (state, getters) => getters.IS_USING_NATIVE_SUBTITLES
+   && getters.GET_SUBTITLE_STREAM?.file,
 };

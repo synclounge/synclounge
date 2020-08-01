@@ -60,4 +60,28 @@ export default {
   SET_IS_IN_PICTURE_IN_PICTURE: (state, isIn) => {
     state.isInPictureInPicture = isIn;
   },
+
+  SET_ORIGINAL_SUBTITLE_RESOLUTION_X_CACHE: (state, resolution) => {
+    state.originalSubtitleResolutionXCache = resolution;
+  },
+
+  SET_ORIGINAL_SUBTITLE_RESOLUTION_Y_CACHE: (state, resolution) => {
+    state.originalSubtitleResolutionYCache = resolution;
+  },
+
+  SET_SUBTITLE_SIZE: (state, size) => {
+    state.subtitleSize = size;
+  },
+
+  SET_SUBTITLE_POSITION: (state, position) => {
+    state.subtitlePosition = position;
+  },
+
+  SET_SUBTITLE_COLOR: (state, color) => {
+    state.subtitleColor = color;
+  },
+
+  SET_SUBTITLE_OFFSET: (state, offset) => {
+    state.subtitleOffset = offset;
+  },
 };

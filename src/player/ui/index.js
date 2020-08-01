@@ -1,21 +1,7 @@
-import bitrateselection from './bitrateselection';
-import subtitleselection from './subtitleselection';
-import audioselection from './audioselection';
-import mediaselection from './mediaselection';
-import closebutton from './closebutton';
-import nextbutton from './nextbutton';
-import previousbutton from './previousbutton';
-import manualsyncbutton from './manualsyncbutton';
-import './forward30button';
-import './replay10button';
+import buttons from './buttons';
+import menus from './menus';
 
 export default (store) => {
-  bitrateselection(store);
-  subtitleselection(store);
-  audioselection(store);
-  mediaselection(store);
-  closebutton(store);
-  nextbutton(store);
-  previousbutton(store);
-  manualsyncbutton(store);
+  buttons(store);
+  menus(store);
 };
