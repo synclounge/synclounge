@@ -362,6 +362,7 @@ export default {
           'picture_in_picture',
           'cast',
           'subtitlecolor',
+          'subtitleposition',
           'subtitlesize',
           'subtitle',
           'audio',

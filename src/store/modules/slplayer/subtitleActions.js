@@ -118,10 +118,9 @@ export default {
     const subsWrapperLeft = (offsetWidth - subsWrapperWidth) / 2;
     const subsWrapperTop = ((offsetHeight - bottomOffset) - subsWrapperHeight) / 2;
 
-    subtitleRenderer.resize(subsWrapperWidth, subsWrapperHeight, subsWrapperLeft, subsWrapperTop);
-
     await dispatch('PUBLISH_SUBTITLE_COLOR');
     await dispatch('PUBLISH_SUBTITLE_POSITION');
+    subtitleRenderer.resize(subsWrapperWidth, subsWrapperHeight, subsWrapperLeft, subsWrapperTop);
   },
 
   DESTROY_ASS: async ({ dispatch, commit }) => {
@@ -220,13 +219,12 @@ export default {
 
   CHANGE_SUBTITLE_COLOR: async ({ commit, dispatch }, color) => {
     commit('SET_SUBTITLE_COLOR', color);
-    await dispatch('PUBLISH_SUBTITLE_COLOR');
     await dispatch('RERENDER_SUBTITLE_CONTAINER');
   },
 
   CHANGE_SUBTITLE_POSITION: async ({ commit, dispatch }, position) => {
     commit('SET_SUBTITLE_POSITION', position);
-    await dispatch('PUBLISH_SUBTITLE_POSITION');
+    await dispatch('RERENDER_SUBTITLE_CONTAINER');
   },
 
   CHANGE_SUBTITLE_SIZE: async ({ commit, dispatch }, size) => {

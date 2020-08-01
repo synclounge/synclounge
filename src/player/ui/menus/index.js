@@ -4,6 +4,7 @@ import audioselection from './audioselection';
 import mediaselection from './mediaselection';
 import subtitlecolorselection from './subtitlecolorselection';
 import subtitlesizeselection from './subtitlesizeselection';
+import subtitlepositionselection from './subtitlepositionselection';
 
 export default (store) => {
   bitrateselection(store);
@@ -12,4 +13,5 @@ export default (store) => {
   mediaselection(store);
   subtitlecolorselection(store);
   subtitlesizeselection(store);
+  subtitlepositionselection(store);
 };
