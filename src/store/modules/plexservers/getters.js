@@ -11,7 +11,7 @@ export default {
 
   GET_UNBLOCKED_PLEX_SERVER_IDS: (state, getters, rootState, rootGetters) => difference([
     getters.GET_PLEX_SERVER_IDS,
-    rootGetters['settings/GET_BLOCKEDSERVERS'],
+    getters.GET_BLOCKED_SERVER_IDS,
   ]),
 
   GET_CONNECTABLE_PLEX_SERVER_IDS: (state, getters) => getters.GET_PLEX_SERVER_IDS
