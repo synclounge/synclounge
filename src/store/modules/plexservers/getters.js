@@ -9,10 +9,10 @@ export default {
   GET_PLEX_SERVER: (state) => (machineIdentifier) => state
     .servers[machineIdentifier],
 
-  GET_UNBLOCKED_PLEX_SERVER_IDS: (state, getters, rootState, rootGetters) => difference(
+  GET_UNBLOCKED_PLEX_SERVER_IDS: (state, getters, rootState, rootGetters) => difference([
     getters.GET_PLEX_SERVER_IDS,
     rootGetters['settings/GET_BLOCKEDSERVERS'],
-  ),
+  ]),
 
   GET_CONNECTABLE_PLEX_SERVER_IDS: (state, getters) => getters.GET_PLEX_SERVER_IDS
     .filter((id) => state.servers[id].chosenConnection),
@@ -25,9 +25,10 @@ export default {
 
   DOES_USER_HAVE_AUTHORIZED_SERVER: (state, getters, rootState, rootGetters) => rootGetters
     .GET_CONFIG?.authentication?.type.includes('server')
-  && intersection(
-    getters.GET_PLEX_SERVER_IDS, rootGetters.GET_CONFIG.authentication.authorized,
-  ).length > 0,
+  && intersection([
+    getters.GET_PLEX_SERVER_IDS,
+    rootGetters.GET_CONFIG.authentication.authorized,
+  ]).length > 0,
 
   GET_MEDIA_IMAGE_URL: (state, getters, rootState, rootGetters) => ({
     machineIdentifier, mediaUrl, width, height, blur,
