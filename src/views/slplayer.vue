@@ -192,6 +192,7 @@ export default {
         streaming: {
           // TODO: make this config
           bufferingGoal: 120,
+          jumpLargeGaps: true,
 
           retryParameters: {
             timeout: 0, // timeout in ms, after which we abort; 0 means never
