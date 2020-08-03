@@ -15,7 +15,8 @@
         <v-list-item>
           <v-list-item-action>
             <v-switch
-              :input-value="ARE_NOTIFICATIONS_ENABLED"
+              :input-value="ARE_NOTIFICATIONS_ENABLED && !isHttp"
+              :disabled="isHttp"
               @change="CHANGE_NOTIFICATIONS_ENABLED"
             />
           </v-list-item-action>
@@ -32,8 +33,7 @@
         <v-list-item>
           <v-list-item-action>
             <v-switch
-              :disabled="isHttp"
-              :input-value="ARE_SOUND_NOTIFICATIONS_ENABLED && !isHttp"
+              :input-value="ARE_SOUND_NOTIFICATIONS_ENABLED"
               @change="SET_ARE_SOUND_NOTIFICATIONS_ENABLED"
             />
           </v-list-item-action>
