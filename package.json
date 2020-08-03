@@ -41,7 +41,7 @@
     "sass-loader": "^8.0.2",
     "shaka-player": "^2.5.13",
     "socket.io-client": "^2.3.0",
-    "string-similarity": "^4.0.1",
+    "string-similarity": "^4.0.2",
     "v-clipboard": "^2.2.3",
     "vanilla-tilt": "^1.7.0",
     "vue-chat-scroll": "^1.4.0",
