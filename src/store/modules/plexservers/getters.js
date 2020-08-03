@@ -9,7 +9,7 @@ export default {
   GET_PLEX_SERVER: (state) => (machineIdentifier) => state
     .servers[machineIdentifier],
 
-  GET_UNBLOCKED_PLEX_SERVER_IDS: (state, getters, rootState, rootGetters) => difference([
+  GET_UNBLOCKED_PLEX_SERVER_IDS: (state, getters) => difference([
     getters.GET_PLEX_SERVER_IDS,
     getters.GET_BLOCKED_SERVER_IDS,
   ]),
