@@ -1,3 +1,5 @@
+import { detect } from 'detect-browser';
+
 const state = () => ({
   background: null,
   configuration: null,
@@ -15,6 +17,7 @@ const state = () => ({
   snackbarMessage: null,
   snackbarOpen: false,
   navigateToPlayer: false,
+  browser: detect(),
 });
 
 export default state;
