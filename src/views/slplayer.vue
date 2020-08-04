@@ -193,24 +193,6 @@ export default {
           // TODO: make this config
           bufferingGoal: 120,
           jumpLargeGaps: true,
-
-          retryParameters: {
-            timeout: 0, // timeout in ms, after which we abort; 0 means never
-            maxAttempts: 10, // the maximum number of requests before we fail
-            baseDelay: 1000, // the base delay in ms between retries
-            backoffFactor: 2, // the multiplicative backoff factor between retries
-            fuzzFactor: 0.5, // the fuzz factor to apply to each retry delay
-          },
-        },
-
-        manifest: {
-          retryParameters: {
-            timeout: 0, // timeout in ms, after which we abort; 0 means never
-            maxAttempts: 10, // the maximum number of requests before we fail
-            baseDelay: 1000, // the base delay in ms between retries
-            backoffFactor: 2, // the multiplicative backoff factor between retries
-            fuzzFactor: 0.5, // the fuzz factor to apply to each retry delay
-          },
         },
       },
 
