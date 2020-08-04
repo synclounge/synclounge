@@ -84,4 +84,8 @@ export default {
   SET_SUBTITLE_OFFSET: (state, offset) => {
     state.subtitleOffset = offset;
   },
+
+  SET_STREAMING_PROTOCOL: (state, protocol) => {
+    state.streamingProtocol = protocol;
+  },
 };

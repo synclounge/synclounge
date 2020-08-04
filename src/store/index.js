@@ -28,6 +28,7 @@ const persistedState = createPersistedState({
     'slplayer.subtitleSize',
     'slplayer.subtitlePosition',
     'slplayer.subtitleColor',
+    'slplayer.streamingProtocol',
   ],
 });
 

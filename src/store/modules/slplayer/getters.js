@@ -1,9 +1,12 @@
 import { makeUrl } from '@/utils/fetchutils';
+import { protocolExtension } from '@/utils/streamingprotocols';
 import contenttitleutils from '@/utils/contenttitleutils';
 import qualities from './qualities';
 
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
+
+  GET_STREAMING_PROTOCOL: (state) => state.streamingProtocol,
 
   GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']),
 
@@ -27,7 +30,10 @@ export default {
     ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media[getters.GET_MEDIA_INDEX].Part[0].id
     : null),
 
-  GET_SRC_URL: (state, getters) => makeUrl(`${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd`, getters.GET_DECISION_AND_START_PARAMS),
+  GET_SRC_URL: (state, getters) => makeUrl(
+    `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.${protocolExtension[getters.GET_STREAMING_PROTOCOL]}`,
+    getters.GET_DECISION_AND_START_PARAMS,
+  ),
 
   GET_SUBTITLE_BASE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/subtitles`,
 
@@ -114,7 +120,7 @@ export default {
   ),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
-    const base = 'append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)';
+    const base = `append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=${getters.GET_STREAMING_PROTOCOL})`;
     return rootGetters['settings/GET_SLPLAYERQUALITY']
       ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${rootGetters['settings/GET_SLPLAYERQUALITY']}&replace=true)`
       : base;
@@ -124,8 +130,9 @@ export default {
     hasMDE: 1,
     path: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].key,
     mediaIndex: getters.GET_MEDIA_INDEX,
+    // TODO: investigate multipart file support
     partIndex: 0,
-    protocol: 'dash',
+    protocol: getters.GET_STREAMING_PROTOCOL,
     fastSeek: 1,
     directPlay: 0,
     directStream: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
@@ -135,8 +142,7 @@ export default {
     ...rootGetters['settings/GET_SLPLAYERQUALITY'] && { maxVideoBitrate: rootGetters['settings/GET_SLPLAYERQUALITY'] }, // only include if not null
     addDebugOverlay: 0,
 
-    // Shaka doesn't seem to support switching
-    // TODO: figure out how to make it work
+    // TODO: figure out how to make autoAdjustQuality work
     autoAdjustQuality: 0,
     directStreamAudio: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)

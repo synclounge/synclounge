@@ -50,6 +50,24 @@
       class="pt-4"
     >
       <h4 style="text-align:initial">
+        Streaming Protocol
+      </h4>
+
+      <v-select
+        :value="GET_STREAMING_PROTOCOL"
+        :items="protocols"
+        :rules="[v => !!v || 'Item is required']"
+        label="Streaming Protocol"
+        required
+        @input="SET_STREAMING_PROTOCOL"
+      />
+    </div>
+
+    <div
+      style="text-align:center"
+      class="pt-4"
+    >
+      <h4 style="text-align:initial">
         Syncing Method
       </h4>
 
@@ -110,6 +128,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { streamingProtocols } from '@/utils/streamingprotocols';
 
 export default {
   name: 'Settings',
@@ -121,6 +140,14 @@ export default {
       'GET_SYNCFLEXIBILITY',
       'GET_SYNCMODE',
     ]),
+
+    ...mapGetters('slplayer', [
+      'GET_STREAMING_PROTOCOL',
+    ]),
+
+    protocols() {
+      return streamingProtocols;
+    },
 
     syncmode: {
       get() {
@@ -145,6 +172,9 @@ export default {
       'SET_SYNCMODE',
     ]),
 
+    ...mapMutations('slplayer', [
+      'SET_STREAMING_PROTOCOL',
+    ]),
   },
 };
 </script>
