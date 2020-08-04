@@ -29,6 +29,7 @@ const state = () => ({
   subtitlePosition: subtitlePositions.Bottom,
   subtitleColor: subtitleColors.White,
   subtitleOffset: 0,
+  streamingProtocol: 'dash',
 });
 
 export default state;
