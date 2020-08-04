@@ -3,10 +3,21 @@ import { protocolExtension } from '@/utils/streamingprotocols';
 import contenttitleutils from '@/utils/contenttitleutils';
 import qualities from './qualities';
 
+const buggyChromeBitrate = 23000;
+
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
 
-  GET_STREAMING_PROTOCOL: (state) => state.streamingProtocol,
+  IS_IN_BUGGY_CHROME_STATE: (state, getters, rootState, rootGetters) => (rootGetters.GET_BROWSER.name === 'chrome'
+      || rootGetters.GET_BROWSER.name === 'edge-chromium')
+    && (rootGetters['settings/GET_SLPLAYERQUALITY'] == null || rootGetters['settings/GET_SLPLAYERQUALITY'] > buggyChromeBitrate)
+    && rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']?.Media?.[getters.GET_MEDIA_INDEX]?.bitrate > buggyChromeBitrate,
+
+  // TODO: Remove this hack when this issue is fixed
+  // https://forums.plex.tv/t/plex-skipping-forward-by-a-few-seconds-on-web-player/402112
+  GET_STREAMING_PROTOCOL: (state, getters) => (getters.IS_IN_BUGGY_CHROME_STATE
+    ? 'hls'
+    : state.streamingProtocol),
 
   GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']),
 
