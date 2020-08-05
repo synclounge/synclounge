@@ -53,6 +53,10 @@ const defaults = {
   slplayer_speed_sync_rate: 0.5,
 
   slplayer_seek_timeout: 15000,
+
+  // Buffering goal in seconds
+  slplayer_buffering_goal: 120,
+
   sidebar_time_update_interval: 500,
 
   // If the plex client's time changes by this much from the expected time, trigger a state change

@@ -190,8 +190,7 @@ export default {
 
       playerConfig: {
         streaming: {
-          // TODO: make this config
-          bufferingGoal: 120,
+          bufferingGoal: this.GET_CONFIG.slplayer_buffering_goal,
           jumpLargeGaps: true,
         },
       },
@@ -220,6 +219,10 @@ export default {
 
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
+    ]),
+
+    ...mapGetters([
+      'GET_CONFIG',
     ]),
 
     skipIntroButtonStyle() {

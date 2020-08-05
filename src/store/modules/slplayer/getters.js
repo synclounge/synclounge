@@ -158,7 +158,6 @@ export default {
     directStreamAudio: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
-    // TODO: investigate subtitles support
     subtitles: getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
     ...(!getters.IS_IN_PICTURE_IN_PICTURE && { advancedSubtitles: 'text' }),
     'Accept-Language': 'en',
