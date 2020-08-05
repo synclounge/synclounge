@@ -85,4 +85,6 @@ export default {
 
   GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER: (state, getters) => getters
     .GET_ACTIVE_MEDIA_METADATA_MARKERS.find((marker) => marker.type === 'intro'),
+
+  GET_LATENCY: (state) => state.latency,
 };

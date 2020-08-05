@@ -28,6 +28,7 @@ const state = () => ({
   previousSyncTimelineCommandId: null,
   clientPollerCanceler: null,
   lastPlayMediaCommandId: null,
+  latency: 0,
 });
 
 export default state;

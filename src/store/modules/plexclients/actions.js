@@ -168,7 +168,7 @@ export default {
     ...args,
   }),
 
-  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch }) => {
+  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch, commit }) => {
     const startedAt = Date.now();
     const data = await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
       path: '/player/timeline/poll',
@@ -179,6 +179,8 @@ export default {
 
     // Measure time it takes and adjust playback time if playing
     const latency = (Date.now() - startedAt) / 2;
+    // Store latency to use to adjust time when seeking
+    commit('SET_LATENCY', latency);
 
     const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type === 'video');
 
@@ -325,38 +327,27 @@ export default {
     const bothPaused = rootGetters['synclounge/GET_HOST_USER'].state === 'paused'
       && playerPollData.state === 'paused';
 
-    console.log('difference: ', difference);
+    console.debug('SYNC difference', difference);
     if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY'] || (bothPaused && difference > 10)) {
       // We need to seek!
       // Decide what seeking method we want to use
 
+      // Adjust seek time by the time it takes to send a request to the client
+      const offset = getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
+        && rootGetters['synclounge/GET_HOST_USER'].state === 'playing'
+        ? adjustedHostTime + getters.GET_LATENCY
+        : adjustedHostTime;
+
       if (rootGetters['settings/GET_SYNCMODE'] === 'cleanseek'
         || rootGetters['synclounge/GET_HOST_USER'].state === 'paused') {
-        return dispatch('SEEK_TO', { cancelSignal, offset: adjustedHostTime });
+        return dispatch('SEEK_TO', { cancelSignal, offset });
       }
 
       // TODO: add cancel
-      return dispatch('SKIP_AHEAD', { offset: adjustedHostTime, duration: 10000 });
+      return dispatch('SKIP_AHEAD', { offset, duration: 10000 });
     }
 
-    // TODO: come back and properly implement this
-
-    // Calc the average delay of the last 10 host timeline updates
-    // We do this to avoid any issues with random lag spikes
-    // this.differenceCache.unshift(difference);
-    // if (this.differenceCache.length > 5) {
-    //   this.differenceCache.pop();
-    // }
-
-    // let total = 0;
-    // for (let i = 0; i < this.differenceCache.length; i += 1) {
-    //   total += this.differenceCache[i];
-    // }
-
-    // const avg = total / this.differenceCache.length;
-
-    const avg = difference;
-    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' && avg > 1500) {
+    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' && difference > 1500) {
       console.log('Soft syncing because difference is', difference);
 
       return dispatch('SOFT_SEEK', adjustedHostTime);
