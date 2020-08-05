@@ -35,13 +35,12 @@ export default (store) => {
       this.button.disabled = !store.getters['plexclients/ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS'];
     }
 
-    // TODO: replace this function name with "release" when upgrading to shaka 3
-    destroy() {
+    release() {
       this.#watcherCancellers.forEach((canceller) => {
         canceller();
       });
 
-      super.destroy();
+      super.release();
     }
   }
 

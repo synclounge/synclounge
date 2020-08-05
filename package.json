@@ -40,7 +40,7 @@
     "nconf": "^0.10.0",
     "sass": "^1.26.10",
     "sass-loader": "^8.0.2",
-    "shaka-player": "^2.5.13",
+    "shaka-player": "^3.0.2",
     "socket.io-client": "^2.3.0",
     "string-similarity": "^4.0.2",
     "v-clipboard": "^2.2.3",
