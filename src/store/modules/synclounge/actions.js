@@ -417,19 +417,29 @@ export default {
     }
   },
 
-  MANUAL_SYNC: async ({ getters, dispatch, commit }) => {
-    console.debug('MANUAL_SYNC', getters.GET_ADJUSTED_HOST_TIME());
+  MANUAL_SYNC: async ({
+    getters, rootGetters, dispatch, commit,
+  }) => {
+    console.debug('MANUAL_SYNC');
     await dispatch('CANCEL_IN_PROGRESS_SYNC');
 
+    const adjustedHostTime = getters.GET_ADJUSTED_HOST_TIME();
+    // Adjust seek time by the time it takes to send a request to the client
+    const offset = rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== 'PTPLAYER9PLUS10'
+        && getters.GET_HOST_USER.state === 'playing'
+      ? adjustedHostTime + rootGetters['plexclients/GET_LATENCY']
+      : adjustedHostTime;
+
     // eslint-disable-next-line new-cap
-    commit('SET_SYNC_CANCEL_TOKEN', new CAF.cancelToken());
+    const token = new CAF.cancelToken();
+    commit('SET_SYNC_CANCEL_TOKEN', token);
     try {
       await dispatch('plexclients/SEEK_TO', {
-        cancelSignal: null,
-        offset: getters.GET_ADJUSTED_HOST_TIME(),
+        cancelSignal: token.signal,
+        offset,
       }, { root: true });
     } catch (e) {
-      console.log('Error caught in sync logic', e);
+      console.warn('Error caught in sync logic', e);
     }
 
     commit('SET_SYNC_CANCEL_TOKEN', null);
@@ -562,11 +572,18 @@ export default {
     console.log('done sync');
   },
 
-  PLAY_MEDIA_AND_SYNC_TIME: async ({ getters, dispatch }, media) => {
+  PLAY_MEDIA_AND_SYNC_TIME: async ({ getters, rootGetters, dispatch }, media) => {
+    const adjustedHostTime = getters.GET_ADJUSTED_HOST_TIME();
+    // Adjust seek time by the time it takes to send a request to the client
+    const offset = rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== 'PTPLAYER9PLUS10'
+        && getters.GET_HOST_USER.state === 'playing'
+      ? adjustedHostTime + rootGetters['plexclients/GET_LATENCY']
+      : adjustedHostTime;
+
     await dispatch('plexclients/PLAY_MEDIA', {
       mediaIndex: media.mediaIndex || 0,
       // TODO: potentially play ahead a bit by the time it takes to buffer / transcode. (figure out how to calculate that)
-      offset: getters.GET_HOST_USER.time || 0,
+      offset: offset || 0,
       metadata: media,
       machineIdentifier: media.machineIdentifier,
     }, { root: true });
