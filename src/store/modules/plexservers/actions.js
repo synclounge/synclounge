@@ -1,4 +1,4 @@
-import { sample } from '@/utils/lightlodash';
+import { sample, randomInt } from '@/utils/lightlodash';
 import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import scoreMedia from './mediascoring';
 
@@ -11,17 +11,20 @@ export default {
 
     const libraryKey = sample(libraryKeys);
 
+    const librarySize = await dispatch('FETCH_LIBRARY_SIZE', { machineIdentifier, sectionId: libraryKey });
+    const randomItemIndex = randomInt(librarySize - 1);
+
     const contents = await dispatch('FETCH_LIBRARY_CONTENTS', {
       machineIdentifier,
       sectionId: libraryKey,
-      start: 0,
-      size: 50,
+      start: randomItemIndex,
+      size: 1,
     });
 
-    return sample(contents);
+    return contents[0];
   },
 
-  FETCH_RANDOM_THUMB_URL: async ({ getters, dispatch }) => {
+  FETCH_RANDOM_IMAGE_URL: async ({ getters, dispatch }) => {
     await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
 
     const machineIdentifier = sample(getters.GET_CONNECTABLE_PLEX_SERVER_IDS);
@@ -36,9 +39,9 @@ export default {
 
     return getters.GET_MEDIA_IMAGE_URL({
       machineIdentifier,
-      mediaUrl: result.thumb,
-      width: 900,
-      height: 900,
+      mediaUrl: result.art || result.thumb,
+      width: window.screen.width,
+      height: window.screen.height,
       blur: 8,
     });
   },
@@ -269,10 +272,10 @@ export default {
     }));
   },
 
-  FETCH_LIBRARY_CONTENTS: async ({ dispatch }, {
+  FETCH_LIBRARY_ALL: async ({ dispatch }, {
     machineIdentifier, sectionId, start, size, signal,
   }) => {
-    const data = await dispatch('FETCH_PLEX_SERVER', {
+    const { MediaContainer } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: `/library/sections/${sectionId}/all`,
       params: {
@@ -283,10 +286,28 @@ export default {
       signal,
     });
 
-    return data.MediaContainer.Metadata.map((child) => ({
+    return MediaContainer;
+  },
+
+  FETCH_LIBRARY_CONTENTS: async ({ dispatch }, params) => {
+    const { librarySectionID, Metadata } = await dispatch('FETCH_LIBRARY_ALL', params);
+
+    return Metadata.map((child) => ({
       ...child,
-      librarySectionID: data.MediaContainer.librarySectionID,
+      librarySectionID,
     }));
+  },
+
+  FETCH_LIBRARY_SIZE: async ({ dispatch }, { machineIdentifier, sectionId, signal }) => {
+    const { totalSize } = await dispatch('FETCH_LIBRARY_ALL', {
+      machineIdentifier,
+      sectionId,
+      start: 0,
+      size: 0,
+      signal,
+    });
+
+    return totalSize;
   },
 
   CREATE_PLAY_QUEUE: async ({ dispatch }, { machineIdentifier, ratingKey, signal }) => {
