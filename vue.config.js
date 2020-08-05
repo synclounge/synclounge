@@ -49,6 +49,7 @@ module.exports = {
   //   disableHostCheck: true,
   // },
 
+  // https://github.com/vuejs/vue-cli/issues/3771
   css: {
     extract: process.env.NODE_ENV === 'production' ? {
       ignoreOrder: true,
