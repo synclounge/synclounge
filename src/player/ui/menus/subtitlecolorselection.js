@@ -85,7 +85,7 @@ export default (store) => {
       });
     }
 
-    onSubtitleColorClicked(color) {
+    static onSubtitleColorClicked(color) {
       store.dispatch('slplayer/CHANGE_SUBTITLE_COLOR', color);
     }
 

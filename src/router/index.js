@@ -150,7 +150,7 @@ export default new Router({
 
     {
       path:
-        '/browse/:machineIdentifier/:sectionId/tv/:grandparentRatingKey/:parentRatingKey/:ratingKey',
+      '/browse/:machineIdentifier/:sectionId/tv/:grandparentRatingKey/:parentRatingKey/:ratingKey',
       meta: {
         requiresAuth: true,
         protected: true,

@@ -2,7 +2,7 @@
   <v-breadcrumbs
     :items="crumbs"
     class="text-xs-left"
-    style="justify-content: left"
+    style="justify-content: left;"
   >
     <template v-slot:divider>
       <v-icon>chevron_right</v-icon>

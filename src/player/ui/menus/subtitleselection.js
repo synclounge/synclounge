@@ -83,7 +83,7 @@ export default (store) => {
       });
     }
 
-    onSubtitleClicked(subtitleId) {
+    static onSubtitleClicked(subtitleId) {
       store.dispatch('slplayer/CHANGE_SUBTITLE_STREAM', subtitleId);
     }
 

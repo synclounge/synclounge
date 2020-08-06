@@ -26,7 +26,8 @@ export default {
 
   GET_PLEX_DEVICE_NAME_HEADER: (state, getters) => getters.GET_PLEX_DEVICE_NAME,
   GET_PLEX_PLATFORM_HEADER: (state, getters) => getters.GET_PLEX_DEVICE_NAME,
-  GET_PLEX_DEVICE_SCREEN_RESOLUTION_HEADER: () => `${window.screen.availWidth}x${window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
+  GET_PLEX_DEVICE_SCREEN_RESOLUTION_HEADER: () => `${window.screen.availWidth}x${
+    window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
 
   GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Product': getters.GET_PLEX_PRODUCT_HEADER,

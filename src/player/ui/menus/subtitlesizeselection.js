@@ -85,7 +85,7 @@ export default (store) => {
       });
     }
 
-    onSubtitleSizeClicked(size) {
+    static onSubtitleSizeClicked(size) {
       store.dispatch('slplayer/CHANGE_SUBTITLE_SIZE', size);
     }
 

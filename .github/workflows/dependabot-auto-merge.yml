@@ -1,0 +1,16 @@
+name: auto-merge
+
+on:
+  pull_request:
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - uses: ahmadnassri/action-dependabot-auto-merge@v1
+        with:
+          target: patch
+      - uses: ahmadnassri/action-dependabot-auto-merge@v1
+        with:
+          target: minor

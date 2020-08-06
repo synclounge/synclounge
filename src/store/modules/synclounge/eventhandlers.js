@@ -51,7 +51,8 @@ export default {
 
   HANDLE_DISCONNECT: async ({ dispatch }) => {
     console.log('disconnect');
-    await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
+    await dispatch('DISPLAY_NOTIFICATION',
+      'Disconnected from the SyncLounge server', { root: true });
   },
 
   HANDLE_RECONNECT: async ({ dispatch, commit }) => {
@@ -108,7 +109,8 @@ export default {
   },
 
   HANDLE_PARTY_PAUSE: async ({ getters, dispatch }, { senderId, isPause }) => {
-    // TODO: maybe stop it from looking at host after party pausing until host also updates or acks that it got the party pause?
+    // TODO: maybe stop it from looking at host after party pausing until host also updates or acks
+    // that it got the party pause ?
     const text = `${getters.GET_USER(senderId).username} pressed ${isPause ? 'pause' : 'play'}`;
     await dispatch('ADD_MESSAGE_AND_CACHE_AND_NOTIFY', {
       senderId,

@@ -159,7 +159,7 @@
           class="ml-auto"
         >
           <v-icon
-            style="cursor: pointer"
+            style="cursor: pointer;"
             :style="onDeckDownStyle"
             @click="onDeckDown"
           >
@@ -168,7 +168,7 @@
 
           <v-icon
             :style="onDeckUpStyle"
-            style="cursor: pointer"
+            style="cursor: pointer;"
             @click="onDeckUp"
           >
             navigate_next
@@ -242,7 +242,7 @@
               class="white--text"
               horizontal
               height="10em"
-              style="cursor: pointer; z-index: 0; background: rgba(0,0,0,0.4);"
+              style="cursor: pointer; z-index: 0; background: rgba(0, 0, 0, 0.4);"
               :title="server.name"
             >
               <v-container fill-height>
@@ -267,7 +267,7 @@
                         {{ server.name }}
                       </h1>
 
-                      <h4 style="opacity: 0.9">
+                      <h4 style="opacity: 0.9;">
                         v{{ server.productVersion }}
                       </h4>
 
@@ -283,7 +283,7 @@
                       <div
                         v-if="!server.chosenConnection"
                         class="red--text"
-                        style="font-size: 10px"
+                        style="font-size: 10px;"
                       >
                         Try disabling your adblocker
                       </div>

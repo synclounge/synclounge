@@ -9,10 +9,10 @@
     >
       <v-col
         cols="12"
-        style="position:relative"
+        style="position: relative;"
       >
         <v-progress-circular
-          style="left: 50%; top:50%"
+          style="left: 50%; top: 50%;"
           :size="60"
           indeterminate
           class="amber--text"
@@ -24,11 +24,11 @@
       v-if="contents"
       horizontal
       :img="getArtUrl"
-      style="height: 80vh"
+      style="height: 80vh;"
       class="darken-2 white--text"
     >
       <v-container
-        style="background-color: rgba(0, 0, 0, 0.8); min-height: 100%"
+        style="background-color: rgba(0, 0, 0, 0.8); min-height: 100%;"
         fluid
       >
         <v-row>
@@ -87,7 +87,7 @@
 
                   <v-btn
                     v-if="!playable"
-                    style="background-color: #cc3f3f"
+                    style="background-color: #cc3f3f;"
                     class="white--text"
                     @click="PRESS_STOP"
                   >
@@ -180,7 +180,7 @@
                 <v-col
                   sm="12"
                   md="6"
-                  style="opacity:0.5"
+                  style="opacity: 0.5;"
                 >
                   {{ length }}
                 </v-col>
@@ -258,7 +258,7 @@
                       <v-col cols="12">
                         <v-btn
                           block
-                          style="background-color: #cc3f3f"
+                          style="background-color: #cc3f3f;"
                           class="white--text"
                           @click="PRESS_STOP"
                         >
@@ -280,11 +280,11 @@
                   </div>
                 </v-col>
 
-                <div style="width: 100%">
+                <div style="width: 100%;">
                   <p
                     v-if="hidden"
                     class="pt-3"
-                    style="font-style: italic"
+                    style="font-style: italic;"
                     @click="hiddenOverride = true"
                   >
                     Summary automatically hidden for unwatched content. Click to unhide.
@@ -293,7 +293,7 @@
                   <p
                     v-else
                     class="pt-3"
-                    style="font-style: italic"
+                    style="font-style: italic;"
                   >
                     {{ contents.summary }}
                   </p>
@@ -318,7 +318,7 @@
                       :key="actor.tag"
                     >
                       {{ actor.tag }}
-                      <span style="opacity:0.7;font-size:80%"> {{ actor.role }} </span>
+                      <span style="opacity: 0.7; font-size: 80%;"> {{ actor.role }} </span>
                     </div>
                   </v-col>
 
@@ -402,7 +402,7 @@
                 :content="ep"
                 :img="getLittleThumb(ep)"
                 :class="{ highlightBorder: ep.index === contents.index }"
-                style="margin:3%"
+                style="margin: 3%;"
                 :machine-identifier="machineIdentifier"
                 spoiler-filter
               />
@@ -427,7 +427,7 @@
               <plexthumb
                 :content="movie"
                 :img="getLittleThumb(movie)"
-                style="margin:3%"
+                style="margin: 3%;"
                 :machine-identifier="machineIdentifier"
                 type="thumb"
               />
@@ -440,10 +440,10 @@
     <v-dialog
       v-if="contents"
       v-model="dialog"
-      style="background: rgba(0,0,0,0.95); box-shadow: none !important"
+      style="background: rgba(0, 0, 0, 0.95); box-shadow: none !important;"
       width="500px"
     >
-      <v-card style="overflow: hidden">
+      <v-card style="overflow: hidden;">
         <v-card-title class="headline">
           Playback Settings
         </v-card-title>

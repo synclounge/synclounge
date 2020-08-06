@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="pt-1 text-xs-left">
-      <h4 style="text-align:initial">
+      <h4 style="text-align: initial;">
         Blocked Plex Servers
       </h4>
 
@@ -26,7 +26,7 @@
     <v-divider />
 
     <div class="pt-4 text-xs-left">
-      <h4 style="text-align:initial">
+      <h4 style="text-align: initial;">
         Change display name
       </h4>
 

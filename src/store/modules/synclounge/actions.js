@@ -39,11 +39,11 @@ export default {
     commit('SET_SOCKET_ID', id);
 
     // Wait for initial slPing
-    // Doing it this way rather than adding the normal listener because there is no guarentee on the order
-    // of event handlers so, if I did a one time listener for slping just to wait, that handler might be fired first,
-    // which means it will do stuff before actually responding to the ping (which the normal handler does).
-    // I am not very happy with this but I don't know of a easy better way atm. Maybe reactive streams in the future,
-    // but that's a bit over my head now
+    // Doing it this way rather than adding the normal listener because there is no guarentee on
+    // the order of event handlers so, if I did a one time listener for slping just to wait, that
+    // handler might be fired first, which means it will do stuff before actually responding to the
+    // ping(which the normal handler does). I am not very happy with this but I don't know of a easy
+    // better way atm. Maybe reactive streams in the future, but that's a bit over my head now
     const secret = await waitForEvent('slPing');
 
     // Explicitly handling the slping because we haven't registered the events yet
@@ -52,7 +52,8 @@ export default {
   },
 
   JOIN_ROOM: async ({ getters, rootGetters, dispatch }) => {
-    const joinPlayerData = await dispatch('plexclients/FETCH_JOIN_PLAYER_DATA', null, { root: true });
+    const joinPlayerData = await dispatch('plexclients/FETCH_JOIN_PLAYER_DATA', null,
+      { root: true });
 
     emit({
       eventName: 'join',
@@ -191,15 +192,18 @@ export default {
       .map(async ({ url }) => [
         url,
         {
-          ...await fetchJson(combineRelativeUrlParts(url, 'health'), null, { signal: controller.signal }),
+          ...await fetchJson(combineRelativeUrlParts(url, 'health'), null,
+            { signal: controller.signal }),
           latency: Date.now() - start,
         },
       ]));
 
     clearTimeout(timeout);
 
-    const aliveServerHealths = Object.fromEntries(results.filter((result) => result.status === 'fulfilled')
-      .map(({ value }) => value));
+    const aliveServerHealths = Object.fromEntries(
+      results.filter((result) => result.status === 'fulfilled')
+        .map(({ value }) => value),
+    );
 
     commit('SET_SERVERS_HEALTH', aliveServerHealths);
   },
@@ -241,8 +245,14 @@ export default {
     registerListener({ eventName: 'slPing', action: 'HANDLE_SLPING' });
     registerListener({ eventName: 'playerStateUpdate', action: 'HANDLE_PLAYER_STATE_UPDATE' });
     registerListener({ eventName: 'mediaUpdate', action: 'HANDLE_MEDIA_UPDATE' });
-    registerListener({ eventName: 'syncFlexibilityUpdate', action: 'HANDLE_SYNC_FLEXIBILITY_UPDATE' });
-    registerListener({ eventName: 'setPartyPausingEnabled', action: 'HANDLE_SET_PARTY_PAUSING_ENABLED' });
+    registerListener({
+      eventName: 'syncFlexibilityUpdate',
+      action: 'HANDLE_SYNC_FLEXIBILITY_UPDATE',
+    });
+    registerListener({
+      eventName: 'setPartyPausingEnabled',
+      action: 'HANDLE_SET_PARTY_PAUSING_ENABLED',
+    });
     registerListener({ eventName: 'partyPause', action: 'HANDLE_PARTY_PAUSE' });
     registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
     registerListener({ eventName: 'connect', action: 'HANDLE_RECONNECT' });
@@ -294,7 +304,8 @@ export default {
     await dispatch('CANCEL_UPNEXT');
 
     // Check if we need to activate the upnext feature
-    if (getters.AM_I_HOST && playerState.state !== 'stopped' && !rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
+    if (getters.AM_I_HOST && playerState.state !== 'stopped'
+      && !rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
       // If in region and not already scheduled
       if (await dispatch('CALC_IS_IN_UPNEXT_REGION', playerState)) {
         if (!getters.GET_UP_NEXT_TRIGGERED) {
@@ -313,7 +324,8 @@ export default {
 
   PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }, noSync) => {
     // TODO: only send message if in room, check in room
-    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
+      { root: true });
 
     commit('SET_USER_PLAYER_STATE', {
       ...playerState,
@@ -336,7 +348,8 @@ export default {
     dispatch, getters, commit, rootGetters,
   }) => {
     // TODO: only send message if in room, check in room
-    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
+      { root: true });
 
     if (playerState.state !== 'stopped') {
       if (rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
@@ -460,7 +473,6 @@ export default {
       */
 
     if (!getters.GET_SYNC_CANCEL_TOKEN) {
-      // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
       // eslint-disable-next-line new-cap
       const token = new CAF.cancelToken();
       commit('SET_SYNC_CANCEL_TOKEN', token);
@@ -475,11 +487,13 @@ export default {
     }
   },
 
-  // Interal action without lock. Use the one with the lock to stop multiple syncs from happening at once
+  // Interal action without lock. Use the one with the lock to stop multiple syncs from happening
+  // at once
   _SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, dispatch, rootGetters }, cancelSignal) => {
     console.debug('_SYNC_MEDIA_AND_PLAYER_STATE');
     // TODO: potentailly don't do anythign if we have no timeline data yet
-    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
+      { root: true });
 
     if (rootGetters['plexclients/ALREADY_SYNCED_ON_CURRENT_TIMELINE']) {
     // TODO: examine if I should throw error or handle it another way
@@ -499,7 +513,8 @@ export default {
 
     // Logic for deciding whether we should play somethign different
     if (rootGetters['settings/GET_AUTOPLAY']) {
-      const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH', getters.GET_HOST_USER.media, { root: true });
+      const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH',
+        getters.GET_HOST_USER.media, { root: true });
       if (bestMatch) {
         if (!rootGetters['plexclients/IS_THIS_MEDIA_PLAYING'](bestMatch)) {
           // If we aren't playing the best match, play it
@@ -508,7 +523,8 @@ export default {
         }
         // TODO: fix
       } else {
-        const message = `Failed to find a compatible copy of ${getters.GET_HOST_USER.media.title}. If you have access to the content try manually playing it.`;
+        const message = `Failed to find a compatible copy of ${getters.GET_HOST_USER.media.title
+        }. If you have access to the content try manually playing it.`;
         console.warn(message);
         await dispatch('DISPLAY_NOTIFICATION', message, { root: true });
       }
@@ -523,7 +539,6 @@ export default {
     }
 
     if (!getters.GET_SYNC_CANCEL_TOKEN) {
-      // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
       // eslint-disable-next-line new-cap
       const token = new CAF.cancelToken();
       commit('SET_SYNC_CANCEL_TOKEN', token);
@@ -541,7 +556,8 @@ export default {
   // Private version without lock. Please use the locking version unless you know what you are doing
   _SYNC_PLAYER_STATE: async ({ getters, dispatch }, cancelSignal) => {
     console.debug('_SYNC_PLAYER_STATE');
-    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
+      { root: true });
 
     // TODO: examine if we want this or not
     if (timeline.state === 'buffering') {
@@ -582,7 +598,7 @@ export default {
 
     await dispatch('plexclients/PLAY_MEDIA', {
       mediaIndex: media.mediaIndex || 0,
-      // TODO: potentially play ahead a bit by the time it takes to buffer / transcode. (figure out how to calculate that)
+      // TODO: potentially play ahead a bit by the time it takes to buffer / transcode.
       offset: offset || 0,
       metadata: media,
       machineIdentifier: media.machineIdentifier,

@@ -5,7 +5,7 @@
     hide-overlay
   >
     <v-card
-      style="max-width: 100%; margin-left: auto; margin-right: auto"
+      style="max-width: 100%; margin-left: auto; margin-right: auto;"
       class="white--text pa-0"
       :img="background"
     >
@@ -14,7 +14,7 @@
         align-center
         justify="start"
         class="pa-0"
-        style="background: rgba(0,0,0,0.7);"
+        style="background: rgba(0, 0, 0, 0.7);"
       >
         <v-row
           no-gutters
@@ -227,9 +227,9 @@ export default {
 }
 
 .c-timebar {
-    width: 100%;
-    height: 100%;
-    position: relative;
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 .c-timebar__background {
@@ -247,7 +247,7 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
-  z-index:2;
+  z-index: 2;
   transform-origin: 0 100%;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
@@ -256,12 +256,12 @@ export default {
 
 <style>
 @keyframes timebar_progress_x {
-  from  { transform: scaleX(1) }
-  to    { transform: scaleX(0) }
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }
 
 @keyframes timebar_progress_y {
-  from  { transform: scaleY(1) }
-  to    { transform: scaleY(0) }
+  from { transform: scaleY(1); }
+  to { transform: scaleY(0); }
 }
 </style>

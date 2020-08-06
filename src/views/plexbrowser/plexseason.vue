@@ -4,10 +4,10 @@
   >
     <v-col
       cols="12"
-      style="position:relative"
+      style="position: relative;"
     >
       <v-progress-circular
-        style="left: 50%; top:50%"
+        style="left: 50%; top: 50%;"
         :size="60"
         indeterminate
         class="amber--text"
@@ -26,13 +26,13 @@
           :img="getArtUrl"
         >
           <v-container
-            style="background: rgba(0, 0, 0, .6);"
+            style="background: rgba(0, 0, 0, 0.6);"
             class="pa-0 ma-0"
             fluid
             grid-list-lg
           >
             <v-row
-              style="min-height:100%"
+              style="min-height: 100%;"
             >
               <v-col
                 cols="12"
@@ -50,11 +50,11 @@
               <v-col
                 cols="12"
                 md="9"
-                style="position:relative"
+                style="position: relative;"
               >
                 <h1> {{ metadata.title1 }}</h1>
 
-                <h3 style="font-weight:bold">
+                <h3 style="font-weight: bold;">
                   {{ metadata.title2 }}
                 </h3>
 
@@ -63,7 +63,7 @@
                 <v-divider />
 
                 <p
-                  style="overflow: hidden"
+                  style="overflow: hidden;"
                   class="pt-3 font-italic"
                 >
                   {{ metadata.summary }}

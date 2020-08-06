@@ -48,14 +48,16 @@ export default {
     }
   },
 
-  getCombinedTitle: (metadata) => {
-    switch (metadata.type) {
+  getCombinedTitle: ({
+    type, grandparentTitle, title, parentIndex, index,
+  }) => {
+    switch (type) {
       case 'episode': {
-        return `${metadata.grandparentTitle} - ${metadata.title} S${metadata.parentIndex}-E${metadata.index}`;
+        return `${grandparentTitle} - ${title} S${parentIndex}-E${index}`;
       }
 
       default: {
-        return metadata.title;
+        return title;
       }
     }
   },

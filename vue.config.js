@@ -26,8 +26,8 @@ try {
 module.exports = {
   // Relative publicPath to support subfolders
   publicPath: '',
-  lintOnSave: process.env.NODE_ENV !== 'production',
   transpileDependencies: ['vuetify'],
+  integrity: true,
   configureWebpack: {
     resolve: {
       alias: {
@@ -38,12 +38,10 @@ module.exports = {
     node: false,
   },
 
-  // pluginOptions: {
-  //   webpackBundleAnalyzer: {
-  //     openAnalyzer: false,
-  //     analyzerMode: process.env.VUE_CLI_MODERN_MODE ? 'server' : 'disabled',
-  //   },
-  // },
+  pluginOptions: {
+    lintStyleOnBuild: true,
+    stylelint: {},
+  },
 
   // devServer: {
   //   disableHostCheck: true,

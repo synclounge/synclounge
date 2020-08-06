@@ -1,6 +1,6 @@
 <template>
   <v-row
-    style="position: relative"
+    style="position: relative;"
     class="slplayer-container"
   >
     <v-col class="pa-0">
@@ -15,7 +15,7 @@
           preload="auto"
           playsinline="true"
 
-          style="background-color:transparent !important;"
+          style="background-color: transparent !important;"
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
@@ -187,15 +187,6 @@ export default {
   data() {
     return {
       videoTimeStamp: 0,
-
-      playerConfig: {
-        streaming: {
-          // TODO: make this config
-          bufferingGoal: 120,
-          jumpLargeGaps: true,
-        },
-      },
-
     };
   },
 
@@ -221,6 +212,19 @@ export default {
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
     ]),
+
+    ...mapGetters([
+      'GET_CONFIG',
+    ]),
+
+    playerConfig() {
+      return {
+        streaming: {
+          bufferingGoal: this.GET_CONFIG.slplayer_buffering_goal,
+          jumpLargeGaps: true,
+        },
+      };
+    },
 
     skipIntroButtonStyle() {
       return this.ARE_PLAYER_CONTROLS_SHOWN
@@ -418,19 +422,28 @@ export default {
 
   .hoverBar {
     position: absolute;
-    background: -webkit-gradient(linear,left top,left bottom,from(rgba(0,0,0,.8)),
-      color-stop(60%,rgba(0,0,0,.35)),to(transparent));
-    background: linear-gradient(180deg,rgba(0,0,0,.8) 0,rgba(0,0,0,.35) 60%,transparent);
+    background:
+      -webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        from(rgba(0, 0, 0, 0.8)),
+        color-stop(60%, rgba(0, 0, 0, 0.35)),
+        to(transparent)
+      );
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0.35) 60%, transparent);
     top: 0;
     left: 0;
     width: 100%;
   }
 
-  .fade-enter-active, .fade-leave-active {
+  .fade-enter-active,
+  .fade-leave-active {
     transition: opacity 0.25s ease-out;
   }
 
-  .fade-enter, .fade-leave-to {
+  .fade-enter,
+  .fade-leave-to {
     opacity: 0;
   }
 
@@ -444,7 +457,8 @@ export default {
 
   .skip-intro {
     transition-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
-    transition: margin 250ms;
+    transition-duration: 250ms;
+    transition-property: margin;
     z-index: 2;
   }
 

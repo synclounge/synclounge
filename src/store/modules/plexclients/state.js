@@ -23,8 +23,8 @@ const state = () => ({
   plexClientTimelineCommmandId: null,
   commandId: 0,
 
-  // Tracks the commandId of the timeline that was used to synchronize last, so it doesn't try and synchronize
-  // multiple times with the same data and instead waits for a fresh one
+  // Tracks the commandId of the timeline that was used to synchronize last, so it doesn't try and
+  // synchronize multiple times with the same data and instead waits for a fresh one
   previousSyncTimelineCommandId: null,
   clientPollerCanceler: null,
   lastPlayMediaCommandId: null,

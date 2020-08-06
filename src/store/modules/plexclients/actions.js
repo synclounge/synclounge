@@ -101,7 +101,8 @@ export default {
       // TODO: potentially wait for stuff..
 
       // Plex remote control API says:
-      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia commandID."
+      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia
+      // commandID."
       const commandId = getters.GET_COMMAND_ID;
 
       await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
@@ -182,7 +183,8 @@ export default {
     // Store latency to use to adjust time when seeking
     commit('SET_LATENCY', latency);
 
-    const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type === 'video');
+    const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type
+      === 'video');
 
     // Clients seem to respond with strings instead of numbers so need to parse
     const time = parseInt(videoTimeline.time, 10);
@@ -220,9 +222,13 @@ export default {
 
         await dispatch('UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
 
-        const serverName = rootGetters['plexservers/GET_PLEX_SERVER'](getters.GET_ACTIVE_SERVER_ID).name;
+        const serverName = rootGetters['plexservers/GET_PLEX_SERVER'](
+          getters.GET_ACTIVE_SERVER_ID,
+        ).name;
         await dispatch('DISPLAY_NOTIFICATION',
-          `Now Playing: ${contentTitleUtils.getCombinedTitle(getters.GET_ACTIVE_MEDIA_METADATA)} from ${serverName}`,
+          `Now Playing: ${contentTitleUtils.getCombinedTitle(
+            getters.GET_ACTIVE_MEDIA_METADATA,
+          )} from ${serverName}`,
           { root: true });
       }
 
@@ -252,7 +258,8 @@ export default {
       if (getters.GET_LAST_PLAY_MEDIA_COMMAND_ID != null
         && timeline.commandID < getters.GET_LAST_PLAY_MEDIA_COMMAND_ID) {
       // Plex remote control api says:
-      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia commandID."
+      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia
+      // commandID."
         return;
       }
 
@@ -270,7 +277,8 @@ export default {
     }
   },
 
-  // Same return as FETCH_TIMELINE_POLL_DATA but usees the cached data (if normal plex client rather than making a request)
+  // Same return as FETCH_TIMELINE_POLL_DATA but usees the cached data (if normal plex client rather
+  // than making a request)
   // or asks slplayer since it can do that with no delay
   FETCH_TIMELINE_POLL_DATA_CACHE: ({ getters, dispatch }) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
@@ -328,7 +336,8 @@ export default {
       && playerPollData.state === 'paused';
 
     console.debug('SYNC difference', difference);
-    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY'] || (bothPaused && difference > 10)) {
+    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY']
+      || (bothPaused && difference > 10)) {
       // We need to seek!
       // Decide what seeking method we want to use
 
@@ -414,7 +423,8 @@ export default {
     console.debug('SEEK_TO', offset);
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
-        return dispatch('slplayer/SPEED_OR_NORMAL_SEEK', { cancelSignal, seekToMs: offset }, { root: true });
+        return dispatch('slplayer/SPEED_OR_NORMAL_SEEK', { cancelSignal, seekToMs: offset },
+          { root: true });
       }
 
       default: {
@@ -488,7 +498,8 @@ export default {
   },
 
   UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ getters, dispatch, commit }) => {
-    const metadata = await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM', getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM);
+    const metadata = await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM',
+      getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM);
     if (!getters.GET_ACTIVE_MEDIA_METADATA
       || metadata.ratingKey !== getters.GET_ACTIVE_MEDIA_METADATA.ratingKey
       || getters.GET_ACTIVE_SERVER_ID !== metadata.machineIdentifier) {
@@ -500,7 +511,8 @@ export default {
 
   FETCH_METADATA_OF_PLAY_QUEUE_ITEM: ({ getters, dispatch }, playQueueItem) => {
     if (playQueueItem.source) {
-      // If source is defined on selected item, then it is on a different server and we need to do more stuff.
+      // If source is defined on selected item, then it is on a different server and we need to do
+      // more stuff
       // Source looks likes: "server://{MACHINE_IDENTIFIER}/com.plexapp.plugins.library"
       const regex = /^server:\/\/(\w+)\//;
       const machineIdentifier = playQueueItem.source.match(regex)[1];
