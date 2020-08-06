@@ -39,7 +39,7 @@
     "mux.js": "^5.6.4",
     "nconf": "^0.10.0",
     "sass": "^1.26.10",
-    "sass-loader": "^8.0.2",
+    "sass-loader": "^9.0.3",
     "shaka-player": "^2.5.13",
     "socket.io-client": "^2.3.0",
     "string-similarity": "^4.0.2",
