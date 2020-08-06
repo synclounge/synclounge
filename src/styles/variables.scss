@@ -16,7 +16,6 @@ $material-dark: (
   'app-bar': map-get($material-dark-elevation-colors, '4'),
   'bottom-navigation': map-get($material-dark-elevation-colors, '8'),
   'cards': map-get($material-dark-elevation-colors, '1'),
-
   // This elevation is different. Normally its 16
   'navigation-drawer': map-get($material-dark-elevation-colors, '8'),
   'toolbar': map-get($material-dark-elevation-colors, '4'),
