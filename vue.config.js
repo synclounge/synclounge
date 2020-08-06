@@ -27,6 +27,7 @@ module.exports = {
   // Relative publicPath to support subfolders
   publicPath: '',
   transpileDependencies: ['vuetify'],
+  integrity: true,
   configureWebpack: {
     resolve: {
       alias: {
