@@ -19,8 +19,27 @@
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
+          @seeking="HANDLE_SEEKING"
+          @seeked="HANDLE_SEEKED"
           @volumechange="HANDLE_PLAYER_VOLUME_CHANGE"
+          @enterpictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
+          @leavepictureinpicture="HANDLE_PICTURE_IN_PICTURE_CHANGE"
+          @timeupdate="handleTimeUpdate"
         />
+
+        <v-btn
+          v-if="AM_I_HOST && isInIntro"
+          absolute
+          bottom
+          right
+          large
+          class="skip-intro"
+          :class="ARE_PLAYER_CONTROLS_SHOWN ? 'above-controls' : null"
+          :style="skipIntroButtonStyle"
+          @click="SKIP_INTRO"
+        >
+          Skip Intro
+        </v-btn>
       </div>
 
       <v-fade-transition
@@ -150,8 +169,10 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import sizing from '@/mixins/sizing';
 import initialize from '@/player/init';
+import { getControlsOffset } from '@/player';
 
 import 'shaka-player/dist/controls.css';
+import 'libjass/libjass.css';
 
 export default {
   components: {
@@ -165,13 +186,7 @@ export default {
 
   data() {
     return {
-      playerConfig: {
-        streaming: {
-          // TODO: make this config
-          bufferingGoal: 120,
-        },
-      },
-
+      videoTimeStamp: 0,
     };
   },
 
@@ -191,11 +206,39 @@ export default {
 
     ...mapGetters('plexclients', [
       'GET_ACTIVE_MEDIA_METADATA',
+      'GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER',
     ]),
 
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
     ]),
+
+    ...mapGetters([
+      'GET_CONFIG',
+    ]),
+
+    playerConfig() {
+      return {
+        streaming: {
+          bufferingGoal: this.GET_CONFIG.slplayer_buffering_goal,
+          jumpLargeGaps: true,
+        },
+      };
+    },
+
+    skipIntroButtonStyle() {
+      return this.ARE_PLAYER_CONTROLS_SHOWN
+        ? {
+          'margin-bottom': `${getControlsOffset(this.$refs?.videoPlayerContainer?.offsetHeight)}px`,
+        }
+        : {};
+    },
+
+    isInIntro() {
+      return this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER
+        && this.videoTimeStamp >= this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.startTimeOffset
+        && this.videoTimeStamp < this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.endTimeOffset;
+    },
   },
 
   watch: {
@@ -214,6 +257,10 @@ export default {
       },
       immediate: true,
     },
+
+    ARE_PLAYER_CONTROLS_SHOWN() {
+      return this.RERENDER_SUBTITLE_CONTAINER();
+    },
   },
 
   async mounted() {
@@ -229,10 +276,12 @@ export default {
     await this.INIT_PLAYER_STATE();
 
     window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('resize', this.RERENDER_SUBTITLE_CONTAINER);
   },
 
   beforeDestroy() {
     window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('resize', this.RERENDER_SUBTITLE_CONTAINER);
     this.DESTROY_PLAYER_STATE();
   },
 
@@ -244,12 +293,17 @@ export default {
       'HANDLE_PLAYER_PAUSE',
       'HANDLE_PLAYER_VOLUME_CHANGE',
       'HANDLE_PLAYER_CLICK',
+      'HANDLE_SEEKING',
+      'HANDLE_SEEKED',
+      'HANDLE_PICTURE_IN_PICTURE_CHANGE',
 
       'PRESS_STOP',
       'INIT_PLAYER_STATE',
       'DESTROY_PLAYER_STATE',
       'PLAY_PAUSE_VIDEO',
       'SEND_PARTY_PLAY_PAUSE',
+      'SKIP_INTRO',
+      'RERENDER_SUBTITLE_CONTAINER',
     ]),
 
     ...mapMutations([
@@ -292,12 +346,18 @@ export default {
         ],
 
         overflowMenuButtons: [
-          'picture_in_picture',
-          'cast',
-          'bitrate',
-          'subtitle',
-          'audio',
           'media',
+          'bitrate',
+          'audio',
+
+          'subtitle',
+          'subtitleoffset',
+          'subtitlesize',
+          'subtitleposition',
+          'subtitlecolor',
+
+          'cast',
+          'picture_in_picture',
         ],
 
         castReceiverAppId: this.getCastReceiverId(),
@@ -330,6 +390,10 @@ export default {
           blur: 2,
         }),
       );
+    },
+
+    handleTimeUpdate() {
+      this.videoTimeStamp = this.$refs?.videoPlayer?.currentTime * 1000;
     },
   },
 };
@@ -381,6 +445,16 @@ export default {
     margin-left: auto;
     margin-right: auto;
   }
+
+  .skip-intro {
+    transition-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+    transition: margin 250ms;
+    z-index: 2;
+  }
+
+  .skip-intro.above-controls {
+    transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
 </style>
 
 <style>
@@ -407,5 +481,13 @@ export default {
 
   .shaka-spinner {
     padding: 57px !important;
+  }
+
+  .libjass-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 </style>

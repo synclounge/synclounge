@@ -43,7 +43,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-import { sample } from 'lodash-es';
+import { sample } from '@/utils/lightlodash';
 
 import sizing from '@/mixins/sizing';
 

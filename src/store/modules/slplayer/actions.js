@@ -2,14 +2,15 @@ import CAF from 'caf';
 
 import guid from '@/utils/guid';
 import { fetchJson, queryFetch } from '@/utils/fetchutils';
-import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import {
-  play, pause, getDurationMs, areControlsShown, getCurrentTimeMs, isTimeInBufferedRange,
+  play, pause, getDurationMs, getCurrentTimeMs, isTimeInBufferedRange,
   isMediaElementAttached, isPlaying, isPresentationPaused, isBuffering, getVolume, isPaused,
   waitForMediaElementEvent, destroy, cancelTrickPlay, load, setPlaybackRate, getPlaybackRate,
-  setCurrentTimeMs, setVolume, addEventListener, removeEventListener,
-  getSmallPlayButton, getBigPlayButton,
+  setCurrentTimeMs, setVolume, addEventListener, removeEventListener, areControlsShown,
+  getSmallPlayButton, getBigPlayButton, unload,
 } from '@/player';
+import Deferred from '@/utils/deferredpromise';
+import subtitleActions from './subtitleActions';
 
 export default {
   MAKE_TIMELINE_PARAMS: async ({ getters, rootGetters, dispatch }) => ({
@@ -25,12 +26,14 @@ export default {
     ...getters.GET_PART_PARAMS,
   }),
 
-  FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK: ({ getters }) => getCurrentTimeMs()
-    || getters.GET_OFFSET_MS,
+  FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK: ({ getters }) => (getters.GET_MASK_PLAYER_STATE
+    ? getters.GET_OFFSET_MS
+    : getCurrentTimeMs() || getters.GET_OFFSET_MS),
 
   SEND_PLEX_DECISION_REQUEST: async ({ getters, commit }) => {
     const data = await fetchJson(getters.GET_DECISION_URL, getters.GET_DECISION_AND_START_PARAMS);
     commit('SET_PLEX_DECISION', data);
+    commit('SET_SUBTITLE_OFFSET', parseInt(getters.GET_SUBTITLE_STREAM?.offset || 0, 10));
   },
 
   CHANGE_MAX_VIDEO_BITRATE: async ({ commit, dispatch }, bitrate) => {
@@ -69,19 +72,40 @@ export default {
     await dispatch('CHANGE_PLAYER_SRC');
   },
 
-  CHANGE_PLAYER_SRC: async ({ commit, dispatch }) => {
+  CHANGE_SUBTITLES: async ({ getters, dispatch }) => {
+    if (getters.IS_USING_NATIVE_SUBTITLES) {
+      await dispatch('SET_SUBTITLE_URL');
+    } else {
+      await dispatch('DESTROY_ASS');
+    }
+  },
+
+  CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
+    console.debug('CHANGE_PLAYER_SRC');
     commit('SET_SESSION', guid());
+
+    // Abort subtitle requests now or else we get ugly errors from the server closing it.
+    await dispatch('DESTROY_ASS');
     await dispatch('SEND_PLEX_DECISION_REQUEST');
+    await dispatch('LOAD_PLAYER_SRC');
+    await dispatch('CHANGE_SUBTITLES');
 
-    await Promise.all([
-      dispatch('CHANGE_PLAYER_STATE', 'buffering'),
-      dispatch('LOAD_PLAYER_SRC'),
-    ]);
+    // TODO: potentially avoid sending updates on media change since we already do that
+    if (getters.GET_MASK_PLAYER_STATE) {
+      commit('SET_MASK_PLAYER_STATE', false);
+    }
   },
 
-  SEND_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch }) => {
-    await queryFetch(getters.GET_TIMELINE_URL, await dispatch('MAKE_TIMELINE_PARAMS'));
-  },
+  SEND_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch },
+    { signal, ...extraParams } = {},
+  ) => queryFetch(
+    getters.GET_TIMELINE_URL,
+    {
+      ...await dispatch('MAKE_TIMELINE_PARAMS'),
+      ...extraParams,
+    },
+    { signal },
+  ),
 
   FETCH_TIMELINE_POLL_DATA: async ({ getters, dispatch }) => (isMediaElementAttached()
     ? {
@@ -91,7 +115,7 @@ export default {
       state: getters.GET_PLAYER_STATE,
     }
     : {
-      time: 0,
+      time: getters.GET_OFFSET_MS,
       duration: 0,
       playbackRate: 0,
       state: getters.GET_PLAYER_STATE,
@@ -132,6 +156,25 @@ export default {
     }
   },
 
+  HANDLE_SEEKING: async ({ dispatch }) => {
+    console.debug('HANDLE_SEEKING');
+    await dispatch('DESTROY_ASS');
+  },
+
+  HANDLE_SEEKED: async ({ dispatch }) => {
+    console.debug('HANDLE_SEEKED');
+    await dispatch('CHANGE_SUBTITLES');
+  },
+
+  HANDLE_PICTURE_IN_PICTURE_CHANGE: async ({ getters, commit, dispatch }) => {
+    commit('SET_IS_IN_PICTURE_IN_PICTURE', document.pictureInPictureElement != null);
+    if (getters.IS_IN_PICTURE_IN_PICTURE && getters.IS_USING_NATIVE_SUBTITLES) {
+      // If we are in picture and picture, we must burn subtitles
+      // Redo src
+      await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
+    }
+  },
+
   PRESS_PLAY: () => {
     play();
   },
@@ -145,7 +188,7 @@ export default {
   },
 
   SOFT_SEEK: ({ getters, commit }, seekToMs) => {
-    // TODO: prob fix
+    console.debug('SOFT_SEEK', seekToMs);
     if (!isTimeInBufferedRange(getters, seekToMs)) {
       throw new Error('Soft seek requested but not within buffered range');
     }
@@ -160,7 +203,7 @@ export default {
   },
 
   SPEED_SEEK: async ({ dispatch, rootGetters }, { cancelSignal, seekToMs }) => {
-    console.log('speed seek');
+    console.debug('SPEED_SEEK', seekToMs);
     const currentTimeMs = await dispatch('FETCH_PLAYER_CURRENT_TIME_MS_OR_FALLBACK');
     const difference = seekToMs - currentTimeMs;
     const rate = 1 + (Math.sign(difference) * rootGetters.GET_CONFIG.slplayer_speed_sync_rate);
@@ -184,13 +227,13 @@ export default {
     return main(cancelSignal);
   },
 
-  NORMAL_SEEK: async ({ commit }, { cancelSignal, seekToMs }) => {
-    console.log('normal seek');
+  NORMAL_SEEK: async ({ rootGetters, commit }, { cancelSignal, seekToMs }) => {
+    console.debug('NORMAL_SEEK', seekToMs);
     commit('SET_OFFSET_MS', seekToMs);
     setCurrentTimeMs(seekToMs);
 
-    // TODO: throw that vlaue in the config
-    const timeoutToken = CAF.timeout(15000, 'Took too long!');
+    const timeoutToken = CAF.timeout(rootGetters.GET_CONFIG.slplayer_seek_timeout,
+      'Normal seek took too long');
 
     const anySignal = CAF.signalRace([
       cancelSignal,
@@ -225,10 +268,28 @@ export default {
   },
 
   START_PERIODIC_PLEX_TIMELINE_UPDATE: async ({ commit, dispatch, rootGetters }) => {
-    commit('SET_PLEX_TIMELINE_UPDATER_CANCELER', cancelablePeriodicTask(
-      () => dispatch('SEND_PLEX_TIMELINE_UPDATE').catch(console.log),
-      () => rootGetters.GET_CONFIG.slplayer_plex_timeline_update_interval,
-    ));
+    // eslint-disable-next-line new-cap
+    const cancelToken = new CAF.cancelToken();
+
+    commit('SET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN', cancelToken);
+
+    const main = CAF(function* plexTimelineUpdater(signal) {
+      while (true) {
+        yield CAF.delay(signal, rootGetters.GET_CONFIG.slplayer_plex_timeline_update_interval);
+
+        try {
+          yield dispatch('SEND_PLEX_TIMELINE_UPDATE', signal);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+
+    try {
+      await main(cancelToken.signal);
+    } catch (e) {
+      console.debug('PLEX_TIMELINE_UPDATER canceled');
+    }
   },
 
   START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL: ({ commit, rootGetters }) => {
@@ -238,6 +299,7 @@ export default {
   },
 
   CHANGE_PLAYER_STATE: async ({ commit, dispatch }, state) => {
+    console.debug('CHANGE_PLAYER_STATE', state);
     commit('SET_PLAYER_STATE', state);
     const plexTimelineUpdatePromise = dispatch('SEND_PLEX_TIMELINE_UPDATE');
     if (state !== 'stopped') {
@@ -250,68 +312,78 @@ export default {
   LOAD_PLAYER_SRC: async ({ getters }) => {
     // TODO: potentailly unload if already loaded to avoid load interrupted errors
     // However, while its loading, potentially   reporting the old time...
-    try {
-      const result = await load(getters.GET_SRC_URL);
+    await unload();
+    await load(getters.GET_SRC_URL);
 
-      if (getters.GET_OFFSET_MS > 0) {
-        setCurrentTimeMs(getters.GET_OFFSET_MS);
-      }
-
-      return result;
-    } catch (e) {
-      // Ignore 7000 error (load interrupted)
-      if (e.code !== 7000) {
-        throw e;
-      }
+    if (getters.GET_OFFSET_MS > 0) {
+      setCurrentTimeMs(getters.GET_OFFSET_MS);
     }
-
-    return false;
   },
 
   NAVIGATE_AND_INITIALIZE_PLAYER: ({ commit }) => {
+    console.debug('NAVIGATE_AND_INITIALIZE_PLAYER');
     // I don't really like this. I'd rather have the player be part of the main app rather than a vue route
     // TODO: above
 
     // TODO: this is bad practice, so if you know a better way...
-    let resolver = null;
-    const initializePromise = new Promise((resolve) => {
-      resolver = resolve;
-    });
+    const deferred = Deferred();
 
-    commit('SET_PLAYER_INITIALIZED_PROMISE_RESOLVER', resolver);
+    commit('SET_PLAYER_INITIALIZED_DEFERRED_PROMISE', deferred);
     commit('SET_NAVIGATE_TO_PLAYER', true, { root: true });
 
-    return initializePromise;
+    return deferred.promise;
   },
 
   INIT_PLAYER_STATE: async ({
     getters, rootGetters, commit, dispatch,
   }) => {
-    await dispatch('REGISTER_PLAYER_EVENTS');
-    await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
-    setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
-    await dispatch('CHANGE_PLAYER_SRC');
+    console.debug('INIT_PLAYER_STATE');
 
-    await dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    try {
+      await dispatch('REGISTER_PLAYER_EVENTS');
+      await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+      setVolume(rootGetters['settings/GET_SLPLAYERVOLUME']);
+      await dispatch('CHANGE_PLAYER_SRC');
 
-    if (getters.GET_PLAYER_INITIALIZED_PROMISE_RESOLVER) {
-      getters.GET_PLAYER_INITIALIZED_PROMISE_RESOLVER();
-      commit('SET_PLAYER_INITIALIZED_PROMISE_RESOLVER', null);
+      // Purposefully not awaited
+      dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+    } catch (e) {
+      if (getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE) {
+        // TODO: potentially close player
+        getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE.reject(e);
+        commit('SET_PLAYER_INITIALIZED_DEFERRED_PROMISE', null);
+      }
     }
+
+    if (getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE) {
+      getters.GET_PLAYER_INITIALIZED_DEFERRED_PROMISE.resolve();
+      commit('SET_PLAYER_INITIALIZED_DEFERRED_PROMISE', null);
+    }
+
     commit('SET_IS_PLAYER_INITIALIZED', true);
   },
 
-  DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
-    commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
-    await dispatch('UNREGISTER_PLAYER_EVENTS');
+  CANCEL_PERIODIC_PLEX_TIMELINE_UPDATE: ({ getters, commit }) => {
+    if (getters.GET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN) {
+      getters.GET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN.abort();
+      commit('SET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN', null);
+    }
+  },
 
-    getters.GET_PLEX_TIMELINE_UPDATER_CANCELER();
-    commit('SET_PLEX_TIMELINE_UPDATER_CANCELER', null);
+  DESTROY_PLAYER_STATE: async ({ commit, dispatch }) => {
+    console.debug('DESTROY_PLAYER_STATE');
+    commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
+    commit('UPDATE_PLAYER_CONTROLS_SHOWN', false);
+    await dispatch('UNREGISTER_PLAYER_EVENTS');
+    await dispatch('CANCEL_PERIODIC_PLEX_TIMELINE_UPDATE');
 
     commit('plexclients/SET_ACTIVE_MEDIA_METADATA', null, { root: true });
     commit('plexclients/SET_ACTIVE_SERVER_ID', null, { root: true });
     // Leaving play queue around for possible upnext
     commit('SET_IS_PLAYER_INITIALIZED', false);
+    commit('SET_IS_IN_PICTURE_IN_PICTURE', false);
+    await dispatch('DESTROY_SUBTITLES');
+    commit('SET_SUBTITLE_OFFSET', 0);
     await destroy();
     commit('SET_OFFSET_MS', 0);
 
@@ -361,6 +433,7 @@ export default {
   },
 
   PLAY_NEXT: async ({ dispatch, commit }) => {
+    console.debug('slplayer/PLAY_NEXT');
     commit('plexclients/INCREMENT_ACTIVE_PLAY_QUEUE_SELECTED_ITEM_OFFSET', null, { root: true });
     await dispatch('PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
   },
@@ -371,17 +444,34 @@ export default {
   },
 
   PLAY_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ dispatch, commit, rootGetters }) => {
+    await dispatch('CANCEL_PERIODIC_PLEX_TIMELINE_UPDATE');
+    await dispatch('SEND_PLEX_TIMELINE_UPDATE', {
+      state: 'stopped',
+      continuing: 1,
+    });
+
     await dispatch('plexclients/UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM', null, { root: true });
-    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
-
-    // Assume same server machineIdentifier, but this may not always be okay to do. (TODO: figure it out)
-
     // TODO: maybe plex indicates ongoing media index?
     commit('SET_MEDIA_INDEX', 0);
     commit('SET_OFFSET_MS', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].viewOffset || 0);
+    commit('SET_MASK_PLAYER_STATE', true);
+    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
     await dispatch('CHANGE_PLAYER_SRC');
 
+    // Purposefully not awaited
+    dispatch('START_PERIODIC_PLEX_TIMELINE_UPDATE');
+
     await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
   },
+
+  SKIP_INTRO: ({ commit, rootGetters }) => {
+    console.debug('SKIP_INTRO');
+    const introEnd = rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER'].endTimeOffset;
+
+    commit('SET_OFFSET_MS', introEnd);
+    setCurrentTimeMs(introEnd);
+  },
+
+  ...subtitleActions,
 };

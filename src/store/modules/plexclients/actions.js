@@ -67,7 +67,7 @@ export default {
   }, {
       mediaIndex, offset, metadata, machineIdentifier,
     }) => {
-    console.log('play media');
+    console.debug('PLAY_MEDIA');
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
 
     commit('SET_ACTIVE_PLAY_QUEUE', await dispatch('plexservers/CREATE_PLAY_QUEUE', {
@@ -84,10 +84,11 @@ export default {
       commit('slplayer/SET_MEDIA_INDEX', mediaIndex, { root: true });
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
       commit('slplayer/SET_PLAYER_STATE', 'buffering', { root: true });
+      commit('slplayer/SET_MASK_PLAYER_STATE', true, { root: true });
       await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
       if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {
-        await dispatch('slplayer/CHANGE_PLAYER_SRC', null, { root: true });
+        await dispatch('slplayer/CHANGE_PLAYER_SRC', true, { root: true });
       } else {
         await dispatch('slplayer/NAVIGATE_AND_INITIALIZE_PLAYER', null, { root: true });
       }
@@ -167,7 +168,7 @@ export default {
     ...args,
   }),
 
-  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch }) => {
+  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch, commit }) => {
     const startedAt = Date.now();
     const data = await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
       path: '/player/timeline/poll',
@@ -178,6 +179,8 @@ export default {
 
     // Measure time it takes and adjust playback time if playing
     const latency = (Date.now() - startedAt) / 2;
+    // Store latency to use to adjust time when seeking
+    commit('SET_LATENCY', latency);
 
     const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type === 'video');
 
@@ -262,11 +265,8 @@ export default {
       commit('SET_PLEX_CLIENT_TIMELINE_COMMAND_ID', currentCommandId);
 
       await dispatch('UPDATE_PLEX_CLIENT_TIMELINE', timeline);
-
-      // TODO: fix this args
-      await dispatch('HANDLE_NEW_TIMELINE', getters.GET_ADJUSTED_PLEX_CLIENT_POLL_DATA());
     } catch (e) {
-      console.warn('Failed fetching client timeline: ', e);
+      console.error('Failed fetching client timeline: ', e);
     }
   },
 
@@ -303,35 +303,6 @@ export default {
     playerProduct: getters.GET_CHOSEN_CLIENT.product,
   }),
 
-  HANDLE_NEW_TIMELINE: async ({
-    commit, getters, rootGetters, dispatch,
-  }, timeline) => {
-    // Check if we need to activate the upnext feature
-    if (rootGetters['synclounge/AM_I_HOST']) {
-      if (timeline.state !== 'stopped' && timeline.duration && timeline.time
-        && (timeline.duration - timeline.time) < 10000
-        && getters.GET_ACTIVE_MEDIA_METADATA.type === 'episode'
-      ) {
-        if (!rootGetters.GET_UP_NEXT_TRIGGERED) {
-          if (getters.ACTIVE_PLAY_QUEUE_NEXT_ITEM_EXISTS) {
-            commit('SET_UP_NEXT_POST_PLAY_DATA',
-              await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM',
-                getters.GET_ACTIVE_PLAY_QUEUE
-                  .Metadata[getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset + 1]),
-              { root: true });
-          }
-
-          commit('SET_UP_NEXT_TRIGGERED', true, { root: true });
-        }
-      } else if (rootGetters.GET_UP_NEXT_TRIGGERED) {
-        // If outside upnext period, reset triggered
-        commit('SET_UP_NEXT_TRIGGERED', false, { root: true });
-      }
-    }
-
-    return true;
-  },
-
   UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: ({ commit, getters }) => {
     // TODO: make sure all them hit here and fix the id lol
     // todo: also store the command id above because it might have changed during the awaits
@@ -356,38 +327,27 @@ export default {
     const bothPaused = rootGetters['synclounge/GET_HOST_USER'].state === 'paused'
       && playerPollData.state === 'paused';
 
-    console.log('difference: ', difference);
+    console.debug('SYNC difference', difference);
     if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY'] || (bothPaused && difference > 10)) {
       // We need to seek!
       // Decide what seeking method we want to use
 
+      // Adjust seek time by the time it takes to send a request to the client
+      const offset = getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
+        && rootGetters['synclounge/GET_HOST_USER'].state === 'playing'
+        ? adjustedHostTime + getters.GET_LATENCY
+        : adjustedHostTime;
+
       if (rootGetters['settings/GET_SYNCMODE'] === 'cleanseek'
         || rootGetters['synclounge/GET_HOST_USER'].state === 'paused') {
-        return dispatch('SEEK_TO', { cancelSignal, offset: adjustedHostTime });
+        return dispatch('SEEK_TO', { cancelSignal, offset });
       }
 
       // TODO: add cancel
-      return dispatch('SKIP_AHEAD', { offset: adjustedHostTime, duration: 10000 });
+      return dispatch('SKIP_AHEAD', { offset, duration: 10000 });
     }
 
-    // TODO: come back and properly implement this
-
-    // Calc the average delay of the last 10 host timeline updates
-    // We do this to avoid any issues with random lag spikes
-    // this.differenceCache.unshift(difference);
-    // if (this.differenceCache.length > 5) {
-    //   this.differenceCache.pop();
-    // }
-
-    // let total = 0;
-    // for (let i = 0; i < this.differenceCache.length; i += 1) {
-    //   total += this.differenceCache[i];
-    // }
-
-    // const avg = total / this.differenceCache.length;
-
-    const avg = difference;
-    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' && avg > 1500) {
+    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' && difference > 1500) {
       console.log('Soft syncing because difference is', difference);
 
       return dispatch('SOFT_SEEK', adjustedHostTime);
@@ -451,8 +411,7 @@ export default {
   },
 
   SEEK_TO: async ({ getters, dispatch }, { cancelSignal, offset }) => {
-    console.log('Seek to');
-    // TODO: adjust time by latency if playing
+    console.debug('SEEK_TO', offset);
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/SPEED_OR_NORMAL_SEEK', { cancelSignal, seekToMs: offset }, { root: true });
@@ -558,14 +517,25 @@ export default {
     };
   },
 
-  PLAY_NEXT: ({ getters, dispatch }) => {
+  PLAY_NEXT: ({ getters, rootGetters, dispatch }, metadata) => {
+    console.debug('plexclients/PLAY_NEXT');
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
-        return dispatch('slplayer/PLAY_NEXT');
+        if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {
+          return dispatch('slplayer/PLAY_NEXT', null, { root: true });
+        }
+
+        const { viewOffset: offset, machineIdentifier } = metadata;
+        return dispatch('PLAY_MEDIA', {
+          mediaIndex: 0,
+          offset,
+          machineIdentifier,
+          metadata,
+        });
       }
 
       default: {
-        return dispatch('SEND_CLIENT_REQUEST', {
+        return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
           path: '/player/playback/skipNext',
           params: {
             wait: 0,

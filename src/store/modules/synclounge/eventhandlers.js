@@ -2,7 +2,7 @@ import { emit, waitForEvent, getId } from '@/socket';
 
 export default {
   HANDLE_SET_PARTY_PAUSING_ENABLED: async ({ getters, dispatch, commit }, value) => {
-    await dispatch('ADD_MESSAGE_AND_CACHE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE_AND_NOTIFY', {
       senderId: getters.GET_HOST_ID,
       text: `Party Pausing has been turned ${value ? 'on' : 'off'}`,
     });
@@ -19,14 +19,14 @@ export default {
       },
     });
 
-    await dispatch('ADD_MESSAGE_AND_CACHE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE_AND_NOTIFY', {
       senderId: id,
       text: `${rest.username} joined`,
     });
   },
 
   HANDLE_USER_LEFT: async ({ getters, dispatch, commit }, { id, newHostId }) => {
-    await dispatch('ADD_MESSAGE_AND_CACHE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE_AND_NOTIFY', {
       senderId: id,
       text: `${getters.GET_USER(id).username} left the room`,
     });
@@ -40,7 +40,7 @@ export default {
 
   HANDLE_NEW_HOST: async ({ getters, dispatch, commit }, hostId) => {
     commit('SET_HOST_ID', hostId);
-    await dispatch('ADD_MESSAGE_AND_CACHE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE_AND_NOTIFY', {
       senderId: hostId,
       text: `${getters.GET_USER(hostId).username} is now the host`,
     });
@@ -103,10 +103,14 @@ export default {
     }
   },
 
+  HANDLE_SYNC_FLEXIBILITY_UPDATE: ({ commit }, data) => {
+    commit('SET_USER_SYNC_FLEXIBILITY', data);
+  },
+
   HANDLE_PARTY_PAUSE: async ({ getters, dispatch }, { senderId, isPause }) => {
     // TODO: maybe stop it from looking at host after party pausing until host also updates or acks that it got the party pause?
     const text = `${getters.GET_USER(senderId).username} pressed ${isPause ? 'pause' : 'play'}`;
-    await dispatch('ADD_MESSAGE_AND_CACHE', {
+    await dispatch('ADD_MESSAGE_AND_CACHE_AND_NOTIFY', {
       senderId,
       text,
     });

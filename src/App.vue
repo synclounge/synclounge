@@ -33,11 +33,11 @@
       <v-toolbar-items>
         <v-btn
           v-if="inviteUrl"
-          v-clipboard="inviteUrl"
+          v-clipboard="() => inviteUrl"
+          v-clipboard:success="onInviteCopied"
           color="primary"
           dark
           raised
-          @success="onInviteCopied"
         >
           Invite
         </v-btn>
@@ -283,10 +283,14 @@ export default {
       }
     },
 
-    GET_ACTIVE_MEDIA_METADATA() {
+    GET_ACTIVE_MEDIA_METADATA(metadata) {
       // This handles regular plex clients (nonslplayer) playback changes
       if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
-        this.redirectToMediaPage();
+        if (metadata) {
+          this.redirectToMediaPage();
+        } else if (this.$route.fullPath.indexOf('/nowplaying') > -1) {
+          this.$router.push({ name: 'browse' });
+        }
       }
     },
 

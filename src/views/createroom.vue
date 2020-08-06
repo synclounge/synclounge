@@ -25,6 +25,7 @@
           </v-alert>
 
           <clientpicker
+            v-if="!GET_CONFIG.force_slplayer"
             @loadingChange="loading = $event"
             @clientConnectableChange="clientConnectable = $event"
           />
@@ -80,6 +81,7 @@ export default {
 
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
+      'GET_ACTIVE_MEDIA_METADATA',
     ]),
 
     ...mapGetters('synclounge', [
@@ -121,7 +123,7 @@ export default {
         await this.CREATE_AND_JOIN_ROOM();
 
         if (this.$route.name === 'CreateRoom') {
-          if (this.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10') {
+          if (this.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' || !this.GET_ACTIVE_MEDIA_METADATA) {
             this.$router.push({ name: 'browse' });
           } else {
             this.redirectToMediaPage();

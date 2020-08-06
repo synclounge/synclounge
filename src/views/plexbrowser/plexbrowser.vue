@@ -301,7 +301,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-import { debounce } from 'lodash-es';
+import { debounce } from '@/utils/lightlodash';
 
 export default {
   name: 'Plexbrowser',
@@ -428,7 +428,7 @@ export default {
       'SEARCH_PLEX_SERVER',
       'FETCH_ON_DECK',
       'FETCH_PLEX_DEVICES',
-      'FETCH_RANDOM_THUMB_URL',
+      'FETCH_RANDOM_IMAGE_URL',
     ]),
 
     ...mapMutations([
@@ -437,7 +437,7 @@ export default {
     ]),
 
     async setRandomBackground() {
-      this.SET_BACKGROUND(await this.FETCH_RANDOM_THUMB_URL());
+      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
     },
 
     async fetchOnDeck() {

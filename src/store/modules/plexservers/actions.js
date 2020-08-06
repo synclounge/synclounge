@@ -1,5 +1,5 @@
-import { sample } from 'lodash-es';
-import { fetchJson } from '@/utils/fetchutils';
+import { sample, randomInt } from '@/utils/lightlodash';
+import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import scoreMedia from './mediascoring';
 
 export default {
@@ -11,17 +11,20 @@ export default {
 
     const libraryKey = sample(libraryKeys);
 
+    const librarySize = await dispatch('FETCH_LIBRARY_SIZE', { machineIdentifier, sectionId: libraryKey });
+    const randomItemIndex = randomInt(librarySize - 1);
+
     const contents = await dispatch('FETCH_LIBRARY_CONTENTS', {
       machineIdentifier,
       sectionId: libraryKey,
-      start: 0,
-      size: 50,
+      start: randomItemIndex,
+      size: 1,
     });
 
-    return sample(contents);
+    return contents[0];
   },
 
-  FETCH_RANDOM_THUMB_URL: async ({ getters, dispatch }) => {
+  FETCH_RANDOM_IMAGE_URL: async ({ getters, dispatch }) => {
     await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
 
     const machineIdentifier = sample(getters.GET_CONNECTABLE_PLEX_SERVER_IDS);
@@ -36,9 +39,9 @@ export default {
 
     return getters.GET_MEDIA_IMAGE_URL({
       machineIdentifier,
-      mediaUrl: result.thumb,
-      width: 900,
-      height: 900,
+      mediaUrl: result.art || result.thumb,
+      width: window.screen.width,
+      height: window.screen.height,
       blur: 8,
     });
   },
@@ -48,6 +51,18 @@ export default {
   }) => {
     const { accessToken, chosenConnection: { uri } } = getters.GET_PLEX_SERVER(machineIdentifier);
     return fetchJson(
+      `${uri}${path}`, {
+        ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
+        ...params,
+      }, rest,
+    );
+  },
+
+  QUERY_PLEX_SERVER: ({ getters, rootGetters }, {
+    machineIdentifier, path, params, ...rest
+  }) => {
+    const { accessToken, chosenConnection: { uri } } = getters.GET_PLEX_SERVER(machineIdentifier);
+    return queryFetch(
       `${uri}${path}`, {
         ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
         ...params,
@@ -79,6 +94,21 @@ export default {
     const data = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: `/library/metadata/${ratingKey}`,
+      params: {
+        includeConcerts: 1,
+        includeExtras: 1,
+        includeOnDeck: 1,
+        includePopularLeaves: 1,
+        includePreferences: 1,
+        includeChapters: 1,
+        includeStations: 1,
+        includeExternalMedia: 1,
+        asyncAugmentMetadata: 1,
+        asyncRefreshLocalMediaAgent: 1,
+        asyncRefreshAnalysis: 1,
+        checkFiles: 1,
+        includeMarkers: 1,
+      },
       signal,
     });
 
@@ -242,10 +272,10 @@ export default {
     }));
   },
 
-  FETCH_LIBRARY_CONTENTS: async ({ dispatch }, {
+  FETCH_LIBRARY_ALL: async ({ dispatch }, {
     machineIdentifier, sectionId, start, size, signal,
   }) => {
-    const data = await dispatch('FETCH_PLEX_SERVER', {
+    const { MediaContainer } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: `/library/sections/${sectionId}/all`,
       params: {
@@ -256,10 +286,28 @@ export default {
       signal,
     });
 
-    return data.MediaContainer.Metadata.map((child) => ({
+    return MediaContainer;
+  },
+
+  FETCH_LIBRARY_CONTENTS: async ({ dispatch }, params) => {
+    const { librarySectionID, Metadata } = await dispatch('FETCH_LIBRARY_ALL', params);
+
+    return Metadata.map((child) => ({
       ...child,
-      librarySectionID: data.MediaContainer.librarySectionID,
+      librarySectionID,
     }));
+  },
+
+  FETCH_LIBRARY_SIZE: async ({ dispatch }, { machineIdentifier, sectionId, signal }) => {
+    const { totalSize } = await dispatch('FETCH_LIBRARY_ALL', {
+      machineIdentifier,
+      sectionId,
+      start: 0,
+      size: 0,
+      signal,
+    });
+
+    return totalSize;
   },
 
   CREATE_PLAY_QUEUE: async ({ dispatch }, { machineIdentifier, ratingKey, signal }) => {
@@ -271,7 +319,11 @@ export default {
         type: 'video',
         continuous: 1,
         uri: `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${ratingKey}`,
+        repeat: 0,
         own: 1,
+        includeChapters: 1,
+        includeMarkers: 1,
+        includeGeolocation: 1,
         includeExternalMedia: 1,
       },
       signal,
@@ -287,6 +339,8 @@ export default {
       params: {
         own: 1,
         includeExternalMedia: 1,
+        includeChapters: 1,
+
       },
       signal,
     });
@@ -300,6 +354,18 @@ export default {
     params: {
       identifier: 'com.plexapp.plugins.library',
       key: ratingKey,
+    },
+    signal,
+  }),
+
+  UPDATE_STREAM: ({ dispatch }, {
+    machineIdentifier, id, offset, signal,
+  }) => dispatch('QUERY_PLEX_SERVER', {
+    machineIdentifier,
+    method: 'PUT',
+    path: `/library/streams/${id}`,
+    params: {
+      offset,
     },
     signal,
   }),

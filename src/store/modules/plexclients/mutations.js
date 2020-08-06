@@ -64,4 +64,8 @@ export default {
   SET_LAST_PLAY_MEDIA_COMMAND_ID: (state, id) => {
     state.lastPlayMediaCommandId = id;
   },
+
+  SET_LATENCY: (state, latency) => {
+    state.latency = latency;
+  },
 };

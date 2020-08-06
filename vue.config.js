@@ -1,5 +1,7 @@
 const path = require('path');
-const git = require('git-rev-sync');
+const LCL = require('last-commit-log');
+
+const lcl = new LCL();
 
 const saveConfig = require('./config');
 
@@ -9,31 +11,25 @@ console.log(config);
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
 try {
-  process.env.VUE_APP_GIT_HASH = process.env.VUE_APP_GIT_HASH || git.short();
-  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || git.date().toISOString();
-  process.env.VUE_APP_GIT_BRANCH = process.env.VUE_APP_GIT_BRANCH || git.branch();
+  const lastCommit = lcl.getLastCommitSync();
+  process.env.VUE_APP_GIT_HASH = lastCommit.shortHash;
+  process.env.VUE_APP_GIT_DATE = lastCommit.committer.date;
+  process.env.VUE_APP_GIT_BRANCH = lastCommit.gitBranch;
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
   // TODO: find better way to do this
-  process.env.VUE_APP_GIT_DATE = process.env.VUE_APP_GIT_DATE || new Date().toISOString();
-
-  if (process.env.SOURCE_COMMIT) {
-    process.env.VUE_APP_GIT_HASH = process.env.VUE_APP_GIT_HASH
-      || process.env.SOURCE_COMMIT.substring(0, 7);
-  }
-
-  if (process.env.SOURCE_BRANCH) {
-    process.env.VUE_APP_GIT_BRANCH = process.env.VUE_APP_GIT_BRANCH || process.env.SOURCE_BRANCH;
-  }
+  process.env.VUE_APP_GIT_DATE = Math.floor(Date.now() / 1000);
+  process.env.VUE_APP_GIT_HASH = process.env.REVISION;
+  process.env.VUE_APP_GIT_BRANCH = process.env.SOURCE_BRANCH;
 }
 
 module.exports = {
+  // Relative publicPath to support subfolders
+  publicPath: '',
   lintOnSave: process.env.NODE_ENV !== 'production',
-  integrity: true,
-  productionSourceMap: false,
   transpileDependencies: ['vuetify'],
+  integrity: true,
   configureWebpack: {
-    devtool: process.env.NODE_ENV === 'production' ? false : 'cheap-eval-source-map',
     resolve: {
       alias: {
         // Alias @ to /src folder for ES/TS imports
@@ -46,10 +42,15 @@ module.exports = {
   // pluginOptions: {
   //   webpackBundleAnalyzer: {
   //     openAnalyzer: false,
-  //     analyzerMode: 'server',
+  //     analyzerMode: process.env.VUE_CLI_MODERN_MODE ? 'server' : 'disabled',
   //   },
   // },
 
+  // devServer: {
+  //   disableHostCheck: true,
+  // },
+
+  // https://github.com/vuejs/vue-cli/issues/3771
   css: {
     extract: process.env.NODE_ENV === 'production' ? {
       ignoreOrder: true,

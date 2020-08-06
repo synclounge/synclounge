@@ -4,7 +4,9 @@
       <h4 style="text-align:initial">
         Plex Client Polling Interval
       </h4>
-      <div> {{ GET_CLIENTPOLLINTERVAL }}</div>
+
+      <div> {{ GET_CLIENTPOLLINTERVAL }} </div>
+
       <v-slider
         class="pa-0 ma-0"
         :value="GET_CLIENTPOLLINTERVAL"
@@ -16,7 +18,9 @@
         @change="SET_CLIENTPOLLINTERVAL"
       />
     </div>
+
     <v-divider />
+
     <div
       style="text-align:center"
       class="pt-4"
@@ -24,7 +28,9 @@
       <h4 style="text-align:initial">
         Sync Flexibility
       </h4>
-      <div> {{ GET_SYNCFLEXIBILITY }}</div>
+
+      <div> {{ GET_SYNCFLEXIBILITY }} </div>
+
       <v-slider
         class="pa-0 ma-0"
         :value="GET_SYNCFLEXIBILITY"
@@ -33,10 +39,30 @@
         hint="Sets the acceptable distance away from the host in milliseconds.
         Default is 3000ms (3 seconds)."
         persistent-hint
-        @change="SET_SYNCFLEXIBILITY"
+        @change="UPDATE_SYNC_FLEXIBILITY"
       />
     </div>
+
     <v-divider />
+
+    <div
+      style="text-align:center"
+      class="pt-4"
+    >
+      <h4 style="text-align:initial">
+        Streaming Protocol
+      </h4>
+
+      <v-select
+        :value="GET_STREAMING_PROTOCOL"
+        :items="protocols"
+        :rules="[v => !!v || 'Item is required']"
+        label="Streaming Protocol"
+        required
+        @input="SET_STREAMING_PROTOCOL"
+      />
+    </div>
+
     <div
       style="text-align:center"
       class="pt-4"
@@ -44,12 +70,14 @@
       <h4 style="text-align:initial">
         Syncing Method
       </h4>
+
       <v-radio-group v-model="syncmode">
         <v-radio
           label="Clean Seek"
           class="pa-0 ma-0"
           value="cleanseek"
         />
+
         <v-radio
           label="Skip Ahead"
           class="pa-0 ma-0"
@@ -59,6 +87,7 @@
         />
       </v-radio-group>
     </div>
+
     <div
       style="text-align:center"
       class="pt-4"
@@ -66,6 +95,7 @@
       <h4 style="text-align:initial">
         Autoplay
       </h4>
+
       <v-switch
         label="Enabled"
         hint="If enabled SyncLounge will attempt to automatically play the
@@ -74,6 +104,7 @@
         @change="SET_AUTOPLAY"
       />
     </div>
+
     <div
       style="text-align:center"
       class="pt-4"
@@ -81,20 +112,23 @@
       <h4 style="text-align:initial">
         SLPlayer Force Transcode
       </h4>
+
       <v-switch
         label="Enabled"
         :input-value="GET_SLPLAYERFORCETRANSCODE"
         @change="SET_SLPLAYERFORCETRANSCODE"
       />
-      <small>
-        WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.
-      </small>
     </div>
+
+    <small>
+      WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.
+    </small>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { streamingProtocols } from '@/utils/streamingprotocols';
 
 export default {
   name: 'Settings',
@@ -107,10 +141,19 @@ export default {
       'GET_SYNCMODE',
     ]),
 
+    ...mapGetters('slplayer', [
+      'GET_STREAMING_PROTOCOL',
+    ]),
+
+    protocols() {
+      return streamingProtocols;
+    },
+
     syncmode: {
       get() {
         return this.GET_SYNCMODE;
       },
+
       set(value) {
         this.SET_SYNCMODE(value);
       },
@@ -118,12 +161,19 @@ export default {
   },
 
   methods: {
+    ...mapActions('synclounge', [
+      'UPDATE_SYNC_FLEXIBILITY',
+    ]),
+
     ...mapMutations('settings', [
       'SET_AUTOPLAY',
       'SET_SLPLAYERFORCETRANSCODE',
       'SET_CLIENTPOLLINTERVAL',
-      'SET_SYNCFLEXIBILITY',
       'SET_SYNCMODE',
+    ]),
+
+    ...mapMutations('slplayer', [
+      'SET_STREAMING_PROTOCOL',
     ]),
   },
 };

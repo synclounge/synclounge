@@ -78,6 +78,7 @@
                     >
                       Play Now
                     </v-btn>
+
                     <v-btn
                       @click="cancelPressed"
                     >
@@ -116,7 +117,6 @@ export default {
   data() {
     return {
       sheet: true,
-      maxTimer: 15000,
       transitionBarWithStyle: {},
       timeoutId: null,
     };
@@ -124,6 +124,7 @@ export default {
 
   computed: {
     ...mapGetters([
+      'GET_CONFIG',
       'GET_UP_NEXT_POST_PLAY_DATA',
     ]),
 
@@ -159,9 +160,12 @@ export default {
     this.startTimer();
   },
 
+  beforeDestroy() {
+    this.cancelTimer();
+  },
+
   methods: {
     ...mapActions('plexclients', [
-      'PLAY_MEDIA',
       'PLAY_NEXT',
     ]),
 
@@ -176,17 +180,26 @@ export default {
 
     async playMedia() {
       this.transitionBarWithStyle = {};
-      await this.PLAY_NEXT();
+      const metadata = this.GET_UP_NEXT_POST_PLAY_DATA;
       this.SET_UP_NEXT_POST_PLAY_DATA(null);
+      try {
+        await this.PLAY_NEXT(metadata);
+      } catch (e) {
+        if (e.code === 7000) {
+          console.debug('Player initialization aborted');
+        } else {
+          throw e;
+        }
+      }
     },
 
     startTimer() {
       this.timeoutId = setTimeout(() => {
         this.playMedia();
-      }, this.maxTimer);
+      }, this.GET_CONFIG.synclounge_upnext_popup_lifetime);
 
       this.transitionBarWithStyle = {
-        animationDuration: `${this.maxTimer / 1000}s`,
+        animationDuration: `${this.GET_CONFIG.synclounge_upnext_popup_lifetime / 1000}s`,
         animationName: 'timebar_progress_x',
       };
     },
@@ -197,8 +210,9 @@ export default {
     },
 
     cancelTimer() {
-      if (this.timeoutId > -1) {
+      if (this.timeoutId != null) {
         clearTimeout(this.timeoutId);
+        this.timeoutId = null;
         this.transitionBarWithStyle = {};
       }
     },
@@ -212,13 +226,13 @@ export default {
   position: relative;
 }
 
-.c-timebar{
+.c-timebar {
     width: 100%;
     height: 100%;
     position: relative;
 }
 
-.c-timebar__background{
+.c-timebar__background {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -227,7 +241,7 @@ export default {
   z-index: 1;
 }
 
-.c-timebar__remaining{
+.c-timebar__remaining {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -241,12 +255,12 @@ export default {
 </style>
 
 <style>
-@keyframes timebar_progress_x{
+@keyframes timebar_progress_x {
   from  { transform: scaleX(1) }
   to    { transform: scaleX(0) }
 }
 
-@keyframes timebar_progress_y{
+@keyframes timebar_progress_y {
   from  { transform: scaleY(1) }
   to    { transform: scaleY(0) }
 }

@@ -492,7 +492,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-import humanizeDuration from 'humanize-duration';
+import customFormatDuration from '@/utils/customformatduration';
 
 import sizing from '@/mixins/sizing';
 
@@ -581,11 +581,7 @@ export default {
     },
 
     length() {
-      return humanizeDuration(this.contents.duration, {
-        delimiter: ' ',
-        units: ['h', 'm'],
-        round: true,
-      });
+      return this.getDuration(this.contents.duration);
     },
 
     title() {
@@ -711,21 +707,26 @@ export default {
         offset = this.contents.viewOffset;
       }
 
-      await this.PLAY_MEDIA({
-        metadata: this.contents,
-        mediaIndex,
-        machineIdentifier: this.machineIdentifier,
-        offset,
-      });
+      try {
+        await this.PLAY_MEDIA({
+          metadata: this.contents,
+          mediaIndex,
+          machineIdentifier: this.machineIdentifier,
+          offset,
+        });
+      } catch (e) {
+        if (e.code === 7000) {
+          console.debug('Player initialization aborted');
+        } else {
+          throw e;
+        }
+      }
+
       this.dialog = false;
     },
 
-    getDuration(dur) {
-      return humanizeDuration(dur, {
-        delimiter: ' ',
-        units: ['h', 'm', 's'],
-        round: true,
-      });
+    getDuration(end) {
+      return customFormatDuration({ start: 0, end });
     },
 
     getStreamCount(streams, type) {

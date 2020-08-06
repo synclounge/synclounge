@@ -1,9 +1,23 @@
 import { makeUrl } from '@/utils/fetchutils';
+import { protocolExtension } from '@/utils/streamingprotocols';
 import contenttitleutils from '@/utils/contenttitleutils';
 import qualities from './qualities';
 
+const buggyChromeBitrate = 23000;
+
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
+
+  IS_IN_BUGGY_CHROME_STATE: (state, getters, rootState, rootGetters) => (rootGetters.GET_BROWSER.name === 'chrome'
+      || rootGetters.GET_BROWSER.name === 'edge-chromium')
+    && (rootGetters['settings/GET_SLPLAYERQUALITY'] == null || rootGetters['settings/GET_SLPLAYERQUALITY'] > buggyChromeBitrate)
+    && rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']?.Media?.[getters.GET_MEDIA_INDEX]?.bitrate > buggyChromeBitrate,
+
+  // TODO: Remove this hack when this issue is fixed
+  // https://forums.plex.tv/t/plex-skipping-forward-by-a-few-seconds-on-web-player/402112
+  GET_STREAMING_PROTOCOL: (state, getters) => (getters.IS_IN_BUGGY_CHROME_STATE
+    ? 'hls'
+    : state.streamingProtocol),
 
   GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']),
 
@@ -11,6 +25,7 @@ export default {
     ? getters.GET_PLEX_SERVER.accessToken
     : undefined),
 
+  // TODO: move this stuff into plexservers probably
   GET_PLEX_SERVER_URL: (state, getters) => (getters.GET_PLEX_SERVER
     ? getters.GET_PLEX_SERVER.chosenConnection.uri
     : undefined),
@@ -26,7 +41,12 @@ export default {
     ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media[getters.GET_MEDIA_INDEX].Part[0].id
     : null),
 
-  GET_SRC_URL: (state, getters) => makeUrl(`${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.mpd`, getters.GET_DECISION_AND_START_PARAMS),
+  GET_SRC_URL: (state, getters) => makeUrl(
+    `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.${protocolExtension[getters.GET_STREAMING_PROTOCOL]}`,
+    getters.GET_DECISION_AND_START_PARAMS,
+  ),
+
+  GET_SUBTITLE_BASE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/subtitles`,
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
 
@@ -71,11 +91,12 @@ export default {
     return selectedAudioStream ? parseInt(selectedAudioStream.id, 10) : 0;
   },
 
-  GET_SUBTITLE_STREAM_ID: (state, getters) => {
-    const selectedSubtitleStream = getters.GET_DECISION_STREAMS
-      .find((stream) => stream.streamType === '3' && stream.selected === '1');
-    return selectedSubtitleStream ? parseInt(selectedSubtitleStream.id, 10) : 0;
-  },
+  GET_SUBTITLE_STREAM: (state, getters) => getters.GET_DECISION_STREAMS
+    .find((stream) => stream.streamType === '3' && stream.selected === '1'),
+
+  GET_SUBTITLE_STREAM_ID: (state, getters) => (getters.GET_SUBTITLE_STREAM
+    ? parseInt(getters.GET_SUBTITLE_STREAM.id, 10)
+    : 0),
 
   // TODO: fix this 0 fallback
   GET_MEDIA_INDEX: (state) => state.mediaIndex,
@@ -105,14 +126,12 @@ export default {
     ? contenttitleutils.getSecondaryTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
     : null),
 
-  GET_PART_PARAMS: (state, getters, rootState, rootGetters) => ({
-    'X-Plex-Text-Format': 'plain',
-    'X-Plex-Provider-Version': 1.3,
-    ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
-  }),
+  GET_PART_PARAMS: (state, getters, rootState, rootGetters) => rootGetters['plex/GET_PLEX_BASE_PARAMS'](
+    getters.GET_PLEX_SERVER_ACCESS_TOKEN,
+  ),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
-    const base = 'append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=dash)';
+    const base = `append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=${getters.GET_STREAMING_PROTOCOL})`;
     return rootGetters['settings/GET_SLPLAYERQUALITY']
       ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${rootGetters['settings/GET_SLPLAYERQUALITY']}&replace=true)`
       : base;
@@ -122,8 +141,9 @@ export default {
     hasMDE: 1,
     path: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].key,
     mediaIndex: getters.GET_MEDIA_INDEX,
+    // TODO: investigate multipart file support
     partIndex: 0,
-    protocol: 'dash',
+    protocol: getters.GET_STREAMING_PROTOCOL,
     fastSeek: 1,
     directPlay: 0,
     directStream: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
@@ -133,14 +153,13 @@ export default {
     ...rootGetters['settings/GET_SLPLAYERQUALITY'] && { maxVideoBitrate: rootGetters['settings/GET_SLPLAYERQUALITY'] }, // only include if not null
     addDebugOverlay: 0,
 
-    // Shaka doesn't seem to support switching
-    // TODO: figure out how to make it work
+    // TODO: figure out how to make autoAdjustQuality work
     autoAdjustQuality: 0,
     directStreamAudio: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
-    // TODO: investigate subtitles support
-    subtitles: 'burn',
+    subtitles: getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
+    ...(!getters.IS_IN_PICTURE_IN_PICTURE && { advancedSubtitles: 'text' }),
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
@@ -152,7 +171,7 @@ export default {
 
   GET_X_PLEX_SESSION_ID: (state) => state.xplexsessionId,
 
-  GET_PLEX_TIMELINE_UPDATER_CANCELER: (state) => state.plexTimelineUpdaterCanceler,
+  GET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN: (state) => state.plexTimelineUpdaterCancelToken,
 
   GET_BUFFERING_EVENT_LISTENER: (state) => state.bufferingEventListener,
 
@@ -160,5 +179,27 @@ export default {
 
   IS_PLAYER_INITIALIZED: (state) => state.isPlayerInitialized,
 
-  GET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state) => state.playerInitializedPromiseResolver,
+  GET_PLAYER_INITIALIZED_DEFERRED_PROMISE: (state) => state.playerInitializedDeferredPromise,
+
+  GET_MASK_PLAYER_STATE: (state) => state.maskPlayerState,
+
+  IS_IN_PICTURE_IN_PICTURE: (state) => state.isInPictureInPicture,
+
+  GET_ORIGINAL_SUBTITLE_RESOLUTION_X_CACHE: (state) => state.originalSubtitleResolutionXCache,
+
+  GET_ORIGINAL_SUBTITLE_RESOLUTION_Y_CACHE: (state) => state.originalSubtitleResolutionYCache,
+
+  GET_SUBTITLE_SIZE: (state) => state.subtitleSize,
+
+  GET_SUBTITLE_POSITION: (state) => state.subtitlePosition,
+
+  GET_SUBTITLE_COLOR: (state) => state.subtitleColor,
+
+  IS_USING_NATIVE_SUBTITLES: (state, getters) => getters.GET_SUBTITLE_STREAM_ID
+    && !getters.GET_SUBTITLE_STREAM?.burn,
+
+  GET_SUBTITLE_OFFSET: (state) => state.subtitleOffset,
+
+  IS_SUBTITLE_STREAM_NATIVE_SIDECAR: (state, getters) => getters.IS_USING_NATIVE_SUBTITLES
+   && getters.GET_SUBTITLE_STREAM?.file,
 };

@@ -41,15 +41,51 @@ export default {
     state.clickEventListener = listener;
   },
 
-  SET_PLEX_TIMELINE_UPDATER_CANCELER: (state, canceler) => {
-    state.plexTimelineUpdaterCanceler = canceler;
+  SET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN: (state, token) => {
+    state.plexTimelineUpdaterCancelToken = token;
   },
 
   SET_IS_PLAYER_INITIALIZED: (state, isInitialized) => {
     state.isPlayerInitialized = isInitialized;
   },
 
-  SET_PLAYER_INITIALIZED_PROMISE_RESOLVER: (state, resolver) => {
-    state.playerInitializedPromiseResolver = resolver;
+  SET_PLAYER_INITIALIZED_DEFERRED_PROMISE: (state, deferred) => {
+    state.playerInitializedDeferredPromise = deferred;
+  },
+
+  SET_MASK_PLAYER_STATE: (state, mask) => {
+    state.maskPlayerState = mask;
+  },
+
+  SET_IS_IN_PICTURE_IN_PICTURE: (state, isIn) => {
+    state.isInPictureInPicture = isIn;
+  },
+
+  SET_ORIGINAL_SUBTITLE_RESOLUTION_X_CACHE: (state, resolution) => {
+    state.originalSubtitleResolutionXCache = resolution;
+  },
+
+  SET_ORIGINAL_SUBTITLE_RESOLUTION_Y_CACHE: (state, resolution) => {
+    state.originalSubtitleResolutionYCache = resolution;
+  },
+
+  SET_SUBTITLE_SIZE: (state, size) => {
+    state.subtitleSize = size;
+  },
+
+  SET_SUBTITLE_POSITION: (state, position) => {
+    state.subtitlePosition = position;
+  },
+
+  SET_SUBTITLE_COLOR: (state, color) => {
+    state.subtitleColor = color;
+  },
+
+  SET_SUBTITLE_OFFSET: (state, offset) => {
+    state.subtitleOffset = offset;
+  },
+
+  SET_STREAMING_PROTOCOL: (state, protocol) => {
+    state.streamingProtocol = protocol;
   },
 };

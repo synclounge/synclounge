@@ -190,7 +190,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 
 export default {
   components: {
@@ -219,7 +219,7 @@ export default {
     },
 
     date() {
-      return parseISO(process.env.VUE_APP_GIT_DATE);
+      return new Date(parseInt(process.env.VUE_APP_GIT_DATE, 10) * 1000);
     },
 
     updatedAt() {

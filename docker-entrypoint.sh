@@ -1,3 +1,3 @@
 #!/bin/sh
-NODE_PATH=$(npm root --quiet -g) ./config/clisaveconfig.js
-exec syncloungesocket --static_path dist
+NODE_PATH=/app/.npm-global/lib/node_modules /app/config/clisaveconfig.js
+exec /app/.npm-global/bin/syncloungesocket --static_path dist

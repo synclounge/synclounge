@@ -44,13 +44,19 @@ const defaults = {
   default_sync_mode: 'cleanseek',
 
   slplayer_plex_timeline_update_interval: 10000,
-  slplayer_controls_visible_checker_interval: 500,
+  slplayer_controls_visible_checker_interval: 250,
 
   // Controlls the max time difference cutoff for syncing by changing the playback speed
   slplayer_speed_sync_max_diff: 10000,
 
   // The playback rate (1 +/- rate) that is used when speed syncing
   slplayer_speed_sync_rate: 0.5,
+
+  slplayer_seek_timeout: 15000,
+
+  // Buffering goal in seconds
+  slplayer_buffering_goal: 120,
+
   sidebar_time_update_interval: 500,
 
   // If the plex client's time changes by this much from the expected time, trigger a state change
@@ -58,8 +64,13 @@ const defaults = {
   plex_auth_check_interval: 1000,
 
   socket_server_health_timeout: 2000,
-
   synclounge_max_recent_room_history: 100,
+
+  // TODO: investigate the average length of closing credits
+  synclounge_upnext_trigger_time_from_end: 45000,
+  synclounge_upnext_popup_lifetime: 60000,
+
+  force_slplayer: false,
 };
 
 module.exports = defaults;

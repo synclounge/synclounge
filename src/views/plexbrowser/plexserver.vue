@@ -194,7 +194,7 @@
 </template>
 
 <script>
-import { sample } from 'lodash-es';
+import { sample } from '@/utils/lightlodash';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 import sizing from '@/mixins/sizing';

@@ -29,26 +29,17 @@
         </v-list-item-content>
 
         <v-list-item-icon>
-          <v-menu>
-            <template v-slot:activator="{ on }">
-              <v-btn
-                icon
-                class="ma-0 pa-0"
-                dark
-                v-on="on"
-              >
-                <v-icon>more_vert</v-icon>
-              </v-btn>
-            </template>
-
-            <v-list>
-              <v-list-item @click="handleDisconnect">
-                <v-list-item-title class="user-menu-list">
-                  Leave Room
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          <chatsettings v-slot="{ on, attrs }">
+            <v-btn
+              icon
+              class="ma-0 pa-0"
+              dark
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon>more_vert</v-icon>
+            </v-btn>
+          </chatsettings>
         </v-list-item-icon>
       </v-list-item>
 
@@ -117,7 +108,7 @@
           <v-list-item-avatar>
             <img
               :src="user.thumb"
-              :style="getImgStyle(user.syncState)"
+              :style="getImgStyle(user)"
             >
 
             <v-icon
@@ -212,7 +203,6 @@
       <v-divider />
 
       <messages
-        v-if="$vuetify.breakpoint.lgAndUp"
         class="messages"
       />
     </div>
@@ -232,6 +222,7 @@ export default {
   components: {
     messages: () => import('@/components/messaging/messages.vue'),
     MessageInput: () => import('@/components/messaging/MessageInput.vue'),
+    chatsettings: () => import('@/components/chatsettings.vue'),
   },
 
   mixins: [
@@ -268,6 +259,7 @@ export default {
       'GET_HOST_ID',
       'AM_I_HOST',
       'GET_SOCKET_ID',
+      'GET_ADJUSTED_HOST_TIME',
     ]),
 
     ...mapGetters('plexservers', [
@@ -294,7 +286,6 @@ export default {
       'SEND_SET_PARTY_PAUSING_ENABLED',
       'sendPartyPause',
       'TRANSFER_HOST',
-      'DISCONNECT',
     ]),
 
     ...mapActions([
@@ -321,31 +312,24 @@ export default {
       this.sendPartyPause(isPause);
     },
 
-    getSyncStateColor(syncState) {
-      switch (syncState) {
-        case 'synced':
-          return '#0de47499';
-
-        case 'unsynced':
-          return '#FFB300';
-
-        case 'unknown':
-        default:
-          return '#F44336';
+    getSyncStateColor({ syncFlexibility, ...rest }) {
+      if (!this.GET_HOST_USER) {
+        return '#F44336';
       }
+
+      const difference = Math.abs(this.getAdjustedTime(rest) - this.GET_ADJUSTED_HOST_TIME());
+
+      return difference > syncFlexibility
+        ? '#FFB300'
+        : '#0de47499';
     },
 
-    getImgStyle(syncState) {
+    getImgStyle(user) {
       return [
         {
-          border: `3px solid ${this.getSyncStateColor(syncState)}`,
+          border: `3px solid ${this.getSyncStateColor(user)}`,
         },
       ];
-    },
-
-    async handleDisconnect() {
-      await this.DISCONNECT();
-      this.$router.push('/');
     },
 
     percent({ duration, ...rest }) {
@@ -429,8 +413,5 @@ export default {
 }
 .v-list__tile {
   padding: 0;
-}
-.user-menu-list {
-  padding: 0 16px;
 }
 </style>

@@ -1,3 +1,4 @@
+import muxjs from 'mux.js';
 import shaka from 'shaka-player/dist/shaka-player.ui.debug';
 import store from '@/store';
 import playerUiPlugins from '@/player/ui';
@@ -5,6 +6,8 @@ import playerUiPlugins from '@/player/ui';
 import {
   getPlayer, setPlayer, getOverlay, setOverlay,
 } from './state';
+
+window.muxjs = muxjs;
 
 playerUiPlugins(store);
 

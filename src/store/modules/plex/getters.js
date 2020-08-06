@@ -1,42 +1,39 @@
-import { detect } from 'detect-browser';
-import { intersection } from 'lodash-es';
+import { intersection } from '@/utils/lightlodash';
 import { makeUrl } from '@/utils/fetchutils';
 
-function capitalizeFirstLetter(string) {
-  return string[0].toUpperCase() + string.slice(1);
-}
-
-const browser = detect();
-
-const plexDeviceName = () => {
-  switch (browser.name) {
-    case 'edge-chromium': {
-      // Plex doesn't like edge-chromium device name, so send it what plex web does
-      return 'Microsoft Edge';
-    }
-
-    default: {
-      return capitalizeFirstLetter(browser.name);
-    }
-  }
-};
+const capitalizeFirstLetter = (string) => string[0].toUpperCase() + string.slice(1);
 
 export default {
   IS_AUTHENTICATED: (state, getters) => !!getters.GET_PLEX_AUTH_TOKEN
     && getters.IS_USER_AUTHORIZED,
 
+  GET_PLEX_DEVICE_NAME: (state, getters, rootState, rootGetters) => {
+    switch (rootGetters.GET_BROWSER.name) {
+      case 'edge-chromium': {
+      // Plex doesn't like edge-chromium device name, so send it what plex web does
+        return 'Microsoft Edge';
+      }
+
+      default: {
+        return capitalizeFirstLetter(rootGetters.GET_BROWSER.name);
+      }
+    }
+  },
+
   GET_PLEX_PRODUCT_HEADER: () => 'SyncLounge',
-  GET_PLEX_DEVICE_DEVICE_HEADER: () => browser.os,
-  GET_PLEX_DEVICE_NAME_HEADER: () => plexDeviceName(),
-  GET_PLEX_PLATFORM_HEADER: () => plexDeviceName(),
+  GET_PLEX_DEVICE_DEVICE_HEADER: (state, getters, rootState, rootGetters) => rootGetters
+    .GET_BROWSER.os,
+
+  GET_PLEX_DEVICE_NAME_HEADER: (state, getters) => getters.GET_PLEX_DEVICE_NAME,
+  GET_PLEX_PLATFORM_HEADER: (state, getters) => getters.GET_PLEX_DEVICE_NAME,
   GET_PLEX_DEVICE_SCREEN_RESOLUTION_HEADER: () => `${window.screen.availWidth}x${window.screen.availHeight},${window.screen.width}x${window.screen.height}`,
 
-  GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters) => ({
+  GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Product': getters.GET_PLEX_PRODUCT_HEADER,
     'X-Plex-Version': process.env.VUE_APP_VERSION,
     'X-Plex-Client-Identifier': getters.GET_CLIENT_IDENTIFIER,
     'X-Plex-Platform': getters.GET_PLEX_PLATFORM_HEADER,
-    'X-Plex-Platform-Version': browser.version,
+    'X-Plex-Platform-Version': rootGetters.GET_BROWSER.version,
     // 'X-Plex-Sync-Version': 2,
     'X-Plex-Features': 'external-media,indirect-media',
     'X-Plex-Model': 'hosted',
@@ -49,14 +46,16 @@ export default {
   GET_PLEX_BASE_PARAMS: (state, getters) => (accessToken) => ({
     ...getters.GET_PLEX_INITIAL_AUTH_PARAMS,
     'X-Plex-Token': accessToken || getters.GET_PLEX_AUTH_TOKEN,
+    'X-Plex-Text-Format': 'plain',
+    'X-Plex-Provider-Version': 1.3,
   }),
 
-  GET_PLEX_AUTH_URL: (state, getters) => (code) => {
+  GET_PLEX_AUTH_URL: (state, getters, rootState, rootGetters) => (code) => {
     const urlParams = {
       'context[device][product]': getters.GET_PLEX_PRODUCT_HEADER,
       'context[device][version]': process.env.VUE_APP_VERSION,
       'context[device][platform]': getters.GET_PLEX_PLATFORM_HEADER,
-      'context[device][platformVersion]': browser.version,
+      'context[device][platformVersion]': rootGetters.GET_BROWSER.version,
       'context[device][device]': getters.GET_PLEX_DEVICE_DEVICE_HEADER,
       'context[device][name]': getters.GET_PLEX_DEVICE_NAME_HEADER,
       'context[device][model]': 'hosted',
@@ -81,10 +80,10 @@ export default {
 
   IS_PLEX_USER_AUTHORIZED: (state, getters, rootState, rootGetters) => rootGetters
     .GET_CONFIG?.authentication?.type.includes('user')
-    && intersection(
+    && intersection([
       [getters.GET_PLEX_USER.username, getters.GET_PLEX_USER.email],
       rootGetters.GET_AUTHENTICATION.authorized,
-    ).length > 0,
+    ]).length > 0,
 
   IS_AUTHENTICATION_TYPE_NONE: (state, getters, rootState, rootGetters) => rootGetters
     .GET_CONFIG?.authentication.mechanism === 'none',

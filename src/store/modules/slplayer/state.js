@@ -1,4 +1,5 @@
 import guid from '@/utils/guid';
+import { subtitlePositions, subtitleSizes, subtitleColors } from '@/utils/subtitleutils';
 
 const state = () => ({
   session: null,
@@ -7,13 +8,28 @@ const state = () => ({
   mediaIndex: 0,
   offsetMs: 0,
   playerState: 'stopped',
-  playerControlsShown: true,
+  playerControlsShown: false,
   playerControlsShownInterval: null,
   bufferingEventListener: null,
   clickEventListener: null,
-  plexTimelineUpdaterCanceler: null,
+  plexTimelineUpdaterCancelToken: null,
   isPlayerInitialized: false,
-  playerInitializedPromiseResolver: null,
+  playerInitializedDeferredPromise: null,
+
+  // This is used to signal whether to mask the player state (time, etc) when sending updates
+  // before the media is loaded
+  maskPlayerState: false,
+  isInPictureInPicture: false,
+
+  // Subtitle state
+  originalSubtitleResolutionXCache: null,
+  originalSubtitleResolutionYCache: null,
+
+  subtitleSize: subtitleSizes.Normal,
+  subtitlePosition: subtitlePositions.Bottom,
+  subtitleColor: subtitleColors.White,
+  subtitleOffset: 0,
+  streamingProtocol: 'dash',
 });
 
 export default state;

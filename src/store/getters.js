@@ -1,6 +1,5 @@
 export default {
   GET_BACKGROUND: (state) => state.background,
-  GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
   GET_UP_NEXT_POST_PLAY_DATA: (state) => state.upNextPostPlayData,
   GET_CONFIG: (state) => state.configuration,
   GET_ACTIVE_METADATA: (state) => state.activeMetadata,
@@ -8,4 +7,5 @@ export default {
   GET_SNACKBAR_OPEN: (state) => state.snackbarOpen,
   GET_NAVIGATE_TO_PLAYER: (state) => state.navigateToPlayer,
   GET_CONFIGURATION_PROMISE: (state) => state.configurationPromise,
+  GET_BROWSER: (state) => state.browser,
 };

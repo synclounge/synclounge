@@ -2,18 +2,28 @@ import {
   getPlayer, setPlayer, getOverlay, setOverlay,
 } from './state';
 
+// eslint-disable-next-line no-underscore-dangle
+export const areControlsShown = () => !getOverlay() || (getOverlay()?.getControls().enabled_
+    && (getOverlay()?.getControls().getControlsContainer().getAttribute('shown') != null
+    || getOverlay()?.getControls().getControlsContainer().getAttribute('casting') != null));
+
+export const getControlsOffset = (fallbackHeight) => (areControlsShown()
+  ? (getPlayer()?.getMediaElement()?.offsetHeight || fallbackHeight) * 0.025 + 48 || 0
+  : 0);
+
 export const isPaused = () => getPlayer().getMediaElement().paused;
 
 export const isPresentationPaused = () => isPaused()
   && !getOverlay().getControls().isSeeking();
 
-export const isBuffering = () => getPlayer().isBuffering();
+export const isBuffering = () => getPlayer()?.isBuffering();
 
 export const isPlaying = () => !isPaused() && !isBuffering();
 
-export const getCurrentTimeMs = () => (getPlayer()
-  ? getPlayer().getMediaElement().currentTime * 1000
-  : null);
+export const getCurrentTime = () => getPlayer()?.getMediaElement().currentTime;
+
+export const getCurrentTimeMs = () => getPlayer()?.getMediaElement()
+  .currentTime * 1000;
 
 export const getDurationMs = () => getPlayer().getMediaElement().duration * 1000;
 
@@ -25,11 +35,6 @@ export const setVolume = (volume) => {
 
 export const play = () => getPlayer().getMediaElement().play();
 export const pause = () => getPlayer().getMediaElement().pause();
-
-// eslint-disable-next-line no-underscore-dangle
-export const areControlsShown = () => getOverlay().getControls().enabled_
-    && (getOverlay().getControls().getControlsContainer().getAttribute('shown') != null
-    || getOverlay().getControls().getControlsContainer().getAttribute('casting') != null);
 
 export const isTimeInBufferedRange = (timeMs) => {
   const bufferedTimeRange = getPlayer().getMediaElement().buffered;
@@ -44,7 +49,7 @@ export const isTimeInBufferedRange = (timeMs) => {
   return false;
 };
 
-export const isMediaElementAttached = () => getPlayer() && getPlayer().getMediaElement != null;
+export const isMediaElementAttached = () => getPlayer()?.getMediaElement != null;
 
 export const addEventListener = (...args) => getPlayer().addEventListener(...args);
 
@@ -69,6 +74,8 @@ export const cancelTrickPlay = () => getPlayer().cancelTrickPlay();
 
 export const load = (...args) => getPlayer().load(...args);
 
+export const unload = (...args) => getPlayer().unload(...args);
+
 export const getPlaybackRate = () => getPlayer().getPlaybackRate();
 
 export const setPlaybackRate = (rate) => {
@@ -84,6 +91,27 @@ export const getSmallPlayButton = () => getOverlay().getControls().getControlsCo
 
 export const getBigPlayButton = () => getOverlay().getControls().getControlsContainer()
   .getElementsByClassName('shaka-play-button')[0];
+
+export const getDimensions = () => {
+  const {
+    videoWidth, videoHeight, offsetWidth, offsetHeight,
+  } = getPlayer().getMediaElement();
+
+  return {
+    videoWidth, videoHeight, offsetWidth, offsetHeight,
+  };
+};
+
+export const insertElementBeforeVideo = (element) => {
+  const parent = getPlayer().getMediaElement().parentNode;
+
+  parent.insertBefore(
+    element,
+    getPlayer().getMediaElement(),
+  );
+};
+
+export const getMediaElement = () => getPlayer().getMediaElement();
 
 export const destroy = async () => {
   const savedOverlay = getOverlay();

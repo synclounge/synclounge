@@ -13,12 +13,22 @@ Vue.use(Vuex);
 const persistedState = createPersistedState({
   paths: [
     'settings',
+
     'plex.user',
     'plex.plexAuthToken',
     'plex.clientIdentifier',
+
     'plexservers.lastServerId',
     'plexservers.blockedServerIds',
+
     'synclounge.recentRooms',
+    'synclounge.areNotificationsEnabled',
+    'synclounge.areSoundNotificationsEnabled',
+
+    'slplayer.subtitleSize',
+    'slplayer.subtitlePosition',
+    'slplayer.subtitleColor',
+    'slplayer.streamingProtocol',
   ],
 });
 
