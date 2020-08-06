@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     :value="isRightSidebarOpen"
-    style="z-index: 6"
+    style="z-index: 6;"
     app
     right
     class="pa-0"
@@ -93,7 +93,7 @@
     </template>
 
     <div
-      style="height: 100%"
+      style="height: 100%;"
       class="d-flex flex-column"
     >
       <v-list
@@ -113,8 +113,10 @@
 
             <v-icon
               v-if="user.state !== 'playing'"
-              style="font-size: 26px; opacity: 0.8; position: absolute;
-                background-color: rgba(0,0,0,0.7)"
+              style="font-size: 26px;
+                opacity: 0.8;
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0.7);"
             >
               {{ stateIcons[user.state] }}
             </v-icon>
@@ -136,13 +138,13 @@
                     {{ user.username }}
                     <span
                       v-if="id === GET_SOCKET_ID"
-                      style="opacity: 0.6"
+                      style="opacity: 0.6;"
                     >
                       (you)
                     </span>
                   </v-list-item-title>
 
-                  <v-list-item-subtitle style="opacity:0.6;color:white;font-size:70%">
+                  <v-list-item-subtitle style="opacity: 0.6; color: white; font-size: 70%;">
                     {{ getTitle(user.media) }}
                   </v-list-item-subtitle>
                 </div>
@@ -156,7 +158,7 @@
             </v-tooltip>
 
             <div
-              style="font-size:70%"
+              style="font-size: 70%;"
               class="d-flex justify-space-between"
             >
               <div>
@@ -186,7 +188,7 @@
               <template v-slot:activator="{ on, attrs }">
                 <v-icon
                   v-bind="attrs"
-                  style="color: #E5A00D"
+                  style="color: #e5a00d;"
                   v-on="on"
                   @click="AM_I_HOST && id !== GET_HOST_ID ? TRANSFER_HOST(id) : null"
                 >
@@ -379,7 +381,8 @@ export default {
 </script>
 
 <style scoped>
-.user-list, .messages {
+.user-list,
+.messages {
   overflow-y: auto;
 }
 
@@ -391,26 +394,23 @@ export default {
   flex: 1 1 0;
 }
 
-.wideinput .input-group--text-field.input-group--prepend-icon .input-group__details {
-  margin-left: unset;
-  max-width: unset;
-}
-.wideinput .input-group__details {
-  display: none;
-}
 .party-pausing-label label {
   font-size: 12px !important;
 }
+
 .party-pausing-label .v-messages {
   display: none;
 }
+
 .party-pausing-label .v-input__slot {
   margin: 0;
 }
+
 .participant-count {
   font-size: 0.8em;
   color: rgba(255, 255, 255, 0.7);
 }
+
 .v-list__tile {
   padding: 0;
 }

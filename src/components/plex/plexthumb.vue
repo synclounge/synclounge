@@ -11,7 +11,7 @@
     <v-img
       data-tilt
       class="white--text"
-      style="position:relative"
+      style="position: relative;"
       :height="calculatedHeight"
       :src="imgUrl"
     >
@@ -19,30 +19,36 @@
         class="pa-0 ma-0"
         fill-height
         fluid
-        style="position:relative"
+        style="position: relative;"
       >
         <v-row>
           <v-col cols="12">
             <small
               v-if="showServer"
               class="ma-1"
-              style="position:absolute; top:0;text-align:right;right:0;
-                  background: rgba(0, 0, 0, .5)"
+              style="position: absolute;
+                  top: 0;
+                  text-align: right;
+                  right: 0;
+                  background: rgba(0, 0, 0, 0.5);"
             >
               {{ GET_PLEX_SERVER(machineIdentifier).name }}</small>
 
             <div
               v-if="showUnwatchedFlag && !showServer"
               class="pt-content-unwatched pt-orange unwatched pa-1 text-body-2"
-              style="min-width: 16px; min-height: 16px"
+              style="min-width: 16px; min-height: 16px;"
             >
               {{ unwatchedCount }}
             </div>
 
             <div
               v-if="content.Media && content.Media.length != 1 && !showServer"
-              style="position:absolute; right:0; background-color: rgba(43, 43, 191, 0.8);
-                   min-width: 16px; min-height: 16px"
+              style="position: absolute;
+                    right: 0;
+                    background-color: rgba(43, 43, 191, 0.8);
+                    min-width: 16px;
+                    min-height: 16px;"
               class="pa-1 text-body-2"
             >
               {{ content.Media.length }}
@@ -55,7 +61,7 @@
     <v-progress-linear
       v-if="showProgressBar"
       v-slot:progress
-      style="width:100%"
+      style="width: 100%;"
       class="pa-0 mb-0 ma-0 pt-content-progress"
       height="1"
       :value="unwatchedPercent"
@@ -67,16 +73,16 @@
         no-gutters
         align="end"
         class="text-xs-left pa-1 white--text"
-        style="max-width: 100%"
+        style="max-width: 100%;"
       >
         <v-col
           v-if="!bottomOnly"
           cols="12"
-          style="max-width: 100%"
+          style="max-width: 100%;"
         >
           <div
             class="truncate"
-            style="font-size:0.9rem"
+            style="font-size: 0.9rem;"
           >
             {{ getTitle(content) }}
           </div>
@@ -84,7 +90,7 @@
 
         <v-col
           cols="12"
-          style="font-size:0.7rem"
+          style="font-size: 0.7rem;"
         >
           <div class="truncate soft-text">
             {{ getSecondaryTitle(content) }}

@@ -64,7 +64,7 @@
           >
             <v-col
               cols="2"
-              style="font-weight: 600"
+              style="font-weight: 600;"
             >
               {{ coin }}
             </v-col>

@@ -4,10 +4,10 @@
   >
     <v-col
       cols="12"
-      style="position:relative"
+      style="position: relative;"
     >
       <v-progress-circular
-        style="left: 50%; top:50%"
+        style="left: 50%; top: 50%;"
         :size="60"
         indeterminate
         class="amber--text"
@@ -19,19 +19,19 @@
     <v-row>
       <v-col
         cols="12"
-        style="background: rgba(0, 0, 0, .4);"
+        style="background: rgba(0, 0, 0, 0.4);"
       >
         <v-card
           class="darken-2 white--text"
           :img="getArtUrl"
         >
           <v-container
-            style="background:rgba(0,0,0,0.6)"
+            style="background: rgba(0, 0, 0, 0.6);"
             class="pa-3 ma-0"
             fluid
           >
             <v-row
-              style="height:100%"
+              style="height: 100%;"
             >
               <v-col
                 cols="12"
@@ -55,7 +55,7 @@
                   <p> {{ getSeasons }} - {{ metadata.year }} </p>
                   <v-divider />
                   <p
-                    style="font-style: italic"
+                    style="font-style: italic;"
                     class="pt-3; overflow: hidden"
                   >
                     {{ metadata.summary }}
@@ -86,13 +86,13 @@
                       md="6"
                       lg="4"
                     >
-                      <v-chip style="border: none; background: none; color: white">
+                      <v-chip style="border: none; background: none; color: white;">
                         <v-avatar>
                           <img :src="role.thumb">
                         </v-avatar>
                         {{ role.tag }}
                         <div
-                          style="opacity:0.7;font-size:80% "
+                          style="opacity: 0.7; font-size: 80%;"
                           class="pa-2"
                         >
                           {{ role.role }}
@@ -125,7 +125,7 @@
           :content="content"
           :machine-identifier="machineIdentifier"
           type="thumb"
-          style="margin:7%"
+          style="margin: 7%;"
         />
       </v-col>
     </v-row>

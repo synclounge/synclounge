@@ -5,7 +5,7 @@
     <v-col
       cols="12"
       lg="10"
-      style="background: rgba(0,0,0,0.1); border-radius: 10px"
+      style="background: rgba(0, 0, 0, 0.1); border-radius: 10px;"
       class="pa-4"
     >
       <v-row
@@ -25,7 +25,7 @@
 
       <v-stepper
         v-model="e1"
-        style="background: rgba(0,0,0,0.3); border-radius: 20px"
+        style="background: rgba(0, 0, 0, 0.3); border-radius: 20px;"
         dark
         class="ma-4"
       >
@@ -81,7 +81,7 @@
           v-if="!GET_SOCKET_ID && GET_RECENT_ROOMS.length > 0"
           cols="12"
           class="nicelist pa-4"
-          style="color:white !important;"
+          style="color: white !important;"
         >
           <v-subheader>Recent Rooms</v-subheader>
 
@@ -104,7 +104,7 @@
 
                 <v-list-item-subtitle>
                   <b>{{ item.room }}</b>
-                  <span style="opacity: 0.5; float: right">{{ sinceNow(item.time) }}</span>
+                  <span style="opacity: 0.5; float: right;">{{ sinceNow(item.time) }}</span>
                 </v-list-item-subtitle>
               </v-list-item-content>
 
@@ -134,7 +134,7 @@
           v-if="!GET_SOCKET_ID"
           cols="12"
           class="nicelist pa-4"
-          style="color:white !important"
+          style="color: white !important;"
         >
           <v-subheader>Select a server</v-subheader>
 
@@ -152,17 +152,17 @@
             >
               <v-card
                 height="300px"
-                style="border-radius: 20px"
+                style="border-radius: 20px;"
               >
                 <v-row
                   justify="center"
                   align="center"
-                  style="height: 100%"
+                  style="height: 100%;"
                 >
                   <v-col
                     cols="12"
                     class="text-center pa-2"
-                    style="height: 80px"
+                    style="height: 80px;"
                   >
                     <img
                       :src="server.image"
@@ -239,17 +239,17 @@
             >
               <v-card
                 height="300px"
-                style="border-radius: 20px"
+                style="border-radius: 20px;"
               >
                 <v-row
                   justify="center"
                   align="center"
-                  style="height: 100%"
+                  style="height: 100%;"
                 >
                   <v-col
                     cols="12"
                     class="text-center pa-2"
-                    style="height: 80px"
+                    style="height: 80px;"
                   >
                     <img
                       src="@/assets/images/synclounge-white.png"
@@ -298,7 +298,7 @@
                   class="pt-orange white--text pa-0 ma-0"
                   color="primary"
                   primary
-                  style="width:100%"
+                  style="width: 100%;"
                   @click="attemptConnectCustom"
                 >
                   Connect
@@ -312,12 +312,12 @@
             class="pt-3"
           >
             <v-col cols="12">
-              <div style="width:100%;text-align:center">
+              <div style="width: 100%; text-align: center;">
                 <v-progress-circular
                   indeterminate
                   :size="50"
                   class="amber--text"
-                  style="display:inline-block"
+                  style="display: inline-block;"
                 />
               </div>
             </v-col>

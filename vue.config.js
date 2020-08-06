@@ -37,12 +37,10 @@ module.exports = {
     node: false,
   },
 
-  // pluginOptions: {
-  //   webpackBundleAnalyzer: {
-  //     openAnalyzer: false,
-  //     analyzerMode: process.env.VUE_CLI_MODERN_MODE ? 'server' : 'disabled',
-  //   },
-  // },
+  pluginOptions: {
+    lintStyleOnBuild: true,
+    stylelint: {},
+  },
 
   // devServer: {
   //   disableHostCheck: true,

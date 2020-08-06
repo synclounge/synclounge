@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-col
       lg="8"
-      style="background: rgba(0,0,0,0.1); border-radius: 10px"
+      style="background: rgba(0, 0, 0, 0.1); border-radius: 10px;"
       class="pa-4"
     >
       <v-row justify="center">
@@ -11,7 +11,7 @@
           lg="4"
         >
           <img
-            style="width:100%"
+            style="width: 100%;"
             src="@/assets/images/logos/logo-long-light.png"
           >
         </v-col>
@@ -19,7 +19,7 @@
 
       <v-stepper
         v-model="e1"
-        style="background: rgba(0,0,0,0.3); color: white !important; border-radius: 20px"
+        style="background: rgba(0, 0, 0, 0.3); color: white !important; border-radius: 20px;"
         class="ma-4"
       >
         <v-stepper-header dark>
@@ -99,7 +99,7 @@
 
             <v-list
               dense
-              style="background: none"
+              style="background: none;"
             >
               <v-list-item-group
                 v-model="previewClientId"
@@ -109,7 +109,7 @@
                   :key="id"
                   :value="id"
                   :client-id="id"
-                  style="cursor: pointer"
+                  style="cursor: pointer;"
                 />
               </v-list-item-group>
             </v-list>
@@ -128,11 +128,11 @@
                 <v-col
                   md="3"
                   class="text-center"
-                  style="position: relative"
+                  style="position: relative;"
                 >
                   <img
                     :src="url"
-                    style="height: 100px; width: auto; vertical-align: middle"
+                    style="height: 100px; width: auto; vertical-align: middle;"
                   >
                 </v-col>
 
@@ -142,22 +142,22 @@
 
                     <div>
                       <label>Last seen</label>
-                      <span style="opacity:0.8">{{ lastSeenAgo(previewClient.lastSeenAt) }}</span>
+                      <span style="opacity: 0.8;">{{ lastSeenAgo(previewClient.lastSeenAt) }}</span>
                     </div>
 
                     <div>
                       <label>Device</label>
-                      <span style="opacity:0.8">{{ previewClient.device }}</span>
+                      <span style="opacity: 0.8;">{{ previewClient.device }}</span>
                     </div>
 
                     <div>
                       <label>Running</label>
-                      <span style="opacity:0.8">{{ previewClient.product }}</span>
+                      <span style="opacity: 0.8;">{{ previewClient.product }}</span>
                     </div>
 
                     <div class="pb-2">
                       <label>Platform</label>
-                      <span style="opacity:0.8">{{ previewClient.platform }}</span>
+                      <span style="opacity: 0.8;">{{ previewClient.platform }}</span>
                     </div>
 
                     <div
@@ -196,12 +196,12 @@
                     v-else
                     class="center spinner-orange"
                   >
-                    <div style="width:100%;text-align:center">
+                    <div style="width: 100%; text-align: center;">
                       <v-progress-circular
                         indeterminate
                         :size="50"
                         class="amber--text"
-                        style="display:inline-block"
+                        style="display: inline-block;"
                       />
                     </div>
                   </div>
@@ -255,7 +255,7 @@
 
             <v-list
               dense
-              style="background: none"
+              style="background: none;"
               :value="GET_CHOSEN_CLIENT_ID"
             >
               <v-list-item-group
@@ -266,7 +266,7 @@
                   :key="id"
                   :value="id"
                   :client-id="id"
-                  style="cursor: pointer"
+                  style="cursor: pointer;"
                 />
               </v-list-item-group>
             </v-list>

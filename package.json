@@ -7,7 +7,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --modern",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "lint:style": "vue-cli-service lint:style"
   },
   "dependencies": {
     "caf": "^9.1.0",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.10.4",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
+    "@samhammer/vue-cli-plugin-stylelint": "^2.0.0",
     "@vue/cli-plugin-babel": "^4.4.6",
     "@vue/cli-plugin-eslint": "^4.4.6",
     "@vue/cli-plugin-router": "^4.4.6",
@@ -43,6 +45,8 @@
     "shaka-player": "^2.5.13",
     "socket.io-client": "^2.3.0",
     "string-similarity": "^4.0.2",
+    "stylelint": "^13.0.0",
+    "stylelint-config-standard": "^20.0.0",
     "v-clipboard": "^2.2.3",
     "vanilla-tilt": "^1.7.0",
     "vue-chat-scroll": "^1.4.0",

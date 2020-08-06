@@ -26,7 +26,7 @@ h4 {
 }
 
 h5 {
-  color: #E5A00D;
+  color: #e5a00d;
 }
 
 h6 {
@@ -35,7 +35,10 @@ h6 {
 
 /* Background/Text Colors */
 
-a:hover, a:visited, a:link, a:active {
+a:hover,
+a:visited,
+a:link,
+a:active {
   text-decoration: none;
 }
 
@@ -45,18 +48,20 @@ html {
 }
 
 ::-webkit-scrollbar {
-  width: 0px;
   /* remove scrollbar space */
   background: transparent;
+
   /* optional: just make scrollbar invisible */
+  width: 2px;
+  height: 2px;
 }
 
 .pt-orange {
-  background-color: #E5A00D;
+  background-color: #e5a00d;
 }
 
 .pt-orange-text {
-  color: #E5A00D;
+  color: #e5a00d;
 }
 
 .highlightBorder {
@@ -65,11 +70,7 @@ html {
 
 main {
   background: #2b5876;
-  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to top, #182848, #2b5876);
-  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to bottom, #1F1C2C, #182848);
-  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to bottom, #1f1c2c, #182848);
 }
 
 .clickable {
@@ -77,11 +78,11 @@ main {
 }
 
 .input-group--text-field.input-group--focused label {
-  color: #E5A00D;
+  color: #e5a00d;
 }
 
 .input-group--focused {
-  border-color: #E5A00D;
+  border-color: #e5a00d;
 }
 
 .card {
@@ -89,22 +90,16 @@ main {
   -webkit-border-radius: 5px !important;
   -moz-border-radius: 5px !important;
   border-radius: 5px !important;
+
   /* box-shadow */
   -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
   -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
 }
 
-.unwatched {
-  /* border-radius */
-  /* -webkit-border-radius: 0px 0 5px 0 !important;
-  -moz-border-radius: 5px 0 5px 0 !important;
-  border-radius: 5px 0 5px 0 !important; */
-}
-
 /* FIX Chat text not wrapping */
-
-.list__tile__sub-title, .v-list__tile__title {
+.list__tile__sub-title,
+.v-list__tile__title {
   overflow-wrap: break-word;
   overflow-x: visible;
   white-space: initial;
@@ -130,12 +125,6 @@ main {
 }
 
 /* Scrollbar */
-
-::-webkit-scrollbar {
-  width: 2px;
-  height: 2px;
-}
-
 ::-webkit-scrollbar-button {
   width: 2px;
   height: 2px;
@@ -143,37 +132,32 @@ main {
 
 ::-webkit-scrollbar-thumb {
   background: rgba(229, 160, 13, 0.6);
-  border: 0px none #ffffff;
-  border-radius: 0px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #ffffff;
-}
-
-::-webkit-scrollbar-thumb:active {
-  background: #000000;
+  border: 0 none #fff;
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-track {
   background: #353e58;
-  border: 0px none #ffffff;
+  border: 0 none #fff;
   border-radius: 50px;
 }
 
+::-webkit-scrollbar-thumb:hover {
+  background: #fff;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #000;
+}
+
 ::-webkit-scrollbar-track:hover {
-  background: #666666;
+  background: #666;
 }
 
 ::-webkit-scrollbar-track:active {
-  background: #333333;
-}
-
-::-webkit-scrollbar-corner {
-  background: transparent;
+  background: #333;
 }
 
 .thick--text {
   font-weight: 600;
 }
-

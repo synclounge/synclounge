@@ -9,10 +9,10 @@
     >
       <v-col
         cols="12"
-        style="position: relative"
+        style="position: relative;"
       >
         <v-progress-circular
-          style="left:50%; top:50%"
+          style="left: 50%; top: 50%;"
           :size="60"
           indeterminate
           class="amber--text"
@@ -47,20 +47,20 @@
             :img="getArtLibrary(library)"
             flat
             class="clickable text-center"
-            style="max-width:100%; cursor: pointer; border-radius: 0px !important"
+            style="max-width: 100%; cursor: pointer; border-radius: 0 !important;"
             @click.native="setLibrary(library)"
           >
             <div
-              style="position:relative; width:100%; background: rgba(0,0,0,0.4); height:8em"
+              style="position: relative; width: 100%; background: rgba(0, 0, 0, 0.4); height: 8em;"
               class="hidden-xs-only"
             >
               <img
-                style="height: 70%; display: block; margin-left: auto; margin-right: auto "
+                style="height: 70%; display: block; margin-left: auto; margin-right: auto;"
                 :src="getThumb(library)"
               >
             </div>
             <div
-              style="background: rgba(0,0,0,0.7); position:relative; width:100%;"
+              style="background: rgba(0, 0, 0, 0.7); position: relative; width: 100%;"
               class="text-center pa-1"
             >
               <h2 class="truncate text-xs-left text-sm-center">
@@ -91,7 +91,7 @@
           class="ml-auto"
         >
           <v-icon
-            style="cursor: pointer"
+            style="cursor: pointer;"
             :style="onDeckDownStyle"
             @click="onDeckDown"
           >
@@ -100,7 +100,7 @@
 
           <v-icon
             :style="onDeckUpStyle"
-            style="cursor: pointer"
+            style="cursor: pointer;"
             @click="onDeckUp"
           >
             navigate_next
@@ -158,7 +158,7 @@
 
           <v-icon
             :style="recentlyAddedUpStyle"
-            style="cursor: pointer"
+            style="cursor: pointer;"
             @click="recentlyAddedUp"
           >
             navigate_next

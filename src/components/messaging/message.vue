@@ -42,7 +42,7 @@ export default {
 
 <style scoped>
 .message-content {
-   white-space: normal !important;
-   font-weight: normal !important;
+  white-space: normal !important;
+  font-weight: normal !important;
 }
 </style>

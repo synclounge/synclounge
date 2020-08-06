@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div style="text-align:center">
-      <h4 style="text-align:initial">
+    <div style="text-align: center;">
+      <h4 style="text-align: initial;">
         Plex Client Polling Interval
       </h4>
 
@@ -22,10 +22,10 @@
     <v-divider />
 
     <div
-      style="text-align:center"
+      style="text-align: center;"
       class="pt-4"
     >
-      <h4 style="text-align:initial">
+      <h4 style="text-align: initial;">
         Sync Flexibility
       </h4>
 
@@ -46,10 +46,10 @@
     <v-divider />
 
     <div
-      style="text-align:center"
+      style="text-align: center;"
       class="pt-4"
     >
-      <h4 style="text-align:initial">
+      <h4 style="text-align: initial;">
         Streaming Protocol
       </h4>
 
@@ -64,10 +64,10 @@
     </div>
 
     <div
-      style="text-align:center"
+      style="text-align: center;"
       class="pt-4"
     >
-      <h4 style="text-align:initial">
+      <h4 style="text-align: initial;">
         Syncing Method
       </h4>
 
@@ -89,10 +89,10 @@
     </div>
 
     <div
-      style="text-align:center"
+      style="text-align: center;"
       class="pt-4"
     >
-      <h4 style="text-align:initial">
+      <h4 style="text-align: initial;">
         Autoplay
       </h4>
 
@@ -106,10 +106,10 @@
     </div>
 
     <div
-      style="text-align:center"
+      style="text-align: center;"
       class="pt-4"
     >
-      <h4 style="text-align:initial">
+      <h4 style="text-align: initial;">
         SLPlayer Force Transcode
       </h4>
 

@@ -9,7 +9,7 @@
     >
       <v-card
         :loading="loading"
-        style="background: rgba(0,0,0,0.3)"
+        style="background: rgba(0, 0, 0, 0.3);"
         class="pa-4"
       >
         <v-alert

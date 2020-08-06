@@ -14,7 +14,7 @@
       </v-list-item-avatar>
 
       <v-list-item-content>
-        <v-list-item-title style="font-weight: bold">
+        <v-list-item-title style="font-weight: bold;">
           {{ GET_PLEX_USER.username }}
         </v-list-item-title>
       </v-list-item-content>
@@ -144,7 +144,7 @@
       <v-divider />
       <div
         class="text-center pa-2"
-        style="opacity: 0.7; font-size: 12px"
+        style="opacity: 0.7; font-size: 12px;"
       >
         <div>Branch {{ branch }}</div>
         <div>Build #{{ hash }}</div>

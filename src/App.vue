@@ -7,7 +7,7 @@
       app
       scroll-off-screen
       :scroll-threshold="1"
-      style="z-index: 5"
+      style="z-index: 5;"
     >
       <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN" />
 
@@ -19,7 +19,7 @@
         <img
           height="42"
           src="@/assets/images/logos/logo-long-light.png"
-          style="vertical-align: middle"
+          style="vertical-align: middle;"
         >
       </picture>
 
@@ -104,7 +104,7 @@
       <v-container
         align="start"
         :style="containerStyle"
-        style="height: 100%"
+        style="height: 100%;"
         fluid
       >
         <v-container
@@ -136,7 +136,7 @@
           timeout="4000"
           @input="SET_SNACKBAR_OPEN"
         >
-          <div style="text-align:center; width:100%">
+          <div style="text-align: center; width: 100%;">
             {{ GET_SNACKBAR_MESSAGE }}
           </div>
         </v-snackbar>
