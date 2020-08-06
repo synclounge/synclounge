@@ -107,7 +107,8 @@ export default {
   },
 
   RERENDER_SUBTITLE_CONTAINER: async ({ dispatch }) => {
-    // Handle letterboxing around the video. If the width or height are greater than the video can be, then consider that dead space.
+    // Handle letterboxing around the video. If the width or height are greater than the video can
+    // be, then consider that dead space.
     if (!subtitleRenderer) {
       return;
     }

@@ -129,8 +129,8 @@ export default {
 
   HANDLE_PLAYER_PAUSE: async ({ dispatch }) => {
     if (isBuffering()) {
-      // If we are buffering, then we don't need to actually change the state, but we should send out
-      // a new state update to synclounge since we have seeked
+      // If we are buffering, then we don't need to actually change the state, but we should send
+      // out a new state update to synclounge since we have seeked
       await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
     } else if (isPresentationPaused()) {
       await dispatch('CHANGE_PLAYER_STATE', 'paused');
@@ -322,7 +322,8 @@ export default {
 
   NAVIGATE_AND_INITIALIZE_PLAYER: ({ commit }) => {
     console.debug('NAVIGATE_AND_INITIALIZE_PLAYER');
-    // I don't really like this. I'd rather have the player be part of the main app rather than a vue route
+    // I don't really like this. I'd rather have the player be part of the main app rather than a
+    // vue route
     // TODO: above
 
     // TODO: this is bad practice, so if you know a better way...

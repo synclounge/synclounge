@@ -253,8 +253,10 @@ export default {
     },
 
     inviteUrl() {
-      // TODO: investigate passwords and invites. Is there really a point of a password if the invite link contains it?
-      // One alternative is to prompt for a password always instead, but maybe we don't need passwords at all
+      // TODO: investigate passwords and invites. Is there really a point of a password if the
+      // invite link contains it?
+      // One alternative is to prompt for a password always instead, but maybe we don't need
+      // passwords at all
       if (this.GET_ROOM) {
         if (this.GET_CONFIG.autojoin) {
           // If autojoin, just link to main site

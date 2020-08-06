@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /**
- * An implementation of libjass.renderers.Clock that generates {@link libjass.renderers.ClockEvent}s according to the state of a <video> element.
+ * An implementation of libjass.renderers.Clock that generates
+ * {@link libjass.renderers.ClockEvent}s according to the state of a <video> element.
  *
  * @param {!HTMLVideoElement} video
  */
@@ -76,7 +77,8 @@ export default class VideoClock {
    * Enable or disable the clock.
    *
    * @param {boolean} enabled If true, the clock is enabled, otherwise it's disabled.
-   * @return {boolean} True if the clock is now in the given state, false if it was already in that state.
+   * @return {boolean} True if the clock is now in the given state, false if it was already in that
+   * state.
    */
   setEnabled(enabled) {
     if (enabled) {

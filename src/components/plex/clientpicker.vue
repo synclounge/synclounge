@@ -112,7 +112,8 @@ export default {
         this.SET_CHOSEN_CLIENT_ID(clientIdentifier);
         this.$emit('clientConnectableChange', true);
       } catch (e) {
-        // TODO: maybe add lock or cancel test if user clicks on other client while previous is still checking
+        // TODO: maybe add lock or cancel test if user clicks on other client while previous is
+        // still checking
         console.log(e);
         this.error = true;
       }

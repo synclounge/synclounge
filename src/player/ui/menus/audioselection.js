@@ -83,7 +83,7 @@ export default (store) => {
       });
     }
 
-    onAudioClicked(audioId) {
+    static onAudioClicked(audioId) {
       store.dispatch('slplayer/CHANGE_AUDIO_STREAM', audioId);
     }
 

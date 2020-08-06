@@ -101,7 +101,8 @@ export default {
       // TODO: potentially wait for stuff..
 
       // Plex remote control API says:
-      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia commandID."
+      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia
+      // commandID."
       const commandId = getters.GET_COMMAND_ID;
 
       await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
@@ -252,7 +253,8 @@ export default {
       if (getters.GET_LAST_PLAY_MEDIA_COMMAND_ID != null
         && timeline.commandID < getters.GET_LAST_PLAY_MEDIA_COMMAND_ID) {
       // Plex remote control api says:
-      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia commandID."
+      // "After sending PlayMedia, the controller ignores timelines older than the last PlayMedia
+      // commandID."
         return;
       }
 
@@ -270,7 +272,8 @@ export default {
     }
   },
 
-  // Same return as FETCH_TIMELINE_POLL_DATA but usees the cached data (if normal plex client rather than making a request)
+  // Same return as FETCH_TIMELINE_POLL_DATA but usees the cached data (if normal plex client rather
+  // than making a request)
   // or asks slplayer since it can do that with no delay
   FETCH_TIMELINE_POLL_DATA_CACHE: ({ getters, dispatch }) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
@@ -500,7 +503,8 @@ export default {
 
   FETCH_METADATA_OF_PLAY_QUEUE_ITEM: ({ getters, dispatch }, playQueueItem) => {
     if (playQueueItem.source) {
-      // If source is defined on selected item, then it is on a different server and we need to do more stuff.
+      // If source is defined on selected item, then it is on a different server and we need to do
+      // more stuff
       // Source looks likes: "server://{MACHINE_IDENTIFIER}/com.plexapp.plugins.library"
       const regex = /^server:\/\/(\w+)\//;
       const machineIdentifier = playQueueItem.source.match(regex)[1];

@@ -74,7 +74,7 @@ export default (store) => {
       });
     }
 
-    onSubtitleOffsetClicked(offsetIncrement) {
+    static onSubtitleOffsetClicked(offsetIncrement) {
       return store.dispatch('slplayer/CHANGE_SUBTITLE_OFFSET', offsetIncrement);
     }
 

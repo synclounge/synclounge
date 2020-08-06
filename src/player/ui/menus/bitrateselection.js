@@ -83,7 +83,7 @@ export default (store) => {
       });
     }
 
-    onBitrateClicked(bitrate) {
+    static onBitrateClicked(bitrate) {
       store.dispatch('slplayer/CHANGE_MAX_VIDEO_BITRATE', bitrate);
     }
 

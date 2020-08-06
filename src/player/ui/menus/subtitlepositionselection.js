@@ -85,7 +85,7 @@ export default (store) => {
       });
     }
 
-    onSubtitlePositionClicked(position) {
+    static onSubtitlePositionClicked(position) {
       store.dispatch('slplayer/CHANGE_SUBTITLE_POSITION', position);
     }
 

@@ -39,11 +39,11 @@ export default {
     commit('SET_SOCKET_ID', id);
 
     // Wait for initial slPing
-    // Doing it this way rather than adding the normal listener because there is no guarentee on the order
-    // of event handlers so, if I did a one time listener for slping just to wait, that handler might be fired first,
-    // which means it will do stuff before actually responding to the ping (which the normal handler does).
-    // I am not very happy with this but I don't know of a easy better way atm. Maybe reactive streams in the future,
-    // but that's a bit over my head now
+    // Doing it this way rather than adding the normal listener because there is no guarentee on
+    // the order of event handlers so, if I did a one time listener for slping just to wait, that
+    // handler might be fired first, which means it will do stuff before actually responding to the
+    // ping(which the normal handler does). I am not very happy with this but I don't know of a easy
+    // better way atm. Maybe reactive streams in the future, but that's a bit over my head now
     const secret = await waitForEvent('slPing');
 
     // Explicitly handling the slping because we haven't registered the events yet
@@ -460,7 +460,6 @@ export default {
       */
 
     if (!getters.GET_SYNC_CANCEL_TOKEN) {
-      // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
       // eslint-disable-next-line new-cap
       const token = new CAF.cancelToken();
       commit('SET_SYNC_CANCEL_TOKEN', token);
@@ -475,7 +474,8 @@ export default {
     }
   },
 
-  // Interal action without lock. Use the one with the lock to stop multiple syncs from happening at once
+  // Interal action without lock. Use the one with the lock to stop multiple syncs from happening
+  // at once
   _SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, dispatch, rootGetters }, cancelSignal) => {
     console.debug('_SYNC_MEDIA_AND_PLAYER_STATE');
     // TODO: potentailly don't do anythign if we have no timeline data yet
@@ -523,7 +523,6 @@ export default {
     }
 
     if (!getters.GET_SYNC_CANCEL_TOKEN) {
-      // Basically a lock that only allows 1 sync at a time (TODO: PLEASE PLEASE IMPLEMENT CANCELLING TOOOOO)
       // eslint-disable-next-line new-cap
       const token = new CAF.cancelToken();
       commit('SET_SYNC_CANCEL_TOKEN', token);
@@ -582,7 +581,7 @@ export default {
 
     await dispatch('plexclients/PLAY_MEDIA', {
       mediaIndex: media.mediaIndex || 0,
-      // TODO: potentially play ahead a bit by the time it takes to buffer / transcode. (figure out how to calculate that)
+      // TODO: potentially play ahead a bit by the time it takes to buffer / transcode.
       offset: offset || 0,
       metadata: media,
       machineIdentifier: media.machineIdentifier,

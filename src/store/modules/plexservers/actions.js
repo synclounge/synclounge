@@ -140,7 +140,9 @@ export default {
           mediaIndex: hostTimeline.mediaIndex,
         };
         // eslint-disable-next-line no-empty
-      } catch { }
+      } catch (e) {
+        console.warn('Error fetching metadata for same media as host', e);
+      }
     }
 
     const results = await dispatch('SEARCH_UNBLOCKED_PLEX_SERVERS', hostTimeline.title);

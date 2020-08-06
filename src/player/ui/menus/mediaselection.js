@@ -83,7 +83,7 @@ export default (store) => {
       });
     }
 
-    onMediaClicked(index) {
+    static onMediaClicked(index) {
       store.dispatch('slplayer/CHANGE_MEDIA_INDEX', index);
     }
 
