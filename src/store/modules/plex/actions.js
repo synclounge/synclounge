@@ -126,7 +126,8 @@ export default {
 
     const nonRelayConnections = connections.filter((connection) => !connection.relay);
     // Prefer secure connections first.
-    const secureConnections = nonRelayConnections.filter((connection) => connection.protocol === 'https');
+    const secureConnections = nonRelayConnections.filter((connection) => connection.protocol
+      === 'https');
 
     try {
       return dispatch('FIND_WORKING_CONNECTION', { connections: secureConnections, accessToken });
@@ -136,7 +137,8 @@ export default {
 
     // If we are using synclounge over https, we can't access connections over http because
     // most modern web browsers block mixed content
-    const insecureConnections = nonRelayConnections.filter((connection) => connection.protocol === 'http');
+    const insecureConnections = nonRelayConnections.filter((connection) => connection.protocol
+      === 'http');
     try {
       return dispatch('FIND_WORKING_CONNECTION', { connections: insecureConnections, accessToken });
     } catch (e) {

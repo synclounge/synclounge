@@ -52,7 +52,8 @@ export default {
   },
 
   JOIN_ROOM: async ({ getters, rootGetters, dispatch }) => {
-    const joinPlayerData = await dispatch('plexclients/FETCH_JOIN_PLAYER_DATA', null, { root: true });
+    const joinPlayerData = await dispatch('plexclients/FETCH_JOIN_PLAYER_DATA', null,
+      { root: true });
 
     emit({
       eventName: 'join',
@@ -191,15 +192,18 @@ export default {
       .map(async ({ url }) => [
         url,
         {
-          ...await fetchJson(combineRelativeUrlParts(url, 'health'), null, { signal: controller.signal }),
+          ...await fetchJson(combineRelativeUrlParts(url, 'health'), null,
+            { signal: controller.signal }),
           latency: Date.now() - start,
         },
       ]));
 
     clearTimeout(timeout);
 
-    const aliveServerHealths = Object.fromEntries(results.filter((result) => result.status === 'fulfilled')
-      .map(({ value }) => value));
+    const aliveServerHealths = Object.fromEntries(
+      results.filter((result) => result.status === 'fulfilled')
+        .map(({ value }) => value),
+    );
 
     commit('SET_SERVERS_HEALTH', aliveServerHealths);
   },
@@ -241,8 +245,14 @@ export default {
     registerListener({ eventName: 'slPing', action: 'HANDLE_SLPING' });
     registerListener({ eventName: 'playerStateUpdate', action: 'HANDLE_PLAYER_STATE_UPDATE' });
     registerListener({ eventName: 'mediaUpdate', action: 'HANDLE_MEDIA_UPDATE' });
-    registerListener({ eventName: 'syncFlexibilityUpdate', action: 'HANDLE_SYNC_FLEXIBILITY_UPDATE' });
-    registerListener({ eventName: 'setPartyPausingEnabled', action: 'HANDLE_SET_PARTY_PAUSING_ENABLED' });
+    registerListener({
+      eventName: 'syncFlexibilityUpdate',
+      action: 'HANDLE_SYNC_FLEXIBILITY_UPDATE',
+    });
+    registerListener({
+      eventName: 'setPartyPausingEnabled',
+      action: 'HANDLE_SET_PARTY_PAUSING_ENABLED',
+    });
     registerListener({ eventName: 'partyPause', action: 'HANDLE_PARTY_PAUSE' });
     registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
     registerListener({ eventName: 'connect', action: 'HANDLE_RECONNECT' });
@@ -294,7 +304,8 @@ export default {
     await dispatch('CANCEL_UPNEXT');
 
     // Check if we need to activate the upnext feature
-    if (getters.AM_I_HOST && playerState.state !== 'stopped' && !rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
+    if (getters.AM_I_HOST && playerState.state !== 'stopped'
+      && !rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
       // If in region and not already scheduled
       if (await dispatch('CALC_IS_IN_UPNEXT_REGION', playerState)) {
         if (!getters.GET_UP_NEXT_TRIGGERED) {
@@ -313,7 +324,8 @@ export default {
 
   PROCESS_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }, noSync) => {
     // TODO: only send message if in room, check in room
-    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
+      { root: true });
 
     commit('SET_USER_PLAYER_STATE', {
       ...playerState,
@@ -336,7 +348,8 @@ export default {
     dispatch, getters, commit, rootGetters,
   }) => {
     // TODO: only send message if in room, check in room
-    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
+      { root: true });
 
     if (playerState.state !== 'stopped') {
       if (rootGetters.GET_UP_NEXT_POST_PLAY_DATA) {
@@ -479,7 +492,8 @@ export default {
   _SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, dispatch, rootGetters }, cancelSignal) => {
     console.debug('_SYNC_MEDIA_AND_PLAYER_STATE');
     // TODO: potentailly don't do anythign if we have no timeline data yet
-    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
+      { root: true });
 
     if (rootGetters['plexclients/ALREADY_SYNCED_ON_CURRENT_TIMELINE']) {
     // TODO: examine if I should throw error or handle it another way
@@ -499,7 +513,8 @@ export default {
 
     // Logic for deciding whether we should play somethign different
     if (rootGetters['settings/GET_AUTOPLAY']) {
-      const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH', getters.GET_HOST_USER.media, { root: true });
+      const bestMatch = await dispatch('plexservers/FIND_BEST_MEDIA_MATCH',
+        getters.GET_HOST_USER.media, { root: true });
       if (bestMatch) {
         if (!rootGetters['plexclients/IS_THIS_MEDIA_PLAYING'](bestMatch)) {
           // If we aren't playing the best match, play it
@@ -540,7 +555,8 @@ export default {
   // Private version without lock. Please use the locking version unless you know what you are doing
   _SYNC_PLAYER_STATE: async ({ getters, dispatch }, cancelSignal) => {
     console.debug('_SYNC_PLAYER_STATE');
-    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null, { root: true });
+    const timeline = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
+      { root: true });
 
     // TODO: examine if we want this or not
     if (timeline.state === 'buffering') {

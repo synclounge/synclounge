@@ -451,10 +451,12 @@ export default {
       continuing: 1,
     });
 
-    await dispatch('plexclients/UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM', null, { root: true });
+    await dispatch('plexclients/UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM', null,
+      { root: true });
     // TODO: maybe plex indicates ongoing media index?
     commit('SET_MEDIA_INDEX', 0);
-    commit('SET_OFFSET_MS', rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].viewOffset || 0);
+    commit('SET_OFFSET_MS',
+      rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].viewOffset || 0);
     commit('SET_MASK_PLAYER_STATE', true);
     await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
 
@@ -468,7 +470,8 @@ export default {
 
   SKIP_INTRO: ({ commit, rootGetters }) => {
     console.debug('SKIP_INTRO');
-    const introEnd = rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER'].endTimeOffset;
+    const introEnd = rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER']
+      .endTimeOffset;
 
     commit('SET_OFFSET_MS', introEnd);
     setCurrentTimeMs(introEnd);

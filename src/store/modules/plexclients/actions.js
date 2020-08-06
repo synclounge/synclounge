@@ -183,7 +183,8 @@ export default {
     // Store latency to use to adjust time when seeking
     commit('SET_LATENCY', latency);
 
-    const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type === 'video');
+    const videoTimeline = data.MediaContainer[0].Timeline.find((timeline) => timeline.type
+      === 'video');
 
     // Clients seem to respond with strings instead of numbers so need to parse
     const time = parseInt(videoTimeline.time, 10);
@@ -221,7 +222,9 @@ export default {
 
         await dispatch('UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM');
 
-        const serverName = rootGetters['plexservers/GET_PLEX_SERVER'](getters.GET_ACTIVE_SERVER_ID).name;
+        const serverName = rootGetters['plexservers/GET_PLEX_SERVER'](
+          getters.GET_ACTIVE_SERVER_ID,
+        ).name;
         await dispatch('DISPLAY_NOTIFICATION',
           `Now Playing: ${contentTitleUtils.getCombinedTitle(getters.GET_ACTIVE_MEDIA_METADATA)} from ${serverName}`,
           { root: true });
@@ -331,7 +334,8 @@ export default {
       && playerPollData.state === 'paused';
 
     console.debug('SYNC difference', difference);
-    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY'] || (bothPaused && difference > 10)) {
+    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY']
+      || (bothPaused && difference > 10)) {
       // We need to seek!
       // Decide what seeking method we want to use
 
@@ -417,7 +421,8 @@ export default {
     console.debug('SEEK_TO', offset);
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
-        return dispatch('slplayer/SPEED_OR_NORMAL_SEEK', { cancelSignal, seekToMs: offset }, { root: true });
+        return dispatch('slplayer/SPEED_OR_NORMAL_SEEK', { cancelSignal, seekToMs: offset },
+          { root: true });
       }
 
       default: {
@@ -491,7 +496,8 @@ export default {
   },
 
   UPDATE_STATE_FROM_ACTIVE_PLAY_QUEUE_SELECTED_ITEM: async ({ getters, dispatch, commit }) => {
-    const metadata = await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM', getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM);
+    const metadata = await dispatch('FETCH_METADATA_OF_PLAY_QUEUE_ITEM',
+      getters.GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM);
     if (!getters.GET_ACTIVE_MEDIA_METADATA
       || metadata.ratingKey !== getters.GET_ACTIVE_MEDIA_METADATA.ratingKey
       || getters.GET_ACTIVE_SERVER_ID !== metadata.machineIdentifier) {

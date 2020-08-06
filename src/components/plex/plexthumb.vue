@@ -320,7 +320,7 @@ export default {
         easing: 'cubic-bezier(.03,.98,.52,.99)', // Easing on enter/exit.
         glare: false, // if it should have a "glare" effect
         'max-glare': 0.15, // the maximum "glare" opacity (1 = 100%, 0.5 = 50%)
-        'glare-prerender': false, // false = VanillaTilt creates the glare elements for you, otherwise
+        'glare-prerender': false, // false = VanillaTilt creates the glare elements for you
       });
     }
   },

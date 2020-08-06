@@ -8,10 +8,13 @@ const buggyChromeBitrate = 23000;
 export default {
   GET_PLEX_DECISION: (state) => state.plexDecision,
 
-  IS_IN_BUGGY_CHROME_STATE: (state, getters, rootState, rootGetters) => (rootGetters.GET_BROWSER.name === 'chrome'
+  IS_IN_BUGGY_CHROME_STATE: (state, getters, rootState, rootGetters) => (
+    rootGetters.GET_BROWSER.name === 'chrome'
       || rootGetters.GET_BROWSER.name === 'edge-chromium')
-    && (rootGetters['settings/GET_SLPLAYERQUALITY'] == null || rootGetters['settings/GET_SLPLAYERQUALITY'] > buggyChromeBitrate)
-    && rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']?.Media?.[getters.GET_MEDIA_INDEX]?.bitrate > buggyChromeBitrate,
+    && (rootGetters['settings/GET_SLPLAYERQUALITY'] == null
+      || rootGetters['settings/GET_SLPLAYERQUALITY'] > buggyChromeBitrate)
+    && rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+      ?.Media?.[getters.GET_MEDIA_INDEX]?.bitrate > buggyChromeBitrate,
 
   // TODO: Remove this hack when this issue is fixed
   // https://forums.plex.tv/t/plex-skipping-forward-by-a-few-seconds-on-web-player/402112
@@ -19,7 +22,8 @@ export default {
     ? 'hls'
     : state.streamingProtocol),
 
-  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters['plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']),
+  GET_PLEX_SERVER: (state, getters, rootState, rootGetters) => rootGetters[
+    'plexservers/GET_PLEX_SERVER'](rootGetters['plexclients/GET_ACTIVE_SERVER_ID']),
 
   GET_PLEX_SERVER_ACCESS_TOKEN: (state, getters) => (getters.GET_PLEX_SERVER
     ? getters.GET_PLEX_SERVER.accessToken
@@ -37,9 +41,11 @@ export default {
       : 'wan'
     : undefined),
 
-  GET_PART_ID: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
-    ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media[getters.GET_MEDIA_INDEX].Part[0].id
-    : null),
+  GET_PART_ID: (state, getters, rootState, rootGetters) => (
+    rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+      ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+        .Media[getters.GET_MEDIA_INDEX].Part[0].id
+      : null),
 
   GET_SRC_URL: (state, getters) => makeUrl(
     `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.${protocolExtension[getters.GET_STREAMING_PROTOCOL]}`,
@@ -54,9 +60,11 @@ export default {
 
   GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline`,
 
-  GET_STREAMS: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
-    ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media[getters.GET_MEDIA_INDEX].Part[0].Stream
-    : []),
+  GET_STREAMS: (state, getters, rootState, rootGetters) => (
+    rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+      ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+        .Media[getters.GET_MEDIA_INDEX].Part[0].Stream
+      : []),
 
   GET_DECISION_STREAMS: (state, getters) => (getters.GET_PLEX_DECISION
     ? getters.GET_PLEX_DECISION.MediaContainer.Metadata[0].Media[0].Part[0].Stream
@@ -75,13 +83,14 @@ export default {
       id, displayTitle,
     }) => ({ id, text: displayTitle })),
 
-  GET_MEDIA_LIST: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
-    ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media.map(
-      ({ videoResolution, bitrate }, index) => ({
-        index,
-        text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
-      }),
-    ) : []),
+  GET_MEDIA_LIST: (state, getters, rootState, rootGetters) => (
+    rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+      ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].Media.map(
+        ({ videoResolution, bitrate }, index) => ({
+          index,
+          text: `${Math.round(bitrate / 100) / 10} Mbps, ${videoResolution}p`,
+        }),
+      ) : []),
 
   GET_QUALITIES: () => qualities,
 
@@ -101,9 +110,11 @@ export default {
   // TODO: fix this 0 fallback
   GET_MEDIA_INDEX: (state) => state.mediaIndex,
 
-  GET_RELATIVE_THUMB_URL: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
-    ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].grandparentThumb || rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].thumb
-    : null),
+  GET_RELATIVE_THUMB_URL: (state, getters, rootState, rootGetters) => (
+    rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+      ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].grandparentThumb
+      || rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].thumb
+      : null),
 
   GET_THUMB_URL: (state, getters, rootState, rootGetters) => (getters.GET_PLEX_SERVER
     ? rootGetters['plexservers/GET_MEDIA_IMAGE_URL']({
@@ -118,17 +129,18 @@ export default {
 
   GET_PLAYER_STATE: (state) => state.playerState,
 
-  GET_TITLE: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
-    ? contenttitleutils.getTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
-    : null),
+  GET_TITLE: (state, getters, rootState, rootGetters) => (
+    rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+      ? contenttitleutils.getTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
+      : null),
 
-  GET_SECONDARY_TITLE: (state, getters, rootState, rootGetters) => (rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
-    ? contenttitleutils.getSecondaryTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
-    : null),
+  GET_SECONDARY_TITLE: (state, getters, rootState, rootGetters) => (
+    rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
+      ? contenttitleutils.getSecondaryTitle(rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'])
+      : null),
 
-  GET_PART_PARAMS: (state, getters, rootState, rootGetters) => rootGetters['plex/GET_PLEX_BASE_PARAMS'](
-    getters.GET_PLEX_SERVER_ACCESS_TOKEN,
-  ),
+  GET_PART_PARAMS: (state, getters, rootState, rootGetters) => rootGetters[
+    'plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
     const base = `append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=${getters.GET_STREAMING_PROTOCOL})`;
@@ -150,7 +162,10 @@ export default {
     subtitleSize: 100,
     audioBoost: 100,
     location: getters.GET_PLEX_SERVER_LOCATION,
-    ...rootGetters['settings/GET_SLPLAYERQUALITY'] && { maxVideoBitrate: rootGetters['settings/GET_SLPLAYERQUALITY'] }, // only include if not null
+    // only include if not null
+    ...rootGetters['settings/GET_SLPLAYERQUALITY'] && {
+      maxVideoBitrate: rootGetters['settings/GET_SLPLAYERQUALITY'],
+    },
     addDebugOverlay: 0,
 
     // TODO: figure out how to make autoAdjustQuality work

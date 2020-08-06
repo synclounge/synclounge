@@ -51,7 +51,8 @@ export default {
 
   HANDLE_DISCONNECT: async ({ dispatch }) => {
     console.log('disconnect');
-    await dispatch('DISPLAY_NOTIFICATION', 'Disconnected from the SyncLounge server', { root: true });
+    await dispatch('DISPLAY_NOTIFICATION',
+      'Disconnected from the SyncLounge server', { root: true });
   },
 
   HANDLE_RECONNECT: async ({ dispatch, commit }) => {

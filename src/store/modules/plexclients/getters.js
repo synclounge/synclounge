@@ -46,7 +46,8 @@ export default {
   GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID: (state) => state.previousSyncTimelineCommandId,
 
   // TODO: come back and reallly examine this logic
-  ALREADY_SYNCED_ON_CURRENT_TIMELINE: (state, getters) => getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
+  ALREADY_SYNCED_ON_CURRENT_TIMELINE: (state, getters) => getters.GET_CHOSEN_CLIENT_ID
+    !== 'PTPLAYER9PLUS10'
   && ((getters.GET_PLEX_CLIENT_TIMELINE_COMMAND_ID === null
     && getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID !== null)
     && getters.GET_PLEX_CLIENT_TIMELINE_COMMAND_ID

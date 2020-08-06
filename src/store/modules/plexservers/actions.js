@@ -11,7 +11,9 @@ export default {
 
     const libraryKey = sample(libraryKeys);
 
-    const librarySize = await dispatch('FETCH_LIBRARY_SIZE', { machineIdentifier, sectionId: libraryKey });
+    const librarySize = await dispatch('FETCH_LIBRARY_SIZE', {
+      machineIdentifier, sectionId: libraryKey,
+    });
     const randomItemIndex = randomInt(librarySize - 1);
 
     const contents = await dispatch('FETCH_LIBRARY_CONTENTS', {
@@ -119,10 +121,12 @@ export default {
   },
 
   SEARCH_UNBLOCKED_PLEX_SERVERS: ({ getters, dispatch }, query) => Promise.allSettled(
-    getters.GET_UNBLOCKED_PLEX_SERVER_IDS.map((machineIdentifier) => dispatch('SEARCH_PLEX_SERVER', {
-      machineIdentifier,
-      query,
-    })),
+    getters.GET_UNBLOCKED_PLEX_SERVER_IDS.map((machineIdentifier) => dispatch(
+      'SEARCH_PLEX_SERVER', {
+        machineIdentifier,
+        query,
+      },
+    )),
   ).then((results) => results.filter((result) => result.status === 'fulfilled')
     .flatMap((result) => result.value)),
 
@@ -350,15 +354,17 @@ export default {
     return data.MediaContainer;
   },
 
-  MARK_WATCHED: ({ dispatch }, { machineIdentifier, ratingKey, signal }) => dispatch('FETCH_PLEX_SERVER', {
-    machineIdentifier,
-    path: '/:/scrobble',
-    params: {
-      identifier: 'com.plexapp.plugins.library',
-      key: ratingKey,
+  MARK_WATCHED: ({ dispatch }, { machineIdentifier, ratingKey, signal }) => dispatch(
+    'FETCH_PLEX_SERVER', {
+      machineIdentifier,
+      path: '/:/scrobble',
+      params: {
+        identifier: 'com.plexapp.plugins.library',
+        key: ratingKey,
+      },
+      signal,
     },
-    signal,
-  }),
+  ),
 
   UPDATE_STREAM: ({ dispatch }, {
     machineIdentifier, id, offset, signal,
