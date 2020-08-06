@@ -226,7 +226,9 @@ export default {
           getters.GET_ACTIVE_SERVER_ID,
         ).name;
         await dispatch('DISPLAY_NOTIFICATION',
-          `Now Playing: ${contentTitleUtils.getCombinedTitle(getters.GET_ACTIVE_MEDIA_METADATA)} from ${serverName}`,
+          `Now Playing: ${contentTitleUtils.getCombinedTitle(
+            getters.GET_ACTIVE_MEDIA_METADATA,
+          )} from ${serverName}`,
           { root: true });
       }
 

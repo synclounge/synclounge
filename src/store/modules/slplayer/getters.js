@@ -48,15 +48,19 @@ export default {
       : null),
 
   GET_SRC_URL: (state, getters) => makeUrl(
-    `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.${protocolExtension[getters.GET_STREAMING_PROTOCOL]}`,
+    `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.${
+      protocolExtension[getters.GET_STREAMING_PROTOCOL]}`,
     getters.GET_DECISION_AND_START_PARAMS,
   ),
 
-  GET_SUBTITLE_BASE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/subtitles`,
+  GET_SUBTITLE_BASE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL
+  }/video/:/transcode/universal/subtitles`,
 
-  GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/decision`,
+  GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL
+  }/video/:/transcode/universal/decision`,
 
-  GET_PART_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/library/parts/${getters.GET_PART_ID}`,
+  GET_PART_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL
+  }/library/parts/${getters.GET_PART_ID}`,
 
   GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline`,
 
@@ -143,9 +147,13 @@ export default {
     'plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
-    const base = `append-transcode-target-codec(type=videoProfile&context=streaming&audioCodec=aac&protocol=${getters.GET_STREAMING_PROTOCOL})`;
+    const base = 'append-transcode-target-codec('
+      + `type=videoProfile&context=streaming&audioCodec=aac&protocol=${
+        getters.GET_STREAMING_PROTOCOL})`;
     return rootGetters['settings/GET_SLPLAYERQUALITY']
-      ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${rootGetters['settings/GET_SLPLAYERQUALITY']}&replace=true)`
+      ? `${base
+      }+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${
+        rootGetters['settings/GET_SLPLAYERQUALITY']}&replace=true)`
       : base;
   },
 

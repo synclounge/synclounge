@@ -316,15 +316,15 @@ export default {
     return totalSize;
   },
 
-  CREATE_PLAY_QUEUE: async ({ dispatch }, { machineIdentifier, ratingKey, signal }) => {
+  CREATE_PLAY_QUEUE: async ({ dispatch }, { machineIdentifier: id, ratingKey, signal }) => {
     const data = await dispatch('FETCH_PLEX_SERVER', {
-      machineIdentifier,
+      machineIdentifier: id,
       method: 'POST',
       path: '/playQueues',
       params: {
         type: 'video',
         continuous: 1,
-        uri: `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${ratingKey}`,
+        uri: `server://${id}/com.plexapp.plugins.library/library/metadata/${ratingKey}`,
         repeat: 0,
         own: 1,
         includeChapters: 1,

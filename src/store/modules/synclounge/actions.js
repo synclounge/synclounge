@@ -523,7 +523,8 @@ export default {
         }
         // TODO: fix
       } else {
-        const message = `Failed to find a compatible copy of ${getters.GET_HOST_USER.media.title}. If you have access to the content try manually playing it.`;
+        const message = `Failed to find a compatible copy of ${getters.GET_HOST_USER.media.title
+        }. If you have access to the content try manually playing it.`;
         console.warn(message);
         await dispatch('DISPLAY_NOTIFICATION', message, { root: true });
       }
