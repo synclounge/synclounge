@@ -187,14 +187,6 @@ export default {
   data() {
     return {
       videoTimeStamp: 0,
-
-      playerConfig: {
-        streaming: {
-          bufferingGoal: this.GET_CONFIG.slplayer_buffering_goal,
-          jumpLargeGaps: true,
-        },
-      },
-
     };
   },
 
@@ -224,6 +216,15 @@ export default {
     ...mapGetters([
       'GET_CONFIG',
     ]),
+
+    playerConfig() {
+      return {
+        streaming: {
+          bufferingGoal: this.GET_CONFIG.slplayer_buffering_goal,
+          jumpLargeGaps: true,
+        },
+      };
+    },
 
     skipIntroButtonStyle() {
       return this.ARE_PLAYER_CONTROLS_SHOWN
