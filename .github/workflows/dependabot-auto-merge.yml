@@ -10,4 +10,7 @@ jobs:
     steps:
       - uses: ahmadnassri/action-dependabot-auto-merge@v1
         with:
+          target: patch
+      - uses: ahmadnassri/action-dependabot-auto-merge@v1
+        with:
           target: minor
