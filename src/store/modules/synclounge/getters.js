@@ -26,6 +26,7 @@ export default {
   GET_USERS: (state) => state.users,
   GET_MESSAGES: (state) => state.messages,
   IS_PARTY_PAUSING_ENABLED: (state) => state.isPartyPausingEnabled,
+  IS_AUTO_HOST_ENABLED: (state) => state.isAutoHostEnabled,
   GET_HOST_USER: (state, getters) => getters.GET_USER(getters.GET_HOST_ID),
   AM_I_HOST: (state, getters) => getters.GET_HOST_ID === getters.GET_SOCKET_ID,
 

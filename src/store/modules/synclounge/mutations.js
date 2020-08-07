@@ -1,20 +1,24 @@
 import Vue from 'vue';
 
 export default {
-  SET_USERS(state, value) {
+  SET_USERS: (state, value) => {
     state.users = value;
   },
 
-  SET_ROOM(state, value) {
+  SET_ROOM: (state, value) => {
     state.room = value;
   },
 
-  SET_PASSWORD(state, value) {
+  SET_PASSWORD: (state, value) => {
     state.password = value;
   },
 
-  SET_IS_PARTY_PAUSING_ENABLED(state, isEnabled) {
+  SET_IS_PARTY_PAUSING_ENABLED: (state, isEnabled) => {
     state.isPartyPausingEnabled = isEnabled;
+  },
+
+  SET_IS_AUTO_HOST_ENABLED: (state, isEnabled) => {
+    state.isAutoHostEnabled = isEnabled;
   },
 
   ADD_MESSAGE(state, msg) {

@@ -43,10 +43,10 @@
         </v-list-item-icon>
       </v-list-item>
 
-      <v-list-item>
+      <v-list-item dense>
         <v-switch
           v-if="AM_I_HOST"
-          class="pa-0 mt-2 party-pausing-label"
+          class="pa-0 mt-2"
           label="Party Pausing"
           :input-value="IS_PARTY_PAUSING_ENABLED"
           @change="SEND_SET_PARTY_PAUSING_ENABLED"
@@ -62,7 +62,6 @@
               v-bind="attrs"
               color="primary"
               :disabled="!IS_PARTY_PAUSING_ENABLED"
-              style="min-width: 0; float: right;"
               v-on="on"
               @click="sendPartyPause(GET_HOST_USER.state === 'playing')"
             >
@@ -88,6 +87,28 @@
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
+
+      <v-tooltip
+        v-if="AM_I_HOST"
+        bottom
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-list-item
+            dense
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-switch
+              class="pa-0 ma-0"
+              label="Auto Host"
+              :input-value="IS_AUTO_HOST_ENABLED"
+              @change="SEND_SET_AUTO_HOST_ENABLED"
+            />
+          </v-list-item>
+        </template>
+
+        <span>Automatically transfers host to other users when they play something new</span>
+      </v-tooltip>
 
       <v-divider />
     </template>
@@ -254,6 +275,7 @@ export default {
 
     ...mapGetters('synclounge', [
       'IS_PARTY_PAUSING_ENABLED',
+      'IS_AUTO_HOST_ENABLED',
       'GET_USERS',
       'GET_ROOM',
       'GET_HOST_USER',
@@ -281,6 +303,7 @@ export default {
   methods: {
     ...mapActions('synclounge', [
       'SEND_SET_PARTY_PAUSING_ENABLED',
+      'SEND_SET_AUTO_HOST_ENABLED',
       'sendPartyPause',
       'TRANSFER_HOST',
     ]),
@@ -379,18 +402,6 @@ export default {
 
 .messages {
   flex: 1 1 0;
-}
-
-.party-pausing-label label {
-  font-size: 12px !important;
-}
-
-.party-pausing-label .v-messages {
-  display: none;
-}
-
-.party-pausing-label .v-input__slot {
-  margin: 0;
 }
 
 .participant-count {
