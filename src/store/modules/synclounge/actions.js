@@ -346,7 +346,7 @@ export default {
 
   PROCESS_MEDIA_UPDATE: async ({
     dispatch, getters, commit, rootGetters,
-  }) => {
+  }, userInitiated) => {
     // TODO: only send message if in room, check in room
     const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
       { root: true });
@@ -376,10 +376,15 @@ export default {
       data: {
         media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
         ...playerState,
+        userInitiated,
       },
     });
 
-    await dispatch('SYNC_PLAYER_STATE');
+    await dispatch('PROCESS_UPNEXT', playerState);
+
+    if (!userInitiated) {
+      await dispatch('SYNC_PLAYER_STATE');
+    }
   },
 
   ADD_MESSAGE_AND_CACHE_AND_NOTIFY: async ({ getters, dispatch }, msg) => {

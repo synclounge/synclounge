@@ -71,7 +71,6 @@ export default {
   },
 
   HANDLE_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }, data) => {
-    // TODO: probalby sync if its from the hsot
     commit('SET_USER_PLAYER_STATE', data);
 
     if (data.id === getters.GET_HOST_ID) {
@@ -83,9 +82,8 @@ export default {
   HANDLE_MEDIA_UPDATE: async ({
     getters, dispatch, commit,
   }, {
-      id, state, time, duration, media,
+      id, state, time, duration, media, makeHost,
     }) => {
-    // TODO: maybe sync or play new media thing
     commit('SET_USER_PLAYER_STATE', {
       id,
       state,
@@ -97,6 +95,11 @@ export default {
       id,
       media,
     });
+
+    if (makeHost) {
+      await dispatch('HANDLE_NEW_HOST', id);
+      return;
+    }
 
     if (id === getters.GET_HOST_ID) {
       await dispatch('CANCEL_IN_PROGRESS_SYNC');

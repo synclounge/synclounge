@@ -458,7 +458,7 @@ export default {
     commit('SET_OFFSET_MS',
       rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].viewOffset || 0);
     commit('SET_MASK_PLAYER_STATE', true);
-    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
+    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', true, { root: true });
 
     await dispatch('CHANGE_PLAYER_SRC');
 

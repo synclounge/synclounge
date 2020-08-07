@@ -713,6 +713,7 @@ export default {
           mediaIndex,
           machineIdentifier: this.machineIdentifier,
           offset,
+          userInitiated: true,
         });
       } catch (e) {
         if (e.code === 7000) {
