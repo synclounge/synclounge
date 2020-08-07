@@ -61,10 +61,10 @@
             <v-btn
               v-bind="attrs"
               color="primary"
-              :disabled="!canPause"
+              :disabled="!IS_PARTY_PAUSING_ENABLED"
               style="min-width: 0; float: right;"
               v-on="on"
-              @click="sendPartyPauseLocal(GET_HOST_USER.state === 'playing')"
+              @click="sendPartyPause(GET_HOST_USER.state === 'playing')"
             >
               <v-icon v-if="GET_HOST_USER.state === 'playing'">
                 pause
@@ -76,8 +76,8 @@
             </v-btn>
           </template>
 
-          <span>Party Pausing is currently {{ canPause ? 'enabled' : 'disabled' }} by the
-            host</span>
+          <span>Party Pausing is currently {{
+            IS_PARTY_PAUSING_ENABLED ? 'enabled' : 'disabled' }} by the host</span>
         </v-tooltip>
 
         <v-list-item-content
@@ -243,7 +243,6 @@ export default {
 
       // This is updated periodically and is what makes the player times advance (if playing)
       nowTimestamp: Date.now(),
-      partyPauseCooldownRunning: false,
     };
   },
 
@@ -267,10 +266,6 @@ export default {
     ...mapGetters('plexservers', [
       'GET_PLEX_SERVER',
     ]),
-
-    canPause() {
-      return !this.partyPauseCooldownRunning && this.IS_PARTY_PAUSING_ENABLED;
-    },
   },
 
   created() {
@@ -304,14 +299,6 @@ export default {
       return isHost
         ? 'Host'
         : 'Transfer host';
-    },
-
-    sendPartyPauseLocal(isPause) {
-      this.partyPauseCooldownRunning = true;
-      setTimeout(() => {
-        this.partyPauseCooldownRunning = false;
-      }, 3000);
-      this.sendPartyPause(isPause);
     },
 
     getSyncStateColor({ syncFlexibility, ...rest }) {
