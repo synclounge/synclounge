@@ -427,8 +427,11 @@ export default {
     ...mapActions('plexservers', [
       'SEARCH_PLEX_SERVER',
       'FETCH_ON_DECK',
-      'FETCH_PLEX_DEVICES',
       'FETCH_RANDOM_IMAGE_URL',
+    ]),
+
+    ...mapActions('plex', [
+      'FETCH_PLEX_DEVICES',
     ]),
 
     ...mapMutations([
