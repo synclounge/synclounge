@@ -167,7 +167,8 @@
 <script>
 
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-import sizing from '@/mixins/sizing';
+import { getAppWidth, getAppHeight } from '@/utils/sizing';
+
 import initialize from '@/player/init';
 import { getControlsOffset } from '@/player';
 
@@ -179,10 +180,6 @@ export default {
     messages: () => import('@/components/messaging/messages.vue'),
     MessageInput: () => import('@/components/messaging/MessageInput.vue'),
   },
-
-  mixins: [
-    sizing,
-  ],
 
   data() {
     return {
@@ -385,8 +382,8 @@ export default {
         this.GET_MEDIA_IMAGE_URL({
           machineIdentifier: metadata.machineIdentifier,
           mediaUrl: metadata.art,
-          width: this.getAppWidth() / 4,
-          height: this.getAppHeight() / 4,
+          width: getAppWidth() / 4,
+          height: getAppHeight() / 4,
           blur: 2,
         }),
       );

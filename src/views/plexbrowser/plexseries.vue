@@ -134,17 +134,12 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-
-import sizing from '@/mixins/sizing';
+import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
   components: {
     plexthumb: () => import('@/components/plex/plexthumb.vue'),
   },
-
-  mixins: [
-    sizing,
-  ],
 
   props: {
     machineIdentifier: {
@@ -174,8 +169,8 @@ export default {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
         mediaUrl: this.metadata.banner,
-        width: this.getAppWidth(),
-        height: this.getAppHeight(),
+        width: getAppWidth(),
+        height: getAppHeight(),
         blur: 2,
       });
     },
@@ -205,8 +200,8 @@ export default {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
         mediaUrl: this.metadata.thumb,
-        width: this.getAppWidth(),
-        height: this.getAppHeight(),
+        width: getAppWidth(),
+        height: getAppHeight(),
       });
     },
   },
@@ -254,8 +249,8 @@ export default {
         this.GET_MEDIA_IMAGE_URL({
           machineIdentifier: this.machineIdentifier,
           mediaUrl: this.metadata.art,
-          width: this.getAppWidth() / 4,
-          height: this.getAppHeight() / 4,
+          width: getAppWidth() / 4,
+          height: getAppHeight() / 4,
           blur: 2,
         }));
     },

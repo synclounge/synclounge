@@ -44,17 +44,12 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { sample } from '@/utils/lightlodash';
-
-import sizing from '@/mixins/sizing';
+import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
   components: {
     plexthumb: () => import('@/components/plex/plexthumb.vue'),
   },
-
-  mixins: [
-    sizing,
-  ],
 
   props: {
     machineIdentifier: {
@@ -127,8 +122,8 @@ export default {
           mediaUrl: randomItem.type === 'show'
             ? randomItem.art
             : randomItem.thumb,
-          width: this.getAppWidth() / 4,
-          height: this.getAppHeight() / 4,
+          width: getAppWidth() / 4,
+          height: getAppHeight() / 4,
           blur: 8,
         }));
     },
