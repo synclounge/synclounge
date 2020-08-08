@@ -57,8 +57,8 @@ export default {
     state.activePlayQueue.playQueueSelectedItemOffset -= 1;
   },
 
-  SET_CLIENT_POLLER_CANCELER: (state, canceler) => {
-    state.clientPollerCanceler = canceler;
+  SET_CLIENT_POLLER_CANCEL_TOKEN: (state, token) => {
+    state.clientPollerCancelToken = token;
   },
 
   SET_LAST_PLAY_MEDIA_COMMAND_ID: (state, id) => {

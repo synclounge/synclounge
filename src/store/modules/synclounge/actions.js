@@ -125,7 +125,8 @@ export default {
     commit('SET_IS_AUTO_HOST_ENABLED', isAutoHostEnabled);
     commit('SET_IS_IN_ROOM', true);
 
-    await dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
+    // Purposefully not awaited
+    dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
     await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${getters.GET_ROOM}`, { root: true });
     await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
   },

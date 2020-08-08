@@ -3,7 +3,6 @@ import CAF from 'caf';
 import delay from '@/utils/delay';
 import promiseutils from '@/utils/promiseutils';
 import contentTitleUtils from '@/utils/contenttitleutils';
-import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import { fetchXmlAndTransform } from '@/utils/fetchutils';
 
 export default {
@@ -174,13 +173,14 @@ export default {
     ...args,
   }),
 
-  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch, commit }) => {
+  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch, commit }, signal) => {
     const startedAt = Date.now();
     const data = await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
       path: '/player/timeline/poll',
       params: {
         wait: 0,
       },
+      signal,
     });
 
     // Measure time it takes and adjust playback time if playing
@@ -255,12 +255,12 @@ export default {
     }
   },
 
-  POLL_PLEX_CLIENT: async ({ getters, dispatch, commit }) => {
+  POLL_PLEX_CLIENT: async ({ getters, dispatch, commit }, signal) => {
     // Saving it because making client request increments it
     // TODO: can I actually save it or is it reactive ahaha D:
     let currentCommandId = getters.GET_COMMAND_ID;
     try {
-      const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE');
+      const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE', signal);
 
       if (getters.GET_LAST_PLAY_MEDIA_COMMAND_ID != null
         && timeline.commandID < getters.GET_LAST_PLAY_MEDIA_COMMAND_ID) {
@@ -565,21 +565,40 @@ export default {
     }
   },
 
-  START_CLIENT_POLLER_IF_NEEDED: ({
+  START_CLIENT_POLLER_IF_NEEDED: async ({
     getters, commit, dispatch, rootGetters,
   }) => {
-    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10' && !getters.GET_CLIENT_POLLER_CANCELER) {
-      commit('SET_CLIENT_POLLER_CANCELER', cancelablePeriodicTask(
-        () => dispatch('POLL_PLEX_CLIENT'),
-        () => rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
-      ));
+    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
+      && !getters.GET_CLIENT_POLLER_CANCEL_TOKEN) {
+      // eslint-disable-next-line new-cap
+      const cancelToken = new CAF.cancelToken();
+
+      commit('SET_CLIENT_POLLER_CANCEL_TOKEN', cancelToken);
+
+      const main = CAF(function* poller(signal) {
+        while (true) {
+          yield CAF.delay(signal, rootGetters['settings/GET_CLIENTPOLLINTERVAL']);
+
+          try {
+            yield dispatch('POLL_PLEX_CLIENT', signal);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      });
+
+      try {
+        await main(cancelToken.signal);
+      } catch (e) {
+        console.debug('PLEX_TIMELINE_UPDATER canceled');
+      }
     }
   },
 
   CANCEL_CLIENT_POLLER_IF_NEEDED: ({ getters, commit }) => {
-    if (getters.GET_CLIENT_POLLER_CANCELER) {
-      getters.GET_CLIENT_POLLER_CANCELER();
-      commit('SET_CLIENT_POLLER_CANCELER', null);
+    if (getters.GET_CLIENT_POLLER_CANCEL_TOKEN) {
+      getters.GET_CLIENT_POLLER_CANCEL_TOKEN.abort();
+      commit('SET_CLIENT_POLLER_CANCEL_TOKEN', null);
     }
   },
 };
