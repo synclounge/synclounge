@@ -340,7 +340,7 @@ export default {
 
     fetchData() {
       return Promise.all([
-        this.FETCH_ALL_LIBRARIES_IF_NEEDED(this.machineIdentifier),
+        this.FETCH_ALL_LIBRARIES_IF_NEEDED({ machineIdentifier: this.machineIdentifier }),
         this.fetchRecentlyAdded(),
         this.fetchOnDeck(),
       ]);

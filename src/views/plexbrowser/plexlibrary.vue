@@ -97,7 +97,7 @@ export default {
     ]),
 
     async setupCrumbs() {
-      await this.FETCH_ALL_LIBRARIES_IF_NEEDED(this.machineIdentifier);
+      await this.FETCH_ALL_LIBRARIES_IF_NEEDED({ machineIdentifier: this.machineIdentifier });
 
       const library = this.GET_PLEX_SERVER(this.machineIdentifier).libraries
         .find((lib) => lib.key === this.sectionId.toString());

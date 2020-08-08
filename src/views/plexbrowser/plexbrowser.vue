@@ -321,6 +321,7 @@ export default {
       searchStatus: 'Search your available Plex Media Servers',
       searching: false,
       serverIdsHeardBack: [],
+      abortController: new AbortController(),
     };
   },
 
@@ -422,6 +423,10 @@ export default {
     this.setRandomBackground();
   },
 
+  beforeDestroy() {
+    this.abortController.abort();
+  },
+
   methods: {
     ...mapActions('plexservers', [
       'SEARCH_PLEX_SERVER',
@@ -439,7 +444,7 @@ export default {
     ]),
 
     async setRandomBackground() {
-      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
+      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL(this.abortController.signal));
     },
 
     async fetchOnDeck() {
@@ -447,6 +452,7 @@ export default {
         machineIdentifier: this.GET_LAST_SERVER_ID,
         start: 0,
         size: 10,
+        signal: this.abortController.signal,
       });
     },
 
