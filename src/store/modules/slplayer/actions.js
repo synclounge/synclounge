@@ -127,10 +127,16 @@ export default {
     }
   },
 
-  HANDLE_PLAYER_PAUSE: async ({ dispatch }) => {
+  HANDLE_PLAYER_PAUSE: async ({ getters, dispatch }) => {
     if (isBuffering()) {
       // If we are buffering, then we don't need to actually change the state, but we should send
       // out a new state update to synclounge since we have seeked
+
+      // Wait for seeking since time isn't updated until we get that event
+      dispatch('PROCESS_STATE_UPDATE_ON_PLAYER_EVENT', {
+        type: 'seeking',
+        signal: getters.GET_PLAYER_DESTROY_CANCEL_TOKEN.signal,
+      });
       await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
     } else if (isPresentationPaused()) {
       await dispatch('CHANGE_PLAYER_STATE', 'paused');
@@ -197,9 +203,9 @@ export default {
     setCurrentTimeMs(seekToMs);
   },
 
-  PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE: async ({ dispatch }, signal) => {
-    await waitForMediaElementEvent({ signal, type: 'ratechange' });
-    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', true, { root: true });
+  PROCESS_STATE_UPDATE_ON_PLAYER_EVENT: async ({ dispatch }, { signal, type, noSync }) => {
+    await waitForMediaElementEvent({ signal, type });
+    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', noSync, { root: true });
   },
 
   SPEED_SEEK: async ({ dispatch, rootGetters }, { cancelSignal, seekToMs }) => {
@@ -214,13 +220,24 @@ export default {
       setPlaybackRate(rate);
 
       try {
-        // Nosync process. Purposefully not awaited
-        dispatch('PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE', signal);
-        yield CAF.delay(signal, timeUntilSynced);
+        yield Promise.all([
+          CAF.delay(signal, timeUntilSynced),
+
+          dispatch('PROCESS_STATE_UPDATE_ON_PLAYER_EVENT', {
+            signal,
+            type: 'ratechange',
+            noSync: true,
+          }),
+        ]);
       } finally {
         setPlaybackRate(1);
-        // Nosync process. Purposefully not awaited
-        dispatch('PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE', signal);
+
+        // TODO: not sure what to do since I need to do this cancellable task in the cleanup
+        dispatch('PROCESS_STATE_UPDATE_ON_PLAYER_EVENT', {
+          signal,
+          type: 'ratechange',
+          noSync: true,
+        });
       }
     });
 
@@ -340,6 +357,8 @@ export default {
   }) => {
     console.debug('INIT_PLAYER_STATE');
 
+    // eslint-disable-next-line new-cap
+    commit('SET_PLAYER_DESTROY_CANCEL_TOKEN', new CAF.cancelToken());
     try {
       await dispatch('REGISTER_PLAYER_EVENTS');
       await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
@@ -371,8 +390,11 @@ export default {
     }
   },
 
-  DESTROY_PLAYER_STATE: async ({ commit, dispatch }) => {
+  DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
     console.debug('DESTROY_PLAYER_STATE');
+    getters.GET_PLAYER_DESTROY_CANCEL_TOKEN.abort();
+    commit('SET_PLAYER_DESTROY_CANCEL_TOKEN', null);
+
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     commit('UPDATE_PLAYER_CONTROLS_SHOWN', false);
     await dispatch('UNREGISTER_PLAYER_EVENTS');

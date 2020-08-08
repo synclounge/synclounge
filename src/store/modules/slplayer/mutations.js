@@ -45,6 +45,10 @@ export default {
     state.plexTimelineUpdaterCancelToken = token;
   },
 
+  SET_PLAYER_DESTROY_CANCEL_TOKEN: (state, token) => {
+    state.playerDestroyCancelToken = token;
+  },
+
   SET_IS_PLAYER_INITIALIZED: (state, isInitialized) => {
     state.isPlayerInitialized = isInitialized;
   },

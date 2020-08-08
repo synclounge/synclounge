@@ -13,6 +13,7 @@ const state = () => ({
   bufferingEventListener: null,
   clickEventListener: null,
   plexTimelineUpdaterCancelToken: null,
+  playerDestroyCancelToken: null,
   isPlayerInitialized: false,
   playerInitializedDeferredPromise: null,
 

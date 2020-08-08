@@ -196,6 +196,8 @@ export default {
 
   GET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN: (state) => state.plexTimelineUpdaterCancelToken,
 
+  GET_PLAYER_DESTROY_CANCEL_TOKEN: (state) => state.playerDestroyCancelToken,
+
   GET_BUFFERING_EVENT_LISTENER: (state) => state.bufferingEventListener,
 
   GET_CLICK_EVENT_LISTENER: (state) => state.clickEventListener,
