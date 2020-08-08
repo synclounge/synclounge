@@ -181,6 +181,12 @@ export default {
     }
   },
 
+  HANDLE_ERROR: ({ dispatch }, e) => {
+    console.error(e);
+    // Restart source
+    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
+  },
+
   PRESS_PLAY: () => {
     play();
   },
@@ -423,6 +429,10 @@ export default {
     getSmallPlayButton().addEventListener('click', clickListener);
     getBigPlayButton().addEventListener('click', clickListener);
     commit('SET_CLICK_EVENT_LISTENER', clickListener);
+
+    const errorListener = (e) => dispatch('HANDLE_ERROR', e);
+    addEventListener('error', errorListener);
+    commit('SET_ERROR_EVENT_LISTENER', errorListener);
   },
 
   UNREGISTER_PLAYER_EVENTS: ({ getters, commit }) => {
@@ -432,6 +442,9 @@ export default {
     getSmallPlayButton().removeEventListener('click', getters.GET_CLICK_EVENT_LISTENER);
     getBigPlayButton().removeEventListener('click', getters.GET_CLICK_EVENT_LISTENER);
     commit('SET_CLICK_EVENT_LISTENER', null);
+
+    removeEventListener('buffering', getters.GET_ERROR_EVENT_LISTENER);
+    commit('SET_ERROR_EVENT_LISTENER', null);
   },
 
   PLAY_PAUSE_VIDEO: async ({ dispatch }) => {

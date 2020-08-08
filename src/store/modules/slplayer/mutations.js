@@ -41,6 +41,10 @@ export default {
     state.clickEventListener = listener;
   },
 
+  SET_ERROR_EVENT_LISTENER: (state, listener) => {
+    state.errorEventListener = listener;
+  },
+
   SET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN: (state, token) => {
     state.plexTimelineUpdaterCancelToken = token;
   },

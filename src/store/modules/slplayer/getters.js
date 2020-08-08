@@ -202,6 +202,8 @@ export default {
 
   GET_CLICK_EVENT_LISTENER: (state) => state.clickEventListener,
 
+  GET_ERROR_EVENT_LISTENER: (state) => state.errorEventListener,
+
   IS_PLAYER_INITIALIZED: (state) => state.isPlayerInitialized,
 
   GET_PLAYER_INITIALIZED_DEFERRED_PROMISE: (state) => state.playerInitializedDeferredPromise,
