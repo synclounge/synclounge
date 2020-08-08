@@ -242,7 +242,8 @@ export default {
         dispatch('PROCESS_STATE_UPDATE_ON_PLAYER_EVENT', {
           signal,
           type: 'ratechange',
-          noSync: true,
+          // Don't sync if aborted
+          noSync: signal.aborted,
         });
       }
     });
