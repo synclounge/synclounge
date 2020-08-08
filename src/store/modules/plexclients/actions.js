@@ -1,6 +1,5 @@
 import CAF from 'caf';
 
-import delay from '@/utils/delay';
 import promiseutils from '@/utils/promiseutils';
 import contentTitleUtils from '@/utils/contenttitleutils';
 import { fetchXmlAndTransform } from '@/utils/fetchutils';
@@ -330,21 +329,18 @@ export default {
   SYNC: async ({ getters, dispatch, rootGetters }, cancelSignal) => {
     await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
-    const adjustedHostTime = rootGetters['synclounge/GET_ADJUSTED_HOST_TIME']();
-
-    // TODO: only do this if we are playign (but maybe we just did a play command>...)
-
     // I already adjust the time by age
     const playerPollData = await dispatch('FETCH_TIMELINE_POLL_DATA_CACHE');
+    const adjustedHostTime = rootGetters['synclounge/GET_ADJUSTED_HOST_TIME']();
 
-    const difference = Math.abs(adjustedHostTime - playerPollData.time);
-
-    const bothPaused = rootGetters['synclounge/GET_HOST_USER'].state === 'paused'
-      && playerPollData.state === 'paused';
+    const difference = adjustedHostTime - playerPollData.time;
+    const absDifference = Math.abs(difference);
 
     console.debug('SYNC difference', difference);
-    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY']
-      || (bothPaused && difference > 10)) {
+
+    if (absDifference > rootGetters['settings/GET_SYNCFLEXIBILITY']
+      || (rootGetters['synclounge/GET_HOST_USER'].state === 'paused'
+        && absDifference > rootGetters.GET_CONFIG.paused_sync_flexibility)) {
       // We need to seek!
       // Decide what seeking method we want to use
 
@@ -359,20 +355,19 @@ export default {
         return dispatch('SEEK_TO', { cancelSignal, offset });
       }
 
-      // TODO: add cancel
-      return dispatch('SKIP_AHEAD', { offset, duration: 10000 });
+      return dispatch('SKIP_AHEAD', { cancelSignal, offset });
     }
 
-    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' && difference > 1500) {
-      console.log('Soft syncing because difference is', difference);
-
-      return dispatch('SOFT_SEEK', adjustedHostTime);
+    // TODO: make difference config value
+    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10'
+      && absDifference > rootGetters.GET_CONFIG.slplayer_soft_seek_threshold) {
+      return dispatch('slplayer/SOFT_SEEK', adjustedHostTime, { root: true });
     }
 
     return 'No sync needed';
   },
 
-  PRESS_PLAY: async ({ getters, dispatch }) => {
+  PRESS_PLAY: async ({ getters, dispatch }, cancelSignal) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_PLAY', null, { root: true });
@@ -381,6 +376,7 @@ export default {
       default: {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
         return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
+          cancelSignal,
           path: '/player/playback/play',
           params: {
             wait: 0,
@@ -390,7 +386,7 @@ export default {
     }
   },
 
-  PRESS_PAUSE: ({ getters, dispatch }) => {
+  PRESS_PAUSE: ({ getters, dispatch }, cancelSignal) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_PAUSE', null, { root: true });
@@ -398,6 +394,7 @@ export default {
 
       default: {
         return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
+          cancelSignal,
           path: '/player/playback/pause',
           params: {
             wait: 0,
@@ -449,52 +446,20 @@ export default {
     }
   },
 
-  WAIT_FOR_MOVEMENT: ({ dispatch }, startTime) => new Promise((resolve) => {
-    // TODO: fix this
-    let time = 500;
-    if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
-      time = 50;
-    }
-    const timer = setInterval(async () => {
-      const timeline = await dispatch('POLL_CLIENT');
-      if (timeline.time !== startTime) {
-        console.log('Player has movement!');
-        resolve();
-
-        clearInterval(timer);
-      }
-    }, time);
-  }),
-
-  SKIP_AHEAD: async ({ getters, dispatch }, { current, duration }) => {
-    // TODO: lol this is broken fix pls
+  SKIP_AHEAD: async ({ rootGetters, dispatch }, { offset, cancelSignal }) => {
     const startedAt = Date.now();
-    const now = getters.GET_PLEX_CLIENT_TIMELINE.time;
-    // TODO: CUSTOM SLPLAYER UGH
-    await dispatch('SEEK_TO', current + duration);
-    await dispatch('WAIT_FOR_MOVEMENT', now);
-
-    // The client is now ready
-    await dispatch('PRESS_PAUSE');
+    const duration = rootGetters.GET_CONFIG.skip_ahead_time;
+    await dispatch('SEEK_TO', {
+      offset: offset + duration,
+      cancelSignal,
+    });
+    await dispatch('PRESS_PAUSE', cancelSignal);
 
     // Calculate how long it took to get to our ready state
     const elapsed = Date.now() - startedAt;
-    await delay(duration - elapsed);
+    await CAF.delay(cancelSignal, duration - elapsed);
 
-    await dispatch('PRESS_PLAY');
-  },
-
-  SOFT_SEEK: ({ getters, dispatch }, offset) => {
-    console.log('soft seek');
-    switch (getters.GET_CHOSEN_CLIENT_ID) {
-      case 'PTPLAYER9PLUS10': {
-        return dispatch('slplayer/SOFT_SEEK', offset, { root: true });
-      }
-
-      default: {
-        return dispatch('SEEK_TO', offset);
-      }
-    }
+    await dispatch('PRESS_PLAY', cancelSignal);
   },
 
   UPDATE_ACTIVE_PLAY_QUEUE: async ({ getters, dispatch, commit }) => {

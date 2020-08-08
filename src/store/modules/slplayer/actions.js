@@ -187,10 +187,10 @@ export default {
     await dispatch('CHANGE_PLAYER_STATE', 'stopped');
   },
 
-  SOFT_SEEK: ({ getters, commit }, seekToMs) => {
+  SOFT_SEEK: ({ commit }, seekToMs) => {
     console.debug('SOFT_SEEK', seekToMs);
-    if (!isTimeInBufferedRange(getters, seekToMs)) {
-      throw new Error('Soft seek requested but not within buffered range');
+    if (!isTimeInBufferedRange(seekToMs)) {
+      throw new Error('Soft seek not allowed outside of buffered range');
     }
 
     commit('SET_OFFSET_MS', seekToMs);

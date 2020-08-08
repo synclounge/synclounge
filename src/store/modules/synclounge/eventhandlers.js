@@ -131,6 +131,7 @@ export default {
 
     await dispatch('DISPLAY_NOTIFICATION', text, { root: true });
 
+    await dispatch('CANCEL_IN_PROGRESS_SYNC');
     if (isPause) {
       await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
     } else {

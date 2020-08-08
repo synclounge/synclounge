@@ -441,12 +441,14 @@ export default {
 
   CANCEL_IN_PROGRESS_SYNC: ({ getters, commit }) => {
     // TODO: if the slplayer is currently being initialized, wait for that to finish
-    if (getters.GET_SYNC_CANCEL_TOKEN) {
-      // If sync in progress, cancel it
-      getters.GET_SYNC_CANCEL_TOKEN.abort('Sync cancelled');
-      console.log('sync cancelled');
-      commit('SET_SYNC_CANCEL_TOKEN', null);
+    if (!getters.GET_SYNC_CANCEL_TOKEN) {
+      return;
     }
+
+    // If sync in progress, cancel it
+    getters.GET_SYNC_CANCEL_TOKEN.abort('Sync cancelled');
+    console.log('sync cancelled');
+    commit('SET_SYNC_CANCEL_TOKEN', null);
   },
 
   MANUAL_SYNC: async ({
@@ -478,7 +480,7 @@ export default {
   },
 
   SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
-    if (getters.AM_I_HOST) {
+    if (getters.AM_I_HOST || getters.GET_SYNC_CANCEL_TOKEN) {
       return;
     }
 
@@ -491,19 +493,17 @@ export default {
         if we need to seek or start playing something.
       */
 
-    if (!getters.GET_SYNC_CANCEL_TOKEN) {
-      // eslint-disable-next-line new-cap
-      const token = new CAF.cancelToken();
-      commit('SET_SYNC_CANCEL_TOKEN', token);
+    // eslint-disable-next-line new-cap
+    const token = new CAF.cancelToken();
+    commit('SET_SYNC_CANCEL_TOKEN', token);
 
-      try {
-        await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE', token.signal);
-      } catch (e) {
-        console.log('Error caught in sync logic', e);
-      }
-
-      commit('SET_SYNC_CANCEL_TOKEN', null);
+    try {
+      await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE', token.signal);
+    } catch (e) {
+      console.log('Error caught in sync logic', e);
     }
+
+    commit('SET_SYNC_CANCEL_TOKEN', null);
   },
 
   // Interal action without lock. Use the one with the lock to stop multiple syncs from happening
@@ -553,23 +553,21 @@ export default {
   },
 
   SYNC_PLAYER_STATE: async ({ dispatch, getters, commit }) => {
-    if (getters.AM_I_HOST) {
+    if (getters.AM_I_HOST || getters.GET_SYNC_CANCEL_TOKEN) {
       return;
     }
 
-    if (!getters.GET_SYNC_CANCEL_TOKEN) {
-      // eslint-disable-next-line new-cap
-      const token = new CAF.cancelToken();
-      commit('SET_SYNC_CANCEL_TOKEN', token);
+    // eslint-disable-next-line new-cap
+    const token = new CAF.cancelToken();
+    commit('SET_SYNC_CANCEL_TOKEN', token);
 
-      try {
-        await dispatch('_SYNC_PLAYER_STATE', token.signal);
-      } catch (e) {
-        console.log('Error caught in sync logic', e);
-      }
-
-      commit('SET_SYNC_CANCEL_TOKEN', null);
+    try {
+      await dispatch('_SYNC_PLAYER_STATE', token.signal);
+    } catch (e) {
+      console.log('Error caught in sync logic', e);
     }
+
+    commit('SET_SYNC_CANCEL_TOKEN', null);
   },
 
   // Private version without lock. Please use the locking version unless you know what you are doing
@@ -590,7 +588,7 @@ export default {
 
     if (getters.GET_HOST_USER.state === 'playing' && timeline.state === 'paused') {
       await dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
-      await dispatch('plexclients/PRESS_PLAY', null, { root: true });
+      await dispatch('plexclients/PRESS_PLAY', cancelSignal, { root: true });
       return;
     }
 
@@ -598,7 +596,7 @@ export default {
           || getters.GET_HOST_USER.state === 'buffering')
           && timeline.state === 'playing') {
       await dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
-      await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
+      await dispatch('plexclients/PRESS_PAUSE', cancelSignal, { root: true });
       return;
     }
 
