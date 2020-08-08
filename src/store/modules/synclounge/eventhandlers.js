@@ -10,6 +10,15 @@ export default {
     commit('SET_IS_PARTY_PAUSING_ENABLED', value);
   },
 
+  HANDLE_SET_AUTO_HOST_ENABLED: async ({ getters, dispatch, commit }, value) => {
+    await dispatch('ADD_MESSAGE_AND_CACHE_AND_NOTIFY', {
+      senderId: getters.GET_HOST_ID,
+      text: `Auto Host has been turned ${value ? 'on' : 'off'}`,
+    });
+
+    commit('SET_IS_AUTO_HOST_ENABLED', value);
+  },
+
   HANDLE_USER_JOINED: async ({ commit, dispatch }, { id, ...rest }) => {
     commit('SET_USER', {
       id,
@@ -71,7 +80,6 @@ export default {
   },
 
   HANDLE_PLAYER_STATE_UPDATE: async ({ getters, dispatch, commit }, data) => {
-    // TODO: probalby sync if its from the hsot
     commit('SET_USER_PLAYER_STATE', data);
 
     if (data.id === getters.GET_HOST_ID) {
@@ -83,9 +91,8 @@ export default {
   HANDLE_MEDIA_UPDATE: async ({
     getters, dispatch, commit,
   }, {
-      id, state, time, duration, media,
+      id, state, time, duration, media, makeHost,
     }) => {
-    // TODO: maybe sync or play new media thing
     commit('SET_USER_PLAYER_STATE', {
       id,
       state,
@@ -97,6 +104,11 @@ export default {
       id,
       media,
     });
+
+    if (makeHost) {
+      await dispatch('HANDLE_NEW_HOST', id);
+      return;
+    }
 
     if (id === getters.GET_HOST_ID) {
       await dispatch('CANCEL_IN_PROGRESS_SYNC');

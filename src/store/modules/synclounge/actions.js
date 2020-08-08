@@ -63,6 +63,8 @@ export default {
         desiredUsername: getters.GET_DISPLAY_USERNAME,
         // TODO: add config option for this
         desiredPartyPausingEnabled: true,
+        // TODO: add config option for this
+        desiredAutoHostEnabled: true,
         thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
         syncFlexibility: rootGetters['settings/GET_SYNCFLEXIBILITY'],
         ...joinPlayerData,
@@ -83,7 +85,7 @@ export default {
     // Note: this is also called on rejoining, so be careful not to register handlers twice
     // or duplicate tasks
     const {
-      user: { id, ...rest }, users, isPartyPausingEnabled, hostId,
+      user: { id, ...rest }, users, isPartyPausingEnabled, isAutoHostEnabled, hostId,
     } = await dispatch('JOIN_ROOM');
     const updatedAt = Date.now();
 
@@ -122,6 +124,7 @@ export default {
     });
 
     commit('SET_IS_PARTY_PAUSING_ENABLED', isPartyPausingEnabled);
+    commit('SET_IS_AUTO_HOST_ENABLED', isAutoHostEnabled);
     commit('SET_IS_IN_ROOM', true);
 
     await dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
@@ -166,6 +169,13 @@ export default {
   SEND_SET_PARTY_PAUSING_ENABLED: (context, value) => {
     emit({
       eventName: 'setPartyPausingEnabled',
+      data: value,
+    });
+  },
+
+  SEND_SET_AUTO_HOST_ENABLED: (context, value) => {
+    emit({
+      eventName: 'setAutoHostEnabled',
       data: value,
     });
   },
@@ -252,6 +262,11 @@ export default {
     registerListener({
       eventName: 'setPartyPausingEnabled',
       action: 'HANDLE_SET_PARTY_PAUSING_ENABLED',
+    });
+
+    registerListener({
+      eventName: 'setAutoHostEnabled',
+      action: 'HANDLE_SET_AUTO_HOST_ENABLED',
     });
     registerListener({ eventName: 'partyPause', action: 'HANDLE_PARTY_PAUSE' });
     registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
@@ -346,7 +361,7 @@ export default {
 
   PROCESS_MEDIA_UPDATE: async ({
     dispatch, getters, commit, rootGetters,
-  }) => {
+  }, userInitiated) => {
     // TODO: only send message if in room, check in room
     const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
       { root: true });
@@ -376,10 +391,15 @@ export default {
       data: {
         media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
         ...playerState,
+        userInitiated,
       },
     });
 
-    await dispatch('SYNC_PLAYER_STATE');
+    await dispatch('PROCESS_UPNEXT', playerState);
+
+    if (!userInitiated) {
+      await dispatch('SYNC_PLAYER_STATE');
+    }
   },
 
   ADD_MESSAGE_AND_CACHE_AND_NOTIFY: async ({ getters, dispatch }, msg) => {

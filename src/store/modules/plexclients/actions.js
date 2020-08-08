@@ -65,7 +65,7 @@ export default {
   PLAY_MEDIA: async ({
     getters, commit, dispatch, rootGetters,
   }, {
-      mediaIndex, offset, metadata, machineIdentifier,
+      mediaIndex, offset, metadata, machineIdentifier, userInitiated,
     }) => {
     console.debug('PLAY_MEDIA');
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
@@ -85,7 +85,7 @@ export default {
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
       commit('slplayer/SET_PLAYER_STATE', 'buffering', { root: true });
       commit('slplayer/SET_MASK_PLAYER_STATE', true, { root: true });
-      await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
+      await dispatch('synclounge/PROCESS_MEDIA_UPDATE', userInitiated, { root: true });
 
       if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {
         await dispatch('slplayer/CHANGE_PLAYER_SRC', true, { root: true });
@@ -235,6 +235,8 @@ export default {
       // Media changed
       commit('SET_PLEX_CLIENT_TIMELINE', timeline);
       if (rootGetters['synclounge/IS_IN_ROOM']) {
+        // TODO: add detection to see if this media change was user initiated or in response to a
+        // sync
         await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
       }
     } else if (getters.GET_PLEX_CLIENT_TIMELINE.state !== timeline.state
@@ -543,6 +545,7 @@ export default {
           offset,
           machineIdentifier,
           metadata,
+          userInitiated: true,
         });
       }
 

@@ -9,7 +9,6 @@
         lg="4"
       >
         <v-text-field
-          id="testing"
           v-model="searchWord"
           name="searchInput"
           label="Search"
