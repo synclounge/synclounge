@@ -61,10 +61,8 @@ export default {
         roomId: getters.GET_ROOM,
         password: getters.GET_PASSWORD,
         desiredUsername: getters.GET_DISPLAY_USERNAME,
-        // TODO: add config option for this
-        desiredPartyPausingEnabled: true,
-        // TODO: add config option for this
-        desiredAutoHostEnabled: true,
+        desiredPartyPausingEnabled: getters.IS_PARTY_PAUSING_ENABLED,
+        desiredAutoHostEnabled: getters.IS_AUTO_HOST_ENABLED,
         thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
         syncFlexibility: rootGetters['settings/GET_SYNCFLEXIBILITY'],
         ...joinPlayerData,
