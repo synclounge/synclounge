@@ -21,7 +21,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import contentLinks from '@/utils/contentlinks';
+import getContentLink from '@/utils/contentlinks';
 
 export default {
   computed: {
@@ -127,7 +127,7 @@ export default {
         if (this.GET_ACTIVE_METADATA.ratingKey != null) {
           data.push({
             text: this.GET_ACTIVE_METADATA.title,
-            to: contentLinks.getContentLink(this.GET_ACTIVE_METADATA),
+            to: getContentLink(this.GET_ACTIVE_METADATA),
           });
         }
       }
