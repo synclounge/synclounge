@@ -22,6 +22,6 @@ module.exports = {
     ],
 
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+    // 'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
   },
 };
