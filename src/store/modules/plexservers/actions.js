@@ -271,10 +271,10 @@ export default {
     });
 
     // TODO: potentially include the other hubs too (related director etc...)
-    return data.MediaContainer.Hub[0].Metadata.map((child) => ({
+    return data.MediaContainer.Hub?.[0]?.Metadata?.map((child) => ({
       ...child,
       librarySectionID: data.MediaContainer.librarySectionID,
-    }));
+    })) || [];
   },
 
   FETCH_LIBRARY_ALL: async ({ dispatch }, {
