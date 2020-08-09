@@ -46,7 +46,7 @@
           dark
           class="hidden-lg-and-up"
           icon
-          @click="goFullscreen"
+          @click="toggleFullScreen"
         >
           <v-icon>fullscreen</v-icon>
         </v-btn>
@@ -154,7 +154,6 @@ import './assets/css/style.css';
 import {
   mapActions, mapGetters, mapMutations, mapState,
 } from 'vuex';
-import fscreen from 'fscreen';
 import redirection from '@/mixins/redirection';
 
 export default {
@@ -173,7 +172,6 @@ export default {
 
   data() {
     return {
-      appIsFullscreen: false,
       links: [
         {
           title: 'Github',
@@ -325,11 +323,11 @@ export default {
   },
 
   mounted() {
-    fscreen.addEventListener('fullscreenchange', () => {
-      const isFullscreen = fscreen.fullscreenElement !== null;
-      this.appIsFullscreen = isFullscreen;
-      document.body.classList.toggle('is-fullscreen', isFullscreen);
-    });
+    document.addEventListener('fullscreenchange', this.onFullScreenChange);
+  },
+
+  beforeDestroy() {
+    document.removeEventListener('fullscreenchange', this.onFullScreenChange);
   },
 
   methods: {
@@ -358,8 +356,16 @@ export default {
       return this.DISPLAY_NOTIFICATION('Copied to clipboard');
     },
 
-    goFullscreen() {
-      fscreen.requestFullscreen(document.body);
+    onFullScreenChange() {
+      document.body.classList.toggle('is-fullscreen', document.fullscreenElement);
+    },
+
+    toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
     },
   },
 };
