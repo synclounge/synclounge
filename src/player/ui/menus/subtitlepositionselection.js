@@ -71,7 +71,7 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onSubtitlePositionClicked(position),
+          () => SubtitlePositionSelection.onSubtitlePositionClicked(position),
         );
 
         if (position === store.getters['slplayer/GET_SUBTITLE_POSITION']) {

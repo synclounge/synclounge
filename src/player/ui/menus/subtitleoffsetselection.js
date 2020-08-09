@@ -67,7 +67,7 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onSubtitleOffsetClicked(offsetIncrement),
+          () => SubtitleOffsetSelection.onSubtitleOffsetClicked(offsetIncrement),
         );
 
         this.menu.appendChild(button);

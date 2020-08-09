@@ -69,7 +69,7 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onAudioClicked(audio.id),
+          () => AudioSelection.onAudioClicked(audio.id),
         );
 
         if (audio.id === store.getters['slplayer/GET_AUDIO_STREAM_ID']) {

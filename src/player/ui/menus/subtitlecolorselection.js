@@ -71,7 +71,7 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onSubtitleColorClicked(color),
+          () => SubtitleColorSelection.onSubtitleColorClicked(color),
         );
 
         if (color === store.getters['slplayer/GET_SUBTITLE_COLOR']) {
