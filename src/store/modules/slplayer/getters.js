@@ -62,8 +62,9 @@ export default {
     getters.GET_DECISION_AND_START_PARAMS,
   ),
 
-  GET_SUBTITLE_BASE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL
-  }/video/:/transcode/universal/subtitles`,
+  GET_SUBTITLE_BASE_URL: (state, getters) => (getters.GET_SUBTITLE_STREAM?.key
+    ? `${getters.GET_PLEX_SERVER_URL}${getters.GET_SUBTITLE_STREAM.key}`
+    : `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/subtitles`),
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL
   }/video/:/transcode/universal/decision`,
@@ -97,6 +98,7 @@ export default {
         return false;
       }
 
+      // TODO: examine if I can only direct play with sidecar subtitles
       const { codec } = getters.GET_SELECTED_SUBTITLE_STREAM;
       if (codec !== 'srt' && codec !== 'ass') {
         console.debug('CAN_DIRECT_PLAY: false because subtitles enabled with incompatible codec');
