@@ -81,7 +81,16 @@ export default {
   GET_SELECTED_SUBTITLE_STREAM: (state, getters) => getters.GET_STREAMS
     ?.find(({ streamType, selected }) => streamType === 3 && selected),
 
-  CAN_DIRECT_PLAY: (state, getters) => {
+  CAN_DIRECT_PLAY: (state, getters, rootState, rootGetters) => {
+    // If bitrate of file is higher than our limit, then we can't
+    const videoStream = getters.GET_STREAMS.find(({ streamType }) => streamType === 1);
+
+    if (rootGetters['settings/GET_SLPLAYERQUALITY']
+      && rootGetters['settings/GET_SLPLAYERQUALITY'] < videoStream?.bitrate) {
+      console.debug('CAN_DIRECT_PLAY: false because video quality higher than desired');
+      return false;
+    }
+
     if (getters.GET_SELECTED_SUBTITLE_STREAM) {
       if (getters.IS_IN_PICTURE_IN_PICTURE) {
         console.debug('CAN_DIRECT_PLAY: false because subtitles enabled and using PIP');
@@ -95,7 +104,6 @@ export default {
       }
     }
 
-    const videoStream = getters.GET_STREAMS.find(({ streamType }) => streamType === 1);
     if (!isVideoSupported(videoStream)) {
       console.debug('CAN_DIRECT_PLAY: false video codec not supported');
       return false;
