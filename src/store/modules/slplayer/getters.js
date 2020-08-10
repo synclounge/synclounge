@@ -81,10 +81,6 @@ export default {
   GET_SELECTED_SUBTITLE_STREAM: (state, getters) => getters.GET_STREAMS
     ?.find(({ streamType, selected }) => streamType === 3 && selected),
 
-  ARE_NON_DIRECT_PLAYABLE_SUBTITLES_SELECTED: (state, getters) => getters.getters.GET_STREAMS
-    ?.some(({ streamType, selected, codec }) => streamType === 3 && selected && (codec !== 'ass'
-      || codec !== 'srt')),
-
   CAN_DIRECT_PLAY: (state, getters) => {
     if (getters.GET_SELECTED_SUBTITLE_STREAM) {
       if (getters.IS_IN_PICTURE_IN_PICTURE) {
@@ -93,7 +89,7 @@ export default {
       }
 
       const { codec } = getters.GET_SELECTED_SUBTITLE_STREAM;
-      if (codec !== 'srt' || codec !== 'ass') {
+      if (codec !== 'srt' && codec !== 'ass') {
         console.debug('CAN_DIRECT_PLAY: false because subtitles enabled with incompatible codec');
         return false;
       }
