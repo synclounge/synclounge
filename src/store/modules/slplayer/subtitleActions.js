@@ -188,6 +188,8 @@ export default {
   SET_SUBTITLE_URL: async ({ dispatch }) => {
     await dispatch('DESTROY_ASS');
 
+    // TODO: add direct stream for subtitles and add srt support
+
     try {
       const ass = await dispatch('MAKE_ASS');
 

@@ -78,14 +78,25 @@ export default {
 
   GET_STREAMS: (state, getters) => getters.GET_PART?.Stream || [],
 
-  ARE_SUBTITLES_SELECTED: (state, getters) => getters.GET_STREAMS
-    ?.some(({ streamType, selected }) => streamType === 3 && selected),
+  GET_SELECTED_SUBTITLE_STREAM: (state, getters) => getters.GET_STREAMS
+    ?.find(({ streamType, selected }) => streamType === 3 && selected),
+
+  ARE_NON_DIRECT_PLAYABLE_SUBTITLES_SELECTED: (state, getters) => getters.getters.GET_STREAMS
+    ?.some(({ streamType, selected, codec }) => streamType === 3 && selected && (codec !== 'ass'
+      || codec !== 'srt')),
 
   CAN_DIRECT_PLAY: (state, getters) => {
-    // If subtitles are selected, we can't direct play
-    if (getters.ARE_SUBTITLES_SELECTED) {
-      console.debug('CAN_DIRECT_PLAY: false because subtitles enabled');
-      return false;
+    if (getters.GET_SELECTED_SUBTITLE_STREAM) {
+      if (getters.IS_IN_PICTURE_IN_PICTURE) {
+        console.debug('CAN_DIRECT_PLAY: false because subtitles enabled and using PIP');
+        return false;
+      }
+
+      const { codec } = getters.GET_SELECTED_SUBTITLE_STREAM;
+      if (codec !== 'srt' || codec !== 'ass') {
+        console.debug('CAN_DIRECT_PLAY: false because subtitles enabled with incompatible codec');
+        return false;
+      }
     }
 
     const videoStream = getters.GET_STREAMS.find(({ streamType }) => streamType === 1);
@@ -215,9 +226,9 @@ export default {
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
     // eslint-disable-next-line no-nested-ternary
-    subtitles: getters.ARE_SUBTITLES_SELECTED
-      ? getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto'
-      : 'none',
+    subtitles: getters.CAN_DIRECT_PLAY
+      ? 'none'
+      : getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
     ...(!getters.IS_IN_PICTURE_IN_PICTURE && { advancedSubtitles: 'text' }),
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
