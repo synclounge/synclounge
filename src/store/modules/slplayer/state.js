@@ -32,6 +32,7 @@ const state = () => ({
   subtitleColor: subtitleColors.White,
   subtitleOffset: 0,
   streamingProtocol: 'dash',
+  forceTranscodeRetry: false,
 });
 
 export default state;

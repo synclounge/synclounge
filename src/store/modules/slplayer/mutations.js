@@ -96,4 +96,8 @@ export default {
   SET_STREAMING_PROTOCOL: (state, protocol) => {
     state.streamingProtocol = protocol;
   },
+
+  SET_FORCE_TRANSCODE_RETRY: (state, force) => {
+    state.forceTranscodeRetry = force;
+  },
 };
