@@ -47,6 +47,8 @@ export default {
       ...getters.GET_PART_PARAMS,
     }, { method: 'PUT' });
 
+    await dispatch('plexclients/RELOAD_ACTIVE_MEDIA_METADATA', null, { root: true });
+
     // Redo src
     await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
@@ -56,6 +58,8 @@ export default {
       subtitleStreamID,
       ...getters.GET_PART_PARAMS,
     }, { method: 'PUT' });
+
+    await dispatch('plexclients/RELOAD_ACTIVE_MEDIA_METADATA', null, { root: true });
 
     // Redo src
     await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');

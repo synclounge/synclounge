@@ -1,6 +1,7 @@
 import { makeUrl } from '@/utils/fetchutils';
 import { protocolExtension } from '@/utils/streamingprotocols';
 import contenttitleutils from '@/utils/contenttitleutils';
+import { isVideoSupported, isAudioSupported } from '@/utils/mediasupport';
 import qualities from './qualities';
 
 const buggyChromeBitrate = 23000;
@@ -47,14 +48,23 @@ export default {
         .Media[getters.GET_MEDIA_INDEX].Part[0].id
       : null),
 
+  GET_DECISION_PART: (state, getters) => getters.GET_PLEX_DECISION?.MediaContainer
+    ?.Metadata?.[0]?.Media?.[0].Part?.[0],
+
+  IS_DECISION_DIRECT_PLAY: (state, getters) => getters.GET_DECISION_PART?.decision === 'directplay',
+
+  GET_SRC_PATH: (state, getters) => (getters.IS_DECISION_DIRECT_PLAY
+    ? getters.GET_DECISION_PART?.key
+    : `/video/:/transcode/universal/start.${protocolExtension[getters.GET_STREAMING_PROTOCOL]}`),
+
   GET_SRC_URL: (state, getters) => makeUrl(
-    `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/start.${
-      protocolExtension[getters.GET_STREAMING_PROTOCOL]}`,
+    `${getters.GET_PLEX_SERVER_URL}${getters.GET_SRC_PATH}`,
     getters.GET_DECISION_AND_START_PARAMS,
   ),
 
-  GET_SUBTITLE_BASE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL
-  }/video/:/transcode/universal/subtitles`,
+  GET_SUBTITLE_BASE_URL: (state, getters) => (getters.CAN_DIRECT_PLAY_SUBTITLES
+    ? `${getters.GET_PLEX_SERVER_URL}${getters.GET_SUBTITLE_STREAM.key}`
+    : `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/subtitles`),
 
   GET_DECISION_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL
   }/video/:/transcode/universal/decision`,
@@ -64,15 +74,62 @@ export default {
 
   GET_TIMELINE_URL: (state, getters) => `${getters.GET_PLEX_SERVER_URL}/:/timeline`,
 
-  GET_STREAMS: (state, getters, rootState, rootGetters) => (
-    rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
-      ? rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA']
-        .Media[getters.GET_MEDIA_INDEX].Part[0].Stream
-      : []),
+  GET_PART: (state, getters, rootState, rootGetters) => rootGetters[
+    'plexclients/GET_ACTIVE_MEDIA_METADATA']?.Media?.[getters.GET_MEDIA_INDEX]?.Part?.[0],
 
-  GET_DECISION_STREAMS: (state, getters) => (getters.GET_PLEX_DECISION
-    ? getters.GET_PLEX_DECISION.MediaContainer.Metadata[0].Media[0].Part[0].Stream
-    : []),
+  GET_STREAMS: (state, getters) => getters.GET_PART?.Stream || [],
+
+  GET_SELECTED_SUBTITLE_STREAM: (state, getters) => getters.GET_STREAMS
+    ?.find(({ streamType, selected }) => streamType === 3 && selected),
+
+  CAN_DIRECT_PLAY_SUBTITLES: (state, getters) => {
+    const { key, codec } = getters.GET_SELECTED_SUBTITLE_STREAM;
+    // TODO: examine if I can only direct play with sidecar subtitles
+    return key && (codec === 'srt' || codec === 'ass');
+  },
+
+  CAN_DIRECT_PLAY: (state, getters, rootState, rootGetters) => {
+    // If bitrate of file is higher than our limit, then we can't
+    const videoStream = getters.GET_STREAMS.find(({ streamType }) => streamType === 1);
+
+    if (rootGetters['settings/GET_SLPLAYERQUALITY']
+      && rootGetters['settings/GET_SLPLAYERQUALITY'] < videoStream?.bitrate) {
+      console.debug('CAN_DIRECT_PLAY: false because video quality higher than desired');
+      return false;
+    }
+
+    if (getters.GET_SELECTED_SUBTITLE_STREAM) {
+      if (getters.IS_IN_PICTURE_IN_PICTURE) {
+        console.debug('CAN_DIRECT_PLAY: false because subtitles enabled and using PIP');
+        return false;
+      }
+
+      if (!getters.CAN_DIRECT_PLAY_SUBTITLES) {
+        console.debug(
+          'CAN_DIRECT_PLAY: false because subtitles enabled with incompatible codec or embedded',
+        );
+        return false;
+      }
+    }
+
+    if (!isVideoSupported(videoStream)) {
+      console.debug('CAN_DIRECT_PLAY: false video codec not supported');
+      return false;
+    }
+
+    const audioStreams = getters.GET_STREAMS.filter(({ streamType }) => streamType === 2);
+    const anyAudioSupported = audioStreams.some(isAudioSupported);
+
+    if (audioStreams.length > 0 && !anyAudioSupported) {
+      console.debug('CAN_DIRECT_PLAY: false audio codec not supported');
+      return false;
+    }
+
+    console.debug('CAN_DIRECT_PLAY: true');
+    return true;
+  },
+
+  GET_DECISION_STREAMS: (state, getters) => getters.GET_DECISION_PART?.Stream || [],
 
   GET_SUBTITLE_STREAMS: (state, getters) => Array.of(({
     id: 0,
@@ -111,7 +168,6 @@ export default {
     ? parseInt(getters.GET_SUBTITLE_STREAM.id, 10)
     : 0),
 
-  // TODO: fix this 0 fallback
   GET_MEDIA_INDEX: (state) => state.mediaIndex,
 
   GET_RELATIVE_THUMB_URL: (state, getters, rootState, rootGetters) => (
@@ -165,7 +221,7 @@ export default {
     partIndex: 0,
     protocol: getters.GET_STREAMING_PROTOCOL,
     fastSeek: 1,
-    directPlay: 0,
+    directPlay: getters.CAN_DIRECT_PLAY ? 1 : 0,
     directStream: getters.GET_FORCE_TRANSCODE ? 0 : 1,
     subtitleSize: 100,
     audioBoost: 100,
@@ -181,7 +237,10 @@ export default {
     directStreamAudio: getters.GET_FORCE_TRANSCODE ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
-    subtitles: getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
+    // eslint-disable-next-line no-nested-ternary
+    subtitles: getters.CAN_DIRECT_PLAY
+      ? 'none'
+      : getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
     ...(!getters.IS_IN_PICTURE_IN_PICTURE && { advancedSubtitles: 'text' }),
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,

@@ -566,4 +566,12 @@ export default {
       commit('SET_CLIENT_POLLER_CANCEL_TOKEN', null);
     }
   },
+
+  RELOAD_ACTIVE_MEDIA_METADATA: async ({ getters, dispatch, commit }) => {
+    const metadata = await dispatch('plexservers/FETCH_PLEX_METADATA', {
+      machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
+      ratingKey: getters.GET_ACTIVE_MEDIA_METADATA.ratingKey,
+    }, { root: true });
+    commit('SET_ACTIVE_MEDIA_METADATA', metadata);
+  },
 };
