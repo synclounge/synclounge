@@ -166,7 +166,7 @@ export default {
     protocol: getters.GET_STREAMING_PROTOCOL,
     fastSeek: 1,
     directPlay: 0,
-    directStream: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
+    directStream: getters.GET_FORCE_TRANSCODE ? 0 : 1,
     subtitleSize: 100,
     audioBoost: 100,
     location: getters.GET_PLEX_SERVER_LOCATION,
@@ -178,7 +178,7 @@ export default {
 
     // TODO: figure out how to make autoAdjustQuality work
     autoAdjustQuality: 0,
-    directStreamAudio: rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'] ? 0 : 1,
+    directStreamAudio: getters.GET_FORCE_TRANSCODE ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
     subtitles: getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
@@ -229,4 +229,9 @@ export default {
 
   IS_SUBTITLE_STREAM_NATIVE_SIDECAR: (state, getters) => getters.IS_USING_NATIVE_SUBTITLES
    && getters.GET_SUBTITLE_STREAM?.file,
+
+  GET_FORCE_TRANSCODE_RETRY: (state) => state.forceTranscodeRetry,
+
+  GET_FORCE_TRANSCODE: (state, getters, rootState, rootGetters) => getters.GET_FORCE_TRANSCODE_RETRY
+    || rootGetters['settings/GET_SLPLAYERFORCETRANSCODE'],
 };

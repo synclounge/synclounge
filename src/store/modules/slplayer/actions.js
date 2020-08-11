@@ -82,12 +82,31 @@ export default {
 
   CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
     console.debug('CHANGE_PLAYER_SRC');
-    commit('SET_SESSION', guid());
 
     // Abort subtitle requests now or else we get ugly errors from the server closing it.
     await dispatch('DESTROY_ASS');
-    await dispatch('SEND_PLEX_DECISION_REQUEST');
-    await dispatch('LOAD_PLAYER_SRC');
+
+    if (getters.GET_FORCE_TRANSCODE_RETRY) {
+      commit('SET_FORCE_TRANSCODE_RETRY', false);
+    }
+
+    commit('SET_SESSION', guid());
+
+    try {
+      await dispatch('SEND_PLEX_DECISION_REQUEST');
+      await dispatch('LOAD_PLAYER_SRC');
+    } catch (e) {
+      if (getters.GET_FORCE_TRANSCODE) {
+        throw e;
+      }
+      console.warn('Error loading stream from plex. Retrying with forced transcoding', e);
+
+      // Try again with forced transcoding
+      commit('SET_FORCE_TRANSCODE_RETRY', true);
+      await dispatch('SEND_PLEX_DECISION_REQUEST');
+      await dispatch('LOAD_PLAYER_SRC');
+    }
+
     await dispatch('CHANGE_SUBTITLES');
 
     // TODO: potentially avoid sending updates on media change since we already do that
@@ -401,6 +420,7 @@ export default {
     console.debug('DESTROY_PLAYER_STATE');
     getters.GET_PLAYER_DESTROY_CANCEL_TOKEN.abort();
     commit('SET_PLAYER_DESTROY_CANCEL_TOKEN', null);
+    commit('SET_FORCE_TRANSCODE_RETRY', false);
 
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     commit('UPDATE_PLAYER_CONTROLS_SHOWN', false);
