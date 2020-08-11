@@ -62,7 +62,7 @@ export default {
     getters.GET_DECISION_AND_START_PARAMS,
   ),
 
-  GET_SUBTITLE_BASE_URL: (state, getters) => (getters.GET_SUBTITLE_STREAM?.key
+  GET_SUBTITLE_BASE_URL: (state, getters) => (getters.CAN_DIRECT_PLAY_SUBTITLES
     ? `${getters.GET_PLEX_SERVER_URL}${getters.GET_SUBTITLE_STREAM.key}`
     : `${getters.GET_PLEX_SERVER_URL}/video/:/transcode/universal/subtitles`),
 
@@ -82,6 +82,12 @@ export default {
   GET_SELECTED_SUBTITLE_STREAM: (state, getters) => getters.GET_STREAMS
     ?.find(({ streamType, selected }) => streamType === 3 && selected),
 
+  CAN_DIRECT_PLAY_SUBTITLES: (state, getters) => {
+    const { key, codec } = getters.GET_SELECTED_SUBTITLE_STREAM;
+    // TODO: examine if I can only direct play with sidecar subtitles
+    return key && (codec === 'srt' || codec === 'ass');
+  },
+
   CAN_DIRECT_PLAY: (state, getters, rootState, rootGetters) => {
     // If bitrate of file is higher than our limit, then we can't
     const videoStream = getters.GET_STREAMS.find(({ streamType }) => streamType === 1);
@@ -98,10 +104,10 @@ export default {
         return false;
       }
 
-      // TODO: examine if I can only direct play with sidecar subtitles
-      const { codec } = getters.GET_SELECTED_SUBTITLE_STREAM;
-      if (codec !== 'srt' && codec !== 'ass') {
-        console.debug('CAN_DIRECT_PLAY: false because subtitles enabled with incompatible codec');
+      if (!getters.CAN_DIRECT_PLAY_SUBTITLES) {
+        console.debug(
+          'CAN_DIRECT_PLAY: false because subtitles enabled with incompatible codec or embedded',
+        );
         return false;
       }
     }
