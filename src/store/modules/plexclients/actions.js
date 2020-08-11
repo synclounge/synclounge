@@ -1,7 +1,7 @@
-import delay from '@/utils/delay';
+import CAF from 'caf';
+
 import promiseutils from '@/utils/promiseutils';
 import contentTitleUtils from '@/utils/contenttitleutils';
-import cancelablePeriodicTask from '@/utils/cancelableperiodictask';
 import { fetchXmlAndTransform } from '@/utils/fetchutils';
 
 export default {
@@ -28,17 +28,20 @@ export default {
   },
 
   FIND_WORKING_CONNECTION: async ({ dispatch }, {
-    // TODO: come back and fix this
-    // eslint-disable-next-line no-unused-vars
     connections, accessToken, clientIdentifier, signal,
   }) => {
-    // TODO: figure out how to combine these two signals and abort requests when either fires
+    // Combine external signal with local one that cancels other requests as soon as one finishes
     const controller = new AbortController();
+    const combinedSignal = CAF.signalRace([
+      signal,
+      controller.signal,
+    ]);
+
     const workingConnection = await promiseutils.any(
       connections.map((connection) => dispatch(
         'TEST_PLEX_CLIENT_CONNECTION',
         {
-          connection, accessToken, clientIdentifier, signal: controller.signal,
+          connection, accessToken, clientIdentifier, signal: combinedSignal,
         },
       )),
     );
@@ -65,7 +68,7 @@ export default {
   PLAY_MEDIA: async ({
     getters, commit, dispatch, rootGetters,
   }, {
-      mediaIndex, offset, metadata, machineIdentifier,
+      mediaIndex, offset, metadata, machineIdentifier, userInitiated,
     }) => {
     console.debug('PLAY_MEDIA');
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
@@ -85,7 +88,7 @@ export default {
       commit('slplayer/SET_OFFSET_MS', Math.round(offset) || 0, { root: true });
       commit('slplayer/SET_PLAYER_STATE', 'buffering', { root: true });
       commit('slplayer/SET_MASK_PLAYER_STATE', true, { root: true });
-      await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
+      await dispatch('synclounge/PROCESS_MEDIA_UPDATE', userInitiated, { root: true });
 
       if (rootGetters['slplayer/IS_PLAYER_INITIALIZED']) {
         await dispatch('slplayer/CHANGE_PLAYER_SRC', true, { root: true });
@@ -169,13 +172,14 @@ export default {
     ...args,
   }),
 
-  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch, commit }) => {
+  FETCH_CHOSEN_CLIENT_TIMELINE: async ({ dispatch, commit }, signal) => {
     const startedAt = Date.now();
     const data = await dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
       path: '/player/timeline/poll',
       params: {
         wait: 0,
       },
+      signal,
     });
 
     // Measure time it takes and adjust playback time if playing
@@ -235,6 +239,8 @@ export default {
       // Media changed
       commit('SET_PLEX_CLIENT_TIMELINE', timeline);
       if (rootGetters['synclounge/IS_IN_ROOM']) {
+        // TODO: add detection to see if this media change was user initiated or in response to a
+        // sync
         await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
       }
     } else if (getters.GET_PLEX_CLIENT_TIMELINE.state !== timeline.state
@@ -248,12 +254,12 @@ export default {
     }
   },
 
-  POLL_PLEX_CLIENT: async ({ getters, dispatch, commit }) => {
+  POLL_PLEX_CLIENT: async ({ getters, dispatch, commit }, signal) => {
     // Saving it because making client request increments it
     // TODO: can I actually save it or is it reactive ahaha D:
     let currentCommandId = getters.GET_COMMAND_ID;
     try {
-      const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE');
+      const timeline = await dispatch('FETCH_CHOSEN_CLIENT_TIMELINE', signal);
 
       if (getters.GET_LAST_PLAY_MEDIA_COMMAND_ID != null
         && timeline.commandID < getters.GET_LAST_PLAY_MEDIA_COMMAND_ID) {
@@ -323,21 +329,18 @@ export default {
   SYNC: async ({ getters, dispatch, rootGetters }, cancelSignal) => {
     await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
 
-    const adjustedHostTime = rootGetters['synclounge/GET_ADJUSTED_HOST_TIME']();
-
-    // TODO: only do this if we are playign (but maybe we just did a play command>...)
-
     // I already adjust the time by age
     const playerPollData = await dispatch('FETCH_TIMELINE_POLL_DATA_CACHE');
+    const adjustedHostTime = rootGetters['synclounge/GET_ADJUSTED_HOST_TIME']();
 
-    const difference = Math.abs(adjustedHostTime - playerPollData.time);
-
-    const bothPaused = rootGetters['synclounge/GET_HOST_USER'].state === 'paused'
-      && playerPollData.state === 'paused';
+    const difference = adjustedHostTime - playerPollData.time;
+    const absDifference = Math.abs(difference);
 
     console.debug('SYNC difference', difference);
-    if (difference > rootGetters['settings/GET_SYNCFLEXIBILITY']
-      || (bothPaused && difference > 10)) {
+
+    if (absDifference > rootGetters['settings/GET_SYNCFLEXIBILITY']
+      || (rootGetters['synclounge/GET_HOST_USER'].state === 'paused'
+        && absDifference > rootGetters.GET_CONFIG.paused_sync_flexibility)) {
       // We need to seek!
       // Decide what seeking method we want to use
 
@@ -352,20 +355,19 @@ export default {
         return dispatch('SEEK_TO', { cancelSignal, offset });
       }
 
-      // TODO: add cancel
-      return dispatch('SKIP_AHEAD', { offset, duration: 10000 });
+      return dispatch('SKIP_AHEAD', { cancelSignal, offset });
     }
 
-    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' && difference > 1500) {
-      console.log('Soft syncing because difference is', difference);
-
-      return dispatch('SOFT_SEEK', adjustedHostTime);
+    // TODO: make difference config value
+    if (getters.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10'
+      && absDifference > rootGetters.GET_CONFIG.slplayer_soft_seek_threshold) {
+      return dispatch('slplayer/SOFT_SEEK', adjustedHostTime, { root: true });
     }
 
     return 'No sync needed';
   },
 
-  PRESS_PLAY: async ({ getters, dispatch }) => {
+  PRESS_PLAY: async ({ getters, dispatch }, cancelSignal) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_PLAY', null, { root: true });
@@ -374,6 +376,7 @@ export default {
       default: {
         await dispatch('UPDATE_PREVIOUS_SYNC_TIMELINE_COMMAND_ID');
         return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
+          cancelSignal,
           path: '/player/playback/play',
           params: {
             wait: 0,
@@ -383,7 +386,7 @@ export default {
     }
   },
 
-  PRESS_PAUSE: ({ getters, dispatch }) => {
+  PRESS_PAUSE: ({ getters, dispatch }, cancelSignal) => {
     switch (getters.GET_CHOSEN_CLIENT_ID) {
       case 'PTPLAYER9PLUS10': {
         return dispatch('slplayer/PRESS_PAUSE', null, { root: true });
@@ -391,6 +394,7 @@ export default {
 
       default: {
         return dispatch('SEND_CHOSEN_CLIENT_REQUEST', {
+          cancelSignal,
           path: '/player/playback/pause',
           params: {
             wait: 0,
@@ -442,52 +446,20 @@ export default {
     }
   },
 
-  WAIT_FOR_MOVEMENT: ({ dispatch }, startTime) => new Promise((resolve) => {
-    // TODO: fix this
-    let time = 500;
-    if (this.clientIdentifier === 'PTPLAYER9PLUS10') {
-      time = 50;
-    }
-    const timer = setInterval(async () => {
-      const timeline = await dispatch('POLL_CLIENT');
-      if (timeline.time !== startTime) {
-        console.log('Player has movement!');
-        resolve();
-
-        clearInterval(timer);
-      }
-    }, time);
-  }),
-
-  SKIP_AHEAD: async ({ getters, dispatch }, { current, duration }) => {
-    // TODO: lol this is broken fix pls
+  SKIP_AHEAD: async ({ rootGetters, dispatch }, { offset, cancelSignal }) => {
     const startedAt = Date.now();
-    const now = getters.GET_PLEX_CLIENT_TIMELINE.time;
-    // TODO: CUSTOM SLPLAYER UGH
-    await dispatch('SEEK_TO', current + duration);
-    await dispatch('WAIT_FOR_MOVEMENT', now);
-
-    // The client is now ready
-    await dispatch('PRESS_PAUSE');
+    const duration = rootGetters.GET_CONFIG.skip_ahead_time;
+    await dispatch('SEEK_TO', {
+      offset: offset + duration,
+      cancelSignal,
+    });
+    await dispatch('PRESS_PAUSE', cancelSignal);
 
     // Calculate how long it took to get to our ready state
     const elapsed = Date.now() - startedAt;
-    await delay(duration - elapsed);
+    await CAF.delay(cancelSignal, duration - elapsed);
 
-    await dispatch('PRESS_PLAY');
-  },
-
-  SOFT_SEEK: ({ getters, dispatch }, offset) => {
-    console.log('soft seek');
-    switch (getters.GET_CHOSEN_CLIENT_ID) {
-      case 'PTPLAYER9PLUS10': {
-        return dispatch('slplayer/SOFT_SEEK', offset, { root: true });
-      }
-
-      default: {
-        return dispatch('SEEK_TO', offset);
-      }
-    }
+    await dispatch('PRESS_PLAY', cancelSignal);
   },
 
   UPDATE_ACTIVE_PLAY_QUEUE: async ({ getters, dispatch, commit }) => {
@@ -543,6 +515,7 @@ export default {
           offset,
           machineIdentifier,
           metadata,
+          userInitiated: true,
         });
       }
 
@@ -557,21 +530,48 @@ export default {
     }
   },
 
-  START_CLIENT_POLLER_IF_NEEDED: ({
+  START_CLIENT_POLLER_IF_NEEDED: async ({
     getters, commit, dispatch, rootGetters,
   }) => {
-    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10' && !getters.GET_CLIENT_POLLER_CANCELER) {
-      commit('SET_CLIENT_POLLER_CANCELER', cancelablePeriodicTask(
-        () => dispatch('POLL_PLEX_CLIENT'),
-        () => rootGetters['settings/GET_CLIENTPOLLINTERVAL'],
-      ));
+    if (getters.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10'
+      && !getters.GET_CLIENT_POLLER_CANCEL_TOKEN) {
+      // eslint-disable-next-line new-cap
+      const cancelToken = new CAF.cancelToken();
+
+      commit('SET_CLIENT_POLLER_CANCEL_TOKEN', cancelToken);
+
+      const main = CAF(function* poller(signal) {
+        while (true) {
+          yield CAF.delay(signal, rootGetters['settings/GET_CLIENTPOLLINTERVAL']);
+
+          try {
+            yield dispatch('POLL_PLEX_CLIENT', signal);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      });
+
+      try {
+        await main(cancelToken.signal);
+      } catch (e) {
+        console.debug('PLEX_TIMELINE_UPDATER canceled');
+      }
     }
   },
 
   CANCEL_CLIENT_POLLER_IF_NEEDED: ({ getters, commit }) => {
-    if (getters.GET_CLIENT_POLLER_CANCELER) {
-      getters.GET_CLIENT_POLLER_CANCELER();
-      commit('SET_CLIENT_POLLER_CANCELER', null);
+    if (getters.GET_CLIENT_POLLER_CANCEL_TOKEN) {
+      getters.GET_CLIENT_POLLER_CANCEL_TOKEN.abort();
+      commit('SET_CLIENT_POLLER_CANCEL_TOKEN', null);
     }
+  },
+
+  RELOAD_ACTIVE_MEDIA_METADATA: async ({ getters, dispatch, commit }) => {
+    const metadata = await dispatch('plexservers/FETCH_PLEX_METADATA', {
+      machineIdentifier: getters.GET_ACTIVE_SERVER_ID,
+      ratingKey: getters.GET_ACTIVE_MEDIA_METADATA.ratingKey,
+    }, { root: true });
+    commit('SET_ACTIVE_MEDIA_METADATA', metadata);
   },
 };

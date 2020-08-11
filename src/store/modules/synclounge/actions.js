@@ -61,8 +61,8 @@ export default {
         roomId: getters.GET_ROOM,
         password: getters.GET_PASSWORD,
         desiredUsername: getters.GET_DISPLAY_USERNAME,
-        // TODO: add config option for this
-        desiredPartyPausingEnabled: true,
+        desiredPartyPausingEnabled: getters.IS_PARTY_PAUSING_ENABLED,
+        desiredAutoHostEnabled: getters.IS_AUTO_HOST_ENABLED,
         thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
         syncFlexibility: rootGetters['settings/GET_SYNCFLEXIBILITY'],
         ...joinPlayerData,
@@ -83,7 +83,7 @@ export default {
     // Note: this is also called on rejoining, so be careful not to register handlers twice
     // or duplicate tasks
     const {
-      user: { id, ...rest }, users, isPartyPausingEnabled, hostId,
+      user: { id, ...rest }, users, isPartyPausingEnabled, isAutoHostEnabled, hostId,
     } = await dispatch('JOIN_ROOM');
     const updatedAt = Date.now();
 
@@ -122,9 +122,11 @@ export default {
     });
 
     commit('SET_IS_PARTY_PAUSING_ENABLED', isPartyPausingEnabled);
+    commit('SET_IS_AUTO_HOST_ENABLED', isAutoHostEnabled);
     commit('SET_IS_IN_ROOM', true);
 
-    await dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
+    // Purposefully not awaited
+    dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
     await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${getters.GET_ROOM}`, { root: true });
     await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
   },
@@ -166,6 +168,13 @@ export default {
   SEND_SET_PARTY_PAUSING_ENABLED: (context, value) => {
     emit({
       eventName: 'setPartyPausingEnabled',
+      data: value,
+    });
+  },
+
+  SEND_SET_AUTO_HOST_ENABLED: (context, value) => {
+    emit({
+      eventName: 'setAutoHostEnabled',
       data: value,
     });
   },
@@ -252,6 +261,11 @@ export default {
     registerListener({
       eventName: 'setPartyPausingEnabled',
       action: 'HANDLE_SET_PARTY_PAUSING_ENABLED',
+    });
+
+    registerListener({
+      eventName: 'setAutoHostEnabled',
+      action: 'HANDLE_SET_AUTO_HOST_ENABLED',
     });
     registerListener({ eventName: 'partyPause', action: 'HANDLE_PARTY_PAUSE' });
     registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
@@ -346,7 +360,7 @@ export default {
 
   PROCESS_MEDIA_UPDATE: async ({
     dispatch, getters, commit, rootGetters,
-  }) => {
+  }, userInitiated) => {
     // TODO: only send message if in room, check in room
     const playerState = await dispatch('plexclients/FETCH_TIMELINE_POLL_DATA_CACHE', null,
       { root: true });
@@ -376,10 +390,15 @@ export default {
       data: {
         media: rootGetters['plexclients/GET_ACTIVE_MEDIA_POLL_METADATA'],
         ...playerState,
+        userInitiated,
       },
     });
 
-    await dispatch('SYNC_PLAYER_STATE');
+    await dispatch('PROCESS_UPNEXT', playerState);
+
+    if (!userInitiated) {
+      await dispatch('SYNC_PLAYER_STATE');
+    }
   },
 
   ADD_MESSAGE_AND_CACHE_AND_NOTIFY: async ({ getters, dispatch }, msg) => {
@@ -422,12 +441,14 @@ export default {
 
   CANCEL_IN_PROGRESS_SYNC: ({ getters, commit }) => {
     // TODO: if the slplayer is currently being initialized, wait for that to finish
-    if (getters.GET_SYNC_CANCEL_TOKEN) {
-      // If sync in progress, cancel it
-      getters.GET_SYNC_CANCEL_TOKEN.abort('Sync cancelled');
-      console.log('sync cancelled');
-      commit('SET_SYNC_CANCEL_TOKEN', null);
+    if (!getters.GET_SYNC_CANCEL_TOKEN) {
+      return;
     }
+
+    // If sync in progress, cancel it
+    getters.GET_SYNC_CANCEL_TOKEN.abort('Sync cancelled');
+    console.log('sync cancelled');
+    commit('SET_SYNC_CANCEL_TOKEN', null);
   },
 
   MANUAL_SYNC: async ({
@@ -459,7 +480,7 @@ export default {
   },
 
   SYNC_MEDIA_AND_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
-    if (getters.AM_I_HOST) {
+    if (getters.AM_I_HOST || getters.GET_SYNC_CANCEL_TOKEN) {
       return;
     }
 
@@ -472,19 +493,17 @@ export default {
         if we need to seek or start playing something.
       */
 
-    if (!getters.GET_SYNC_CANCEL_TOKEN) {
-      // eslint-disable-next-line new-cap
-      const token = new CAF.cancelToken();
-      commit('SET_SYNC_CANCEL_TOKEN', token);
+    // eslint-disable-next-line new-cap
+    const token = new CAF.cancelToken();
+    commit('SET_SYNC_CANCEL_TOKEN', token);
 
-      try {
-        await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE', token.signal);
-      } catch (e) {
-        console.log('Error caught in sync logic', e);
-      }
-
-      commit('SET_SYNC_CANCEL_TOKEN', null);
+    try {
+      await dispatch('_SYNC_MEDIA_AND_PLAYER_STATE', token.signal);
+    } catch (e) {
+      console.log('Error caught in sync logic', e);
     }
+
+    commit('SET_SYNC_CANCEL_TOKEN', null);
   },
 
   // Interal action without lock. Use the one with the lock to stop multiple syncs from happening
@@ -534,23 +553,21 @@ export default {
   },
 
   SYNC_PLAYER_STATE: async ({ dispatch, getters, commit }) => {
-    if (getters.AM_I_HOST) {
+    if (getters.AM_I_HOST || getters.GET_SYNC_CANCEL_TOKEN) {
       return;
     }
 
-    if (!getters.GET_SYNC_CANCEL_TOKEN) {
-      // eslint-disable-next-line new-cap
-      const token = new CAF.cancelToken();
-      commit('SET_SYNC_CANCEL_TOKEN', token);
+    // eslint-disable-next-line new-cap
+    const token = new CAF.cancelToken();
+    commit('SET_SYNC_CANCEL_TOKEN', token);
 
-      try {
-        await dispatch('_SYNC_PLAYER_STATE', token.signal);
-      } catch (e) {
-        console.log('Error caught in sync logic', e);
-      }
-
-      commit('SET_SYNC_CANCEL_TOKEN', null);
+    try {
+      await dispatch('_SYNC_PLAYER_STATE', token.signal);
+    } catch (e) {
+      console.log('Error caught in sync logic', e);
     }
+
+    commit('SET_SYNC_CANCEL_TOKEN', null);
   },
 
   // Private version without lock. Please use the locking version unless you know what you are doing
@@ -571,7 +588,7 @@ export default {
 
     if (getters.GET_HOST_USER.state === 'playing' && timeline.state === 'paused') {
       await dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
-      await dispatch('plexclients/PRESS_PLAY', null, { root: true });
+      await dispatch('plexclients/PRESS_PLAY', cancelSignal, { root: true });
       return;
     }
 
@@ -579,7 +596,7 @@ export default {
           || getters.GET_HOST_USER.state === 'buffering')
           && timeline.state === 'playing') {
       await dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
-      await dispatch('plexclients/PRESS_PAUSE', null, { root: true });
+      await dispatch('plexclients/PRESS_PAUSE', cancelSignal, { root: true });
       return;
     }
 

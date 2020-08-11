@@ -12,7 +12,9 @@ const state = () => ({
   playerControlsShownInterval: null,
   bufferingEventListener: null,
   clickEventListener: null,
+  errorEventListener: null,
   plexTimelineUpdaterCancelToken: null,
+  playerDestroyCancelToken: null,
   isPlayerInitialized: false,
   playerInitializedDeferredPromise: null,
 
@@ -30,6 +32,7 @@ const state = () => ({
   subtitleColor: subtitleColors.White,
   subtitleOffset: 0,
   streamingProtocol: 'dash',
+  forceTranscodeRetry: false,
 });
 
 export default state;

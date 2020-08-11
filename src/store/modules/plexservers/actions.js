@@ -3,16 +3,15 @@ import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import scoreMedia from './mediascoring';
 
 export default {
-  FETCH_RANDOM_ITEM: async ({ getters, dispatch }, machineIdentifier) => {
-    // TODO: probably do this better and more random etc lol because sort order is the same I think
-    await dispatch('FETCH_ALL_LIBRARIES_IF_NEEDED', machineIdentifier);
+  FETCH_RANDOM_ITEM: async ({ getters, dispatch }, { machineIdentifier, signal }) => {
+    await dispatch('FETCH_ALL_LIBRARIES_IF_NEEDED', { machineIdentifier, signal });
     const libraryKeys = getters.GET_PLEX_SERVER(machineIdentifier).libraries
       .map((library) => library.key);
 
     const libraryKey = sample(libraryKeys);
 
     const librarySize = await dispatch('FETCH_LIBRARY_SIZE', {
-      machineIdentifier, sectionId: libraryKey,
+      machineIdentifier, sectionId: libraryKey, signal,
     });
     const randomItemIndex = randomInt(librarySize - 1);
 
@@ -21,12 +20,13 @@ export default {
       sectionId: libraryKey,
       start: randomItemIndex,
       size: 1,
+      signal,
     });
 
     return contents[0];
   },
 
-  FETCH_RANDOM_IMAGE_URL: async ({ getters, dispatch }) => {
+  FETCH_RANDOM_IMAGE_URL: async ({ getters, dispatch }, signal) => {
     await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
 
     const machineIdentifier = sample(getters.GET_CONNECTABLE_PLEX_SERVER_IDS);
@@ -34,7 +34,7 @@ export default {
       throw new Error('No valid servers found');
     }
 
-    const result = await dispatch('FETCH_RANDOM_ITEM', machineIdentifier);
+    const result = await dispatch('FETCH_RANDOM_ITEM', { machineIdentifier, signal });
     if (!result) {
       throw new Error('No result found');
     }
@@ -197,10 +197,9 @@ export default {
     });
   },
 
-  FETCH_ALL_LIBRARIES_IF_NEEDED: async ({ getters, dispatch }, machineIdentifier) => {
+  FETCH_ALL_LIBRARIES_IF_NEEDED: async ({ getters, dispatch }, { machineIdentifier, signal }) => {
     if (!getters.GET_PLEX_SERVER(machineIdentifier).libraries) {
-      // TODO: signal abort maybe?
-      await dispatch('FETCH_ALL_LIBRARIES', { machineIdentifier });
+      await dispatch('FETCH_ALL_LIBRARIES', { machineIdentifier, signal });
     }
   },
 
@@ -272,10 +271,10 @@ export default {
     });
 
     // TODO: potentially include the other hubs too (related director etc...)
-    return data.MediaContainer.Hub[0].Metadata.map((child) => ({
+    return data.MediaContainer.Hub?.[0]?.Metadata?.map((child) => ({
       ...child,
       librarySectionID: data.MediaContainer.librarySectionID,
-    }));
+    })) || [];
   },
 
   FETCH_LIBRARY_ALL: async ({ dispatch }, {

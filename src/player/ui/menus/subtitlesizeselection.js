@@ -71,7 +71,7 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onSubtitleSizeClicked(size),
+          () => SubtitleSizeSelection.onSubtitleSizeClicked(size),
         );
 
         if (size === store.getters['slplayer/GET_SUBTITLE_SIZE']) {

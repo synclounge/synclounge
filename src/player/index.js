@@ -62,9 +62,10 @@ const removeMediaElementEventListener = (...args) => getPlayer().getMediaElement
   .removeEventListener(...args);
 
 // TODO: potentialy make cancellable
-export const waitForMediaElementEvent = ({ signal, type }) => new Promise((resolve) => {
-  signal.pr.catch(() => {
+export const waitForMediaElementEvent = ({ signal, type }) => new Promise((resolve, reject) => {
+  signal.pr.catch((e) => {
     removeMediaElementEventListener(type, resolve);
+    reject(e);
   });
 
   addMediaElementEventListener(type, resolve, { once: true });

@@ -57,6 +57,8 @@ const defaults = {
   // Buffering goal in seconds
   slplayer_buffering_goal: 120,
 
+  slplayer_soft_seek_threshold: 200,
+
   sidebar_time_update_interval: 500,
 
   // If the plex client's time changes by this much from the expected time, trigger a state change
@@ -71,6 +73,13 @@ const defaults = {
   synclounge_upnext_popup_lifetime: 60000,
 
   force_slplayer: false,
+
+  // Skip ahead time in ms
+  skip_ahead_time: 10000,
+
+  // Sync flexibility when players are paused
+  paused_sync_flexibility: 10,
+
 };
 
 module.exports = defaults;

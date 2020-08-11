@@ -47,6 +47,8 @@ export default {
       ...getters.GET_PART_PARAMS,
     }, { method: 'PUT' });
 
+    await dispatch('plexclients/RELOAD_ACTIVE_MEDIA_METADATA', null, { root: true });
+
     // Redo src
     await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
   },
@@ -56,6 +58,8 @@ export default {
       subtitleStreamID,
       ...getters.GET_PART_PARAMS,
     }, { method: 'PUT' });
+
+    await dispatch('plexclients/RELOAD_ACTIVE_MEDIA_METADATA', null, { root: true });
 
     // Redo src
     await dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
@@ -82,12 +86,31 @@ export default {
 
   CHANGE_PLAYER_SRC: async ({ getters, commit, dispatch }) => {
     console.debug('CHANGE_PLAYER_SRC');
-    commit('SET_SESSION', guid());
 
     // Abort subtitle requests now or else we get ugly errors from the server closing it.
     await dispatch('DESTROY_ASS');
-    await dispatch('SEND_PLEX_DECISION_REQUEST');
-    await dispatch('LOAD_PLAYER_SRC');
+
+    if (getters.GET_FORCE_TRANSCODE_RETRY) {
+      commit('SET_FORCE_TRANSCODE_RETRY', false);
+    }
+
+    commit('SET_SESSION', guid());
+
+    try {
+      await dispatch('SEND_PLEX_DECISION_REQUEST');
+      await dispatch('LOAD_PLAYER_SRC');
+    } catch (e) {
+      if (getters.GET_FORCE_TRANSCODE) {
+        throw e;
+      }
+      console.warn('Error loading stream from plex. Retrying with forced transcoding', e);
+
+      // Try again with forced transcoding
+      commit('SET_FORCE_TRANSCODE_RETRY', true);
+      await dispatch('SEND_PLEX_DECISION_REQUEST');
+      await dispatch('LOAD_PLAYER_SRC');
+    }
+
     await dispatch('CHANGE_SUBTITLES');
 
     // TODO: potentially avoid sending updates on media change since we already do that
@@ -127,10 +150,16 @@ export default {
     }
   },
 
-  HANDLE_PLAYER_PAUSE: async ({ dispatch }) => {
+  HANDLE_PLAYER_PAUSE: async ({ getters, dispatch }) => {
     if (isBuffering()) {
       // If we are buffering, then we don't need to actually change the state, but we should send
       // out a new state update to synclounge since we have seeked
+
+      // Wait for seeking since time isn't updated until we get that event
+      dispatch('PROCESS_STATE_UPDATE_ON_PLAYER_EVENT', {
+        type: 'seeking',
+        signal: getters.GET_PLAYER_DESTROY_CANCEL_TOKEN.signal,
+      });
       await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', null, { root: true });
     } else if (isPresentationPaused()) {
       await dispatch('CHANGE_PLAYER_STATE', 'paused');
@@ -175,6 +204,12 @@ export default {
     }
   },
 
+  HANDLE_ERROR: ({ dispatch }, e) => {
+    console.error(e);
+    // Restart source
+    return dispatch('UPDATE_PLAYER_SRC_AND_KEEP_TIME');
+  },
+
   PRESS_PLAY: () => {
     play();
   },
@@ -187,19 +222,19 @@ export default {
     await dispatch('CHANGE_PLAYER_STATE', 'stopped');
   },
 
-  SOFT_SEEK: ({ getters, commit }, seekToMs) => {
+  SOFT_SEEK: ({ commit }, seekToMs) => {
     console.debug('SOFT_SEEK', seekToMs);
-    if (!isTimeInBufferedRange(getters, seekToMs)) {
-      throw new Error('Soft seek requested but not within buffered range');
+    if (!isTimeInBufferedRange(seekToMs)) {
+      throw new Error('Soft seek not allowed outside of buffered range');
     }
 
     commit('SET_OFFSET_MS', seekToMs);
     setCurrentTimeMs(seekToMs);
   },
 
-  PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE: async ({ dispatch }, signal) => {
-    await waitForMediaElementEvent({ signal, type: 'ratechange' });
-    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', true, { root: true });
+  PROCESS_STATE_UPDATE_ON_PLAYER_EVENT: async ({ dispatch }, { signal, type, noSync }) => {
+    await waitForMediaElementEvent({ signal, type });
+    await dispatch('synclounge/PROCESS_PLAYER_STATE_UPDATE', noSync, { root: true });
   },
 
   SPEED_SEEK: async ({ dispatch, rootGetters }, { cancelSignal, seekToMs }) => {
@@ -214,13 +249,25 @@ export default {
       setPlaybackRate(rate);
 
       try {
-        // Nosync process. Purposefully not awaited
-        dispatch('PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE', signal);
-        yield CAF.delay(signal, timeUntilSynced);
+        yield Promise.all([
+          CAF.delay(signal, timeUntilSynced),
+
+          dispatch('PROCESS_STATE_UPDATE_ON_PLAYER_EVENT', {
+            signal,
+            type: 'ratechange',
+            noSync: true,
+          }),
+        ]);
       } finally {
         setPlaybackRate(1);
-        // Nosync process. Purposefully not awaited
-        dispatch('PROCESS_STATE_UPDATE_ON_PLAYBACK_RATE_CHANGE', signal);
+
+        // TODO: not sure what to do since I need to do this cancellable task in the cleanup
+        dispatch('PROCESS_STATE_UPDATE_ON_PLAYER_EVENT', {
+          signal,
+          type: 'ratechange',
+          // Don't sync if aborted
+          noSync: signal.aborted,
+        });
       }
     });
 
@@ -340,6 +387,8 @@ export default {
   }) => {
     console.debug('INIT_PLAYER_STATE');
 
+    // eslint-disable-next-line new-cap
+    commit('SET_PLAYER_DESTROY_CANCEL_TOKEN', new CAF.cancelToken());
     try {
       await dispatch('REGISTER_PLAYER_EVENTS');
       await dispatch('START_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
@@ -371,8 +420,12 @@ export default {
     }
   },
 
-  DESTROY_PLAYER_STATE: async ({ commit, dispatch }) => {
+  DESTROY_PLAYER_STATE: async ({ getters, commit, dispatch }) => {
     console.debug('DESTROY_PLAYER_STATE');
+    getters.GET_PLAYER_DESTROY_CANCEL_TOKEN.abort();
+    commit('SET_PLAYER_DESTROY_CANCEL_TOKEN', null);
+    commit('SET_FORCE_TRANSCODE_RETRY', false);
+
     commit('STOP_UPDATE_PLAYER_CONTROLS_SHOWN_INTERVAL');
     commit('UPDATE_PLAYER_CONTROLS_SHOWN', false);
     await dispatch('UNREGISTER_PLAYER_EVENTS');
@@ -401,6 +454,10 @@ export default {
     getSmallPlayButton().addEventListener('click', clickListener);
     getBigPlayButton().addEventListener('click', clickListener);
     commit('SET_CLICK_EVENT_LISTENER', clickListener);
+
+    const errorListener = (e) => dispatch('HANDLE_ERROR', e);
+    addEventListener('error', errorListener);
+    commit('SET_ERROR_EVENT_LISTENER', errorListener);
   },
 
   UNREGISTER_PLAYER_EVENTS: ({ getters, commit }) => {
@@ -410,6 +467,9 @@ export default {
     getSmallPlayButton().removeEventListener('click', getters.GET_CLICK_EVENT_LISTENER);
     getBigPlayButton().removeEventListener('click', getters.GET_CLICK_EVENT_LISTENER);
     commit('SET_CLICK_EVENT_LISTENER', null);
+
+    removeEventListener('buffering', getters.GET_ERROR_EVENT_LISTENER);
+    commit('SET_ERROR_EVENT_LISTENER', null);
   },
 
   PLAY_PAUSE_VIDEO: async ({ dispatch }) => {
@@ -458,7 +518,7 @@ export default {
     commit('SET_OFFSET_MS',
       rootGetters['plexclients/GET_ACTIVE_PLAY_QUEUE_SELECTED_ITEM'].viewOffset || 0);
     commit('SET_MASK_PLAYER_STATE', true);
-    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', null, { root: true });
+    await dispatch('synclounge/PROCESS_MEDIA_UPDATE', true, { root: true });
 
     await dispatch('CHANGE_PLAYER_SRC');
 

@@ -9,7 +9,6 @@
         lg="4"
       >
         <v-text-field
-          id="testing"
           v-model="searchWord"
           name="searchInput"
           label="Search"
@@ -322,6 +321,7 @@ export default {
       searchStatus: 'Search your available Plex Media Servers',
       searching: false,
       serverIdsHeardBack: [],
+      abortController: new AbortController(),
     };
   },
 
@@ -423,12 +423,19 @@ export default {
     this.setRandomBackground();
   },
 
+  beforeDestroy() {
+    this.abortController.abort();
+  },
+
   methods: {
     ...mapActions('plexservers', [
       'SEARCH_PLEX_SERVER',
       'FETCH_ON_DECK',
-      'FETCH_PLEX_DEVICES',
       'FETCH_RANDOM_IMAGE_URL',
+    ]),
+
+    ...mapActions('plex', [
+      'FETCH_PLEX_DEVICES',
     ]),
 
     ...mapMutations([
@@ -437,7 +444,7 @@ export default {
     ]),
 
     async setRandomBackground() {
-      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
+      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL(this.abortController.signal));
     },
 
     async fetchOnDeck() {
@@ -445,6 +452,7 @@ export default {
         machineIdentifier: this.GET_LAST_SERVER_ID,
         start: 0,
         size: 10,
+        signal: this.abortController.signal,
       });
     },
 

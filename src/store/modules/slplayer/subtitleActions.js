@@ -166,14 +166,26 @@ export default {
       assAbortController.signal,
     );
 
-    const parser = new libjass.parser.StreamParser(stream);
-    // Purposefully not awaited because we never get the full file at once
-    // We still need to catch abort errors to clean up console
-    handleStreamError(parser.ass);
-    return parser.minimalASS;
+    const useSrtParser = getters.CAN_DIRECT_PLAY_SUBTITLES
+      && getters.GET_SUBTITLE_STREAM.codec === 'srt';
+
+    const parser = useSrtParser
+      ? new libjass.parser.SrtStreamParser(stream)
+      : new libjass.parser.StreamParser(stream);
+
+    if (!useSrtParser) {
+      // Purposefully not awaited because we never get the full file at once
+      // We still need to catch abort errors to clean up console
+      handleStreamError(parser.ass);
+    }
+
+    return useSrtParser
+      ? parser.ass
+      : parser.minimalASS;
   },
 
   INIT_SUBTITLE_RENDERER: async ({ dispatch }, ass) => {
+    console.debug('INIT_SUBTITLE_RENDERER');
     const libjass = await import('libjass');
     subtitleRenderer = new libjass.renderers.WebRenderer(
       ass,

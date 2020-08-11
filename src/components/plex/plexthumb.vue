@@ -105,7 +105,7 @@
 import { mapGetters } from 'vuex';
 import VanillaTilt from 'vanilla-tilt';
 import contentTitle from '@/mixins/contentTitle';
-import contentLinks from '@/utils/contentlinks';
+import getContentLink from '@/utils/contentlinks';
 
 export default {
   mixins: [contentTitle],
@@ -208,7 +208,7 @@ export default {
     },
 
     link() {
-      return contentLinks.getContentLink({
+      return getContentLink({
         ...this.content,
         machineIdentifier: this.machineIdentifier,
       });

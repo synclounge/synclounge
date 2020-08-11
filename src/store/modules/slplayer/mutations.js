@@ -41,8 +41,16 @@ export default {
     state.clickEventListener = listener;
   },
 
+  SET_ERROR_EVENT_LISTENER: (state, listener) => {
+    state.errorEventListener = listener;
+  },
+
   SET_PLEX_TIMELINE_UPDATER_CANCEL_TOKEN: (state, token) => {
     state.plexTimelineUpdaterCancelToken = token;
+  },
+
+  SET_PLAYER_DESTROY_CANCEL_TOKEN: (state, token) => {
+    state.playerDestroyCancelToken = token;
   },
 
   SET_IS_PLAYER_INITIALIZED: (state, isInitialized) => {
@@ -87,5 +95,9 @@ export default {
 
   SET_STREAMING_PROTOCOL: (state, protocol) => {
     state.streamingProtocol = protocol;
+  },
+
+  SET_FORCE_TRANSCODE_RETRY: (state, force) => {
+    state.forceTranscodeRetry = force;
   },
 };

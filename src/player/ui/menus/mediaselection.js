@@ -69,7 +69,7 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onMediaClicked(media.index),
+          () => MediaSelection.onMediaClicked(media.index),
         );
 
         if (media.index === store.getters['slplayer/GET_MEDIA_INDEX']) {

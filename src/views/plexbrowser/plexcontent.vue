@@ -493,17 +493,12 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import customFormatDuration from '@/utils/customformatduration';
-
-import sizing from '@/mixins/sizing';
+import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
   components: {
     plexthumb: () => import('@/components/plex/plexthumb.vue'),
   },
-
-  mixins: [
-    sizing,
-  ],
 
   props: {
     machineIdentifier: {
@@ -574,8 +569,8 @@ export default {
         mediaUrl: this.contents.type === 'movie'
           ? this.contents.art
           : this.contents.grandparentArt,
-        width: this.getAppWidth() * 1.5,
-        height: this.getAppHeight() * 1.5,
+        width: getAppWidth() * 1.5,
+        height: getAppHeight() * 1.5,
         blur: 0,
       });
     },
@@ -596,8 +591,8 @@ export default {
         mediaUrl: this.contents.type === 'movie'
           ? this.contents.thumb
           : this.contents.parentThumb || this.contents.grandparentThumb,
-        width: this.getAppWidth(),
-        height: this.getAppHeight(),
+        width: getAppWidth(),
+        height: getAppHeight(),
       });
     },
 
@@ -676,8 +671,8 @@ export default {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
         mediaUrl: content.thumb,
-        width: this.getAppWidth() / 2,
-        height: this.getAppHeight() / 2,
+        width: getAppWidth() / 2,
+        height: getAppHeight() / 2,
         blur: 0,
       });
     },
@@ -687,8 +682,8 @@ export default {
         this.GET_MEDIA_IMAGE_URL({
           machineIdentifier: this.machineIdentifier,
           mediaUrl: this.contents.art,
-          width: this.getAppWidth() / 4,
-          height: this.getAppHeight() / 4,
+          width: getAppWidth() / 4,
+          height: getAppHeight() / 4,
           blur: 2,
         }),
       );
@@ -713,6 +708,7 @@ export default {
           mediaIndex,
           machineIdentifier: this.machineIdentifier,
           offset,
+          userInitiated: true,
         });
       } catch (e) {
         if (e.code === 7000) {

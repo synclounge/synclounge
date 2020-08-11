@@ -2,9 +2,12 @@
 // one myself
 
 export default {
-  any: (promises) => Promise.all(promises.map((promise) => promise.then((val) => {
-    throw val;
-  }, (reason) => reason))).then((reasons) => {
+  any: (promises) => Promise.all(promises.map((promise) => promise.then(
+    (val) => {
+      throw val;
+    },
+    (reason) => reason,
+  ))).then((reasons) => {
     throw reasons;
   }, (firstResolved) => firstResolved),
 };

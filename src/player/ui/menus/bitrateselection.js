@@ -69,7 +69,7 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onBitrateClicked(bitrateOption.maxVideoBitrate),
+          () => BitrateSelection.onBitrateClicked(bitrateOption.maxVideoBitrate),
         );
 
         if (bitrateOption.maxVideoBitrate === store.getters['settings/GET_SLPLAYERQUALITY']) {

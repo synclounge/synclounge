@@ -69,7 +69,7 @@ export default (store) => {
         this.eventManager.listen(
           button,
           'click',
-          () => this.onSubtitleClicked(subtitle.id),
+          () => SubtitleSelection.onSubtitleClicked(subtitle.id),
         );
 
         if (subtitle.id === store.getters['slplayer/GET_SUBTITLE_STREAM_ID']) {

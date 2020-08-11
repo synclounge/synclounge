@@ -16,7 +16,7 @@ FROM node:current-alpine as dependency-stage
 WORKDIR /app
 ## Install build toolchain, install node deps and compile native add-ons
 RUN apk add --no-cache python make g++
-RUN NPM_CONFIG_PREFIX=/app/.npm-global NPM_CONFIG_CACHE=/home/node/.cache npm install --unsafe-perm -g syncloungesocket@3.2.0 nconf
+RUN NPM_CONFIG_PREFIX=/app/.npm-global NPM_CONFIG_CACHE=/home/node/.cache npm install --unsafe-perm -g syncloungesocket@4.0.1 nconf
 COPY docker-entrypoint.sh .
 COPY config config
 
@@ -41,4 +41,4 @@ LABEL org.opencontainers.image.version=$VERSION
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

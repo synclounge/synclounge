@@ -73,7 +73,7 @@ export default {
     ? getters.GET_ACTIVE_PLAY_QUEUE.playQueueSelectedItemOffset > 0
     : false),
 
-  GET_CLIENT_POLLER_CANCELER: (state) => state.clientPollerCanceler,
+  GET_CLIENT_POLLER_CANCEL_TOKEN: (state) => state.clientPollerCancelToken,
 
   IS_THIS_MEDIA_PLAYING: (state, getters) => (media) => (getters.GET_ACTIVE_MEDIA_METADATA
     ? getters.GET_ACTIVE_MEDIA_METADATA.machineIdentifier === media.machineIdentifier

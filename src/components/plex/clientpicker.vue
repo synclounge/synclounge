@@ -66,6 +66,7 @@ export default {
   data() {
     return {
       error: false,
+      abortController: null,
     };
   },
 
@@ -88,6 +89,10 @@ export default {
     await this.FETCH_PLEX_DEVICES_IF_NEEDED();
   },
 
+  beforeDestroy() {
+    this.cancelRequests();
+  },
+
   methods: {
     ...mapActions('plex', [
       'FETCH_PLEX_DEVICES_IF_NEEDED',
@@ -102,21 +107,38 @@ export default {
       'SET_CHOSEN_CLIENT_ID',
     ]),
 
+    cancelRequests() {
+      if (this.abortController) {
+        this.abortController.abort();
+        this.abortController = null;
+      }
+    },
+
     async onClientClicked(clientIdentifier) {
+      this.cancelRequests();
+      const controller = new AbortController();
+      this.abortController = controller;
       this.$emit('loadingChange', true);
       this.$emit('clientConnectableChange', false);
       this.error = false;
 
       try {
-        await this.FIND_AND_SET_CONNECTION({ clientIdentifier });
+        await this.FIND_AND_SET_CONNECTION({
+          clientIdentifier,
+          signal: controller.signal,
+        });
         this.SET_CHOSEN_CLIENT_ID(clientIdentifier);
         this.$emit('clientConnectableChange', true);
       } catch (e) {
-        // TODO: maybe add lock or cancel test if user clicks on other client while previous is
-        // still checking
-        console.log(e);
+        if (controller.signal.aborted) {
+          // If we aborted, ignore errors and return immediately
+          return;
+        }
+        console.error(e);
         this.error = true;
       }
+
+      this.abortController = null;
 
       this.$emit('loadingChange', false);
     },

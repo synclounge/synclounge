@@ -296,6 +296,7 @@ export default {
       e1: '1',
       joinRoomModal: false,
       previewClientId: null,
+      abortController: null,
     };
   },
 
@@ -357,6 +358,10 @@ export default {
     },
   },
 
+  beforeDestroy() {
+    this.cancelRequests();
+  },
+
   methods: {
     ...mapActions('plexclients', [
       'FIND_AND_SET_CONNECTION',
@@ -370,14 +375,31 @@ export default {
       'SET_CHOSEN_CLIENT_ID',
     ]),
 
+    cancelRequests() {
+      if (this.abortController) {
+        this.abortController.abort();
+        this.abortController = null;
+      }
+    },
+
     async findPreviewConnection() {
+      this.cancelRequests();
+      const controller = new AbortController();
+      this.abortController = controller;
       this.previewClientErrorMsg = null;
       this.gotResponse = false;
 
       try {
-        await this.FIND_AND_SET_CONNECTION({ clientIdentifier: this.previewClientId });
+        await this.FIND_AND_SET_CONNECTION({
+          clientIdentifier: this.previewClientId,
+          signal: controller.signal,
+        });
       } catch (e) {
-        console.log(e);
+        if (controller.signal.aborted) {
+          // If we aborted, ignore errors and return immediately
+          return;
+        }
+        console.error(e);
         this.previewClientErrorMsg = 'Unable to connect to client';
       }
 
@@ -395,6 +417,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .selected-player-details label + span {
   margin-left: 5px;

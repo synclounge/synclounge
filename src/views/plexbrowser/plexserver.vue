@@ -196,17 +196,12 @@
 <script>
 import { sample } from '@/utils/lightlodash';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-
-import sizing from '@/mixins/sizing';
+import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
   components: {
     plexthumb: () => import('@/components/plex/plexthumb.vue'),
   },
-
-  mixins: [
-    sizing,
-  ],
 
   props: {
     machineIdentifier: {
@@ -345,7 +340,7 @@ export default {
 
     fetchData() {
       return Promise.all([
-        this.FETCH_ALL_LIBRARIES_IF_NEEDED(this.machineIdentifier),
+        this.FETCH_ALL_LIBRARIES_IF_NEEDED({ machineIdentifier: this.machineIdentifier }),
         this.fetchRecentlyAdded(),
         this.fetchOnDeck(),
       ]);
@@ -432,8 +427,8 @@ export default {
         this.GET_MEDIA_IMAGE_URL({
           machineIdentifier: this.machineIdentifier,
           mediaUrl: sample(this.recentlyAdded).art,
-          width: this.getAppWidth() / 4,
-          height: this.getAppHeight() / 1,
+          width: getAppWidth() / 4,
+          height: getAppHeight() / 1,
           blur: 6,
         }));
     },
@@ -442,8 +437,8 @@ export default {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
         mediaUrl: object.art,
-        width: this.getAppWidth(),
-        height: this.getAppHeight(),
+        width: getAppWidth(),
+        height: getAppHeight(),
         blur: 15,
       });
     },
@@ -452,8 +447,8 @@ export default {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
         mediaUrl: object.thumb,
-        width: this.getAppWidth() / 4,
-        height: this.getAppHeight() / 4,
+        width: getAppWidth() / 4,
+        height: getAppHeight() / 4,
       });
     },
   },
