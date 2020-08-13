@@ -35,13 +35,12 @@ export default (store) => {
       setDisplay(this.button, !store.getters['synclounge/AM_I_HOST']);
     }
 
-    // TODO: replace this function name with "release" when upgrading to shaka 3
-    destroy() {
+    release() {
       this.#watcherCancellers.forEach((canceller) => {
         canceller();
       });
 
-      super.destroy();
+      super.release();
     }
   }
 

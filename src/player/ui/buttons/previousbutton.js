@@ -53,13 +53,12 @@ export default (store) => {
       }
     }
 
-    // TODO: replace this function name with "release" when upgrading to shaka 3
-    destroy() {
+    release() {
       this.#watcherCancellers.forEach((canceller) => {
         canceller();
       });
 
-      super.destroy();
+      super.release();
     }
   }
 
