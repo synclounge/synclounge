@@ -49,10 +49,6 @@
       style="text-align: center;"
       class="pt-4"
     >
-      <h4 style="text-align: initial;">
-        Streaming Protocol
-      </h4>
-
       <v-select
         :value="GET_STREAMING_PROTOCOL"
         :items="protocols"
@@ -90,18 +86,20 @@
 
     <div
       style="text-align: center;"
-      class="pt-4"
     >
-      <h4 style="text-align: initial;">
-        Autoplay
-      </h4>
-
       <v-switch
-        label="Enabled"
+        label="Autoplay"
         hint="If enabled SyncLounge will attempt to automatically play the
          same content as the host."
         :input-value="GET_AUTOPLAY"
         @change="SET_AUTOPLAY"
+      />
+
+      <v-switch
+        label="Auto skip intro"
+        hint="Automatically skip intros"
+        :input-value="GET_AUTO_SKIP_INTRO"
+        @change="SET_AUTO_SKIP_INTRO"
       />
     </div>
 
@@ -139,6 +137,7 @@ export default {
       'GET_CLIENTPOLLINTERVAL',
       'GET_SYNCFLEXIBILITY',
       'GET_SYNCMODE',
+      'GET_AUTO_SKIP_INTRO',
     ]),
 
     ...mapGetters('slplayer', [
@@ -170,6 +169,7 @@ export default {
       'SET_SLPLAYERFORCETRANSCODE',
       'SET_CLIENTPOLLINTERVAL',
       'SET_SYNCMODE',
+      'SET_AUTO_SKIP_INTRO',
     ]),
 
     ...mapMutations('slplayer', [

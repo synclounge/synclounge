@@ -10,6 +10,7 @@ const state = () => ({
   slPlayerForceTranscode: null,
   hideUsername: false,
   altUsername: null,
+  autoSkipIntro: null,
 });
 
 export default state;

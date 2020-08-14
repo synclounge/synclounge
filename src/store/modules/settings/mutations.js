@@ -29,4 +29,8 @@ export default {
   SET_SLPLAYERVOLUME: (state, volume) => {
     state.slPlayerVolume = volume;
   },
+
+  SET_AUTO_SKIP_INTRO: (state, autoSkip) => {
+    state.autoSkipIntro = autoSkip;
+  },
 };

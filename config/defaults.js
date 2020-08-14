@@ -42,6 +42,7 @@ const defaults = {
   default_client_poll_interval: 1000,
   default_sync_flexability: 3000,
   default_sync_mode: 'cleanseek',
+  default_auto_skip_intro: false,
 
   slplayer_plex_timeline_update_interval: 10000,
   slplayer_controls_visible_checker_interval: 250,

@@ -528,10 +528,11 @@ export default {
     await dispatch('plexclients/UPDATE_ACTIVE_PLAY_QUEUE', null, { root: true });
   },
 
-  SKIP_INTRO: ({ commit, rootGetters }) => {
-    console.debug('SKIP_INTRO');
+  SKIP_INTRO: async ({ dispatch, commit, rootGetters }) => {
     const introEnd = rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER']
       .endTimeOffset;
+    console.debug('SKIP_INTRO', introEnd);
+    await dispatch('DISPLAY_NOTIFICATION', 'Skipping intro', { root: true });
 
     commit('SET_OFFSET_MS', introEnd);
     setCurrentTimeMs(introEnd);
