@@ -68,8 +68,8 @@ export default {
   PLAY_MEDIA: async ({
     getters, commit, dispatch, rootGetters,
   }, {
-      mediaIndex, offset, metadata, machineIdentifier, userInitiated,
-    }) => {
+    mediaIndex, offset, metadata, machineIdentifier, userInitiated,
+  }) => {
     console.debug('PLAY_MEDIA');
     const server = rootGetters['plexservers/GET_PLEX_SERVER'](machineIdentifier);
 
