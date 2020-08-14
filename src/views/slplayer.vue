@@ -210,6 +210,10 @@ export default {
       'GET_MEDIA_IMAGE_URL',
     ]),
 
+    ...mapGetters('settings', [
+      'GET_AUTO_SKIP_INTRO',
+    ]),
+
     ...mapGetters([
       'GET_CONFIG',
     ]),
@@ -257,6 +261,20 @@ export default {
 
     ARE_PLAYER_CONTROLS_SHOWN() {
       return this.RERENDER_SUBTITLE_CONTAINER();
+    },
+
+    isInIntro: {
+      handler() {
+        return this.checkAutoSkipIntro();
+      },
+      immediate: true,
+    },
+
+    GET_AUTO_SKIP_INTRO: {
+      handler() {
+        return this.checkAutoSkipIntro();
+      },
+      immediate: true,
     },
   },
 
@@ -391,6 +409,12 @@ export default {
 
     handleTimeUpdate() {
       this.videoTimeStamp = this.$refs?.videoPlayer?.currentTime * 1000;
+    },
+
+    async checkAutoSkipIntro() {
+      if (this.isInIntro && this.GET_AUTO_SKIP_INTRO) {
+        await this.SKIP_INTRO();
+      }
     },
   },
 };
