@@ -1,0 +1,30 @@
+# build environment
+FROM --platform=$BUILDPLATFORM node:current-alpine as build-stage
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+
+ARG SOURCE_BRANCH
+ARG REVISION
+
+RUN npm run build
+
+# production environment
+FROM nginx:alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+ARG VERSION
+ARG REVISION
+ARG BUILD_DATE
+
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.title="SyncLounge Web"
+LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
+LABEL org.opencontainers.image.url="https://synclounge.tv/"
+LABEL org.opencontainers.image.revision=$REVISION
+LABEL org.opencontainers.image.source="https://github.com/samcm/synclounge"
+LABEL org.opencontainers.image.vendor="SyncLounge"
+LABEL org.opencontainers.image.version=$VERSION
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
