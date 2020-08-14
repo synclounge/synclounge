@@ -91,8 +91,8 @@ export default {
   HANDLE_MEDIA_UPDATE: async ({
     getters, dispatch, commit,
   }, {
-      id, state, time, duration, media, makeHost,
-    }) => {
+    id, state, time, duration, media, makeHost,
+  }) => {
     commit('SET_USER_PLAYER_STATE', {
       id,
       state,
