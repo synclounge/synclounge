@@ -23,6 +23,7 @@ db.sqlite
 .github
 .travis.yml
 Dockerfile
+Dockerfile.web
 .dockerignore
 **/README.md
 **/LICENSE
