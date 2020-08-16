@@ -179,8 +179,10 @@ export default {
     });
   },
 
-  sendPartyPause: ({ getters }, isPause) => {
-    if (!getters.AM_I_HOST && getters.IS_PARTY_PAUSING_ENABLED) {
+  sendPartyPause: ({ getters, rootGetters }, isPause) => {
+    if ((!getters.AM_I_HOST
+      || rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== 'PTPLAYER9PLUS10')
+      && getters.IS_PARTY_PAUSING_ENABLED) {
       emit({
         eventName: 'partyPause',
         data: isPause,
