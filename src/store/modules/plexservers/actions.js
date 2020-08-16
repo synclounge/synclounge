@@ -343,9 +343,10 @@ export default {
       path: `/playQueues/${playQueueID}`,
       params: {
         own: 1,
-        includeExternalMedia: 1,
         includeChapters: 1,
-
+        includeMarkers: 1,
+        includeGeolocation: 1,
+        includeExternalMedia: 1,
       },
       signal,
     });
