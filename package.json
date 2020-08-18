@@ -36,7 +36,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@samhammer/vue-cli-plugin-stylelint": "^2.0.0",
     "@vue/cli-plugin-babel": "^4.5.4",
-    "@vue/cli-plugin-eslint": "^4.5.3",
+    "@vue/cli-plugin-eslint": "^4.5.4",
     "@vue/cli-plugin-router": "^4.5.4",
     "@vue/cli-plugin-vuex": "^4.5.3",
     "@vue/cli-service": "^4.5.4",
