@@ -24,7 +24,7 @@
     "string-similarity": "^4.0.2",
     "v-clipboard": "^2.2.3",
     "vanilla-tilt": "^1.7.0",
-    "vue": "^2.6.11",
+    "vue": "^2.6.12",
     "vue-chat-scroll": "^1.4.0",
     "vue-router": "^3.4.3",
     "vuetify": "^2.3.8",
@@ -51,7 +51,7 @@
     "stylelint": "^13.0.0",
     "stylelint-config-standard": "^20.0.0",
     "vue-cli-plugin-vuetify": "^2.0.7",
-    "vue-template-compiler": "^2.6.11",
+    "vue-template-compiler": "^2.6.12",
     "vuetify-loader": "^1.6.0"
   },
   "bugs": {
