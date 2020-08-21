@@ -12,7 +12,7 @@ ARG REVISION
 RUN npm run build
 
 # production environment
-FROM ttshivers/syncloungesocket:4.0.3 as production-stage
+FROM node:current-alpine as production-stage
 LABEL org.opencontainers.image.title="SyncLounge"
 LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
 LABEL org.opencontainers.image.url="https://synclounge.tv/"
@@ -22,6 +22,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
 
 WORKDIR /app
+COPY --from=ttshivers/syncloungesocket:4.0.3 /app .
 COPY docker-entrypoint.sh .
 COPY config config
 COPY --from=build-stage /app/dist dist
