@@ -22,7 +22,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
 
 WORKDIR /app
-COPY --from=ttshivers/syncloungesocket:4.0.3 /app .
+COPY --from=ttshivers/syncloungesocket:4.0.4 /app .
 COPY docker-entrypoint.sh .
 COPY config config
 COPY --from=build-stage /app/dist dist
