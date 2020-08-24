@@ -29,5 +29,7 @@ Dockerfile.web
 **/LICENSE
 .releaserc
 .editorconfig
+.commitlintrc.js
+.huskyrc
 
 public/config.json
