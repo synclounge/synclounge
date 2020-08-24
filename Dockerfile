@@ -1,15 +1,18 @@
 # build environment
 FROM --platform=$BUILDPLATFORM node:current-alpine as build-stage
+RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
-COPY package*.json ./
+COPY --chown=node:node package*.json ./
 RUN npm ci
-COPY . .
+COPY --chown=node:node . .
 
 ARG SERVERS='[{"name":"Local Server","location":"Local","url":"","image":"synclounge-white.png"}]'
 ARG SOURCE_BRANCH
 ARG REVISION
 
 RUN npm run build
+
+RUN npm prune --production
 
 # production environment
 FROM node:current-alpine as production-stage
@@ -21,11 +24,12 @@ LABEL org.opencontainers.image.vendor="SyncLounge"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
 
+RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
-COPY --from=ttshivers/syncloungesocket:4.0.4 /app .
-COPY docker-entrypoint.sh .
-COPY config config
-COPY --from=build-stage /app/dist dist
+COPY --chown=node:node server.js .
+COPY --chown=node:node config config
+COPY --chown=node:node --from=build-stage /app/dist dist
+COPY --chown=node:node --from=build-stage /app/node_modules node_modules
 
 ARG VERSION
 LABEL org.opencontainers.image.version=$VERSION
@@ -36,4 +40,4 @@ LABEL org.opencontainers.image.revision=$REVISION
 ARG BUILD_DATE
 LABEL org.opencontainers.image.created=$BUILD_DATE
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/server.js"]

@@ -19,4 +19,7 @@ console.log(appConfig);
 config.save(appConfig, configFile);
 
 const socketConfig = syncloungeSocket.getConfig();
-syncloungeSocket.socketServer(socketConfig);
+syncloungeSocket.socketServer({
+  ...socketConfig,
+  static_path: 'dist',
+});
