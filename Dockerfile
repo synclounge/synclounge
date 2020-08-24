@@ -12,7 +12,14 @@ ARG REVISION
 
 RUN npm run build
 
-RUN npm prune --production
+# dependency environment
+FROM node:current-alpine as dependency-stage
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+RUN apk add --no-cache python make g++
+USER node
+COPY --chown=node:node package*.json ./
+RUN npm ci --only=production
 
 # production environment
 FROM node:current-alpine as production-stage
@@ -28,8 +35,8 @@ RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 COPY --chown=node:node server.js .
 COPY --chown=node:node config config
+COPY --chown=node:node --from=dependency-stage /app/node_modules node_modules
 COPY --chown=node:node --from=build-stage /app/dist dist
-COPY --chown=node:node --from=build-stage /app/node_modules node_modules
 
 ARG VERSION
 LABEL org.opencontainers.image.version=$VERSION
