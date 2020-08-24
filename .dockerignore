@@ -27,5 +27,7 @@ Dockerfile.web
 .dockerignore
 **/README.md
 **/LICENSE
+.releaserc
+.editorconfig
 
 public/config.json

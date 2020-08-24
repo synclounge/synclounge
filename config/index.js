@@ -3,8 +3,16 @@ const fs = require('fs');
 
 const defaults = require('./defaults');
 
-// Parses, saves, and returns the config
-const saveConfig = (file) => {
+const omit = (keys, obj) => keys.reduce((a, e) => {
+  const { [e]: no, ...rest } = a;
+  return rest;
+}, obj);
+
+// Doesn't return the keys specified in the blockList
+const get = (file, blockList = []) => {
+  // Clear out nconf memory in case another dependency used it before
+  nconf.reset();
+
   nconf
     .argv({
       separator: '__',
@@ -30,18 +38,25 @@ const saveConfig = (file) => {
         'default_slplayer_quality',
       ]),
     })
-    .file({ file });
-
-  nconf.defaults(defaults);
+    .file({ file })
+    .defaults(defaults);
 
   // Filter out the weird stuff
   const {
     type, $0: firstArg, _: command, modern, ...config
   } = nconf.get();
 
-  fs.writeFileSync(file, JSON.stringify(config));
-
-  return config;
+  // Remove blockList items
+  const filteredConfig = omit(blockList, config);
+  return filteredConfig;
 };
 
-module.exports = saveConfig;
+// Saves the give config json to the specified file
+const save = (config, file) => {
+  fs.writeFileSync(file, JSON.stringify(config));
+};
+
+module.exports = {
+  get,
+  save,
+};

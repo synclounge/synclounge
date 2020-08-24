@@ -3,10 +3,12 @@ const LCL = require('last-commit-log');
 
 const lcl = new LCL();
 
-const saveConfig = require('./config');
+const config = require('./config');
 
-const config = saveConfig('public/config.json');
-console.log(config);
+const configFile = 'public/config.json';
+const appConfig = config.get(configFile);
+console.log(appConfig);
+config.save(appConfig, configFile);
 
 process.env.VUE_APP_VERSION = require('./package.json').version;
 
