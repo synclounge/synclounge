@@ -146,7 +146,6 @@
         class="text-center pa-2"
         style="opacity: 0.7; font-size: 12px;"
       >
-        <div>Branch {{ branch }}</div>
         <div>Build #{{ hash }}</div>
         <div>Last updated {{ updatedAt }}</div>
       </div>
@@ -228,10 +227,6 @@ export default {
 
     version() {
       return process.env.VUE_APP_VERSION;
-    },
-
-    branch() {
-      return process.env.VUE_APP_GIT_BRANCH;
     },
   },
 

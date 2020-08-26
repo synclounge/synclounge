@@ -16,13 +16,11 @@ try {
   const lastCommit = lcl.getLastCommitSync();
   process.env.VUE_APP_GIT_HASH = lastCommit.shortHash;
   process.env.VUE_APP_GIT_DATE = lastCommit.committer.date;
-  process.env.VUE_APP_GIT_BRANCH = lastCommit.gitBranch;
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
   // TODO: find better way to do this
   process.env.VUE_APP_GIT_DATE = Math.floor(Date.now() / 1000);
   process.env.VUE_APP_GIT_HASH = process.env.REVISION;
-  process.env.VUE_APP_GIT_BRANCH = process.env.SOURCE_BRANCH;
 }
 
 module.exports = {
