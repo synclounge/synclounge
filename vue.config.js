@@ -55,4 +55,14 @@ module.exports = {
       ignoreOrder: true,
     } : false,
   },
+
+  chainWebpack: (conf) => {
+    conf
+      .plugin('html')
+      .tap((args) => {
+        // eslint-disable-next-line no-param-reassign
+        args[0].title = 'SyncLounge';
+        return args;
+      });
+  },
 };

@@ -313,8 +313,10 @@ export default {
       try {
         await this.FETCH_PLEX_USER();
         await this.FETCH_PLEX_DEVICES_IF_NEEDED();
+        this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
       } catch (e) {
         // If these fail, then the auth token is probably invalid
+        console.error(e);
         this.SET_PLEX_AUTH_TOKEN(null);
         this.$router.push({
           name: 'Signin',
@@ -347,9 +349,14 @@ export default {
       'FETCH_PLEX_USER',
     ]),
 
+    ...mapActions('plexservers', [
+      'FETCH_RANDOM_IMAGE_URL',
+    ]),
+
     ...mapMutations([
       'SET_SNACKBAR_OPEN',
       'SET_NAVIGATE_TO_PLAYER',
+      'SET_BACKGROUND',
     ]),
 
     ...mapMutations('plex', [

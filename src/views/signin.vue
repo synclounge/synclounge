@@ -114,8 +114,16 @@ export default {
       'FETCH_PLEX_USER',
     ]),
 
+    ...mapActions('plexservers', [
+      'FETCH_RANDOM_IMAGE_URL',
+    ]),
+
     ...mapMutations('plex', [
       'SET_PLEX_AUTH_TOKEN',
+    ]),
+
+    ...mapMutations([
+      'SET_BACKGROUND',
     ]),
 
     async regularAuth() {
@@ -131,6 +139,7 @@ export default {
         await this.postAuth();
         this.loading = false;
       } catch (e) {
+        console.error(e);
         // If this fails, then the auth token is probably invalid
         this.SET_PLEX_AUTH_TOKEN(null);
         await this.regularAuth();
@@ -158,6 +167,7 @@ export default {
 
     async postAuth() {
       await this.FETCH_PLEX_DEVICES_IF_NEEDED();
+      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
       if (this.IS_USER_AUTHORIZED) {
         this.$router.push(this.$route.query.redirect || '/');
       }
