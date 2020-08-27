@@ -1,17 +1,17 @@
-[github-docker-badge]: https://github.com/ttshivers/synclounge/workflows/Docker/badge.svg
+[github-release-badge]: https://github.com/ttshivers/synclounge/workflows/release/badge.svg
 [docker-version-badge]: https://images.microbadger.com/badges/version/ttshivers/synclounge:latest.svg
 [docker-latest-size-badge]: https://images.microbadger.com/badges/image/ttshivers/synclounge:latest.svg
 [docker-pulls-badge]: https://img.shields.io/docker/pulls/ttshivers/synclounge.svg
 [license-badge]: https://img.shields.io/badge/License-MIT-yellow.svg
 
-[docker-action-link]: http://github.com/ttshivers/synclounge/actions?query=workflow%3ADocker+branch%3Amaster "Docker action"
+[release-action-link]: https://github.com/ttshivers/synclounge/actions?query=workflow%3Arelease+branch%3Amaster "Release action"
 [dockerhub-link]: https://hub.docker.com/r/ttshivers/synclounge "Docker images of SyncLounge"
 [docker-microbadger-link]: https://microbadger.com/images/ttshivers/synclounge:latest "Docker size"
 [license-link]: https://opensource.org/licenses/MIT "MIT License"
 
 ![SyncLounge](https://app.synclounge.tv/logo-long-dark.png)
 
-[![Docker][github-docker-badge]][docker-action-link]
+[![Release][github-release-badge]][release-action-link]
 [![Version][docker-version-badge]][docker-microbadger-link]
 [![Size][docker-latest-size-badge]][docker-microbadger-link]
 [![Pulls][docker-pulls-badge]][dockerhub-link]
