@@ -13,7 +13,7 @@
         class="pa-4"
       >
         <v-alert
-          v-if="IS_USER_AUTHORIZED === false"
+          v-if="GET_PLEX_AUTH_TOKEN && IS_USER_AUTHORIZED === false"
           type="error"
         >
           You are not authorized to access this server
@@ -78,6 +78,7 @@ export default {
     ...mapGetters('plex', [
       'GET_PLEX_AUTH_URL',
       'IS_USER_AUTHORIZED',
+      'GET_PLEX_AUTH_TOKEN',
     ]),
 
     plexAuthUrl() {

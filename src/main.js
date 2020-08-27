@@ -17,8 +17,15 @@ router.beforeEach(async (to, from, next) => {
     await store.dispatch('FETCH_CONFIG');
   }
 
-  if (!store.getters['plex/IS_AUTHENTICATED']
-    && to.matched.some((record) => record.meta.requiresAuth)) {
+  if (store.getters['plex/GET_PLEX_AUTH_TOKEN']
+    && !store.getters['plex/IS_DONE_FETCHING_DEVICES']) {
+    await store.dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED');
+  }
+
+  if ((!store.getters['plex/IS_AUTHENTICATED']
+    && to.matched.some((record) => record.meta.requiresAuth))
+  || (!store.getters['plex/GET_PLEX_AUTH_TOKEN']
+    && to.matched.some((record) => record.meta.requiresPlexToken))) {
     if (to.matched.some((record) => record.meta.redirectAfterAuth)) {
       next({
         name: 'Signin',

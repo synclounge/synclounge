@@ -200,7 +200,7 @@ export default {
     ]),
 
     ...mapGetters('plex', [
-      'IS_AUTHENTICATED',
+      'GET_PLEX_AUTH_TOKEN',
       'IS_DONE_FETCHING_DEVICES',
     ]),
 
@@ -304,7 +304,7 @@ export default {
 
   async created() {
     await this.GET_CONFIGURATION_PROMISE;
-    if (this.IS_AUTHENTICATED) {
+    if (this.GET_PLEX_AUTH_TOKEN) {
       // Kick off a bunch of requests that we need for later
       try {
         await this.FETCH_PLEX_USER();

@@ -31,7 +31,7 @@ export default new Router({
       path: '/signout',
       component: () => import('@/views/signout.vue'),
       meta: {
-        requiresAuth: true,
+        requiresPlexToken: true,
       },
     },
 
