@@ -6,7 +6,6 @@ COPY --chown=node:node package*.json ./
 RUN npm ci
 COPY --chown=node:node . .
 
-ARG SERVERS='[{"name":"Local Server","location":"Local","url":"","image":"synclounge-white.png"}]'
 ARG SOURCE_BRANCH
 ARG REVISION
 
