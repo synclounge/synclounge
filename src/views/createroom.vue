@@ -90,6 +90,8 @@ export default {
   },
 
   async created() {
+    await this.DISCONNECT_IF_CONNECTED();
+
     if (this.GET_CONFIG.autojoin) {
       this.$router.push({
         name: 'join',
@@ -104,6 +106,7 @@ export default {
     ...mapActions('synclounge', [
       'FETCH_SERVERS_HEALTH',
       'CREATE_AND_JOIN_ROOM',
+      'DISCONNECT_IF_CONNECTED',
     ]),
 
     async fetchServersHealth() {

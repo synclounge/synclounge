@@ -23,11 +23,14 @@ export default {
     return dispatch('CONNECT_AND_JOIN_ROOM');
   },
 
-  ESTABLISH_SOCKET_CONNECTION: async ({ getters, commit, dispatch }) => {
-    // TODO: make wrapper method that disconnects the socket if it already exists
+  DISCONNECT_IF_CONNECTED: async ({ dispatch }) => {
     if (isConnected()) {
       await dispatch('DISCONNECT');
     }
+  },
+
+  ESTABLISH_SOCKET_CONNECTION: async ({ getters, commit, dispatch }) => {
+    await dispatch('DISCONNECT_IF_CONNECTED');
 
     const properBase = new URL(getters.GET_SERVER, window.location);
     const url = combineUrl('socket.io', properBase.toString());

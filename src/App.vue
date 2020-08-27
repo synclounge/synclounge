@@ -11,17 +11,21 @@
     >
       <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN" />
 
-      <picture>
-        <source
-          srcset="@/assets/images/logos/logo-small-light.png"
-          :media="smallLogoMedia"
-        >
-        <img
-          height="42"
-          src="@/assets/images/logos/logo-long-light.png"
-          style="vertical-align: middle;"
-        >
-      </picture>
+      <router-link
+        :to="{ name: 'CreateRoom'}"
+      >
+        <picture>
+          <source
+            srcset="@/assets/images/logos/logo-small-light.png"
+            :media="smallLogoMedia"
+          >
+          <img
+            height="42"
+            src="@/assets/images/logos/logo-long-light.png"
+            style="vertical-align: middle;"
+          >
+        </picture>
+      </router-link>
 
       <nowplayingchip
         v-if="showNowPlaying"
