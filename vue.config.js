@@ -10,7 +10,9 @@ const appConfig = config.get(configFile);
 console.log(appConfig);
 config.save(appConfig, configFile);
 
-process.env.VUE_APP_VERSION = require('./package.json').version;
+const pkgVersion = require('./package.json').version;
+
+process.env.VUE_APP_VERSION = process.env.VERSION || pkgVersion;
 
 try {
   const lastCommit = lcl.getLastCommitSync();
