@@ -25,7 +25,7 @@ FROM node:current-alpine as production-stage
 LABEL org.opencontainers.image.title="SyncLounge"
 LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
 LABEL org.opencontainers.image.url="https://synclounge.tv/"
-LABEL org.opencontainers.image.source="https://github.com/samcm/synclounge"
+LABEL org.opencontainers.image.source="https://github.com/ttshivers/syncloungesocket"
 LABEL org.opencontainers.image.vendor="SyncLounge"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"

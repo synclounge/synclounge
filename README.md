@@ -18,13 +18,25 @@
 [![License][license-badge]][license-link]
 
 
-SyncLounge (Previously PlexTogether) is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
+This is a fork of [https://github.com/samcm/synclounge](https://github.com/samcm/synclounge) with improved stability and features like direct stream and direct play support. Some of the configuration is different than the main version, so that documentation may not always apply here.
 
-While we run a live version available at [synclounge.tv](http://app.synclounge.tv), the project can be built and deployed completely seperate from synclounge.tv. We also provide a handful of public SyncLounge Server instances that everyone is free to use.
-<p align="center">
-  <a href="http://app.synclounge.tv">Live Version</a>
-  <br>
-</p>
+I run an instance of this version at [https://synclounge.ttshivers.com](https://synclounge.ttshivers.com) which you are free to use.
+
+# Features over main version
+	- Simplified room creation and joining process
+	- Better web player (same as what Plex web uses)
+		- Direct play and direct stream support
+		- Native subtitle support
+		- Skip next / previous controls to easily navigate episodes in a show
+		- Better high bitrate support with no more "appendBuffer" errors
+	- Skip intro / auto skip intro
+	- Auto Host (Anyone can start playing new content rather than just the host)
+	- Sound / desktop notifications for chat
+	- Major rewrite / cleanup of sync logic
+
+---
+
+SyncLounge (Previously PlexTogether) is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
 
 ## How it works
 SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of the SyncLounge clients. Users choose their Plex client, decide on a SyncLounge Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
@@ -84,6 +96,41 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 
 ## Documentation
 
+This fork has diverged some from the main SyncLounge repository, so not all the documentation for it is applicable here.
+
+### Installation
+By default, it listens on port 8088. All the paths are relative, so you can use a reverse proxy at any subdirectory or subdomain without any additional configuration to SyncLounge. In this version, the webapp and socket server are combined so you only need to proxy that one port if you are using a reverse proxy.
+
+
+#### Docker
+Using the Docker image is the easiest path because it works out of the box.
+You can get it running immediately by
+```sh
+docker pull ttshivers/synclounge
+docker run -p 8080:8088 ttshivers/synclounge:latest
+```
+
+You can use environment variables to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js).
+
+#### Linux (Without Docker)
+Make sure you have git, nodejs, and npm installed. Then, clone and build the repository
+```sh
+git clone https://github.com/ttshivers/synclounge.git
+cd synclounge
+# Install dependencies
+npm ci
+npm run build
+```
+
+Once it's build, you can run it
+```sh
+./server.js
+```
+
+If you want to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js), you can either use environment variables with the same name, use command line arguments, or edit `dist/config.json`. If you rebuild, `dist/config.json` will be overwritten, so be aware.
+
+
+### Older Help
 The FAQ, Self-Hosting, Development, Contributing, and other documentation has been move to [docs.synclounge.tv](http://docs.synclounge.tv)! Head there for more information!
 
 ## Contributors
