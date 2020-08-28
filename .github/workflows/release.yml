@@ -153,7 +153,7 @@ jobs:
             --build-arg VERSION=${{ needs.release.outputs.release-version }} \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            ${TAGS} --file ./Dockerfile ./
+            ${TAGS} --file ./Dockerfile.web ./
       -
         name: Set up Docker Buildx
         uses: crazy-max/ghaction-docker-buildx@v3
