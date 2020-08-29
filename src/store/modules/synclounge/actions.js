@@ -1,5 +1,5 @@
 import CAF from 'caf';
-import guid from '@/utils/guid';
+import { v4 as uuidv4 } from 'uuid';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 import { combineUrl, combineRelativeUrlParts } from '@/utils/combineurl';
 import { fetchJson } from '@/utils/fetchutils';
@@ -224,7 +224,7 @@ export default {
 
   CREATE_AND_JOIN_ROOM: ({ getters, dispatch }) => dispatch('SET_AND_CONNECT_AND_JOIN_ROOM', {
     server: getters.GET_BEST_SERVER,
-    room: guid(),
+    room: uuidv4(),
     password: null,
   }),
 

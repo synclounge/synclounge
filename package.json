@@ -46,6 +46,7 @@
     "string-similarity": "^4.0.2",
     "stylelint": "^13.6.1",
     "stylelint-config-standard": "^20.0.0",
+    "uuid": "^8.3.0",
     "v-clipboard": "^2.2.3",
     "vanilla-tilt": "^1.7.0",
     "vue": "^2.6.12",

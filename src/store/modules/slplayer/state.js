@@ -1,9 +1,9 @@
-import guid from '@/utils/guid';
+import { v4 as uuidv4 } from 'uuid';
 import { subtitlePositions, subtitleSizes, subtitleColors } from '@/utils/subtitleutils';
 
 const state = () => ({
   session: null,
-  xplexsessionId: guid(),
+  xplexsessionId: uuidv4(),
   plexDecision: null,
   mediaIndex: 0,
   offsetMs: 0,

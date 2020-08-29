@@ -1,6 +1,6 @@
 import CAF from 'caf';
 
-import guid from '@/utils/guid';
+import { v4 as uuidv4 } from 'uuid';
 import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import {
   play, pause, getDurationMs, getCurrentTimeMs, isTimeInBufferedRange,
@@ -94,7 +94,7 @@ export default {
       commit('SET_FORCE_TRANSCODE_RETRY', false);
     }
 
-    commit('SET_SESSION', guid());
+    commit('SET_SESSION', uuidv4());
 
     try {
       await dispatch('SEND_PLEX_DECISION_REQUEST');
