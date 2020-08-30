@@ -6,6 +6,5 @@ export default {
   GET_SNACKBAR_MESSAGE: (state) => state.snackbarMessage,
   GET_SNACKBAR_OPEN: (state) => state.snackbarOpen,
   GET_NAVIGATE_TO_PLAYER: (state) => state.navigateToPlayer,
-  GET_CONFIGURATION_PROMISE: (state) => state.configurationPromise,
   GET_BROWSER: (state) => state.browser,
 };

@@ -3,7 +3,6 @@ import { detect } from 'detect-browser';
 const state = () => ({
   background: null,
   configuration: null,
-  configurationPromise: null,
 
   isLeftSidebarOpen: false,
   isRightSidebarOpen: false,

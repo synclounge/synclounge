@@ -29,9 +29,7 @@ export default {
   },
 
   FETCH_CONFIG: async ({ commit }) => {
-    const configPromise = fetchJson('config.json');
-    commit('SET_CONFIGURATION_PROMISE', configPromise);
-    const config = await configPromise;
+    const config = await fetchJson('config.json');
 
     commit('SET_CONFIGURATION', config);
   },

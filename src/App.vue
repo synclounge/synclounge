@@ -199,7 +199,6 @@ export default {
       'GET_SNACKBAR_OPEN',
       'GET_BACKGROUND',
       'GET_NAVIGATE_TO_PLAYER',
-      'GET_CONFIGURATION_PROMISE',
     ]),
 
     ...mapGetters('plex', [
@@ -305,13 +304,15 @@ export default {
   },
 
   async created() {
-    await this.GET_CONFIGURATION_PROMISE;
     if (this.GET_PLEX_AUTH_TOKEN) {
       // Kick off a bunch of requests that we need for later
+      this.setRandomBackground();
+
       try {
-        await this.FETCH_PLEX_USER();
-        await this.FETCH_PLEX_DEVICES_IF_NEEDED();
-        this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
+        await Promise.all([
+            this.FETCH_PLEX_USER(),
+            this.FETCH_PLEX_DEVICES(),
+        ]);
       } catch (e) {
         // If these fail, then the auth token is probably invalid
         console.error(e);
@@ -343,7 +344,7 @@ export default {
     ]),
 
     ...mapActions('plex', [
-      'FETCH_PLEX_DEVICES_IF_NEEDED',
+      'FETCH_PLEX_DEVICES',
       'FETCH_PLEX_USER',
     ]),
 
@@ -360,6 +361,10 @@ export default {
     ...mapMutations('plex', [
       'SET_PLEX_AUTH_TOKEN',
     ]),
+
+    async setRandomBackground() {
+        this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
+    },
 
     onInviteCopied() {
       return this.DISPLAY_NOTIFICATION('Copied to clipboard');
