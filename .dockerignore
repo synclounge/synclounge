@@ -31,5 +31,6 @@ Dockerfile.web
 .editorconfig
 .commitlintrc.js
 .huskyrc
+.lintstagedrc
 
 public/config.json
