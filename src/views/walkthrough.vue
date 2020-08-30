@@ -67,7 +67,7 @@
         </v-row>
 
         <div
-          v-if="!IS_DONE_FETCHING_DEVICES"
+          v-if="!ARE_DEVICES_CACHED"
           class="text-center pa-4"
         >
           <v-progress-circular
@@ -232,7 +232,7 @@
                   </div>
 
                   <div
-                    v-if="isHttps && previewClient.clientIdentifier !== 'PTPLAYER9PLUS10'"
+                    v-if="isHttps && previewClient.clientIdentifier !== slPlayerClientId"
                     class="warning--text"
                   >
                     Note: You may not be able to connect to external Plex Clients while loading the
@@ -281,6 +281,7 @@
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import plexPlatformMap from '@/utils/plexplatformmap';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
   name: 'Walkthrough',
@@ -302,7 +303,7 @@ export default {
 
   computed: {
     ...mapGetters('plex', [
-      'IS_DONE_FETCHING_DEVICES',
+      'ARE_DEVICES_CACHED',
     ]),
 
     ...mapGetters('plexclients', [
@@ -310,6 +311,10 @@ export default {
       'GET_CHOSEN_CLIENT_ID',
       'GET_PLEX_CLIENT',
     ]),
+
+    slPlayerClientId() {
+      return slPlayerClientId;
+    },
 
     doReverse() {
       switch (this.$vuetify.breakpoint.name) {

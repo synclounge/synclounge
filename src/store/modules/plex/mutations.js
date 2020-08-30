@@ -5,8 +5,8 @@ export default {
     Object.assign(state, stateFactory());
   },
 
-  SET_DONE_FETCHING_DEVICES: (state, done) => {
-    state.doneFetchingDevices = done;
+  SET_ARE_DEVICES_CACHED: (state, cached) => {
+    state.areDevicesCached = cached;
   },
 
   SET_DEVICE_FETCH_PROMISE: (state, promise) => {

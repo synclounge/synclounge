@@ -38,25 +38,23 @@
         </v-list-item-content>
       </v-list-item>
 
-      <template v-if="IS_DONE_FETCHING_DEVICES">
-        <v-list-item
-          @click.stop="plexsettingstoggle = !plexsettingstoggle"
-        >
-          <v-list-item-icon>
-            <v-icon color="white">
-              settings
-            </v-icon>
-          </v-list-item-icon>
+      <v-list-item
+        @click.stop="plexsettingstoggle = !plexsettingstoggle"
+      >
+        <v-list-item-icon>
+          <v-icon color="white">
+            settings
+          </v-icon>
+        </v-list-item-icon>
 
-          <v-list-item-content>
-            <v-list-item-title>Plex Settings</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        <v-list-item-content>
+          <v-list-item-title>Plex Settings</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
 
-        <v-subheader>
-          Account
-        </v-subheader>
-      </template>
+      <v-subheader>
+        Account
+      </v-subheader>
 
       <v-list-item
         :router="true"
@@ -209,7 +207,6 @@ export default {
     ...mapState(['isLeftSidebarOpen']),
 
     ...mapGetters('plex', [
-      'IS_DONE_FETCHING_DEVICES',
       'GET_PLEX_USER',
     ]),
 

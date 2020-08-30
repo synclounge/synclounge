@@ -1,5 +1,7 @@
 import promiseutils from '@/utils/promiseutils';
 import { fetchJson, queryFetch } from '@/utils/fetchutils';
+import { difference } from '@/utils/lightlodash';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
   FETCH_PLEX_INIT_AUTH: async ({ getters }, signal) => fetchJson(
@@ -44,7 +46,15 @@ export default {
   },
 
   // Private function, please use FETCH_PLEX_DEVICES instead
-  _FETCH_PLEX_DEVICES: async ({ commit, dispatch, getters }) => {
+  _FETCH_PLEX_DEVICES: async ({
+    commit, dispatch, getters, rootGetters,
+  }) => {
+    // Store old list of server/client ids, to be able to take difference after the update and
+    // find devices that weren't updated and remove them
+    const oldClientIds = rootGetters['plexclients/GET_PLEX_CLIENT_IDS']
+      .filter((clientId) => clientId !== slPlayerClientId);
+    const oldServersIds = rootGetters['plexservers/GET_PLEX_SERVER_IDS'];
+
     const devices = await fetchJson('https://plex.tv/api/v2/resources', {
       ...getters.GET_PLEX_BASE_PARAMS(),
       includeHttps: 1,
@@ -70,8 +80,29 @@ export default {
       }
     }));
 
-    if (!getters.IS_DONE_FETCHING_DEVICES) {
-      commit('SET_DONE_FETCHING_DEVICES', true);
+    // Find devices that weren't updated
+    const staleClientIds = difference([
+      oldClientIds,
+      rootGetters['plexclients/GET_PLEX_CLIENT_IDS'],
+    ]);
+
+    staleClientIds.forEach((clientId) => {
+      commit('plexclients/DELETE_PLEX_CLIENT', clientId, { root: true });
+    });
+
+    const staleServerIds = difference([
+      oldServersIds,
+      rootGetters['plexservers/GET_PLEX_SERVER_IDS'],
+    ]);
+
+    staleServerIds.forEach((serverId) => {
+      commit('plexservers/DELETE_PLEX_SERVER', serverId, { root: true });
+    });
+
+    commit('plexclients/UPDATE_SLPLAYER_LAST_SEEN_TO_NOW', null, { root: true });
+
+    if (!getters.ARE_DEVICES_CACHED) {
+      commit('SET_ARE_DEVICES_CACHED', true);
     }
   },
 
@@ -89,7 +120,7 @@ export default {
 
   // Use this to trigger a fetch if you don't need the devices refreshed
   FETCH_PLEX_DEVICES_IF_NEEDED: async ({ getters, dispatch }) => {
-    if (!getters.IS_DONE_FETCHING_DEVICES) {
+    if (!getters.ARE_DEVICES_CACHED && getters.GET_DEVICE_FETCH_PROMISE == null) {
       await dispatch('FETCH_PLEX_DEVICES');
     }
   },

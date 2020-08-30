@@ -14,6 +14,10 @@ export default {
     Vue.set(state.servers, server.clientIdentifier, server);
   },
 
+  DELETE_PLEX_SERVER: (state, serverId) => {
+    Vue.delete(state.servers, serverId);
+  },
+
   SET_BLOCKED_SERVER_IDS: (state, blockedIds) => {
     state.blockedServerIds = blockedIds;
   },

@@ -112,8 +112,7 @@
         fluid
       >
         <v-container
-          v-if="!GET_CONFIG
-            || !IS_DONE_FETCHING_DEVICES && $route.matched.some((record) => record.meta.protected)"
+          v-if="!GET_CONFIG"
           fill-height
         >
           <v-row
@@ -152,13 +151,13 @@
 </template>
 
 <script>
-// Custom css
 import './assets/css/style.css';
 
 import {
   mapActions, mapGetters, mapMutations, mapState,
 } from 'vuex';
 import redirection from '@/mixins/redirection';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
   components: {
@@ -205,7 +204,6 @@ export default {
 
     ...mapGetters('plex', [
       'GET_PLEX_AUTH_TOKEN',
-      'IS_DONE_FETCHING_DEVICES',
     ]),
 
     ...mapGetters('plexclients', [
@@ -289,7 +287,7 @@ export default {
 
     GET_ACTIVE_MEDIA_METADATA(metadata) {
       // This handles regular plex clients (nonslplayer) playback changes
-      if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10') {
+      if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== slPlayerClientId) {
         if (metadata) {
           this.redirectToMediaPage();
         } else if (this.$route.fullPath.indexOf('/nowplaying') > -1) {

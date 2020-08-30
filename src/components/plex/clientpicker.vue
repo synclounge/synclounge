@@ -85,17 +85,12 @@ export default {
     },
   },
 
-  async created() {
-    await this.FETCH_PLEX_DEVICES_IF_NEEDED();
-  },
-
   beforeDestroy() {
     this.cancelRequests();
   },
 
   methods: {
     ...mapActions('plex', [
-      'FETCH_PLEX_DEVICES_IF_NEEDED',
       'FETCH_PLEX_DEVICES',
     ]),
 

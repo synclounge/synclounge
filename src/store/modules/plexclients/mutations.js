@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import stateFactory from './state';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
   RESET: (state) => {
@@ -8,6 +9,10 @@ export default {
 
   ADD_PLEX_CLIENT: (state, client) => {
     Vue.set(state.clients, client.clientIdentifier, client);
+  },
+
+  DELETE_PLEX_CLIENT: (state, clientId) => {
+    Vue.delete(state.clients, clientId);
   },
 
   SET_CHOSEN_CLIENT_ID: (state, id) => {
@@ -72,5 +77,9 @@ export default {
 
   SET_LATENCY: (state, latency) => {
     state.latency = latency;
+  },
+
+  UPDATE_SLPLAYER_LAST_SEEN_TO_NOW: (state) => {
+    state.clients[slPlayerClientId].lastSeenAt = new Date().toISOString();
   },
 };

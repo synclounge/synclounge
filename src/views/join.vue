@@ -48,6 +48,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
   components: {
@@ -113,7 +114,7 @@ export default {
         });
 
         if (this.$route.name === 'join') {
-          if (this.GET_CHOSEN_CLIENT_ID === 'PTPLAYER9PLUS10' || !this.GET_ACTIVE_MEDIA_METADATA) {
+          if (this.GET_CHOSEN_CLIENT_ID === slPlayerClientId || !this.GET_ACTIVE_MEDIA_METADATA) {
             this.$router.push({ name: 'browse' });
           } else {
             this.redirectToMediaPage();

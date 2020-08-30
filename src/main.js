@@ -17,12 +17,7 @@ router.beforeEach(async (to, from, next) => {
     await store.dispatch('FETCH_CONFIG');
   }
 
-  if (store.getters['plex/GET_PLEX_AUTH_TOKEN']
-    && !store.getters['plex/IS_DONE_FETCHING_DEVICES']) {
-    await store.dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED');
-  }
-
-  if ((!store.getters['plex/IS_AUTHENTICATED']
+  if ((store.getters['plex/IS_UNAUTHORIZED']
     && to.matched.some((record) => record.meta.requiresAuth))
   || (!store.getters['plex/GET_PLEX_AUTH_TOKEN']
     && to.matched.some((record) => record.meta.requiresPlexToken))) {
@@ -37,7 +32,7 @@ router.beforeEach(async (to, from, next) => {
       next({ name: 'Signin' });
     }
   } else if (to.matched.some((record) => record.meta.requiresNoAuth)
-    && store.getters['plex/IS_AUTHENTICATED']) {
+    && store.getters['plex/GET_PLEX_AUTH_TOKEN']) {
     next({ name: 'CreateRoom' });
   } else if (!store.getters['synclounge/IS_IN_ROOM']
     && to.matched.some((record) => record.meta.protected)) {

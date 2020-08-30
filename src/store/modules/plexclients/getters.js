@@ -1,5 +1,9 @@
+import { slPlayerClientId } from '@/player/constants';
+
 export default {
   GET_CHOSEN_CLIENT_ID: (state) => state.chosenClientId,
+
+  GET_PLEX_CLIENT_IDS: (state) => Object.keys(state.clients),
 
   GET_PLEX_CLIENT: (state) => (clientIdentifier) => state
     .clients[clientIdentifier],
@@ -47,7 +51,7 @@ export default {
 
   // TODO: come back and reallly examine this logic
   ALREADY_SYNCED_ON_CURRENT_TIMELINE: (state, getters) => getters.GET_CHOSEN_CLIENT_ID
-    !== 'PTPLAYER9PLUS10'
+    !== slPlayerClientId
   && ((getters.GET_PLEX_CLIENT_TIMELINE_COMMAND_ID === null
     && getters.GET_PREVIOUS_SYNC_TIMELINE_COMMAND_ID !== null)
     && getters.GET_PLEX_CLIENT_TIMELINE_COMMAND_ID

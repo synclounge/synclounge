@@ -1,8 +1,10 @@
+import { slPlayerClientId } from '@/player/constants';
+
 const state = () => ({
   clients: {
-    PTPLAYER9PLUS10: {
+    [slPlayerClientId]: {
       provides: 'player',
-      clientIdentifier: 'PTPLAYER9PLUS10',
+      clientIdentifier: slPlayerClientId,
       platform: 'Web',
       device: 'Web',
       product: 'SyncLounge',
@@ -12,7 +14,7 @@ const state = () => ({
     },
   },
 
-  chosenClientId: 'PTPLAYER9PLUS10',
+  chosenClientId: slPlayerClientId,
   activeMediaMetadata: null,
   activeServerId: null,
   activePlayQueue: null,

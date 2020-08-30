@@ -245,6 +245,7 @@
 import { mapActions, mapGetters, mapState } from 'vuex';
 
 import contentTitle from '@/mixins/contentTitle';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
   components: {
@@ -299,7 +300,7 @@ export default {
     ]),
 
     usingPlexClient() {
-      return this.GET_CHOSEN_CLIENT_ID !== 'PTPLAYER9PLUS10';
+      return this.GET_CHOSEN_CLIENT_ID !== slPlayerClientId;
     },
   },
 

@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 import { combineUrl, combineRelativeUrlParts } from '@/utils/combineurl';
 import { fetchJson } from '@/utils/fetchutils';
+import { slPlayerClientId } from '@/player/constants';
 import {
   open, close, on, waitForEvent, isConnected, emit,
 } from '@/socket';
@@ -184,7 +185,7 @@ export default {
 
   sendPartyPause: ({ getters, rootGetters }, isPause) => {
     if ((!getters.AM_I_HOST
-      || rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== 'PTPLAYER9PLUS10')
+      || rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== slPlayerClientId)
       && getters.IS_PARTY_PAUSING_ENABLED) {
       emit({
         eventName: 'partyPause',
@@ -464,7 +465,7 @@ export default {
 
     const adjustedHostTime = getters.GET_ADJUSTED_HOST_TIME();
     // Adjust seek time by the time it takes to send a request to the client
-    const offset = rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== 'PTPLAYER9PLUS10'
+    const offset = rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== slPlayerClientId
         && getters.GET_HOST_USER.state === 'playing'
       ? adjustedHostTime + rootGetters['plexclients/GET_LATENCY']
       : adjustedHostTime;
@@ -613,7 +614,7 @@ export default {
   PLAY_MEDIA_AND_SYNC_TIME: async ({ getters, rootGetters, dispatch }, media) => {
     const adjustedHostTime = getters.GET_ADJUSTED_HOST_TIME();
     // Adjust seek time by the time it takes to send a request to the client
-    const offset = rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== 'PTPLAYER9PLUS10'
+    const offset = rootGetters['plexclients/GET_CHOSEN_CLIENT_ID'] !== slPlayerClientId
         && getters.GET_HOST_USER.state === 'playing'
       ? adjustedHostTime + rootGetters['plexclients/GET_LATENCY']
       : adjustedHostTime;
