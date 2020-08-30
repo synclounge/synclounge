@@ -138,7 +138,7 @@
                     </template>
 
                     <v-list>
-                      <v-list-item @click="markWatched(contents)">
+                      <v-list-item @click="markWatched">
                         <v-list-item-title>Mark as played</v-list-item-title>
                       </v-list-item>
 
