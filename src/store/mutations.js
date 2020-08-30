@@ -1,4 +1,10 @@
+import stateFactory from './state';
+
 export default {
+  RESET: (state) => {
+    Object.assign(state, stateFactory());
+  },
+
   SET_BACKGROUND(state, value) {
     state.background = value;
   },

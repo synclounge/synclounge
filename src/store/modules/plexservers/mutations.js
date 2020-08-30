@@ -1,6 +1,11 @@
 import Vue from 'vue';
+import stateFactory from './state';
 
 export default {
+  RESET: (state) => {
+    Object.assign(state, stateFactory());
+  },
+
   SET_LAST_SERVER_ID: (state, id) => {
     state.lastServerId = id;
   },

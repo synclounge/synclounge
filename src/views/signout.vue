@@ -13,21 +13,22 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'Signout',
 
-  created() {
-    this.SET_PLEX_AUTH_TOKEN(null);
+  async created() {
+    await this.RESET();
+
     setTimeout(() => {
       window.location.reload();
     }, 2500);
   },
 
   methods: {
-    ...mapMutations('plex', [
-      'SET_PLEX_AUTH_TOKEN',
+    ...mapActions([
+      'RESET',
     ]),
   },
 };

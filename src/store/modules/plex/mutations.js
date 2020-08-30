@@ -1,4 +1,10 @@
+import stateFactory from './state';
+
 export default {
+  RESET: (state) => {
+    Object.assign(state, stateFactory());
+  },
+
   SET_DONE_FETCHING_DEVICES: (state, done) => {
     state.doneFetchingDevices = done;
   },

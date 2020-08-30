@@ -1,4 +1,10 @@
+import stateFactory from './state';
+
 export default {
+  RESET: (state) => {
+    Object.assign(state, stateFactory());
+  },
+
   SET_AUTOPLAY: (state, autoplay) => {
     state.autoplay = autoplay;
   },

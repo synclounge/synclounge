@@ -1,6 +1,11 @@
 import Vue from 'vue';
+import stateFactory from './state';
 
 export default {
+  RESET: (state) => {
+    Object.assign(state, stateFactory());
+  },
+
   SET_USERS: (state, value) => {
     state.users = value;
   },

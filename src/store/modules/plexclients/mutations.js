@@ -1,6 +1,11 @@
 import Vue from 'vue';
+import stateFactory from './state';
 
 export default {
+  RESET: (state) => {
+    Object.assign(state, stateFactory());
+  },
+
   ADD_PLEX_CLIENT: (state, client) => {
     Vue.set(state.clients, client.clientIdentifier, client);
   },
