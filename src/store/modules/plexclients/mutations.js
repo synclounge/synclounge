@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import stateFactory from './state';
 import { slPlayerClientId } from '@/player/constants';
+import stateFactory from './state';
 
 export default {
   RESET: (state) => {
