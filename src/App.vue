@@ -173,23 +173,6 @@ export default {
     redirection,
   ],
 
-  data() {
-    return {
-      links: [
-        {
-          title: 'Github',
-          href: 'https://github.com/samcm/SyncLounge',
-          target: '_blank',
-        },
-        {
-          title: 'Discord',
-          target: '_blank',
-          href: 'https://discord.gg/fKQB3yt',
-        },
-      ],
-    };
-  },
-
   computed: {
     ...mapGetters([
       'GET_UP_NEXT_POST_PLAY_DATA',
@@ -199,6 +182,8 @@ export default {
       'GET_SNACKBAR_OPEN',
       'GET_BACKGROUND',
       'GET_NAVIGATE_TO_PLAYER',
+      'GET_REPOSITORY_URL',
+      'GET_DISCORD_URL',
     ]),
 
     ...mapGetters('plex', [
@@ -224,6 +209,21 @@ export default {
     ]),
 
     ...mapState(['isRightSidebarOpen']),
+
+    links() {
+      return [
+        {
+          title: 'Github',
+          href: this.GET_REPOSITORY_URL,
+          target: '_blank',
+        },
+        {
+          title: 'Discord',
+          target: '_blank',
+          href: this.GET_DISCORD_URL,
+        },
+      ];
+    },
 
     showNowPlaying() {
       return this.GET_ACTIVE_SERVER_ID && this.$route.name === 'browse';

@@ -74,7 +74,7 @@
       <v-subheader>About</v-subheader>
 
       <v-list-item
-        href="https://synclounge.tv/"
+        :href="GET_RELEASE_URL"
         target="_blank"
       >
         <v-list-item-icon>
@@ -84,12 +84,12 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>SyncLounge v{{ version }}</v-list-item-title>
+          <v-list-item-title>SyncLounge v{{ GET_VERSION }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
       <v-list-item
-        href="https://discord.gg/fKQB3yt"
+        :href="GET_DISCORD_URL"
         target="_blank"
       >
         <v-list-item-icon>
@@ -104,7 +104,7 @@
       </v-list-item>
 
       <v-list-item
-        href="https://github.com/samcm/synclounge"
+        :href="GET_REPOSITORY_URL"
         target="_blank"
       >
         <v-list-item-icon>
@@ -144,7 +144,7 @@
         class="text-center pa-2"
         style="opacity: 0.7; font-size: 12px;"
       >
-        <div>Build #{{ hash }}</div>
+        <div>Build #<a :href="GET_COMMIT_URL">{{ GET_GIT_HASH }}</a></div>
         <div>Last updated {{ updatedAt }}</div>
       </div>
     </template>
@@ -161,7 +161,7 @@
         </div>
 
         <v-divider class="mt-2 mb-2" />
-        <ptsettings class="darken-4 pa-1" />
+        <settings class="darken-4 pa-1" />
       </v-card>
     </v-dialog>
 
@@ -191,7 +191,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 export default {
   components: {
-    ptsettings: () => import('@/components/settings.vue'),
+    settings: () => import('@/components/settings.vue'),
     plexsettings: () => import('@/components/plex/plexsettings.vue'),
     donate: () => import('@/components/donate.vue'),
   },
@@ -206,13 +206,18 @@ export default {
   computed: {
     ...mapState(['isLeftSidebarOpen']),
 
+    ...mapGetters([
+      'GET_REPOSITORY_URL',
+      'GET_VERSION',
+      'GET_GIT_HASH',
+      'GET_DISCORD_URL',
+      'GET_RELEASE_URL',
+      'GET_COMMIT_URL',
+    ]),
+
     ...mapGetters('plex', [
       'GET_PLEX_USER',
     ]),
-
-    hash() {
-      return process.env.VUE_APP_GIT_HASH;
-    },
 
     date() {
       return new Date(parseInt(process.env.VUE_APP_GIT_DATE, 10) * 1000);
@@ -221,14 +226,11 @@ export default {
     updatedAt() {
       return `${formatDistanceToNow(this.date)} ago`;
     },
-
-    version() {
-      return process.env.VUE_APP_VERSION;
-    },
   },
 
   methods: {
     ...mapActions(['SET_LEFT_SIDEBAR_OPEN']),
+
     getTimeFromMs(ms) {
       const hours = ms / (1000 * 60 * 60);
       const absoluteHours = Math.floor(hours);

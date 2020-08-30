@@ -32,7 +32,7 @@
           SyncLounge yourself have a look
           <a
             target="_blank"
-            href="https://github.com/samcm/SyncLounge"
+            :href="GET_REPOSITORY_URL"
           >here</a>
           for details.
         </v-card-text>
@@ -73,6 +73,7 @@ export default {
   computed: {
     ...mapGetters([
       'GET_CONFIG',
+      'GET_REPOSITORY_URL',
     ]),
 
     ...mapGetters('plex', [

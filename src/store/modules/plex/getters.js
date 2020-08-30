@@ -31,7 +31,7 @@ export default {
 
   GET_PLEX_INITIAL_AUTH_PARAMS: (state, getters, rootState, rootGetters) => ({
     'X-Plex-Product': getters.GET_PLEX_PRODUCT_HEADER,
-    'X-Plex-Version': process.env.VUE_APP_VERSION,
+    'X-Plex-Version': rootGetters.GET_VERSION,
     'X-Plex-Client-Identifier': getters.GET_CLIENT_IDENTIFIER,
     'X-Plex-Platform': getters.GET_PLEX_PLATFORM_HEADER,
     'X-Plex-Platform-Version': rootGetters.GET_BROWSER.version,
@@ -54,7 +54,7 @@ export default {
   GET_PLEX_AUTH_URL: (state, getters, rootState, rootGetters) => (code) => {
     const urlParams = {
       'context[device][product]': getters.GET_PLEX_PRODUCT_HEADER,
-      'context[device][version]': process.env.VUE_APP_VERSION,
+      'context[device][version]': rootGetters.GET_VERSION,
       'context[device][platform]': getters.GET_PLEX_PLATFORM_HEADER,
       'context[device][platformVersion]': rootGetters.GET_BROWSER.version,
       'context[device][device]': getters.GET_PLEX_DEVICE_DEVICE_HEADER,
