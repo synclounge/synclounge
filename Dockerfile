@@ -6,7 +6,7 @@ COPY --chown=node:node package*.json ./
 RUN npm ci
 COPY --chown=node:node . .
 
-ARG SOURCE_BRANCH
+ARG VERSION
 ARG REVISION
 
 RUN npm run build
