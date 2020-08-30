@@ -310,8 +310,8 @@ export default {
 
       try {
         await Promise.all([
-            this.FETCH_PLEX_USER(),
-            this.FETCH_PLEX_DEVICES(),
+          this.FETCH_PLEX_USER(),
+          this.FETCH_PLEX_DEVICES(),
         ]);
       } catch (e) {
         // If these fail, then the auth token is probably invalid
@@ -363,7 +363,7 @@ export default {
     ]),
 
     async setRandomBackground() {
-        this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
+      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
     },
 
     onInviteCopied() {
