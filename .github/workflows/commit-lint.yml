@@ -5,6 +5,8 @@ on:
 
 jobs:
   lint:
+    # Dependabot sometimes makes some really long commit messages and I can't stop it
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:
