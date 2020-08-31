@@ -20,6 +20,8 @@ jobs:
           key: client-${{ hashFiles('**/package-lock.json') }}
 
       - run: npm ci
+        env:
+          SKIP_BUILD: true
       - run: npm run lint -- --no-fix
 
   release:
@@ -36,6 +38,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm ci
+        env:
+          SKIP_BUILD: true
       - id: release
         name: semantic-release
         uses: ahmadnassri/action-semantic-release@v1
@@ -95,11 +99,15 @@ jobs:
       -
         name: Cache Docker layers
         uses: actions/cache@v2
+        env:
+          cache-name: cache-buildx
         id: cache
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}-${{ env.cache-name }}
           restore-keys: |
+            ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
+            ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}
             ${{ runner.os }}-buildx-
       -
         name: Docker Buildx (build)
@@ -160,12 +168,16 @@ jobs:
       -
         name: Cache Docker layers
         uses: actions/cache@v2
+        env:
+          cache-name: cache-buildx-web
         id: cache
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-web-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}-${{ env.cache-name }}
           restore-keys: |
-            ${{ runner.os }}-web-buildx-
+            ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
+            ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-buildx-
       -
         name: Docker Buildx (build)
         run: |

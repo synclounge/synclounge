@@ -56,7 +56,6 @@ const defaults = {
 
   // Sync flexibility when players are paused
   paused_sync_flexibility: 10,
-
 };
 
 module.exports = defaults;

@@ -3,7 +3,7 @@ FROM --platform=$BUILDPLATFORM node:current-alpine as build-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 COPY --chown=node:node package*.json ./
-RUN npm ci
+RUN SKIP_BUILD=true npm ci
 COPY --chown=node:node . .
 
 ARG VERSION
@@ -18,7 +18,7 @@ WORKDIR /app
 RUN apk add --no-cache python make g++
 USER node
 COPY --chown=node:node package*.json ./
-RUN npm ci --only=production
+RUN SKIP_BUILD=true npm ci --only=production
 
 # production environment
 FROM node:current-alpine as production-stage

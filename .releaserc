@@ -13,6 +13,7 @@
         { "type": "refactor", "release": "patch" }
       ]
     }],
+
     ["@semantic-release/release-notes-generator", {
       "preset": "conventionalcommits",
       "presetConfig": {
@@ -30,6 +31,13 @@
         ]
       }
     }],
-    "@semantic-release/github"
+
+    ["@semantic-release/npm", {
+      "tarballDir": "package"
+    }],
+
+    ["@semantic-release/github", {
+      "assets": "package/*.tgz"
+    }]
   ]
 }

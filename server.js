@@ -12,14 +12,17 @@ const handle = (signal) => {
 process.on('SIGINT', handle);
 process.on('SIGTERM', handle);
 
-const configFile = 'dist/config.json';
 const blockList = Object.keys(syncloungeSocket.defaultConfig);
-const appConfig = config.get(configFile, blockList);
+const appConfig = config.get(null, blockList);
 console.log(appConfig);
-config.save(appConfig, configFile);
 
 const socketConfig = syncloungeSocket.getConfig();
-syncloungeSocket.socketServer({
+const router = syncloungeSocket.socketServer({
   ...socketConfig,
   static_path: 'dist',
+});
+
+// Add route for config
+router.get('/config.json', (req, res) => {
+  res.json(appConfig);
 });

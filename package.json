@@ -1,14 +1,20 @@
 {
   "name": "synclounge",
   "version": "0.0.0-semantically-released",
-  "private": false,
   "description": "Synced playback of Plex content",
   "author": "samcm",
+  "bin": "./server.js",
+  "files": [
+    "dist",
+    "config",
+    "server.js"
+  ],
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --modern",
     "lint": "vue-cli-service lint",
-    "lint:style": "vue-cli-service lint:style"
+    "lint:style": "vue-cli-service lint:style",
+    "prepare": "if-env SKIP_BUILD=true && echo 'Skipping build' || npm run build"
   },
   "dependencies": {
     "nconf": "^0.10.0",
@@ -19,6 +25,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@commitlint/cli": "^9.1.2",
     "@commitlint/config-conventional": "^9.1.2",
+    "@delucis/if-env": "^1.1.2",
     "@samhammer/vue-cli-plugin-stylelint": "^2.0.0",
     "@vue/cli-plugin-babel": "^4.5.4",
     "@vue/cli-plugin-eslint": "^4.5.4",
@@ -67,6 +74,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ttshivers/synclounge.git"
+    "url": "https://github.com/ttshivers/synclounge.git"
   }
 }

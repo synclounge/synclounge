@@ -37,13 +37,19 @@ const get = (file, blockList = []) => {
 
         'default_slplayer_quality',
       ]),
-    })
-    .file({ file })
-    .defaults(defaults);
+    });
+
+  const configFile = nconf.get('config_file') || file;
+
+  if (configFile) {
+    nconf.file({ file: configFile });
+  }
+
+  nconf.defaults(defaults);
 
   // Filter out the weird stuff
   const {
-    type, $0: firstArg, _: command, modern, ...config
+    config_file: no, type, $0: firstArg, _: command, modern, ...config
   } = nconf.get();
 
   // Remove blockList items

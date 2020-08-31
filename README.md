@@ -113,21 +113,17 @@ docker run -p 8080:8088 ttshivers/synclounge:latest
 You can use environment variables to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js).
 
 #### Linux (Without Docker)
-Make sure you have git, nodejs, and npm installed. Then, clone and build the repository
+Make sure you have nodejs installed.
 ```sh
-git clone https://github.com/ttshivers/synclounge.git
-cd synclounge
-# Install dependencies
-npm ci
-npm run build
+sudo npm install -g synclounge
 ```
 
-Once it's build, you can run it
-```sh
-./server.js
+Then you can run it:
+```
+synclounge
 ```
 
-If you want to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js), you can either use environment variables with the same name, use command line arguments, or edit `dist/config.json`. If you rebuild, `dist/config.json` will be overwritten, so be aware.
+If you want to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js), you can either use environment variables with the same name, use command line arguments, or use a config file and run synclounge like `synclounge --config_file /path/to/config.json`
 
 
 ### Older Help
