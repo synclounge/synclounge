@@ -68,15 +68,19 @@ export default {
       } else if (device.provides.indexOf('server') !== -1) {
         // This is a Server
         // TODO: potentially find connections async and not hold up the fetch devices
-        const chosenConnection = await dispatch('FIND_WORKING_CONNECTION_PREFERRED', {
-          connections: device.connections,
-          accessToken: device.accessToken,
-        }).catch(() => null);
+        try {
+          const chosenConnection = await dispatch('FIND_WORKING_CONNECTION_PREFERRED', {
+            connections: device.connections,
+            accessToken: device.accessToken,
+          });
 
-        commit('plexservers/ADD_PLEX_SERVER', {
-          ...device,
-          chosenConnection,
-        }, { root: true });
+          commit('plexservers/ADD_PLEX_SERVER', {
+            ...device,
+            chosenConnection,
+          }, { root: true });
+        } catch (e) {
+          console.error(`Unable to find working connection to plex server: "${device.name}`, e);
+        }
       }
     }));
 
