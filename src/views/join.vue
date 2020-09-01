@@ -98,6 +98,10 @@ export default {
     ]),
   },
 
+  async created() {
+    await this.DISCONNECT_IF_CONNECTED();
+  },
+
   methods: {
     ...mapActions('synclounge', [
       'SET_AND_CONNECT_AND_JOIN_ROOM',
