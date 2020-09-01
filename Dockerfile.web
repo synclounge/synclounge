@@ -2,6 +2,8 @@
 FROM --platform=$BUILDPLATFORM node:current-alpine as build-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
+RUN apk add --no-cache python make g++
+USER node
 COPY --chown=node:node package*.json ./
 RUN SKIP_BUILD=true npm ci
 COPY --chown=node:node . .

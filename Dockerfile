@@ -1,15 +1,11 @@
-# base environment
-FROM node:current-alpine as base-stage
+# build environment
+FROM --platform=$BUILDPLATFORM base-stage as build-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache python make g++
 USER node
 COPY --chown=node:node package*.json ./
 RUN SKIP_BUILD=true npm ci
-
-
-# build environment
-FROM --platform=$BUILDPLATFORM base-stage as build-stage
 COPY --chown=node:node . .
 
 ARG VERSION
@@ -18,7 +14,13 @@ ARG REVISION
 RUN npm run build
 
 # dependency environment
-FROM base-stage as dependency-stage
+FROM node:current-alpine as dependency-stage
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+RUN apk add --no-cache python make g++
+USER node
+COPY --chown=node:node package*.json ./
+RUN SKIP_BUILD=true npm ci
 RUN npm prune --production
 
 # production environment
