@@ -45,9 +45,9 @@ module.exports = {
     stylelint: {},
   },
 
-  // devServer: {
-  //   disableHostCheck: true,
-  // },
+  devServer: {
+    disableHostCheck: true,
+  },
 
   // https://github.com/vuejs/vue-cli/issues/3771
   css: {

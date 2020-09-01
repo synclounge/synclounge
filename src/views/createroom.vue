@@ -24,6 +24,25 @@
             {{ error }}
           </v-alert>
 
+          <v-alert
+            v-if="GET_SERVERS_HEALTH && Object.keys(GET_SERVERS_HEALTH).length === 0"
+            prominent
+            type="error"
+          >
+            <v-row align="center">
+              <v-col class="grow">
+                No connectable SyncLounge servers
+              </v-col>
+              <v-col class="shrink">
+                <v-btn
+                  @click="fetchServersHealth"
+                >
+                  Refresh
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-alert>
+
           <clientpicker
             v-if="!GET_CONFIG.force_slplayer"
             @loadingChange="loading = $event"
@@ -33,7 +52,8 @@
           <v-card-actions>
             <v-btn
               color="primary"
-              :disabled="!GET_SERVERS_HEALTH || !clientConnectable || loading"
+              :disabled="!GET_SERVERS_HEALTH || Object.keys(GET_SERVERS_HEALTH).length === 0
+                || !clientConnectable || loading"
               @click="createRoom"
             >
               Create Room
