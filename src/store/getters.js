@@ -15,4 +15,5 @@ export default {
   GET_SNACKBAR_OPEN: (state) => state.snackbarOpen,
   GET_NAVIGATE_TO_PLAYER: (state) => state.navigateToPlayer,
   GET_BROWSER: (state) => state.browser,
+  GET_NAVIGATE_HOME: (state) => state.navigateHome,
 };

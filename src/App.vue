@@ -184,6 +184,7 @@ export default {
       'GET_NAVIGATE_TO_PLAYER',
       'GET_REPOSITORY_URL',
       'GET_DISCORD_URL',
+      'GET_NAVIGATE_HOME',
     ]),
 
     ...mapGetters('plex', [
@@ -301,6 +302,14 @@ export default {
         this.SET_NAVIGATE_TO_PLAYER(false);
       }
     },
+
+    async GET_NAVIGATE_HOME(navigate) {
+      if (navigate) {
+        console.log('NAVIGATE_HOME');
+        this.$router.push('/');
+        this.SET_NAVIGATE_HOME(false);
+      }
+    },
   },
 
   async created() {
@@ -356,6 +365,7 @@ export default {
       'SET_SNACKBAR_OPEN',
       'SET_NAVIGATE_TO_PLAYER',
       'SET_BACKGROUND',
+      'SET_NAVIGATE_HOME',
     ]),
 
     ...mapMutations('plex', [

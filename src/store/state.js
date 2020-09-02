@@ -22,6 +22,7 @@ const state = () => ({
   snackbarOpen: false,
   navigateToPlayer: false,
   browser: detect(),
+  navigateHome: false,
 });
 
 export default state;

@@ -36,4 +36,8 @@ export default {
   SET_CONFIGURATION: (state, configuration) => {
     state.configuration = configuration;
   },
+
+  SET_NAVIGATE_HOME: (state, navigate) => {
+    state.navigateHome = navigate;
+  },
 };

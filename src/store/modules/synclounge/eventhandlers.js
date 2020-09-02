@@ -138,4 +138,9 @@ export default {
       await dispatch('plexclients/PRESS_PLAY', null, { root: true });
     }
   },
+
+  HANDLE_KICKED: async ({ dispatch }) => {
+    console.log('HANDLE_KICKED');
+    await dispatch('DISCONNECT_AND_NAVIGATE_HOME');
+  },
 };

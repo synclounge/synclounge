@@ -276,6 +276,7 @@ export default {
     registerListener({ eventName: 'partyPause', action: 'HANDLE_PARTY_PAUSE' });
     registerListener({ eventName: 'disconnect', action: 'HANDLE_DISCONNECT' });
     registerListener({ eventName: 'connect', action: 'HANDLE_RECONNECT' });
+    registerListener({ eventName: 'kicked', action: 'HANDLE_KICKED' });
   },
 
   CANCEL_UPNEXT: ({ getters, commit }) => {
@@ -660,6 +661,19 @@ export default {
     });
 
     return dispatch('SEND_SYNC_FLEXIBILITY_UPDATE');
+  },
+
+  KICK_USER: (ctx, id) => {
+    console.log('KICK_USER', id);
+    emit({
+      eventName: 'kick',
+      data: id,
+    });
+  },
+
+  DISCONNECT_AND_NAVIGATE_HOME: async ({ dispatch }) => {
+    await dispatch('DISCONNECT');
+    await dispatch('NAVIGATE_HOME', null, { root: true });
   },
 
   ...eventhandlers,

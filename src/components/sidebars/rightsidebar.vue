@@ -224,6 +224,26 @@
 
               <span>{{ getHostActionText(id === GET_HOST_ID) }}</span>
             </v-tooltip>
+
+            <v-tooltip
+              v-if="id !== GET_HOST_ID && AM_I_HOST"
+              bottom
+              color="rgb(44, 44, 49)"
+              multi-line
+              class="userlist"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="KICK_USER(id)"
+                >
+                  clear
+                </v-icon>
+              </template>
+
+              <span>Kick</span>
+            </v-tooltip>
           </v-list-item-action>
         </v-list-item>
       </v-list>
@@ -320,6 +340,7 @@ export default {
       'SEND_SET_AUTO_HOST_ENABLED',
       'sendPartyPause',
       'TRANSFER_HOST',
+      'KICK_USER',
     ]),
 
     ...mapActions([
