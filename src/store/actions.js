@@ -33,4 +33,10 @@ export default {
 
     commit('SET_CONFIGURATION', config);
   },
+
+  NAVIGATE_HOME: async ({ getters, commit }) => {
+    if (!getters.GET_NAVIGATE_HOME) {
+      commit('SET_NAVIGATE_HOME', true);
+    }
+  },
 };

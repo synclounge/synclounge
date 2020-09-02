@@ -50,7 +50,7 @@
         <v-btn
           color="primary"
           text
-          @click="handleDisconnect"
+          @click="DISCONNECT_AND_NAVIGATE_HOME"
         >
           Leave Room
         </v-btn>
@@ -80,18 +80,13 @@ export default {
 
   methods: {
     ...mapActions('synclounge', [
-      'DISCONNECT',
       'CHANGE_NOTIFICATIONS_ENABLED',
+      'DISCONNECT_AND_NAVIGATE_HOME',
     ]),
 
     ...mapMutations('synclounge', [
       'SET_ARE_SOUND_NOTIFICATIONS_ENABLED',
     ]),
-
-    async handleDisconnect() {
-      await this.DISCONNECT();
-      this.$router.push('/');
-    },
   },
 };
 </script>
