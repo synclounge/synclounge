@@ -70,6 +70,7 @@ export default {
         // TODO: potentially find connections async and not hold up the fetch devices
         try {
           const chosenConnection = await dispatch('FIND_WORKING_CONNECTION_PREFERRED', {
+            name: device.name,
             connections: device.connections,
             accessToken: device.accessToken,
           });
@@ -154,10 +155,11 @@ export default {
     return workingConnection;
   },
 
-  FIND_WORKING_CONNECTION_PREFERRED: async ({ dispatch }, { connections, accessToken }) => {
+  FIND_WORKING_CONNECTION_PREFERRED: async ({ dispatch }, { name, connections, accessToken }) => {
     // This function iterates through all available connections and
     // if any of them return a valid response we'll set that connection
     // as the chosen connection for future use.
+    console.debug('FIND_WORKING_CONNECTION_PREFERRED', name);
 
     const nonRelayConnections = connections.filter((connection) => !connection.relay);
     // Prefer secure connections first.
@@ -165,9 +167,14 @@ export default {
       === 'https');
 
     try {
-      return dispatch('FIND_WORKING_CONNECTION', { connections: secureConnections, accessToken });
+      const conn = await dispatch('FIND_WORKING_CONNECTION', {
+        connections: secureConnections,
+        accessToken,
+      });
+      console.log(name, 'using secure connection', conn);
+      return conn;
     } catch (e) {
-      console.warn('No secure connections found');
+      console.warn(name, 'no working secure connections found');
     }
 
     // If we are using synclounge over https, we can't access connections over http because
@@ -175,15 +182,30 @@ export default {
     const insecureConnections = nonRelayConnections.filter((connection) => connection.protocol
       === 'http');
     try {
-      return dispatch('FIND_WORKING_CONNECTION', { connections: insecureConnections, accessToken });
+      const conn = await dispatch('FIND_WORKING_CONNECTION', {
+        connections: insecureConnections,
+        accessToken,
+      });
+      console.log(name, 'using insecure connection', conn);
+      return conn;
     } catch (e) {
-      console.warn('No insecure connections found');
+      console.warn(name, 'no working insecure connections found');
     }
 
     // TODO: display better errors for this
 
     // Finally try relay connections if we failed everywhere else.
     const relayConnections = connections.filter((connection) => connection.relay);
-    return dispatch('FIND_WORKING_CONNECTION', { connections: relayConnections, accessToken });
+    try {
+      const relayConnection = await dispatch('FIND_WORKING_CONNECTION', {
+        connections: relayConnections,
+        accessToken,
+      });
+      console.log(name, 'using relay connection', name);
+      return relayConnection;
+    } catch (e) {
+      console.error(name, 'no working connections found', connections);
+      throw e;
+    }
   },
 };
