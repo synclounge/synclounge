@@ -16,7 +16,7 @@ process.env.VUE_APP_VERSION = process.env.VERSION || pkgVersion;
 
 try {
   const lastCommit = lcl.getLastCommitSync();
-  process.env.VUE_APP_GIT_HASH = lastCommit.shortHash;
+  process.env.VUE_APP_GIT_HASH = lastCommit.hash;
   process.env.VUE_APP_GIT_DATE = lastCommit.committer.date;
 } catch (e) {
   // Sometimes on CI stuff they build with .git being present
@@ -45,9 +45,9 @@ module.exports = {
     stylelint: {},
   },
 
-  devServer: {
-    disableHostCheck: true,
-  },
+  // devServer: {
+  //   disableHostCheck: true,
+  // },
 
   // https://github.com/vuejs/vue-cli/issues/3771
   css: {

@@ -144,7 +144,7 @@
         class="text-center pa-2"
         style="opacity: 0.7; font-size: 12px;"
       >
-        <div>Build #<a :href="GET_COMMIT_URL">{{ GET_GIT_HASH }}</a></div>
+        <div>Build #<a :href="GET_COMMIT_URL">{{ GET_GIT_HASH.substring(0, 7) }}</a></div>
         <div>Last updated {{ updatedAt }}</div>
       </div>
     </template>

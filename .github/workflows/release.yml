@@ -88,7 +88,7 @@ jobs:
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
           echo ::set-output name=buildx_args::--platform ${DOCKER_PLATFORMS} \
             --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-            --build-arg REVISION=${GITHUB_SHA:0:7} \
+            --build-arg REVISION=${GITHUB_SHA} \
             --build-arg VERSION=${{ needs.release.outputs.release-version }} \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
@@ -157,7 +157,7 @@ jobs:
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
           echo ::set-output name=buildx_args::--platform ${DOCKER_PLATFORMS} \
             --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-            --build-arg REVISION=${GITHUB_SHA:0:7} \
+            --build-arg REVISION=${GITHUB_SHA} \
             --build-arg VERSION=${{ needs.release.outputs.release-version }} \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
