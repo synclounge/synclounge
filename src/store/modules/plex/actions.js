@@ -80,7 +80,9 @@ export default {
             chosenConnection,
           }, { root: true });
         } catch (e) {
-          console.error(`Unable to find working connection to plex server: "${device.name}`, e);
+          const message = `Unable to find working connection to plex server: "${device.name}`;
+          await dispatch('DISPLAY_NOTIFICATION', message, { root: true });
+          console.error(message, e);
         }
       }
     }));
@@ -155,10 +157,10 @@ export default {
     return workingConnection;
   },
 
+  // This function iterates through all available connections and
+  // if any of them return a valid response we'll set that connection
+  // as the chosen connection for future use.
   FIND_WORKING_CONNECTION_PREFERRED: async ({ dispatch }, { name, connections, accessToken }) => {
-    // This function iterates through all available connections and
-    // if any of them return a valid response we'll set that connection
-    // as the chosen connection for future use.
     console.debug('FIND_WORKING_CONNECTION_PREFERRED', name);
 
     const nonRelayConnections = connections.filter((connection) => !connection.relay);
@@ -191,8 +193,6 @@ export default {
     } catch (e) {
       console.warn(name, 'no working insecure connections found');
     }
-
-    // TODO: display better errors for this
 
     // Finally try relay connections if we failed everywhere else.
     const relayConnections = connections.filter((connection) => connection.relay);
