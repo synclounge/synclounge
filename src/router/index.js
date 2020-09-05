@@ -36,7 +36,7 @@ export default new Router({
     },
 
     {
-      path: '/join/:server?/:room/:password?',
+      path: '/join/:room/:server?',
       meta: {
         requiresAuth: true,
         redirectAfterAuth: true,

@@ -253,10 +253,6 @@ export default {
     },
 
     inviteUrl() {
-      // TODO: investigate passwords and invites. Is there really a point of a password if the
-      // invite link contains it?
-      // One alternative is to prompt for a password always instead, but maybe we don't need
-      // passwords at all
       if (this.GET_ROOM) {
         if (this.GET_CONFIG.autojoin) {
           // If autojoin, just link to main site
@@ -266,13 +262,13 @@ export default {
         const invitePart = this.$router.resolve({
           name: 'join',
           params: {
-            ...(this.GET_SERVER.length > 0 && { server: this.GET_SERVER }),
             room: this.GET_ROOM,
-            password: this.GET_PASSWORD,
+            ...(this.GET_SERVER.length > 0 && { server: this.GET_SERVER }),
           },
         }).href;
 
-        return new URL(invitePart, window.location).toString();
+        const currentUrl = new URL(window.location.pathname, window.location.origin);
+        return new URL(invitePart, currentUrl).toString();
       }
       return '';
     },

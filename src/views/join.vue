@@ -25,11 +25,12 @@
           </v-alert>
 
           <v-expansion-panels
-            v-if="!GET_CONFIG.force_slplayer"
+            :value="panels"
             multiple
-            flat
           >
-            <v-expansion-panel>
+            <v-expansion-panel
+              :readonly="GET_CONFIG.force_slplayer"
+            >
               <v-expansion-panel-header>
                 Player: {{ GET_CHOSEN_CLIENT.name }}
               </v-expansion-panel-header>
@@ -41,9 +42,46 @@
                 />
               </v-expansion-panel-content>
             </v-expansion-panel>
+
+            <v-expansion-panel
+              :readonly="true"
+            >
+              <v-expansion-panel-header disable-icon-rotate>
+                Room: {{ room }}
+                <template v-slot:actions>
+                  <v-icon color="teal">
+                    done
+                  </v-icon>
+                </template>
+              </v-expansion-panel-header>
+            </v-expansion-panel>
+
+            <v-expansion-panel>
+              <v-expansion-panel-header disable-icon-rotate>
+                Password
+                <template v-slot:actions>
+                  <v-icon>
+                    lock
+                  </v-icon>
+                </template>
+              </v-expansion-panel-header>
+
+              <v-expansion-panel-content>
+                <v-form>
+                  <v-text-field
+                    v-model="password"
+                    name="password"
+                    type="password"
+                    :error="passwordNeeded"
+                    autocomplete="room-password"
+                    label="Password"
+                  />
+                </v-form>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
           </v-expansion-panels>
 
-          <v-card-actions>
+          <v-card-actions class="mt-2">
             <v-btn
               color="primary"
               :disabled="!clientConnectable"
@@ -62,6 +100,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
+import JoinError from '@/utils/joinerror';
 
 export default {
   components: {
@@ -73,19 +112,14 @@ export default {
   ],
 
   props: {
-    server: {
-      type: String,
-      default: '',
-    },
-
     room: {
       type: String,
       required: true,
     },
 
-    password: {
+    server: {
       type: String,
-      default: null,
+      default: '',
     },
   },
 
@@ -97,6 +131,9 @@ export default {
       clientConnectable: true,
 
       error: null,
+      password: null,
+      passwordNeeded: false,
+      panels: [],
     };
   },
 
@@ -141,8 +178,14 @@ export default {
           }
         }
       } catch (e) {
-        console.log(e);
+        this.DISCONNECT_IF_CONNECTED();
+        console.error(e);
         this.error = e.message;
+
+        if (e instanceof JoinError) {
+          this.passwordNeeded = true;
+          this.panels = [2];
+        }
       }
 
       this.loading = false;

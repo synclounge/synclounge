@@ -6,6 +6,7 @@ import { slPlayerClientId } from '@/player/constants';
 import {
   open, close, on, waitForEvent, isConnected, emit,
 } from '@/socket';
+import JoinError from '@/utils/joinerror';
 import notificationSound from '@/assets/sounds/notification_simple-01.wav';
 
 const notificationAudio = new Audio(notificationSound);
@@ -33,7 +34,7 @@ export default {
     await dispatch('DISCONNECT_IF_CONNECTED');
 
     const currentUrl = new URL(window.location.pathname, window.location.origin);
-    const properBase = new URL(getters.GET_SERVER, currentUrl);
+    const properBase = new URL(getters.GET_SERVER, currentUrl.toString());
 
     const url = combineUrl('socket.io', properBase.toString());
     console.log('ESTABLISH_SOCKET_CONNECTION', url.toString());
@@ -78,7 +79,8 @@ export default {
 
     const { success, error, ...rest } = await waitForEvent('joinResult');
     if (!success) {
-      throw new Error(error);
+      // Password was wrong
+      throw new JoinError(true, error);
     }
 
     return rest;

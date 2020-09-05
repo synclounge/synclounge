@@ -68,8 +68,15 @@ export default {
     console.log('Rejoining');
     await waitForEvent('slPing');
     commit('SET_SOCKET_ID', getId());
-    await dispatch('JOIN_ROOM_AND_INIT');
-    // TODO: EXAMINE THIS AND FIGURE OUT HOW TO SYNC
+
+    try {
+      await dispatch('JOIN_ROOM_AND_INIT');
+    } catch (e) {
+      const message = `Error reconnecting: ${e.message}`;
+      console.error(message);
+      await dispatch('DISPLAY_NOTIFICATION', message, { root: true });
+      await dispatch('NAVIGATE_HOME', null, { root: true });
+    }
   },
 
   HANDLE_SLPING: async (context, secret) => {
