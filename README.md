@@ -128,6 +128,7 @@ If you want to change any of the [default configuration](https://github.com/ttsh
 ### Sample Nginx config
 If you want to run SyncLounge behind Nginx, here is an example configuration
 
+#### Subdomain sub.domain.com
 ```
 map $http_upgrade $connection_upgrade {
         default upgrade;
@@ -140,12 +141,59 @@ server {
     listen [::]:80;
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
-    server_name YOURSERVERNAMEHERE;
 
-    # include your ssl certs and parms, etc
+    # TODO: Replace this with your domain
+    server_name somesubdomain.yourserver.com;
+
+    # TODO: include your ssl certs and parms, etc
 
     location / {
+        # TODO: Replace this with your container address or localhost
         proxy_pass http://containeraddress:8088;
+        proxy_http_version 1.1;
+        proxy_socket_keepalive on;
+        proxy_redirect off;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port $server_port;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Sec-WebSocket-Extensions $http_sec_websocket_extensions;
+        proxy_set_header Sec-WebSocket-Key $http_sec_websocket_key;
+        proxy_set_header Sec-WebSocket-Version $http_sec_websocket_version;
+    }
+}
+```
+
+#### Subfolder domain.com/somefolder/
+To make synclounge run at a subfolder, all you need to do is change your reverse proxy configuration.
+```
+map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      '';
+}
+
+
+server {
+    listen 80;
+    listen [::]:80;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    # TODO: Replace this with your domain
+    server_name somesubdomain.yourserver.com;
+
+    # TODO: include your ssl certs and parms, etc
+
+    # TODO: replace "somefolder" with your desired subfolder
+    location /somefolder/ {
+        # TODO: Replace this with your container address or localhost.
+        # Important: keep the trailing slash
+        proxy_pass http://containeraddress:8088/;
         proxy_http_version 1.1;
         proxy_socket_keepalive on;
         proxy_redirect off;
