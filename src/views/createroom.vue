@@ -44,11 +44,11 @@
           </v-alert>
 
           <v-expansion-panels
-            v-if="!GET_CONFIG.force_slplayer"
             multiple
-            flat
           >
-            <v-expansion-panel>
+            <v-expansion-panel
+              :readonly="GET_CONFIG.force_slplayer"
+            >
               <v-expansion-panel-header>
                 Player: {{ GET_CHOSEN_CLIENT.name }}
               </v-expansion-panel-header>
@@ -60,22 +60,40 @@
                 />
               </v-expansion-panel-content>
             </v-expansion-panel>
-          </v-expansion-panels>
 
-          <v-container>
-            <v-row no-gutters>
-              <v-col
-                cols="12"
-              >
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                Room: {{ roomName }}
+              </v-expansion-panel-header>
+
+              <v-expansion-panel-content>
                 <v-text-field
                   v-model="roomName"
                   label="Room Name"
                 />
-              </v-col>
-            </v-row>
-          </v-container>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-          <v-card-actions>
+            <v-expansion-panel>
+              <v-expansion-panel-header disable-icon-rotate>
+                Password
+                <template v-slot:actions>
+                  <v-icon>
+                    lock
+                  </v-icon>
+                </template>
+              </v-expansion-panel-header>
+
+              <v-expansion-panel-content>
+                <v-text-field
+                  v-model="roomPassword"
+                  label="Room Password"
+                />
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+
+          <v-card-actions class="mt-2">
             <v-btn
               color="primary"
               :disabled="!GET_SERVERS_HEALTH || Object.keys(GET_SERVERS_HEALTH).length === 0
@@ -102,6 +120,7 @@ import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
 import { v4 as uuidv4 } from 'uuid';
+import JoinError from '@/utils/joinerror';
 
 export default {
   components: {
@@ -120,6 +139,7 @@ export default {
       // Default true because default client is slplayer
       clientConnectable: true,
       roomName: uuidv4(),
+      roomPassword: null,
     };
   },
 
@@ -177,7 +197,7 @@ export default {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
           server: this.GET_BEST_SERVER,
           room: this.roomName,
-          password: null,
+          password: this.roomPassword,
         });
 
         if (this.$route.name === 'CreateRoom') {
@@ -188,8 +208,15 @@ export default {
           }
         }
       } catch (e) {
+        this.DISCONNECT_IF_CONNECTED();
         console.error(e);
-        this.error = e.message;
+
+        if (e instanceof JoinError) {
+          this.error = 'Room already in use';
+          this.roomName = uuidv4();
+        } else {
+          this.error = e.message;
+        }
       }
 
       this.loading = false;
