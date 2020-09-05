@@ -1,20 +1,30 @@
-[github-release-badge]: https://github.com/ttshivers/synclounge/workflows/release/badge.svg
-[docker-version-badge]: https://images.microbadger.com/badges/version/ttshivers/synclounge.svg
-[docker-latest-size-badge]: https://images.microbadger.com/badges/image/ttshivers/synclounge.svg
-[docker-pulls-badge]: https://img.shields.io/docker/pulls/ttshivers/synclounge.svg
-[license-badge]: https://img.shields.io/badge/License-MIT-yellow.svg
+[github-release-badge]: https://img.shields.io/github/workflow/status/ttshivers/synclounge/release?label=release&style=for-the-badge
+[docker-version-badge]: https://img.shields.io/docker/v/ttshivers/synclounge?label=Docker&sort=semver&style=for-the-badge
+[docker-latest-size-badge]: https://img.shields.io/docker/image-size/ttshivers/synclounge?sort=semver&style=for-the-badge
+[docker-pulls-badge]: https://img.shields.io/docker/pulls/ttshivers/synclounge?style=for-the-badge
+[npm-badge]: https://img.shields.io/npm/v/synclounge?style=for-the-badge
+[dependencies-badge]: https://img.shields.io/david/ttshivers/synclounge?style=for-the-badge
+[devdependencies-badge]: https://img.shields.io/david/dev/ttshivers/synclounge?style=for-the-badge
+[license-badge]: https://img.shields.io/github/license/ttshivers/synclounge?style=for-the-badge
 
 [release-action-link]: https://github.com/ttshivers/synclounge/actions?query=workflow%3Arelease+branch%3Amaster "Release action"
 [dockerhub-link]: https://hub.docker.com/r/ttshivers/synclounge "Docker images of SyncLounge"
-[docker-microbadger-link]: https://microbadger.com/images/ttshivers/synclounge:latest "Docker size"
+[dockerhub-tags-link]: https://hub.docker.com/r/ttshivers/synclounge/tags "Docker tags of Synclounge"
+[docker-microbadger-link]: https://microbadger.com/images/ttshivers/synclounge "Docker size"
+[npm-link]: https://www.npmjs.com/package/synclounge "NPM package"
+[dependencies-link]: https://david-dm.org/ttshivers/synclounge
+[devdependencies-link]: https://david-dm.org/ttshivers/synclounge?type=dev
 [license-link]: https://opensource.org/licenses/MIT "MIT License"
 
 ![SyncLounge](https://app.synclounge.tv/logo-long-dark.png)
 
+[![npm][npm-badge]][npm-link]
+[![Docker Version][docker-version-badge]][dockerhub-link]
+[![Docker Size][docker-latest-size-badge]][dockerhub-link]
+[![Docker Pulls][docker-pulls-badge]][dockerhub-link]
 [![Release][github-release-badge]][release-action-link]
-[![Version][docker-version-badge]][docker-microbadger-link]
-[![Size][docker-latest-size-badge]][docker-microbadger-link]
-[![Pulls][docker-pulls-badge]][dockerhub-link]
+[![Dependencies][dependencies-badge]][dependencies-link]
+[![Dev Dependencies][devdependencies-badge]][devdependencies-link]
 [![License][license-badge]][license-link]
 
 
