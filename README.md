@@ -125,6 +125,46 @@ synclounge
 
 If you want to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js), you can either use environment variables with the same name, use command line arguments, or use a config file and run synclounge like `synclounge --config_file /path/to/config.json`
 
+### Sample Nginx config
+If you want to run SyncLounge behind Nginx, here is an example configuration
+
+```
+map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      '';
+}
+
+
+server {
+    listen 80;
+    listen [::]:80;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name YOURSERVERNAMEHERE;
+
+    # include your ssl certs and parms, etc
+
+    location / {
+        proxy_pass http://containeraddress:8088;
+        proxy_http_version 1.1;
+        proxy_socket_keepalive on;
+        proxy_redirect off;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port $server_port;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Sec-WebSocket-Extensions $http_sec_websocket_extensions;
+        proxy_set_header Sec-WebSocket-Key $http_sec_websocket_key;
+        proxy_set_header Sec-WebSocket-Version $http_sec_websocket_version;
+    }
+}
+```
+
 
 ### Older Help
 The FAQ, Self-Hosting, Development, Contributing, and other documentation has been move to [docs.synclounge.tv](http://docs.synclounge.tv)! Head there for more information!
