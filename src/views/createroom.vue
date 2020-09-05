@@ -119,7 +119,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
-import { v4 as uuidv4 } from 'uuid';
+import randomWords from 'random-words';
 import JoinError from '@/utils/joinerror';
 
 export default {
@@ -138,7 +138,7 @@ export default {
 
       // Default true because default client is slplayer
       clientConnectable: true,
-      roomName: uuidv4(),
+      roomName: this.makeRandomRoomName(),
       roomPassword: null,
     };
   },
@@ -180,6 +180,10 @@ export default {
       'DISCONNECT_IF_CONNECTED',
     ]),
 
+    makeRandomRoomName() {
+      return randomWords({ exactly: 3, join: ' ' });
+    },
+
     async fetchServersHealth() {
       try {
         await this.FETCH_SERVERS_HEALTH();
@@ -213,7 +217,7 @@ export default {
 
         if (e instanceof JoinError) {
           this.error = 'Room already in use';
-          this.roomName = uuidv4();
+          this.roomName = this.makeRandomRoomName();
         } else {
           this.error = e.message;
         }
