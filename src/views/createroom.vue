@@ -49,6 +49,19 @@
             @clientConnectableChange="clientConnectable = $event"
           />
 
+          <v-container>
+            <v-row no-gutters>
+              <v-col
+                cols="12"
+              >
+                <v-text-field
+                  v-model="roomName"
+                  label="Room Name"
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+
           <v-card-actions>
             <v-btn
               color="primary"
@@ -75,6 +88,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   components: {
@@ -92,6 +106,7 @@ export default {
 
       // Default true because default client is slplayer
       clientConnectable: true,
+      roomName: uuidv4(),
     };
   },
 
@@ -107,6 +122,7 @@ export default {
 
     ...mapGetters('synclounge', [
       'GET_SERVERS_HEALTH',
+      'GET_BEST_SERVER',
     ]),
   },
 
@@ -126,7 +142,7 @@ export default {
   methods: {
     ...mapActions('synclounge', [
       'FETCH_SERVERS_HEALTH',
-      'CREATE_AND_JOIN_ROOM',
+      'SET_AND_CONNECT_AND_JOIN_ROOM',
       'DISCONNECT_IF_CONNECTED',
     ]),
 
@@ -144,7 +160,11 @@ export default {
       this.loading = true;
 
       try {
-        await this.CREATE_AND_JOIN_ROOM();
+        await this.SET_AND_CONNECT_AND_JOIN_ROOM({
+          server: this.GET_BEST_SERVER,
+          room: this.roomName,
+          password: null,
+        });
 
         if (this.$route.name === 'CreateRoom') {
           if (this.GET_CHOSEN_CLIENT_ID === slPlayerClientId || !this.GET_ACTIVE_MEDIA_METADATA) {

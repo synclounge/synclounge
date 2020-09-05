@@ -1,5 +1,4 @@
 import CAF from 'caf';
-import { v4 as uuidv4 } from 'uuid';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 import { combineUrl, combineRelativeUrlParts } from '@/utils/combineurl';
 import { fetchJson } from '@/utils/fetchutils';
@@ -222,12 +221,6 @@ export default {
 
     commit('SET_SERVERS_HEALTH', aliveServerHealths);
   },
-
-  CREATE_AND_JOIN_ROOM: ({ getters, dispatch }) => dispatch('SET_AND_CONNECT_AND_JOIN_ROOM', {
-    server: getters.GET_BEST_SERVER,
-    room: uuidv4(),
-    password: null,
-  }),
 
   ADD_RECENT_ROOM: ({ commit, getters, rootGetters }, newRoom) => commit(
     'SET_RECENT_ROOMS',
