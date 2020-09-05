@@ -105,10 +105,12 @@ export default {
   methods: {
     ...mapActions('synclounge', [
       'SET_AND_CONNECT_AND_JOIN_ROOM',
+      'DISCONNECT_IF_CONNECTED',
     ]),
 
     async joinInvite() {
       this.error = null;
+      this.loading = true;
 
       try {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
@@ -126,9 +128,10 @@ export default {
         }
       } catch (e) {
         console.log(e);
-        throw e;
-        // this.error = e.message;
+        this.error = e.message;
       }
+
+      this.loading = false;
     },
   },
 };

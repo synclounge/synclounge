@@ -33,7 +33,10 @@ export default {
     await dispatch('DISCONNECT_IF_CONNECTED');
 
     const properBase = new URL(getters.GET_SERVER, window.location);
+
     const url = combineUrl('socket.io', properBase.toString());
+    console.log('ESTABLISH_SOCKET_CONNECTION', url.toString());
+
     const { id } = await open(url.origin, {
       path: url.pathname,
       transports: ['websocket', 'polling'],
