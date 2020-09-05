@@ -6,6 +6,7 @@
 [dependencies-badge]: https://img.shields.io/david/ttshivers/synclounge?style=for-the-badge
 [devdependencies-badge]: https://img.shields.io/david/dev/ttshivers/synclounge?style=for-the-badge
 [license-badge]: https://img.shields.io/github/license/ttshivers/synclounge?style=for-the-badge
+[app-badge]: https://img.shields.io/website?label=App&style=for-the-badge&up_message=online&url=https%3A%2F%2Fsynclounge.ttshivers.com
 
 [release-action-link]: https://github.com/ttshivers/synclounge/actions?query=workflow%3Arelease+branch%3Amaster "Release action"
 [dockerhub-link]: https://hub.docker.com/r/ttshivers/synclounge "Docker images of SyncLounge"
@@ -14,10 +15,13 @@
 [npm-link]: https://www.npmjs.com/package/synclounge "NPM package"
 [dependencies-link]: https://david-dm.org/ttshivers/synclounge
 [devdependencies-link]: https://david-dm.org/ttshivers/synclounge?type=dev
+[app-link]: https://synclounge.ttshivers.com
 [license-link]: https://opensource.org/licenses/MIT "MIT License"
 
 ![SyncLounge](https://app.synclounge.tv/logo-long-dark.png)
 
+
+[![App][app-badge]][app-link]
 [![npm][npm-badge]][npm-link]
 [![Docker Version][docker-version-badge]][dockerhub-link]
 [![Docker Size][docker-latest-size-badge]][dockerhub-link]
