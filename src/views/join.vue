@@ -24,11 +24,24 @@
             {{ error }}
           </v-alert>
 
-          <clientpicker
+          <v-expansion-panels
             v-if="!GET_CONFIG.force_slplayer"
-            @loadingChange="loading = $event"
-            @clientConnectableChange="clientConnectable = $event"
-          />
+            multiple
+            flat
+          >
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                Player: {{ GET_CHOSEN_CLIENT.name }}
+              </v-expansion-panel-header>
+
+              <v-expansion-panel-content>
+                <clientpicker
+                  @loadingChange="loading = $event"
+                  @clientConnectableChange="clientConnectable = $event"
+                />
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
 
           <v-card-actions>
             <v-btn
@@ -95,6 +108,7 @@ export default {
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
       'GET_ACTIVE_MEDIA_METADATA',
+      'GET_CHOSEN_CLIENT',
     ]),
   },
 
