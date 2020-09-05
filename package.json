@@ -47,6 +47,7 @@
     "libjass": "^0.11.0",
     "lint-staged": "^10.3.0",
     "mux.js": "^5.6.4",
+    "random-words": "^1.1.1",
     "sass": "^1.26.10",
     "sass-loader": "^10.0.2",
     "shaka-player": "^3.0.4",
