@@ -59,4 +59,29 @@ export default {
   }),
 
   GET_BLOCKED_SERVER_IDS: (state) => state.blockedServerIds,
+
+  GET_SERVER_LIBRARY_SIZE: (state, getters) => ({ machineIdentifier, sectionId }) => getters
+    .GET_PLEX_SERVER(machineIdentifier).libraries[sectionId].size,
+
+  GET_SERVER_LIBRARY_SIZES: (state, getters) => (machineIdentifier) => Object.fromEntries(
+    Object.keys(getters.GET_PLEX_SERVER(machineIdentifier).libraries).map(
+      (sectionId) => [
+        sectionId,
+        getters.GET_SERVER_LIBRARY_SIZE({ machineIdentifier, sectionId }),
+      ],
+    ),
+  ),
+
+  GET_SERVER_SIZE: (state, getters) => (machineIdentifier) => Object.values(
+    getters.GET_SERVER_LIBRARY_SIZES(machineIdentifier),
+  ).reduce((a, b) => a + b, 0),
+
+  GET_CONNECTABLE_SERVER_SIZES: (state, getters) => Object.fromEntries(
+    getters.GET_CONNECTABLE_PLEX_SERVER_IDS.map(
+      (machineIdentifier) => [
+        machineIdentifier,
+        getters.GET_SERVER_SIZE(machineIdentifier),
+      ],
+    ),
+  ),
 };

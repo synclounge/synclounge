@@ -1,8 +1,3 @@
-export const sample = (arr) => {
-  const len = arr == null ? 0 : arr.length;
-  return len ? arr[Math.floor(Math.random() * len)] : undefined;
-};
-
 export const difference = (arrays) => arrays.reduce((a, b) => a.filter((c) => !b.includes(c)));
 
 export const intersection = (arrays) => arrays.reduce((a, b) => a.filter((c) => b.includes(c)));

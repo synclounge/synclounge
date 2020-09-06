@@ -1,20 +1,21 @@
-import { sample, randomInt } from '@/utils/lightlodash';
+import { randomInt } from '@/utils/lightlodash';
 import { fetchJson, queryFetch } from '@/utils/fetchutils';
+import weightedRandomChoice from '@/utils/weightedrandomchoice';
 import scoreMedia from './mediascoring';
 
 export default {
-  FETCH_RANDOM_LIBRARY_KEY: async ({ getters, dispatch }, { machineIdentifier, signal }) => {
-    await dispatch('FETCH_ALL_LIBRARIES_IF_NEEDED', { machineIdentifier, signal });
-    const libraryKeys = getters.GET_PLEX_SERVER(machineIdentifier).libraries
-      .map((library) => library.key);
+  FETCH_RANDOM_SECTION_ID: async ({ getters }, machineIdentifier) => {
+    const sectionId = weightedRandomChoice(getters.GET_SERVER_LIBRARY_SIZES(machineIdentifier));
+    if (!sectionId) {
+      throw new Error('No valid libraries found');
+    }
 
-    return sample(libraryKeys);
+    return sectionId;
   },
 
-  FETCH_RANDOM_SERVER: async ({ getters, dispatch }) => {
-    await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
-
-    const machineIdentifier = sample(getters.GET_CONNECTABLE_PLEX_SERVER_IDS);
+  FETCH_RANDOM_SERVER: async ({ getters }) => {
+    // Weight choice by the number of items in each server
+    const machineIdentifier = weightedRandomChoice(getters.GET_CONNECTABLE_SERVER_SIZES);
     if (!machineIdentifier) {
       throw new Error('No valid servers found');
     }
@@ -22,11 +23,11 @@ export default {
     return machineIdentifier;
   },
 
-  FETCH_RANDOM_LIBRARY_ITEM: async ({ dispatch }, { machineIdentifier, sectionId, signal }) => {
-    const librarySize = await dispatch('FETCH_LIBRARY_SIZE', {
-      machineIdentifier, sectionId, signal,
-    });
-    const randomItemIndex = randomInt(librarySize - 1);
+  FETCH_RANDOM_LIBRARY_ITEM: async ({ getters, dispatch },
+    { machineIdentifier, sectionId, signal }) => {
+    const randomItemIndex = randomInt(
+      getters.GET_SERVER_LIBRARY_SIZE({ machineIdentifier, sectionId }) - 1,
+    );
 
     const contents = await dispatch('FETCH_LIBRARY_CONTENTS', {
       machineIdentifier,
@@ -39,15 +40,15 @@ export default {
     return contents[0];
   },
 
-  FETCH_RANDOM_ITEM: async ({ dispatch }, { machineIdentifier, libraryKey, signal } = {}) => {
+  FETCH_RANDOM_ITEM: async ({ dispatch }, { machineIdentifier, sectionId, signal } = {}) => {
     const chosenServerId = machineIdentifier || await dispatch('FETCH_RANDOM_SERVER');
 
-    const chosenLibraryKey = libraryKey
-    || await dispatch('FETCH_RANDOM_LIBRARY_KEY', { machineIdentifier: chosenServerId, signal });
+    const chosenSectionId = sectionId
+    || await dispatch('FETCH_RANDOM_SECTION_ID', chosenServerId);
 
     const item = await dispatch('FETCH_RANDOM_LIBRARY_ITEM', {
       machineIdentifier: chosenServerId,
-      sectionId: chosenLibraryKey,
+      sectionId: chosenSectionId,
       signal,
     });
 
@@ -152,7 +153,6 @@ export default {
           ...metadata,
           mediaIndex: hostTimeline.mediaIndex,
         };
-        // eslint-disable-next-line no-empty
       } catch (e) {
         console.warn('Error fetching metadata for same media as host', e);
       }
@@ -193,23 +193,28 @@ export default {
     return data.MediaContainer.Metadata;
   },
 
-  FETCH_ALL_LIBRARIES: async ({ dispatch, commit }, { machineIdentifier, signal }) => {
+  FETCH_ALL_LIBRARIES: async ({ dispatch }, { machineIdentifier, signal }) => {
     const data = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: '/library/sections',
       signal,
     });
 
-    commit('SET_PLEX_SERVER_LIBRARIES', {
-      machineIdentifier,
-      libraries: data.MediaContainer.Directory,
-    });
-  },
-
-  FETCH_ALL_LIBRARIES_IF_NEEDED: async ({ getters, dispatch }, { machineIdentifier, signal }) => {
-    if (!getters.GET_PLEX_SERVER(machineIdentifier).libraries) {
-      await dispatch('FETCH_ALL_LIBRARIES', { machineIdentifier, signal });
-    }
+    return Object.fromEntries(
+      await Promise.all(
+        data.MediaContainer.Directory.map(async (library) => [
+          library.key,
+          {
+            ...library,
+            size: await dispatch('FETCH_LIBRARY_SIZE', {
+              machineIdentifier,
+              sectionId: library.key,
+              signal,
+            }),
+          },
+        ]),
+      ),
+    );
   },
 
   FETCH_RECENTLY_ADDED_MEDIA: async ({ dispatch }, { machineIdentifier, signal }) => {
@@ -393,6 +398,7 @@ export default {
   },
 
   FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE: async ({ dispatch }, params) => {
+    await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
     const item = await dispatch('FETCH_RANDOM_ITEM', params);
     return dispatch('SET_MEDIA_AS_BACKGROUND', item);
   },
