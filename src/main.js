@@ -12,6 +12,15 @@ Vue.use(Clipboard);
 
 Vue.config.productionTip = false;
 
+Vue.config.errorHandler = (err) => {
+  store.dispatch('DISPLAY_NOTIFICATION', {
+    text: err.message,
+    color: 'error',
+  });
+
+  console.error(err);
+};
+
 router.beforeEach(async (to, from, next) => {
   if (!store.getters.GET_CONFIG) {
     await store.dispatch('FETCH_CONFIG');

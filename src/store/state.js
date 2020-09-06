@@ -18,7 +18,7 @@ const state = () => ({
   // Used to help with the crumbs
   activeMetadata: null,
 
-  snackbarMessage: null,
+  snackbarMessage: {},
   snackbarOpen: false,
   navigateToPlayer: false,
   browser: detect(),

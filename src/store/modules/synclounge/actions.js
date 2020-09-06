@@ -136,7 +136,10 @@ export default {
 
     // Purposefully not awaited
     dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
-    await dispatch('DISPLAY_NOTIFICATION', `Joined room: ${getters.GET_ROOM}`, { root: true });
+    await dispatch('DISPLAY_NOTIFICATION', {
+      text: `Joined room: ${getters.GET_ROOM}`,
+      color: 'success',
+    }, { root: true });
     await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');
   },
 
@@ -528,7 +531,10 @@ export default {
     if (getters.GET_HOST_USER.state === 'stopped') {
       // First, decide if we should stop playback
       if (timeline.state !== 'stopped') {
-        await dispatch('DISPLAY_NOTIFICATION', 'The host pressed stop', { root: true });
+        await dispatch('DISPLAY_NOTIFICATION', {
+          text: 'The host pressed stop',
+          color: 'info',
+        }, { root: true });
         await dispatch('plexclients/PRESS_STOP', null, { root: true });
         return;
       }
@@ -548,10 +554,13 @@ export default {
         }
         // TODO: fix
       } else {
-        const message = `Failed to find a compatible copy of ${getters.GET_HOST_USER.media.title
+        const text = `Failed to find a compatible copy of ${getters.GET_HOST_USER.media.title
         }. If you have access to the content try manually playing it.`;
-        console.warn(message);
-        await dispatch('DISPLAY_NOTIFICATION', message, { root: true });
+        console.warn(text);
+        await dispatch('DISPLAY_NOTIFICATION', {
+          text,
+          color: 'error',
+        }, { root: true });
       }
     }
 
@@ -593,7 +602,10 @@ export default {
     }
 
     if (getters.GET_HOST_USER.state === 'playing' && timeline.state === 'paused') {
-      await dispatch('DISPLAY_NOTIFICATION', 'Resuming..', { root: true });
+      await dispatch('DISPLAY_NOTIFICATION', {
+        text: 'Resuming..',
+        color: 'info',
+      }, { root: true });
       await dispatch('plexclients/PRESS_PLAY', cancelSignal, { root: true });
       return;
     }
@@ -601,7 +613,10 @@ export default {
     if ((getters.GET_HOST_USER.state === 'paused'
           || getters.GET_HOST_USER.state === 'buffering')
           && timeline.state === 'playing') {
-      await dispatch('DISPLAY_NOTIFICATION', 'Pausing..', { root: true });
+      await dispatch('DISPLAY_NOTIFICATION', {
+        text: 'Pausing..',
+        color: 'info',
+      }, { root: true });
       await dispatch('plexclients/PRESS_PAUSE', cancelSignal, { root: true });
       return;
     }

@@ -132,7 +132,10 @@ export default {
     ]),
 
     onAddressCopied() {
-      return this.DISPLAY_NOTIFICATION('Copied');
+      return this.DISPLAY_NOTIFICATION({
+        text: 'Copied',
+        color: 'success',
+      });
     },
   },
 };
