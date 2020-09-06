@@ -3,6 +3,14 @@ import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import weightedRandomChoice from '@/utils/weightedrandomchoice';
 import scoreMedia from './mediascoring';
 
+const playQueueParams = {
+  own: 1,
+  includeChapters: 1,
+  includeMarkers: 1,
+  includeGeolocation: 1,
+  includeExternalMedia: 1,
+};
+
 export default {
   FETCH_RANDOM_SECTION_ID: async ({ getters }, machineIdentifier) => {
     const sectionId = weightedRandomChoice(getters.GET_SERVER_LIBRARY_SIZES(machineIdentifier));
@@ -332,11 +340,7 @@ export default {
         continuous: 1,
         uri: `server://${id}/com.plexapp.plugins.library/library/metadata/${ratingKey}`,
         repeat: 0,
-        own: 1,
-        includeChapters: 1,
-        includeMarkers: 1,
-        includeGeolocation: 1,
-        includeExternalMedia: 1,
+        ...playQueueParams,
       },
       signal,
     });
@@ -348,13 +352,7 @@ export default {
     const { MediaContainer } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: `/playQueues/${playQueueID}`,
-      params: {
-        own: 1,
-        includeChapters: 1,
-        includeMarkers: 1,
-        includeGeolocation: 1,
-        includeExternalMedia: 1,
-      },
+      params: playQueueParams,
       signal,
     });
 
