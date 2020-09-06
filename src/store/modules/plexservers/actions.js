@@ -231,27 +231,7 @@ export default {
     return data.MediaContainer.Metadata;
   },
 
-  FETCH_MEDIA_CHILDREN: async ({ dispatch }, {
-    machineIdentifier, ratingKey, start, size, excludeAllLeaves, signal,
-  }) => {
-    const data = await dispatch('FETCH_PLEX_SERVER', {
-      machineIdentifier,
-      path: `/library/metadata/${ratingKey}/children`,
-      params: {
-        'X-Plex-Container-Start': start,
-        'X-Plex-Container-Size': size,
-        excludeAllLeaves,
-      },
-      signal,
-    });
-
-    return data.MediaContainer.Metadata.map((child) => ({
-      ...child,
-      librarySectionID: data.MediaContainer.librarySectionID,
-    }));
-  },
-
-  FETCH_SEASON: async ({ dispatch }, {
+  FETCH_CHILDREN_CONTAINER: async ({ dispatch }, {
     machineIdentifier, ratingKey, start, size, excludeAllLeaves, signal,
   }) => {
     const data = await dispatch('FETCH_PLEX_SERVER', {
@@ -273,6 +253,12 @@ export default {
         librarySectionID: data.MediaContainer.librarySectionID,
       })),
     };
+  },
+
+  FETCH_MEDIA_CHILDREN: async ({ dispatch }, params) => {
+    const { Metadata } = await dispatch('FETCH_CHILDREN_CONTAINER', params);
+
+    return Metadata;
   },
 
   FETCH_RELATED: async ({ dispatch }, {

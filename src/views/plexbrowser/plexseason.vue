@@ -180,7 +180,7 @@ export default {
 
   methods: {
     ...mapActions('plexservers', [
-      'FETCH_SEASON',
+      'FETCH_CHILDREN_CONTAINER',
       'SET_MEDIA_AS_BACKGROUND',
     ]),
 
@@ -189,7 +189,7 @@ export default {
     ]),
 
     async fetchMetadata() {
-      this.metadata = await this.FETCH_SEASON({
+      this.metadata = await this.FETCH_CHILDREN_CONTAINER({
         machineIdentifier: this.machineIdentifier,
         ratingKey: this.ratingKey,
         start: 0,
