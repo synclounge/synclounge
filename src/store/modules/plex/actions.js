@@ -77,6 +77,10 @@ export default {
 
           const libraries = await dispatch('plexservers/FETCH_ALL_LIBRARIES', {
             machineIdentifier: device.clientIdentifier,
+            manualConnection: {
+              chosenConnection,
+              accessToken: device.accessToken,
+            },
           }, { root: true });
 
           commit('plexservers/ADD_PLEX_SERVER', {

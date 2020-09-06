@@ -59,9 +59,11 @@ export default {
   },
 
   FETCH_PLEX_SERVER: ({ getters, rootGetters }, {
-    machineIdentifier, path, params, ...rest
+    machineIdentifier, path, params, manualConnection, ...rest
   }) => {
-    const { accessToken, chosenConnection: { uri } } = getters.GET_PLEX_SERVER(machineIdentifier);
+    const { accessToken, chosenConnection: { uri } } = manualConnection
+     || getters.GET_PLEX_SERVER(machineIdentifier);
+
     return fetchJson(
       `${uri}${path}`, {
         ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
@@ -193,11 +195,12 @@ export default {
     return data.MediaContainer.Metadata;
   },
 
-  FETCH_ALL_LIBRARIES: async ({ dispatch }, { machineIdentifier, signal }) => {
+  FETCH_ALL_LIBRARIES: async ({ dispatch }, { machineIdentifier, signal, ...rest }) => {
     const data = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: '/library/sections',
       signal,
+      ...rest,
     });
 
     return Object.fromEntries(
@@ -210,6 +213,7 @@ export default {
               machineIdentifier,
               sectionId: library.key,
               signal,
+              ...rest,
             }),
           },
         ]),
@@ -292,7 +296,7 @@ export default {
   },
 
   FETCH_LIBRARY_ALL: async ({ dispatch }, {
-    machineIdentifier, sectionId, start, size, signal,
+    machineIdentifier, sectionId, start, size, signal, ...rest
   }) => {
     const { MediaContainer } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
@@ -303,6 +307,7 @@ export default {
         excludeAllLeaves: 1,
       },
       signal,
+      ...rest,
     });
 
     return MediaContainer;
@@ -317,13 +322,16 @@ export default {
     }));
   },
 
-  FETCH_LIBRARY_SIZE: async ({ dispatch }, { machineIdentifier, sectionId, signal }) => {
+  FETCH_LIBRARY_SIZE: async ({ dispatch }, {
+    machineIdentifier, sectionId, signal, ...rest
+  }) => {
     const { totalSize } = await dispatch('FETCH_LIBRARY_ALL', {
       machineIdentifier,
       sectionId,
       start: 0,
       size: 0,
       signal,
+      ...rest,
     });
 
     return totalSize;
