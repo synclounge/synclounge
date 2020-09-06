@@ -84,13 +84,12 @@ export default {
     this.setupCrumbs();
     this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({
       machineIdentifier: this.machineIdentifier,
-      libraryKey: this.sectionId,
+      sectionId: this.sectionId,
     });
   },
 
   methods: {
     ...mapActions('plexservers', [
-      'FETCH_ALL_LIBRARIES_IF_NEEDED',
       'FETCH_LIBRARY_CONTENTS',
       'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
@@ -100,10 +99,8 @@ export default {
     ]),
 
     async setupCrumbs() {
-      await this.FETCH_ALL_LIBRARIES_IF_NEEDED({ machineIdentifier: this.machineIdentifier });
-
-      const library = this.GET_PLEX_SERVER(this.machineIdentifier).libraries
-        .find((lib) => lib.key === this.sectionId.toString());
+      const library = this.GET_PLEX_SERVER(this.machineIdentifier)
+        .libraries[this.sectionId.toString()];
 
       this.SET_ACTIVE_METADATA({
         machineIdentifier: this.machineIdentifier,

@@ -310,7 +310,7 @@ export default {
 
     libraries() {
       return this.GET_PLEX_SERVER(this.machineIdentifier).libraries
-        ? this.GET_PLEX_SERVER(this.machineIdentifier).libraries
+        ? Object.values(this.GET_PLEX_SERVER(this.machineIdentifier).libraries)
           .filter((library) => library.type !== 'artist'
             || library.agent !== 'tv.plex.agents.music')
         : [];
@@ -328,7 +328,6 @@ export default {
   methods: {
     ...mapActions('plexservers', [
       'FETCH_RECENTLY_ADDED_MEDIA',
-      'FETCH_ALL_LIBRARIES_IF_NEEDED',
       'FETCH_ON_DECK',
       'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
@@ -340,7 +339,6 @@ export default {
     fetchData() {
       // TODO: handle abort stuff
       return Promise.all([
-        this.FETCH_ALL_LIBRARIES_IF_NEEDED({ machineIdentifier: this.machineIdentifier }),
         this.FETCH_RECENTLY_ADDED_MEDIA({ machineIdentifier: this.machineIdentifier }),
         this.fetchOnDeck(),
         this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({ machineIdentifier: this.machineIdentifier }),

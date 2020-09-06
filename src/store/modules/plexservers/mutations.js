@@ -21,8 +21,4 @@ export default {
   SET_BLOCKED_SERVER_IDS: (state, blockedIds) => {
     state.blockedServerIds = blockedIds;
   },
-
-  SET_PLEX_SERVER_LIBRARIES: (state, { machineIdentifier, libraries }) => {
-    Vue.set(state.servers[machineIdentifier], 'libraries', libraries);
-  },
 };
