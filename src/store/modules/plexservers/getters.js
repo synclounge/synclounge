@@ -48,5 +48,15 @@ export default {
     return makeUrl(`${server.chosenConnection.uri}/photo/:/transcode/`, params);
   },
 
+  GET_MEDIA_BACKGROUND_URL: (state, getters) => (
+    { machineIdentifier, art, thumb },
+  ) => getters.GET_MEDIA_IMAGE_URL({
+    machineIdentifier,
+    mediaUrl: art || thumb,
+    width: window.screen.width,
+    height: window.screen.height,
+    blur: 8,
+  }),
+
   GET_BLOCKED_SERVER_IDS: (state) => state.blockedServerIds,
 };

@@ -217,6 +217,7 @@ export default {
     ...mapActions('plexservers', [
       'FETCH_PLEX_METADATA',
       'FETCH_MEDIA_CHILDREN',
+      'SET_MEDIA_AS_BACKGROUND',
     ]),
 
     ...mapMutations([
@@ -231,7 +232,7 @@ export default {
 
       this.SET_ACTIVE_METADATA(this.metadata);
 
-      this.setBackground();
+      await this.SET_MEDIA_AS_BACKGROUND(this.metadata);
     },
 
     async fetchChildren() {
@@ -242,17 +243,6 @@ export default {
         size: 150,
         excludeAllLeaves: 1,
       });
-    },
-
-    setBackground() {
-      this.$store.commit('SET_BACKGROUND',
-        this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.machineIdentifier,
-          mediaUrl: this.metadata.art,
-          width: getAppWidth() / 4,
-          height: getAppHeight() / 4,
-          blur: 2,
-        }));
     },
   },
 };

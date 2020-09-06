@@ -114,7 +114,6 @@
           :machine-identifier="machineIdentifier"
           type="thumb"
           full-title
-          @contentSet="setContent(content)"
         />
       </v-col>
     </v-row>
@@ -144,7 +143,6 @@ export default {
 
   data() {
     return {
-      browsingContent: null,
       metadata: null,
     };
   },
@@ -176,14 +174,6 @@ export default {
     },
   },
 
-  watch: {
-    browsingContent() {
-      if (!this.browsingContent) {
-        this.$store.commit('SET_BACKGROUND', null);
-      }
-    },
-  },
-
   created() {
     this.fetchMetadata();
   },
@@ -191,6 +181,7 @@ export default {
   methods: {
     ...mapActions('plexservers', [
       'FETCH_SEASON',
+      'SET_MEDIA_AS_BACKGROUND',
     ]),
 
     ...mapMutations([
@@ -218,22 +209,10 @@ export default {
         type: 'season',
       });
 
-      this.setBackground();
-    },
-
-    setContent(content) {
-      this.browsingContent = content;
-    },
-
-    setBackground() {
-      this.$store.commit('SET_BACKGROUND',
-        this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.machineIdentifier,
-          mediaUrl: this.metadata.art,
-          width: getAppWidth() / 4,
-          height: getAppHeight() / 4,
-          blur: 2,
-        }));
+      await this.SET_MEDIA_AS_BACKGROUND({
+        machineIdentifier: this.machineIdentifier,
+        ...this.metadata,
+      });
     },
   },
 };

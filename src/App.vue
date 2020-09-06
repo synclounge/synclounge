@@ -101,50 +101,61 @@
     </v-app-bar>
 
     <v-main
-      :style="mainStyle"
       class="main-content"
       app
     >
       <v-container
         align="start"
-        :style="containerStyle"
-        style="height: 100%;"
+        class="pa-0"
         fluid
       >
-        <v-container
-          v-if="!GET_CONFIG"
-          fill-height
+        <v-img
+          :src="GET_BACKGROUND"
+          :height="bgHeight"
+          @load="backgroundLoad"
+          @error="backgroundError"
         >
-          <v-row
-            justify="center"
-            align="center"
-            class="pt-4 text-center"
+          <v-sheet
+            :color="sheetColor"
+            class="overflow-y-auto pa-3"
+            :height="bgHeight"
           >
-            <v-col>
-              <v-progress-circular
-                indeterminate
-                size="60"
-                class="amber--text"
-              />
-            </v-col>
-          </v-row>
-        </v-container>
+            <v-container
+              v-if="!GET_CONFIG"
+              fill-height
+            >
+              <v-row
+                justify="center"
+                align="center"
+                class="pt-4 text-center"
+              >
+                <v-col>
+                  <v-progress-circular
+                    indeterminate
+                    size="60"
+                    class="amber--text"
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
 
-        <router-view v-else />
+            <router-view v-else />
 
-        <v-snackbar
-          :value="GET_SNACKBAR_OPEN"
-          color="green darken-2"
-          bottom
-          timeout="4000"
-          @input="SET_SNACKBAR_OPEN"
-        >
-          <div style="text-align: center; width: 100%;">
-            {{ GET_SNACKBAR_MESSAGE }}
-          </div>
-        </v-snackbar>
+            <v-snackbar
+              :value="GET_SNACKBAR_OPEN"
+              color="green darken-2"
+              bottom
+              timeout="4000"
+              @input="SET_SNACKBAR_OPEN"
+            >
+              <div style="text-align: center; width: 100%;">
+                {{ GET_SNACKBAR_MESSAGE }}
+              </div>
+            </v-snackbar>
 
-        <upnext v-if="GET_UP_NEXT_POST_PLAY_DATA" />
+            <upnext v-if="GET_UP_NEXT_POST_PLAY_DATA" />
+          </v-sheet>
+        </v-img>
       </v-container>
     </v-main>
   </v-app>
@@ -172,6 +183,12 @@ export default {
   mixins: [
     redirection,
   ],
+
+  data() {
+    return {
+      numBackgroundErrors: 0,
+    };
+  },
 
   computed: {
     ...mapGetters([
@@ -240,16 +257,14 @@ export default {
       return `(max-width: ${this.$vuetify.breakpoint.thresholds.xs}px)`;
     },
 
-    mainStyle() {
+    sheetColor() {
       return this.GET_BACKGROUND
-        ? { backgroundImage: `url(${this.GET_BACKGROUND})` }
-        : {};
+        ? 'rgba(0,0,0,0.7)'
+        : 'transparent';
     },
 
-    containerStyle() {
-      return this.GET_BACKGROUND
-        ? { background: 'rgba(0,0,0,0.7)' }
-        : {};
+    bgHeight() {
+      return this.$vuetify.breakpoint.height - this.$vuetify.application.top;
     },
 
     inviteUrl() {
@@ -311,7 +326,7 @@ export default {
   async created() {
     if (this.GET_PLEX_AUTH_TOKEN) {
       // Kick off a bunch of requests that we need for later
-      this.setRandomBackground();
+      this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE();
 
       try {
         await Promise.all([
@@ -354,13 +369,12 @@ export default {
     ]),
 
     ...mapActions('plexservers', [
-      'FETCH_RANDOM_IMAGE_URL',
+      'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
 
     ...mapMutations([
       'SET_SNACKBAR_OPEN',
       'SET_NAVIGATE_TO_PLAYER',
-      'SET_BACKGROUND',
       'SET_NAVIGATE_HOME',
     ]),
 
@@ -368,8 +382,19 @@ export default {
       'SET_PLEX_AUTH_TOKEN',
     ]),
 
-    async setRandomBackground() {
-      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
+    backgroundLoad() {
+      this.numBackgroundFailures = 0;
+    },
+
+    async backgroundError(e) {
+      this.numBackgroundFailures += 1;
+      if (this.numBackgroundFailures > 3) {
+        console.error(`Failed ${this.numBackgroundFailures} times finding a background. Giving up`);
+        return;
+      }
+
+      console.warn('Error loading background, trying again', e);
+      await this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE();
     },
 
     onInviteCopied() {
@@ -390,11 +415,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.main-content {
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-</style>

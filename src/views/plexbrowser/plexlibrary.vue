@@ -43,8 +43,6 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-import { sample } from '@/utils/lightlodash';
-import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
   components: {
@@ -84,12 +82,17 @@ export default {
 
   created() {
     this.setupCrumbs();
+    this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({
+      machineIdentifier: this.machineIdentifier,
+      libraryKey: this.sectionId,
+    });
   },
 
   methods: {
     ...mapActions('plexservers', [
       'FETCH_ALL_LIBRARIES_IF_NEEDED',
       'FETCH_LIBRARY_CONTENTS',
+      'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
 
     ...mapMutations([
@@ -111,21 +114,6 @@ export default {
 
     setContent(content) {
       this.browsingContent = content;
-    },
-
-    setBackground() {
-      const randomItem = sample(this.contents);
-
-      this.$store.commit('SET_BACKGROUND',
-        this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.machineIdentifier,
-          mediaUrl: randomItem.type === 'show'
-            ? randomItem.art
-            : randomItem.thumb,
-          width: getAppWidth() / 4,
-          height: getAppHeight() / 4,
-          blur: 8,
-        }));
     },
 
     async onIntersect(entries, observer, isIntersecting) {
@@ -153,11 +141,6 @@ export default {
       });
 
       this.startingIndex += results.length;
-
-      if (this.contents.length <= 100 && this.contents.length > 0) {
-        // First time we got content
-        this.setBackground();
-      }
 
       if (results.length < 100) {
         this.stopNewContent = true;

@@ -194,7 +194,6 @@
 </template>
 
 <script>
-import { sample } from '@/utils/lightlodash';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
@@ -331,29 +330,21 @@ export default {
       'FETCH_RECENTLY_ADDED_MEDIA',
       'FETCH_ALL_LIBRARIES_IF_NEEDED',
       'FETCH_ON_DECK',
+      'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
 
     ...mapMutations([
-      'SET_BACKGROUND',
       'SET_ACTIVE_METADATA',
     ]),
 
     fetchData() {
+      // TODO: handle abort stuff
       return Promise.all([
         this.FETCH_ALL_LIBRARIES_IF_NEEDED({ machineIdentifier: this.machineIdentifier }),
-        this.fetchRecentlyAdded(),
+        this.FETCH_RECENTLY_ADDED_MEDIA({ machineIdentifier: this.machineIdentifier }),
         this.fetchOnDeck(),
+        this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({ machineIdentifier: this.machineIdentifier }),
       ]);
-    },
-
-    async fetchRecentlyAdded() {
-      // TODO: handle abort stuff
-      this.recentlyAdded = await this.FETCH_RECENTLY_ADDED_MEDIA({
-        machineIdentifier: this.machineIdentifier,
-      });
-      if (this.recentlyAdded) {
-        this.setBackground();
-      }
     },
 
     async fetchOnDeck() {
@@ -420,17 +411,6 @@ export default {
       } else {
         this.recentlyAddedOffset -= this.recentItemsPer;
       }
-    },
-
-    setBackground() {
-      this.$store.commit('SET_BACKGROUND',
-        this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.machineIdentifier,
-          mediaUrl: sample(this.recentlyAdded).art,
-          width: getAppWidth() / 4,
-          height: getAppHeight() / 1,
-          blur: 6,
-        }));
     },
 
     getArtLibrary(object) {

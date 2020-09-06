@@ -420,7 +420,7 @@ export default {
 
   created() {
     this.SET_ACTIVE_METADATA(null);
-    this.setRandomBackground();
+    this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({ signal: this.abortController.signal });
   },
 
   beforeDestroy() {
@@ -431,7 +431,7 @@ export default {
     ...mapActions('plexservers', [
       'SEARCH_PLEX_SERVER',
       'FETCH_ON_DECK',
-      'FETCH_RANDOM_IMAGE_URL',
+      'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
 
     ...mapActions('plex', [
@@ -440,12 +440,7 @@ export default {
 
     ...mapMutations([
       'SET_ACTIVE_METADATA',
-      'SET_BACKGROUND',
     ]),
-
-    async setRandomBackground() {
-      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL(this.abortController.signal));
-    },
 
     async fetchOnDeck() {
       this.onDeck = await this.FETCH_ON_DECK({

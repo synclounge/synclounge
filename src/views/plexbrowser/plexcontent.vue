@@ -630,10 +630,10 @@ export default {
       'FETCH_RELATED',
       'FETCH_MEDIA_CHILDREN',
       'MARK_WATCHED',
+      'SET_MEDIA_AS_BACKGROUND',
     ]),
 
     ...mapMutations([
-      'SET_BACKGROUND',
       'SET_ACTIVE_METADATA',
     ]),
 
@@ -648,6 +648,7 @@ export default {
       });
 
       this.SET_ACTIVE_METADATA(this.contents);
+      await this.SET_MEDIA_AS_BACKGROUND(this.contents);
 
       if (this.contents.type === 'episode') {
         this.parentData = await this.FETCH_MEDIA_CHILDREN({
@@ -664,7 +665,6 @@ export default {
           count: 7,
         });
       }
-      this.setBackground();
     },
 
     getLittleThumb(content) {
@@ -675,18 +675,6 @@ export default {
         height: getAppHeight() / 2,
         blur: 0,
       });
-    },
-
-    setBackground() {
-      this.SET_BACKGROUND(
-        this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.machineIdentifier,
-          mediaUrl: this.contents.art,
-          width: getAppWidth() / 4,
-          height: getAppHeight() / 4,
-          blur: 2,
-        }),
-      );
     },
 
     markWatched() {

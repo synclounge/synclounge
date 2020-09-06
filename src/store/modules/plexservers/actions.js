@@ -3,21 +3,34 @@ import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import scoreMedia from './mediascoring';
 
 export default {
-  FETCH_RANDOM_ITEM: async ({ getters, dispatch }, { machineIdentifier, signal }) => {
+  FETCH_RANDOM_LIBRARY_KEY: async ({ getters, dispatch }, { machineIdentifier, signal }) => {
     await dispatch('FETCH_ALL_LIBRARIES_IF_NEEDED', { machineIdentifier, signal });
     const libraryKeys = getters.GET_PLEX_SERVER(machineIdentifier).libraries
       .map((library) => library.key);
 
-    const libraryKey = sample(libraryKeys);
+    return sample(libraryKeys);
+  },
 
+  FETCH_RANDOM_SERVER: async ({ getters, dispatch }) => {
+    await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
+
+    const machineIdentifier = sample(getters.GET_CONNECTABLE_PLEX_SERVER_IDS);
+    if (!machineIdentifier) {
+      throw new Error('No valid servers found');
+    }
+
+    return machineIdentifier;
+  },
+
+  FETCH_RANDOM_LIBRARY_ITEM: async ({ dispatch }, { machineIdentifier, sectionId, signal }) => {
     const librarySize = await dispatch('FETCH_LIBRARY_SIZE', {
-      machineIdentifier, sectionId: libraryKey, signal,
+      machineIdentifier, sectionId, signal,
     });
     const randomItemIndex = randomInt(librarySize - 1);
 
     const contents = await dispatch('FETCH_LIBRARY_CONTENTS', {
       machineIdentifier,
-      sectionId: libraryKey,
+      sectionId,
       start: randomItemIndex,
       size: 1,
       signal,
@@ -26,26 +39,22 @@ export default {
     return contents[0];
   },
 
-  FETCH_RANDOM_IMAGE_URL: async ({ getters, dispatch }, signal) => {
-    await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
+  FETCH_RANDOM_ITEM: async ({ dispatch }, { machineIdentifier, libraryKey, signal } = {}) => {
+    const chosenServerId = machineIdentifier || await dispatch('FETCH_RANDOM_SERVER');
 
-    const machineIdentifier = sample(getters.GET_CONNECTABLE_PLEX_SERVER_IDS);
-    if (!machineIdentifier) {
-      throw new Error('No valid servers found');
-    }
+    const chosenLibraryKey = libraryKey
+    || await dispatch('FETCH_RANDOM_LIBRARY_KEY', { machineIdentifier: chosenServerId, signal });
 
-    const result = await dispatch('FETCH_RANDOM_ITEM', { machineIdentifier, signal });
-    if (!result) {
-      throw new Error('No result found');
-    }
-
-    return getters.GET_MEDIA_IMAGE_URL({
-      machineIdentifier,
-      mediaUrl: result.art || result.thumb,
-      width: window.screen.width,
-      height: window.screen.height,
-      blur: 8,
+    const item = await dispatch('FETCH_RANDOM_LIBRARY_ITEM', {
+      machineIdentifier: chosenServerId,
+      sectionId: chosenLibraryKey,
+      signal,
     });
+
+    return {
+      ...item,
+      machineIdentifier: chosenServerId,
+    };
   },
 
   FETCH_PLEX_SERVER: ({ getters, rootGetters }, {
@@ -377,4 +386,14 @@ export default {
     },
     signal,
   }),
+
+  SET_MEDIA_AS_BACKGROUND: async ({ getters, commit }, media) => {
+    const url = getters.GET_MEDIA_BACKGROUND_URL(media);
+    commit('SET_BACKGROUND', url, { root: true });
+  },
+
+  FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE: async ({ dispatch }, params) => {
+    const item = await dispatch('FETCH_RANDOM_ITEM', params);
+    return dispatch('SET_MEDIA_AS_BACKGROUND', item);
+  },
 };
