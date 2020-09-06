@@ -1,58 +1,46 @@
 <template>
-  <v-row
-    class="pt-2 pa-4"
-    justify="center"
-  >
-    <v-col
-      md="6"
-      lg="5"
+  <v-container class="fill-height">
+    <v-row
+      align="center"
+      justify="center"
     >
-      <v-card
-        :loading="loading"
-        style="background: rgba(0, 0, 0, 0.3);"
-        class="pa-4"
-      >
-        <v-alert
-          v-if="GET_PLEX_AUTH_TOKEN && IS_USER_AUTHORIZED === false"
-          type="error"
+      <v-col>
+        <v-card
+          class="mx-auto"
+          max-width="550"
+          :loading="loading"
         >
-          You are not authorized to access this server
-        </v-alert>
-
-        <v-card-title>
-          <v-img
-            contain
-            src="@/assets/images/logos/logo-long-light.png"
-          />
-        </v-card-title>
-
-        <v-card-text>
-          Your Plex account is used to fetch the details of your Plex devices. None of your
-          private details are sent to our servers. If you would like to install and run
-          SyncLounge yourself have a look
-          <a
-            target="_blank"
-            :href="GET_REPOSITORY_URL"
-          >here</a>
-          for details.
-        </v-card-text>
-
-        <v-card-actions>
-          <v-btn
-            class="primary"
-            target="_blank"
-            x-large
-            text
-            :disabled="loading || !plexAuthResponse"
-            :href="plexAuthUrl"
-            @click="authenticate"
+          <v-alert
+            v-if="GET_PLEX_AUTH_TOKEN && IS_USER_AUTHORIZED === false"
+            type="error"
           >
-            Sign in
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+            You are not authorized to access this server
+          </v-alert>
+
+          <v-card-title>
+            <v-img
+              contain
+              src="@/assets/images/logos/logo-long-light.png"
+            />
+          </v-card-title>
+
+          <v-card-actions>
+            <v-btn
+              class="primary"
+              target="_blank"
+              x-large
+              text
+              :disabled="loading || !plexAuthResponse"
+              :href="plexAuthUrl"
+              @click="authenticate"
+            >
+              Sign in
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -116,15 +104,11 @@ export default {
     ]),
 
     ...mapActions('plexservers', [
-      'FETCH_RANDOM_IMAGE_URL',
+      'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
 
     ...mapMutations('plex', [
       'SET_PLEX_AUTH_TOKEN',
-    ]),
-
-    ...mapMutations([
-      'SET_BACKGROUND',
     ]),
 
     async regularAuth() {
@@ -168,7 +152,7 @@ export default {
 
     async postAuth() {
       await this.FETCH_PLEX_DEVICES_IF_NEEDED();
-      this.SET_BACKGROUND(await this.FETCH_RANDOM_IMAGE_URL());
+      this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE();
       if (this.IS_USER_AUTHORIZED) {
         this.$router.push(this.$route.query.redirect || '/');
       }

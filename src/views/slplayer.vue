@@ -1,7 +1,7 @@
 <template>
   <v-row
     style="position: relative;"
-    class="slplayer-container"
+    class="ma-n3"
   >
     <v-col class="pa-0">
       <div
@@ -166,8 +166,7 @@
 
 <script>
 
-import { mapActions, mapGetters, mapMutations } from 'vuex';
-import { getAppWidth, getAppHeight } from '@/utils/sizing';
+import { mapActions, mapGetters } from 'vuex';
 
 import initialize from '@/player/init';
 import { getControlsOffset } from '@/player';
@@ -204,10 +203,6 @@ export default {
     ...mapGetters('plexclients', [
       'GET_ACTIVE_MEDIA_METADATA',
       'GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER',
-    ]),
-
-    ...mapGetters('plexservers', [
-      'GET_MEDIA_IMAGE_URL',
     ]),
 
     ...mapGetters('settings', [
@@ -250,10 +245,10 @@ export default {
     },
 
     GET_ACTIVE_MEDIA_METADATA: {
-      handler(newMetadata) {
+      async handler(newMetadata) {
         // This handles regular plex clients (nonslplayer) playback changes
         if (newMetadata) {
-          this.setBackground(newMetadata);
+          await this.SET_MEDIA_AS_BACKGROUND(newMetadata);
         }
       },
       immediate: true,
@@ -301,6 +296,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('plexservers', [
+      'SET_MEDIA_AS_BACKGROUND',
+    ]),
+
     ...mapActions('slplayer', [
       'CHANGE_MEDIA_INDEX',
       'CHANGE_PLAYER_SRC',
@@ -319,10 +318,6 @@ export default {
       'SEND_PARTY_PLAY_PAUSE',
       'SKIP_INTRO',
       'RERENDER_SUBTITLE_CONTAINER',
-    ]),
-
-    ...mapMutations([
-      'SET_BACKGROUND',
     ]),
 
     ...mapActions('synclounge', [
@@ -393,18 +388,6 @@ export default {
 
         this.SEND_PARTY_PLAY_PAUSE();
       }
-    },
-
-    setBackground(metadata) {
-      this.SET_BACKGROUND(
-        this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: metadata.machineIdentifier,
-          mediaUrl: metadata.art,
-          width: getAppWidth() / 4,
-          height: getAppHeight() / 4,
-          blur: 2,
-        }),
-      );
     },
 
     handleTimeUpdate() {

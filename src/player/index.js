@@ -11,7 +11,7 @@ export const getControlsOffset = (fallbackHeight) => (areControlsShown()
   ? (getPlayer()?.getMediaElement()?.offsetHeight || fallbackHeight) * 0.025 + 48 || 0
   : 0);
 
-export const isPaused = () => getPlayer().getMediaElement().paused;
+export const isPaused = () => getPlayer()?.getMediaElement()?.paused;
 
 export const isPresentationPaused = () => isPaused()
   && !getOverlay().getControls().isSeeking();
