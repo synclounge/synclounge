@@ -532,7 +532,10 @@ export default {
     const introEnd = rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER']
       .endTimeOffset;
     console.debug('SKIP_INTRO', introEnd);
-    await dispatch('DISPLAY_NOTIFICATION', 'Skipping intro', { root: true });
+    await dispatch('DISPLAY_NOTIFICATION', {
+      text: 'Skipping intro',
+      color: 'info',
+    }, { root: true });
 
     commit('SET_OFFSET_MS', introEnd);
     setCurrentTimeMs(introEnd);

@@ -230,11 +230,13 @@ export default {
         const serverName = rootGetters['plexservers/GET_PLEX_SERVER'](
           getters.GET_ACTIVE_SERVER_ID,
         ).name;
-        await dispatch('DISPLAY_NOTIFICATION',
-          `Now Playing: ${contentTitleUtils.getCombinedTitle(
+
+        await dispatch('DISPLAY_NOTIFICATION', {
+          text: `Now Playing: ${contentTitleUtils.getCombinedTitle(
             getters.GET_ACTIVE_MEDIA_METADATA,
           )} from ${serverName}`,
-          { root: true });
+          color: 'info',
+        }, { root: true });
       }
 
       // Media changed

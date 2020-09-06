@@ -60,8 +60,10 @@ export default {
 
   HANDLE_DISCONNECT: async ({ dispatch }) => {
     console.log('disconnect');
-    await dispatch('DISPLAY_NOTIFICATION',
-      'Disconnected from the SyncLounge server', { root: true });
+    await dispatch('DISPLAY_NOTIFICATION', {
+      text: 'Disconnected from the SyncLounge server',
+      color: 'info',
+    }, { root: true });
   },
 
   HANDLE_RECONNECT: async ({ dispatch, commit }) => {
@@ -72,9 +74,12 @@ export default {
     try {
       await dispatch('JOIN_ROOM_AND_INIT');
     } catch (e) {
-      const message = `Error reconnecting: ${e.message}`;
-      console.error(message);
-      await dispatch('DISPLAY_NOTIFICATION', message, { root: true });
+      const text = `Error reconnecting: ${e.message}`;
+      console.error(text);
+      await dispatch('DISPLAY_NOTIFICATION', {
+        text,
+        color: 'error',
+      }, { root: true });
       await dispatch('NAVIGATE_HOME', null, { root: true });
     }
   },
@@ -136,7 +141,10 @@ export default {
       text,
     });
 
-    await dispatch('DISPLAY_NOTIFICATION', text, { root: true });
+    await dispatch('DISPLAY_NOTIFICATION', {
+      text,
+      color: 'info',
+    }, { root: true });
 
     await dispatch('CANCEL_IN_PROGRESS_SYNC');
     if (isPause) {

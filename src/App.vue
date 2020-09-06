@@ -143,13 +143,13 @@
 
             <v-snackbar
               :value="GET_SNACKBAR_OPEN"
-              color="green darken-2"
+              :color="GET_SNACKBAR_MESSAGE.color"
               bottom
               timeout="4000"
               @input="SET_SNACKBAR_OPEN"
             >
               <div style="text-align: center; width: 100%;">
-                {{ GET_SNACKBAR_MESSAGE }}
+                {{ GET_SNACKBAR_MESSAGE.text }}
               </div>
             </v-snackbar>
 
@@ -316,7 +316,7 @@ export default {
 
     async GET_NAVIGATE_HOME(navigate) {
       if (navigate) {
-        console.log('NAVIGATE_HOME');
+        console.debug('NAVIGATE_HOME');
         this.$router.push('/');
         this.SET_NAVIGATE_HOME(false);
       }
@@ -336,12 +336,9 @@ export default {
       } catch (e) {
         // If these fail, then the auth token is probably invalid
         console.error(e);
-        this.SET_PLEX_AUTH_TOKEN(null);
-        this.$router.push({
-          name: 'Signin',
-          query: {
-            redirect: this.$route.fullPathh,
-          },
+        await this.DISPLAY_NOTIFICATION({
+          text: 'Failed to connect to Plex API. Try logging out and back in.',
+          color: 'error',
         });
       }
     }
@@ -398,7 +395,10 @@ export default {
     },
 
     onInviteCopied() {
-      return this.DISPLAY_NOTIFICATION('Copied to clipboard');
+      return this.DISPLAY_NOTIFICATION({
+        text: 'Copied to clipboard',
+        color: 'success',
+      });
     },
 
     onFullScreenChange() {
