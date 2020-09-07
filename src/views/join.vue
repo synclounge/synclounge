@@ -43,31 +43,19 @@
               </v-expansion-panel-content>
             </v-expansion-panel>
 
-            <v-expansion-panel
-              :readonly="true"
-            >
-              <v-expansion-panel-header disable-icon-rotate>
-                Room: {{ room }}
-                <template v-slot:actions>
-                  <v-icon color="teal">
-                    done
-                  </v-icon>
-                </template>
-              </v-expansion-panel-header>
-            </v-expansion-panel>
-
             <v-expansion-panel>
-              <v-expansion-panel-header disable-icon-rotate>
-                Password
-                <template v-slot:actions>
-                  <v-icon>
-                    lock
-                  </v-icon>
-                </template>
+              <v-expansion-panel-header>
+                Room
               </v-expansion-panel-header>
 
               <v-expansion-panel-content>
                 <v-form>
+                  <v-text-field
+                    readonly
+                    :value="room"
+                    label="Room Name"
+                  />
+
                   <v-text-field
                     v-model="password"
                     name="password"
@@ -133,7 +121,7 @@ export default {
       error: null,
       password: null,
       passwordNeeded: false,
-      panels: [],
+      panels: [1],
     };
   },
 
@@ -184,7 +172,7 @@ export default {
 
         if (e instanceof JoinError) {
           this.passwordNeeded = true;
-          this.panels = [2];
+          this.panels = [1];
         }
       }
 

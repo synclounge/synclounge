@@ -45,6 +45,7 @@
 
           <v-expansion-panels
             multiple
+            :value="panels"
           >
             <v-expansion-panel
               :readonly="GET_CONFIG.force_slplayer"
@@ -63,32 +64,22 @@
 
             <v-expansion-panel>
               <v-expansion-panel-header>
-                Room: {{ roomName }}
+                Room
               </v-expansion-panel-header>
 
               <v-expansion-panel-content>
-                <v-text-field
-                  v-model="roomName"
-                  label="Room Name"
-                />
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-
-            <v-expansion-panel>
-              <v-expansion-panel-header disable-icon-rotate>
-                Password
-                <template v-slot:actions>
-                  <v-icon>
-                    lock
-                  </v-icon>
-                </template>
-              </v-expansion-panel-header>
-
-              <v-expansion-panel-content>
-                <v-text-field
-                  v-model="roomPassword"
-                  label="Room Password"
-                />
+                <v-form>
+                  <v-text-field
+                    v-model="roomName"
+                    label="Room Name"
+                  />
+                  <v-text-field
+                    v-model="roomPassword"
+                    label="Room Password (Optional)"
+                    type="password"
+                    autocomplete="room-password"
+                  />
+                </v-form>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -100,7 +91,7 @@
                 || !clientConnectable || loading"
               @click="createRoom"
             >
-              Create Room
+              Connect
             </v-btn>
 
             <v-spacer />
@@ -140,6 +131,7 @@ export default {
       clientConnectable: true,
       roomName: this.makeRandomRoomName(),
       roomPassword: null,
+      panels: [1],
     };
   },
 
