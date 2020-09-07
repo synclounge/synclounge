@@ -400,7 +400,7 @@
               <plexthumb
                 bottom-only
                 :content="ep"
-                :img="getLittleThumb(ep)"
+                type="thumb"
                 :class="{ highlightBorder: ep.index === contents.index }"
                 style="margin: 3%;"
                 :machine-identifier="machineIdentifier"
@@ -426,7 +426,6 @@
             >
               <plexthumb
                 :content="movie"
-                :img="getLittleThumb(movie)"
                 style="margin: 3%;"
                 :machine-identifier="machineIdentifier"
                 type="thumb"
@@ -665,16 +664,6 @@ export default {
           count: 7,
         });
       }
-    },
-
-    getLittleThumb(content) {
-      return this.GET_MEDIA_IMAGE_URL({
-        machineIdentifier: this.machineIdentifier,
-        mediaUrl: content.thumb,
-        width: getAppWidth() / 2,
-        height: getAppHeight() / 2,
-        blur: 0,
-      });
     },
 
     markWatched() {

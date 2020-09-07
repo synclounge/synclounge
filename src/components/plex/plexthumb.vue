@@ -130,20 +130,6 @@ export default {
       default: '',
     },
 
-    height: {
-      type: Number,
-      default: 0,
-    },
-
-    fullTitle: {
-      type: Boolean,
-    },
-
-    img: {
-      type: String,
-      default: '',
-    },
-
     bottomOnly: {
       type: Boolean,
     },
@@ -167,43 +153,16 @@ export default {
     ]),
 
     imgUrl() {
-      const width = Math.round(this.fullwidth * 2);
-      if (this.type === 'thumb') {
-        return this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.machineIdentifier,
-          mediaUrl: this.content.thumb,
-          width,
-          height: 1000,
-        });
-      }
-
-      if (!this.hovering && this.spoilerFilter && !this.content.viewCount) {
-        return this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.machineIdentifier,
-          mediaUrl: this.content.art,
-          width,
-          height: 1000,
-        });
-      }
-
-      if (this.img) {
-        return this.img;
-      }
-
-      if (this.type === 'art') {
-        return this.GET_MEDIA_IMAGE_URL({
-          machineIdentifier: this.machineIdentifier,
-          mediaUrl: this.content.art,
-          width,
-          height: 1000,
-        });
-      }
+      const mediaUrl = (!this.hovering && this.spoilerFilter && !this.content.viewCount)
+      || this.type === 'art'
+        ? this.content.art
+        : this.content.thumb;
 
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
-        mediaUrl: this.content.thumb,
-        width,
-        height: 1000,
+        mediaUrl,
+        width: Math.round(this.fullwidth * 2),
+        height: this.calculatedHeight,
       });
     },
 
@@ -227,22 +186,11 @@ export default {
     },
 
     calculatedHeight() {
-      if (this.height) {
-        return `${this.height}em`;
-      }
+      const multiplier = this.type === 'art' || this.content.type === 'episode'
+        ? 0.7
+        : 1.5;
 
-      if (this.type === 'art') {
-        return `${Math.round(this.fullwidth * 0.7)}px`;
-      }
-
-      if (this.content.type === 'movie') {
-        return `${Math.round(this.fullwidth * 1.5)}px`;
-      }
-
-      if (this.content.type === 'episode') {
-        return `${Math.round(this.fullwidth * 0.7)}px`;
-      }
-      return `${Math.round(this.fullwidth * 1.5)}px`;
+      return Math.round(this.fullwidth * multiplier);
     },
 
     showProgressBar() {
