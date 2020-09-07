@@ -151,11 +151,11 @@ export default {
     },
 
     async postAuth() {
-      await this.FETCH_PLEX_DEVICES_IF_NEEDED();
-      this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE();
-      if (this.IS_USER_AUTHORIZED) {
-        this.$router.push(this.$route.query.redirect || '/');
-      }
+      this.$router.push(this.$route.query.redirect || '/');
+      await Promise.all([
+        this.FETCH_PLEX_DEVICES_IF_NEEDED(),
+        this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE(),
+      ]);
     },
 
     plexAuthChecker: CAF(function* plexAuthChecker(signal) {
