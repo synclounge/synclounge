@@ -111,15 +111,15 @@ jobs:
         name: Cache Docker layers
         uses: actions/cache@v2
         env:
-          cache-name: cache-buildx
+          cache-name: buildx
         id: cache
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}-${{ env.cache-name }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
-            ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-${{ env.cache-name }}-
+            ${{ runner.os }}-
 
       -
         name: Login to DockerHub
@@ -189,15 +189,15 @@ jobs:
         name: Cache Docker layers
         uses: actions/cache@v2
         env:
-          cache-name: cache-buildx-web
+          cache-name: buildx-web
         id: cache
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}-${{ env.cache-name }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
-            ${{ runner.os }}-buildx-${{ hashFiles('**/package-lock.json') }}
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-${{ env.cache-name }}-
+            ${{ runner.os }}-
 
       -
         name: Login to DockerHub
