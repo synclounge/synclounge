@@ -77,3 +77,12 @@ export const isAudioSupported = ({ codec, profile }) => {
     }
   }
 };
+
+const supportedContainers = [
+  'mp4',
+  'webm',
+  'ogg',
+  'wav',
+];
+
+export const isContainerSupported = (container) => supportedContainers.includes(container);

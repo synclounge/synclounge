@@ -1,7 +1,7 @@
 import { makeUrl } from '@/utils/fetchutils';
 import { protocolExtension } from '@/utils/streamingprotocols';
 import contenttitleutils from '@/utils/contenttitleutils';
-import { isVideoSupported, isAudioSupported } from '@/utils/mediasupport';
+import { isVideoSupported, isAudioSupported, isContainerSupported } from '@/utils/mediasupport';
 import qualities from './qualities';
 
 const buggyChromeBitrate = 23000;
@@ -89,9 +89,14 @@ export default {
   },
 
   CAN_DIRECT_PLAY: (state, getters, rootState, rootGetters) => {
-    // If bitrate of file is higher than our limit, then we can't
+    if (!isContainerSupported(getters.GET_PART)) {
+      console.log(`CAN_DIRECT_PLAY: container not supported: ${getters.GET_PART.container}`);
+      return false;
+    }
+
     const videoStream = getters.GET_STREAMS.find(({ streamType }) => streamType === 1);
 
+    // If bitrate of file is higher than our limit, then we can't
     if (rootGetters['settings/GET_SLPLAYERQUALITY']
       && rootGetters['settings/GET_SLPLAYERQUALITY'] < videoStream?.bitrate) {
       console.debug('CAN_DIRECT_PLAY: false because video quality higher than desired');
