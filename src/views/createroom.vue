@@ -71,7 +71,7 @@
                 <v-form>
                   <v-text-field
                     v-model="roomName"
-                    label="Room Name"
+                    label="Room Name (Optional)"
                   />
                   <v-text-field
                     v-model="roomPassword"
@@ -110,8 +110,8 @@
 import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
-import randomWords from 'random-words';
 import JoinError from '@/utils/joinerror';
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   components: {
@@ -129,7 +129,7 @@ export default {
 
       // Default true because default client is slplayer
       clientConnectable: true,
-      roomName: this.makeRandomRoomName(),
+      roomName: null,
       roomPassword: null,
       panels: [1],
     };
@@ -172,10 +172,6 @@ export default {
       'DISCONNECT_IF_CONNECTED',
     ]),
 
-    makeRandomRoomName() {
-      return randomWords({ exactly: 3, join: ' ' });
-    },
-
     async fetchServersHealth() {
       try {
         await this.FETCH_SERVERS_HEALTH();
@@ -192,7 +188,7 @@ export default {
       try {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
           server: this.GET_BEST_SERVER,
-          room: this.roomName,
+          room: this.roomName || uuidv4(),
           password: this.roomPassword,
         });
 
@@ -209,7 +205,6 @@ export default {
 
         if (e instanceof JoinError) {
           this.error = 'Room already in use';
-          this.roomName = this.makeRandomRoomName();
         } else {
           this.error = e.message;
         }
