@@ -139,6 +139,8 @@ export default {
     if (!getters.ARE_DEVICES_CACHED && getters.GET_DEVICE_FETCH_PROMISE == null) {
       await dispatch('FETCH_PLEX_DEVICES');
     }
+
+    await getters.GET_DEVICE_FETCH_PROMISE;
   },
 
   TEST_PLEX_CONNECTION: async ({ getters }, { connection, accessToken, signal }) => {
