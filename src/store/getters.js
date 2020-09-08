@@ -16,4 +16,5 @@ export default {
   GET_NAVIGATE_TO_PLAYER: (state) => state.navigateToPlayer,
   GET_BROWSER: (state) => state.browser,
   GET_NAVIGATE_HOME: (state) => state.navigateHome,
+  IS_LIBRARY_LIST_VIEW: (state) => state.isLibraryListView,
 };

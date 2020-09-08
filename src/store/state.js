@@ -23,6 +23,7 @@ const state = () => ({
   navigateToPlayer: false,
   browser: detect(),
   navigateHome: false,
+  isLibraryListView: false,
 });
 
 export default state;

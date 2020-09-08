@@ -40,4 +40,8 @@ export default {
   SET_NAVIGATE_HOME: (state, navigate) => {
     state.navigateHome = navigate;
   },
+
+  TOGGLE_LIBRARY_LIST_VIEW: (state) => {
+    state.isLibraryListView = !state.isLibraryListView;
+  },
 };

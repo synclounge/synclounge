@@ -97,6 +97,10 @@
         v-slot:extension
       >
         <crumbs />
+
+        <v-spacer />
+
+        <router-view name="appBarView" />
       </template>
     </v-app-bar>
 
