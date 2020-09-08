@@ -40,6 +40,10 @@ jobs:
       - run: npm ci
         env:
           SKIP_BUILD: true
+      - name: Turnstyle
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: release
         name: semantic-release
         uses: ahmadnassri/action-semantic-release@v1
