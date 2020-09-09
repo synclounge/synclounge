@@ -59,14 +59,23 @@
                 :src="getThumb(library)"
               >
             </div>
-            <div
-              style="background: rgba(0, 0, 0, 0.7); position: relative; width: 100%;"
-              class="text-center pa-1"
-            >
-              <h2 class="truncate text-xs-left text-sm-center">
-                {{ library.title }}
-              </h2>
-            </div>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  v-bind="attrs"
+                  style="background: rgba(0, 0, 0, 0.7); position: relative; width: 100%;"
+                  class="text-center pa-1"
+                  v-on="on"
+                >
+                  <h2 class="truncate text-xs-left text-sm-center">
+                    {{ library.title }}
+                  </h2>
+                </div>
+              </template>
+
+              <span>{{ library.title }}</span>
+            </v-tooltip>
           </v-card>
         </v-col>
       </v-row>
