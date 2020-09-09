@@ -67,7 +67,9 @@
       :value="unwatchedPercent"
     />
 
-    <v-card-text class="pa-0">
+    <v-card-text
+      class="pa-0"
+    >
       <v-row
         dense
         no-gutters
@@ -80,12 +82,20 @@
           cols="12"
           style="max-width: 100%;"
         >
-          <div
-            class="truncate"
-            style="font-size: 0.9rem;"
-          >
-            {{ getTitle(content) }}
-          </div>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <div
+                v-bind="attrs"
+                class="truncate"
+                style="font-size: 0.9rem;"
+                v-on="on"
+              >
+                {{ getTitle(content) }}
+              </div>
+            </template>
+
+            <span>{{ getTitle(content) }}</span>
+          </v-tooltip>
         </v-col>
 
         <v-col
