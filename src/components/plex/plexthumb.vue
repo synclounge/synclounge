@@ -92,11 +92,11 @@
                 style="font-size: 0.9rem;"
                 v-on="on"
               >
-                {{ getTitle(content) }}
+                {{ getTitle(content, fullTitle) }}
               </div>
             </template>
 
-            <span>{{ getTitle(content) }}</span>
+            <span>{{ getTitle(content, fullTitle) }}</span>
           </v-tooltip>
         </v-col>
 
@@ -105,7 +105,7 @@
           style="font-size: 0.7rem;"
         >
           <div class="truncate soft-text">
-            {{ getSecondaryTitle(content) }}
+            {{ getSecondaryTitle(content, fullTitle) }}
           </div>
         </v-col>
       </v-row>
@@ -166,6 +166,10 @@ export default {
     },
 
     spoilerFilter: {
+      type: Boolean,
+    },
+
+    fullTitle: {
       type: Boolean,
     },
 

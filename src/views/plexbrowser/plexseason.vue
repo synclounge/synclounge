@@ -99,6 +99,7 @@
         <plexthumb
           :content="content"
           :machine-identifier="machineIdentifier"
+          full-title
           type="thumb"
           cols="6"
           sm="4"

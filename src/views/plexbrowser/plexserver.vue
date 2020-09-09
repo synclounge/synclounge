@@ -108,65 +108,66 @@
       </v-row>
     </template>
 
-    <v-divider
+    <template
       v-if="subsetRecentlyAdded.length > 0"
-      class="mt-3 ma-2"
-    />
-
-    <v-row
-      v-if="subsetRecentlyAdded.length > 0"
-      no-gutters
     >
-      <v-col>
-        <v-subheader>
-          Recently Added
-        </v-subheader>
-      </v-col>
+      <v-divider
+        class="mt-3 ma-2"
+      />
 
-      <v-col
-        cols="auto"
-        class="ml-auto"
+      <v-row
+        no-gutters
       >
-        <v-icon
-          style="cursor: pointer;"
-          :style="recentlyAddedDownStyle"
-          @click="recentlyAddedDown"
-        >
-          navigate_before
-        </v-icon>
+        <v-col>
+          <v-subheader>
+            Recently Added
+          </v-subheader>
+        </v-col>
 
-        <v-icon
-          :style="recentlyAddedUpStyle"
-          style="cursor: pointer;"
-          @click="recentlyAddedUp"
+        <v-col
+          cols="auto"
+          class="ml-auto"
         >
-          navigate_next
-        </v-icon>
-      </v-col>
-    </v-row>
+          <v-icon
+            style="cursor: pointer;"
+            :style="recentlyAddedDownStyle"
+            @click="recentlyAddedDown"
+          >
+            navigate_before
+          </v-icon>
 
-    <v-row
-      v-if="recentlyAdded"
-    >
-      <v-col
-        v-for="content in subsetRecentlyAdded"
-        :key="content.key"
-        cols="4"
-        sm="3"
-        md="2"
-        xl="1"
-      >
-        <plexthumb
-          :content="content"
-          :machine-identifier="machineIdentifier"
-          type="thumb"
+          <v-icon
+            :style="recentlyAddedUpStyle"
+            style="cursor: pointer;"
+            @click="recentlyAddedUp"
+          >
+            navigate_next
+          </v-icon>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col
+          v-for="content in subsetRecentlyAdded"
+          :key="content.key"
           cols="4"
           sm="3"
           md="2"
           xl="1"
-        />
-      </v-col>
-    </v-row>
+        >
+          <plexthumb
+            :content="content"
+            :machine-identifier="machineIdentifier"
+            full-title
+            type="thumb"
+            cols="4"
+            sm="3"
+            md="2"
+            xl="1"
+          />
+        </v-col>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
