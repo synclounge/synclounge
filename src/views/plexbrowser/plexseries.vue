@@ -17,10 +17,7 @@
 
   <v-container v-else>
     <v-row>
-      <v-col
-        cols="12"
-        style="background: rgba(0, 0, 0, 0.4);"
-      >
+      <v-col cols="12">
         <v-card
           class="darken-2 white--text"
           :img="getArtUrl"
@@ -30,9 +27,7 @@
             class="pa-3 ma-0"
             fluid
           >
-            <v-row
-              style="height: 100%;"
-            >
+            <v-row>
               <v-col
                 cols="12"
                 md="3"
@@ -40,7 +35,7 @@
               >
                 <v-img
                   :src="thumb"
-                  class="ma-0 pa-0 hidden-sm-and-down"
+                  class="ma-0 pa-0"
                   height="25em"
                   contain
                 />
@@ -66,6 +61,7 @@
                       v-for="genre in genres"
                       :key="genre.tag"
                       label
+                      class="mr-2"
                       color="grey"
                     >
                       {{ genre.tag }}
@@ -76,9 +72,7 @@
                     Featuring
                   </v-subheader>
 
-                  <v-row
-                    v-if="metadata"
-                  >
+                  <v-row>
                     <v-col
                       v-for="role in roles"
                       :key="role.tag"
@@ -87,10 +81,13 @@
                       lg="4"
                     >
                       <v-chip style="border: none; background: none; color: white;">
-                        <v-avatar>
-                          <img :src="role.thumb">
+                        <v-avatar left>
+                          <v-img
+                            :src="makeHttpsUrl(role.thumb)"
+                          />
                         </v-avatar>
                         {{ role.tag }}
+
                         <div
                           style="opacity: 0.7; font-size: 80%;"
                           class="pa-2"
@@ -108,24 +105,25 @@
       </v-col>
     </v-row>
 
-    <h4 class="mt-3">
-      Seasons
-    </h4>
+    <v-subheader>Seasons</v-subheader>
 
     <v-row>
       <v-col
         v-for="content in children"
         :key="content.key"
         cols="4"
+        sm="3"
         md="2"
-        lg="1"
-        class="pb-3"
+        xl="1"
       >
         <plexthumb
           :content="content"
           :machine-identifier="machineIdentifier"
           type="thumb"
-          style="margin: 7%;"
+          cols="4"
+          sm="3"
+          md="2"
+          xl="1"
         />
       </v-col>
     </v-row>
@@ -223,6 +221,12 @@ export default {
     ...mapMutations([
       'SET_ACTIVE_METADATA',
     ]),
+
+    makeHttpsUrl(urlIn) {
+      const url = new URL(urlIn);
+      url.protocol = 'https:';
+      return url.toString();
+    },
 
     async fetchMetadata() {
       this.metadata = await this.FETCH_PLEX_METADATA({

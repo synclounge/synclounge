@@ -2,26 +2,29 @@
   <v-container
     fluid
   >
-    <v-row
-      v-if="!browsingContent"
-    >
+    <v-row>
       <v-col
         v-for="content in contents"
         :key="content.ratingKey"
-        cols="3"
-        md="1"
+        cols="4"
+        sm="3"
+        md="2"
+        xl="1"
       >
         <plexthumb
           :content="content"
           :machine-identifier="machineIdentifier"
           type="thumb"
-          @contentSet="setContent(content)"
+          cols="4"
+          sm="3"
+          md="2"
+          xl="1"
         />
       </v-col>
     </v-row>
 
     <v-row
-      v-if="!browsingContent && !stopNewContent"
+      v-if="!stopNewContent"
       justify="center"
       align="start"
     >
@@ -63,7 +66,6 @@ export default {
 
   data() {
     return {
-      browsingContent: null,
       startingIndex: 0,
       size: 100,
 
@@ -107,10 +109,6 @@ export default {
         librarySectionID: this.sectionId,
         librarySectionTitle: library.title,
       });
-    },
-
-    setContent(content) {
-      this.browsingContent = content;
     },
 
     async onIntersect(entries, observer, isIntersecting) {
