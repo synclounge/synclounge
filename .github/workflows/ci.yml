@@ -2,8 +2,8 @@ name: ci
 
 on:
   push:
-    branches:
-      - '!master'
+    branches-ignore:
+      - 'master'
 
   pull_request:
 
