@@ -49,6 +49,9 @@ const defaults = {
   synclounge_upnext_trigger_time_from_end: 45000,
   synclounge_upnext_popup_lifetime: 60000,
 
+  default_party_pause_enabled: true,
+  default_auto_host_enabled: true,
+
   force_slplayer: false,
 
   // Skip ahead time in ms
