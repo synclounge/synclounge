@@ -56,7 +56,7 @@
                     {{ metadata.summary }}
                   </p>
 
-                  <div>
+                  <div v-if="genres.length > 0">
                     <v-chip
                       v-for="genre in genres"
                       :key="genre.tag"
@@ -68,35 +68,37 @@
                     </v-chip>
                   </div>
 
-                  <v-subheader class="white--text">
-                    Featuring
-                  </v-subheader>
+                  <template v-if="roles.length > 0">
+                    <v-subheader class="white--text">
+                      Featuring
+                    </v-subheader>
 
-                  <v-row>
-                    <v-col
-                      v-for="role in roles"
-                      :key="role.tag"
-                      cols="12"
-                      md="6"
-                      lg="4"
-                    >
-                      <v-chip style="border: none; background: none; color: white;">
-                        <v-avatar left>
-                          <v-img
-                            :src="makeHttpsUrl(role.thumb)"
-                          />
-                        </v-avatar>
-                        {{ role.tag }}
+                    <v-row>
+                      <v-col
+                        v-for="role in roles"
+                        :key="role.tag"
+                        cols="12"
+                        md="6"
+                        lg="4"
+                      >
+                        <v-chip style="border: none; background: none; color: white;">
+                          <v-avatar left>
+                            <v-img
+                              :src="makeHttpsUrl(role.thumb)"
+                            />
+                          </v-avatar>
+                          {{ role.tag }}
 
-                        <div
-                          style="opacity: 0.7; font-size: 80%;"
-                          class="pa-2"
-                        >
-                          {{ role.role }}
-                        </div>
-                      </v-chip>
-                    </v-col>
-                  </v-row>
+                          <div
+                            style="opacity: 0.7; font-size: 80%;"
+                            class="pa-2"
+                          >
+                            {{ role.role }}
+                          </div>
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+                  </template>
                 </v-container>
               </v-col>
             </v-row>
@@ -181,17 +183,11 @@ export default {
     },
 
     roles() {
-      if (!this.metadata) {
-        return [];
-      }
-      return this.metadata.Role.slice(0, 6);
+      return this.metadata?.Role?.slice(0, 6) || [];
     },
 
     genres() {
-      if (!this.metadata) {
-        return [];
-      }
-      return this.metadata.Genre.slice(0, 5);
+      return this.metadata?.Genre?.slice(0, 5) || [];
     },
 
     thumb() {
