@@ -171,6 +171,13 @@ jobs:
             BUILD_DATE=${{ steps.prep.outputs.build-date }}
             REVISION=${{ github.sha }}
 
+      - name: Update repo description
+        uses: peter-evans/dockerhub-description@v2
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKERHUB_REPOSITORY: ${{ matrix.docker-image }}
+
       - name: Inspect
         run: |
           docker buildx imagetools inspect ${{ matrix.docker-image }}:${{ needs.release.outputs.release-version }}
