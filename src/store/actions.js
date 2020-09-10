@@ -28,10 +28,17 @@ export default {
     commit('SET_SNACKBAR_OPEN', true);
   },
 
-  FETCH_CONFIG: async ({ commit }) => {
-    const config = await fetchJson('config.json');
-
-    commit('SET_CONFIGURATION', config);
+  FETCH_CONFIG: async ({ dispatch, commit }) => {
+    try {
+      const config = await fetchJson('config.json');
+      commit('SET_CONFIGURATION', config);
+    } catch (e) {
+      console.error(e);
+      await dispatch('DISPLAY_NOTIFICATION', {
+        text: 'Error fetching config',
+        color: 'error',
+      });
+    }
   },
 
   NAVIGATE_HOME: async ({ getters, commit }) => {
