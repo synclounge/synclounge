@@ -111,7 +111,12 @@
         </template>
 
         <div>{{ getTitle(content, fullTitle) }}</div>
-        <div>{{ getSecondaryTitle(content, fullTitle) }}</div>
+        <div
+          class="soft-text"
+          style="font-size: 0.7rem;"
+        >
+          {{ getSecondaryTitle(content, fullTitle) }}
+        </div>
       </v-tooltip>
     </v-card-text>
   </v-card>
