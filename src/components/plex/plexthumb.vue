@@ -72,43 +72,47 @@
     <v-card-text
       class="pa-0"
     >
-      <v-row
-        dense
-        no-gutters
-        align="end"
-        class="text-xs-left pa-1 white--text"
-        style="max-width: 100%;"
+      <v-tooltip
+        bottom
+        nudge-top="10"
       >
-        <v-col
-          v-if="!bottomOnly"
-          cols="12"
-          style="max-width: 100%;"
-        >
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ on, attrs }">
+          <v-row
+            v-bind="attrs"
+            dense
+            no-gutters
+            align="end"
+            class="text-xs-left pa-1 white--text"
+            style="max-width: 100%;"
+            v-on="on"
+          >
+            <v-col
+              v-if="!bottomOnly"
+              cols="12"
+              style="max-width: 100%;"
+            >
               <div
-                v-bind="attrs"
                 class="truncate"
                 style="font-size: 0.9rem;"
-                v-on="on"
               >
                 {{ getTitle(content, fullTitle) }}
               </div>
-            </template>
+            </v-col>
 
-            <span>{{ getTitle(content, fullTitle) }}</span>
-          </v-tooltip>
-        </v-col>
+            <v-col
+              cols="12"
+              style="font-size: 0.7rem;"
+            >
+              <div class="truncate soft-text">
+                {{ getSecondaryTitle(content, fullTitle) }}
+              </div>
+            </v-col>
+          </v-row>
+        </template>
 
-        <v-col
-          cols="12"
-          style="font-size: 0.7rem;"
-        >
-          <div class="truncate soft-text">
-            {{ getSecondaryTitle(content, fullTitle) }}
-          </div>
-        </v-col>
-      </v-row>
+        <div>{{ getTitle(content, fullTitle) }}</div>
+        <div>{{ getSecondaryTitle(content, fullTitle) }}</div>
+      </v-tooltip>
     </v-card-text>
   </v-card>
 </template>
