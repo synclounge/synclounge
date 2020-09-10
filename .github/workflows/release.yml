@@ -134,6 +134,9 @@ jobs:
         with:
           version: latest
 
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+
       - name: Cache Docker layers
         uses: actions/cache@v2
         id: cache
@@ -159,7 +162,7 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./${{ matrix.dockerfile}}
-          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
+          platforms: ${{ steps.buildx.outputs.platforms }}
           tags: |
             ${{ matrix.docker-image }}:latest
             ${{ matrix.docker-image }}:${{ needs.release.outputs.release-version }}
