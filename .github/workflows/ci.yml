@@ -21,7 +21,7 @@ jobs:
         run: |
           DOCKER_IMAGE=${{ github.event.repository.full_name }}
 
-          TAGS="${DOCKER_IMAGE}:edge"
+          TAGS="${DOCKER_IMAGE}:${{ github.sha }}"
 
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
@@ -90,7 +90,7 @@ jobs:
         run: |
           DOCKER_IMAGE=ttshivers/syncloungeweb
 
-          TAGS="${DOCKER_IMAGE}:edge"
+          TAGS="${DOCKER_IMAGE}:${{ github.sha }}"
 
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
