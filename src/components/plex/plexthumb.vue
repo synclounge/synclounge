@@ -280,31 +280,6 @@ export default {
       return false;
     },
 
-    unwatched() {
-      if (this.content.type === 'movie' || this.content.type === 'episode') {
-        return !(this.content.viewCount && this.content.viewCount > 0);
-      }
-
-      return false;
-    },
-
-    unfinished() {
-      // Lol
-      if (this.content.type === 'movie' || this.content.type === 'episode') {
-        return !this.content.viewCount && !this.content.viewOffset;
-      }
-
-      if (this.content.viewedLeafCount === 0) {
-        return false;
-      }
-
-      if (this.content.leafCount - this.content.viewedLeafCount < 1) {
-        return false;
-      }
-
-      return true;
-    },
-
     unwatchedCount() {
       if (this.content.type === 'show' || this.content.type === 'season') {
         return this.content.leafCount - this.content.viewedLeafCount;
