@@ -18,9 +18,9 @@ jobs:
           - Dockerfile.web
         include:
           - dockerfile: Dockerfile
-            docker-image: localhost/${{ github.event.repository.full_name }}
+            docker-image: localhost:5000/${{ github.event.repository.full_name }}
           - dockerfile: Dockerfile.web
-            docker-image: localhost/${{ github.event.repository.full_name }}web
+            docker-image: localhost:5000/${{ github.event.repository.full_name }}web
 
     services:
       registry:
