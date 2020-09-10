@@ -3,94 +3,66 @@
     class="pt-0"
     fluid
   >
-    <v-row
-      v-if="!libraries && !browsingLibrary && !selectedItem"
-      align="center"
-    >
+    <v-subheader>
+      Libraries
+    </v-subheader>
+
+    <v-row>
       <v-col
+        v-for="library in libraries"
+        :key="library.name"
         cols="12"
-        style="position: relative;"
+        sm="6"
+        md="3"
+        lg="2"
       >
-        <v-progress-circular
-          style="left: 50%; top: 50%;"
-          :size="60"
-          indeterminate
-          class="amber--text"
-        />
+        <v-tooltip
+          bottom
+          nudge-top="10"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-card
+              :img="getArtLibrary(library)"
+              v-bind="attrs"
+              flat
+              :to="{ name: 'library', params: {
+                machineIdentifier: machineIdentifier,
+                sectionId: library.key,
+              }}"
+              v-on="on"
+            >
+              <div class="hidden-xs-only pa-2">
+                <v-img
+                  height="75"
+                  contain
+                  :src="getThumb(library)"
+                />
+              </div>
+
+              <v-card-title
+                style="background: rgba(0, 0, 0, 0.7);"
+                class="px-3 py-1"
+              >
+                {{ library.title }}
+              </v-card-title>
+            </v-card>
+          </template>
+
+          <span>{{ library.title }}</span>
+        </v-tooltip>
       </v-col>
     </v-row>
 
-    <template
-      v-if="!browsingLibrary && !selectedItem && libraries"
-    >
-      <div v-if="!libraries && !browsingLibrary">
-        <v-progress-circular
-          active
-          large
-        />
-      </div>
-
-      <v-subheader>Libraries</v-subheader>
-      <v-row
-        v-if="libraries && !browsingLibrary"
-        no-gutters
-      >
-        <v-col
-          v-for="library in libraries"
-          :key="library.name"
-          cols="12"
-          md="3"
-          lg="2"
-          class="pa-1"
-        >
-          <v-card
-            :img="getArtLibrary(library)"
-            flat
-            class="clickable text-center"
-            style="max-width: 100%; cursor: pointer; border-radius: 0 !important;"
-            @click.native="setLibrary(library)"
-          >
-            <div
-              style="position: relative; width: 100%; background: rgba(0, 0, 0, 0.4); height: 8em;"
-              class="hidden-xs-only"
-            >
-              <img
-                style="height: 70%; display: block; margin-left: auto; margin-right: auto;"
-                :src="getThumb(library)"
-              >
-            </div>
-
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <div
-                  v-bind="attrs"
-                  style="background: rgba(0, 0, 0, 0.7); position: relative; width: 100%;"
-                  class="text-center pa-1"
-                  v-on="on"
-                >
-                  <h2 class="truncate text-xs-left text-sm-center">
-                    {{ library.title }}
-                  </h2>
-                </div>
-              </template>
-
-              <span>{{ library.title }}</span>
-            </v-tooltip>
-          </v-card>
-        </v-col>
-      </v-row>
-
+    <template v-if="subsetOnDeck.length > 0">
       <v-divider
-        v-if="subsetOnDeck.length > 0"
         class="mt-3 ma-2"
       />
 
       <v-row
-        v-if="subsetOnDeck.length > 0"
         no-gutters
       >
         <v-col>
-          <v-subheader class="compact-header">
+          <v-subheader>
             On Deck
           </v-subheader>
         </v-col>
@@ -117,38 +89,40 @@
         </v-col>
       </v-row>
 
-      <v-row
-        v-if="onDeck"
-        no-gutters
-      >
+      <v-row>
         <v-col
           v-for="content in subsetOnDeck"
           :key="content.key"
-          sm="6"
-          md="4"
-          lg="3"
-          class="pb-3 pa-1"
+          cols="12"
+          sm="4"
+          md="3"
+          xl="2"
         >
           <plexthumb
             :content="content"
             :machine-identifier="machineIdentifier"
             type="art"
-            @contentSet="setContent(content)"
+            cols="12"
+            sm="4"
+            md="3"
+            xl="2"
           />
         </v-col>
       </v-row>
+    </template>
 
+    <template
+      v-if="subsetRecentlyAdded.length > 0"
+    >
       <v-divider
-        v-if="subsetRecentlyAdded.length > 0"
         class="mt-3 ma-2"
       />
 
       <v-row
-        v-if="subsetRecentlyAdded.length > 0"
         no-gutters
       >
         <v-col>
-          <v-subheader class="compact-header">
+          <v-subheader>
             Recently Added
           </v-subheader>
         </v-col>
@@ -175,26 +149,24 @@
         </v-col>
       </v-row>
 
-      <v-row
-        v-if="recentlyAdded"
-        justify="space-between"
-        no-gutters
-      >
+      <v-row>
         <v-col
           v-for="content in subsetRecentlyAdded"
           :key="content.key"
           cols="4"
-          sm="2"
-          md="1"
-          class="pb-3 pa-3"
+          sm="3"
+          md="2"
+          xl="1"
         >
           <plexthumb
             :content="content"
             :machine-identifier="machineIdentifier"
-            type="thumb"
             full-title
-            locked
-            @contentSet="setContent(content)"
+            type="thumb"
+            cols="4"
+            sm="3"
+            md="2"
+            xl="1"
           />
         </v-col>
       </v-row>
@@ -220,12 +192,8 @@ export default {
 
   data() {
     return {
-      browsingLibrary: null,
-      selectedItem: null,
-
       recentlyAdded: null,
       onDeck: null,
-
       onDeckOffset: 0,
       recentlyAddedOffset: 0,
     };
@@ -240,22 +208,24 @@ export default {
     recentItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs': return 3;
-        case 'sm': return 6;
-        case 'md': return 12;
-        case 'lg': return 12;
-        case 'xl': return 12;
+        case 'sm': return 4;
+        case 'md':
+        case 'lg': return 6;
         default: return 12;
       }
     },
 
     onDeckItemsPer() {
       switch (this.$vuetify.breakpoint.name) {
-        case 'xs': return 1;
-        case 'sm': return 2;
-        case 'md': return 3;
-        case 'lg': return 4;
-        case 'xl': return 4;
-        default: return 4;
+        case 'xs':
+          return 1;
+        case 'sm':
+          return 3;
+        case 'md':
+        case 'lg':
+          return 4;
+        default:
+          return 6;
       }
     },
 
@@ -348,7 +318,7 @@ export default {
     fetchData() {
       // TODO: handle abort stuff
       return Promise.all([
-        this.FETCH_RECENTLY_ADDED_MEDIA({ machineIdentifier: this.machineIdentifier }),
+        this.fetchRecentlyAdded(),
         this.fetchOnDeck(),
         this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({ machineIdentifier: this.machineIdentifier }),
       ]);
@@ -362,13 +332,10 @@ export default {
       });
     },
 
-    setContent(content) {
-      this.selectedItem = content;
-    },
-
-    setLibrary(library) {
-      this.$router.push(`/browse/${this.machineIdentifier}/${library.key}`);
-      // this.browsingLibrary = library
+    async fetchRecentlyAdded() {
+      this.recentlyAdded = await this.FETCH_RECENTLY_ADDED_MEDIA({
+        machineIdentifier: this.machineIdentifier,
+      });
     },
 
     onDeckDown() {
@@ -424,9 +391,9 @@ export default {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
         mediaUrl: object.art,
-        width: getAppWidth(),
-        height: getAppHeight(),
-        blur: 15,
+        width: getAppWidth() / 4,
+        height: getAppHeight() / 4,
+        blur: 8,
       });
     },
 
@@ -434,16 +401,10 @@ export default {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
         mediaUrl: object.thumb,
-        width: getAppWidth() / 4,
-        height: getAppHeight() / 4,
+        width: 75,
+        height: 75,
       });
     },
   },
 };
 </script>
-
-<style scoped>
-div.compact-header {
-  height: auto;
-}
-</style>

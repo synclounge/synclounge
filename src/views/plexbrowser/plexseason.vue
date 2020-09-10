@@ -15,10 +15,7 @@
     </v-col>
   </v-row>
 
-  <v-container
-    v-else
-    fluid
-  >
+  <v-container v-else>
     <v-row>
       <v-col cols="12">
         <v-card
@@ -27,13 +24,10 @@
         >
           <v-container
             style="background: rgba(0, 0, 0, 0.6);"
-            class="pa-0 ma-0"
+            class="pa-3 ma-0"
             fluid
-            grid-list-lg
           >
-            <v-row
-              style="min-height: 100%;"
-            >
+            <v-row>
               <v-col
                 cols="12"
                 md="3"
@@ -50,13 +44,10 @@
               <v-col
                 cols="12"
                 md="9"
-                style="position: relative;"
               >
                 <h1> {{ metadata.title1 }}</h1>
 
-                <h3 style="font-weight: bold;">
-                  {{ metadata.title2 }}
-                </h3>
+                <h3> {{ metadata.title2 }} </h3>
 
                 <p> {{ metadata.Metadata.length }} episodes </p>
 
@@ -72,6 +63,7 @@
                 <div>
                   <v-chip
                     v-if="metadata.grandparentContentRating"
+                    class="mr-2"
                     label
                     color="grey"
                   >
@@ -93,27 +85,26 @@
       </v-col>
     </v-row>
 
-    <h4 class="mt-3">
-      Episodes
-    </h4>
+    <v-subheader>Episodes</v-subheader>
 
-    <v-divider />
-
-    <v-row
-      class="row mt-3"
-    >
+    <v-row>
       <v-col
         v-for="content in metadata.Metadata"
         :key="content.key"
         cols="6"
-        md="2"
-        class="pb-3"
+        sm="4"
+        md="3"
+        xl="2"
       >
         <plexthumb
           :content="content"
           :machine-identifier="machineIdentifier"
-          type="thumb"
           full-title
+          type="thumb"
+          cols="6"
+          sm="4"
+          md="3"
+          xl="2"
         />
       </v-col>
     </v-row>
@@ -156,7 +147,7 @@ export default {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
         mediaUrl: this.metadata.banner,
-        width: getAppWidth() / 2,
+        width: getAppWidth(),
         height: getAppHeight(),
         blur: 2,
       });

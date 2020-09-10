@@ -6,14 +6,15 @@
     color="transparent"
     @mouseover="hovering = true"
     @mouseout="hovering = false"
-    @click.native="emitContentClicked(content)"
   >
     <v-img
       data-tilt
+      :aspect-ratio="1 / inverseAspectRatio"
       class="white--text"
       style="position: relative;"
-      :height="calculatedHeight"
       :src="imgUrl"
+      :srcset="srcset"
+      :sizes="sizes"
     >
       <v-container
         class="pa-0 ma-0"
@@ -43,8 +44,9 @@
             </div>
 
             <div
-              v-if="content.Media && content.Media.length != 1 && !showServer"
+              v-if="content.Media && content.Media.length > 1 && !showServer"
               style="position: absolute;
+                    top: 0;
                     right: 0;
                     background-color: rgba(43, 43, 191, 0.8);
                     min-width: 16px;
@@ -70,43 +72,52 @@
     <v-card-text
       class="pa-0"
     >
-      <v-row
-        dense
-        no-gutters
-        align="end"
-        class="text-xs-left pa-1 white--text"
-        style="max-width: 100%;"
+      <v-tooltip
+        bottom
+        nudge-top="10"
       >
-        <v-col
-          v-if="!bottomOnly"
-          cols="12"
-          style="max-width: 100%;"
-        >
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ on, attrs }">
+          <v-row
+            v-bind="attrs"
+            dense
+            no-gutters
+            align="end"
+            class="text-xs-left pa-1 white--text"
+            style="max-width: 100%;"
+            v-on="on"
+          >
+            <v-col
+              v-if="!bottomOnly"
+              cols="12"
+              style="max-width: 100%;"
+            >
               <div
-                v-bind="attrs"
                 class="truncate"
                 style="font-size: 0.9rem;"
-                v-on="on"
               >
-                {{ getTitle(content) }}
+                {{ getTitle(content, fullTitle) }}
               </div>
-            </template>
+            </v-col>
 
-            <span>{{ getTitle(content) }}</span>
-          </v-tooltip>
-        </v-col>
+            <v-col
+              cols="12"
+              style="font-size: 0.7rem;"
+            >
+              <div class="truncate soft-text">
+                {{ getSecondaryTitle(content, fullTitle) }}
+              </div>
+            </v-col>
+          </v-row>
+        </template>
 
-        <v-col
-          cols="12"
+        <div>{{ getTitle(content, fullTitle) }}</div>
+        <div
+          class="soft-text"
           style="font-size: 0.7rem;"
         >
-          <div class="truncate soft-text">
-            {{ getSecondaryTitle(content) }}
-          </div>
-        </v-col>
-      </v-row>
+          {{ getSecondaryTitle(content, fullTitle) }}
+        </div>
+      </v-tooltip>
     </v-card-text>
   </v-card>
 </template>
@@ -116,6 +127,25 @@ import { mapGetters } from 'vuex';
 import VanillaTilt from 'vanilla-tilt';
 import contentTitle from '@/mixins/contentTitle';
 import getContentLink from '@/utils/contentlinks';
+import { getAppWidth, getAppHeight } from '@/utils/sizing';
+
+const imageWidths = [
+  100, 200, 300, 400, 600, 800, 1000, 2000, 4000, 8000,
+];
+
+// This order is important (biggest to smallest)
+const breakpoints = ['xl', 'lg', 'md', 'sm'];
+const breakpointProps = (() => breakpoints.reduce((props, val) => ({
+  ...props,
+  [val]: {
+    type: [Boolean, String, Number],
+    default: false,
+  },
+}), {}))();
+
+const getSizeValue = (cols) => `calc((100vw - 24px) / (12 / ${cols}) - 24px)`;
+
+const getSrcSize = (minWidth, cols) => `(min-width: ${minWidth}px) ${getSizeValue(cols)}`;
 
 export default {
   mixins: [contentTitle],
@@ -147,11 +177,20 @@ export default {
     spoilerFilter: {
       type: Boolean,
     },
+
+    fullTitle: {
+      type: Boolean,
+    },
+
+    cols: {
+      type: [String, Number],
+      default: 12,
+    },
+    ...breakpointProps,
   },
 
   data() {
     return {
-      fullwidth: null,
       hovering: false,
     };
   },
@@ -162,18 +201,58 @@ export default {
       'GET_PLEX_SERVER',
     ]),
 
-    imgUrl() {
-      const mediaUrl = (!this.hovering && this.spoilerFilter && !this.content.viewCount)
+    mediaUrl() {
+      return (!this.hovering && this.spoilerFilter && !this.content.viewCount)
       || this.type === 'art'
         ? this.content.art
         : this.content.thumb;
+    },
 
+    // 1 / aspect ratio
+    inverseAspectRatio() {
+      // Movie posters have 2:3 aspect ratio
+      return this.type === 'art' || this.content.type === 'episode'
+        ? 9 / 16
+        : 3 / 2;
+    },
+
+    imgUrl() {
       return this.GET_MEDIA_IMAGE_URL({
         machineIdentifier: this.machineIdentifier,
-        mediaUrl,
-        width: Math.round(this.fullwidth * 2),
-        height: this.calculatedHeight,
+        mediaUrl: this.mediaUrl,
+        width: getAppWidth(),
+        height: getAppHeight(),
       });
+    },
+
+    srcset() {
+      return imageWidths.map((width) => `${this.getImageUrl(width)} ${width}w`).join(' ,');
+    },
+
+    // Object with keys of breakpoint codes and values of their minumum width
+    breakpointMins() {
+      const {
+        xs, sm, md, lg,
+      } = this.$vuetify.breakpoint.thresholds;
+
+      return {
+        xl: lg,
+        lg: md,
+        md: sm,
+        sm: xs,
+      };
+    },
+
+    sizes() {
+      const usedBreakpointSrcSizes = breakpoints.filter((code) => this[code])
+        .map((code) => getSrcSize(this.breakpointMins[code], this[code]));
+
+      const srcSizes = [
+        ...usedBreakpointSrcSizes,
+        getSizeValue(this.cols),
+      ];
+
+      return srcSizes.join(', ');
     },
 
     link() {
@@ -195,14 +274,6 @@ export default {
       return false;
     },
 
-    calculatedHeight() {
-      const multiplier = this.type === 'art' || this.content.type === 'episode'
-        ? 0.7
-        : 1.5;
-
-      return Math.round(this.fullwidth * multiplier);
-    },
-
     showProgressBar() {
       if (this.content.type === 'movie' || this.content.type === 'episode') {
         return this.content.viewOffset && this.content.viewOffset > 0;
@@ -216,31 +287,6 @@ export default {
       }
 
       return false;
-    },
-
-    unwatched() {
-      if (this.content.type === 'movie' || this.content.type === 'episode') {
-        return !(this.content.viewCount && this.content.viewCount > 0);
-      }
-
-      return false;
-    },
-
-    unfinished() {
-      // Lol
-      if (this.content.type === 'movie' || this.content.type === 'episode') {
-        return !this.content.viewCount && !this.content.viewOffset;
-      }
-
-      if (this.content.viewedLeafCount === 0) {
-        return false;
-      }
-
-      if (this.content.leafCount - this.content.viewedLeafCount < 1) {
-        return false;
-      }
-
-      return true;
     },
 
     unwatchedCount() {
@@ -258,13 +304,7 @@ export default {
     },
   },
 
-  created() {
-    window.addEventListener('resize', this.handleResize);
-  },
-
   mounted() {
-    this.fullwidth = this.$el.offsetWidth;
-
     if (this.type === 'thumb') {
       VanillaTilt.init(this.$el, {
         reverse: true, // reverse the tilt direction
@@ -283,17 +323,14 @@ export default {
     }
   },
 
-  beforeDestroy() {
-    window.removeEventListener('resize', this.handleResize);
-  },
-
   methods: {
-    emitContentClicked(content) {
-      this.$emit('contentSet', content);
-    },
-
-    handleResize() {
-      this.fullwidth = this.$el.offsetWidth;
+    getImageUrl(width) {
+      return this.GET_MEDIA_IMAGE_URL({
+        machineIdentifier: this.machineIdentifier,
+        mediaUrl: this.mediaUrl,
+        width,
+        height: Math.round(width * this.inverseAspectRatio),
+      });
     },
   },
 };

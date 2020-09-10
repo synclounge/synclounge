@@ -1,5 +1,5 @@
 export default {
-  getTitle: (metadata) => {
+  getTitle: (metadata, fullTitle) => {
     switch (metadata.type) {
       case 'movie':
         return metadata.title;
@@ -8,17 +8,21 @@ export default {
         return metadata.title;
 
       case 'season':
-        return metadata.title;
+        return fullTitle
+          ? metadata.parentTitle
+          : metadata.title;
 
       case 'episode':
-        return metadata.grandparentTitle;
+        return fullTitle
+          ? metadata.title
+          : metadata.grandparentTitle;
 
       default:
         return metadata.title;
     }
   },
 
-  getSecondaryTitle: (metadata) => {
+  getSecondaryTitle: (metadata, fullTitle) => {
     switch (metadata.type) {
       case 'movie':
         return metadata.year;
@@ -27,21 +31,19 @@ export default {
         return `${metadata.childCount} ${metadata.childCount === 1 ? 'season' : 'seasons'}`;
 
       case 'season':
-        return `${metadata.leafCount} episodes`;
-
-      case 'album':
-        return metadata.year;
-
-      case 'artist':
-        return '';
+        return fullTitle
+          ? metadata.title
+          : `${metadata.leafCount} episodes`;
 
       case 'episode':
-        return `S${
-          metadata.parentIndex
-        }E${
-          metadata.index
-        } - ${
-          metadata.title}`;
+        return fullTitle
+          ? `Episode ${metadata.index}`
+          : `S${
+            metadata.parentIndex
+          }E${
+            metadata.index
+          } - ${
+            metadata.title}`;
 
       default:
         return metadata.title;

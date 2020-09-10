@@ -5,7 +5,6 @@
   >
     <v-row
       v-if="!contents"
-      row
     >
       <v-col
         cols="12"
@@ -21,8 +20,7 @@
     </v-row>
 
     <v-card
-      v-if="contents"
-      horizontal
+      v-else
       :img="getArtUrl"
       style="height: 80vh;"
       class="darken-2 white--text"
@@ -91,7 +89,7 @@
                     class="white--text"
                     @click="PRESS_STOP"
                   >
-                    <v-icon /> Stop
+                    <v-icon> stop </v-icon>
                   </v-btn>
 
                   <div v-if="!playable">
@@ -196,6 +194,7 @@
                     bottom
                     outlined
                     left
+                    class="mr-2"
                   >
                     {{ contents.Media[0].videoResolution.toUpperCase() }}
                   </v-chip>
@@ -205,6 +204,7 @@
                     color="grey darken-2"
                     small
                     label
+                    class="mr-2"
                   >
                     {{ contents.contentRating }}
                   </v-chip>
@@ -387,24 +387,26 @@
           </v-subheader>
 
           <v-row
-            v-if="parentData"
             justify="start"
           >
             <v-col
               v-for="ep in subsetParentData"
               :key="ep.key"
               cols="6"
-              md="2"
-              class="pb-3"
+              sm="4"
+              md="3"
+              xl="2"
             >
               <plexthumb
                 bottom-only
                 :content="ep"
                 type="thumb"
-                :class="{ highlightBorder: ep.index === contents.index }"
-                style="margin: 3%;"
                 :machine-identifier="machineIdentifier"
                 spoiler-filter
+                cols="6"
+                sm="4"
+                md="3"
+                xl="2"
               />
             </v-col>
           </v-row>
@@ -421,14 +423,18 @@
               v-for="movie in related"
               :key="movie.key"
               cols="4"
-              md="1"
-              class="ma-1"
+              sm="3"
+              md="2"
+              xl="1"
             >
               <plexthumb
                 :content="movie"
-                style="margin: 3%;"
                 :machine-identifier="machineIdentifier"
                 type="thumb"
+                cols="4"
+                sm="3"
+                md="2"
+                xl="1"
               />
             </v-col>
           </v-row>
@@ -514,9 +520,7 @@ export default {
   data() {
     return {
       resumeFrom: true,
-
       contents: null,
-      status: 'loading..',
       dialog: false,
       related: [],
 

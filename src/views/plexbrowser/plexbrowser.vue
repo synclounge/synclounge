@@ -1,7 +1,6 @@
 <template>
   <v-container fluid>
     <v-row
-      v-if="!selectedItem && !browsingServer"
       class="mb-3"
     >
       <v-col
@@ -71,15 +70,19 @@
         <v-col
           v-for="movie in filteredMovies"
           :key="movie.ratingKey"
-          cols="6"
-          md="3"
-          lg="1"
+          cols="4"
+          sm="3"
+          md="2"
+          xl="1"
         >
           <plexthumb
             :content="movie"
             :machine-identifier="movie.machineIdentifier"
             show-server
-            @contentSet="setContent(movie)"
+            cols="4"
+            sm="3"
+            md="2"
+            xl="1"
           />
         </v-col>
       </v-row>
@@ -97,15 +100,19 @@
         <v-col
           v-for="show in filteredShows"
           :key="show.ratingKey"
-          cols="6"
-          md="3"
-          lg="1"
+          cols="4"
+          sm="3"
+          md="2"
+          xl="1"
         >
           <plexthumb
             :content="show"
             :machine-identifier="show.machineIdentifier"
             show-server
-            @contentSet="setContent(show)"
+            cols="4"
+            sm="3"
+            md="2"
+            xl="1"
           />
         </v-col>
       </v-row>
@@ -124,15 +131,19 @@
           v-for="episode in filteredEpisodes"
           :key="episode.ratingKey"
           cols="6"
+          sm="4"
           md="3"
-          lg="2"
+          xl="2"
         >
           <plexthumb
             :content="episode"
             :machine-identifier="episode.machineIdentifier"
             show-server
             type="art"
-            @contentSet="setContent(episode)"
+            cols="6"
+            sm="4"
+            md="3"
+            xl="2"
           />
         </v-col>
       </v-row>
@@ -141,14 +152,13 @@
     <v-divider />
 
     <template
-      v-if="GET_LAST_SERVER && searchResults.length == 0"
+      v-if="GET_LAST_SERVER && searchResults.length == 0 && subsetOnDeck.length > 0"
     >
       <v-row
-        v-if="subsetOnDeck.length > 0"
         no-gutters
       >
         <v-col>
-          <v-subheader class="compact-header">
+          <v-subheader>
             Continue watching from {{ GET_LAST_SERVER.name }}
           </v-subheader>
         </v-col>
@@ -176,22 +186,24 @@
       </v-row>
 
       <v-row
-        v-if="onDeck"
         justify="center"
       >
         <v-col
           v-for="content in subsetOnDeck"
           :key="content.ratingKey"
           cols="12"
-          sm="6"
+          sm="4"
           md="3"
-          class="pb-3 pa-2"
+          xl="2"
         >
           <plexthumb
             :content="content"
             :machine-identifier="GET_LAST_SERVER_ID"
             type="art"
-            @contentSet="setContent(content)"
+            cols="12"
+            sm="4"
+            md="3"
+            xl="2"
           />
         </v-col>
       </v-row>
@@ -232,7 +244,6 @@
           md="6"
           lg="4"
           xl="3"
-          class="pa-2"
         >
           <router-link
             :to="{ name: 'server', params: { machineIdentifier: server.clientIdentifier }}"
@@ -310,10 +321,6 @@ export default {
 
   data() {
     return {
-      browsingServer: null,
-      selectedItem: null,
-      browsingContent: null,
-
       searchResults: [],
       onDeckOffset: 0,
       onDeck: null,
@@ -338,15 +345,12 @@ export default {
         case 'xs':
           return 1;
         case 'sm':
-          return 2;
+          return 3;
         case 'md':
-          return 4;
         case 'lg':
           return 4;
-        case 'xl':
-          return 4;
         default:
-          return 4;
+          return 6;
       }
     },
 
@@ -473,10 +477,6 @@ export default {
       } else {
         this.onDeckOffset += 4;
       }
-    },
-
-    setContent(content) {
-      this.selectedItem = content;
     },
 
     ownerOfServer(server) {
