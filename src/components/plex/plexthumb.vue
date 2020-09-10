@@ -130,7 +130,7 @@ import getContentLink from '@/utils/contentlinks';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 const imageWidths = [
-  100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
+  100, 200, 300, 400, 600, 800, 1000, 2000, 4000, 8000,
 ];
 
 // This order is important (biggest to smallest)
