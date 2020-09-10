@@ -69,8 +69,8 @@ export default {
         roomId: getters.GET_ROOM,
         password: getters.GET_PASSWORD,
         desiredUsername: getters.GET_DISPLAY_USERNAME,
-        desiredPartyPausingEnabled: rootGetters.GET_CONFIG.default_party_pause_enabled,
-        desiredAutoHostEnabled: rootGetters.GET_CONFIG.default_auto_host_enabled,
+        desiredPartyPausingEnabled: getters.IS_PARTY_PAUSING_ENABLED,
+        desiredAutoHostEnabled: getters.IS_AUTO_HOST_ENABLED,
         thumb: rootGetters['plex/GET_PLEX_USER'].thumb,
         syncFlexibility: rootGetters['settings/GET_SYNCFLEXIBILITY'],
         ...joinPlayerData,
@@ -156,6 +156,8 @@ export default {
     commit('SET_SOCKET_ID', null);
     commit('CLEAR_MESSAGES');
     commit('SET_MESSAGES_USER_CACHE', {});
+    commit('SET_IS_PARTY_PAUSING_ENABLED', null);
+    commit('SET_IS_AUTO_HOST_ENABLED', null);
   },
 
   SEND_MESSAGE: async ({ dispatch, getters }, msg) => {

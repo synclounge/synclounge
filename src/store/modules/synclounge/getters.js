@@ -25,8 +25,13 @@ export default {
   GET_ROOM: (state) => state.room,
   GET_USERS: (state) => state.users,
   GET_MESSAGES: (state) => state.messages,
-  IS_PARTY_PAUSING_ENABLED: (state) => state.isPartyPausingEnabled,
-  IS_AUTO_HOST_ENABLED: (state) => state.isAutoHostEnabled,
+
+  IS_PARTY_PAUSING_ENABLED: (state, getters, rootState, rootGetters) => state.isPartyPausingEnabled
+    ?? rootGetters.GET_CONFIG.default_party_pause_enabled,
+
+  IS_AUTO_HOST_ENABLED: (state, getters, rootState, rootGetters) => state.isAutoHostEnabled
+    ?? rootGetters.GET_CONFIG.default_auto_host_enabled,
+
   GET_HOST_USER: (state, getters) => getters.GET_USER(getters.GET_HOST_ID),
   AM_I_HOST: (state, getters) => getters.GET_HOST_ID === getters.GET_SOCKET_ID,
 
