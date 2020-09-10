@@ -16,7 +16,10 @@
         md="3"
         lg="2"
       >
-        <v-tooltip bottom>
+        <v-tooltip
+          bottom
+          nudge-top="10"
+        >
           <template v-slot:activator="{ on, attrs }">
             <v-card
               :img="getArtLibrary(library)"
