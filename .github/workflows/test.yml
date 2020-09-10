@@ -1,0 +1,32 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [10.x, 12.x, 13.x, 14.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: SKIP_BUILD=true npm ci
+        env:
+          SKIP_BUILD: true
+
+      - name: Lint
+        run: npm run lint -- --no-fix
+
+      - name: Build
+        run: npm run build
