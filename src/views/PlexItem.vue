@@ -397,7 +397,7 @@
               md="3"
               xl="2"
             >
-              <plexthumb
+              <PlexThumbnail
                 bottom-only
                 :content="ep"
                 type="thumb"
@@ -427,7 +427,7 @@
               md="2"
               xl="1"
             >
-              <plexthumb
+              <PlexThumbnail
                 :content="movie"
                 :machine-identifier="machineIdentifier"
                 type="thumb"
@@ -501,8 +501,10 @@ import customFormatDuration from '@/utils/customformatduration';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
+  name: 'PlexItem',
+
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   props: {
@@ -563,7 +565,7 @@ export default {
     },
 
     playable() {
-      return this.$route.fullPath.indexOf('/nowplaying') === -1;
+      return this.$route.name !== 'NowPlaying';
     },
 
     getArtUrl() {

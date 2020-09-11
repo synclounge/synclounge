@@ -50,7 +50,8 @@
 import { mapGetters, mapMutations } from 'vuex';
 
 export default {
-  name: 'Plexsettings',
+  name: 'ThePlexSettingsDialog',
+
   computed: {
     ...mapGetters('plexservers', [
       'GET_PLEX_SERVERS',

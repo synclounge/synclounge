@@ -2,7 +2,7 @@ const getContentLink = (metadata) => {
   switch (metadata.type) {
     case 'episode': {
       return {
-        name: 'content',
+        name: 'PlexEpisode',
         params: {
           machineIdentifier: metadata.machineIdentifier,
           sectionId: metadata.librarySectionID,
@@ -15,7 +15,7 @@ const getContentLink = (metadata) => {
 
     case 'season': {
       return {
-        name: 'season',
+        name: 'PlexSeason',
         params: {
           machineIdentifier: metadata.machineIdentifier,
           sectionId: metadata.librarySectionID,
@@ -28,7 +28,7 @@ const getContentLink = (metadata) => {
     case 'series':
     case 'show': {
       return {
-        name: 'series',
+        name: 'PlexSeries',
         params: {
           machineIdentifier: metadata.machineIdentifier,
           sectionId: metadata.librarySectionID,
@@ -41,7 +41,7 @@ const getContentLink = (metadata) => {
     case 'movie':
     default: {
       return {
-        name: 'movie',
+        name: 'PlexMovie',
         params: {
           machineIdentifier: metadata.machineIdentifier,
           sectionId: metadata.librarySectionID,

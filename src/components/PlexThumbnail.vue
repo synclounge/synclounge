@@ -148,6 +148,8 @@ const getSizeValue = (cols) => `calc((100vw - 24px) / (12 / ${cols}) - 24px)`;
 const getSrcSize = (minWidth, cols) => `(min-width: ${minWidth}px) ${getSizeValue(cols)}`;
 
 export default {
+  name: 'PlexThumbnail',
+
   mixins: [contentTitle],
 
   props: {

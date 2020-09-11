@@ -129,7 +129,8 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { streamingProtocols } from '@/utils/streamingprotocols';
 
 export default {
-  name: 'Settings',
+  name: 'TheSettingsDialog',
+
   computed: {
     ...mapGetters('settings', [
       'GET_AUTOPLAY',

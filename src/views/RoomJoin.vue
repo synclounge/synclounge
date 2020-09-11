@@ -24,28 +24,9 @@
             {{ error }}
           </v-alert>
 
-          <v-alert
-            v-if="GET_SERVERS_HEALTH && Object.keys(GET_SERVERS_HEALTH).length === 0"
-            prominent
-            type="error"
-          >
-            <v-row align="center">
-              <v-col class="grow">
-                No connectable SyncLounge servers
-              </v-col>
-              <v-col class="shrink">
-                <v-btn
-                  @click="fetchServersHealth"
-                >
-                  Refresh
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-alert>
-
           <v-expansion-panels
-            multiple
             :value="panels"
+            multiple
           >
             <v-expansion-panel
               :readonly="GET_CONFIG.force_slplayer"
@@ -55,7 +36,7 @@
               </v-expansion-panel-header>
 
               <v-expansion-panel-content>
-                <clientpicker
+                <PlexClientPicker
                   @loadingChange="loading = $event"
                   @clientConnectableChange="clientConnectable = $event"
                 />
@@ -70,14 +51,18 @@
               <v-expansion-panel-content>
                 <v-form>
                   <v-text-field
-                    v-model="roomName"
-                    label="Room Name (Optional)"
+                    readonly
+                    :value="room"
+                    label="Room Name"
                   />
+
                   <v-text-field
-                    v-model="roomPassword"
-                    label="Room Password (Optional)"
+                    v-model="password"
+                    name="password"
                     type="password"
+                    :error="passwordNeeded"
                     autocomplete="room-password"
+                    label="Password"
                   />
                 </v-form>
               </v-expansion-panel-content>
@@ -87,17 +72,10 @@
           <v-card-actions class="mt-2">
             <v-btn
               color="primary"
-              :disabled="!GET_SERVERS_HEALTH || Object.keys(GET_SERVERS_HEALTH).length === 0
-                || !clientConnectable || loading"
-              @click="createRoom"
+              :disabled="!clientConnectable"
+              @click="joinInvite"
             >
-              Connect
-            </v-btn>
-
-            <v-spacer />
-
-            <v-btn to="/clientselect">
-              Advanced
+              Join Invite
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -111,26 +89,40 @@ import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
 import JoinError from '@/utils/joinerror';
-import { v4 as uuidv4 } from 'uuid';
 
 export default {
+  name: 'RoomJoin',
+
   components: {
-    clientpicker: () => import('@/components/plex/clientpicker.vue'),
+    PlexClientPicker: () => import('@/components/PlexClientPicker.vue'),
   },
 
   mixins: [
     redirection,
   ],
 
+  props: {
+    room: {
+      type: String,
+      required: true,
+    },
+
+    server: {
+      type: String,
+      default: '',
+    },
+  },
+
   data() {
     return {
       loading: false,
-      error: null,
 
       // Default true because default client is slplayer
       clientConnectable: true,
-      roomName: null,
-      roomPassword: null,
+
+      error: null,
+      password: null,
+      passwordNeeded: false,
       panels: [1],
     };
   },
@@ -145,56 +137,32 @@ export default {
       'GET_ACTIVE_MEDIA_METADATA',
       'GET_CHOSEN_CLIENT',
     ]),
-
-    ...mapGetters('synclounge', [
-      'GET_SERVERS_HEALTH',
-      'GET_BEST_SERVER',
-    ]),
   },
 
   async created() {
     await this.DISCONNECT_IF_CONNECTED();
-
-    if (this.GET_CONFIG.autojoin) {
-      this.$router.push({
-        name: 'join',
-        params: this.GET_CONFIG.autojoin,
-      });
-    } else {
-      await this.fetchServersHealth();
-    }
   },
 
   methods: {
     ...mapActions('synclounge', [
-      'FETCH_SERVERS_HEALTH',
       'SET_AND_CONNECT_AND_JOIN_ROOM',
       'DISCONNECT_IF_CONNECTED',
     ]),
 
-    async fetchServersHealth() {
-      try {
-        await this.FETCH_SERVERS_HEALTH();
-      } catch (e) {
-        console.error(e);
-        this.error = 'Unable to fetch servers health';
-      }
-    },
-
-    async createRoom() {
+    async joinInvite() {
       this.error = null;
       this.loading = true;
 
       try {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
-          server: this.GET_BEST_SERVER,
-          room: this.roomName || uuidv4(),
-          password: this.roomPassword,
+          server: this.server,
+          room: this.room,
+          password: this.password,
         });
 
-        if (this.$route.name === 'CreateRoom') {
+        if (this.$route.name === 'RoomJoin') {
           if (this.GET_CHOSEN_CLIENT_ID === slPlayerClientId || !this.GET_ACTIVE_MEDIA_METADATA) {
-            this.$router.push({ name: 'browse' });
+            this.$router.push({ name: 'PlexHome' });
           } else {
             this.redirectToMediaPage();
           }
@@ -202,11 +170,11 @@ export default {
       } catch (e) {
         this.DISCONNECT_IF_CONNECTED();
         console.error(e);
+        this.error = e.message;
 
         if (e instanceof JoinError) {
-          this.error = 'Room already in use';
-        } else {
-          this.error = e.message;
+          this.passwordNeeded = true;
+          this.panels = [1];
         }
       }
 

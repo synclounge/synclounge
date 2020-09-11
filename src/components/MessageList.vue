@@ -8,7 +8,7 @@
       Chat
     </v-subheader>
 
-    <message
+    <MessageItem
       v-for="(msg, index) in GET_MESSAGES"
       :key="index"
       :message="msg"
@@ -20,8 +20,10 @@
 import { mapGetters } from 'vuex';
 
 export default {
+  name: 'MessageList',
+
   components: {
-    message: () => import('@/components/messaging/message.vue'),
+    MessageItem: () => import('@/components/MessageItem.vue'),
   },
 
   computed: {

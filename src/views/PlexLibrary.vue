@@ -59,7 +59,7 @@
         md="2"
         xl="1"
       >
-        <plexthumb
+        <PlexThumbnail
           :content="content"
           :machine-identifier="machineIdentifier"
           type="thumb"
@@ -98,8 +98,10 @@ import { intervalToDuration } from 'date-fns';
 import getContentLink from '@/utils/contentlinks';
 
 export default {
+  name: 'PlexLibrary',
+
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   props: {

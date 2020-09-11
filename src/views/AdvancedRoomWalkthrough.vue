@@ -261,7 +261,7 @@
               <v-list-item-group
                 v-model="previewClientId"
               >
-                <plexclient
+                <PlexClient
                   v-for="id in GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN"
                   :key="id"
                   :value="id"
@@ -284,10 +284,10 @@ import plexPlatformMap from '@/utils/plexplatformmap';
 import { slPlayerClientId } from '@/player/constants';
 
 export default {
-  name: 'Walkthrough',
+  name: 'AdvancedRoomWalkthrough',
 
   components: {
-    plexclient: () => import('@/components/plex/plexclient.vue'),
+    PlexClient: () => import('@/components/PlexClient.vue'),
   },
 
   data() {
@@ -413,7 +413,7 @@ export default {
 
     async chooseClient() {
       this.SET_CHOSEN_CLIENT_ID(this.previewClientId);
-      this.$router.push('/joinroom');
+      this.$router.push({ name: 'AdvancedRoomJoin' });
     },
 
     lastSeenAgo(clientTime) {

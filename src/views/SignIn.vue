@@ -50,6 +50,8 @@ import CAF from 'caf';
 import getCookie from '@/utils/getcookie';
 
 export default {
+  name: 'SignIn',
+
   data() {
     return {
       loading: false,

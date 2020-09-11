@@ -45,7 +45,7 @@
       :value="GET_CHOSEN_CLIENT_ID"
       @change="onClientClicked"
     >
-      <plexclient
+      <PlexClient
         v-for="id in GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN"
         :key="id"
         :value="id"
@@ -59,8 +59,10 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
+  name: 'PlexClientPicker',
+
   components: {
-    plexclient: () => import('@/components/plex/plexclient.vue'),
+    PlexClient: () => import('@/components/PlexClient.vue'),
   },
 
   data() {

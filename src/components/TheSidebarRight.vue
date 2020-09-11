@@ -29,7 +29,7 @@
         </v-list-item-content>
 
         <v-list-item-icon>
-          <chatsettings #default="{ on, attrs }">
+          <TheMessageSettingsMenu #default="{ on, attrs }">
             <v-btn
               icon
               class="ma-0 pa-0"
@@ -39,7 +39,7 @@
             >
               <v-icon>more_vert</v-icon>
             </v-btn>
-          </chatsettings>
+          </TheMessageSettingsMenu>
         </v-list-item-icon>
       </v-list-item>
 
@@ -250,9 +250,7 @@
 
       <v-divider />
 
-      <messages
-        class="messages"
-      />
+      <MessageList class="messages" />
     </div>
 
     <template #append>
@@ -268,10 +266,12 @@ import contentTitle from '@/mixins/contentTitle';
 import { slPlayerClientId } from '@/player/constants';
 
 export default {
+  name: 'TheSidebarRight',
+
   components: {
-    messages: () => import('@/components/messaging/messages.vue'),
-    MessageInput: () => import('@/components/messaging/MessageInput.vue'),
-    chatsettings: () => import('@/components/chatsettings.vue'),
+    MessageList: () => import('@/components/MessageList.vue'),
+    MessageInput: () => import('@/components/MessageInput.vue'),
+    TheMessageSettingsMenu: () => import('@/components/TheMessageSettingsMenu.vue'),
   },
 
   mixins: [

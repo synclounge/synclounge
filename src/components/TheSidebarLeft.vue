@@ -58,7 +58,7 @@
 
       <v-list-item
         :router="true"
-        to="/signout"
+        :to="{name: 'SignOut'}"
       >
         <v-list-item-icon>
           <v-icon color="white">
@@ -118,7 +118,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <donate #default="{ on, attrs }">
+      <DonateDialog #default="{ on, attrs }">
         <v-list-item
           v-bind="attrs"
           v-on="on"
@@ -133,7 +133,7 @@
             <v-list-item-title>Donate</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      </donate>
+      </DonateDialog>
 
       <v-spacer />
     </v-list>
@@ -161,7 +161,7 @@
         </div>
 
         <v-divider class="mt-2 mb-2" />
-        <settings class="darken-4 pa-1" />
+        <TheSettingsDialog class="darken-4 pa-1" />
       </v-card>
     </v-dialog>
 
@@ -177,7 +177,7 @@
         </div>
 
         <v-divider class="mt-2 mb-2" />
-        <plexsettings
+        <ThePlexSettingsDialog
           class="darken-4 pa-1"
         />
       </v-card>
@@ -190,10 +190,12 @@ import { mapActions, mapGetters, mapState } from 'vuex';
 import { formatDistanceToNow } from 'date-fns';
 
 export default {
+  name: 'TheSidebarLeft',
+
   components: {
-    settings: () => import('@/components/settings.vue'),
-    plexsettings: () => import('@/components/plex/plexsettings.vue'),
-    donate: () => import('@/components/donate.vue'),
+    TheSettingsDialog: () => import('@/components/TheSettingsDialog.vue'),
+    ThePlexSettingsDialog: () => import('@/components/ThePlexSettingsDialog.vue'),
+    DonateDialog: () => import('@/components/DonateDialog.vue'),
   },
 
   data() {

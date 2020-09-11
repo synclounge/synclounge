@@ -96,7 +96,7 @@
         md="3"
         xl="2"
       >
-        <plexthumb
+        <PlexThumbnail
           :content="content"
           :machine-identifier="machineIdentifier"
           full-title
@@ -116,8 +116,10 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
+  name: 'PlexSeason',
+
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   props: {

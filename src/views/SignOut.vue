@@ -16,7 +16,7 @@
 import { mapActions } from 'vuex';
 
 export default {
-  name: 'Signout',
+  name: 'SignOut',
 
   async created() {
     await this.RESET();

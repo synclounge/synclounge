@@ -114,6 +114,8 @@
 import clipboard from '@/mixins/clipboard';
 
 export default {
+  name: 'DonateDialog',
+
   mixins: [
     clipboard,
   ],

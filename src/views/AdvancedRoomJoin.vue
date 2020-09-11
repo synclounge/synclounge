@@ -418,6 +418,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 export default {
+  name: 'AdvancedRoomJoin',
+
   data() {
     return {
       selectedServer: null,
@@ -455,7 +457,7 @@ export default {
     IS_IN_ROOM: {
       handler(inRoom) {
         if (inRoom) {
-          this.$router.push({ name: 'browse' });
+          this.$router.push({ name: 'PlexHome' });
         }
       },
 

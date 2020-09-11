@@ -37,7 +37,7 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 import plexPlatformMap from '@/utils/plexplatformmap';
 
 export default {
-  name: 'Plexclient',
+  name: 'PlexClient',
 
   props: {
     clientId: {

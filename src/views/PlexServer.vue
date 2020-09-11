@@ -25,7 +25,7 @@
               :img="getArtLibrary(library)"
               v-bind="attrs"
               flat
-              :to="{ name: 'library', params: {
+              :to="{ name: 'PlexLibrary', params: {
                 machineIdentifier: machineIdentifier,
                 sectionId: library.key,
               }}"
@@ -98,7 +98,7 @@
           md="3"
           xl="2"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="content"
             :machine-identifier="machineIdentifier"
             type="art"
@@ -158,7 +158,7 @@
           md="2"
           xl="1"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="content"
             :machine-identifier="machineIdentifier"
             full-title
@@ -179,8 +179,10 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
+  name: 'PlexServer',
+
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   props: {

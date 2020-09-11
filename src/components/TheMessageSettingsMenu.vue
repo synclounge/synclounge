@@ -63,6 +63,8 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
+  name: 'TheMessageSettingsMenu',
+
   data: () => ({
     menu: false,
   }),

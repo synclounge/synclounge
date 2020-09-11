@@ -66,7 +66,7 @@
           md="2"
           xl="1"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="movie"
             :machine-identifier="movie.machineIdentifier"
             show-server
@@ -96,7 +96,7 @@
           md="2"
           xl="1"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="show"
             :machine-identifier="show.machineIdentifier"
             show-server
@@ -126,7 +126,7 @@
           md="3"
           xl="2"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="episode"
             :machine-identifier="episode.machineIdentifier"
             show-server
@@ -187,7 +187,7 @@
           md="3"
           xl="2"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="content"
             :machine-identifier="GET_LAST_SERVER_ID"
             type="art"
@@ -237,7 +237,7 @@
           xl="3"
         >
           <router-link
-            :to="{ name: 'server', params: { machineIdentifier: server.clientIdentifier }}"
+            :to="{ name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier }}"
           >
             <v-card
               class="white--text"
@@ -305,9 +305,9 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { debounce } from '@/utils/lightlodash';
 
 export default {
-  name: 'Plexbrowser',
+  name: 'PlexHome',
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   data() {

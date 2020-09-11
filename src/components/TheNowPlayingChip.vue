@@ -36,6 +36,8 @@ import { mapGetters } from 'vuex';
 import contentTitle from '@/mixins/contentTitle';
 
 export default {
+  name: 'TheNowPlayingChip',
+
   mixins: [
     contentTitle,
   ],
@@ -52,7 +54,7 @@ export default {
 
     href() {
       return {
-        name: 'nowplaying',
+        name: 'NowPlaying',
         params: {
           machineIdentifier: this.GET_ACTIVE_SERVER_ID,
           ratingKey: this.GET_ACTIVE_MEDIA_METADATA.ratingKey,
