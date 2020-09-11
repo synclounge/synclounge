@@ -41,6 +41,7 @@
       <v-list-item dense>
         <v-switch
           v-if="AM_I_HOST"
+          hide-details
           class="pa-0 ma-0"
           label="Party Pausing"
           :input-value="IS_PARTY_PAUSING_ENABLED"
@@ -68,6 +69,7 @@
           >
             <v-switch
               class="pa-0 ma-0"
+              hide-details
               label="Auto Host"
               :input-value="IS_AUTO_HOST_ENABLED"
               @change="SEND_SET_AUTO_HOST_ENABLED"
