@@ -219,9 +219,14 @@ export default {
     ]),
 
     makeHttpsUrl(urlIn) {
-      const url = new URL(urlIn);
-      url.protocol = 'https:';
-      return url.toString();
+      try {
+        const url = new URL(urlIn);
+        url.protocol = 'https:';
+        return url.toString();
+      } catch (e) {
+        console.warn(e);
+        return '';
+      }
     },
 
     async fetchMetadata() {
