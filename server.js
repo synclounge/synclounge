@@ -16,13 +16,16 @@ const blockList = Object.keys(syncloungeSocket.defaultConfig);
 const appConfig = config.get(null, blockList);
 console.log(appConfig);
 
+const preStaticInjection = (router) => {
+  // Add route for config
+  router.get('/config.json', (req, res) => {
+    res.json(appConfig);
+  });
+};
+
 const socketConfig = syncloungeSocket.getConfig();
-const router = syncloungeSocket.socketServer({
+syncloungeSocket.socketServer({
   ...socketConfig,
   static_path: 'dist',
-});
-
-// Add route for config
-router.get('/config.json', (req, res) => {
-  res.json(appConfig);
+  preStaticInjection,
 });
