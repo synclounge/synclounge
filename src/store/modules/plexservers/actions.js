@@ -289,7 +289,7 @@ export default {
   },
 
   FETCH_LIBRARY_ALL: async ({ dispatch }, {
-    machineIdentifier, sectionId, start, size, signal, ...rest
+    machineIdentifier, sectionId, start, size, sort, signal, ...rest
   }) => {
     const { MediaContainer } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
@@ -297,7 +297,10 @@ export default {
       params: {
         'X-Plex-Container-Start': start,
         'X-Plex-Container-Size': size,
-        excludeAllLeaves: 1,
+        ...sort && { sort },
+        includeCollections: 1,
+        includeAdvanced: 1,
+        includeMeta: 1,
       },
       signal,
       ...rest,

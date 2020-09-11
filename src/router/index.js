@@ -110,9 +110,14 @@ export default new Router({
         requiresAuth: true,
         protected: true,
       },
-      props: true,
+      props: {
+        default: true,
+      },
       name: 'library',
-      component: () => import('@/views/plexbrowser/plexlibrary.vue'),
+      components: {
+        default: () => import('@/views/plexbrowser/plexlibrary.vue'),
+        appBarView: () => import('@/components/libraryviewbutton.vue'),
+      },
     },
 
     {

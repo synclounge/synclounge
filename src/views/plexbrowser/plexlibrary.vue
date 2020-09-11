@@ -1,8 +1,56 @@
 <template>
   <v-container
+    :style="containerStyle"
     fluid
   >
-    <v-row>
+    <v-row
+      v-if="IS_LIBRARY_LIST_VIEW"
+      no-gutters
+      class="ma-n3"
+    >
+      <v-col>
+        <v-data-table
+          fixed-header
+          hide-default-footer
+          :headers="headers[library.type]"
+          :items="contents"
+          :sort-by.sync="sortBy"
+          :sort-desc.sync="sortDesc"
+          :items-per-page.sync="itemsPerPage"
+          :server-items-length="totalItems"
+          :loading="abortController != null"
+          item-key="ratingKey"
+          :must-sort="true"
+          style="cursor: pointer;"
+          @click:row="onRowClick"
+        >
+          <template v-slot:item.duration="{ item }">
+            {{ getDuration(item.duration) }}
+          </template>
+
+          <template v-slot:item.viewedLeafCount="{ item }">
+            {{ item.leafCount - item.viewedLeafCount }} unplayed
+          </template>
+
+          <template v-slot:item.viewOffset="{ item }">
+            <span v-if="item.viewOffset">
+              {{ getDuration(item.duration - item.viewOffset) }} left
+            </span>
+
+            <v-chip
+              v-else
+              color="yellow"
+              pill
+              dark
+              class="pa-2"
+              style="height: auto;"
+            />
+          </template>
+        </v-data-table>
+      </v-col>
+    </v-row>
+
+    <v-row v-else>
       <v-col
         v-for="content in contents"
         :key="content.ratingKey"
@@ -46,6 +94,8 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { intervalToDuration } from 'date-fns';
+import getContentLink from '@/utils/contentlinks';
 
 export default {
   components: {
@@ -66,12 +116,28 @@ export default {
 
   data() {
     return {
-      startingIndex: 0,
-      size: 100,
-
+      batchSize: 50,
       stopNewContent: false,
-      busy: false,
       contents: [],
+      itemsPerPage: 0,
+      sortBy: [],
+      sortDesc: [],
+      abortController: null,
+
+      headers: {
+        show: [
+          { text: 'Title', value: 'title' },
+          { text: 'Year', value: 'year' },
+          { text: 'Unplayed', value: 'viewedLeafCount' },
+        ],
+
+        movie: [
+          { text: 'Title', value: 'title' },
+          { text: 'Year', value: 'year' },
+          { text: 'Duration', value: 'duration' },
+          { text: 'Progress', value: 'viewOffset' },
+        ],
+      },
     };
   },
 
@@ -79,7 +145,66 @@ export default {
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
       'GET_PLEX_SERVER',
+      'GET_SERVER_LIBRARY_SIZE',
     ]),
+
+    ...mapGetters([
+      'IS_LIBRARY_LIST_VIEW',
+    ]),
+
+    containerStyle() {
+      return this.IS_LIBRARY_LIST_VIEW
+        ? {
+          'max-width': 'none',
+          padding: 0,
+        }
+        : null;
+    },
+
+    sortParam() {
+      if (this.sortBy.length > 0 && this.sortDesc.length > 0) {
+        const sortField = this.sortBy[0] === 'viewedLeafCount'
+          ? 'unviewedLeafCount'
+          : this.sortBy[0];
+        const isDesc = this.sortDesc[0];
+
+        const sortOption = isDesc
+          ? ':desc'
+          : '';
+
+        return `${sortField}${sortOption}`;
+      }
+
+      return '';
+    },
+
+    library() {
+      return this.GET_PLEX_SERVER(this.machineIdentifier)
+        .libraries[this.sectionId.toString()];
+    },
+
+    totalItems() {
+      return this.GET_SERVER_LIBRARY_SIZE({
+        machineIdentifier: this.machineIdentifier,
+        sectionId: this.sectionId,
+      });
+    },
+  },
+
+  watch: {
+    sortBy: {
+      handler() {
+        this.onSortChange();
+      },
+      deep: true,
+    },
+
+    sortDesc: {
+      handler() {
+        this.onSortChange();
+      },
+      deep: true,
+    },
   },
 
   created() {
@@ -88,6 +213,13 @@ export default {
       machineIdentifier: this.machineIdentifier,
       sectionId: this.sectionId,
     });
+  },
+
+  beforeDestroy() {
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+    }
   },
 
   methods: {
@@ -100,14 +232,30 @@ export default {
       'SET_ACTIVE_METADATA',
     ]),
 
-    async setupCrumbs() {
-      const library = this.GET_PLEX_SERVER(this.machineIdentifier)
-        .libraries[this.sectionId.toString()];
+    getDuration(end) {
+      const duration = intervalToDuration({ start: 0, end });
 
+      const hourPart = duration.hours > 0
+        ? `${duration.hours} hr`
+        : null;
+
+      const minutePart = duration.minutes > 0
+        ? `${duration.minutes} min`
+        : null;
+
+      const parts = [
+        hourPart,
+        minutePart,
+      ];
+
+      return parts.filter((part) => part).join(' ');
+    },
+
+    async setupCrumbs() {
       this.SET_ACTIVE_METADATA({
         machineIdentifier: this.machineIdentifier,
         librarySectionID: this.sectionId,
-        librarySectionTitle: library.title,
+        librarySectionTitle: this.library.title,
       });
     },
 
@@ -117,32 +265,76 @@ export default {
       }
     },
 
+    onRowClick(item) {
+      this.$router.push(getContentLink({
+        ...item,
+        machineIdentifier: this.machineIdentifier,
+      }));
+    },
+
+    async onSortChange() {
+      if (this.abortController != null) {
+        // Cancel outstanding request
+        this.abortController.abort();
+        this.abortController = null;
+      }
+
+      this.stopNewContent = false;
+
+      if (this.itemsPerPage === 0) {
+        await this.fetchMoreContent();
+      } else {
+        // Reset items
+        this.contents = [];
+        this.itemsPerPage = 0;
+      }
+    },
+
     async fetchMoreContent() {
-      if (this.stopNewContent || this.busy) {
+      if (this.stopNewContent || this.abortController != null) {
         return;
       }
 
-      this.busy = true;
+      const controller = new AbortController();
+      this.abortController = controller;
 
-      const results = await this.FETCH_LIBRARY_CONTENTS({
-        machineIdentifier: this.machineIdentifier,
-        sectionId: this.sectionId,
-        start: this.startingIndex,
-        size: this.size,
-      });
+      try {
+        const results = await this.FETCH_LIBRARY_CONTENTS({
+          machineIdentifier: this.machineIdentifier,
+          sectionId: this.sectionId,
+          start: this.itemsPerPage,
+          size: this.batchSize,
+          sort: this.sortParam,
+          signal: this.abortController.signal,
+        });
 
-      results.forEach((result) => {
-        this.contents.push(result);
-      });
+        results.forEach((result) => {
+          this.contents.push(result);
+        });
 
-      this.startingIndex += results.length;
+        this.itemsPerPage += results.length;
 
-      if (results.length < 100) {
-        this.stopNewContent = true;
+        if (results.length < this.batchSize) {
+          this.stopNewContent = true;
+        }
+
+        this.abortController = null;
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          throw e;
+        }
       }
-
-      this.busy = false;
     },
   },
 };
 </script>
+
+<style scoped>
+.v-data-table--fixed-header /deep/ > .v-data-table__wrapper > table > thead > tr > th {
+  top: -12px;
+}
+
+.v-data-table /deep/ .v-data-table__wrapper {
+  overflow: unset;
+}
+</style>
