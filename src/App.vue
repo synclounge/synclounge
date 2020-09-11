@@ -274,7 +274,7 @@ export default {
 
     inviteUrl() {
       if (this.GET_ROOM) {
-        if (this.GET_CONFIG.autojoin) {
+        if (this.GET_CONFIG?.autojoin) {
           // If autojoin, just link to main site
           return window.location.origin;
         }
