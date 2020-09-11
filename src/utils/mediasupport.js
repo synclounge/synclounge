@@ -85,4 +85,4 @@ const supportedContainers = [
   'wav',
 ];
 
-export const isContainerSupported = (container) => supportedContainers.includes(container);
+export const isContainerSupported = ({ container }) => supportedContainers.includes(container);
