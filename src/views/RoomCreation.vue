@@ -209,6 +209,7 @@ export default {
           this.error = 'Room already in use';
         } else {
           this.error = e.message;
+          await this.fetchServersHealth();
         }
       }
 
