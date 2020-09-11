@@ -145,9 +145,7 @@
     <template
       v-if="GET_LAST_SERVER && searchResults.length == 0 && subsetOnDeck.length > 0"
     >
-      <v-row
-        no-gutters
-      >
+      <v-row no-gutters>
         <v-col>
           <v-subheader>
             Continue watching from {{ GET_LAST_SERVER.name }}
@@ -158,21 +156,21 @@
           cols="auto"
           class="ml-auto"
         >
-          <v-icon
-            style="cursor: pointer;"
+          <v-btn
+            icon
             :style="onDeckDownStyle"
             @click="onDeckDown"
           >
-            navigate_before
-          </v-icon>
+            <v-icon>navigate_before</v-icon>
+          </v-btn>
 
-          <v-icon
+          <v-btn
+            icon
             :style="onDeckUpStyle"
-            style="cursor: pointer;"
             @click="onDeckUp"
           >
-            navigate_next
-          </v-icon>
+            <v-icon>navigate_next</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -208,13 +206,13 @@
     >
       <v-subheader>
         Browse
-        <v-icon
-          class="pl-2"
-          small
+        <v-btn
+          x-small
+          icon
           @click="FETCH_PLEX_DEVICES"
         >
-          refresh
-        </v-icon>
+          <v-icon>refresh</v-icon>
+        </v-btn>
       </v-subheader>
 
       <v-row>
@@ -241,7 +239,7 @@
             class="white--text"
             horizontal
             height="10em"
-            style="cursor: pointer; z-index: 0; background: rgba(0, 0, 0, 0.4);"
+            style="z-index: 0; background: rgba(0, 0, 0, 0.4);"
             :title="server.name"
           >
             <v-container fill-height>

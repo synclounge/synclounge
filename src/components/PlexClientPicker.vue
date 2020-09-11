@@ -33,8 +33,7 @@
       <v-btn
         icon
         x-small
-        @click="
-          FETCH_PLEX_DEVICES"
+        @click="FETCH_PLEX_DEVICES"
       >
         <v-icon>refresh</v-icon>
       </v-btn>

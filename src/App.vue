@@ -149,11 +149,10 @@
               :color="GET_SNACKBAR_MESSAGE.color"
               bottom
               timeout="4000"
+              class="text-center"
               @input="SET_SNACKBAR_OPEN"
             >
-              <div style="text-align: center; width: 100%;">
-                {{ GET_SNACKBAR_MESSAGE.text }}
-              </div>
+              {{ GET_SNACKBAR_MESSAGE.text }}
             </v-snackbar>
 
             <TheUpnextDialog v-if="GET_UP_NEXT_POST_PLAY_DATA" />

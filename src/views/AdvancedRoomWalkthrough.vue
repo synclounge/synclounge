@@ -104,12 +104,11 @@
               <v-list-item-group
                 v-model="previewClientId"
               >
-                <plexclient
+                <PlexClient
                   v-for="id in GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN"
                   :key="id"
                   :value="id"
                   :client-id="id"
-                  style="cursor: pointer;"
                 />
               </v-list-item-group>
             </v-list>
@@ -219,7 +218,7 @@
                   >
                     Note: Plex for Android applications may not work properly. See "What clients are
                     supported?" in the
-                    <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
+                    <a href="https://docs.synclounge.tv/faq/">FAQ</a> for more details.
                   </div>
 
                   <div
@@ -228,7 +227,7 @@
                   >
                     Note: Plex Desktop applications may not work properly. See "What clients are
                     supported?" in the
-                    <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more details.
+                    <a href="https://docs.synclounge.tv/faq/">FAQ</a> for more details.
                   </div>
 
                   <div
@@ -238,7 +237,7 @@
                     Note: You may not be able to connect to external Plex Clients while loading the
                     page via HTTPS. Click
                     <a :href="nohttpslink">here</a> to load the page via HTTP. See "My client isn't
-                    working!" in the <a href="http://docs.synclounge.tv/faq/">FAQ</a> for more
+                    working!" in the <a href="https://docs.synclounge.tv/faq/">FAQ</a> for more
                     details.
                   </div>
                 </v-col>
@@ -266,7 +265,6 @@
                   :key="id"
                   :value="id"
                   :client-id="id"
-                  style="cursor: pointer;"
                 />
               </v-list-item-group>
             </v-list>

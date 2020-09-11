@@ -71,21 +71,21 @@
           cols="auto"
           class="ml-auto"
         >
-          <v-icon
-            style="cursor: pointer;"
+          <v-btn
+            icon
             :style="onDeckDownStyle"
             @click="onDeckDown"
           >
-            navigate_before
-          </v-icon>
+            <v-icon>navigate_before</v-icon>
+          </v-btn>
 
-          <v-icon
+          <v-btn
+            icon
             :style="onDeckUpStyle"
-            style="cursor: pointer;"
             @click="onDeckUp"
           >
-            navigate_next
-          </v-icon>
+            <v-icon>navigate_next</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -131,21 +131,21 @@
           cols="auto"
           class="ml-auto"
         >
-          <v-icon
-            style="cursor: pointer;"
+          <v-btn
+            icon
             :style="recentlyAddedDownStyle"
             @click="recentlyAddedDown"
           >
-            navigate_before
-          </v-icon>
+            <v-icon>navigate_before</v-icon>
+          </v-btn>
 
-          <v-icon
+          <v-btn
+            icon
             :style="recentlyAddedUpStyle"
-            style="cursor: pointer;"
             @click="recentlyAddedUp"
           >
-            navigate_next
-          </v-icon>
+            <v-icon>navigate_next</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
 
