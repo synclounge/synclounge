@@ -42,20 +42,36 @@
         </v-list-item>
       </TheSettingsDialog>
 
-      <ThePlexSettingsDialog #default="{ on, attrs }">
-        <v-list-item
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-list-item-icon>
-            <v-icon>settings</v-icon>
-          </v-list-item-icon>
-
+      <v-list-group
+        no-action
+        prepend-icon="settings"
+      >
+        <template v-slot:activator>
           <v-list-item-content>
             <v-list-item-title>Plex Settings</v-list-item-title>
           </v-list-item-content>
+        </template>
+
+        <v-list-item class="pl-1">
+          <v-select
+            v-model="BLOCKEDSERVERS"
+            label="Blocked Servers"
+            :items="localServersList"
+            item-value="id"
+            item-text="name"
+            multiple
+          />
         </v-list-item>
-      </ThePlexSettingsDialog>
+
+        <v-list-item class="pl-1">
+          <v-text-field
+            :value="GET_ALTUSERNAME"
+            :placeholder="GET_PLEX_USER.username"
+            label="Display name"
+            @change="SET_ALTUSERNAME"
+          />
+        </v-list-item>
+      </v-list-group>
 
       <v-subheader>
         Account
@@ -147,7 +163,9 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 import { formatDistanceToNow } from 'date-fns';
 
 export default {
@@ -155,7 +173,6 @@ export default {
 
   components: {
     TheSettingsDialog: () => import('@/components/TheSettingsDialog.vue'),
-    ThePlexSettingsDialog: () => import('@/components/ThePlexSettingsDialog.vue'),
     DonateDialog: () => import('@/components/DonateDialog.vue'),
   },
 
@@ -175,6 +192,25 @@ export default {
       'GET_PLEX_USER',
     ]),
 
+    ...mapGetters('plexservers', [
+      'GET_PLEX_SERVERS',
+      'GET_BLOCKED_SERVER_IDS',
+    ]),
+
+    ...mapGetters('settings', [
+      'GET_ALTUSERNAME',
+    ]),
+
+    BLOCKEDSERVERS: {
+      get() {
+        return this.GET_BLOCKED_SERVER_IDS;
+      },
+
+      set(value) {
+        this.SET_BLOCKED_SERVER_IDS(value);
+      },
+    },
+
     date() {
       return new Date(parseInt(process.env.VUE_APP_GIT_DATE, 10) * 1000);
     },
@@ -182,10 +218,26 @@ export default {
     updatedAt() {
       return `${formatDistanceToNow(this.date)} ago`;
     },
+
+    localServersList() {
+      return this.GET_PLEX_SERVERS.map((server) => ({
+        name: server.name,
+        id: server.clientIdentifier,
+      }));
+    },
   },
 
   methods: {
     ...mapActions(['SET_LEFT_SIDEBAR_OPEN']),
+
+    ...mapMutations('plexservers', [
+      'SET_BLOCKED_SERVER_IDS',
+    ]),
+
+    // TODO: potentially add system for announcing username changes
+    ...mapMutations('settings', [
+      'SET_ALTUSERNAME',
+    ]),
 
     getTimeFromMs(ms) {
       const hours = ms / (1000 * 60 * 60);
