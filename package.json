@@ -55,7 +55,6 @@
     "stylelint": "^13.7.0",
     "stylelint-config-standard": "^20.0.0",
     "uuid": "^8.3.0",
-    "v-clipboard": "^2.2.3",
     "vanilla-tilt": "^1.7.0",
     "vue": "^2.6.12",
     "vue-chat-scroll": "^1.4.0",

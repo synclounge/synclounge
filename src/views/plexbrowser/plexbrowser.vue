@@ -15,17 +15,8 @@
           persistent-hint
           single-line
           prepend-icon="search"
+          clearable
         />
-      </v-col>
-
-      <v-col cols="auto">
-        <v-icon
-          v-if="searchResults.length > 0"
-          class="clickable red--text pt-3"
-          @click="searchResults = []; searchWord = ''; searching = false"
-        >
-          clear
-        </v-icon>
       </v-col>
     </v-row>
 
@@ -403,7 +394,7 @@ export default {
 
   watch: {
     searchWord() {
-      if (this.searchWord === '') {
+      if (this.searchWord == null || this.searchWord === '') {
         this.searchResults = [];
         this.searchStatus = 'Search your available Plex Media Servers';
         return;

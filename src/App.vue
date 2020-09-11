@@ -37,17 +37,14 @@
       <v-toolbar-items>
         <v-btn
           v-if="inviteUrl"
-          v-clipboard="() => inviteUrl"
-          v-clipboard:success="onInviteCopied"
           color="primary"
-          dark
           raised
+          @click="copyToClipboard(inviteUrl)"
         >
           Invite
         </v-btn>
 
         <v-btn
-          dark
           class="hidden-lg-and-up"
           icon
           @click="toggleFullScreen"
@@ -71,7 +68,6 @@
         <donate v-slot="{ on, attrs }">
           <v-btn
             small
-            tag="a"
             class="hidden-sm-and-down"
             text
             v-bind="attrs"
@@ -81,15 +77,18 @@
           </v-btn>
         </donate>
 
-        <v-icon
+        <v-btn
           v-if="IS_IN_ROOM"
-          class="clickable order-last"
+          icon
+          class="order-last"
           @click="TOGGLE_RIGHT_SIDEBAR_OPEN"
         >
-          {{
-            isRightSidebarOpen ? 'last_page' : 'first_page'
-          }}
-        </v-icon>
+          <v-icon>
+            {{
+              isRightSidebarOpen ? 'last_page' : 'first_page'
+            }}
+          </v-icon>
+        </v-btn>
       </v-toolbar-items>
 
       <template
@@ -172,6 +171,7 @@ import {
   mapActions, mapGetters, mapMutations, mapState,
 } from 'vuex';
 import redirection from '@/mixins/redirection';
+import clipboard from '@/mixins/clipboard';
 import { slPlayerClientId } from '@/player/constants';
 
 export default {
@@ -186,6 +186,7 @@ export default {
 
   mixins: [
     redirection,
+    clipboard,
   ],
 
   data() {
@@ -396,13 +397,6 @@ export default {
 
       console.warn('Error loading background, trying again', e);
       await this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE();
-    },
-
-    onInviteCopied() {
-      return this.DISPLAY_NOTIFICATION({
-        text: 'Copied to clipboard',
-        color: 'success',
-      });
     },
 
     onFullScreenChange() {
