@@ -159,9 +159,7 @@
 </template>
 
 <script>
-import {
-  mapActions, mapGetters, mapMutations, mapState,
-} from 'vuex';
+import { mapGetters, mapMutations, mapState } from 'vuex';
 import { formatDistanceToNow } from 'date-fns';
 
 export default {
@@ -224,7 +222,9 @@ export default {
   },
 
   methods: {
-    ...mapActions(['SET_LEFT_SIDEBAR_OPEN']),
+    ...mapMutations([
+      'SET_LEFT_SIDEBAR_OPEN',
+    ]),
 
     ...mapMutations('plexservers', [
       'SET_BLOCKED_SERVER_IDS',

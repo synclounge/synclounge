@@ -359,9 +359,6 @@ export default {
 
   methods: {
     ...mapActions([
-      'SET_LEFT_SIDEBAR_OPEN',
-      'SET_RIGHT_SIDEBAR_OPEN',
-      'TOGGLE_RIGHT_SIDEBAR_OPEN',
       'DISPLAY_NOTIFICATION',
     ]),
 
@@ -378,6 +375,9 @@ export default {
       'SET_SNACKBAR_OPEN',
       'SET_NAVIGATE_TO_PLAYER',
       'SET_NAVIGATE_HOME',
+      'TOGGLE_RIGHT_SIDEBAR_OPEN',
+      'SET_RIGHT_SIDEBAR_OPEN',
+      'SET_LEFT_SIDEBAR_OPEN',
     ]),
 
     ...mapMutations('plex', [

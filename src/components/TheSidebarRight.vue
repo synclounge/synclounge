@@ -255,7 +255,9 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 
 import contentTitle from '@/mixins/contentTitle';
 import { slPlayerClientId } from '@/player/constants';
@@ -338,7 +340,7 @@ export default {
       'DISCONNECT_AND_NAVIGATE_HOME',
     ]),
 
-    ...mapActions([
+    ...mapMutations([
       'SET_RIGHT_SIDEBAR_OPEN',
     ]),
 
