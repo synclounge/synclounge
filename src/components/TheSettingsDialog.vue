@@ -1,143 +1,131 @@
 <template>
-  <v-dialog
-    width="350"
-  >
+  <v-dialog max-width="350">
     <template #activator="stuff">
-      <slot
-        v-bind="stuff"
-      />
+      <slot v-bind="stuff" />
     </template>
 
-    <v-card
-      class="pa-3"
-    >
-      <div class="text-center">
-        <h2>SyncLounge Settings</h2>
-      </div>
+    <v-card>
+      <v-card-title>SyncLounge Settings</v-card-title>
 
-      <v-divider class="mt-2 mb-2" />
-
-      <div style="text-align: center;">
-        <h4 style="text-align: initial;">
-          Plex Client Polling Interval
-        </h4>
-
-        <div> {{ GET_CLIENTPOLLINTERVAL }} </div>
-
-        <v-slider
-          class="pa-0 ma-0"
-          :value="GET_CLIENTPOLLINTERVAL"
-          :min="100"
-          :max="10000"
-          hint="Sets how frequently SyncLounge will poll plex clients for new information in
-        milliseconds.Default is 1000ms (1 second)"
-          persistent-hint
-          @change="SET_CLIENTPOLLINTERVAL"
-        />
-      </div>
-
-      <v-divider />
-
-      <div
-        style="text-align: center;"
-        class="pt-4"
-      >
-        <h4 style="text-align: initial;">
-          Sync Flexibility
-        </h4>
-
-        <div> {{ GET_SYNCFLEXIBILITY }} </div>
-
-        <v-slider
-          class="pa-0 ma-0"
-          :value="GET_SYNCFLEXIBILITY"
-          :min="0"
-          :max="10000"
-          hint="Sets the acceptable distance away from the host in milliseconds.
-        Default is 3000ms (3 seconds)."
-          persistent-hint
-          @change="UPDATE_SYNC_FLEXIBILITY"
-        />
-      </div>
-
-      <v-divider />
-
-      <div
-        style="text-align: center;"
-        class="pt-4"
-      >
-        <v-select
-          :value="GET_STREAMING_PROTOCOL"
-          :items="protocols"
-          :rules="[v => !!v || 'Item is required']"
-          label="Streaming Protocol"
-          required
-          @input="SET_STREAMING_PROTOCOL"
-        />
-      </div>
-
-      <div
-        style="text-align: center;"
-        class="pt-4"
-      >
-        <h4 style="text-align: initial;">
-          Syncing Method
-        </h4>
-
-        <v-radio-group v-model="syncmode">
-          <v-radio
-            label="Clean Seek"
-            class="pa-0 ma-0"
-            value="cleanseek"
+      <v-list dense>
+        <v-list-item>
+          <v-slider
+            dense
+            label="Client Poll Interval"
+            :value="GET_CLIENTPOLLINTERVAL"
+            :min="100"
+            :max="10000"
+            :thumb-label="true"
+            @change="SET_CLIENTPOLLINTERVAL"
           />
 
-          <v-radio
-            label="Skip Ahead"
-            class="pa-0 ma-0"
-            value="skipahead"
-            persistent-hint
-            hint="Sets the syncing method used when we need to get back in line with the host."
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-list-item-icon
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon>info</v-icon>
+              </v-list-item-icon>
+            </template>
+
+            <span>
+              How often Plex clients are polled for new information
+            </span>
+          </v-tooltip>
+        </v-list-item>
+
+        <v-list-item>
+          <v-slider
+            label="Sync Flexibility"
+            :value="GET_SYNCFLEXIBILITY"
+            :min="0"
+            :max="10000"
+            :thumb-label="true"
+            @change="UPDATE_SYNC_FLEXIBILITY"
           />
-        </v-radio-group>
-      </div>
 
-      <div
-        style="text-align: center;"
-      >
-        <v-switch
-          label="Autoplay"
-          hint="If enabled SyncLounge will attempt to automatically play the
-         same content as the host."
-          :input-value="GET_AUTOPLAY"
-          @change="SET_AUTOPLAY"
-        />
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-list-item-icon
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon>info</v-icon>
+              </v-list-item-icon>
+            </template>
 
-        <v-switch
-          label="Auto skip intro"
-          hint="Automatically skip intros"
-          :input-value="GET_AUTO_SKIP_INTRO"
-          @change="SET_AUTO_SKIP_INTRO"
-        />
-      </div>
+            <span>
+              Max allowed distance from host
+            </span>
+          </v-tooltip>
+        </v-list-item>
 
-      <div
-        style="text-align: center;"
-        class="pt-4"
-      >
-        <h4 style="text-align: initial;">
-          SLPlayer Force Transcode
-        </h4>
+        <v-list-item>
+          <v-select
+            :value="GET_STREAMING_PROTOCOL"
+            :items="streamingProtocols"
+            :rules="[v => !!v || 'Item is required']"
+            label="Streaming Protocol"
+            required
+            @input="SET_STREAMING_PROTOCOL"
+          />
+        </v-list-item>
 
-        <v-switch
-          label="Enabled"
-          :input-value="GET_SLPLAYERFORCETRANSCODE"
-          @change="SET_SLPLAYERFORCETRANSCODE"
-        />
-      </div>
+        <v-list-item>
+          <v-select
+            :value="GET_SYNCMODE"
+            :items="syncMethods"
+            :rules="[v => !!v || 'Item is required']"
+            label="Syncing Method"
+            required
+            @input="SET_SYNCMODE"
+          />
+        </v-list-item>
 
-      <small>
-        WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.
-      </small>
+        <v-list-item>
+          <v-switch
+            dense
+            label="Autoplay"
+            :input-value="GET_AUTOPLAY"
+            @change="SET_AUTOPLAY"
+          />
+
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-list-item-icon
+                v-bind="attrs"
+                class="align-self-center"
+                v-on="on"
+              >
+                <v-icon>info</v-icon>
+              </v-list-item-icon>
+            </template>
+
+            <span>
+              Automatically play the same content as the host
+            </span>
+          </v-tooltip>
+        </v-list-item>
+
+        <v-list-item>
+          <v-switch
+            dense
+            label="Auto Skip Intro"
+            :input-value="GET_AUTO_SKIP_INTRO"
+            @change="SET_AUTO_SKIP_INTRO"
+          />
+        </v-list-item>
+
+        <v-list-item>
+          <v-switch
+            dense
+            label="Force Transcode"
+            :input-value="GET_SLPLAYERFORCETRANSCODE"
+            @change="SET_SLPLAYERFORCETRANSCODE"
+          />
+        </v-list-item>
+      </v-list>
     </v-card>
   </v-dialog>
 </template>
@@ -148,6 +136,17 @@ import { streamingProtocols } from '@/utils/streamingprotocols';
 
 export default {
   name: 'TheSettingsDialog',
+
+  data() {
+    return {
+      syncMethods: [
+        { text: 'Clean Seek', value: 'cleanseek' },
+        { text: 'Skip Ahead', value: 'skipahead' },
+      ],
+
+      streamingProtocols,
+    };
+  },
 
   computed: {
     ...mapGetters('settings', [
@@ -162,20 +161,6 @@ export default {
     ...mapGetters('slplayer', [
       'GET_STREAMING_PROTOCOL',
     ]),
-
-    protocols() {
-      return streamingProtocols;
-    },
-
-    syncmode: {
-      get() {
-        return this.GET_SYNCMODE;
-      },
-
-      set(value) {
-        this.SET_SYNCMODE(value);
-      },
-    },
   },
 
   methods: {

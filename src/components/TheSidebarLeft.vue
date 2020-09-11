@@ -82,7 +82,7 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>SyncLounge v{{ GET_VERSION }}</v-list-item-title>
+          <v-list-item-title>v{{ GET_VERSION }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
