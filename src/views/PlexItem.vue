@@ -473,7 +473,7 @@
                 {{ media.videoResolution }}p {{ getDuration(media.duration) }}
               </div>
 
-              <div class="pl-4 soft-text">
+              <div class="pl-4 text--secondary">
                 <div>Video Codec: {{ media.videoCodec }} ({{ media.bitrate }}kbps)</div>
                 <div>Audio Streams: {{ audioStreams(media.Part[0].Stream) }}</div>
                 <div>Subtitles: {{ subtitleStreams(media.Part[0].Stream) }}</div>

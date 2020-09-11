@@ -92,8 +92,7 @@
               style="max-width: 100%;"
             >
               <div
-                class="truncate"
-                style="font-size: 0.9rem;"
+                class="text-truncate"
               >
                 {{ getTitle(content, fullTitle) }}
               </div>
@@ -101,9 +100,8 @@
 
             <v-col
               cols="12"
-              style="font-size: 0.7rem;"
             >
-              <div class="truncate soft-text">
+              <div class="text-caption text-truncate text--secondary">
                 {{ getSecondaryTitle(content, fullTitle) }}
               </div>
             </v-col>
@@ -112,8 +110,7 @@
 
         <div>{{ getTitle(content, fullTitle) }}</div>
         <div
-          class="soft-text"
-          style="font-size: 0.7rem;"
+          class="text-caption text--secondary"
         >
           {{ getSecondaryTitle(content, fullTitle) }}
         </div>

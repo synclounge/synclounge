@@ -236,64 +236,61 @@
           lg="4"
           xl="3"
         >
-          <router-link
+          <v-card
             :to="{ name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier }}"
+            class="white--text"
+            horizontal
+            height="10em"
+            style="cursor: pointer; z-index: 0; background: rgba(0, 0, 0, 0.4);"
+            :title="server.name"
           >
-            <v-card
-              class="white--text"
-              horizontal
-              height="10em"
-              style="cursor: pointer; z-index: 0; background: rgba(0, 0, 0, 0.4);"
-              :title="server.name"
-            >
-              <v-container fill-height>
-                <v-row
-                  justify="center"
-                  align="center"
+            <v-container fill-height>
+              <v-row
+                justify="center"
+                align="center"
+              >
+                <v-col cols="4">
+                  <v-img
+                    src="@/assets/images/logos/plexlogo.png"
+                    height="110px"
+                    contain
+                  />
+                </v-col>
+
+                <v-col
+                  cols="8"
+                  class="pl-2"
                 >
-                  <v-col cols="4">
-                    <v-img
-                      src="@/assets/images/logos/plexlogo.png"
-                      height="110px"
-                      contain
-                    />
-                  </v-col>
+                  <div>
+                    <h1 style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                      {{ server.name }}
+                    </h1>
 
-                  <v-col
-                    cols="8"
-                    class="pl-2"
-                  >
-                    <div>
-                      <h1 style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                        {{ server.name }}
-                      </h1>
+                    <h4 style="opacity: 0.9;">
+                      v{{ server.productVersion }}
+                    </h4>
 
-                      <h4 style="opacity: 0.9;">
-                        v{{ server.productVersion }}
-                      </h4>
+                    <div>Owned by {{ ownerOfServer(server) }}</div>
 
-                      <div>Owned by {{ ownerOfServer(server) }}</div>
-
-                      <div
-                        v-if="!server.chosenConnection"
-                        class="red--text"
-                      >
-                        Unable to connect
-                      </div>
-
-                      <div
-                        v-if="!server.chosenConnection"
-                        class="red--text"
-                        style="font-size: 10px;"
-                      >
-                        Try disabling your adblocker
-                      </div>
+                    <div
+                      v-if="!server.chosenConnection"
+                      class="red--text"
+                    >
+                      Unable to connect
                     </div>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card>
-          </router-link>
+
+                    <div
+                      v-if="!server.chosenConnection"
+                      class="red--text"
+                      style="font-size: 10px;"
+                    >
+                      Try disabling your adblocker
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card>
         </v-col>
       </v-row>
     </template>

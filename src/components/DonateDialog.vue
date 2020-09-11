@@ -90,7 +90,7 @@
 
         <v-divider />
 
-        <p class="pa-2 soft-text mb-0 pb-0">
+        <p class="pa-2 text--secondary mb-0 pb-0">
           If you make a donation, stop by the Discord and message samcm#2715
           to get your Donator role. Thankyou!
         </p>

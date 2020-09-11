@@ -73,9 +73,7 @@
         </v-list-item>
       </v-list-group>
 
-      <v-subheader>
-        Account
-      </v-subheader>
+      <v-subheader>Account</v-subheader>
 
       <v-list-item
         :router="true"
@@ -145,8 +143,6 @@
           </v-list-item-content>
         </v-list-item>
       </DonateDialog>
-
-      <v-spacer />
     </v-list>
 
     <template #append>

@@ -186,7 +186,7 @@
                       >
                         Ping:
                         <span
-                          class="thick--text"
+                          class="font-weight-bold"
                           :class="connectionQualityClass(GET_SERVER_HEALTH(server.url).latency)"
                         >{{ GET_SERVER_HEALTH(server.url).latency }}ms</span>
                       </v-col>
@@ -198,7 +198,7 @@
                         <div>
                           Load:
                           <span
-                            class="thick--text"
+                            class="font-weight-bold"
                             :class="loadQualityClass(GET_SERVER_HEALTH(server.url).load)"
                           >{{ GET_SERVER_HEALTH(server.url).load }}</span>
                         </div>

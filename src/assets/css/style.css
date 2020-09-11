@@ -1,22 +1,4 @@
-/* Helpers */
-
-.truncate {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.center-text {
-  text-align: center;
-}
-
-.soft-text {
-  opacity: 0.7;
-}
-
 /* Headers */
-
 h3 {
   color: white;
 }
@@ -29,43 +11,8 @@ h5 {
   color: #e5a00d;
 }
 
-h6 {
-  color: white;
-}
-
-/* Background/Text Colors */
-
-a:hover,
-a:visited,
-a:link,
-a:active {
-  text-decoration: none;
-}
-
-html {
-  overflow: auto;
-  overflow-x: hidden;
-}
-
-::-webkit-scrollbar {
-  /* remove scrollbar space */
-  background: transparent;
-
-  /* optional: just make scrollbar invisible */
-  width: 2px;
-  height: 2px;
-}
-
 .pt-orange {
   background-color: #e5a00d;
-}
-
-.pt-orange-text {
-  color: #e5a00d;
-}
-
-.highlightBorder {
-  border: solid 2px #f3b32b;
 }
 
 main {
@@ -73,37 +20,7 @@ main {
   background: linear-gradient(to bottom, #1f1c2c, #182848);
 }
 
-.input-group--text-field.input-group--focused label {
-  color: #e5a00d;
-}
-
-.input-group--focused {
-  border-color: #e5a00d;
-}
-
-.card {
-  /* border-radius */
-  -webkit-border-radius: 5px !important;
-  -moz-border-radius: 5px !important;
-  border-radius: 5px !important;
-
-  /* box-shadow */
-  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
-  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12) !important;
-}
-
-/* FIX Chat text not wrapping */
-.list__tile__sub-title,
-.v-list__tile__title {
-  overflow-wrap: break-word;
-  overflow-x: visible;
-  white-space: initial;
-  text-overflow: initial;
-}
-
 /* PlexBrowser */
-
 .pt-content-unwatched {
   position: absolute;
   top: 0;
@@ -116,11 +33,16 @@ main {
   background: white;
 }
 
-.progress-linear .progress-linear__bar {
-  background: white;
+/* Scrollbar */
+::-webkit-scrollbar {
+  /* remove scrollbar space */
+  background: transparent;
+
+  /* optional: just make scrollbar invisible */
+  width: 2px;
+  height: 2px;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar-button {
   width: 2px;
   height: 2px;
@@ -152,8 +74,4 @@ main {
 
 ::-webkit-scrollbar-track:active {
   background: #333;
-}
-
-.thick--text {
-  font-weight: 600;
 }
