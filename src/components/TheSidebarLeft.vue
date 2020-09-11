@@ -26,25 +26,27 @@
       nav
     >
       <v-subheader>Preferences</v-subheader>
-      <v-list-item @click.stop="ptsettingstoggle = !ptsettingstoggle">
-        <v-list-item-icon>
-          <v-icon color="white">
-            settings
-          </v-icon>
-        </v-list-item-icon>
 
-        <v-list-item-content>
-          <v-list-item-title>SyncLounge Settings</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+      <TheSettingsDialog #default="{ on, attrs }">
+        <v-list-item
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-list-item-icon>
+            <v-icon>settings</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title>SyncLounge Settings</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </TheSettingsDialog>
 
       <v-list-item
         @click.stop="plexsettingstoggle = !plexsettingstoggle"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            settings
-          </v-icon>
+          <v-icon>settings</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -61,9 +63,7 @@
         :to="{name: 'SignOut'}"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            cancel
-          </v-icon>
+          <v-icon>cancel</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -78,9 +78,7 @@
         target="_blank"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            info
-          </v-icon>
+          <v-icon>info</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -93,9 +91,7 @@
         target="_blank"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            chat
-          </v-icon>
+          <v-icon>chat</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -108,9 +104,7 @@
         target="_blank"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            code
-          </v-icon>
+          <v-icon>code</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -124,9 +118,7 @@
           v-on="on"
         >
           <v-list-item-icon>
-            <v-icon color="white">
-              favorite
-            </v-icon>
+            <v-icon>favorite</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
@@ -148,22 +140,6 @@
         <div>Last updated {{ updatedAt }}</div>
       </div>
     </template>
-
-    <v-dialog
-      v-model="ptsettingstoggle"
-      width="350"
-    >
-      <v-card
-        class="pa-3"
-      >
-        <div class="text-center">
-          <h2>SyncLounge Settings</h2>
-        </div>
-
-        <v-divider class="mt-2 mb-2" />
-        <TheSettingsDialog class="darken-4 pa-1" />
-      </v-card>
-    </v-dialog>
 
     <v-dialog
       v-model="plexsettingstoggle"
@@ -200,7 +176,6 @@ export default {
 
   data() {
     return {
-      ptsettingstoggle: false,
       plexsettingstoggle: false,
     };
   },

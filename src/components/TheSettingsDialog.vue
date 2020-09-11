@@ -1,127 +1,145 @@
 <template>
-  <div>
-    <div style="text-align: center;">
-      <h4 style="text-align: initial;">
-        Plex Client Polling Interval
-      </h4>
+  <v-dialog
+    width="350"
+  >
+    <template #activator="stuff">
+      <slot
+        v-bind="stuff"
+      />
+    </template>
 
-      <div> {{ GET_CLIENTPOLLINTERVAL }} </div>
+    <v-card
+      class="pa-3"
+    >
+      <div class="text-center">
+        <h2>SyncLounge Settings</h2>
+      </div>
 
-      <v-slider
-        class="pa-0 ma-0"
-        :value="GET_CLIENTPOLLINTERVAL"
-        :min="100"
-        :max="10000"
-        hint="Sets how frequently SyncLounge will poll plex clients for new information in
+      <v-divider class="mt-2 mb-2" />
+
+      <div style="text-align: center;">
+        <h4 style="text-align: initial;">
+          Plex Client Polling Interval
+        </h4>
+
+        <div> {{ GET_CLIENTPOLLINTERVAL }} </div>
+
+        <v-slider
+          class="pa-0 ma-0"
+          :value="GET_CLIENTPOLLINTERVAL"
+          :min="100"
+          :max="10000"
+          hint="Sets how frequently SyncLounge will poll plex clients for new information in
         milliseconds.Default is 1000ms (1 second)"
-        persistent-hint
-        @change="SET_CLIENTPOLLINTERVAL"
-      />
-    </div>
-
-    <v-divider />
-
-    <div
-      style="text-align: center;"
-      class="pt-4"
-    >
-      <h4 style="text-align: initial;">
-        Sync Flexibility
-      </h4>
-
-      <div> {{ GET_SYNCFLEXIBILITY }} </div>
-
-      <v-slider
-        class="pa-0 ma-0"
-        :value="GET_SYNCFLEXIBILITY"
-        :min="0"
-        :max="10000"
-        hint="Sets the acceptable distance away from the host in milliseconds.
-        Default is 3000ms (3 seconds)."
-        persistent-hint
-        @change="UPDATE_SYNC_FLEXIBILITY"
-      />
-    </div>
-
-    <v-divider />
-
-    <div
-      style="text-align: center;"
-      class="pt-4"
-    >
-      <v-select
-        :value="GET_STREAMING_PROTOCOL"
-        :items="protocols"
-        :rules="[v => !!v || 'Item is required']"
-        label="Streaming Protocol"
-        required
-        @input="SET_STREAMING_PROTOCOL"
-      />
-    </div>
-
-    <div
-      style="text-align: center;"
-      class="pt-4"
-    >
-      <h4 style="text-align: initial;">
-        Syncing Method
-      </h4>
-
-      <v-radio-group v-model="syncmode">
-        <v-radio
-          label="Clean Seek"
-          class="pa-0 ma-0"
-          value="cleanseek"
-        />
-
-        <v-radio
-          label="Skip Ahead"
-          class="pa-0 ma-0"
-          value="skipahead"
           persistent-hint
-          hint="Sets the syncing method used when we need to get back in line with the host."
+          @change="SET_CLIENTPOLLINTERVAL"
         />
-      </v-radio-group>
-    </div>
+      </div>
 
-    <div
-      style="text-align: center;"
-    >
-      <v-switch
-        label="Autoplay"
-        hint="If enabled SyncLounge will attempt to automatically play the
+      <v-divider />
+
+      <div
+        style="text-align: center;"
+        class="pt-4"
+      >
+        <h4 style="text-align: initial;">
+          Sync Flexibility
+        </h4>
+
+        <div> {{ GET_SYNCFLEXIBILITY }} </div>
+
+        <v-slider
+          class="pa-0 ma-0"
+          :value="GET_SYNCFLEXIBILITY"
+          :min="0"
+          :max="10000"
+          hint="Sets the acceptable distance away from the host in milliseconds.
+        Default is 3000ms (3 seconds)."
+          persistent-hint
+          @change="UPDATE_SYNC_FLEXIBILITY"
+        />
+      </div>
+
+      <v-divider />
+
+      <div
+        style="text-align: center;"
+        class="pt-4"
+      >
+        <v-select
+          :value="GET_STREAMING_PROTOCOL"
+          :items="protocols"
+          :rules="[v => !!v || 'Item is required']"
+          label="Streaming Protocol"
+          required
+          @input="SET_STREAMING_PROTOCOL"
+        />
+      </div>
+
+      <div
+        style="text-align: center;"
+        class="pt-4"
+      >
+        <h4 style="text-align: initial;">
+          Syncing Method
+        </h4>
+
+        <v-radio-group v-model="syncmode">
+          <v-radio
+            label="Clean Seek"
+            class="pa-0 ma-0"
+            value="cleanseek"
+          />
+
+          <v-radio
+            label="Skip Ahead"
+            class="pa-0 ma-0"
+            value="skipahead"
+            persistent-hint
+            hint="Sets the syncing method used when we need to get back in line with the host."
+          />
+        </v-radio-group>
+      </div>
+
+      <div
+        style="text-align: center;"
+      >
+        <v-switch
+          label="Autoplay"
+          hint="If enabled SyncLounge will attempt to automatically play the
          same content as the host."
-        :input-value="GET_AUTOPLAY"
-        @change="SET_AUTOPLAY"
-      />
+          :input-value="GET_AUTOPLAY"
+          @change="SET_AUTOPLAY"
+        />
 
-      <v-switch
-        label="Auto skip intro"
-        hint="Automatically skip intros"
-        :input-value="GET_AUTO_SKIP_INTRO"
-        @change="SET_AUTO_SKIP_INTRO"
-      />
-    </div>
+        <v-switch
+          label="Auto skip intro"
+          hint="Automatically skip intros"
+          :input-value="GET_AUTO_SKIP_INTRO"
+          @change="SET_AUTO_SKIP_INTRO"
+        />
+      </div>
 
-    <div
-      style="text-align: center;"
-      class="pt-4"
-    >
-      <h4 style="text-align: initial;">
-        SLPlayer Force Transcode
-      </h4>
+      <div
+        style="text-align: center;"
+        class="pt-4"
+      >
+        <h4 style="text-align: initial;">
+          SLPlayer Force Transcode
+        </h4>
 
-      <v-switch
-        label="Enabled"
-        :input-value="GET_SLPLAYERFORCETRANSCODE"
-        @change="SET_SLPLAYERFORCETRANSCODE"
-      />
-    </div>
+        <v-switch
+          label="Enabled"
+          :input-value="GET_SLPLAYERFORCETRANSCODE"
+          @change="SET_SLPLAYERFORCETRANSCODE"
+        />
+      </div>
 
-    <small>
-      WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.
-    </small>
-  </div>
+      <small>
+        WARNING: EXPERIMENTAL SETTING! DO NOT CHANGE IF YOU DO NOT UNDERSTAND THE RAMIFICATIONS.
+      </small>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
