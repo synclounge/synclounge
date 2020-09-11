@@ -118,7 +118,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <donate v-slot="{ on, attrs }">
+      <donate #default="{ on, attrs }">
         <v-list-item
           v-bind="attrs"
           v-on="on"
@@ -138,7 +138,7 @@
       <v-spacer />
     </v-list>
 
-    <template v-slot:append>
+    <template #append>
       <v-divider />
       <div
         class="text-center pa-2"

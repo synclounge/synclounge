@@ -8,7 +8,7 @@
     width="300"
     @input="SET_RIGHT_SIDEBAR_OPEN"
   >
-    <template v-slot:prepend>
+    <template #prepend>
       <v-list-item three-line>
         <v-list-item-content>
           <v-list-item-title>{{ GET_ROOM }}</v-list-item-title>
@@ -29,7 +29,7 @@
         </v-list-item-content>
 
         <v-list-item-icon>
-          <chatsettings v-slot="{ on, attrs }">
+          <chatsettings #default="{ on, attrs }">
             <v-btn
               icon
               class="ma-0 pa-0"
@@ -65,7 +65,7 @@
         v-if="AM_I_HOST"
         bottom
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template #activator="{ on, attrs }">
           <v-list-item
             dense
             v-bind="attrs"
@@ -92,7 +92,7 @@
           bottom
           color="rgb(44, 44, 49)"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               color="primary"
@@ -155,7 +155,7 @@
               multi-line
               class="userlist"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <div
                   v-bind="attrs"
                   v-on="on"
@@ -211,7 +211,7 @@
               multi-line
               class="userlist"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-icon
                   v-bind="attrs"
                   style="color: #e5a00d;"
@@ -232,7 +232,7 @@
               multi-line
               class="userlist"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-icon
                   v-bind="attrs"
                   v-on="on"
@@ -255,7 +255,7 @@
       />
     </div>
 
-    <template v-slot:append>
+    <template #append>
       <MessageInput />
     </template>
   </v-navigation-drawer>

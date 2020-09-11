@@ -124,7 +124,7 @@
                   class="ml-auto"
                 >
                   <v-menu>
-                    <template v-slot:activator="{ on, attrs }">
+                    <template #activator="{ on, attrs }">
                       <v-btn
                         icon
                         class="ma-0 pa-0"

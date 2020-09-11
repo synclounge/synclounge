@@ -20,7 +20,7 @@
           bottom
           nudge-top="10"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-card
               :img="getArtLibrary(library)"
               v-bind="attrs"

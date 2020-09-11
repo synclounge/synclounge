@@ -3,7 +3,7 @@
     v-model="donateDialog"
     max-width="650px"
   >
-    <template v-slot:activator="stuff">
+    <template #activator="stuff">
       <slot
         v-bind="stuff"
       />

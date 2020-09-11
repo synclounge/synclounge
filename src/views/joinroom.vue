@@ -113,7 +113,7 @@
                   top
                   color="light-blue darken-4"
                 >
-                  <template v-slot:activator="{ on, attrs }">
+                  <template #activator="{ on, attrs }">
                     <v-icon
                       color="white"
                       v-bind="attrs"

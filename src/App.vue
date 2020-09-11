@@ -65,7 +65,7 @@
           {{ item.title }}
         </v-btn>
 
-        <donate v-slot="{ on, attrs }">
+        <donate #default="{ on, attrs }">
           <v-btn
             small
             class="hidden-sm-and-down"
@@ -93,7 +93,7 @@
 
       <template
         v-if="showCrumbs"
-        v-slot:extension
+        #extension
       >
         <crumbs />
 

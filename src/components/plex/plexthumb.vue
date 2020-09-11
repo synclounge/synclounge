@@ -62,7 +62,7 @@
 
     <v-progress-linear
       v-if="showProgressBar"
-      v-slot:progress
+      #progress
       style="width: 100%;"
       class="pa-0 mb-0 ma-0 pt-content-progress"
       height="1"
@@ -76,7 +76,7 @@
         bottom
         nudge-top="10"
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template #activator="{ on, attrs }">
           <v-row
             v-bind="attrs"
             dense

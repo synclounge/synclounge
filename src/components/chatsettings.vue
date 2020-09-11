@@ -4,7 +4,7 @@
     :close-on-content-click="false"
     offset-x
   >
-    <template v-slot:activator="stuff">
+    <template #activator="stuff">
       <slot
         v-bind="stuff"
       />
