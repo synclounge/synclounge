@@ -18,8 +18,8 @@ export default {
 
     icon() {
       return this.IS_LIBRARY_LIST_VIEW
-        ? 'view_list'
-        : 'view_module';
+        ? 'view_module'
+        : 'view_list';
     },
   },
 
