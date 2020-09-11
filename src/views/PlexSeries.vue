@@ -118,7 +118,7 @@
         md="2"
         xl="1"
       >
-        <plexthumb
+        <PlexThumbnail
           :content="content"
           :machine-identifier="machineIdentifier"
           type="thumb"
@@ -137,8 +137,10 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
+  name: 'PlexSeries',
+
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   props: {

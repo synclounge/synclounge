@@ -28,22 +28,22 @@ router.beforeEach(async (to, from, next) => {
     && to.matched.some((record) => record.meta.requiresPlexToken))) {
     if (to.matched.some((record) => record.meta.redirectAfterAuth)) {
       next({
-        name: 'Signin',
+        name: 'SignIn',
         query: {
           redirect: to.fullPath,
         },
       });
     } else {
-      next({ name: 'Signin' });
+      next({ name: 'SignIn' });
     }
   } else if (to.matched.some((record) => record.meta.requiresNoAuth)
     && store.getters['plex/GET_PLEX_AUTH_TOKEN']) {
-    next({ name: 'CreateRoom' });
+    next({ name: 'RoomCreation' });
   } else if (!store.getters['synclounge/IS_IN_ROOM']
     && to.matched.some((record) => record.meta.protected)) {
     // this route requires us to be in a room with a client selected
     // if not, redirect to the needed stage
-    next({ name: 'CreateRoom' });
+    next({ name: 'RoomCreation' });
   } else {
     next();
   }

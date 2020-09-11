@@ -26,44 +26,61 @@
       nav
     >
       <v-subheader>Preferences</v-subheader>
-      <v-list-item @click.stop="ptsettingstoggle = !ptsettingstoggle">
-        <v-list-item-icon>
-          <v-icon color="white">
-            settings
-          </v-icon>
-        </v-list-item-icon>
 
-        <v-list-item-content>
-          <v-list-item-title>SyncLounge Settings</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+      <TheSettingsDialog #default="{ on, attrs }">
+        <v-list-item
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-list-item-icon>
+            <v-icon>settings</v-icon>
+          </v-list-item-icon>
 
-      <v-list-item
-        @click.stop="plexsettingstoggle = !plexsettingstoggle"
+          <v-list-item-content>
+            <v-list-item-title>SyncLounge Settings</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </TheSettingsDialog>
+
+      <v-list-group
+        no-action
+        prepend-icon="settings"
       >
-        <v-list-item-icon>
-          <v-icon color="white">
-            settings
-          </v-icon>
-        </v-list-item-icon>
+        <template v-slot:activator>
+          <v-list-item-content>
+            <v-list-item-title>Plex Settings</v-list-item-title>
+          </v-list-item-content>
+        </template>
 
-        <v-list-item-content>
-          <v-list-item-title>Plex Settings</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+        <v-list-item class="pl-1">
+          <v-select
+            v-model="BLOCKEDSERVERS"
+            label="Blocked Servers"
+            :items="localServersList"
+            item-value="id"
+            item-text="name"
+            multiple
+          />
+        </v-list-item>
 
-      <v-subheader>
-        Account
-      </v-subheader>
+        <v-list-item class="pl-1">
+          <v-text-field
+            :value="GET_ALTUSERNAME"
+            :placeholder="GET_PLEX_USER.username"
+            label="Display name"
+            @change="SET_ALTUSERNAME"
+          />
+        </v-list-item>
+      </v-list-group>
+
+      <v-subheader>Account</v-subheader>
 
       <v-list-item
         :router="true"
-        to="/signout"
+        :to="{name: 'SignOut'}"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            cancel
-          </v-icon>
+          <v-icon>cancel</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -78,13 +95,11 @@
         target="_blank"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            info
-          </v-icon>
+          <v-icon>info</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>SyncLounge v{{ GET_VERSION }}</v-list-item-title>
+          <v-list-item-title>v{{ GET_VERSION }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -93,9 +108,7 @@
         target="_blank"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            chat
-          </v-icon>
+          <v-icon>chat</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -108,9 +121,7 @@
         target="_blank"
       >
         <v-list-item-icon>
-          <v-icon color="white">
-            code
-          </v-icon>
+          <v-icon>code</v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
@@ -118,27 +129,23 @@
         </v-list-item-content>
       </v-list-item>
 
-      <donate v-slot="{ on, attrs }">
+      <DonateDialog #default="{ on, attrs }">
         <v-list-item
           v-bind="attrs"
           v-on="on"
         >
           <v-list-item-icon>
-            <v-icon color="white">
-              favorite
-            </v-icon>
+            <v-icon>favorite</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
             <v-list-item-title>Donate</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      </donate>
-
-      <v-spacer />
+      </DonateDialog>
     </v-list>
 
-    <template v-slot:append>
+    <template #append>
       <v-divider />
       <div
         class="text-center pa-2"
@@ -148,59 +155,19 @@
         <div>Last updated {{ updatedAt }}</div>
       </div>
     </template>
-
-    <v-dialog
-      v-model="ptsettingstoggle"
-      width="350"
-    >
-      <v-card
-        class="pa-3"
-      >
-        <div class="text-center">
-          <h2>SyncLounge Settings</h2>
-        </div>
-
-        <v-divider class="mt-2 mb-2" />
-        <settings class="darken-4 pa-1" />
-      </v-card>
-    </v-dialog>
-
-    <v-dialog
-      v-model="plexsettingstoggle"
-      width="350"
-    >
-      <v-card
-        class="pa-3"
-      >
-        <div class="text-center">
-          <h2>Plex Settings</h2>
-        </div>
-
-        <v-divider class="mt-2 mb-2" />
-        <plexsettings
-          class="darken-4 pa-1"
-        />
-      </v-card>
-    </v-dialog>
   </v-navigation-drawer>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex';
+import { mapGetters, mapMutations, mapState } from 'vuex';
 import { formatDistanceToNow } from 'date-fns';
 
 export default {
-  components: {
-    settings: () => import('@/components/settings.vue'),
-    plexsettings: () => import('@/components/plex/plexsettings.vue'),
-    donate: () => import('@/components/donate.vue'),
-  },
+  name: 'TheSidebarLeft',
 
-  data() {
-    return {
-      ptsettingstoggle: false,
-      plexsettingstoggle: false,
-    };
+  components: {
+    TheSettingsDialog: () => import('@/components/TheSettingsDialog.vue'),
+    DonateDialog: () => import('@/components/DonateDialog.vue'),
   },
 
   computed: {
@@ -219,6 +186,25 @@ export default {
       'GET_PLEX_USER',
     ]),
 
+    ...mapGetters('plexservers', [
+      'GET_PLEX_SERVERS',
+      'GET_BLOCKED_SERVER_IDS',
+    ]),
+
+    ...mapGetters('settings', [
+      'GET_ALTUSERNAME',
+    ]),
+
+    BLOCKEDSERVERS: {
+      get() {
+        return this.GET_BLOCKED_SERVER_IDS;
+      },
+
+      set(value) {
+        this.SET_BLOCKED_SERVER_IDS(value);
+      },
+    },
+
     date() {
       return new Date(parseInt(process.env.VUE_APP_GIT_DATE, 10) * 1000);
     },
@@ -226,10 +212,28 @@ export default {
     updatedAt() {
       return `${formatDistanceToNow(this.date)} ago`;
     },
+
+    localServersList() {
+      return this.GET_PLEX_SERVERS.map((server) => ({
+        name: server.name,
+        id: server.clientIdentifier,
+      }));
+    },
   },
 
   methods: {
-    ...mapActions(['SET_LEFT_SIDEBAR_OPEN']),
+    ...mapMutations([
+      'SET_LEFT_SIDEBAR_OPEN',
+    ]),
+
+    ...mapMutations('plexservers', [
+      'SET_BLOCKED_SERVER_IDS',
+    ]),
+
+    // TODO: potentially add system for announcing username changes
+    ...mapMutations('settings', [
+      'SET_ALTUSERNAME',
+    ]),
 
     getTimeFromMs(ms) {
       const hours = ms / (1000 * 60 * 60);

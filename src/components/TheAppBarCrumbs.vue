@@ -4,11 +4,11 @@
     class="text-xs-left"
     style="justify-content: left;"
   >
-    <template v-slot:divider>
+    <template #divider>
       <v-icon>chevron_right</v-icon>
     </template>
 
-    <template v-slot:item="props">
+    <template #item="props">
       <v-breadcrumbs-item
         :to="props.item.to"
         :exact="true"
@@ -24,6 +24,8 @@ import { mapGetters } from 'vuex';
 import getContentLink from '@/utils/contentlinks';
 
 export default {
+  name: 'TheAppBarCrumbs',
+
   computed: {
     ...mapGetters([
       'GET_ACTIVE_METADATA',
@@ -34,17 +36,14 @@ export default {
     ]),
 
     crumbs() {
-      if (
-        this.$route.path.indexOf('browse') === -1
-        && this.$route.path.indexOf('nowplaying') === -1
-      ) {
+      if (this.$route.path.indexOf('browse') === -1 && this.$route.name !== 'NowPlaying') {
         return [];
       }
 
       const data = [
         {
           text: 'Home',
-          to: '/browse',
+          to: { name: 'PlexHome' },
         },
       ];
 
@@ -52,7 +51,7 @@ export default {
         data.push({
           text: this.GET_PLEX_SERVER(this.GET_ACTIVE_METADATA.machineIdentifier).name,
           to: {
-            name: 'server',
+            name: 'PlexServer',
             params: {
               machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
             },
@@ -63,7 +62,7 @@ export default {
           data.push({
             text: this.GET_ACTIVE_METADATA.librarySectionTitle,
             to: {
-              name: 'library',
+              name: 'PlexLibrary',
               params: {
                 machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
                 sectionId: this.GET_ACTIVE_METADATA.librarySectionID,
@@ -77,7 +76,7 @@ export default {
           data.push({
             text: this.GET_ACTIVE_METADATA.grandparentTitle,
             to: {
-              name: 'series',
+              name: 'PlexSeries',
               params: {
                 machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
                 sectionId: this.GET_ACTIVE_METADATA.librarySectionID,
@@ -93,7 +92,7 @@ export default {
               data.push({
                 text: this.GET_ACTIVE_METADATA.parentTitle,
                 to: {
-                  name: 'season',
+                  name: 'PlexSeason',
                   params: {
                     machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
                     sectionId: this.GET_ACTIVE_METADATA.librarySectionID,
@@ -110,7 +109,7 @@ export default {
               data.push({
                 text: this.GET_ACTIVE_METADATA.parentTitle,
                 to: {
-                  name: 'series',
+                  name: 'PlexSeries',
                   params: {
                     machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
                     sectionId: this.GET_ACTIVE_METADATA.librarySectionID,

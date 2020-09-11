@@ -113,7 +113,7 @@
                   top
                   color="light-blue darken-4"
                 >
-                  <template v-slot:activator="{ on, attrs }">
+                  <template #activator="{ on, attrs }">
                     <v-icon
                       color="white"
                       v-bind="attrs"
@@ -186,7 +186,7 @@
                       >
                         Ping:
                         <span
-                          class="thick--text"
+                          class="font-weight-bold"
                           :class="connectionQualityClass(GET_SERVER_HEALTH(server.url).latency)"
                         >{{ GET_SERVER_HEALTH(server.url).latency }}ms</span>
                       </v-col>
@@ -198,7 +198,7 @@
                         <div>
                           Load:
                           <span
-                            class="thick--text"
+                            class="font-weight-bold"
                             :class="loadQualityClass(GET_SERVER_HEALTH(server.url).load)"
                           >{{ GET_SERVER_HEALTH(server.url).load }}</span>
                         </div>
@@ -418,6 +418,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 export default {
+  name: 'AdvancedRoomJoin',
+
   data() {
     return {
       selectedServer: null,
@@ -455,7 +457,7 @@ export default {
     IS_IN_ROOM: {
       handler(inRoom) {
         if (inRoom) {
-          this.$router.push({ name: 'browse' });
+          this.$router.push({ name: 'PlexHome' });
         }
       },
 

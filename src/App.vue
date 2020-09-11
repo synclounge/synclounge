@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <leftsidebar />
-    <rightsidebar v-if="IS_IN_ROOM" />
+    <TheSidebarLeft />
+    <TheSidebarRight v-if="IS_IN_ROOM" />
 
     <v-app-bar
       app
@@ -12,7 +12,7 @@
       <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN" />
 
       <router-link
-        :to="{ name: 'CreateRoom'}"
+        :to="{ name: 'RoomCreation'}"
       >
         <picture>
           <source
@@ -27,7 +27,7 @@
         </picture>
       </router-link>
 
-      <nowplayingchip
+      <TheNowPlayingChip
         v-if="showNowPlaying"
         class="pl-4"
       />
@@ -65,7 +65,7 @@
           {{ item.title }}
         </v-btn>
 
-        <donate v-slot="{ on, attrs }">
+        <DonateDialog #default="{ on, attrs }">
           <v-btn
             small
             class="hidden-sm-and-down"
@@ -75,7 +75,7 @@
           >
             Donate ♥
           </v-btn>
-        </donate>
+        </DonateDialog>
 
         <v-btn
           v-if="IS_IN_ROOM"
@@ -93,9 +93,9 @@
 
       <template
         v-if="showCrumbs"
-        v-slot:extension
+        #extension
       >
-        <crumbs />
+        <TheAppBarCrumbs />
 
         <v-spacer />
 
@@ -149,14 +149,13 @@
               :color="GET_SNACKBAR_MESSAGE.color"
               bottom
               timeout="4000"
+              content-class="text-center"
               @input="SET_SNACKBAR_OPEN"
             >
-              <div style="text-align: center; width: 100%;">
-                {{ GET_SNACKBAR_MESSAGE.text }}
-              </div>
+              {{ GET_SNACKBAR_MESSAGE.text }}
             </v-snackbar>
 
-            <upnext v-if="GET_UP_NEXT_POST_PLAY_DATA" />
+            <TheUpnextDialog v-if="GET_UP_NEXT_POST_PLAY_DATA" />
           </v-sheet>
         </v-img>
       </v-container>
@@ -176,12 +175,12 @@ import { slPlayerClientId } from '@/player/constants';
 
 export default {
   components: {
-    rightsidebar: () => import('@/components/sidebars/rightsidebar.vue'),
-    upnext: () => import('@/components/upnext.vue'),
-    nowplayingchip: () => import('@/components/nowplayingchip.vue'),
-    leftsidebar: () => import('@/components/sidebars/leftsidebar.vue'),
-    donate: () => import('@/components/donate.vue'),
-    crumbs: () => import('@/components/crumbs.vue'),
+    TheSidebarLeft: () => import('@/components/TheSidebarLeft.vue'),
+    TheSidebarRight: () => import('@/components/TheSidebarRight.vue'),
+    TheUpnextDialog: () => import('@/components/TheUpnextDialog.vue'),
+    TheNowPlayingChip: () => import('@/components/TheNowPlayingChip.vue'),
+    DonateDialog: () => import('@/components/DonateDialog.vue'),
+    TheAppBarCrumbs: () => import('@/components/TheAppBarCrumbs.vue'),
   },
 
   mixins: [
@@ -249,13 +248,14 @@ export default {
     },
 
     showNowPlaying() {
-      return this.GET_ACTIVE_SERVER_ID && this.$route.name === 'browse';
+      return this.GET_ACTIVE_SERVER_ID && this.$route.name !== 'NowPlaying'
+       && this.$route.name !== 'WebPlayer';
     },
 
     showCrumbs() {
       // TODO: rewrite this logic but I'm lazy now
       return !(this.$route.path.indexOf('browse') === -1
-        && this.$route.path.indexOf('nowplaying') === -1);
+        && this.$route.name !== 'NowPlaying');
     },
 
     smallLogoMedia() {
@@ -280,7 +280,7 @@ export default {
         }
 
         const invitePart = this.$router.resolve({
-          name: 'join',
+          name: 'RoomJoin',
           params: {
             room: this.GET_ROOM,
             ...(this.GET_SERVER.length > 0 && { server: this.GET_SERVER }),
@@ -306,15 +306,15 @@ export default {
       if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== slPlayerClientId) {
         if (metadata) {
           this.redirectToMediaPage();
-        } else if (this.$route.fullPath.indexOf('/nowplaying') > -1) {
-          this.$router.push({ name: 'browse' });
+        } else if (this.$route.name === 'NowPlaying') {
+          this.$router.push({ name: 'PlexHome' });
         }
       }
     },
 
     GET_NAVIGATE_TO_PLAYER(navigate) {
       if (navigate) {
-        this.$router.push({ name: 'player' });
+        this.$router.push({ name: 'WebPlayer' });
         this.SET_NAVIGATE_TO_PLAYER(false);
       }
     },
@@ -322,7 +322,7 @@ export default {
     async GET_NAVIGATE_HOME(navigate) {
       if (navigate) {
         console.debug('NAVIGATE_HOME');
-        this.$router.push('/');
+        this.$router.push({ name: 'RoomCreation' });
         this.SET_NAVIGATE_HOME(false);
       }
     },
@@ -359,9 +359,6 @@ export default {
 
   methods: {
     ...mapActions([
-      'SET_LEFT_SIDEBAR_OPEN',
-      'SET_RIGHT_SIDEBAR_OPEN',
-      'TOGGLE_RIGHT_SIDEBAR_OPEN',
       'DISPLAY_NOTIFICATION',
     ]),
 
@@ -378,6 +375,9 @@ export default {
       'SET_SNACKBAR_OPEN',
       'SET_NAVIGATE_TO_PLAYER',
       'SET_NAVIGATE_HOME',
+      'TOGGLE_RIGHT_SIDEBAR_OPEN',
+      'SET_RIGHT_SIDEBAR_OPEN',
+      'SET_LEFT_SIDEBAR_OPEN',
     ]),
 
     ...mapMutations('plex', [

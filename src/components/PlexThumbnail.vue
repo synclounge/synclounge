@@ -62,7 +62,7 @@
 
     <v-progress-linear
       v-if="showProgressBar"
-      v-slot:progress
+      #progress
       style="width: 100%;"
       class="pa-0 mb-0 ma-0 pt-content-progress"
       height="1"
@@ -76,7 +76,7 @@
         bottom
         nudge-top="10"
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template #activator="{ on, attrs }">
           <v-row
             v-bind="attrs"
             dense
@@ -92,8 +92,7 @@
               style="max-width: 100%;"
             >
               <div
-                class="truncate"
-                style="font-size: 0.9rem;"
+                class="text-truncate"
               >
                 {{ getTitle(content, fullTitle) }}
               </div>
@@ -101,9 +100,8 @@
 
             <v-col
               cols="12"
-              style="font-size: 0.7rem;"
             >
-              <div class="truncate soft-text">
+              <div class="text-caption text-truncate text--secondary">
                 {{ getSecondaryTitle(content, fullTitle) }}
               </div>
             </v-col>
@@ -112,8 +110,7 @@
 
         <div>{{ getTitle(content, fullTitle) }}</div>
         <div
-          class="soft-text"
-          style="font-size: 0.7rem;"
+          class="text-caption text--secondary"
         >
           {{ getSecondaryTitle(content, fullTitle) }}
         </div>
@@ -148,6 +145,8 @@ const getSizeValue = (cols) => `calc((100vw - 24px) / (12 / ${cols}) - 24px)`;
 const getSrcSize = (minWidth, cols) => `(min-width: ${minWidth}px) ${getSizeValue(cols)}`;
 
 export default {
+  name: 'PlexThumbnail',
+
   mixins: [contentTitle],
 
   props: {

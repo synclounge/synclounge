@@ -5,7 +5,7 @@
       md="8"
       class="offset-md-2"
     >
-      <h1 class="white--text center-text pa-4">
+      <h1 class="white--text text-center pa-4">
         Successfully signed out
       </h1>
     </v-col>
@@ -16,7 +16,7 @@
 import { mapActions } from 'vuex';
 
 export default {
-  name: 'Signout',
+  name: 'SignOut',
 
   async created() {
     await this.RESET();

@@ -124,7 +124,7 @@
                   class="ml-auto"
                 >
                   <v-menu>
-                    <template v-slot:activator="{ on, attrs }">
+                    <template #activator="{ on, attrs }">
                       <v-btn
                         icon
                         class="ma-0 pa-0"
@@ -397,7 +397,7 @@
               md="3"
               xl="2"
             >
-              <plexthumb
+              <PlexThumbnail
                 bottom-only
                 :content="ep"
                 type="thumb"
@@ -427,7 +427,7 @@
               md="2"
               xl="1"
             >
-              <plexthumb
+              <PlexThumbnail
                 :content="movie"
                 :machine-identifier="machineIdentifier"
                 type="thumb"
@@ -473,7 +473,7 @@
                 {{ media.videoResolution }}p {{ getDuration(media.duration) }}
               </div>
 
-              <div class="pl-4 soft-text">
+              <div class="pl-4 text--secondary">
                 <div>Video Codec: {{ media.videoCodec }} ({{ media.bitrate }}kbps)</div>
                 <div>Audio Streams: {{ audioStreams(media.Part[0].Stream) }}</div>
                 <div>Subtitles: {{ subtitleStreams(media.Part[0].Stream) }}</div>
@@ -501,8 +501,10 @@ import customFormatDuration from '@/utils/customformatduration';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
+  name: 'PlexItem',
+
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   props: {
@@ -563,7 +565,7 @@ export default {
     },
 
     playable() {
-      return this.$route.fullPath.indexOf('/nowplaying') === -1;
+      return this.$route.name !== 'NowPlaying';
     },
 
     getArtUrl() {

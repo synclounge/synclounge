@@ -55,7 +55,7 @@
               </v-expansion-panel-header>
 
               <v-expansion-panel-content>
-                <clientpicker
+                <PlexClientPicker
                   @loadingChange="loading = $event"
                   @clientConnectableChange="clientConnectable = $event"
                 />
@@ -96,7 +96,7 @@
 
             <v-spacer />
 
-            <v-btn to="/clientselect">
+            <v-btn :to="{name: 'AdvancedRoomWalkthrough'}">
               Advanced
             </v-btn>
           </v-card-actions>
@@ -114,8 +114,10 @@ import JoinError from '@/utils/joinerror';
 import { v4 as uuidv4 } from 'uuid';
 
 export default {
+  name: 'RoomCreation',
+
   components: {
-    clientpicker: () => import('@/components/plex/clientpicker.vue'),
+    PlexClientPicker: () => import('@/components/PlexClientPicker.vue'),
   },
 
   mixins: [
@@ -157,7 +159,7 @@ export default {
 
     if (this.GET_CONFIG.autojoin) {
       this.$router.push({
-        name: 'join',
+        name: 'RoomJoin',
         params: this.GET_CONFIG.autojoin,
       });
     } else {
@@ -192,9 +194,9 @@ export default {
           password: this.roomPassword,
         });
 
-        if (this.$route.name === 'CreateRoom') {
+        if (this.$route.name === 'RoomCreation') {
           if (this.GET_CHOSEN_CLIENT_ID === slPlayerClientId || !this.GET_ACTIVE_MEDIA_METADATA) {
-            this.$router.push({ name: 'browse' });
+            this.$router.push({ name: 'PlexHome' });
           } else {
             this.redirectToMediaPage();
           }
@@ -207,6 +209,7 @@ export default {
           this.error = 'Room already in use';
         } else {
           this.error = e.message;
+          await this.fetchServersHealth();
         }
       }
 

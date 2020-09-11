@@ -14,8 +14,8 @@
           autoplay
           preload="auto"
           playsinline="true"
+          class="black"
 
-          style="background-color: transparent !important;"
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
@@ -95,7 +95,7 @@
       <div
         v-if="$vuetify.breakpoint.mdAndDown"
       >
-        <messages class="messages-wrapper" />
+        <MessageList class="messages-wrapper" />
         <MessageInput />
       </div>
 
@@ -175,9 +175,11 @@ import 'shaka-player/dist/controls.css';
 import 'libjass/libjass.css';
 
 export default {
+  name: 'WebPlayer',
+
   components: {
-    messages: () => import('@/components/messaging/messages.vue'),
-    MessageInput: () => import('@/components/messaging/MessageInput.vue'),
+    MessageList: () => import('@/components/MessageList.vue'),
+    MessageInput: () => import('@/components/MessageInput.vue'),
   },
 
   data() {
@@ -240,7 +242,7 @@ export default {
   watch: {
     GET_PLAYER_STATE(state) {
       if (state === 'stopped') {
-        this.$router.push({ name: 'browse' });
+        this.$router.push({ name: 'PlexHome' });
       }
     },
 

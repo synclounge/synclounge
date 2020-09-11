@@ -8,7 +8,7 @@
     width="300"
     @input="SET_RIGHT_SIDEBAR_OPEN"
   >
-    <template v-slot:prepend>
+    <template #prepend>
       <v-list-item three-line>
         <v-list-item-content>
           <v-list-item-title>{{ GET_ROOM }}</v-list-item-title>
@@ -28,19 +28,14 @@
           </v-list-item-subtitle>
         </v-list-item-content>
 
-        <v-list-item-icon>
-          <chatsettings v-slot="{ on, attrs }">
-            <v-btn
-              icon
-              class="ma-0 pa-0"
-              dark
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon>more_vert</v-icon>
-            </v-btn>
-          </chatsettings>
-        </v-list-item-icon>
+        <v-list-item-action>
+          <v-btn
+            icon
+            @click="DISCONNECT_AND_NAVIGATE_HOME"
+          >
+            <v-icon>exit_to_app</v-icon>
+          </v-btn>
+        </v-list-item-action>
       </v-list-item>
 
       <v-list-item dense>
@@ -65,7 +60,7 @@
         v-if="AM_I_HOST"
         bottom
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template #activator="{ on, attrs }">
           <v-list-item
             dense
             v-bind="attrs"
@@ -92,7 +87,7 @@
           bottom
           color="rgb(44, 44, 49)"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               color="primary"
@@ -155,7 +150,7 @@
               multi-line
               class="userlist"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <div
                   v-bind="attrs"
                   v-on="on"
@@ -211,7 +206,7 @@
               multi-line
               class="userlist"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-icon
                   v-bind="attrs"
                   style="color: #e5a00d;"
@@ -232,7 +227,7 @@
               multi-line
               class="userlist"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-icon
                   v-bind="attrs"
                   v-on="on"
@@ -250,28 +245,29 @@
 
       <v-divider />
 
-      <messages
-        class="messages"
-      />
+      <MessageList class="messages" />
     </div>
 
-    <template v-slot:append>
+    <template #append>
       <MessageInput />
     </template>
   </v-navigation-drawer>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 
 import contentTitle from '@/mixins/contentTitle';
 import { slPlayerClientId } from '@/player/constants';
 
 export default {
+  name: 'TheSidebarRight',
+
   components: {
-    messages: () => import('@/components/messaging/messages.vue'),
-    MessageInput: () => import('@/components/messaging/MessageInput.vue'),
-    chatsettings: () => import('@/components/chatsettings.vue'),
+    MessageList: () => import('@/components/MessageList.vue'),
+    MessageInput: () => import('@/components/MessageInput.vue'),
   },
 
   mixins: [
@@ -341,9 +337,10 @@ export default {
       'sendPartyPause',
       'TRANSFER_HOST',
       'KICK_USER',
+      'DISCONNECT_AND_NAVIGATE_HOME',
     ]),
 
-    ...mapActions([
+    ...mapMutations([
       'SET_RIGHT_SIDEBAR_OPEN',
     ]),
 
@@ -442,9 +439,5 @@ export default {
 .participant-count {
   font-size: 0.8em;
   color: rgba(255, 255, 255, 0.7);
-}
-
-.v-list__tile {
-  padding: 0;
 }
 </style>

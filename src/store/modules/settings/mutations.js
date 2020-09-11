@@ -20,9 +20,6 @@ export default {
   SET_SYNCMODE: (state, mode) => {
     state.syncMode = mode;
   },
-  SET_HIDEUSERNAME: (state, hide) => {
-    state.hideUsername = hide;
-  },
   SET_ALTUSERNAME: (state, alt) => {
     state.altUsername = alt;
   },

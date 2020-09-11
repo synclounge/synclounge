@@ -11,6 +11,8 @@
 import { mapGetters, mapMutations } from 'vuex';
 
 export default {
+  name: 'LibraryViewButton',
+
   computed: {
     ...mapGetters([
       'IS_LIBRARY_LIST_VIEW',

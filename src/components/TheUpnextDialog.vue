@@ -113,6 +113,8 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import contentTitle from '@/mixins/contentTitle';
 
 export default {
+  name: 'TheUpnextDialog',
+
   mixins: [contentTitle],
 
   data() {

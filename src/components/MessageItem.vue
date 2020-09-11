@@ -21,6 +21,8 @@
 import { mapGetters } from 'vuex';
 
 export default {
+  name: 'MessageItem',
+
   props: {
     message: {
       type: Object,

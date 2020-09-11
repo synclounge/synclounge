@@ -66,7 +66,7 @@
           md="2"
           xl="1"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="movie"
             :machine-identifier="movie.machineIdentifier"
             show-server
@@ -96,7 +96,7 @@
           md="2"
           xl="1"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="show"
             :machine-identifier="show.machineIdentifier"
             show-server
@@ -126,7 +126,7 @@
           md="3"
           xl="2"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="episode"
             :machine-identifier="episode.machineIdentifier"
             show-server
@@ -145,9 +145,7 @@
     <template
       v-if="GET_LAST_SERVER && searchResults.length == 0 && subsetOnDeck.length > 0"
     >
-      <v-row
-        no-gutters
-      >
+      <v-row no-gutters>
         <v-col>
           <v-subheader>
             Continue watching from {{ GET_LAST_SERVER.name }}
@@ -158,21 +156,21 @@
           cols="auto"
           class="ml-auto"
         >
-          <v-icon
-            style="cursor: pointer;"
+          <v-btn
+            icon
             :style="onDeckDownStyle"
             @click="onDeckDown"
           >
-            navigate_before
-          </v-icon>
+            <v-icon>navigate_before</v-icon>
+          </v-btn>
 
-          <v-icon
+          <v-btn
+            icon
             :style="onDeckUpStyle"
-            style="cursor: pointer;"
             @click="onDeckUp"
           >
-            navigate_next
-          </v-icon>
+            <v-icon>navigate_next</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -187,7 +185,7 @@
           md="3"
           xl="2"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="content"
             :machine-identifier="GET_LAST_SERVER_ID"
             type="art"
@@ -208,13 +206,13 @@
     >
       <v-subheader>
         Browse
-        <v-icon
-          class="pl-2"
-          small
+        <v-btn
+          x-small
+          icon
           @click="FETCH_PLEX_DEVICES"
         >
-          refresh
-        </v-icon>
+          <v-icon>refresh</v-icon>
+        </v-btn>
       </v-subheader>
 
       <v-row>
@@ -236,64 +234,61 @@
           lg="4"
           xl="3"
         >
-          <router-link
-            :to="{ name: 'server', params: { machineIdentifier: server.clientIdentifier }}"
+          <v-card
+            :to="{ name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier }}"
+            class="white--text"
+            horizontal
+            height="10em"
+            style="z-index: 0; background: rgba(0, 0, 0, 0.4);"
+            :title="server.name"
           >
-            <v-card
-              class="white--text"
-              horizontal
-              height="10em"
-              style="cursor: pointer; z-index: 0; background: rgba(0, 0, 0, 0.4);"
-              :title="server.name"
-            >
-              <v-container fill-height>
-                <v-row
-                  justify="center"
-                  align="center"
+            <v-container fill-height>
+              <v-row
+                justify="center"
+                align="center"
+              >
+                <v-col cols="4">
+                  <v-img
+                    src="@/assets/images/logos/plexlogo.png"
+                    height="110px"
+                    contain
+                  />
+                </v-col>
+
+                <v-col
+                  cols="8"
+                  class="pl-2"
                 >
-                  <v-col cols="4">
-                    <v-img
-                      src="@/assets/images/logos/plexlogo.png"
-                      height="110px"
-                      contain
-                    />
-                  </v-col>
+                  <div>
+                    <h1 style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                      {{ server.name }}
+                    </h1>
 
-                  <v-col
-                    cols="8"
-                    class="pl-2"
-                  >
-                    <div>
-                      <h1 style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                        {{ server.name }}
-                      </h1>
+                    <h4 style="opacity: 0.9;">
+                      v{{ server.productVersion }}
+                    </h4>
 
-                      <h4 style="opacity: 0.9;">
-                        v{{ server.productVersion }}
-                      </h4>
+                    <div>Owned by {{ ownerOfServer(server) }}</div>
 
-                      <div>Owned by {{ ownerOfServer(server) }}</div>
-
-                      <div
-                        v-if="!server.chosenConnection"
-                        class="red--text"
-                      >
-                        Unable to connect
-                      </div>
-
-                      <div
-                        v-if="!server.chosenConnection"
-                        class="red--text"
-                        style="font-size: 10px;"
-                      >
-                        Try disabling your adblocker
-                      </div>
+                    <div
+                      v-if="!server.chosenConnection"
+                      class="red--text"
+                    >
+                      Unable to connect
                     </div>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card>
-          </router-link>
+
+                    <div
+                      v-if="!server.chosenConnection"
+                      class="red--text"
+                      style="font-size: 10px;"
+                    >
+                      Try disabling your adblocker
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card>
         </v-col>
       </v-row>
     </template>
@@ -305,9 +300,9 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { debounce } from '@/utils/lightlodash';
 
 export default {
-  name: 'Plexbrowser',
+  name: 'PlexHome',
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   data() {

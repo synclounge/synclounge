@@ -36,7 +36,7 @@
               </v-expansion-panel-header>
 
               <v-expansion-panel-content>
-                <clientpicker
+                <PlexClientPicker
                   @loadingChange="loading = $event"
                   @clientConnectableChange="clientConnectable = $event"
                 />
@@ -91,8 +91,10 @@ import { slPlayerClientId } from '@/player/constants';
 import JoinError from '@/utils/joinerror';
 
 export default {
+  name: 'RoomJoin',
+
   components: {
-    clientpicker: () => import('@/components/plex/clientpicker.vue'),
+    PlexClientPicker: () => import('@/components/PlexClientPicker.vue'),
   },
 
   mixins: [
@@ -158,9 +160,9 @@ export default {
           password: this.password,
         });
 
-        if (this.$route.name === 'join') {
+        if (this.$route.name === 'RoomJoin') {
           if (this.GET_CHOSEN_CLIENT_ID === slPlayerClientId || !this.GET_ACTIVE_MEDIA_METADATA) {
-            this.$router.push({ name: 'browse' });
+            this.$router.push({ name: 'PlexHome' });
           } else {
             this.redirectToMediaPage();
           }

@@ -20,12 +20,12 @@
           bottom
           nudge-top="10"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-card
               :img="getArtLibrary(library)"
               v-bind="attrs"
               flat
-              :to="{ name: 'library', params: {
+              :to="{ name: 'PlexLibrary', params: {
                 machineIdentifier: machineIdentifier,
                 sectionId: library.key,
               }}"
@@ -71,21 +71,21 @@
           cols="auto"
           class="ml-auto"
         >
-          <v-icon
-            style="cursor: pointer;"
+          <v-btn
+            icon
             :style="onDeckDownStyle"
             @click="onDeckDown"
           >
-            navigate_before
-          </v-icon>
+            <v-icon>navigate_before</v-icon>
+          </v-btn>
 
-          <v-icon
+          <v-btn
+            icon
             :style="onDeckUpStyle"
-            style="cursor: pointer;"
             @click="onDeckUp"
           >
-            navigate_next
-          </v-icon>
+            <v-icon>navigate_next</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -98,7 +98,7 @@
           md="3"
           xl="2"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="content"
             :machine-identifier="machineIdentifier"
             type="art"
@@ -131,21 +131,21 @@
           cols="auto"
           class="ml-auto"
         >
-          <v-icon
-            style="cursor: pointer;"
+          <v-btn
+            icon
             :style="recentlyAddedDownStyle"
             @click="recentlyAddedDown"
           >
-            navigate_before
-          </v-icon>
+            <v-icon>navigate_before</v-icon>
+          </v-btn>
 
-          <v-icon
+          <v-btn
+            icon
             :style="recentlyAddedUpStyle"
-            style="cursor: pointer;"
             @click="recentlyAddedUp"
           >
-            navigate_next
-          </v-icon>
+            <v-icon>navigate_next</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -158,7 +158,7 @@
           md="2"
           xl="1"
         >
-          <plexthumb
+          <PlexThumbnail
             :content="content"
             :machine-identifier="machineIdentifier"
             full-title
@@ -179,8 +179,10 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
 
 export default {
+  name: 'PlexServer',
+
   components: {
-    plexthumb: () => import('@/components/plex/plexthumb.vue'),
+    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
   props: {

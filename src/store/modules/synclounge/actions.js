@@ -669,14 +669,17 @@ export default {
     });
   },
 
-  UPDATE_SYNC_FLEXIBILITY: ({ getters, dispatch, commit }, syncFlexibility) => {
+  UPDATE_SYNC_FLEXIBILITY: async ({ getters, dispatch, commit }, syncFlexibility) => {
     commit('settings/SET_SYNCFLEXIBILITY', syncFlexibility, { root: true });
-    commit('SET_USER_SYNC_FLEXIBILITY', {
-      id: getters.GET_SOCKET_ID,
-      syncFlexibility,
-    });
 
-    return dispatch('SEND_SYNC_FLEXIBILITY_UPDATE');
+    if (getters.IS_IN_ROOM) {
+      commit('SET_USER_SYNC_FLEXIBILITY', {
+        id: getters.GET_SOCKET_ID,
+        syncFlexibility,
+      });
+
+      await dispatch('SEND_SYNC_FLEXIBILITY_UPDATE');
+    }
   },
 
   KICK_USER: (ctx, id) => {
