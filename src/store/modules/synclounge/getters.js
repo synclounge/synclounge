@@ -56,10 +56,10 @@ export default {
       .reduce((prev, curr) => (curr[1] < prev[1] ? curr : prev))[0]
     : null),
 
-  GET_DISPLAY_USERNAME: (state, getters, rootState, rootGetters) => (
-    rootGetters['settings/GET_HIDEUSERNAME']
-      ? rootGetters['settings/GET_ALTUSERNAME']
-      : rootGetters['plex/GET_PLEX_USER'].username || rootGetters['plex/GET_PLEX_USER'].title),
+  GET_DISPLAY_USERNAME: (state, getters, rootState, rootGetters) => rootGetters[
+    'settings/GET_ALTUSERNAME']
+    || rootGetters['plex/GET_PLEX_USER'].username
+    || rootGetters['plex/GET_PLEX_USER'].title,
 
   GET_SERVER: (state) => state.server,
 

@@ -42,17 +42,20 @@
         </v-list-item>
       </TheSettingsDialog>
 
-      <v-list-item
-        @click.stop="plexsettingstoggle = !plexsettingstoggle"
-      >
-        <v-list-item-icon>
-          <v-icon>settings</v-icon>
-        </v-list-item-icon>
+      <ThePlexSettingsDialog #default="{ on, attrs }">
+        <v-list-item
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-list-item-icon>
+            <v-icon>settings</v-icon>
+          </v-list-item-icon>
 
-        <v-list-item-content>
-          <v-list-item-title>Plex Settings</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>Plex Settings</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </ThePlexSettingsDialog>
 
       <v-subheader>
         Account
@@ -140,24 +143,6 @@
         <div>Last updated {{ updatedAt }}</div>
       </div>
     </template>
-
-    <v-dialog
-      v-model="plexsettingstoggle"
-      width="350"
-    >
-      <v-card
-        class="pa-3"
-      >
-        <div class="text-center">
-          <h2>Plex Settings</h2>
-        </div>
-
-        <v-divider class="mt-2 mb-2" />
-        <ThePlexSettingsDialog
-          class="darken-4 pa-1"
-        />
-      </v-card>
-    </v-dialog>
   </v-navigation-drawer>
 </template>
 
@@ -172,12 +157,6 @@ export default {
     TheSettingsDialog: () => import('@/components/TheSettingsDialog.vue'),
     ThePlexSettingsDialog: () => import('@/components/ThePlexSettingsDialog.vue'),
     DonateDialog: () => import('@/components/DonateDialog.vue'),
-  },
-
-  data() {
-    return {
-      plexsettingstoggle: false,
-    };
   },
 
   computed: {

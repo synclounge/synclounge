@@ -8,7 +8,6 @@ const state = () => ({
   slPlayerQuality: null,
   slPlayerVolume: null,
   slPlayerForceTranscode: null,
-  hideUsername: false,
   altUsername: null,
   autoSkipIntro: null,
 });

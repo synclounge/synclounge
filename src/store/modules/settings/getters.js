@@ -22,7 +22,6 @@ export default {
     .slPlayerForceTranscode
     ?? rootGetters.GET_CONFIG.default_slplayer_force_transcode,
 
-  GET_HIDEUSERNAME: (state) => state.hideUsername,
   GET_ALTUSERNAME: (state) => state.altUsername,
   GET_CUSTOM_SERVER_USER_INPUTTED_URL: (state) => state.customServerUserInputtedUrl,
 

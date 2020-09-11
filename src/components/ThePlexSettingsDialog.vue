@@ -1,49 +1,54 @@
 <template>
-  <div>
-    <div class="pt-1 text-xs-left">
-      <h4 style="text-align: initial;">
-        Blocked Plex Servers
-      </h4>
+  <v-dialog max-width="350">
+    <template #activator="stuff">
+      <slot v-bind="stuff" />
+    </template>
 
-      <small>
-        Used for autoplay functionality.
-        Use this list to block SyncLounge from searching certain servers when attempting to
-        autoplay content.
-      </small>
+    <v-card>
+      <v-card-title>Plex Settings</v-card-title>
 
-      <v-select
-        v-model="BLOCKEDSERVERS"
-        label="Select"
-        :items="localServersList"
-        item-value="id"
-        item-text="name"
-        multiple
-        hint="Blocked Servers"
-        persistent-hint
-      />
-    </div>
+      <v-card-text>
+        <v-list>
+          <v-list-item>
+            <v-select
+              v-model="BLOCKEDSERVERS"
+              label="Blocked Servers"
+              :items="localServersList"
+              item-value="id"
+              item-text="name"
+              multiple
+            />
 
-    <v-divider />
+            <v-tooltip bottom>
+              <template #activator="{ on, attrs }">
+                <v-list-item-icon
+                  v-bind="attrs"
+                  class="align-self-center"
+                  v-on="on"
+                >
+                  <v-icon>info</v-icon>
+                </v-list-item-icon>
+              </template>
 
-    <div class="pt-4 text-xs-left">
-      <h4 style="text-align: initial;">
-        Change display name
-      </h4>
+              <span>
+                Blocks SyncLounge from searching these servers when attempting to
+                autoplay content.
+              </span>
+            </v-tooltip>
+          </v-list-item>
 
-      <v-checkbox
-        v-model="HIDEUSERNAME"
-        label="Enabled"
-      />
-
-      <v-text-field
-        v-if="HIDEUSERNAME"
-        :value="GET_ALTUSERNAME"
-        label="Alternative username"
-        @change="SET_ALTUSERNAME"
-      />
-      <small>By default SyncLounge uses your Plex.tv username when you join a room.</small>
-    </div>
-  </div>
+          <v-list-item>
+            <v-text-field
+              :value="GET_ALTUSERNAME"
+              :placeholder="GET_PLEX_USER.username"
+              label="Display name"
+              @change="SET_ALTUSERNAME"
+            />
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -58,8 +63,11 @@ export default {
       'GET_BLOCKED_SERVER_IDS',
     ]),
 
+    ...mapGetters('plex', [
+      'GET_PLEX_USER',
+    ]),
+
     ...mapGetters('settings', [
-      'GET_HIDEUSERNAME',
       'GET_ALTUSERNAME',
     ]),
 
@@ -70,16 +78,6 @@ export default {
 
       set(value) {
         this.SET_BLOCKED_SERVER_IDS(value);
-      },
-    },
-
-    HIDEUSERNAME: {
-      get() {
-        return this.GET_HIDEUSERNAME;
-      },
-
-      set(value) {
-        this.SET_HIDEUSERNAME(value);
       },
     },
 
@@ -96,8 +94,8 @@ export default {
       'SET_BLOCKED_SERVER_IDS',
     ]),
 
+    // TODO: potentially add system for announcing username changes
     ...mapMutations('settings', [
-      'SET_HIDEUSERNAME',
       'SET_ALTUSERNAME',
     ]),
   },
