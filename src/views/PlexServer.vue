@@ -43,7 +43,9 @@
                 style="background: rgba(0, 0, 0, 0.7);"
                 class="px-3 py-1"
               >
-                {{ library.title }}
+                <div class="text-subtitle-1">
+                  {{ library.title }}
+                </div>
               </v-card-title>
             </v-card>
           </template>
