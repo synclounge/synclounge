@@ -248,7 +248,8 @@ export default {
     },
 
     showNowPlaying() {
-      return this.GET_ACTIVE_SERVER_ID && this.$route.name === 'Browse';
+      return this.GET_ACTIVE_SERVER_ID && this.$route.name !== 'NowPlaying'
+       && this.$route.name !== 'WebPlayer';
     },
 
     showCrumbs() {
