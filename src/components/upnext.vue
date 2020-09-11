@@ -64,12 +64,13 @@
                   cols="auto"
                   class="ml-auto d-flex flex-column justify-space-between"
                 >
-                  <v-icon
-                    class="clickable align-self-end"
+                  <v-btn
+                    icon
+                    class="align-self-end"
                     @click="cancelPressed"
                   >
-                    close
-                  </v-icon>
+                    <v-icon>close</v-icon>
+                  </v-btn>
 
                   <div class="text-xs-right">
                     <v-btn

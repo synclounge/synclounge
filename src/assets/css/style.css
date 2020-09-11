@@ -73,10 +73,6 @@ main {
   background: linear-gradient(to bottom, #1f1c2c, #182848);
 }
 
-.clickable {
-  cursor: pointer;
-}
-
 .input-group--text-field.input-group--focused label {
   color: #e5a00d;
 }

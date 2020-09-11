@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import Clipboard from 'v-clipboard';
 import VueChatScroll from 'vue-chat-scroll';
 
 import vuetify from './plugins/vuetify';
@@ -8,9 +7,6 @@ import router from './router';
 import store from './store';
 
 Vue.use(VueChatScroll);
-Vue.use(Clipboard);
-
-Vue.config.productionTip = false;
 
 Vue.config.errorHandler = (err) => {
   store.dispatch('DISPLAY_NOTIFICATION', {

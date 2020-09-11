@@ -77,13 +77,13 @@
               cols="2"
               class="text-center"
             >
-              <v-icon
-                v-clipboard="() => address"
-                v-clipboard:success="onAddressCopied"
-                class="mr-2 primary--text clickable"
+              <v-btn
+                color="primary"
+                icon
+                @click="copyToClipboard(address)"
               >
-                content_copy
-              </v-icon>
+                <v-icon> content_copy</v-icon>
+              </v-btn>
             </v-col>
           </v-row>
         </div>
@@ -111,9 +111,13 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import clipboard from '@/mixins/clipboard';
 
 export default {
+  mixins: [
+    clipboard,
+  ],
+
   data() {
     return {
       donateDialog: false,
@@ -124,19 +128,6 @@ export default {
         BCH: '1K3ULWzW9dLyGbtpnNqUysHuj1suZFXtx4',
       },
     };
-  },
-
-  methods: {
-    ...mapActions([
-      'DISPLAY_NOTIFICATION',
-    ]),
-
-    onAddressCopied() {
-      return this.DISPLAY_NOTIFICATION({
-        text: 'Copied',
-        color: 'success',
-      });
-    },
   },
 };
 </script>
