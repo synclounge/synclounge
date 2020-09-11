@@ -149,7 +149,7 @@
               :color="GET_SNACKBAR_MESSAGE.color"
               bottom
               timeout="4000"
-              class="text-center"
+              content-class="text-center"
               @input="SET_SNACKBAR_OPEN"
             >
               {{ GET_SNACKBAR_MESSAGE.text }}

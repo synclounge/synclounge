@@ -14,8 +14,8 @@
           autoplay
           preload="auto"
           playsinline="true"
+          class="black"
 
-          style="background-color: transparent !important;"
           @pause="HANDLE_PLAYER_PAUSE"
           @ended="PRESS_STOP"
           @playing="HANDLE_PLAYER_PLAYING"
