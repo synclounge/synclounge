@@ -1,169 +1,285 @@
 <template>
-  <v-dialog max-width="350">
-    <template #activator="stuff">
-      <slot v-bind="stuff" />
+  <v-dialog max-width="400">
+    <template v-slot:activator="stuff">
+      <slot
+        v-bind="stuff"
+      />
     </template>
 
     <v-card>
-      <v-card-title>SyncLounge Settings</v-card-title>
+      <v-list>
+        <v-subheader>Web Player</v-subheader>
 
-      <v-list dense>
-        <v-list-item>
-          <v-slider
-            dense
-            label="Client Poll Interval"
-            :value="GET_CLIENTPOLLINTERVAL"
-            :min="100"
-            :max="10000"
-            :thumb-label="true"
-            @change="SET_CLIENTPOLLINTERVAL"
-          />
+        <v-list-item
+          three-line
+          @click="SET_AUTO_SKIP_INTRO(!GET_AUTO_SKIP_INTRO)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>Auto Skip Into</v-list-item-title>
+            <v-list-item-subtitle>
+              Automatically skip the intros of media when available
+            </v-list-item-subtitle>
+          </v-list-item-content>
 
-          <v-tooltip bottom>
-            <template #activator="{ on, attrs }">
-              <v-list-item-icon
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon>info</v-icon>
-              </v-list-item-icon>
-            </template>
-
-            <span>
-              How often Plex clients are polled for new information
-            </span>
-          </v-tooltip>
+          <v-list-item-action>
+            <v-switch
+              hide-details
+              :input-value="GET_AUTO_SKIP_INTRO"
+              @change="SET_AUTO_SKIP_INTRO"
+            />
+          </v-list-item-action>
         </v-list-item>
 
-        <v-list-item>
-          <v-slider
-            label="Sync Flexibility"
-            :value="GET_SYNCFLEXIBILITY"
-            :min="0"
-            :max="10000"
-            :thumb-label="true"
-            @change="UPDATE_SYNC_FLEXIBILITY"
-          />
+        <v-list-item
+          three-line
+          @click="SET_SLPLAYERFORCETRANSCODE(!GET_SLPLAYERFORCETRANSCODE)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>Force Transcode</v-list-item-title>
+            <v-list-item-subtitle>
+              Force Plex to transcode all media and never direct play or stream
+            </v-list-item-subtitle>
+          </v-list-item-content>
 
-          <v-tooltip bottom>
-            <template #activator="{ on, attrs }">
-              <v-list-item-icon
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon>info</v-icon>
-              </v-list-item-icon>
-            </template>
-
-            <span>
-              Max allowed distance from host
-            </span>
-          </v-tooltip>
+          <v-list-item-action>
+            <v-switch
+              hide-details
+              :input-value="GET_SLPLAYERFORCETRANSCODE"
+              @change="SET_SLPLAYERFORCETRANSCODE"
+            />
+          </v-list-item-action>
         </v-list-item>
 
-        <v-list-item>
-          <v-select
-            :value="GET_STREAMING_PROTOCOL"
-            :items="streamingProtocols"
-            :rules="[v => !!v || 'Item is required']"
-            label="Streaming Protocol"
-            required
-            @input="SET_STREAMING_PROTOCOL"
-          />
+        <v-list-item @click="streamingProtocolSelectOpen=!streamingProtocolSelectOpen">
+          <v-list-item-content>
+            <v-list-item-title>Streaming Protocol</v-list-item-title>
+
+            <v-select
+              :menu-props="{ value: streamingProtocolSelectOpen }"
+              dense
+              hide-details
+              :value="GET_STREAMING_PROTOCOL"
+              :items="streamingProtocols"
+              :rules="[v => !!v || 'Item is required']"
+              required
+              @blur="streamingProtocolSelectOpen = false"
+              @input="SET_STREAMING_PROTOCOL($event); streamingProtocolSelectOpen = false"
+            >
+              <template #selection="{ item }">
+                <span class="text-body-2 text--secondary">
+                  {{ item }}
+                </span>
+              </template>
+            </v-select>
+          </v-list-item-content>
         </v-list-item>
 
-        <v-list-item>
-          <v-select
-            :value="GET_SYNCMODE"
-            :items="syncMethods"
-            :rules="[v => !!v || 'Item is required']"
-            label="Syncing Method"
-            required
-            @input="SET_SYNCMODE"
-          />
-        </v-list-item>
-
-        <v-list-item>
-          <v-switch
-            label="Autoplay"
-            :input-value="GET_AUTOPLAY"
-            class="pa-0 ma-0"
-            @change="SET_AUTOPLAY"
-          />
-
-          <v-tooltip bottom>
-            <template #activator="{ on, attrs }">
-              <v-list-item-icon
-                v-bind="attrs"
-                class="mt-0"
-                v-on="on"
-              >
-                <v-icon>info</v-icon>
-              </v-list-item-icon>
-            </template>
-
-            <span>
-              Automatically play the same content as the host
-            </span>
-          </v-tooltip>
-        </v-list-item>
-
-        <v-list-item>
-          <v-switch
-            label="Auto Skip Intro"
-            :input-value="GET_AUTO_SKIP_INTRO"
-            class="pa-0 ma-0"
-            @change="SET_AUTO_SKIP_INTRO"
-          />
-        </v-list-item>
-
-        <v-list-item>
-          <v-switch
-            label="Force Transcode"
-            :input-value="GET_SLPLAYERFORCETRANSCODE"
-            class="pa-0 ma-0"
-            @change="SET_SLPLAYERFORCETRANSCODE"
-          />
-        </v-list-item>
+        <v-divider />
 
         <v-subheader>Chat</v-subheader>
 
-        <v-list-item>
-          <v-switch
-            label="Desktop Notifications"
-            :input-value="ARE_NOTIFICATIONS_ENABLED && !isHttp"
-            :disabled="isHttp"
-            class="pa-0 ma-0"
-            @change="CHANGE_NOTIFICATIONS_ENABLED"
-          />
+        <v-list-item
+          three-line
+          @click="isHttp ? null : CHANGE_NOTIFICATIONS_ENABLED(!ARE_NOTIFICATIONS_ENABLED)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>Desktop Notifications</v-list-item-title>
+            <v-list-item-subtitle>
+              Display desktop notifications when a new message is received
+            </v-list-item-subtitle>
+          </v-list-item-content>
 
-          <v-tooltip
-            v-if="isHttp"
-            bottom
-          >
-            <template #activator="{ on, attrs }">
-              <v-list-item-icon
-                v-bind="attrs"
-                class="mt-0"
-                v-on="on"
-              >
-                <v-icon>info</v-icon>
-              </v-list-item-icon>
-            </template>
+          <v-list-item-action>
+            <v-switch
+              hide-details
+              :input-value="ARE_NOTIFICATIONS_ENABLED && !isHttp"
+              :disabled="isHttp"
+              @change="CHANGE_NOTIFICATIONS_ENABLED"
+            />
 
-            <span>
-              Popup notifications are only available in secure contexts (HTTPS)
-            </span>
-          </v-tooltip>
+            <v-tooltip
+              v-if="isHttp"
+              bottom
+            >
+              <template #activator="{ on, attrs }">
+                <v-icon
+                  color="warning"
+                  class="mr-4 mt-1"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  info
+                </v-icon>
+              </template>
+
+              <span>
+                Desktop notifications are only available in secure contexts (HTTPS)
+              </span>
+            </v-tooltip>
+          </v-list-item-action>
+        </v-list-item>
+
+        <v-list-item
+          three-line
+          @click="SET_ARE_SOUND_NOTIFICATIONS_ENABLED(!ARE_SOUND_NOTIFICATIONS_ENABLED)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>Sound Notifications</v-list-item-title>
+            <v-list-item-subtitle>
+              Play a sound when a new message is received
+            </v-list-item-subtitle>
+          </v-list-item-content>
+
+          <v-list-item-action>
+            <v-switch
+              hide-details
+              :input-value="ARE_SOUND_NOTIFICATIONS_ENABLED"
+              @change="SET_ARE_SOUND_NOTIFICATIONS_ENABLED"
+            />
+          </v-list-item-action>
+        </v-list-item>
+
+        <v-list-item
+          three-line
+        >
+          <v-list-item-content>
+            <v-list-item-title>Display Name</v-list-item-title>
+            <v-list-item-subtitle>
+              Your username in chat
+            </v-list-item-subtitle>
+
+            <v-text-field
+              dense
+              hide-details
+              class="text-body-2 text--secondary"
+              :value="GET_ALTUSERNAME"
+              :placeholder="GET_PLEX_USER.username"
+              @change="SET_ALTUSERNAME"
+            />
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-divider />
+
+        <v-subheader>Synchronization</v-subheader>
+
+        <v-list-item
+          three-line
+          @click="SET_AUTOPLAY(!GET_AUTOPLAY)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>Autoplay</v-list-item-title>
+            <v-list-item-subtitle>
+              Automatically play the same content as the host
+            </v-list-item-subtitle>
+          </v-list-item-content>
+
+          <v-list-item-action>
+            <v-switch
+              hide-details
+              :input-value="GET_AUTOPLAY"
+              @change="SET_AUTOPLAY"
+            />
+          </v-list-item-action>
         </v-list-item>
 
         <v-list-item>
-          <v-switch
-            label="Sound Notifications"
-            :input-value="ARE_SOUND_NOTIFICATIONS_ENABLED"
-            class="pa-0 ma-0"
-            @change="SET_ARE_SOUND_NOTIFICATIONS_ENABLED"
-          />
+          <v-list-item-content>
+            <v-list-item-title>Sync Flexibility</v-list-item-title>
+            <v-list-item-subtitle>
+              Time difference threshold for synchronization
+            </v-list-item-subtitle>
+
+            <v-slider
+              hide-details
+              :value="GET_SYNCFLEXIBILITY"
+              :min="0"
+              :max="10000"
+              thumb-label
+              @change="UPDATE_SYNC_FLEXIBILITY"
+            />
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item @click="syncModeSelectOpen=!syncModeSelectOpen">
+          <v-list-item-content>
+            <v-list-item-title>Syncing Method</v-list-item-title>
+
+            <v-select
+              :menu-props="{ value: syncModeSelectOpen }"
+              dense
+              hide-details
+              :value="GET_SYNCMODE"
+              :items="syncMethods"
+              :rules="[v => !!v || 'Item is required']"
+              required
+              @blur="syncModeSelectOpen = false"
+              @input="SET_SYNCMODE($event); syncModeSelectOpen = false"
+            >
+              <template #selection="{ item }">
+                <span class="text-body-2 text--secondary">
+                  {{ item.text }}
+                </span>
+              </template>
+            </v-select>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-divider />
+
+        <v-subheader>Plex</v-subheader>
+
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title>Client Poll Interval</v-list-item-title>
+            <v-list-item-subtitle>
+              How often Plex clients are polled for new information
+            </v-list-item-subtitle>
+
+            <v-slider
+              hide-details
+              :value="GET_CLIENTPOLLINTERVAL"
+              :min="100"
+              :max="10000"
+              thumb-label
+              @change="SET_CLIENTPOLLINTERVAL"
+            />
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item
+          three-line
+          @click="blockedServersSelectOpen=!blockedServersSelectOpen"
+        >
+          <v-list-item-content>
+            <v-list-item-title>Blocked Servers</v-list-item-title>
+
+            <v-list-item-subtitle>
+              Prevent searching certain servers when attempting to autoplay content
+            </v-list-item-subtitle>
+
+            <v-select
+              v-model="BLOCKEDSERVERS"
+              :menu-props="{ value: blockedServersSelectOpen }"
+              dense
+              hide-details
+              multiple
+              placeholder="None"
+              :items="localServersList"
+              item-value="id"
+              item-text="name"
+              @blur="blockedServersSelectOpen = false"
+            >
+              <template #selection="{ item }">
+                <v-chip
+                  small
+                  class="text-body-2 text--secondary"
+                >
+                  <span>{{ item.name }}</span>
+                </v-chip>
+              </template>
+            </v-select>
+          </v-list-item-content>
         </v-list-item>
       </v-list>
     </v-card>
@@ -179,6 +295,9 @@ export default {
 
   data() {
     return {
+      streamingProtocolSelectOpen: false,
+      syncModeSelectOpen: false,
+      blockedServersSelectOpen: false,
       syncMethods: [
         { text: 'Clean Seek', value: 'cleanseek' },
         { text: 'Skip Ahead', value: 'skipahead' },
@@ -196,6 +315,7 @@ export default {
       'GET_SYNCFLEXIBILITY',
       'GET_SYNCMODE',
       'GET_AUTO_SKIP_INTRO',
+      'GET_ALTUSERNAME',
     ]),
 
     ...mapGetters('slplayer', [
@@ -207,8 +327,34 @@ export default {
       'ARE_SOUND_NOTIFICATIONS_ENABLED',
     ]),
 
+    ...mapGetters('plexservers', [
+      'GET_PLEX_SERVERS',
+      'GET_BLOCKED_SERVER_IDS',
+    ]),
+
+    ...mapGetters('plex', [
+      'GET_PLEX_USER',
+    ]),
+
     isHttp() {
       return window.location.protocol === 'http:';
+    },
+
+    BLOCKEDSERVERS: {
+      get() {
+        return this.GET_BLOCKED_SERVER_IDS;
+      },
+
+      set(value) {
+        this.SET_BLOCKED_SERVER_IDS(value);
+      },
+    },
+
+    localServersList() {
+      return this.GET_PLEX_SERVERS.map((server) => ({
+        name: server.name,
+        id: server.clientIdentifier,
+      }));
     },
   },
 
@@ -224,6 +370,8 @@ export default {
       'SET_CLIENTPOLLINTERVAL',
       'SET_SYNCMODE',
       'SET_AUTO_SKIP_INTRO',
+      // TODO: potentially add system for announcing username changes
+      'SET_ALTUSERNAME',
     ]),
 
     ...mapMutations('slplayer', [
@@ -232,6 +380,10 @@ export default {
 
     ...mapMutations('synclounge', [
       'SET_ARE_SOUND_NOTIFICATIONS_ENABLED',
+    ]),
+
+    ...mapMutations('plexservers', [
+      'SET_BLOCKED_SERVER_IDS',
     ]),
   },
 };

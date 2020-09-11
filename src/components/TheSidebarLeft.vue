@@ -25,8 +25,6 @@
       dense
       nav
     >
-      <v-subheader>Preferences</v-subheader>
-
       <TheSettingsDialog #default="{ on, attrs }">
         <v-list-item
           v-bind="attrs"
@@ -37,43 +35,10 @@
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>SyncLounge Settings</v-list-item-title>
+            <v-list-item-title>Settings</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </TheSettingsDialog>
-
-      <v-list-group
-        no-action
-        prepend-icon="settings"
-      >
-        <template v-slot:activator>
-          <v-list-item-content>
-            <v-list-item-title>Plex Settings</v-list-item-title>
-          </v-list-item-content>
-        </template>
-
-        <v-list-item class="pl-1">
-          <v-select
-            v-model="BLOCKEDSERVERS"
-            label="Blocked Servers"
-            :items="localServersList"
-            item-value="id"
-            item-text="name"
-            multiple
-          />
-        </v-list-item>
-
-        <v-list-item class="pl-1">
-          <v-text-field
-            :value="GET_ALTUSERNAME"
-            :placeholder="GET_PLEX_USER.username"
-            label="Display name"
-            @change="SET_ALTUSERNAME"
-          />
-        </v-list-item>
-      </v-list-group>
-
-      <v-subheader>Account</v-subheader>
 
       <v-list-item
         :router="true"
@@ -151,7 +116,14 @@
         class="text-center pa-2"
         style="opacity: 0.7; font-size: 12px;"
       >
-        <div>Build #<a :href="GET_COMMIT_URL">{{ GET_GIT_HASH.substring(0, 7) }}</a></div>
+        <div>
+          Build <a
+            class="text-decoration-none"
+            :href="GET_COMMIT_URL"
+          >
+            #{{ GET_GIT_HASH.substring(0, 7) }}
+          </a>
+        </div>
         <div>Last updated {{ updatedAt }}</div>
       </div>
     </template>
@@ -186,25 +158,6 @@ export default {
       'GET_PLEX_USER',
     ]),
 
-    ...mapGetters('plexservers', [
-      'GET_PLEX_SERVERS',
-      'GET_BLOCKED_SERVER_IDS',
-    ]),
-
-    ...mapGetters('settings', [
-      'GET_ALTUSERNAME',
-    ]),
-
-    BLOCKEDSERVERS: {
-      get() {
-        return this.GET_BLOCKED_SERVER_IDS;
-      },
-
-      set(value) {
-        this.SET_BLOCKED_SERVER_IDS(value);
-      },
-    },
-
     date() {
       return new Date(parseInt(process.env.VUE_APP_GIT_DATE, 10) * 1000);
     },
@@ -212,27 +165,11 @@ export default {
     updatedAt() {
       return `${formatDistanceToNow(this.date)} ago`;
     },
-
-    localServersList() {
-      return this.GET_PLEX_SERVERS.map((server) => ({
-        name: server.name,
-        id: server.clientIdentifier,
-      }));
-    },
   },
 
   methods: {
     ...mapMutations([
       'SET_LEFT_SIDEBAR_OPEN',
-    ]),
-
-    ...mapMutations('plexservers', [
-      'SET_BLOCKED_SERVER_IDS',
-    ]),
-
-    // TODO: potentially add system for announcing username changes
-    ...mapMutations('settings', [
-      'SET_ALTUSERNAME',
     ]),
 
     getTimeFromMs(ms) {
