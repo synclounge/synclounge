@@ -271,21 +271,26 @@ export default {
   FETCH_RELATED: async ({ dispatch }, {
     machineIdentifier, ratingKey, count, signal,
   }) => {
-    const { MediaContainer: { Hub, librarySectionID } } = await dispatch('FETCH_PLEX_SERVER', {
-      machineIdentifier,
-      path: `/library/metadata/${ratingKey}/related`,
-      params: {
-        excludeFields: 'summary',
-        count,
-      },
-      signal,
-    });
+    try {
+      const { MediaContainer: { Hub, librarySectionID } } = await dispatch('FETCH_PLEX_SERVER', {
+        machineIdentifier,
+        path: `/library/metadata/${ratingKey}/related`,
+        params: {
+          excludeFields: 'summary',
+          count,
+        },
+        signal,
+      });
 
-    // TODO: potentially include the other hubs too (related director etc...)
-    return Hub?.[0]?.Metadata?.map((child) => ({
-      ...child,
-      librarySectionID,
-    })) || [];
+      // TODO: potentially include the other hubs too (related director etc...)
+      return Hub?.[0]?.Metadata?.map((child) => ({
+        ...child,
+        librarySectionID,
+      })) || [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
   },
 
   FETCH_LIBRARY_ALL: async ({ dispatch }, {
