@@ -85,9 +85,9 @@
 
         <v-list-item>
           <v-switch
-            dense
             label="Autoplay"
             :input-value="GET_AUTOPLAY"
+            class="pa-0 ma-0"
             @change="SET_AUTOPLAY"
           />
 
@@ -95,7 +95,7 @@
             <template #activator="{ on, attrs }">
               <v-list-item-icon
                 v-bind="attrs"
-                class="align-self-center"
+                class="mt-0"
                 v-on="on"
               >
                 <v-icon>info</v-icon>
@@ -110,19 +110,59 @@
 
         <v-list-item>
           <v-switch
-            dense
             label="Auto Skip Intro"
             :input-value="GET_AUTO_SKIP_INTRO"
+            class="pa-0 ma-0"
             @change="SET_AUTO_SKIP_INTRO"
           />
         </v-list-item>
 
         <v-list-item>
           <v-switch
-            dense
             label="Force Transcode"
             :input-value="GET_SLPLAYERFORCETRANSCODE"
+            class="pa-0 ma-0"
             @change="SET_SLPLAYERFORCETRANSCODE"
+          />
+        </v-list-item>
+
+        <v-subheader>Chat</v-subheader>
+
+        <v-list-item>
+          <v-switch
+            label="Desktop Notifications"
+            :input-value="ARE_NOTIFICATIONS_ENABLED && !isHttp"
+            :disabled="isHttp"
+            class="pa-0 ma-0"
+            @change="CHANGE_NOTIFICATIONS_ENABLED"
+          />
+
+          <v-tooltip
+            v-if="isHttp"
+            bottom
+          >
+            <template #activator="{ on, attrs }">
+              <v-list-item-icon
+                v-bind="attrs"
+                class="mt-0"
+                v-on="on"
+              >
+                <v-icon>info</v-icon>
+              </v-list-item-icon>
+            </template>
+
+            <span>
+              Popup notifications are only available in secure contexts (HTTPS)
+            </span>
+          </v-tooltip>
+        </v-list-item>
+
+        <v-list-item>
+          <v-switch
+            label="Sound Notifications"
+            :input-value="ARE_SOUND_NOTIFICATIONS_ENABLED"
+            class="pa-0 ma-0"
+            @change="SET_ARE_SOUND_NOTIFICATIONS_ENABLED"
           />
         </v-list-item>
       </v-list>
@@ -161,11 +201,21 @@ export default {
     ...mapGetters('slplayer', [
       'GET_STREAMING_PROTOCOL',
     ]),
+
+    ...mapGetters('synclounge', [
+      'ARE_NOTIFICATIONS_ENABLED',
+      'ARE_SOUND_NOTIFICATIONS_ENABLED',
+    ]),
+
+    isHttp() {
+      return window.location.protocol === 'http:';
+    },
   },
 
   methods: {
     ...mapActions('synclounge', [
       'UPDATE_SYNC_FLEXIBILITY',
+      'CHANGE_NOTIFICATIONS_ENABLED',
     ]),
 
     ...mapMutations('settings', [
@@ -178,6 +228,10 @@ export default {
 
     ...mapMutations('slplayer', [
       'SET_STREAMING_PROTOCOL',
+    ]),
+
+    ...mapMutations('synclounge', [
+      'SET_ARE_SOUND_NOTIFICATIONS_ENABLED',
     ]),
   },
 };

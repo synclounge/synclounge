@@ -28,19 +28,14 @@
           </v-list-item-subtitle>
         </v-list-item-content>
 
-        <v-list-item-icon>
-          <TheMessageSettingsMenu #default="{ on, attrs }">
-            <v-btn
-              icon
-              class="ma-0 pa-0"
-              dark
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon>more_vert</v-icon>
-            </v-btn>
-          </TheMessageSettingsMenu>
-        </v-list-item-icon>
+        <v-list-item-action>
+          <v-btn
+            icon
+            @click="DISCONNECT_AND_NAVIGATE_HOME"
+          >
+            <v-icon>exit_to_app</v-icon>
+          </v-btn>
+        </v-list-item-action>
       </v-list-item>
 
       <v-list-item dense>
@@ -271,7 +266,6 @@ export default {
   components: {
     MessageList: () => import('@/components/MessageList.vue'),
     MessageInput: () => import('@/components/MessageInput.vue'),
-    TheMessageSettingsMenu: () => import('@/components/TheMessageSettingsMenu.vue'),
   },
 
   mixins: [
@@ -341,6 +335,7 @@ export default {
       'sendPartyPause',
       'TRANSFER_HOST',
       'KICK_USER',
+      'DISCONNECT_AND_NAVIGATE_HOME',
     ]),
 
     ...mapActions([
@@ -442,9 +437,5 @@ export default {
 .participant-count {
   font-size: 0.8em;
   color: rgba(255, 255, 255, 0.7);
-}
-
-.v-list__tile {
-  padding: 0;
 }
 </style>
