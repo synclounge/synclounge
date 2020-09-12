@@ -41,7 +41,6 @@
               v-else
               color="yellow"
               pill
-              dark
               class="pa-2"
               style="height: auto;"
             />

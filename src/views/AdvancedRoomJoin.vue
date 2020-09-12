@@ -26,7 +26,6 @@
       <v-stepper
         v-model="e1"
         style="background: rgba(0, 0, 0, 0.3); border-radius: 20px;"
-        dark
         class="ma-4"
       >
         <v-stepper-header>

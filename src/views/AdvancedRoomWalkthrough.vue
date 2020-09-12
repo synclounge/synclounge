@@ -22,10 +22,9 @@
         style="background: rgba(0, 0, 0, 0.3); color: white !important; border-radius: 20px;"
         class="ma-4"
       >
-        <v-stepper-header dark>
+        <v-stepper-header>
           <v-stepper-step
             step="1"
-            dark
             :complete="true"
           >
             Select a client
@@ -35,7 +34,6 @@
 
           <v-stepper-step
             step="2"
-            dark
             :complete="false"
           >
             Join a room
