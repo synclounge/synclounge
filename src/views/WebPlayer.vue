@@ -80,8 +80,8 @@
                     </v-row>
 
                     <v-row no-gutters>
-                      <v-col>
-                        <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
+                      <v-col class="text-subtitle-2 primary--text">
+                        Playing from {{ GET_PLEX_SERVER.name }}
                       </v-col>
                     </v-row>
                   </v-container>
@@ -130,8 +130,8 @@
               </v-row>
 
               <v-row no-gutters>
-                <v-col>
-                  <h5>Playing from {{ GET_PLEX_SERVER.name }}</h5>
+                <v-col class="text-subtitle-2 primary--text">
+                  Playing from {{ GET_PLEX_SERVER.name }}
                 </v-col>
               </v-row>
             </v-container>

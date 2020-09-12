@@ -11,15 +11,13 @@
       <v-list-item-avatar>
         <img
           :src="user.thumb"
-          :style="getImgStyle(user)"
+          class="avatar-img"
+          :class="getSyncBorderClass(user)"
         >
 
         <v-icon
           v-if="user.state !== 'playing'"
-          style="font-size: 26px;
-                opacity: 0.8;
-                position: absolute;
-                background-color: rgba(0, 0, 0, 0.7);"
+          class="avatar-icon"
         >
           {{ stateIcons[user.state] }}
         </v-icon>
@@ -28,9 +26,7 @@
       <v-list-item-content>
         <v-tooltip
           bottom
-          color="rgb(44, 44, 49)"
           multi-line
-          class="userlist"
         >
           <template #activator="{ on, attrs }">
             <div
@@ -41,13 +37,15 @@
                 {{ user.username }}
                 <span
                   v-if="id === GET_SOCKET_ID"
-                  style="opacity: 0.6;"
+                  class="text--secondary"
                 >
                   (you)
                 </span>
               </v-list-item-title>
 
-              <v-list-item-subtitle style="opacity: 0.6; color: white; font-size: 70%;">
+              <v-list-item-subtitle
+                class="text--secondary text-tiny"
+              >
                 {{ getTitle(user.media) }}
               </v-list-item-subtitle>
             </div>
@@ -61,8 +59,7 @@
         </v-tooltip>
 
         <div
-          style="font-size: 70%;"
-          class="d-flex justify-space-between"
+          class="d-flex justify-space-between text-tiny"
         >
           <div>
             {{ getTimeFromMs(getAdjustedTime(user)) }}
@@ -84,14 +81,12 @@
         <v-tooltip
           v-if="id === GET_HOST_ID || AM_I_HOST"
           bottom
-          color="rgb(44, 44, 49)"
           multi-line
-          class="userlist"
         >
           <template #activator="{ on, attrs }">
             <v-icon
+              color="primary"
               v-bind="attrs"
-              style="color: #e5a00d;"
               v-on="on"
               @click="AM_I_HOST && id !== GET_HOST_ID ? TRANSFER_HOST(id) : null"
             >
@@ -105,9 +100,7 @@
         <v-tooltip
           v-if="id !== GET_HOST_ID && AM_I_HOST"
           bottom
-          color="rgb(44, 44, 49)"
           multi-line
-          class="userlist"
         >
           <template #activator="{ on, attrs }">
             <v-icon
@@ -196,24 +189,16 @@ export default {
         : time;
     },
 
-    getSyncStateColor({ syncFlexibility, ...rest }) {
+    getSyncBorderClass({ syncFlexibility, ...rest }) {
       if (!this.GET_HOST_USER) {
-        return '#F44336';
+        return 'border-error';
       }
 
       const difference = Math.abs(this.getAdjustedTime(rest) - this.GET_ADJUSTED_HOST_TIME());
 
       return difference > syncFlexibility
-        ? '#FFB300'
-        : '#0de47499';
-    },
-
-    getImgStyle(user) {
-      return [
-        {
-          border: `3px solid ${this.getSyncStateColor(user)}`,
-        },
-      ];
+        ? 'border-desync'
+        : 'border-sync';
     },
 
     getTitle(media) {
@@ -269,5 +254,32 @@ export default {
 <style scoped>
 .user-list {
   max-height: calc(50vh - 154px);
+}
+
+.avatar-img {
+  border: 3px solid;
+}
+
+.avatar-icon {
+  font-size: 26px;
+  opacity: 0.8;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.border-error {
+  border-color: #f44336;
+}
+
+.border-desync {
+  border-color: #ffb300;
+}
+
+.border-sync {
+  border-color: #0de47499;
+}
+
+.text-tiny {
+  font-size: 70% !important;
 }
 </style>

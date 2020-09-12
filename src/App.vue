@@ -264,7 +264,7 @@ export default {
 
     sheetColor() {
       return this.GET_BACKGROUND
-        ? 'rgba(0,0,0,0.7)'
+        ? 'rgba(0,0,0,0.9)'
         : 'transparent';
     },
 

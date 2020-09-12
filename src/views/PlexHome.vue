@@ -219,11 +219,10 @@
         <v-col
           v-if="GET_PLEX_SERVERS.length === 0"
           cols="12"
+          class="text-h5 primary--text"
         >
-          <h5>
-            No Plex Servers found.
-            Make sure your server owner has shared libraries with you!
-          </h5>
+          No Plex Servers found.
+          Make sure your server owner has shared libraries with you!
         </v-col>
 
         <v-col
