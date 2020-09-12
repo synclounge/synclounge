@@ -72,22 +72,8 @@
 
     <v-row
       v-if="!stopNewContent"
-      justify="center"
-      align="start"
-    >
-      <v-col
-        v-intersect="onIntersect"
-        cols="12"
-        style="position: relative;"
-      >
-        <v-progress-circular
-          style="left: 50%; top: 50%;"
-          :size="60"
-          indeterminate
-          class="amber--text"
-        />
-      </v-col>
-    </v-row>
+      v-intersect="onIntersect"
+    />
   </v-container>
 </template>
 
