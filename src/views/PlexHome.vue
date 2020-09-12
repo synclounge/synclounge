@@ -235,11 +235,12 @@
         >
           <v-card
             :to="{ name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier }}"
-            style="z-index: 0; background: rgba(0, 0, 0, 0.4);"
+            style="background: rgba(0, 0, 0, 0.6);"
             :title="server.name"
           >
             <v-container fill-height>
               <v-row
+                dense
                 justify="center"
                 align="center"
               >

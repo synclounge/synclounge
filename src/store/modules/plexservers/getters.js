@@ -55,7 +55,7 @@ export default {
     mediaUrl: art || thumb,
     width: window.screen.width,
     height: window.screen.height,
-    blur: 8,
+    blur: 10,
   }),
 
   GET_BLOCKED_SERVER_IDS: (state) => state.blockedServerIds,
