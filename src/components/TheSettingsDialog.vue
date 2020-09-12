@@ -153,7 +153,7 @@
               hide-details
               class="text-body-2 text--secondary"
               :value="GET_ALTUSERNAME"
-              :placeholder="GET_PLEX_USER.username"
+              :placeholder="username"
               @change="SET_ALTUSERNAME"
             />
           </v-list-item-content>
@@ -335,6 +335,10 @@ export default {
     ...mapGetters('plex', [
       'GET_PLEX_USER',
     ]),
+
+    username() {
+      return this.GET_PLEX_USER?.username;
+    },
 
     isHttp() {
       return window.location.protocol === 'http:';
