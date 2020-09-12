@@ -4,7 +4,7 @@
   >
     <v-list-item-avatar>
       <v-img
-        class="clientLogo"
+        class="client-logo"
         :class="platformClass"
         :src="url"
       />
@@ -84,7 +84,7 @@ export default {
 </script>
 
 <style scoped>
-.clientLogo {
+.client-logo {
   padding: 3px;
   background-origin: content-box !important;
   background-size: contain !important;
@@ -108,8 +108,10 @@ export default {
   background-color: #10a4e8;
 }
 
-.platform-default {
-  background-color: #e5a00d;
+.platform-default,
+.platform-plex,
+.platform-plexamp {
+  background-color: var(--v-primary-base);
 }
 
 .platform-dlna {
@@ -154,14 +156,6 @@ export default {
 
 .platform-playstation {
   background-color: #034da2;
-}
-
-.platform-plex {
-  background-color: #e5a00d;
-}
-
-.platform-plexamp {
-  background-color: #e5a00d;
 }
 
 .platform-roku {

@@ -26,7 +26,6 @@
       <v-stepper
         v-model="e1"
         style="background: rgba(0, 0, 0, 0.3); border-radius: 20px;"
-        dark
         class="ma-4"
       >
         <v-stepper-header>
@@ -295,8 +294,8 @@
             <v-row>
               <v-col cols="12">
                 <v-btn
-                  class="pt-orange white--text pa-0 ma-0"
                   color="primary"
+                  class="pa-0 ma-0"
                   primary
                   style="width: 100%;"
                   @click="attemptConnectCustom"

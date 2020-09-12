@@ -10,7 +10,6 @@
     <v-img
       data-tilt
       :aspect-ratio="1 / inverseAspectRatio"
-      class="white--text"
       style="position: relative;"
       :src="imgUrl"
       :srcset="srcset"
@@ -26,19 +25,13 @@
           <v-col cols="12">
             <small
               v-if="showServer"
-              class="ma-1"
-              style="position: absolute;
-                  top: 0;
-                  text-align: right;
-                  right: 0;
-                  background: rgba(0, 0, 0, 0.5);"
+              class="ma-1 server-name"
             >
               {{ GET_PLEX_SERVER(machineIdentifier).name }}</small>
 
             <div
               v-if="showUnwatchedFlag && !showServer"
-              class="pt-content-unwatched pt-orange unwatched pa-1 text-body-2"
-              style="min-width: 16px; min-height: 16px;"
+              class="unwatched primary pa-1 text-body-2"
             >
               {{ unwatchedCount }}
             </div>
@@ -69,53 +62,49 @@
       :value="unwatchedPercent"
     />
 
-    <v-card-text
-      class="pa-0"
+    <v-tooltip
+      bottom
+      nudge-top="10"
     >
-      <v-tooltip
-        bottom
-        nudge-top="10"
-      >
-        <template #activator="{ on, attrs }">
-          <v-row
-            v-bind="attrs"
-            dense
-            no-gutters
-            align="end"
-            class="text-xs-left pa-1 white--text"
-            style="max-width: 100%;"
-            v-on="on"
-          >
-            <v-col
-              v-if="!bottomOnly"
-              cols="12"
-              style="max-width: 100%;"
-            >
-              <div
-                class="text-truncate"
-              >
-                {{ getTitle(content, fullTitle) }}
-              </div>
-            </v-col>
-
-            <v-col
-              cols="12"
-            >
-              <div class="text-caption text-truncate text--secondary">
-                {{ getSecondaryTitle(content, fullTitle) }}
-              </div>
-            </v-col>
-          </v-row>
-        </template>
-
-        <div>{{ getTitle(content, fullTitle) }}</div>
-        <div
-          class="text-caption text--secondary"
+      <template #activator="{ on, attrs }">
+        <v-row
+          v-bind="attrs"
+          dense
+          no-gutters
+          align="end"
+          class="pa-1"
+          style="max-width: 100%;"
+          v-on="on"
         >
-          {{ getSecondaryTitle(content, fullTitle) }}
-        </div>
-      </v-tooltip>
-    </v-card-text>
+          <v-col
+            v-if="!bottomOnly"
+            cols="12"
+            style="max-width: 100%;"
+          >
+            <div
+              class="text-subtitle-2 text-truncate"
+            >
+              {{ getTitle(content, fullTitle) }}
+            </div>
+          </v-col>
+
+          <v-col
+            cols="12"
+          >
+            <div class="text-caption text-truncate text--secondary">
+              {{ getSecondaryTitle(content, fullTitle) }}
+            </div>
+          </v-col>
+        </v-row>
+      </template>
+
+      <div>{{ getTitle(content, fullTitle) }}</div>
+      <div
+        class="text-caption text--secondary"
+      >
+        {{ getSecondaryTitle(content, fullTitle) }}
+      </div>
+    </v-tooltip>
   </v-card>
 </template>
 
@@ -334,3 +323,22 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.unwatched {
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-align: center;
+  min-width: 16px;
+  min-height: 16px;
+}
+
+.server-name {
+  position: absolute;
+  top: 0;
+  text-align: right;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+</style>

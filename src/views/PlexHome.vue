@@ -27,7 +27,7 @@
         v-for="server in GET_PLEX_SERVERS"
         :key="server.machineIdentifier"
         outlined
-        class="green darken-3 white--text"
+        class="green darken-3"
       >
         <v-avatar>
           <v-icon v-if="!heardBack(server.machineIdentifier)">
@@ -219,11 +219,10 @@
         <v-col
           v-if="GET_PLEX_SERVERS.length === 0"
           cols="12"
+          class="text-h5 primary--text"
         >
-          <h5>
-            No Plex Servers found.
-            Make sure your server owner has shared libraries with you!
-          </h5>
+          No Plex Servers found.
+          Make sure your server owner has shared libraries with you!
         </v-col>
 
         <v-col
@@ -236,14 +235,12 @@
         >
           <v-card
             :to="{ name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier }}"
-            class="white--text"
-            horizontal
-            height="10em"
-            style="z-index: 0; background: rgba(0, 0, 0, 0.4);"
+            style="background: rgba(0, 0, 0, 0.6);"
             :title="server.name"
           >
             <v-container fill-height>
               <v-row
+                dense
                 justify="center"
                 align="center"
               >
@@ -260,28 +257,23 @@
                   class="pl-2"
                 >
                   <div>
-                    <h1 style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                    <div class="text-truncate text-h5">
                       {{ server.name }}
-                    </h1>
+                    </div>
 
-                    <h4 style="opacity: 0.9;">
+                    <div class="text--secondary text-caption">
                       v{{ server.productVersion }}
-                    </h4>
+                    </div>
 
-                    <div>Owned by {{ ownerOfServer(server) }}</div>
-
-                    <div
-                      v-if="!server.chosenConnection"
-                      class="red--text"
-                    >
-                      Unable to connect
+                    <div class="text-subtitle-2">
+                      Owned by {{ ownerOfServer(server) }}
                     </div>
 
                     <div
                       v-if="!server.chosenConnection"
-                      class="red--text"
-                      style="font-size: 10px;"
+                      class="error--text"
                     >
+                      Unable to connect.
                       Try disabling your adblocker
                     </div>
                   </div>

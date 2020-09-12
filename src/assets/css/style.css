@@ -7,25 +7,9 @@ h4 {
   color: #bdbdbd;
 }
 
-h5 {
-  color: #e5a00d;
-}
-
-.pt-orange {
-  background-color: #e5a00d;
-}
-
 main {
   background: #2b5876;
   background: linear-gradient(to bottom, #1f1c2c, #182848);
-}
-
-/* PlexBrowser */
-.pt-content-unwatched {
-  position: absolute;
-  top: 0;
-  left: 0;
-  text-align: center;
 }
 
 .pt-content-progress {

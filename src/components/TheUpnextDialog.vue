@@ -54,9 +54,9 @@
                   <v-col
                     cols="12"
                     md="6"
-                    class="text-xs-left"
+                    class="text-xs-left text-subtitle-2 primary--text"
                   >
-                    <h5>From {{ server.name }}</h5>
+                    From {{ server.name }}
                   </v-col>
                 </v-col>
 
