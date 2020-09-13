@@ -200,7 +200,10 @@ export default {
       signal,
     });
 
-    return Metadata;
+    return Metadata.map((item) => ({
+      machineIdentifier,
+      ...item,
+    }));
   },
 
   FETCH_ALL_LIBRARIES: async ({ dispatch }, { machineIdentifier, signal, ...rest }) => {
@@ -236,7 +239,10 @@ export default {
       signal,
     });
 
-    return Metadata;
+    return Metadata.map((item) => ({
+      machineIdentifier,
+      ...item,
+    }));
   },
 
   FETCH_CHILDREN_CONTAINER: async ({ dispatch }, {
@@ -257,8 +263,9 @@ export default {
     return {
       ...MediaContainer,
       Metadata: MediaContainer.Metadata.map((child) => ({
-        ...child,
         librarySectionID: MediaContainer.librarySectionID,
+        machineIdentifier,
+        ...child,
       })),
     };
   },
@@ -284,8 +291,9 @@ export default {
 
       // TODO: potentially include the other hubs too (related director etc...)
       return Hub?.[0]?.Metadata?.map((child) => ({
-        ...child,
         librarySectionID,
+        machineIdentifier,
+        ...child,
       })) || [];
     } catch (e) {
       console.error(e);
@@ -318,8 +326,9 @@ export default {
     const { librarySectionID, Metadata } = await dispatch('FETCH_LIBRARY_ALL', params);
 
     return Metadata.map((child) => ({
-      ...child,
       librarySectionID,
+      machineIdentifier: params.machineIdentifier,
+      ...child,
     }));
   },
 

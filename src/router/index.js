@@ -75,7 +75,7 @@ export default new Router({
     {
       path: '/nowplaying/:machineIdentifier/:ratingKey',
       name: 'NowPlaying',
-      component: () => import('@/views/PlexItem.vue'),
+      component: () => import('@/views/PlexMedia.vue'),
       props: true,
       meta: {
         requiresAuth: true,
@@ -105,7 +105,7 @@ export default new Router({
     },
 
     {
-      path: '/browse/:machineIdentifier/:sectionId',
+      path: '/library/:machineIdentifier/:sectionId',
       name: 'PlexLibrary',
       components: {
         default: () => import('@/views/PlexLibrary.vue'),
@@ -121,43 +121,9 @@ export default new Router({
     },
 
     {
-      path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
-      name: 'PlexMovie',
-      component: () => import('@/views/PlexItem.vue'),
-      props: true,
-      meta: {
-        requiresAuth: true,
-        protected: true,
-      },
-    },
-
-    {
-      path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
-      name: 'PlexSeries',
-      component: () => import('@/views/PlexSeries.vue'),
-      props: true,
-      meta: {
-        requiresAuth: true,
-        protected: true,
-      },
-    },
-
-    {
-      path: '/browse/:machineIdentifier/:sectionId/tv/:parentRatingKey/:ratingKey',
-      name: 'PlexSeason',
-      component: () => import('@/views/PlexSeason.vue'),
-      props: true,
-      meta: {
-        requiresAuth: true,
-        protected: true,
-      },
-    },
-
-    {
-      path:
-      '/browse/:machineIdentifier/:sectionId/tv/:grandparentRatingKey/:parentRatingKey/:ratingKey',
-      name: 'PlexEpisode',
-      component: () => import('@/views/PlexItem.vue'),
+      path: '/browse/:machineIdentifier/:ratingKey',
+      name: 'PlexMedia',
+      component: () => import('@/views/PlexMedia.vue'),
       props: true,
       meta: {
         requiresAuth: true,

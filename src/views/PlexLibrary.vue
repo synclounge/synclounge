@@ -139,6 +139,14 @@ export default {
       'IS_LIBRARY_LIST_VIEW',
     ]),
 
+    // This exists so we can watch if either of these change
+    combinedSortKey() {
+      return {
+        sortBy: this.sortBy,
+        sortDesc: this.sortDesc,
+      };
+    },
+
     containerStyle() {
       return this.IS_LIBRARY_LIST_VIEW
         ? {
@@ -179,14 +187,7 @@ export default {
   },
 
   watch: {
-    sortBy: {
-      handler() {
-        this.onSortChange();
-      },
-      deep: true,
-    },
-
-    sortDesc: {
+    combinedSortKey: {
       handler() {
         this.onSortChange();
       },
@@ -238,7 +239,7 @@ export default {
       return parts.filter((part) => part).join(' ');
     },
 
-    async setupCrumbs() {
+    setupCrumbs() {
       this.SET_ACTIVE_METADATA({
         machineIdentifier: this.machineIdentifier,
         librarySectionID: this.sectionId,

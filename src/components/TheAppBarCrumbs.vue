@@ -76,10 +76,9 @@ export default {
           data.push({
             text: this.GET_ACTIVE_METADATA.grandparentTitle,
             to: {
-              name: 'PlexSeries',
+              name: 'PlexMedia',
               params: {
                 machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
-                sectionId: this.GET_ACTIVE_METADATA.librarySectionID,
                 ratingKey: this.GET_ACTIVE_METADATA.grandparentRatingKey,
               },
             },
@@ -87,40 +86,16 @@ export default {
         }
 
         if (this.GET_ACTIVE_METADATA.parentRatingKey != null) {
-          switch (this.GET_ACTIVE_METADATA.type) {
-            case 'episode': {
-              data.push({
-                text: this.GET_ACTIVE_METADATA.parentTitle,
-                to: {
-                  name: 'PlexSeason',
-                  params: {
-                    machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
-                    sectionId: this.GET_ACTIVE_METADATA.librarySectionID,
-                    parentRatingKey: this.GET_ACTIVE_METADATA.grandparentRatingKey,
-                    ratingKey: this.GET_ACTIVE_METADATA.parentRatingKey,
-                  },
-                },
-              });
-
-              break;
-            }
-
-            default: {
-              data.push({
-                text: this.GET_ACTIVE_METADATA.parentTitle,
-                to: {
-                  name: 'PlexSeries',
-                  params: {
-                    machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
-                    sectionId: this.GET_ACTIVE_METADATA.librarySectionID,
-                    ratingKey: this.GET_ACTIVE_METADATA.parentRatingKey,
-                  },
-                },
-              });
-
-              break;
-            }
-          }
+          data.push({
+            text: this.GET_ACTIVE_METADATA.parentTitle,
+            to: {
+              name: 'PlexMedia',
+              params: {
+                machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
+                ratingKey: this.GET_ACTIVE_METADATA.parentRatingKey,
+              },
+            },
+          });
         }
 
         if (this.GET_ACTIVE_METADATA.ratingKey != null) {

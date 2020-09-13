@@ -27,7 +27,7 @@
               v-if="showServer"
               class="ma-1 server-name"
             >
-              {{ GET_PLEX_SERVER(machineIdentifier).name }}</small>
+              {{ GET_PLEX_SERVER(content.machineIdentifier).name }}</small>
 
             <div
               v-if="showUnwatchedFlag && !showServer"
@@ -77,7 +77,6 @@
           v-on="on"
         >
           <v-col
-            v-if="!bottomOnly"
             cols="12"
             style="max-width: 100%;"
           >
@@ -143,11 +142,6 @@ export default {
       type: Boolean,
     },
 
-    machineIdentifier: {
-      type: String,
-      required: true,
-    },
-
     content: {
       type: Object,
       default: () => {},
@@ -156,10 +150,6 @@ export default {
     type: {
       type: String,
       default: '',
-    },
-
-    bottomOnly: {
-      type: Boolean,
     },
 
     spoilerFilter: {
@@ -206,7 +196,7 @@ export default {
 
     imgUrl() {
       return this.GET_MEDIA_IMAGE_URL({
-        machineIdentifier: this.machineIdentifier,
+        machineIdentifier: this.content.machineIdentifier,
         mediaUrl: this.mediaUrl,
         width: getAppWidth(),
         height: getAppHeight(),
@@ -246,7 +236,7 @@ export default {
     link() {
       return getContentLink({
         ...this.content,
-        machineIdentifier: this.machineIdentifier,
+        machineIdentifier: this.content.machineIdentifier,
       });
     },
 
@@ -314,7 +304,7 @@ export default {
   methods: {
     getImageUrl(width) {
       return this.GET_MEDIA_IMAGE_URL({
-        machineIdentifier: this.machineIdentifier,
+        machineIdentifier: this.content.machineIdentifier,
         mediaUrl: this.mediaUrl,
         width,
         height: Math.round(width * this.inverseAspectRatio),
