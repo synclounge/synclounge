@@ -98,6 +98,7 @@
         <TheAppBarCrumbs />
 
         <v-spacer />
+        <SearchBar />
 
         <router-view name="appBarView" />
       </template>
@@ -181,6 +182,7 @@ export default {
     TheNowPlayingChip: () => import('@/components/TheNowPlayingChip.vue'),
     DonateDialog: () => import('@/components/DonateDialog.vue'),
     TheAppBarCrumbs: () => import('@/components/TheAppBarCrumbs.vue'),
+    SearchBar: () => import('@/components/SearchBar.vue'),
   },
 
   mixins: [

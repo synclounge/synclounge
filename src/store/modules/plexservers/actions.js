@@ -401,4 +401,25 @@ export default {
     const item = await dispatch('FETCH_RANDOM_ITEM', params);
     return dispatch('SET_MEDIA_AS_BACKGROUND', item);
   },
+
+  SEARCH_PLEX_SERVER_HUB: async ({ dispatch }, { query, machineIdentifier, signal }) => {
+    const { MediaContainer: { Hub } } = await dispatch('FETCH_PLEX_SERVER', {
+      machineIdentifier,
+      path: '/hubs/search',
+      params: {
+        query,
+        includeCollections: 0,
+      },
+      signal,
+    });
+
+    return Hub.filter(({ Metadata }) => Metadata)
+      .map(({ Metadata, ...rest }) => ({
+        ...rest,
+        Metadata: Metadata.map((item) => ({
+          ...item,
+          machineIdentifier,
+        })),
+      }));
+  },
 };
