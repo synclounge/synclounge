@@ -23,7 +23,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.10.4",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
-    "@commitlint/cli": "^9.1.2",
+    "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^9.1.2",
     "@delucis/if-env": "^1.1.2",
     "@samhammer/vue-cli-plugin-stylelint": "^2.0.0",
