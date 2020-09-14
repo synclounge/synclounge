@@ -11,6 +11,12 @@ const playQueueParams = {
   includeExternalMedia: 1,
 };
 
+const searchHubs = [
+  'movie',
+  'show',
+  'episode',
+];
+
 export default {
   FETCH_RANDOM_SECTION_ID: async ({ getters }, machineIdentifier) => {
     const sectionId = weightedRandomChoice(getters.GET_SERVER_LIBRARY_SIZES(machineIdentifier));
@@ -425,7 +431,7 @@ export default {
       signal,
     });
 
-    return Hub.filter(({ Metadata }) => Metadata)
+    return Hub.filter(({ Metadata, type }) => Metadata && searchHubs.includes(type))
       .map(({ Metadata, ...rest }) => ({
         ...rest,
         Metadata: Metadata.map((item) => ({
