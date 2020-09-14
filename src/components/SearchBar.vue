@@ -181,7 +181,7 @@ export default {
       this.loading = false;
     },
 
-    async searchServers() {
+    async searchServers(signal) {
       this.loading = true;
       this.items = [];
 
@@ -190,6 +190,7 @@ export default {
           ...this.searchParams,
           query: this.searchQuery,
           machineIdentifier,
+          signal,
         });
 
         if (serverResults.length) {
@@ -222,7 +223,7 @@ export default {
       this.abortController = controller;
 
       try {
-        await this.searchServers();
+        await this.searchServers(controller.signal);
       } catch (e) {
         if (!controller.signal.aborted) {
           throw e;
