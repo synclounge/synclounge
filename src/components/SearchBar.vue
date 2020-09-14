@@ -128,7 +128,7 @@ export default {
 
   watch: {
     searchQuery() {
-      this.searchServersDebounced();
+      this.searchServers();
     },
   },
 
@@ -181,10 +181,7 @@ export default {
       this.loading = false;
     },
 
-    async searchServers(signal) {
-      this.loading = true;
-      this.items = [];
-
+    async searchServersCriticalSection(signal) {
       await Promise.all(this.servers.map(async (machineIdentifier) => {
         const serverResults = await this.SEARCH_PLEX_SERVER_HUB({
           ...this.searchParams,
@@ -212,24 +209,31 @@ export default {
     },
 
     searchServersDebounced: debounce(async function search() {
-      this.abortRequests();
-
-      if (!this.searchQuery || !this.searchQuery.trim()) {
-        this.items = [];
-        return;
-      }
-
       const controller = new AbortController();
       this.abortController = controller;
 
       try {
-        await this.searchServers(controller.signal);
+        await this.searchServersCriticalSection(controller.signal);
       } catch (e) {
         if (!controller.signal.aborted) {
           throw e;
         }
       }
     }, 250),
+
+    searchServers() {
+      this.abortRequests();
+
+      this.items = [];
+      if (!this.searchQuery || !this.searchQuery.trim()) {
+        this.loading = false;
+        return;
+      }
+
+      this.loading = true;
+
+      this.searchServersDebounced();
+    },
 
     getLink(params) {
       return getContentLink(params);
