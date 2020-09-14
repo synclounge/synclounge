@@ -44,9 +44,13 @@ export default {
     'X-Plex-Language': 'en',
   }),
 
+  GET_PLEX_TOKEN_PARAMS: (state, getters) => (accessToken) => ({
+    'X-Plex-Token': accessToken || getters.GET_PLEX_AUTH_TOKEN,
+  }),
+
   GET_PLEX_BASE_PARAMS: (state, getters) => (accessToken) => ({
     ...getters.GET_PLEX_INITIAL_AUTH_PARAMS,
-    'X-Plex-Token': accessToken || getters.GET_PLEX_AUTH_TOKEN,
+    ...getters.GET_PLEX_TOKEN_PARAMS(accessToken),
     'X-Plex-Text-Format': 'plain',
     'X-Plex-Provider-Version': 1.3,
   }),

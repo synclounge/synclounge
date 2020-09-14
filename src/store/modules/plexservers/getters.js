@@ -36,11 +36,11 @@ export default {
     const server = getters.GET_PLEX_SERVER(machineIdentifier);
 
     const params = {
-      ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](server.accessToken),
+      ...rootGetters['plex/GET_PLEX_TOKEN_PARAMS'](server.accessToken),
       url: mediaUrl,
       width: Math.round(width),
       height: Math.round(height),
-      blur: blur || 0,
+      ...(blur && { blur }),
       upscale: 1,
       minSize: 1,
     };

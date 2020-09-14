@@ -310,7 +310,7 @@ export default {
       params: {
         'X-Plex-Container-Start': start,
         'X-Plex-Container-Size': size,
-        ...sort && { sort },
+        ...(sort && { sort }),
         includeCollections: 1,
         includeAdvanced: 1,
         includeMeta: 1,
