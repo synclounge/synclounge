@@ -72,9 +72,11 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { debounce } from '@/utils/lightlodash';
+import CAF from 'caf';
 import contentTitle from '@/mixins/contentTitle';
 import getContentLink from '@/utils/contentlinks';
+
+const debounceTime = 250;
 
 export default {
   name: 'SearchBar',
@@ -208,20 +210,12 @@ export default {
       this.loading = false;
     },
 
-    searchServersDebounced: debounce(async function search() {
-      const controller = new AbortController();
-      this.abortController = controller;
+    async searchServersDebounced(signal) {
+      await CAF.delay(signal, debounceTime);
+      await this.searchServersCriticalSection(signal);
+    },
 
-      try {
-        await this.searchServersCriticalSection(controller.signal);
-      } catch (e) {
-        if (!controller.signal.aborted) {
-          throw e;
-        }
-      }
-    }, 250),
-
-    searchServers() {
+    async searchServers() {
       this.abortRequests();
 
       this.items = [];
@@ -232,7 +226,16 @@ export default {
 
       this.loading = true;
 
-      this.searchServersDebounced();
+      const controller = new AbortController();
+      this.abortController = controller;
+
+      try {
+        await this.searchServersDebounced(controller.signal);
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          throw e;
+        }
+      }
     },
 
     getLink(params) {
