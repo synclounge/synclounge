@@ -12,7 +12,6 @@ export default new Router({
       component: () => import('@/views/RoomCreation.vue'),
       meta: {
         requiresAuth: true,
-        hideAppBarExtension: true,
       },
     },
 
@@ -22,7 +21,6 @@ export default new Router({
       component: () => import('@/views/SignIn.vue'),
       meta: {
         requiresNoAuth: true,
-        hideAppBarExtension: true,
       },
     },
 
@@ -32,7 +30,6 @@ export default new Router({
       component: () => import('@/views/SignOut.vue'),
       meta: {
         requiresPlexToken: true,
-        hideAppBarExtension: true,
       },
     },
 
@@ -44,7 +41,6 @@ export default new Router({
       meta: {
         requiresAuth: true,
         redirectAfterAuth: true,
-        hideAppBarExtension: true,
       },
     },
 
@@ -53,8 +49,7 @@ export default new Router({
       name: 'AdvancedRoomWalkthrough',
       component: () => import('@/views/AdvancedRoomWalkthrough.vue'),
       meta: {
-        requiresAuth: true, hideAppBarExtension: true,
-
+        requiresAuth: true,
       },
     },
 
@@ -64,7 +59,6 @@ export default new Router({
       component: () => import('@/views/AdvancedRoomJoin.vue'),
       meta: {
         requiresAuth: true,
-        hideAppBarExtension: true,
       },
     },
 
@@ -75,28 +69,38 @@ export default new Router({
       meta: {
         requiresAuth: true,
         protected: true,
-        hideAppBarExtension: true,
       },
     },
 
     {
       path: '/browse',
       name: 'PlexHome',
-      component: () => import('@/views/PlexHome.vue'),
+      components: {
+        default: () => import('@/views/PlexHome.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
+      },
       meta: {
         requiresAuth: true,
         protected: true,
+        showAppBarExtension: true,
       },
     },
 
     {
       path: '/browse/:machineIdentifier',
       name: 'PlexServer',
-      component: () => import('@/views/PlexServer.vue'),
-      props: true,
+      components: {
+        default: () => import('@/views/PlexServer.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
       meta: {
         requiresAuth: true,
         protected: true,
+        showAppBarExtension: true,
       },
     },
 
@@ -105,25 +109,35 @@ export default new Router({
       name: 'PlexLibrary',
       components: {
         default: () => import('@/views/PlexLibrary.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
         appBarView: () => import('@/components/LibraryViewButton.vue'),
       },
       props: {
         default: true,
+        searchBar: true,
       },
       meta: {
         requiresAuth: true,
         protected: true,
+        showAppBarExtension: true,
       },
     },
 
     {
       path: '/browse/:machineIdentifier/:ratingKey',
       name: 'PlexMedia',
-      component: () => import('@/views/PlexMedia.vue'),
-      props: true,
+      components: {
+        default: () => import('@/views/PlexMedia.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
       meta: {
         requiresAuth: true,
         protected: true,
+        showAppBarExtension: true,
       },
     },
   ],

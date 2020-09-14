@@ -204,10 +204,7 @@ export default {
   },
 
   beforeDestroy() {
-    if (this.abortController) {
-      this.abortController.abort();
-      this.abortController = null;
-    }
+    this.abortRequests();
   },
 
   methods: {
@@ -260,12 +257,16 @@ export default {
       }));
     },
 
-    async onSortChange() {
-      if (this.abortController != null) {
+    abortRequests() {
+      if (this.abortController) {
         // Cancel outstanding request
         this.abortController.abort();
         this.abortController = null;
       }
+    },
+
+    async onSortChange() {
+      this.abortRequests();
 
       this.stopNewContent = false;
 
@@ -279,7 +280,7 @@ export default {
     },
 
     async fetchMoreContent() {
-      if (this.stopNewContent || this.abortController != null) {
+      if (this.stopNewContent || this.abortController) {
         return;
       }
 

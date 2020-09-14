@@ -62,8 +62,8 @@
 
         <v-row>
           <v-col
-            v-for="role in roles"
-            :key="role.tag"
+            v-for="(role, index) in roles"
+            :key="index"
             cols="12"
             md="6"
             lg="4"

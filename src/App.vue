@@ -98,7 +98,10 @@
         <TheAppBarCrumbs />
 
         <v-spacer />
-        <SearchBar />
+        <router-view
+          style="max-width: 400px;"
+          name="searchBar"
+        />
 
         <router-view name="appBarView" />
       </template>
@@ -182,7 +185,6 @@ export default {
     TheNowPlayingChip: () => import('@/components/TheNowPlayingChip.vue'),
     DonateDialog: () => import('@/components/DonateDialog.vue'),
     TheAppBarCrumbs: () => import('@/components/TheAppBarCrumbs.vue'),
-    SearchBar: () => import('@/components/SearchBar.vue'),
   },
 
   mixins: [
@@ -254,7 +256,7 @@ export default {
     },
 
     showAppBarExtension() {
-      return !this.$route.meta.hideAppBarExtension;
+      return this.$route.meta.showAppBarExtension;
     },
 
     smallLogoMedia() {

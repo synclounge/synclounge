@@ -262,11 +262,11 @@ export default {
     // Add librarySectionID to all children
     return {
       ...MediaContainer,
-      Metadata: MediaContainer.Metadata.map((child) => ({
+      Metadata: MediaContainer.Metadata?.map((child) => ({
         librarySectionID: MediaContainer.librarySectionID,
         machineIdentifier,
         ...child,
-      })),
+      })) || [],
     };
   },
 
@@ -411,11 +411,14 @@ export default {
     return dispatch('SET_MEDIA_AS_BACKGROUND', item);
   },
 
-  SEARCH_PLEX_SERVER_HUB: async ({ dispatch }, { query, machineIdentifier, signal }) => {
+  SEARCH_PLEX_SERVER_HUB: async ({ dispatch }, {
+    query, machineIdentifier, signal, ...extra
+  }) => {
     const { MediaContainer: { Hub } } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: '/hubs/search',
       params: {
+        ...extra,
         query,
         includeCollections: 0,
       },

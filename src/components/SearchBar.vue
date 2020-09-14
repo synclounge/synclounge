@@ -1,15 +1,16 @@
 <template>
   <v-autocomplete
+    dense
     :items="items"
     :loading="loading"
-    :search-input.sync="search"
+    :search-input.sync="searchQuery"
     prepend-icon="search"
     no-filter
     clearable
     hide-details
     hide-no-data
     solo
-    :menu-props="{ maxHeight: '80vh' }"
+    :menu-props="{ maxHeight: '80vh', maxWidth: '500px' }"
   >
     <template #item="{ item, on, attrs }">
       <template v-if="item.serverHeader">
@@ -47,6 +48,7 @@
           dense
           v-bind="attrs"
           :to="getLink(item)"
+          @click="clear"
         >
           <v-list-item-avatar
             height="42"
@@ -81,11 +83,24 @@ export default {
     contentTitle,
   ],
 
+  props: {
+    machineIdentifier: {
+      type: String,
+      default: '',
+    },
+
+    sectionId: {
+      type: [String, Number],
+      default: '',
+    },
+  },
+
   data: () => ({
     loading: false,
     items: [],
-    search: null,
+    searchQuery: null,
     storedWord: null,
+    abortController: null,
   }),
 
   computed: {
@@ -94,12 +109,31 @@ export default {
       'GET_PLEX_SERVER',
       'GET_MEDIA_IMAGE_URL',
     ]),
+
+    servers() {
+      return this.machineIdentifier
+        ? [this.machineIdentifier]
+        : this.GET_CONNECTABLE_PLEX_SERVER_IDS;
+    },
+
+    searchParams() {
+      return this.sectionId
+        ? {
+          sectionId: this.sectionId,
+          contextual: 1,
+        }
+        : null;
+    },
   },
 
   watch: {
-    search() {
-      this.searchAllServers();
+    searchQuery() {
+      this.searchServersDebounced();
     },
+  },
+
+  beforeDestroy() {
+    this.abortRequests();
   },
 
   methods: {
@@ -132,27 +166,32 @@ export default {
       });
     },
 
-    searchAllServers: debounce(async function search() {
-      if (this.search === '') {
-        this.items = [];
-        return;
+    abortRequests() {
+      if (this.abortController) {
+        // Cancel outstanding request
+        this.abortController.abort();
+        this.abortController = null;
       }
+    },
 
+    clear() {
+      this.abortRequests();
+      this.searchQuery = null;
+      this.items = [];
+      this.loading = false;
+    },
+
+    async searchServers() {
       this.loading = true;
       this.items = [];
-      const storedWord = this.search;
 
-      await Promise.all(this.GET_CONNECTABLE_PLEX_SERVER_IDS.map(async (machineIdentifier) => {
+      await Promise.all(this.servers.map(async (machineIdentifier) => {
         const serverResults = await this.SEARCH_PLEX_SERVER_HUB({
-          query: this.search,
+          ...this.searchParams,
+          query: this.searchQuery,
           machineIdentifier,
         });
 
-        if (storedWord !== this.search) {
-          // Old data
-          return;
-        }
-        console.log(serverResults);
         if (serverResults.length) {
           const results = [{
             serverHeader: this.GET_PLEX_SERVER(machineIdentifier).name,
@@ -169,7 +208,27 @@ export default {
       }));
 
       this.loading = false;
-    }, 500),
+    },
+
+    searchServersDebounced: debounce(async function search() {
+      this.abortRequests();
+
+      if (!this.searchQuery || !this.searchQuery.trim()) {
+        this.items = [];
+        return;
+      }
+
+      const controller = new AbortController();
+      this.abortController = controller;
+
+      try {
+        await this.searchServers();
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          throw e;
+        }
+      }
+    }, 250),
 
     getLink(params) {
       return getContentLink(params);
