@@ -34,6 +34,7 @@
 import { mapGetters } from 'vuex';
 
 import contentTitle from '@/mixins/contentTitle';
+import getContentLink from '@/utils/contentlinks';
 
 export default {
   name: 'TheNowPlayingChip',
@@ -53,13 +54,7 @@ export default {
     ]),
 
     href() {
-      return {
-        name: 'NowPlaying',
-        params: {
-          machineIdentifier: this.GET_ACTIVE_SERVER_ID,
-          ratingKey: this.GET_ACTIVE_MEDIA_METADATA.ratingKey,
-        },
-      };
+      return getContentLink(this.GET_ACTIVE_MEDIA_METADATA);
     },
 
     thumb() {

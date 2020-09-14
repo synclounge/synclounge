@@ -36,10 +36,6 @@ export default {
     ]),
 
     crumbs() {
-      if (this.$route.path.indexOf('browse') === -1 && this.$route.name !== 'NowPlaying') {
-        return [];
-      }
-
       const data = [
         {
           text: 'Home',

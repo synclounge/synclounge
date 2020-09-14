@@ -12,6 +12,7 @@ export default new Router({
       component: () => import('@/views/RoomCreation.vue'),
       meta: {
         requiresAuth: true,
+        hideAppBarExtension: true,
       },
     },
 
@@ -21,6 +22,7 @@ export default new Router({
       component: () => import('@/views/SignIn.vue'),
       meta: {
         requiresNoAuth: true,
+        hideAppBarExtension: true,
       },
     },
 
@@ -30,6 +32,7 @@ export default new Router({
       component: () => import('@/views/SignOut.vue'),
       meta: {
         requiresPlexToken: true,
+        hideAppBarExtension: true,
       },
     },
 
@@ -41,6 +44,7 @@ export default new Router({
       meta: {
         requiresAuth: true,
         redirectAfterAuth: true,
+        hideAppBarExtension: true,
       },
     },
 
@@ -49,7 +53,8 @@ export default new Router({
       name: 'AdvancedRoomWalkthrough',
       component: () => import('@/views/AdvancedRoomWalkthrough.vue'),
       meta: {
-        requiresAuth: true,
+        requiresAuth: true, hideAppBarExtension: true,
+
       },
     },
 
@@ -59,6 +64,7 @@ export default new Router({
       component: () => import('@/views/AdvancedRoomJoin.vue'),
       meta: {
         requiresAuth: true,
+        hideAppBarExtension: true,
       },
     },
 
@@ -69,17 +75,7 @@ export default new Router({
       meta: {
         requiresAuth: true,
         protected: true,
-      },
-    },
-
-    {
-      path: '/nowplaying/:machineIdentifier/:ratingKey',
-      name: 'NowPlaying',
-      component: () => import('@/views/PlexMedia.vue'),
-      props: true,
-      meta: {
-        requiresAuth: true,
-        protected: true,
+        hideAppBarExtension: true,
       },
     },
 

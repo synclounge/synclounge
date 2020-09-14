@@ -92,7 +92,7 @@
       </v-toolbar-items>
 
       <template
-        v-if="showCrumbs"
+        v-if="showAppBarExtension"
         #extension
       >
         <TheAppBarCrumbs />
@@ -250,14 +250,11 @@ export default {
     },
 
     showNowPlaying() {
-      return this.GET_ACTIVE_SERVER_ID && this.$route.name !== 'NowPlaying'
-       && this.$route.name !== 'WebPlayer';
+      return this.GET_ACTIVE_SERVER_ID && this.GET_CHOSEN_CLIENT_ID !== slPlayerClientId;
     },
 
-    showCrumbs() {
-      // TODO: rewrite this logic but I'm lazy now
-      return !(this.$route.path.indexOf('browse') === -1
-        && this.$route.name !== 'NowPlaying');
+    showAppBarExtension() {
+      return !this.$route.meta.hideAppBarExtension;
     },
 
     smallLogoMedia() {
@@ -308,7 +305,7 @@ export default {
       if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== slPlayerClientId) {
         if (metadata) {
           this.redirectToMediaPage();
-        } else if (this.$route.name === 'NowPlaying') {
+        } else {
           this.$router.push({ name: 'PlexHome' });
         }
       }

@@ -112,7 +112,6 @@ export default {
     },
 
     audioStreams(media) {
-      console.log(media);
       return this.formatStreams(media.filter(({ streamType }) => streamType === 2));
     },
 

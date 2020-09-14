@@ -16,36 +16,7 @@
     :child-xl="childXl"
   >
     <template #belowImage>
-      <template v-if="playable">
-        <v-col>
-          <PlexMediaPlayDialog
-            v-if="!metadata.Media.length || metadata.viewOffset"
-            #default="{ on, attrs }"
-            :key="combinedKey"
-            :metadata="metadata"
-          >
-            <v-btn
-              v-bind="attrs"
-              block
-              class="primary"
-              v-on="on"
-            >
-              <v-icon>play_arrow</v-icon>
-            </v-btn>
-          </PlexMediaPlayDialog>
-
-          <v-btn
-            v-else
-            block
-            class="primary"
-            @click="playMedia(metadata, 0, 0)"
-          >
-            <v-icon>play_arrow</v-icon>
-          </v-btn>
-        </v-col>
-      </template>
-
-      <template v-else>
+      <template v-if="isPlaying">
         <v-row style="max-width: 200px;">
           <v-col
             cols="auto"
@@ -74,6 +45,35 @@
         >
           Manual sync
         </v-btn>
+      </template>
+
+      <template v-else>
+        <v-col>
+          <PlexMediaPlayDialog
+            v-if="!metadata.Media.length || metadata.viewOffset"
+            #default="{ on, attrs }"
+            :key="combinedKey"
+            :metadata="metadata"
+          >
+            <v-btn
+              v-bind="attrs"
+              block
+              class="primary"
+              v-on="on"
+            >
+              <v-icon>play_arrow</v-icon>
+            </v-btn>
+          </PlexMediaPlayDialog>
+
+          <v-btn
+            v-else
+            block
+            class="primary"
+            @click="playMedia(metadata, 0, 0)"
+          >
+            <v-icon>play_arrow</v-icon>
+          </v-btn>
+        </v-col>
       </template>
     </template>
 
@@ -270,6 +270,7 @@ export default {
       'GET_CHOSEN_CLIENT',
       'GET_CHOSEN_CLIENT_ID',
       'GET_ACTIVE_SERVER_ID',
+      'GET_ACTIVE_MEDIA_METADATA',
     ]),
 
     ...mapGetters('plexservers', [
@@ -351,8 +352,9 @@ export default {
       return this.GET_PLEX_SERVER(this.metadata.machineIdentifier);
     },
 
-    playable() {
-      return this.$route.name !== 'NowPlaying';
+    isPlaying() {
+      return this.GET_ACTIVE_MEDIA_METADATA?.machineIdentifier === this.metadata.machineIdentifier
+      && this.GET_ACTIVE_MEDIA_METADATA?.ratingKey === this.metadata.ratingKey;
     },
   },
 
