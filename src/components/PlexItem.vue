@@ -366,6 +366,7 @@ export default {
       immediate: true,
     },
   },
+
   methods: {
     ...mapActions('plexclients', [
       'PLAY_MEDIA',

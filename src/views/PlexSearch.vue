@@ -75,7 +75,7 @@ export default {
     query: {
       handler() {
         this.updateCrumbs();
-        this.searchServers();
+        return this.searchServers();
       },
       immediate: true,
     },

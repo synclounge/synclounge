@@ -143,7 +143,7 @@ export default {
 
   watch: {
     query() {
-      this.searchServers();
+      return this.searchServers();
     },
   },
 

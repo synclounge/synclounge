@@ -80,10 +80,14 @@ export default {
   watch: {
     combinedKey: {
       handler() {
-        this.fetchMetadata();
+        return this.fetchMetadata();
       },
       immediate: true,
     },
+  },
+
+  beforeDestroy() {
+    this.abortRequests();
   },
 
   methods: {
@@ -96,10 +100,19 @@ export default {
       'SET_ACTIVE_METADATA',
     ]),
 
-    async fetchMetadata() {
+    abortRequests() {
+      if (this.abortController) {
+        // Cancel outstanding request
+        this.abortController.abort();
+        this.abortController = null;
+      }
+    },
+
+    async fetchMetadataCriticalSection(signal) {
       this.metadata = await this.FETCH_PLEX_METADATA({
         ratingKey: this.ratingKey,
         machineIdentifier: this.machineIdentifier,
+        signal,
       });
 
       this.SET_ACTIVE_METADATA(this.metadata);
@@ -108,6 +121,21 @@ export default {
         machineIdentifier: this.machineIdentifier,
         ...this.metadata,
       });
+    },
+
+    async fetchMetadata() {
+      this.abortRequests();
+
+      const controller = new AbortController();
+      this.abortController = controller;
+
+      try {
+        await this.fetchMetadataCriticalSection(controller.signal);
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          throw e;
+        }
+      }
     },
   },
 };
