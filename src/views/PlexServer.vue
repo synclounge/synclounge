@@ -55,124 +55,21 @@
       </v-col>
     </v-row>
 
-    <template v-if="subsetOnDeck.length > 0">
-      <v-divider
-        class="mt-3 ma-2"
-      />
+    <PlexOnDeck :machine-identifier="machineIdentifier">
+      <template #preHeader>
+        <v-divider
+          class="mt-3 ma-2"
+        />
+      </template>
+    </PlexOnDeck>
 
-      <v-row
-        no-gutters
-      >
-        <v-col>
-          <v-subheader>
-            On Deck
-          </v-subheader>
-        </v-col>
-
-        <v-col
-          cols="auto"
-          class="ml-auto"
-        >
-          <v-btn
-            icon
-            :style="onDeckDownStyle"
-            @click="onDeckDown"
-          >
-            <v-icon>navigate_before</v-icon>
-          </v-btn>
-
-          <v-btn
-            icon
-            :style="onDeckUpStyle"
-            @click="onDeckUp"
-          >
-            <v-icon>navigate_next</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col
-          v-for="content in subsetOnDeck"
-          :key="content.key"
-          cols="12"
-          sm="4"
-          md="3"
-          xl="2"
-        >
-          <PlexThumbnail
-            :content="content"
-            :machine-identifier="machineIdentifier"
-            type="art"
-            cols="12"
-            sm="4"
-            md="3"
-            xl="2"
-          />
-        </v-col>
-      </v-row>
-    </template>
-
-    <template
-      v-if="subsetRecentlyAdded.length > 0"
-    >
-      <v-divider
-        class="mt-3 ma-2"
-      />
-
-      <v-row
-        no-gutters
-      >
-        <v-col>
-          <v-subheader>
-            Recently Added
-          </v-subheader>
-        </v-col>
-
-        <v-col
-          cols="auto"
-          class="ml-auto"
-        >
-          <v-btn
-            icon
-            :style="recentlyAddedDownStyle"
-            @click="recentlyAddedDown"
-          >
-            <v-icon>navigate_before</v-icon>
-          </v-btn>
-
-          <v-btn
-            icon
-            :style="recentlyAddedUpStyle"
-            @click="recentlyAddedUp"
-          >
-            <v-icon>navigate_next</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col
-          v-for="content in subsetRecentlyAdded"
-          :key="content.key"
-          cols="4"
-          sm="3"
-          md="2"
-          xl="1"
-        >
-          <PlexThumbnail
-            :content="content"
-            :machine-identifier="machineIdentifier"
-            full-title
-            type="thumb"
-            cols="4"
-            sm="3"
-            md="2"
-            xl="1"
-          />
-        </v-col>
-      </v-row>
-    </template>
+    <PlexRecentlyAdded :machine-identifier="machineIdentifier">
+      <template #preHeader>
+        <v-divider
+          class="mt-3 ma-2"
+        />
+      </template>
+    </PlexRecentlyAdded>
   </v-container>
 </template>
 
@@ -184,7 +81,8 @@ export default {
   name: 'PlexServer',
 
   components: {
-    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
+    PlexOnDeck: () => import('@/components/PlexOnDeck.vue'),
+    PlexRecentlyAdded: () => import('@/components/PlexRecentlyAdded.vue'),
   },
 
   props: {
@@ -194,102 +92,15 @@ export default {
     },
   },
 
-  data() {
-    return {
-      recentlyAdded: null,
-      onDeck: null,
-      onDeckOffset: 0,
-      recentlyAddedOffset: 0,
-    };
-  },
+  data: () => ({
+    abortController: null,
+  }),
 
   computed: {
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
       'GET_PLEX_SERVER',
     ]),
-
-    recentItemsPer() {
-      switch (this.$vuetify.breakpoint.name) {
-        case 'xs': return 3;
-        case 'sm': return 4;
-        case 'md':
-        case 'lg': return 6;
-        default: return 12;
-      }
-    },
-
-    onDeckItemsPer() {
-      switch (this.$vuetify.breakpoint.name) {
-        case 'xs':
-          return 1;
-        case 'sm':
-          return 3;
-        case 'md':
-        case 'lg':
-          return 4;
-        default:
-          return 6;
-      }
-    },
-
-    onDeckUpStyle() {
-      if ((this.onDeckOffset + this.onDeckItemsPer) >= this.onDeck.length) {
-        return {
-          opacity: 0.5,
-        };
-      }
-
-      return {};
-    },
-
-    onDeckDownStyle() {
-      if (this.onDeckOffset === 0) {
-        return {
-          opacity: 0.5,
-        };
-      }
-
-      return {};
-    },
-
-    recentlyAddedDownStyle() {
-      if (this.recentlyAddedOffset === 0) {
-        return {
-          opacity: 0.5,
-        };
-      }
-
-      return {};
-    },
-
-    recentlyAddedUpStyle() {
-      if (this.recentlyAddedOffset + this.recentItemsPer
-        >= this.recentlyAdded.length) {
-        return {
-          opacity: 0.5,
-        };
-      }
-
-      return {};
-    },
-
-    subsetOnDeck() {
-      if (!this.onDeck) {
-        return [];
-      }
-      return this.onDeck.slice(this.onDeckOffset,
-        this.onDeckOffset + this.onDeckItemsPer);
-    },
-
-    subsetRecentlyAdded() {
-      if (!this.recentlyAdded) {
-        return [];
-      }
-
-      return this.recentlyAdded.slice(this.recentlyAddedOffset,
-        this.recentlyAddedOffset + this.recentItemsPer);
-    },
 
     libraries() {
       return this.GET_PLEX_SERVER(this.machineIdentifier).libraries
@@ -300,18 +111,22 @@ export default {
     },
   },
 
-  created() {
-    this.SET_ACTIVE_METADATA({
-      machineIdentifier: this.machineIdentifier,
-    });
+  watch: {
+    machineIdentifier: {
+      handler() {
+        this.setupCrumbs();
+        return this.fetchRandomBackground();
+      },
+      immediate: true,
+    },
+  },
 
-    this.fetchData();
+  beforeDestroy() {
+    this.abortRequests();
   },
 
   methods: {
     ...mapActions('plexservers', [
-      'FETCH_RECENTLY_ADDED_MEDIA',
-      'FETCH_ON_DECK',
       'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
 
@@ -319,76 +134,18 @@ export default {
       'SET_ACTIVE_METADATA',
     ]),
 
-    fetchData() {
-      // TODO: handle abort stuff
-      return Promise.all([
-        this.fetchRecentlyAdded(),
-        this.fetchOnDeck(),
-        this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({ machineIdentifier: this.machineIdentifier }),
-      ]);
+    abortRequests() {
+      if (this.abortController) {
+        // Cancel outstanding request
+        this.abortController.abort();
+        this.abortController = null;
+      }
     },
 
-    async fetchOnDeck() {
-      this.onDeck = await this.FETCH_ON_DECK({
-        machineIdentifier: this.machineIdentifier,
-        start: 0,
-        size: 10,
-      });
-    },
-
-    async fetchRecentlyAdded() {
-      this.recentlyAdded = await this.FETCH_RECENTLY_ADDED_MEDIA({
+    setupCrumbs() {
+      this.SET_ACTIVE_METADATA({
         machineIdentifier: this.machineIdentifier,
       });
-    },
-
-    onDeckDown() {
-      if (!this.onDeck) {
-        return;
-      }
-
-      if (this.onDeckOffset - this.onDeckItemsPer < 0) {
-        this.onDeckOffset = 0;
-      } else {
-        this.onDeckOffset -= 4;
-      }
-    },
-
-    onDeckUp() {
-      if (!this.onDeck) {
-        return;
-      }
-
-      if (this.onDeckOffset + this.onDeckItemsPer >= this.onDeck.length) {
-        // This would overflow!
-      } else {
-        this.onDeckOffset += this.onDeckItemsPer;
-      }
-    },
-
-    recentlyAddedUp() {
-      if (!this.recentlyAdded) {
-        return;
-      }
-
-      if (this.recentlyAddedOffset + this.recentItemsPer
-        >= this.recentlyAdded.length) {
-        // This would overflow!
-      } else {
-        this.recentlyAddedOffset += this.recentItemsPer;
-      }
-    },
-
-    recentlyAddedDown() {
-      if (!this.recentlyAdded) {
-        return;
-      }
-
-      if (this.recentlyAddedOffset - this.recentItemsPer < 0) {
-        this.recentlyAddedOffset = 0;
-      } else {
-        this.recentlyAddedOffset -= this.recentItemsPer;
-      }
     },
 
     getArtLibrary(object) {
@@ -408,6 +165,28 @@ export default {
         width: 75,
         height: 75,
       });
+    },
+
+    async fetchRandomBackgroundCriticalSection(signal) {
+      await this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({
+        machineIdentifier: this.machineIdentifier,
+        signal,
+      });
+    },
+
+    async fetchRandomBackground() {
+      this.abortRequests();
+
+      const controller = new AbortController();
+      this.abortController = controller;
+
+      try {
+        await this.fetchRandomBackgroundCriticalSection(controller.signal);
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          throw e;
+        }
+      }
     },
   },
 };

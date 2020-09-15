@@ -1,60 +1,10 @@
 <template>
   <v-container fluid>
-    <template
-      v-if="subsetOnDeck.length"
-    >
-      <v-row no-gutters>
-        <v-col>
-          <v-subheader>
-            Continue watching from {{ GET_LAST_SERVER.name }}
-          </v-subheader>
-        </v-col>
-
-        <v-col
-          cols="auto"
-          class="ml-auto"
-        >
-          <v-btn
-            icon
-            :style="onDeckDownStyle"
-            @click="onDeckDown"
-          >
-            <v-icon>navigate_before</v-icon>
-          </v-btn>
-
-          <v-btn
-            icon
-            :style="onDeckUpStyle"
-            @click="onDeckUp"
-          >
-            <v-icon>navigate_next</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <v-row
-        justify="center"
-      >
-        <v-col
-          v-for="content in subsetOnDeck"
-          :key="content.ratingKey"
-          cols="12"
-          sm="4"
-          md="3"
-          xl="2"
-        >
-          <PlexThumbnail
-            :content="content"
-            :machine-identifier="GET_LAST_SERVER_ID"
-            type="art"
-            cols="12"
-            sm="4"
-            md="3"
-            xl="2"
-          />
-        </v-col>
-      </v-row>
-    </template>
+    <PlexOnDeck :machine-identifier="GET_LAST_SERVER_ID">
+      <template #header>
+        Continue watching from {{ GET_LAST_SERVER.name }}
+      </template>
+    </PlexOnDeck>
 
     <v-divider />
 
@@ -147,12 +97,10 @@ export default {
   name: 'PlexHome',
 
   components: {
-    PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
+    PlexOnDeck: () => import('@/components/PlexOnDeck.vue'),
   },
 
   data: () => ({
-    onDeckOffset: 0,
-    onDeck: null,
     abortController: null,
   }),
 
@@ -162,66 +110,11 @@ export default {
       'GET_LAST_SERVER_ID',
       'GET_PLEX_SERVERS',
     ]),
-
-    onDeckItemsPer() {
-      switch (this.$vuetify.breakpoint.name) {
-        case 'xs':
-          return 1;
-        case 'sm':
-          return 3;
-        case 'md':
-        case 'lg':
-          return 4;
-        default:
-          return 6;
-      }
-    },
-
-    onDeckUpStyle() {
-      if (this.onDeckOffset + 3 >= this.onDeck.length) {
-        return {
-          opacity: 0.5,
-        };
-      }
-
-      return {};
-    },
-
-    onDeckDownStyle() {
-      if (this.onDeckOffset === 0) {
-        return {
-          opacity: 0.5,
-        };
-      }
-
-      return {};
-    },
-
-    subsetOnDeck() {
-      if (!this.onDeck) {
-        return [];
-      }
-      return this.onDeck.slice(
-        this.onDeckOffset,
-        this.onDeckOffset + this.onDeckItemsPer,
-      );
-    },
-  },
-
-  watch: {
-    GET_LAST_SERVER_ID: {
-      handler() {
-        if (this.GET_LAST_SERVER_ID) {
-          this.fetchOnDeck();
-        }
-      },
-      immediate: true,
-    },
-
   },
 
   created() {
     this.SET_ACTIVE_METADATA(null);
+    return this.fetchRandomBackground();
   },
 
   beforeDestroy() {
@@ -230,7 +123,6 @@ export default {
 
   methods: {
     ...mapActions('plexservers', [
-      'FETCH_ON_DECK',
       'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
     ]),
 
@@ -250,59 +142,31 @@ export default {
       }
     },
 
-    async fetchOnDeckCriticalSection(signal) {
-      this.onDeck = await this.FETCH_ON_DECK({
-        machineIdentifier: this.GET_LAST_SERVER_ID,
-        start: 0,
-        size: 10,
+    ownerOfServer({ owned, sourceTitle }) {
+      return owned
+        ? 'you'
+        : sourceTitle;
+    },
+
+    async fetchRandomBackgroundCriticalSection(signal) {
+      await this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({
         signal,
       });
     },
 
-    async fetchOnDeck() {
+    async fetchRandomBackground() {
       this.abortRequests();
 
       const controller = new AbortController();
       this.abortController = controller;
 
       try {
-        await this.fetchOnDeckCriticalSection(controller.signal);
-        await this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({ signal: controller.signal });
+        await this.fetchRandomBackgroundCriticalSection(controller.signal);
       } catch (e) {
         if (!controller.signal.aborted) {
           throw e;
         }
       }
-    },
-
-    onDeckDown() {
-      if (!this.onDeck) {
-        return;
-      }
-
-      if (this.onDeckOffset - 4 < 0) {
-        this.onDeckOffset = 0;
-      } else {
-        this.onDeckOffset -= 4;
-      }
-    },
-
-    onDeckUp() {
-      if (!this.onDeck) {
-        return;
-      }
-
-      if (this.onDeckOffset + 4 >= this.onDeck.length) {
-        // This would overflow!
-      } else {
-        this.onDeckOffset += 4;
-      }
-    },
-
-    ownerOfServer({ owned, sourceTitle }) {
-      return owned
-        ? 'you'
-        : sourceTitle;
     },
   },
 };
