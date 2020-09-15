@@ -12,6 +12,8 @@ Vue.use(Vuex);
 
 const persistedState = createPersistedState({
   paths: [
+    'isLibraryListView',
+
     'settings',
 
     'plex.user',

@@ -18,7 +18,7 @@
           :sort-desc.sync="sortDesc"
           :items-per-page.sync="itemsPerPage"
           :server-items-length="totalItems"
-          :loading="abortController != null"
+          :loading="childrenAbortController != null"
           item-key="ratingKey"
           :must-sort="true"
           style="cursor: pointer;"
@@ -101,32 +101,31 @@ export default {
     },
   },
 
-  data() {
-    return {
-      batchSize: 50,
-      stopNewContent: false,
-      contents: [],
-      itemsPerPage: 0,
-      sortBy: [],
-      sortDesc: [],
-      abortController: null,
+  data: () => ({
+    batchSize: 50,
+    stopNewContent: false,
+    contents: [],
+    itemsPerPage: 0,
+    sortBy: [],
+    sortDesc: [],
+    backgroundAbortController: null,
+    childrenAbortController: null,
 
-      headers: {
-        show: [
-          { text: 'Title', value: 'title' },
-          { text: 'Year', value: 'year' },
-          { text: 'Unplayed', value: 'viewedLeafCount' },
-        ],
+    headers: {
+      show: [
+        { text: 'Title', value: 'title' },
+        { text: 'Year', value: 'year' },
+        { text: 'Unplayed', value: 'viewedLeafCount' },
+      ],
 
-        movie: [
-          { text: 'Title', value: 'title' },
-          { text: 'Year', value: 'year' },
-          { text: 'Duration', value: 'duration' },
-          { text: 'Progress', value: 'viewOffset' },
-        ],
-      },
-    };
-  },
+      movie: [
+        { text: 'Title', value: 'title' },
+        { text: 'Year', value: 'year' },
+        { text: 'Duration', value: 'duration' },
+        { text: 'Progress', value: 'viewOffset' },
+      ],
+    },
+  }),
 
   computed: {
     ...mapGetters('plexservers', [
@@ -140,6 +139,14 @@ export default {
     ]),
 
     // This exists so we can watch if either of these change
+    combinedKey() {
+      return {
+        machineIdentifier: this.machineIdentifier,
+        sectionId: this.sectionId,
+      };
+    },
+
+    // This exists so we can watch if the sort changes
     combinedSortKey() {
       return {
         sortBy: this.sortBy,
@@ -187,24 +194,37 @@ export default {
   },
 
   watch: {
+    combinedKey: {
+      handler() {
+        this.stopNewContent = false;
+        this.contents = [];
+        this.itemsPerPage = 0;
+        this.setupCrumbs();
+        return this.fetchRandomBackground();
+      },
+      immediate: true,
+    },
+
     combinedSortKey: {
       handler() {
-        this.onSortChange();
+        return this.onSortChange();
       },
       deep: true,
     },
-  },
 
-  created() {
-    this.setupCrumbs();
-    this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({
-      machineIdentifier: this.machineIdentifier,
-      sectionId: this.sectionId,
-    });
+    IS_LIBRARY_LIST_VIEW() {
+      this.stopNewContent = false;
+      this.contents = [];
+      this.itemsPerPage = 0;
+      this.sortBy = [];
+      this.sortDesc = [];
+      this.abortChildrenRequests();
+    },
   },
 
   beforeDestroy() {
-    this.abortRequests();
+    this.abortBackgroundRequests();
+    this.abortChildrenRequests();
   },
 
   methods: {
@@ -245,7 +265,7 @@ export default {
     },
 
     async onIntersect(entries, observer, isIntersecting) {
-      if (isIntersecting) {
+      if (isIntersecting && !this.childrenAbortController) {
         await this.fetchMoreContent();
       }
     },
@@ -257,57 +277,90 @@ export default {
       }));
     },
 
-    abortRequests() {
-      if (this.abortController) {
+    abortBackgroundRequests() {
+      if (this.backgroundAbortController) {
         // Cancel outstanding request
-        this.abortController.abort();
-        this.abortController = null;
+        this.backgroundAbortController.abort();
+        this.backgroundAbortController = null;
+      }
+    },
+
+    abortChildrenRequests() {
+      if (this.childrenAbortController) {
+        // Cancel outstanding request
+        this.childrenAbortController.abort();
+        this.childrenAbortController = null;
       }
     },
 
     async onSortChange() {
-      this.abortRequests();
+      this.abortChildrenRequests();
 
       this.stopNewContent = false;
+      // Reset items
+      this.contents = [];
+      this.itemsPerPage = 0;
+      await this.fetchMoreContent();
+    },
 
-      if (this.itemsPerPage === 0) {
-        await this.fetchMoreContent();
-      } else {
-        // Reset items
-        this.contents = [];
-        this.itemsPerPage = 0;
+    async fetchMoreContentCriticalSection(signal) {
+      const results = await this.FETCH_LIBRARY_CONTENTS({
+        machineIdentifier: this.machineIdentifier,
+        sectionId: this.sectionId,
+        start: this.itemsPerPage,
+        size: this.batchSize,
+        sort: this.sortParam,
+        signal,
+      });
+
+      results.forEach((result) => {
+        this.contents.push(result);
+      });
+
+      this.itemsPerPage += results.length;
+
+      if (results.length < this.batchSize) {
+        this.stopNewContent = true;
       }
     },
 
     async fetchMoreContent() {
-      if (this.stopNewContent || this.abortController) {
+      this.abortChildrenRequests();
+
+      if (this.stopNewContent) {
         return;
       }
 
       const controller = new AbortController();
-      this.abortController = controller;
+      this.childrenAbortController = controller;
 
       try {
-        const results = await this.FETCH_LIBRARY_CONTENTS({
-          machineIdentifier: this.machineIdentifier,
-          sectionId: this.sectionId,
-          start: this.itemsPerPage,
-          size: this.batchSize,
-          sort: this.sortParam,
-          signal: this.abortController.signal,
-        });
-
-        results.forEach((result) => {
-          this.contents.push(result);
-        });
-
-        this.itemsPerPage += results.length;
-
-        if (results.length < this.batchSize) {
-          this.stopNewContent = true;
+        await this.fetchMoreContentCriticalSection(controller.signal);
+        this.childrenAbortController = null;
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          throw e;
         }
+      }
+    },
 
-        this.abortController = null;
+    async fetchRandomBackgroundCriticalSection(signal) {
+      await this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE({
+        machineIdentifier: this.machineIdentifier,
+        sectionId: this.sectionId,
+        signal,
+      });
+    },
+
+    async fetchRandomBackground() {
+      this.abortBackgroundRequests();
+
+      const controller = new AbortController();
+      this.backgroundAbortController = controller;
+
+      try {
+        await this.fetchRandomBackgroundCriticalSection(controller.signal);
+        this.backgroundAbortController = null;
       } catch (e) {
         if (!controller.signal.aborted) {
           throw e;
