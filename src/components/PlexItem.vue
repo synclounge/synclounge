@@ -283,10 +283,7 @@ export default {
 
     // This exists so we can watch if either of these change
     combinedKey() {
-      return {
-        machineIdentifier: this.metadata.machineIdentifier,
-        ratingKey: this.metadata.ratingKey,
-      }.toString();
+      return `${this.metadata.machineIdentifier}${this.metadata.ratingKey}`;
     },
 
     thumb() {
