@@ -73,95 +73,89 @@ export default new Router({
     },
 
     {
-      path: '/nowplaying/:machineIdentifier/:ratingKey',
-      name: 'NowPlaying',
-      component: () => import('@/views/PlexItem.vue'),
-      props: true,
-      meta: {
-        requiresAuth: true,
-        protected: true,
-      },
-    },
-
-    {
       path: '/browse',
       name: 'PlexHome',
-      component: () => import('@/views/PlexHome.vue'),
+      components: {
+        default: () => import('@/views/PlexHome.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
+      },
       meta: {
         requiresAuth: true,
         protected: true,
+        showAppBarExtension: true,
       },
     },
 
     {
       path: '/browse/:machineIdentifier',
       name: 'PlexServer',
-      component: () => import('@/views/PlexServer.vue'),
-      props: true,
+      components: {
+        default: () => import('@/views/PlexServer.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
       meta: {
         requiresAuth: true,
         protected: true,
+        showAppBarExtension: true,
       },
     },
 
     {
-      path: '/browse/:machineIdentifier/:sectionId',
+      path: '/library/:machineIdentifier/:sectionId',
       name: 'PlexLibrary',
       components: {
         default: () => import('@/views/PlexLibrary.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
         appBarView: () => import('@/components/LibraryViewButton.vue'),
       },
       props: {
         default: true,
+        searchBar: true,
       },
       meta: {
         requiresAuth: true,
         protected: true,
-      },
-    },
-
-    {
-      path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
-      name: 'PlexMovie',
-      component: () => import('@/views/PlexItem.vue'),
-      props: true,
-      meta: {
-        requiresAuth: true,
-        protected: true,
+        showAppBarExtension: true,
       },
     },
 
     {
-      path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
-      name: 'PlexSeries',
-      component: () => import('@/views/PlexSeries.vue'),
-      props: true,
+      path: '/browse/:machineIdentifier/:ratingKey',
+      name: 'PlexMedia',
+      components: {
+        default: () => import('@/views/PlexMedia.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
       meta: {
         requiresAuth: true,
         protected: true,
+        showAppBarExtension: true,
       },
     },
 
     {
-      path: '/browse/:machineIdentifier/:sectionId/tv/:parentRatingKey/:ratingKey',
-      name: 'PlexSeason',
-      component: () => import('@/views/PlexSeason.vue'),
-      props: true,
-      meta: {
-        requiresAuth: true,
-        protected: true,
+      path: '/search/:query',
+      name: 'PlexSearch',
+      components: {
+        default: () => import('@/views/PlexSearch.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
       },
-    },
-
-    {
-      path:
-      '/browse/:machineIdentifier/:sectionId/tv/:grandparentRatingKey/:parentRatingKey/:ratingKey',
-      name: 'PlexEpisode',
-      component: () => import('@/views/PlexItem.vue'),
-      props: true,
+      props: {
+        default: true,
+        searchBar: true,
+      },
       meta: {
         requiresAuth: true,
         protected: true,
+        showAppBarExtension: true,
       },
     },
   ],

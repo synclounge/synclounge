@@ -11,6 +11,12 @@ const playQueueParams = {
   includeExternalMedia: 1,
 };
 
+const searchHubs = [
+  'movie',
+  'show',
+  'episode',
+];
+
 export default {
   FETCH_RANDOM_SECTION_ID: async ({ getters }, machineIdentifier) => {
     const sectionId = weightedRandomChoice(getters.GET_SERVER_LIBRARY_SIZES(machineIdentifier));
@@ -200,7 +206,10 @@ export default {
       signal,
     });
 
-    return Metadata;
+    return Metadata?.map((item) => ({
+      machineIdentifier,
+      ...item,
+    })) || [];
   },
 
   FETCH_ALL_LIBRARIES: async ({ dispatch }, { machineIdentifier, signal, ...rest }) => {
@@ -236,7 +245,10 @@ export default {
       signal,
     });
 
-    return Metadata;
+    return Metadata?.map((item) => ({
+      machineIdentifier,
+      ...item,
+    })) || [];
   },
 
   FETCH_CHILDREN_CONTAINER: async ({ dispatch }, {
@@ -256,10 +268,11 @@ export default {
     // Add librarySectionID to all children
     return {
       ...MediaContainer,
-      Metadata: MediaContainer.Metadata.map((child) => ({
-        ...child,
+      Metadata: MediaContainer.Metadata?.map((child) => ({
         librarySectionID: MediaContainer.librarySectionID,
-      })),
+        machineIdentifier,
+        ...child,
+      })) || [],
     };
   },
 
@@ -284,8 +297,9 @@ export default {
 
       // TODO: potentially include the other hubs too (related director etc...)
       return Hub?.[0]?.Metadata?.map((child) => ({
-        ...child,
         librarySectionID,
+        machineIdentifier,
+        ...child,
       })) || [];
     } catch (e) {
       console.error(e);
@@ -302,7 +316,7 @@ export default {
       params: {
         'X-Plex-Container-Start': start,
         'X-Plex-Container-Size': size,
-        ...sort && { sort },
+        ...(sort && { sort }),
         includeCollections: 1,
         includeAdvanced: 1,
         includeMeta: 1,
@@ -318,8 +332,9 @@ export default {
     const { librarySectionID, Metadata } = await dispatch('FETCH_LIBRARY_ALL', params);
 
     return Metadata.map((child) => ({
-      ...child,
       librarySectionID,
+      machineIdentifier: params.machineIdentifier,
+      ...child,
     }));
   },
 
@@ -400,5 +415,29 @@ export default {
     await dispatch('plex/FETCH_PLEX_DEVICES_IF_NEEDED', null, { root: true });
     const item = await dispatch('FETCH_RANDOM_ITEM', params);
     return dispatch('SET_MEDIA_AS_BACKGROUND', item);
+  },
+
+  SEARCH_PLEX_SERVER_HUB: async ({ dispatch }, {
+    query, machineIdentifier, signal, ...extra
+  }) => {
+    const { MediaContainer: { Hub } } = await dispatch('FETCH_PLEX_SERVER', {
+      machineIdentifier,
+      path: '/hubs/search',
+      params: {
+        ...extra,
+        query,
+        includeCollections: 0,
+      },
+      signal,
+    });
+
+    return Hub.filter(({ Metadata, type }) => Metadata && searchHubs.includes(type))
+      .map(({ Metadata, ...rest }) => ({
+        ...rest,
+        Metadata: Metadata.map((item) => ({
+          ...item,
+          machineIdentifier,
+        })),
+      }));
   },
 };
