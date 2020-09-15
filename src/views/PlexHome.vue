@@ -112,9 +112,9 @@ export default {
     ]),
   },
 
-  created() {
+  async created() {
     this.SET_ACTIVE_METADATA(null);
-    return this.fetchRandomBackground();
+    await this.fetchRandomBackground();
   },
 
   beforeDestroy() {
