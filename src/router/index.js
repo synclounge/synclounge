@@ -140,5 +140,23 @@ export default new Router({
         showAppBarExtension: true,
       },
     },
+
+    {
+      path: '/search/:query',
+      name: 'PlexSearch',
+      components: {
+        default: () => import('@/views/PlexSearch.vue'),
+        searchBar: () => import('@/components/SearchBar.vue'),
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
+      meta: {
+        requiresAuth: true,
+        protected: true,
+        showAppBarExtension: true,
+      },
+    },
   ],
 });

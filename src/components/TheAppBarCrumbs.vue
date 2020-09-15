@@ -44,61 +44,75 @@ export default {
       ];
 
       if (this.GET_ACTIVE_METADATA) {
-        data.push({
-          text: this.GET_PLEX_SERVER(this.GET_ACTIVE_METADATA.machineIdentifier).name,
-          to: {
-            name: 'PlexServer',
-            params: {
-              machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
-            },
-          },
-        });
-
-        if (this.GET_ACTIVE_METADATA.librarySectionID != null) {
+        if (this.GET_ACTIVE_METADATA.query) {
           data.push({
-            text: this.GET_ACTIVE_METADATA.librarySectionTitle,
+            text: `Search: ${this.GET_ACTIVE_METADATA.query}`,
             to: {
-              name: 'PlexLibrary',
+              name: 'PlexSearch',
               params: {
-                machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
-                sectionId: this.GET_ACTIVE_METADATA.librarySectionID,
+                query: this.GET_ACTIVE_METADATA.query,
               },
             },
           });
         }
 
-        if (this.GET_ACTIVE_METADATA.grandparentRatingKey != null) {
+        if (this.GET_ACTIVE_METADATA.machineIdentifier) {
+          data.push({
+            text: this.GET_PLEX_SERVER(this.GET_ACTIVE_METADATA.machineIdentifier).name,
+            to: {
+              name: 'PlexServer',
+              params: {
+                machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
+              },
+            },
+          });
+
+          if (this.GET_ACTIVE_METADATA.librarySectionID != null) {
+            data.push({
+              text: this.GET_ACTIVE_METADATA.librarySectionTitle,
+              to: {
+                name: 'PlexLibrary',
+                params: {
+                  machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
+                  sectionId: this.GET_ACTIVE_METADATA.librarySectionID,
+                },
+              },
+            });
+          }
+
+          if (this.GET_ACTIVE_METADATA.grandparentRatingKey != null) {
           // TODO: figure out how to tell lol
-          data.push({
-            text: this.GET_ACTIVE_METADATA.grandparentTitle,
-            to: {
-              name: 'PlexMedia',
-              params: {
-                machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
-                ratingKey: this.GET_ACTIVE_METADATA.grandparentRatingKey,
+            data.push({
+              text: this.GET_ACTIVE_METADATA.grandparentTitle,
+              to: {
+                name: 'PlexMedia',
+                params: {
+                  machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
+                  ratingKey: this.GET_ACTIVE_METADATA.grandparentRatingKey,
+                },
               },
-            },
-          });
-        }
+            });
+          }
 
-        if (this.GET_ACTIVE_METADATA.parentRatingKey != null) {
-          data.push({
-            text: this.GET_ACTIVE_METADATA.parentTitle,
-            to: {
-              name: 'PlexMedia',
-              params: {
-                machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
-                ratingKey: this.GET_ACTIVE_METADATA.parentRatingKey,
+          if (this.GET_ACTIVE_METADATA.parentRatingKey != null) {
+            data.push({
+              text: this.GET_ACTIVE_METADATA.parentTitle,
+              to: {
+                name: 'PlexMedia',
+                params: {
+                  machineIdentifier: this.GET_ACTIVE_METADATA.machineIdentifier,
+                  ratingKey: this.GET_ACTIVE_METADATA.parentRatingKey,
+                },
               },
-            },
-          });
-        }
+            });
+          }
 
-        if (this.GET_ACTIVE_METADATA.ratingKey != null) {
-          data.push({
-            text: this.GET_ACTIVE_METADATA.title,
-            to: getContentLink(this.GET_ACTIVE_METADATA),
-          });
+          if (this.GET_ACTIVE_METADATA.ratingKey != null) {
+            data.push({
+              text: this.GET_ACTIVE_METADATA.title,
+              to: getContentLink(this.GET_ACTIVE_METADATA),
+            });
+          }
         }
       }
 

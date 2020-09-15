@@ -3,7 +3,7 @@
     dense
     :items="items"
     :loading="loading"
-    :search-input.sync="searchQuery"
+    :search-input.sync="query"
     prepend-icon="search"
     no-filter
     clearable
@@ -12,6 +12,20 @@
     solo
     :menu-props="{ maxHeight: '80vh', maxWidth: '500px' }"
   >
+    <template
+      v-if="query"
+      #prepend-item
+    >
+      <v-list-item
+        dense
+        :to="{ name: 'PlexSearch', params: { query } }"
+      >
+        <v-subheader>
+          Search all sources...
+        </v-subheader>
+      </v-list-item>
+    </template>
+
     <template #item="{ item, on, attrs }">
       <template v-if="item.serverHeader">
         <v-list-item
@@ -100,8 +114,7 @@ export default {
   data: () => ({
     loading: false,
     items: [],
-    searchQuery: null,
-    storedWord: null,
+    query: null,
     abortController: null,
   }),
 
@@ -129,7 +142,7 @@ export default {
   },
 
   watch: {
-    searchQuery() {
+    query() {
       this.searchServers();
     },
   },
@@ -178,7 +191,7 @@ export default {
 
     clear() {
       this.abortRequests();
-      this.searchQuery = null;
+      this.query = null;
       this.items = [];
       this.loading = false;
     },
@@ -187,7 +200,7 @@ export default {
       await Promise.all(this.servers.map(async (machineIdentifier) => {
         const serverResults = await this.SEARCH_PLEX_SERVER_HUB({
           ...this.searchParams,
-          query: this.searchQuery,
+          query: this.query,
           machineIdentifier,
           signal,
         });
@@ -219,7 +232,7 @@ export default {
       this.abortRequests();
 
       this.items = [];
-      if (!this.searchQuery || !this.searchQuery.trim()) {
+      if (!this.query || !this.query.trim()) {
         this.loading = false;
         return;
       }
