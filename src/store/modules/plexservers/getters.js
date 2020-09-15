@@ -20,7 +20,8 @@ export default {
   IS_PLEX_SERVER_UNBLOCKED: (state, getters) => (machineIdentifier) => getters
     .GET_UNBLOCKED_PLEX_SERVER_IDS.includes(machineIdentifier),
 
-  GET_LAST_SERVER_ID: (state) => state.lastServerId,
+  GET_LAST_SERVER_ID: (state, getters) => state.lastServerId || getters.GET_PLEX_SERVER_IDS?.[0],
+
   GET_LAST_SERVER: (state, getters) => getters.GET_PLEX_SERVER(getters.GET_LAST_SERVER_ID),
 
   DOES_USER_HAVE_AUTHORIZED_SERVER: (state, getters, rootState, rootGetters) => rootGetters
