@@ -1,6 +1,6 @@
 <template>
   <v-card
-    :to="link"
+    :to="contentLink(content)"
     flat
     tile
     color="transparent"
@@ -111,8 +111,8 @@
 import { mapGetters } from 'vuex';
 import VanillaTilt from 'vanilla-tilt';
 import contentTitle from '@/mixins/contentTitle';
-import getContentLink from '@/utils/contentlinks';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
+import contentLink from '@/mixins/contentlink';
 
 const imageWidths = [
   100, 200, 300, 400, 600, 800, 1000, 2000, 4000, 8000,
@@ -135,7 +135,10 @@ const getSrcSize = (minWidth, cols) => `(min-width: ${minWidth}px) ${getSizeValu
 export default {
   name: 'PlexThumbnail',
 
-  mixins: [contentTitle],
+  mixins: [
+    contentTitle,
+    contentLink,
+  ],
 
   props: {
     showServer: {
@@ -144,7 +147,7 @@ export default {
 
     content: {
       type: Object,
-      default: () => {},
+      required: true,
     },
 
     type: {
@@ -167,11 +170,9 @@ export default {
     ...breakpointProps,
   },
 
-  data() {
-    return {
-      hovering: false,
-    };
-  },
+  data: () => ({
+    hovering: false,
+  }),
 
   computed: {
     ...mapGetters('plexservers', [
@@ -231,13 +232,6 @@ export default {
       ];
 
       return srcSizes.join(', ');
-    },
-
-    link() {
-      return getContentLink({
-        ...this.content,
-        machineIdentifier: this.content.machineIdentifier,
-      });
     },
 
     showUnwatchedFlag() {

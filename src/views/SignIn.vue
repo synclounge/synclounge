@@ -52,13 +52,11 @@ import getCookie from '@/utils/getcookie';
 export default {
   name: 'SignIn',
 
-  data() {
-    return {
-      loading: false,
-      plexAuthResponse: null,
-      cancelToken: null,
-    };
-  },
+  data: () => ({
+    loading: false,
+    plexAuthResponse: null,
+    cancelToken: null,
+  }),
 
   computed: {
     ...mapGetters([

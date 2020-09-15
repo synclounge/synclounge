@@ -18,11 +18,9 @@ import { mapActions } from 'vuex';
 export default {
   name: 'MessageInput',
 
-  data() {
-    return {
-      messageToBeSent: '',
-    };
-  },
+  data: () => ({
+    messageToBeSent: '',
+  }),
 
   computed: {
     chatboxLabel() {

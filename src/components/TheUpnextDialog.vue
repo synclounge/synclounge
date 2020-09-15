@@ -117,13 +117,11 @@ export default {
 
   mixins: [contentTitle],
 
-  data() {
-    return {
-      sheet: true,
-      transitionBarWithStyle: {},
-      timeoutId: null,
-    };
-  },
+  data: () => ({
+    sheet: true,
+    transitionBarWithStyle: {},
+    timeoutId: null,
+  }),
 
   computed: {
     ...mapGetters([

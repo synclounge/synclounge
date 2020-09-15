@@ -64,12 +64,10 @@ export default {
     PlexClient: () => import('@/components/PlexClient.vue'),
   },
 
-  data() {
-    return {
-      error: false,
-      abortController: null,
-    };
-  },
+  data: () => ({
+    error: false,
+    abortController: null,
+  }),
 
   computed: {
     ...mapGetters('plexclients', [

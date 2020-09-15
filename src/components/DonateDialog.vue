@@ -120,16 +120,14 @@ export default {
     clipboard,
   ],
 
-  data() {
-    return {
-      donateDialog: false,
-      addresses: {
-        ETH: '0xC886a3b94867AC12901220BBcbFD407e60E009A5',
-        LTC: 'LQkfMbcFGQgMZWw13hbzbYkRkSM6n1fZjE',
-        BTC: '3Q7wZnUdJMQi53eH3dErms9Tno7VGmTHZL',
-        BCH: '1K3ULWzW9dLyGbtpnNqUysHuj1suZFXtx4',
-      },
-    };
-  },
+  data: () => ({
+    donateDialog: false,
+    addresses: {
+      ETH: '0xC886a3b94867AC12901220BBcbFD407e60E009A5',
+      LTC: 'LQkfMbcFGQgMZWw13hbzbYkRkSM6n1fZjE',
+      BTC: '3Q7wZnUdJMQi53eH3dErms9Tno7VGmTHZL',
+      BCH: '1K3ULWzW9dLyGbtpnNqUysHuj1suZFXtx4',
+    },
+  }),
 };
 </script>

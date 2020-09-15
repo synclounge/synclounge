@@ -18,7 +18,7 @@
     >
       <v-list-item
         dense
-        :to="{ name: 'PlexSearch', params: { query } }"
+        :to="linkWithRoom({ name: 'PlexSearch', params: { query } })"
       >
         <v-subheader>
           Search all sources...
@@ -61,7 +61,7 @@
         <v-list-item
           dense
           v-bind="attrs"
-          :to="getLink(item)"
+          :to="contentLink(item)"
           @click="clear"
         >
           <v-list-item-avatar
@@ -88,7 +88,8 @@
 import { mapActions, mapGetters } from 'vuex';
 import CAF from 'caf';
 import contentTitle from '@/mixins/contentTitle';
-import getContentLink from '@/utils/contentlinks';
+import linkwithroom from '@/mixins/linkwithroom';
+import contentLink from '@/mixins/contentlink';
 
 const debounceTime = 250;
 
@@ -97,6 +98,8 @@ export default {
 
   mixins: [
     contentTitle,
+    contentLink,
+    linkwithroom,
   ],
 
   props: {
@@ -249,10 +252,6 @@ export default {
           throw e;
         }
       }
-    },
-
-    getLink(params) {
-      return getContentLink(params);
     },
   },
 };

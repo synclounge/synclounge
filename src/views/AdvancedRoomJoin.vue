@@ -415,20 +415,23 @@
 <script>
 import { formatDistanceToNow } from 'date-fns';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
+import linkWithRoom from '@/mixins/linkwithroom';
 
 export default {
   name: 'AdvancedRoomJoin',
 
-  data() {
-    return {
-      selectedServer: null,
-      serverError: null,
-      roomError: null,
-      e1: 2,
-      connectionPending: false,
-      testConnectionInterval: null,
-    };
-  },
+  mixins: [
+    linkWithRoom,
+  ],
+
+  data: () => ({
+    selectedServer: null,
+    serverError: null,
+    roomError: null,
+    e1: 2,
+    connectionPending: false,
+    testConnectionInterval: null,
+  }),
 
   computed: {
     ...mapGetters('synclounge', [
@@ -456,7 +459,7 @@ export default {
     IS_IN_ROOM: {
       handler(inRoom) {
         if (inRoom) {
-          this.$router.push({ name: 'PlexHome' });
+          this.$router.push(this.linkWithRoom({ name: 'PlexHome' }));
         }
       },
 

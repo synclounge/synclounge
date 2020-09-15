@@ -3,6 +3,8 @@ import Router from 'vue-router';
 
 Vue.use(Router);
 
+const searchBar = () => import('@/components/SearchBar');
+
 export default new Router({
   mode: 'hash',
   routes: [
@@ -73,11 +75,11 @@ export default new Router({
     },
 
     {
-      path: '/browse',
+      path: '/room/:room/browse/:server?',
       name: 'PlexHome',
       components: {
         default: () => import('@/views/PlexHome.vue'),
-        searchBar: () => import('@/components/SearchBar.vue'),
+        searchBar,
       },
       meta: {
         requiresAuth: true,
@@ -87,11 +89,11 @@ export default new Router({
     },
 
     {
-      path: '/browse/:machineIdentifier',
+      path: '/room/:room/browse/server/:machineIdentifier/:server?',
       name: 'PlexServer',
       components: {
         default: () => import('@/views/PlexServer.vue'),
-        searchBar: () => import('@/components/SearchBar.vue'),
+        searchBar,
       },
       props: {
         default: true,
@@ -105,11 +107,11 @@ export default new Router({
     },
 
     {
-      path: '/library/:machineIdentifier/:sectionId',
+      path: '/room/:room/browse/server/:machineIdentifier/library/:sectionId/:server?',
       name: 'PlexLibrary',
       components: {
         default: () => import('@/views/PlexLibrary.vue'),
-        searchBar: () => import('@/components/SearchBar.vue'),
+        searchBar,
         appBarView: () => import('@/components/LibraryViewButton.vue'),
       },
       props: {
@@ -124,11 +126,11 @@ export default new Router({
     },
 
     {
-      path: '/browse/:machineIdentifier/:ratingKey',
+      path: '/room/:room/browse/server/:machineIdentifier/ratingKey/:ratingKey/:server?',
       name: 'PlexMedia',
       components: {
         default: () => import('@/views/PlexMedia.vue'),
-        searchBar: () => import('@/components/SearchBar.vue'),
+        searchBar,
       },
       props: {
         default: true,
@@ -142,11 +144,11 @@ export default new Router({
     },
 
     {
-      path: '/search/:query',
+      path: '/room/:room/search/:query/:server?',
       name: 'PlexSearch',
       components: {
         default: () => import('@/views/PlexSearch.vue'),
-        searchBar: () => import('@/components/SearchBar.vue'),
+        searchBar,
       },
       props: {
         default: true,
