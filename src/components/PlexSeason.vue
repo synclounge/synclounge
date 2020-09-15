@@ -44,11 +44,10 @@ export default {
     },
   },
 
-  data() {
-    return {
-      children: [],
-    };
-  },
+  data: () => ({
+    children: [],
+    abortController: null,
+  }),
 
   computed: {
     // This exists so we can watch if either of these change
@@ -71,10 +70,14 @@ export default {
   watch: {
     combinedKey: {
       handler() {
-        this.fetchChildren();
+        return this.fetchChildren();
       },
       immediate: true,
     },
+  },
+
+  beforeDestroy() {
+    this.abortRequests();
   },
 
   methods: {
@@ -82,14 +85,38 @@ export default {
       'FETCH_MEDIA_CHILDREN',
     ]),
 
-    async fetchChildren() {
+    abortRequests() {
+      if (this.abortController) {
+        // Cancel outstanding request
+        this.abortController.abort();
+        this.abortController = null;
+      }
+    },
+
+    async fetchChildrenCriticalSection(signal) {
       this.children = await this.FETCH_MEDIA_CHILDREN({
         machineIdentifier: this.metadata.machineIdentifier,
         ratingKey: this.metadata.ratingKey,
         start: 0,
         size: 500,
         excludeAllLeaves: 1,
+        signal,
       });
+    },
+
+    async fetchChildren() {
+      this.abortRequests();
+
+      const controller = new AbortController();
+      this.abortController = controller;
+
+      try {
+        await this.fetchChildrenCriticalSection(controller.signal);
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          throw e;
+        }
+      }
     },
   },
 };

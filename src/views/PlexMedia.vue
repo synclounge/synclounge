@@ -57,11 +57,10 @@ export default {
     },
   },
 
-  data() {
-    return {
-      metadata: null,
-    };
-  },
+  data: () => ({
+    metadata: null,
+    abortController: null,
+  }),
 
   computed: {
     ...mapGetters('plexservers', [

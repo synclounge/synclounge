@@ -258,12 +258,11 @@ export default {
     },
   },
 
-  data() {
-    return {
-      dialog: false,
-      children: [],
-    };
-  },
+  data: () => ({
+    dialog: false,
+    children: [],
+    abortController: null,
+  }),
 
   computed: {
     ...mapGetters('plexclients', [
@@ -361,10 +360,15 @@ export default {
   watch: {
     combinedKey: {
       handler() {
-        this.fetchRelated();
+        this.dialog = false;
+        return this.fetchRelated();
       },
       immediate: true,
     },
+  },
+
+  beforeDestroy() {
+    this.abortRequests();
   },
 
   methods: {
@@ -383,7 +387,15 @@ export default {
       'MANUAL_SYNC',
     ]),
 
-    async fetchRelated() {
+    abortRequests() {
+      if (this.abortController) {
+        // Cancel outstanding request
+        this.abortController.abort();
+        this.abortController = null;
+      }
+    },
+
+    async fetchRelatedCriticalSection(signal) {
       if (this.metadata.type === 'episode') {
         this.children = await this.FETCH_MEDIA_CHILDREN({
           machineIdentifier: this.metadata.machineIdentifier,
@@ -391,13 +403,30 @@ export default {
           start: this.metadata.index - 1,
           size: 6,
           excludeAllLeaves: 1,
+          signal,
         });
       } else if (this.metadata.type === 'movie') {
         this.children = await this.FETCH_RELATED({
           machineIdentifier: this.metadata.machineIdentifier,
           ratingKey: this.metadata.ratingKey,
           count: 12,
+          signal,
         });
+      }
+    },
+
+    async fetchRelated() {
+      this.abortRequests();
+
+      const controller = new AbortController();
+      this.abortController = controller;
+
+      try {
+        await this.fetchRelatedCriticalSection(controller.signal);
+      } catch (e) {
+        if (!controller.signal.aborted) {
+          throw e;
+        }
       }
     },
 

@@ -145,17 +145,16 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'PlexHome',
+
   components: {
     PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
 
-  data() {
-    return {
-      onDeckOffset: 0,
-      onDeck: null,
-      abortController: null,
-    };
-  },
+  data: () => ({
+    onDeckOffset: 0,
+    onDeck: null,
+    abortController: null,
+  }),
 
   computed: {
     ...mapGetters('plexservers', [
