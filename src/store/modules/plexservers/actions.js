@@ -206,10 +206,10 @@ export default {
       signal,
     });
 
-    return Metadata.map((item) => ({
+    return Metadata?.map((item) => ({
       machineIdentifier,
       ...item,
-    }));
+    })) || [];
   },
 
   FETCH_ALL_LIBRARIES: async ({ dispatch }, { machineIdentifier, signal, ...rest }) => {
@@ -245,10 +245,10 @@ export default {
       signal,
     });
 
-    return Metadata.map((item) => ({
+    return Metadata?.map((item) => ({
       machineIdentifier,
       ...item,
-    }));
+    })) || [];
   },
 
   FETCH_CHILDREN_CONTAINER: async ({ dispatch }, {
