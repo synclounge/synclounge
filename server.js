@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const syncloungeSocket = require('syncloungesocket');
+const path = require('path');
 const config = require('./config');
 
 // Using a single function to handle multiple signals
@@ -26,6 +27,6 @@ const preStaticInjection = (router) => {
 const socketConfig = syncloungeSocket.getConfig();
 syncloungeSocket.socketServer({
   ...socketConfig,
-  static_path: 'dist',
+  static_path: path.join(__dirname, 'dist'),
   preStaticInjection,
 });
