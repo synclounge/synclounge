@@ -67,7 +67,7 @@ export default new Router({
     },
 
     {
-      path: '/player',
+      path: '/room/:room/player/:server?',
       name: 'WebPlayer',
       components: {
         default: () => import('@/views/WebPlayer.vue'),
