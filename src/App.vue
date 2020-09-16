@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <TheSidebarLeft />
-    <TheSidebarRight v-if="IS_IN_ROOM" />
+    <router-view name="rightSidebar" />
 
     <v-app-bar
       app
@@ -76,20 +76,9 @@
             Donate ♥
           </v-btn>
         </DonateDialog>
-
-        <v-btn
-          v-if="IS_IN_ROOM"
-          icon
-          class="order-last"
-          @click="TOGGLE_RIGHT_SIDEBAR_OPEN"
-        >
-          <v-icon>
-            {{
-              isRightSidebarOpen ? 'last_page' : 'first_page'
-            }}
-          </v-icon>
-        </v-btn>
       </v-toolbar-items>
+
+      <router-view name="rightSidebarButton" />
 
       <template
         v-if="showAppBarExtension"
@@ -170,9 +159,7 @@
 <script>
 import './assets/css/style.css';
 
-import {
-  mapActions, mapGetters, mapMutations, mapState,
-} from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import redirection from '@/mixins/redirection';
 import clipboard from '@/mixins/clipboard';
 import linkWithRoom from '@/mixins/linkwithroom';
@@ -181,7 +168,6 @@ import { slPlayerClientId } from '@/player/constants';
 export default {
   components: {
     TheSidebarLeft: () => import('@/components/TheSidebarLeft.vue'),
-    TheSidebarRight: () => import('@/components/TheSidebarRight.vue'),
     TheUpnextDialog: () => import('@/components/TheUpnextDialog.vue'),
     TheNowPlayingChip: () => import('@/components/TheNowPlayingChip.vue'),
     DonateDialog: () => import('@/components/DonateDialog.vue'),
@@ -233,8 +219,6 @@ export default {
       'GET_SERVER',
       'GET_PASSWORD',
     ]),
-
-    ...mapState(['isRightSidebarOpen']),
 
     links() {
       return [
@@ -296,12 +280,6 @@ export default {
   },
 
   watch: {
-    IS_IN_ROOM(isInRoom) {
-      if (isInRoom) {
-        this.SET_RIGHT_SIDEBAR_OPEN(true);
-      }
-    },
-
     GET_ACTIVE_MEDIA_METADATA(metadata) {
       // This handles regular plex clients (nonslplayer) playback changes
       if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== slPlayerClientId) {
@@ -376,13 +354,7 @@ export default {
       'SET_SNACKBAR_OPEN',
       'SET_NAVIGATE_TO_PLAYER',
       'SET_NAVIGATE_HOME',
-      'TOGGLE_RIGHT_SIDEBAR_OPEN',
-      'SET_RIGHT_SIDEBAR_OPEN',
       'SET_LEFT_SIDEBAR_OPEN',
-    ]),
-
-    ...mapMutations('plex', [
-      'SET_PLEX_AUTH_TOKEN',
     ]),
 
     backgroundLoad() {

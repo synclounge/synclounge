@@ -3,7 +3,9 @@ import Router from 'vue-router';
 
 Vue.use(Router);
 
-const searchBar = () => import('@/components/SearchBar');
+const searchBar = () => import('@/components/SearchBar.vue');
+const rightSidebar = () => import('@/components/TheSidebarRight.vue');
+const rightSidebarButton = () => import('@/components/TheSidebarRightButton.vue');
 
 export default new Router({
   mode: 'hash',
@@ -67,7 +69,11 @@ export default new Router({
     {
       path: '/player',
       name: 'WebPlayer',
-      component: () => import('@/views/WebPlayer.vue'),
+      components: {
+        default: () => import('@/views/WebPlayer.vue'),
+        rightSidebar,
+        rightSidebarButton,
+      },
       meta: {
         requiresAuth: true,
         protected: true,
@@ -80,6 +86,8 @@ export default new Router({
       components: {
         default: () => import('@/views/PlexHome.vue'),
         searchBar,
+        rightSidebar,
+        rightSidebarButton,
       },
       meta: {
         requiresAuth: true,
@@ -94,6 +102,8 @@ export default new Router({
       components: {
         default: () => import('@/views/PlexServer.vue'),
         searchBar,
+        rightSidebar,
+        rightSidebarButton,
       },
       props: {
         default: true,
@@ -113,6 +123,8 @@ export default new Router({
         default: () => import('@/views/PlexLibrary.vue'),
         searchBar,
         appBarView: () => import('@/components/LibraryViewButton.vue'),
+        rightSidebar,
+        rightSidebarButton,
       },
       props: {
         default: true,
@@ -131,6 +143,8 @@ export default new Router({
       components: {
         default: () => import('@/views/PlexMedia.vue'),
         searchBar,
+        rightSidebar,
+        rightSidebarButton,
       },
       props: {
         default: true,
@@ -149,6 +163,8 @@ export default new Router({
       components: {
         default: () => import('@/views/PlexSearch.vue'),
         searchBar,
+        rightSidebar,
+        rightSidebarButton,
       },
       props: {
         default: true,
