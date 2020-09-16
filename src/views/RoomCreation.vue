@@ -112,6 +112,7 @@ import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
 import JoinError from '@/utils/joinerror';
 import { v4 as uuidv4 } from 'uuid';
+import linkWithRoom from '@/mixins/linkwithroom';
 
 export default {
   name: 'RoomCreation',
@@ -122,6 +123,7 @@ export default {
 
   mixins: [
     redirection,
+    linkWithRoom,
   ],
 
   data() {
@@ -196,7 +198,7 @@ export default {
 
         if (this.$route.name === 'RoomCreation') {
           if (this.GET_CHOSEN_CLIENT_ID === slPlayerClientId || !this.GET_ACTIVE_MEDIA_METADATA) {
-            this.$router.push({ name: 'PlexHome' });
+            this.$router.push(this.linkWithRoom({ name: 'PlexHome' }));
           } else {
             this.redirectToMediaPage();
           }

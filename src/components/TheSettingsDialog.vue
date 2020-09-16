@@ -293,19 +293,17 @@ import { streamingProtocols } from '@/utils/streamingprotocols';
 export default {
   name: 'TheSettingsDialog',
 
-  data() {
-    return {
-      streamingProtocolSelectOpen: false,
-      syncModeSelectOpen: false,
-      blockedServersSelectOpen: false,
-      syncMethods: [
-        { text: 'Clean Seek', value: 'cleanseek' },
-        { text: 'Skip Ahead', value: 'skipahead' },
-      ],
+  data: () => ({
+    streamingProtocolSelectOpen: false,
+    syncModeSelectOpen: false,
+    blockedServersSelectOpen: false,
+    syncMethods: [
+      { text: 'Clean Seek', value: 'cleanseek' },
+      { text: 'Skip Ahead', value: 'skipahead' },
+    ],
 
-      streamingProtocols,
-    };
-  },
+    streamingProtocols,
+  }),
 
   computed: {
     ...mapGetters('settings', [

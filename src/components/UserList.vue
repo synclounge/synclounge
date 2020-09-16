@@ -130,20 +130,18 @@ export default {
     contentTitle,
   ],
 
-  data() {
-    return {
-      stateIcons: {
-        stopped: 'stop',
-        paused: 'pause',
-        playing: 'play_arrow',
-        buffering: 'av_timer',
-      },
-      timeUpdateIntervalId: null,
+  data: () => ({
+    stateIcons: {
+      stopped: 'stop',
+      paused: 'pause',
+      playing: 'play_arrow',
+      buffering: 'av_timer',
+    },
+    timeUpdateIntervalId: null,
 
-      // This is updated periodically and is what makes the player times advance (if playing)
-      nowTimestamp: Date.now(),
-    };
-  },
+    // This is updated periodically and is what makes the player times advance (if playing)
+    nowTimestamp: Date.now(),
+  }),
 
   computed: {
     ...mapGetters([

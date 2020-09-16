@@ -175,6 +175,7 @@ import {
 } from 'vuex';
 import redirection from '@/mixins/redirection';
 import clipboard from '@/mixins/clipboard';
+import linkWithRoom from '@/mixins/linkwithroom';
 import { slPlayerClientId } from '@/player/constants';
 
 export default {
@@ -190,13 +191,12 @@ export default {
   mixins: [
     redirection,
     clipboard,
+    linkWithRoom,
   ],
 
-  data() {
-    return {
-      numBackgroundErrors: 0,
-    };
-  },
+  data: () => ({
+    numBackgroundErrors: 0,
+  }),
 
   computed: {
     ...mapGetters([
@@ -284,7 +284,7 @@ export default {
           name: 'RoomJoin',
           params: {
             room: this.GET_ROOM,
-            ...(this.GET_SERVER.length > 0 && { server: this.GET_SERVER }),
+            ...(this.GET_SERVER && { server: this.GET_SERVER }),
           },
         }).href;
 
@@ -308,14 +308,14 @@ export default {
         if (metadata) {
           this.redirectToMediaPage();
         } else {
-          this.$router.push({ name: 'PlexHome' });
+          this.$router.push(this.linkWithRoom({ name: 'PlexHome' }));
         }
       }
     },
 
     GET_NAVIGATE_TO_PLAYER(navigate) {
       if (navigate) {
-        this.$router.push({ name: 'WebPlayer' });
+        this.$router.push(this.linkWithRoom({ name: 'WebPlayer' }));
         this.SET_NAVIGATE_TO_PLAYER(false);
       }
     },

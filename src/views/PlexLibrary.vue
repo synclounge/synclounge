@@ -80,7 +80,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { intervalToDuration } from 'date-fns';
-import getContentLink from '@/utils/contentlinks';
+import contentLink from '@/mixins/contentlink';
 
 export default {
   name: 'PlexLibrary',
@@ -88,6 +88,10 @@ export default {
   components: {
     PlexThumbnail: () => import('@/components/PlexThumbnail.vue'),
   },
+
+  mixins: [
+    contentLink,
+  ],
 
   props: {
     machineIdentifier: {
@@ -271,10 +275,7 @@ export default {
     },
 
     onRowClick(item) {
-      this.$router.push(getContentLink({
-        ...item,
-        machineIdentifier: this.machineIdentifier,
-      }));
+      this.$router.push(this.contentLink(item));
     },
 
     abortBackgroundRequests() {

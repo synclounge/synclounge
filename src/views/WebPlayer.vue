@@ -170,6 +170,7 @@ import { mapActions, mapGetters } from 'vuex';
 
 import initialize from '@/player/init';
 import { getControlsOffset } from '@/player';
+import linkWithRoom from '@/mixins/linkwithroom';
 
 import 'shaka-player/dist/controls.css';
 import 'libjass/libjass.css';
@@ -182,11 +183,13 @@ export default {
     MessageInput: () => import('@/components/MessageInput.vue'),
   },
 
-  data() {
-    return {
-      videoTimeStamp: 0,
-    };
-  },
+  mixins: [
+    linkWithRoom,
+  ],
+
+  data: () => ({
+    videoTimeStamp: 0,
+  }),
 
   computed: {
     ...mapGetters('slplayer', [
@@ -242,7 +245,7 @@ export default {
   watch: {
     GET_PLAYER_STATE(state) {
       if (state === 'stopped') {
-        this.$router.push({ name: 'PlexHome' });
+        this.$router.push(this.linkWithRoom({ name: 'PlexHome' }));
       }
     },
 

@@ -286,16 +286,14 @@ export default {
     PlexClient: () => import('@/components/PlexClient.vue'),
   },
 
-  data() {
-    return {
-      previewClientErrorMsg: null,
-      gotResponse: true,
-      e1: '1',
-      joinRoomModal: false,
-      previewClientId: null,
-      abortController: null,
-    };
-  },
+  data: () => ({
+    previewClientErrorMsg: null,
+    gotResponse: true,
+    e1: '1',
+    joinRoomModal: false,
+    previewClientId: null,
+    abortController: null,
+  }),
 
   computed: {
     ...mapGetters('plex', [

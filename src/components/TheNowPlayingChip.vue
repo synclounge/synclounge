@@ -4,7 +4,7 @@
     dense
     hover
     class="nowplaying"
-    :to="href"
+    :to="contentLink(GET_ACTIVE_MEDIA_METADATA)"
   >
     <v-list-item-avatar
       class="ma-0"
@@ -34,13 +34,14 @@
 import { mapGetters } from 'vuex';
 
 import contentTitle from '@/mixins/contentTitle';
-import getContentLink from '@/utils/contentlinks';
+import contentLink from '@/mixins/contentlink';
 
 export default {
   name: 'TheNowPlayingChip',
 
   mixins: [
     contentTitle,
+    contentLink,
   ],
 
   computed: {
@@ -52,10 +53,6 @@ export default {
     ...mapGetters('plexservers', [
       'GET_MEDIA_IMAGE_URL',
     ]),
-
-    href() {
-      return getContentLink(this.GET_ACTIVE_MEDIA_METADATA);
-    },
 
     thumb() {
       return this.GET_MEDIA_IMAGE_URL({

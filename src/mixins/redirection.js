@@ -1,10 +1,13 @@
-import getContentLink from '@/utils/contentlinks';
+import contentLink from '@/mixins/helpers/contentlink';
 
 export default {
   methods: {
     redirectToMediaPage() {
       this.$router.push(
-        getContentLink(this.$store.getters['plexclients/GET_ACTIVE_MEDIA_METADATA']),
+        contentLink(
+          this.$store.getters,
+          this.$store.getters['plexclients/GET_ACTIVE_MEDIA_METADATA'],
+        ),
       );
     },
   },

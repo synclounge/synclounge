@@ -89,6 +89,7 @@ import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
 import JoinError from '@/utils/joinerror';
+import linkWithRoom from '@/mixins/linkwithroom';
 
 export default {
   name: 'RoomJoin',
@@ -99,6 +100,7 @@ export default {
 
   mixins: [
     redirection,
+    linkWithRoom,
   ],
 
   props: {
@@ -113,19 +115,17 @@ export default {
     },
   },
 
-  data() {
-    return {
-      loading: false,
+  data: () => ({
+    loading: false,
 
-      // Default true because default client is slplayer
-      clientConnectable: true,
+    // Default true because default client is slplayer
+    clientConnectable: true,
 
-      error: null,
-      password: null,
-      passwordNeeded: false,
-      panels: [1],
-    };
-  },
+    error: null,
+    password: null,
+    passwordNeeded: false,
+    panels: [1],
+  }),
 
   computed: {
     ...mapGetters([
@@ -162,7 +162,7 @@ export default {
 
         if (this.$route.name === 'RoomJoin') {
           if (this.GET_CHOSEN_CLIENT_ID === slPlayerClientId || !this.GET_ACTIVE_MEDIA_METADATA) {
-            this.$router.push({ name: 'PlexHome' });
+            this.$router.push(this.linkWithRoom({ name: 'PlexHome' }));
           } else {
             this.redirectToMediaPage();
           }

@@ -17,6 +17,13 @@ Vue.config.errorHandler = (err) => {
   console.error(err);
 };
 
+const isEqualIfExpectedTrue = (expected, got) => (expected
+  ? expected === got
+  : !got);
+
+const doesServerMatch = (expected, got) => expected.room === got.room
+  && isEqualIfExpectedTrue(expected, got);
+
 router.beforeEach(async (to, from, next) => {
   if (!store.getters.GET_CONFIG) {
     await store.dispatch('FETCH_CONFIG');
@@ -39,11 +46,25 @@ router.beforeEach(async (to, from, next) => {
   } else if (to.matched.some((record) => record.meta.requiresNoAuth)
     && store.getters['plex/GET_PLEX_AUTH_TOKEN']) {
     next({ name: 'RoomCreation' });
-  } else if (!store.getters['synclounge/IS_IN_ROOM']
-    && to.matched.some((record) => record.meta.protected)) {
-    // this route requires us to be in a room with a client selected
-    // if not, redirect to the needed stage
-    next({ name: 'RoomCreation' });
+  } else if (to.matched.some((record) => record.meta.protected)
+    && (!store.getters['synclounge/IS_IN_ROOM']
+      || doesServerMatch({
+        server: store.getters['synclounge/GET_SERVER'],
+        room: store.getters['synclounge/GET_ROOM'],
+      }, to.params))
+  ) {
+    // TODO: add redirect
+    if (to.params.room) {
+      next({
+        name: 'RoomJoin',
+        params: {
+          room: to.params.room,
+          ...(to.params.server && { server: to.params.server }),
+        },
+      });
+    } else {
+      next({ name: 'RoomCreation' });
+    }
   } else {
     next();
   }
