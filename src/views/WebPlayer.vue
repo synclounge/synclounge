@@ -173,7 +173,7 @@ import { getControlsOffset } from '@/player';
 import linkWithRoom from '@/mixins/linkwithroom';
 
 import 'shaka-player/dist/controls.css';
-import 'libjass/libjass.css';
+import 'libjass/lib/libjass.css';
 
 export default {
   name: 'WebPlayer',
