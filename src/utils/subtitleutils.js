@@ -51,7 +51,7 @@ export const getBestOutlineColor = ({ red, green, blue }) => (
     : subtitleColors.White);
 
 export const hexToLibjassColor = async (hex) => {
-  const libjass = await import('libjass');
+  const libjass = await import('synclounge-libjass');
 
   const aRgbHex = hex.match(/.{1,2}/g);
 

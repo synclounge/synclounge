@@ -56,7 +56,7 @@ export default {
   },
 
   GET_OR_MAKE_VIDEO_CLOCK: async ({ getters, dispatch }) => {
-    const libjass = await import('libjass');
+    const libjass = await import('synclounge-libjass');
 
     if (!videoClock) {
       videoClock = new VideoClock(
@@ -155,7 +155,7 @@ export default {
 
   MAKE_ASS: async ({ getters }) => {
     console.debug('MAKE_ASS');
-    const libjass = await import('libjass');
+    const libjass = await import('synclounge-libjass');
     assAbortController = new AbortController();
 
     const stream = resiliantStreamFactory(
@@ -186,7 +186,7 @@ export default {
 
   INIT_SUBTITLE_RENDERER: async ({ dispatch }, ass) => {
     console.debug('INIT_SUBTITLE_RENDERER');
-    const libjass = await import('libjass');
+    const libjass = await import('synclounge-libjass');
     subtitleRenderer = new libjass.renderers.WebRenderer(
       ass,
       await dispatch('GET_OR_MAKE_VIDEO_CLOCK'),
