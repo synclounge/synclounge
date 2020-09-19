@@ -2,7 +2,7 @@
 FROM --platform=$BUILDPLATFORM node:14.11.0-alpine3.12 as build-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
-RUN apk add --no-cache python make g++
+RUN apk add --no-cache python3 make g++
 USER node
 COPY --chown=node:node package*.json ./
 RUN SKIP_BUILD=true npm ci
@@ -17,7 +17,7 @@ RUN npm run build
 FROM node:14.11.0-alpine3.12 as dependency-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
-RUN apk add --no-cache python make g++
+RUN apk add --no-cache python3 make g++
 USER node
 COPY --chown=node:node package*.json ./
 RUN SKIP_BUILD=true npm ci
