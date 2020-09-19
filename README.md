@@ -121,7 +121,7 @@ Using the Docker image is the easiest path because it works out of the box.
 You can get it running immediately by
 ```sh
 docker pull ttshivers/synclounge
-docker run -p 8080:8088 ttshivers/synclounge:latest
+docker run -p 8088:8088 ttshivers/synclounge:latest
 ```
 
 You can use environment variables to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js).
