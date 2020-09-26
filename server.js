@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const syncloungeSocket = require('syncloungesocket');
+const syncloungeServer = require('syncloungeserver');
 const path = require('path');
 const config = require('./config');
 
@@ -13,7 +13,7 @@ const handle = (signal) => {
 process.on('SIGINT', handle);
 process.on('SIGTERM', handle);
 
-const blockList = Object.keys(syncloungeSocket.defaultConfig);
+const blockList = Object.keys(syncloungeServer.defaultConfig);
 const appConfig = config.get(null, blockList);
 console.log(appConfig);
 
@@ -24,8 +24,8 @@ const preStaticInjection = (router) => {
   });
 };
 
-const socketConfig = syncloungeSocket.getConfig();
-syncloungeSocket.socketServer({
+const socketConfig = syncloungeServer.getConfig();
+syncloungeServer.socketServer({
   ...socketConfig,
   static_path: path.join(__dirname, 'dist'),
   preStaticInjection,
