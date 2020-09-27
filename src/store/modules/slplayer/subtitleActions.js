@@ -167,7 +167,8 @@ export default {
     );
 
     const useSrtParser = getters.CAN_DIRECT_PLAY_SUBTITLES
-      && getters.GET_SUBTITLE_STREAM.codec === 'srt';
+      && (getters.GET_SUBTITLE_STREAM.codec === 'srt'
+        || getters.GET_SELECTED_SUBTITLE_STREAM.codec === 'srt');
 
     const parser = useSrtParser
       ? new libjass.parser.SrtStreamParser(stream)

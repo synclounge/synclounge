@@ -83,6 +83,10 @@ export default {
     ?.find(({ streamType, selected }) => streamType === 3 && selected),
 
   CAN_DIRECT_PLAY_SUBTITLES: (state, getters) => {
+    if (getters.SHOULD_FORCE_BURN_SUBTITLES) {
+      return false;
+    }
+
     const { key, codec } = getters.GET_SELECTED_SUBTITLE_STREAM;
     // TODO: examine if I can only direct play with sidecar subtitles
     return key && (codec === 'srt' || codec === 'ass');
@@ -104,8 +108,8 @@ export default {
     }
 
     if (getters.GET_SELECTED_SUBTITLE_STREAM) {
-      if (getters.IS_IN_PICTURE_IN_PICTURE) {
-        console.debug('CAN_DIRECT_PLAY: false because subtitles enabled and using PIP');
+      if (getters.SHOULD_FORCE_BURN_SUBTITLES) {
+        console.debug('CAN_DIRECT_PLAY: false because subtitles are set to be burned');
         return false;
       }
 
@@ -218,6 +222,26 @@ export default {
       : base;
   },
 
+  SHOULD_FORCE_BURN_SUBTITLES: (state, getters) => getters.IS_IN_PICTURE_IN_PICTURE,
+
+  GET_SUBTITLE_PARAMS: (state, getters) => {
+    if (!getters.GET_SELECTED_SUBTITLE_STREAM || getters.CAN_DIRECT_PLAY
+      || getters.CAN_DIRECT_PLAY_SUBTITLES) {
+      return null;
+    }
+
+    if (getters.SHOULD_FORCE_BURN_SUBTITLES) {
+      return {
+        subtitles: 'burn',
+      };
+    }
+
+    return {
+      subtitles: 'auto',
+      advancedSubtitles: 'text',
+    };
+  },
+
   GET_DECISION_AND_START_PARAMS: (state, getters, rootState, rootGetters) => ({
     hasMDE: 1,
     path: rootGetters['plexclients/GET_ACTIVE_MEDIA_METADATA'].key,
@@ -242,11 +266,7 @@ export default {
     directStreamAudio: getters.GET_FORCE_TRANSCODE ? 0 : 1,
     mediaBufferSize: 102400, // ~100MB (same as what Plex Web uses)
     session: state.session,
-    // eslint-disable-next-line no-nested-ternary
-    subtitles: getters.CAN_DIRECT_PLAY
-      ? 'none'
-      : getters.IS_IN_PICTURE_IN_PICTURE ? 'burn' : 'auto',
-    ...(!getters.IS_IN_PICTURE_IN_PICTURE && { advancedSubtitles: 'text' }),
+    ...getters.GET_SUBTITLE_PARAMS,
     'Accept-Language': 'en',
     'X-Plex-Session-Identifier': getters.GET_X_PLEX_SESSION_ID,
     'X-Plex-Client-Profile-Extra': getters.GET_PLEX_PROFILE_EXTRAS,
