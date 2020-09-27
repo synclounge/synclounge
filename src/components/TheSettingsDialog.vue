@@ -26,6 +26,7 @@
               hide-details
               :input-value="GET_AUTO_SKIP_INTRO"
               @change="SET_AUTO_SKIP_INTRO"
+              @click.stop
             />
           </v-list-item-action>
         </v-list-item>
@@ -46,6 +47,7 @@
               hide-details
               :input-value="GET_SLPLAYERFORCETRANSCODE"
               @change="SET_SLPLAYERFORCETRANSCODE"
+              @click.stop
             />
           </v-list-item-action>
         </v-list-item>
@@ -95,6 +97,7 @@
               :input-value="ARE_NOTIFICATIONS_ENABLED && !isHttp"
               :disabled="isHttp"
               @change="CHANGE_NOTIFICATIONS_ENABLED"
+              @click.stop
             />
 
             <v-tooltip
@@ -135,6 +138,7 @@
               hide-details
               :input-value="ARE_SOUND_NOTIFICATIONS_ENABLED"
               @change="SET_ARE_SOUND_NOTIFICATIONS_ENABLED"
+              @click.stop
             />
           </v-list-item-action>
         </v-list-item>
@@ -179,6 +183,7 @@
               hide-details
               :input-value="GET_AUTOPLAY"
               @change="SET_AUTOPLAY"
+              @click.stop
             />
           </v-list-item-action>
         </v-list-item>
