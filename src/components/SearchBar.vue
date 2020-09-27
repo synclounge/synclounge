@@ -76,7 +76,7 @@
 
           <v-list-item-content>
             <v-list-item-title> {{ getTitle(item) }} </v-list-item-title>
-            <v-list-item-subtitle> {{ getSecondaryTitle(item) }} </v-list-item-subtitle>
+            <v-list-item-subtitle> {{ getItemSecondaryTitle(item) }} </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </template>
@@ -158,6 +158,10 @@ export default {
     ...mapActions('plexservers', [
       'SEARCH_PLEX_SERVER_HUB',
     ]),
+
+    getItemSecondaryTitle(item) {
+      return item.reasonTitle || this.getSecondaryTitle(item);
+    },
 
     getItemThumb({ type, thumb, grandparentThumb }) {
       switch (type) {
