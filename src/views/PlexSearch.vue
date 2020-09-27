@@ -25,7 +25,6 @@
         >
           <PlexThumbnail
             :content="item"
-            :machine-identifier="item.machineIdentifier"
             show-server
             type="thumb"
             :cols="getHubCols(hub)"

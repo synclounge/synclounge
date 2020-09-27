@@ -44,7 +44,6 @@
       >
         <PlexThumbnail
           :content="content"
-          :machine-identifier="machineIdentifier"
           full-title
           type="thumb"
           cols="4"

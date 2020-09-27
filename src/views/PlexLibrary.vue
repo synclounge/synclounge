@@ -60,7 +60,6 @@
       >
         <PlexThumbnail
           :content="content"
-          :machine-identifier="content.machineIdentifier"
           type="thumb"
           cols="4"
           sm="3"
