@@ -18,11 +18,11 @@ RUN npm run build
 FROM nginx:1.19.2-alpine as production-stage
 LABEL org.opencontainers.image.title="SyncLounge Web"
 LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
-LABEL org.opencontainers.image.url="https://synclounge.tv/"
-LABEL org.opencontainers.image.source="https://github.com/ttshivers/syncloungesocket"
+LABEL org.opencontainers.image.url="https://synclounge.tv"
+LABEL org.opencontainers.image.source="https://github.com/ttshivers/synclounge"
 LABEL org.opencontainers.image.vendor="SyncLounge"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv/"
+LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv"
 
 COPY --chown=nginx:nginx --from=build-stage /app/dist /usr/share/nginx/html
 
