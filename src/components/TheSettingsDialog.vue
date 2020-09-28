@@ -82,7 +82,7 @@
 
         <v-list-item
           three-line
-          @click="isHttp ? null : CHANGE_NOTIFICATIONS_ENABLED(!ARE_NOTIFICATIONS_ENABLED)"
+          @click="isSecureContext ? CHANGE_NOTIFICATIONS_ENABLED(!ARE_NOTIFICATIONS_ENABLED) : null"
         >
           <v-list-item-content>
             <v-list-item-title>Desktop Notifications</v-list-item-title>
@@ -94,14 +94,14 @@
           <v-list-item-action>
             <v-switch
               hide-details
-              :input-value="ARE_NOTIFICATIONS_ENABLED && !isHttp"
-              :disabled="isHttp"
+              :input-value="ARE_NOTIFICATIONS_ENABLED && isSecureContext"
+              :disabled="!isSecureContext"
               @change="CHANGE_NOTIFICATIONS_ENABLED"
               @click.stop
             />
 
             <v-tooltip
-              v-if="isHttp"
+              v-if="!isSecureContext"
               bottom
             >
               <template #activator="{ on, attrs }">
@@ -343,8 +343,8 @@ export default {
       return this.GET_PLEX_USER?.username;
     },
 
-    isHttp() {
-      return window.location.protocol === 'http:';
+    isSecureContext() {
+      return window.isSecureContext;
     },
 
     BLOCKEDSERVERS: {
