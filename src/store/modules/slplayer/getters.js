@@ -227,7 +227,9 @@ export default {
   GET_SUBTITLE_PARAMS: (state, getters) => {
     if (!getters.GET_SELECTED_SUBTITLE_STREAM || getters.CAN_DIRECT_PLAY
       || getters.CAN_DIRECT_PLAY_SUBTITLES) {
-      return null;
+      return {
+        subtitles: 'none',
+      };
     }
 
     if (getters.SHOULD_FORCE_BURN_SUBTITLES) {
