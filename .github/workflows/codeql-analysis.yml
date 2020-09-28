@@ -1,0 +1,65 @@
+name: "CodeQL"
+
+on:
+  pull_request:
+  schedule:
+    - cron: "0 5 * * 6"
+
+jobs:
+  codeql:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.3
+        with:
+          # We must fetch at least the immediate parents so that if this is
+          # a pull request then we can checkout the head.
+          fetch-depth: 2
+
+      # If this run was triggered by a pull request event, then checkout
+      # the head of the pull request instead of the merge commit.
+      - run: git checkout HEAD^2
+        if: ${{ github.event_name == 'pull_request' }}
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: javascript
+          queries: +security-and-quality
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: 14
+
+      - name: Cache Node.js modules
+        id: cache
+        uses: actions/cache@v2.1.1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Cache hit
+        run: echo ${{ steps.cache.outputs.cache-hit }}
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          SKIP_BUILD: true
+
+      - name: Build
+        run: npm run build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v2.2.0
+        with:
+          name: dist
+          path: dist/
