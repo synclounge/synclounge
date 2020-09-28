@@ -36,15 +36,18 @@
               </v-list-item-title>
 
               <v-list-item-subtitle>
-                Video Codec: {{ media.videoCodec }} ({{ media.bitrate }}kbps)
+                <span class="text--primary">Video Codec:</span>
+                {{ media.videoCodec }} ({{ media.bitrate }}kbps)
               </v-list-item-subtitle>
 
-              <v-list-item-subtitle>
-                Audio Streams: {{ audioStreams(media.Part[0].Stream) }}
+              <v-list-item-subtitle class="wrap">
+                <span class="text--primary">Audio Streams:</span>
+                {{ audioStreams(media.Part[0].Stream) }}
               </v-list-item-subtitle>
 
-              <v-list-item-subtitle>
-                Subtitles: {{ subtitleStreams(media.Part[0].Stream) }}
+              <v-list-item-subtitle class="wrap">
+                <span class="text--primary">Subtitles:</span>
+                {{ subtitleStreams(media.Part[0].Stream) }}
               </v-list-item-subtitle>
             </v-list-item-content>
 
@@ -107,7 +110,7 @@ export default {
     },
 
     formatStreams(streams) {
-      return streams.map(({ extendedDisplayTitle }) => extendedDisplayTitle)
+      return streams.map(({ displayTitle }) => displayTitle)
         .join(', ');
     },
 
@@ -126,3 +129,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.wrap {
+  white-space: normal !important;
+}
+</style>
