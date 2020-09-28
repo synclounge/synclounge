@@ -48,8 +48,10 @@ async function* fetchLineGenerator(url, signal) {
 
 const extractValue = async (nextPromise) => {
   try {
-    const { value } = await nextPromise;
-    return value;
+    const { done, value } = await nextPromise;
+    return done
+      ? null
+      : value;
   } catch (e) {
     return null;
   }
