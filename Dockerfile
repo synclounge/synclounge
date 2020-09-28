@@ -1,5 +1,5 @@
 # build environment
-FROM --platform=$BUILDPLATFORM node:14.11.0-alpine3.11 as build-stage
+FROM --platform=$BUILDPLATFORM node:14.11.0-alpine3.12 as build-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache python3 make g++
@@ -14,7 +14,7 @@ ARG REVISION
 RUN npm run build
 
 # dependency environment
-FROM node:14.11.0-alpine3.11 as dependency-stage
+FROM node:14.11.0-alpine3.12 as dependency-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache python3 make g++
@@ -24,7 +24,7 @@ RUN SKIP_BUILD=true npm ci
 RUN npm prune --production
 
 # production environment
-FROM node:14.11.0-alpine3.11 as production-stage
+FROM node:14.11.0-alpine3.12 as production-stage
 LABEL org.opencontainers.image.title="SyncLounge"
 LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
 LABEL org.opencontainers.image.url="https://synclounge.tv"
