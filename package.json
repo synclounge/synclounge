@@ -74,5 +74,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/ttshivers/synclounge.git"
+  },
+  "engines": {
+    "node": ">=12"
   }
 }
