@@ -3,7 +3,7 @@ name: ci
 on:
   push:
     branches-ignore:
-      - 'master'
+      - master
 
   pull_request:
 
@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.3
 
       - name: Prepare
         id: prep
@@ -51,7 +51,7 @@ jobs:
         run: echo ${{ steps.buildx.outputs.platforms }}
 
       - name: Get platforms
-        uses: actions/github-script@v3
+        uses: actions/github-script@v3.0.0
         id: platforms
         env:
           DOCKER_CLI_EXPERIMENTAL: enabled
@@ -65,7 +65,7 @@ jobs:
         run: echo ${{ steps.platforms.outputs.result }}
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.1
         id: cache
         with:
           path: /tmp/.buildx-cache
@@ -103,4 +103,4 @@ jobs:
 
       - name: Dump context
         if: always()
-        uses: crazy-max/ghaction-dump-context@v1
+        uses: crazy-max/ghaction-dump-context@v1.0.0

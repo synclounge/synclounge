@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: ahmadnassri/action-conventional-commit-lint@v1
+      - uses: ahmadnassri/action-conventional-commit-lint@v1.0.0
         with:
           token: ${{ github.token }}
