@@ -25,7 +25,7 @@ const get = (file, blockList = []) => {
       whitelist: Object.keys(defaults).concat([
         'autojoin__server',
         'autojoin__room',
-        'autojoin__password',
+
         'authentication__mechanism',
         'authentication__type',
         'authentication__authorized',
