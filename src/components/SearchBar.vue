@@ -160,7 +160,9 @@ export default {
     ]),
 
     getItemSecondaryTitle(item) {
-      return item.reasonTitle || this.getSecondaryTitle(item);
+      return item.reason
+        ? this.getReasonTitle(item)
+        : this.getSecondaryTitle(item);
     },
 
     getItemThumb({ type, thumb, grandparentThumb }) {

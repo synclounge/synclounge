@@ -78,30 +78,39 @@
         >
           <v-col
             cols="12"
-            style="max-width: 100%;"
+            class="text-subtitle-2 text-truncate"
           >
-            <div
-              class="text-subtitle-2 text-truncate"
-            >
-              {{ getTitle(content, fullTitle) }}
-            </div>
+            {{ getTitle(content, fullTitle) }}
           </v-col>
 
           <v-col
             cols="12"
+            class="text-caption text-truncate text--secondary"
           >
-            <div class="text-caption text-truncate text--secondary">
-              {{ getSecondaryTitle(content, fullTitle) }}
-            </div>
+            {{ getSecondaryTitle(content, fullTitle) }}
+          </v-col>
+
+          <v-col
+            v-if="content.reason"
+            cols="12"
+            class="text-caption text-truncate text--secondary"
+          >
+            {{ getReasonTitle(content) }}
           </v-col>
         </v-row>
       </template>
 
       <div>{{ getTitle(content, fullTitle) }}</div>
+
+      <div class="text-caption text--secondary">
+        {{ getSecondaryTitle(content, fullTitle) }}
+      </div>
+
       <div
+        v-if="content.reason"
         class="text-caption text--secondary"
       >
-        {{ getSecondaryTitle(content, fullTitle) }}
+        {{ getReasonTitle(content) }}
       </div>
     </v-tooltip>
   </v-card>
@@ -292,6 +301,12 @@ export default {
         'max-glare': 0.15, // the maximum "glare" opacity (1 = 100%, 0.5 = 50%)
         'glare-prerender': false, // false = VanillaTilt creates the glare elements for you
       });
+    }
+  },
+
+  beforeDestroy() {
+    if (this.$el.vanillaTilt) {
+      this.$el.vanillaTilt.destroy();
     }
   },
 

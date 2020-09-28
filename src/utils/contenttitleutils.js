@@ -1,3 +1,9 @@
+const reasonWord = {
+  section: 'in',
+  actor: 'with',
+  director: 'by',
+};
+
 export default {
   getTitle: (metadata, fullTitle) => {
     switch (metadata.type) {
@@ -63,4 +69,6 @@ export default {
       }
     }
   },
+
+  getReasonTitle: ({ reason, reasonTitle }) => `${reasonWord[reason]} ${reasonTitle}`,
 };
