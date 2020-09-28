@@ -26,14 +26,14 @@ jobs:
             docker-image: ${{ github.event.repository.full_name }}web
 
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2.3.3
 
       - name: Build the Docker image
         run: docker buildx build . --file ${{ matrix.dockerfile }} --tag ${{ matrix.docker-image }}
 
       - name: Run the local Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-        uses: anchore/scan-action@v1
+        uses: anchore/scan-action@v1.0.9
         with:
           image-reference: ${{ matrix.docker-image }}
           dockerfile-path: ${{ matrix.dockerfile }}
