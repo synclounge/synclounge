@@ -1,0 +1,57 @@
+# This workflow integrates Scan with GitHub's code scanning feature
+# Scan is a free open-source security tool for modern DevOps teams from ShiftLeft
+# Visit https://slscan.io/en/latest/integrations/code-scan for help
+name: SL Scan
+
+# This section configures the trigger for the workflow. Feel free to customize depending on your convention
+on: push
+
+jobs:
+  Scan-Build:
+    # Scan runs on ubuntu, mac and windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: 14
+
+      - name: Cache Node.js modules
+        id: cache
+        uses: actions/cache@v2.1.1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Cache hit
+        run: echo ${{ steps.cache.outputs.cache-hit }}
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          SKIP_BUILD: true
+
+      - name: Build
+        run: npm run build
+
+      - name: Perform Scan
+        uses: ShiftLeftSecurity/scan-action@v1.3.0
+        env:
+          WORKSPACE: ""
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SCAN_AUTO_BUILD: true
+        with:
+          output: reports
+          # Scan auto-detects the languages in your project. To override uncomment the below variable and set the type
+          # type: credscan,java
+          # type: python
+
+      - name: Upload report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: reports
