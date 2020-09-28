@@ -50,7 +50,7 @@
       <template v-else>
         <v-col>
           <PlexMediaPlayDialog
-            v-if="!metadata.Media.length || metadata.viewOffset"
+            v-if="metadata.Media.length || metadata.viewOffset"
             #default="{ on, attrs }"
             :key="combinedKey"
             :metadata="metadata"
