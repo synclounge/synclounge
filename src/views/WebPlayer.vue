@@ -27,19 +27,22 @@
           @timeupdate="handleTimeUpdate"
         />
 
-        <v-btn
-          v-if="AM_I_HOST && isInIntro"
-          absolute
-          bottom
-          right
-          large
-          class="skip-intro"
-          :class="ARE_PLAYER_CONTROLS_SHOWN ? 'above-controls' : null"
-          :style="skipIntroButtonStyle"
-          @click="SKIP_INTRO"
+        <v-fade-transition
+          transition="fade-transition"
         >
-          Skip Intro
-        </v-btn>
+          <v-btn
+            v-show="shouldShowSkipIntroButton"
+            absolute
+            bottom
+            right
+            large
+            class="skip-intro"
+            :style="skipIntroButtonStyle"
+            @click="SKIP_INTRO"
+          >
+            Skip Intro
+          </v-btn>
+        </v-fade-transition>
       </div>
 
       <v-fade-transition
@@ -189,6 +192,7 @@ export default {
 
   data: () => ({
     videoTimeStamp: 0,
+    controlsOffset: 0,
   }),
 
   computed: {
@@ -228,17 +232,27 @@ export default {
     },
 
     skipIntroButtonStyle() {
-      return this.ARE_PLAYER_CONTROLS_SHOWN
-        ? {
-          'margin-bottom': `${getControlsOffset(this.$refs?.videoPlayerContainer?.offsetHeight)}px`,
-        }
-        : {};
+      return {
+        'margin-bottom': `${this.controlsOffset}px`,
+      };
     },
 
     isInIntro() {
       return this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER
         && this.videoTimeStamp >= this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.startTimeOffset
         && this.videoTimeStamp < this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.endTimeOffset;
+    },
+
+    isInInitialIntroRegion() {
+      return this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER
+        && this.videoTimeStamp >= this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.startTimeOffset
+        && this.videoTimeStamp - this.GET_ACTIVE_MEDIA_METADATA_INTRO_MARKER.startTimeOffset
+          < this.GET_CONFIG.slplayer_initial_skip_intro_visible_period;
+    },
+
+    shouldShowSkipIntroButton() {
+      return this.AM_I_HOST && this.isInIntro && (this.ARE_PLAYER_CONTROLS_SHOWN
+      || this.isInInitialIntroRegion);
     },
   },
 
@@ -292,6 +306,8 @@ export default {
 
     window.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('resize', this.RERENDER_SUBTITLE_CONTAINER);
+    this.controlsOffset = getControlsOffset(this.$refs?.videoPlayerContainer?.offsetHeight);
+    console.log(this.controlsOffset);
   },
 
   beforeDestroy() {
@@ -409,104 +425,91 @@ export default {
 </script>
 
 <style scoped>
-  .slplayer-container {
-    margin-top: -12px;
-    margin-bottom: -12px;
-  }
+.slplayer-container {
+  margin-top: -12px;
+  margin-bottom: -12px;
+}
 
-  .slplayer video {
-    width: 100%;
-    height: 100%;
-  }
+.slplayer video {
+  width: 100%;
+  height: 100%;
+}
 
-  .slplayer {
-    height: calc(100vh - 64px);
-  }
+.slplayer {
+  height: calc(100vh - 64px);
+}
 
-  @media screen and (max-width: 1264px) {
-    div.slplayer {
-      height: calc(0.5625 * 100vw);
-    }
+@media screen and (max-width: 1264px) {
+  div.slplayer {
+    height: calc(0.5625 * 100vw);
   }
+}
 
-  .hoverBar {
-    position: absolute;
-    background:
-      -webkit-gradient(
-        linear,
-        left top,
-        left bottom,
-        from(rgba(0, 0, 0, 0.8)),
-        color-stop(60%, rgba(0, 0, 0, 0.35)),
-        to(transparent)
-      );
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0.35) 60%, transparent);
-    top: 0;
-    left: 0;
-    width: 100%;
-  }
+.hoverBar {
+  position: absolute;
+  background:
+    -webkit-gradient(
+      linear,
+      left top,
+      left bottom,
+      from(rgba(0, 0, 0, 0.8)),
+      color-stop(60%, rgba(0, 0, 0, 0.35)),
+      to(transparent)
+    );
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0.35) 60%, transparent);
+  top: 0;
+  left: 0;
+  width: 100%;
+}
 
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.25s ease-out;
-  }
+.plex-thumb {
+  height: 80px;
+  width: auto;
+  vertical-align: middle;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  .fade-enter,
-  .fade-leave-to {
-    opacity: 0;
-  }
+.v-btn.skip-intro {
+  z-index: 2;
+}
 
-  .plex-thumb {
-    height: 80px;
-    width: auto;
-    vertical-align: middle;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .skip-intro {
-    transition-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
-    transition-duration: 250ms;
-    transition-property: margin;
-    z-index: 2;
-  }
-
-  .skip-intro.above-controls {
-    transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
-  }
+.v-btn.skip-intro.fade-transition-leave-active {
+  transition-duration: 0.6s !important;
+}
 </style>
 
 <style>
-  .messages-wrapper {
-    max-height: calc(100vh - (0.5625 * 100vw) - 150px);
-    overflow: scroll;
-  }
+.messages-wrapper {
+  max-height: calc(100vh - (0.5625 * 100vw) - 150px);
+  overflow: scroll;
+}
 
-  .is-fullscreen .messages-wrapper {
-    height: calc(100vh - (0.5625 * 100vw));
-  }
+.is-fullscreen .messages-wrapper {
+  height: calc(100vh - (0.5625 * 100vw));
+}
 
-  /* Having to put shaka styling here since scoped rules don't seem to apply to them
-    likely because its added dynamically */
+/* Having to put shaka styling here since scoped rules don't seem to apply to them
+  likely because its added dynamically */
 
-  .shaka-slplayer-button:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
+.shaka-slplayer-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 
-  .shaka-play-button {
-    padding: 50px !important;
-  }
+.shaka-play-button {
+  padding: 50px !important;
+}
 
-  .shaka-spinner {
-    padding: 57px !important;
-  }
+.shaka-spinner {
+  padding: 57px !important;
+}
 
-  .libjass-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
+.libjass-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 </style>

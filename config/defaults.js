@@ -22,20 +22,18 @@ const defaults = {
 
   slplayer_plex_timeline_update_interval: 10000,
   slplayer_controls_visible_checker_interval: 250,
+  slplayer_initial_skip_intro_visible_period: 8000,
 
   // Controlls the max time difference cutoff for syncing by changing the playback speed
   slplayer_speed_sync_max_diff: 10000,
 
   // The playback rate (1 +/- rate) that is used when speed syncing
   slplayer_speed_sync_rate: 0.5,
-
   slplayer_seek_timeout: 15000,
 
   // Buffering goal in seconds
   slplayer_buffering_goal: 120,
-
   slplayer_soft_seek_threshold: 200,
-
   sidebar_time_update_interval: 500,
 
   // If the plex client's time changes by this much from the expected time, trigger a state change

@@ -7,8 +7,11 @@ export const areControlsShown = () => !getOverlay() || (getOverlay()?.getControl
     && (getOverlay()?.getControls().getControlsContainer().getAttribute('shown') != null
     || getOverlay()?.getControls().getControlsContainer().getAttribute('casting') != null));
 
-export const getControlsOffset = (fallbackHeight) => (areControlsShown()
-  ? (getPlayer()?.getMediaElement()?.offsetHeight || fallbackHeight) * 0.025 + 48 || 0
+export const getControlsOffset = (fallbackHeight) => (getPlayer()?.getMediaElement()?.offsetHeight
+  || fallbackHeight) * 0.025 + 48 || 0;
+
+export const getControlsOffsetWithVisibility = (fallbackHeight) => (areControlsShown()
+  ? getControlsOffset(fallbackHeight)
   : 0);
 
 export const isPaused = () => getPlayer()?.getMediaElement()?.paused;
