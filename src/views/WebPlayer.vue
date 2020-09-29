@@ -233,7 +233,7 @@ export default {
 
     skipIntroButtonStyle() {
       return {
-        'margin-bottom': `${this.controlsOffset}px`,
+        'margin-bottom': `${this.controlsOffset + 12}px`,
       };
     },
 
@@ -307,7 +307,6 @@ export default {
     window.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('resize', this.RERENDER_SUBTITLE_CONTAINER);
     this.controlsOffset = getControlsOffset(this.$refs?.videoPlayerContainer?.offsetHeight);
-    console.log(this.controlsOffset);
   },
 
   beforeDestroy() {
