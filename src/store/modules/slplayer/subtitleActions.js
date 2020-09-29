@@ -1,6 +1,6 @@
 import { makeUrl } from '@/utils/fetchutils';
 import {
-  getControlsOffset, isPaused, getPlaybackRate, getCurrentTimeMs, getDimensions,
+  getControlsOffsetWithVisibility, isPaused, getPlaybackRate, getCurrentTimeMs, getDimensions,
   insertElementBeforeVideo, getMediaElement, getCurrentTime,
 } from '@/player';
 import resiliantStreamFactory from '@/utils/streams';
@@ -113,7 +113,7 @@ export default {
       return;
     }
 
-    const bottomOffset = getControlsOffset();
+    const bottomOffset = getControlsOffsetWithVisibility();
     console.debug('RERENDER_SUBTITLE_CONTAINER', bottomOffset);
 
     const {
