@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  test:
+  release-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -38,8 +38,8 @@ jobs:
       - name: Lint
         run: npm run lint -- --no-fix
 
-  release:
-    needs: test
+  release-semantic:
+    needs: release-test
 
     runs-on: ubuntu-latest
 
@@ -83,39 +83,36 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_unsafe_perm: true
 
-  alias:
-    needs: release
-    if: needs.release.outputs.published == 'true'
+  release-alias:
+    needs: release-semantic
+    if: needs.release-semantic.outputs.published == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        alias:
-          - version: v${{ needs.release.outputs.release-version-major }}
-          - version: v${{ needs.release.outputs.release-version-major }}.${{ needs.release.outputs.release-version-minor }}
+        tag:
+          - v${{ needs.release-semantic.outputs.release-version-major }}
+          - v${{ needs.release-semantic.outputs.release-version-major }}.${{ needs.release-semantic.outputs.release-version-minor }}
 
     steps:
       - name: Recreate tag
         uses: actions/github-script@v3.0.0
         with:
           script: |
-            const tag = 'tags/${{ matrix.alias.version }}'
+            const tag = 'tags/${{ matrix.tag }}';
             const repo = {
               owner: context.repo.owner,
               repo: context.repo.repo
-            }
-            await github.git.deleteRef({ ...repo, ref: tag }).catch(() => {})
-            await github.git.createRef({ ...repo, ref: `refs/${tag}` , sha: process.env.GITHUB_SHA })
+            };
+            await github.git.deleteRef({ ...repo, ref: tag }).catch(() => {});
+            await github.git.createRef({ ...repo, ref: `refs/${tag}` , sha: process.env.GITHUB_SHA });
 
-  docker:
-    needs: release
-    if: needs.release.outputs.published == 'true'
+  release-docker:
+    needs: release-semantic
+    if: needs.release-semantic.outputs.published == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        dockerfile:
-          - Dockerfile
-          - Dockerfile.web
         include:
           - dockerfile: Dockerfile
             docker-image: ${{ github.event.repository.full_name }}
@@ -188,13 +185,13 @@ jobs:
           platforms: ${{ steps.platforms.outputs.result }}
           tags: |
             ${{ matrix.docker-image }}:latest
-            ${{ matrix.docker-image }}:${{ needs.release.outputs.release-version }}
-            ${{ matrix.docker-image }}:${{ needs.release.outputs.release-version-major }}.${{ needs.release.outputs.release-version-minor }}
-            ${{ matrix.docker-image }}:${{ needs.release.outputs.release-version-major }}
+            ${{ matrix.docker-image }}:${{ needs.release-semantic.outputs.release-version }}
+            ${{ matrix.docker-image }}:${{ needs.release-semantic.outputs.release-version-major }}.${{ needs.release-semantic.outputs.release-version-minor }}
+            ${{ matrix.docker-image }}:${{ needs.release-semantic.outputs.release-version-major }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
           build-args: |
-            VERSION=${{ needs.release.outputs.release-version }}
+            VERSION=${{ needs.release-semantic.outputs.release-version }}
             BUILD_DATE=${{ steps.prep.outputs.build-date }}
             REVISION=${{ github.sha }}
 
@@ -207,7 +204,7 @@ jobs:
 
       - name: Inspect
         run: |
-          docker buildx imagetools inspect ${{ matrix.docker-image }}:${{ needs.release.outputs.release-version }}
+          docker buildx imagetools inspect ${{ matrix.docker-image }}:${{ needs.release-semantic.outputs.release-version }}
 
       - name: Image digest
         run: echo ${{ steps.docker-build.outputs.digest }}
