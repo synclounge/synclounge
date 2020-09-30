@@ -12,9 +12,17 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "ci(action)"
+      prefix-development: "ci(dev-action)"
+      include: "scope"
 
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "build(docker)"
+      prefix-development: "build(dev-docker)"
+      include: "scope"
