@@ -15,7 +15,6 @@ updates:
     commit-message:
       prefix: "ci(action)"
       prefix-development: "ci(dev-action)"
-      include: "scope"
 
   - package-ecosystem: "docker"
     directory: "/"
@@ -25,4 +24,3 @@ updates:
     commit-message:
       prefix: "build(docker)"
       prefix-development: "build(docker)"
-      include: "scope"
