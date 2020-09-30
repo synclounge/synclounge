@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  docker:
+  ci:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
