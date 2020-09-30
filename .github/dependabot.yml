@@ -11,6 +11,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    versioning-strategy: increase
     open-pull-requests-limit: 10
     commit-message:
       prefix: "ci(action)"
@@ -21,6 +22,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    versioning-strategy: increase
     open-pull-requests-limit: 10
     commit-message:
       prefix: "build(docker)"
