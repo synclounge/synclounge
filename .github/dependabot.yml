@@ -11,10 +11,12 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    versioning-strategy: increase
     open-pull-requests-limit: 10
 
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "daily"
+    versioning-strategy: increase
     open-pull-requests-limit: 10
