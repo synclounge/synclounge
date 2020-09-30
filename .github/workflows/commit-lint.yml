@@ -4,12 +4,13 @@ on:
   pull_request:
 
 jobs:
-  lint:
+  commit-lint:
     # Dependabot sometimes makes some really long commit messages and I can't stop it
     if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:
-      - uses: ahmadnassri/action-conventional-commit-lint@v1.0.0
+      - name: Commit lint
+        uses: ahmadnassri/action-conventional-commit-lint@v1.0.0
         with:
           token: ${{ github.token }}
