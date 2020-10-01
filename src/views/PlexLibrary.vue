@@ -24,15 +24,15 @@
           style="cursor: pointer;"
           @click:row="onRowClick"
         >
-          <template v-slot:item.duration="{ item }">
+          <template #[`item.duration`]="{ item }">
             {{ getDuration(item.duration) }}
           </template>
 
-          <template v-slot:item.viewedLeafCount="{ item }">
+          <template #[`item.viewedLeafCount`]="{ item }">
             {{ item.leafCount - item.viewedLeafCount }} unplayed
           </template>
 
-          <template v-slot:item.viewOffset="{ item }">
+          <template #[`item.viewOffset`]="{ item }">
             <span v-if="item.viewOffset">
               {{ getDuration(item.duration - item.viewOffset) }} left
             </span>

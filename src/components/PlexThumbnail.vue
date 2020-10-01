@@ -55,10 +55,9 @@
 
     <v-progress-linear
       v-if="showProgressBar"
-      #progress
-      style="width: 100%;"
+      rounded
       class="pa-0 mb-0 ma-0 pt-content-progress"
-      height="1"
+      height="4"
       :value="unwatchedPercent"
     />
 

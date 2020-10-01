@@ -1,6 +1,6 @@
 <template>
   <v-dialog max-width="400">
-    <template v-slot:activator="stuff">
+    <template #activator="stuff">
       <slot
         v-bind="stuff"
       />
