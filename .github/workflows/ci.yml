@@ -97,19 +97,6 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker-build.outputs.digest }}
 
-      - name: Run the local Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-        uses: anchore/scan-action@v1.0.9
-        with:
-          image-reference: ${{ matrix.docker-image }}:${{ github.sha }}
-          dockerfile-path: ${{ matrix.dockerfile }}
-          acs-report-enable: true
-          include-app-packages: true
-
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: results.sarif
-
       - name: Dump context
         if: always()
         uses: crazy-max/ghaction-dump-context@v1.0.0
