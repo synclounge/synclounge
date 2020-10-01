@@ -25,7 +25,7 @@
       dense
       nav
     >
-      <TheSettingsDialog #default="{ on, attrs }">
+      <TheSettingsDialog v-slot="{ on, attrs }">
         <v-list-item
           v-bind="attrs"
           v-on="on"
@@ -94,7 +94,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <DonateDialog #default="{ on, attrs }">
+      <DonateDialog v-slot="{ on, attrs }">
         <v-list-item
           v-bind="attrs"
           v-on="on"

@@ -37,8 +37,8 @@
 
               <v-expansion-panel-content>
                 <PlexClientPicker
-                  @loadingChange="loading = $event"
-                  @clientConnectableChange="clientConnectable = $event"
+                  @loading-change="loading = $event"
+                  @client-connectable-change="clientConnectable = $event"
                 />
               </v-expansion-panel-content>
             </v-expansion-panel>

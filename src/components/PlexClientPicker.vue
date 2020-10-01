@@ -112,8 +112,8 @@ export default {
       this.cancelRequests();
       const controller = new AbortController();
       this.abortController = controller;
-      this.$emit('loadingChange', true);
-      this.$emit('clientConnectableChange', false);
+      this.$emit('loading-change', true);
+      this.$emit('client-connectable-change', false);
       this.error = false;
 
       try {
@@ -122,7 +122,7 @@ export default {
           signal: controller.signal,
         });
         this.SET_CHOSEN_CLIENT_ID(clientIdentifier);
-        this.$emit('clientConnectableChange', true);
+        this.$emit('client-connectable-change', true);
       } catch (e) {
         if (controller.signal.aborted) {
           // If we aborted, ignore errors and return immediately
@@ -134,7 +134,7 @@ export default {
 
       this.abortController = null;
 
-      this.$emit('loadingChange', false);
+      this.$emit('loading-chnage', false);
     },
   },
 };

@@ -65,7 +65,7 @@
           {{ item.title }}
         </v-btn>
 
-        <DonateDialog #default="{ on, attrs }">
+        <DonateDialog v-slot="{ on, attrs }">
           <v-btn
             small
             class="hidden-sm-and-down"
