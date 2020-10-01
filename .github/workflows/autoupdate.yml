@@ -1,0 +1,13 @@
+name: autoupdate
+on:
+  push:
+    branches:
+      - master
+jobs:
+  autoupdate:
+    name: autoupdate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: chinthakagodawita/autoupdate@v0.1.4
+        env:
+          GITHUB_TOKEN: "${{ secrets.PAT }}"
