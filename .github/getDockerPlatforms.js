@@ -28,7 +28,9 @@ const getDockerfileArches = (file, supportedPlatformsStr) => {
   const basePlatforms = getImagePlatforms(getDockerfileImage(file));
   console.log('Base platforms: ', basePlatforms.join(', '));
   const supportedPlatforms = supportedPlatformsStr.split(',');
-  return basePlatforms.filter((platform) => supportedPlatforms.includes(platform)).join(',');;
+  return basePlatforms.filter(
+    (platform) => supportedPlatforms.some((supPlatform) => platform.startsWith(supPlatform)),
+  ).join(',');
 }
 
 module.exports = getDockerfileArches;
