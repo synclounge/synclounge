@@ -54,7 +54,7 @@
     "stylelint": "^13.7.2",
     "stylelint-config-standard": "^20.0.0",
     "synclounge-libjass": "^1.0.0",
-    "uuid": "^8.3.0",
+    "uuid": "^8.3.1",
     "vanilla-tilt": "^1.7.0",
     "vue": "^2.6.12",
     "vue-chat-scroll": "^1.4.0",
