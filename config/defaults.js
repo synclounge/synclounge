@@ -48,7 +48,7 @@ const defaults = {
   synclounge_upnext_popup_lifetime: 60000,
 
   default_party_pause_enabled: true,
-  default_auto_host_enabled: true,
+  default_auto_host_enabled: false,
 
   force_slplayer: false,
 
