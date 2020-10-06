@@ -15,7 +15,7 @@ ARG REVISION
 RUN npm run build
 
 # production environment
-FROM nginx:1.19.2-alpine as production-stage
+FROM nginx:1.19.3-alpine as production-stage
 LABEL org.opencontainers.image.title="SyncLounge Web"
 LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
 LABEL org.opencontainers.image.url="https://synclounge.tv"
