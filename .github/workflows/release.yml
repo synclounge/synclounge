@@ -138,7 +138,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1.0.1
+        uses: docker/setup-buildx-action@v1.0.2
         with:
           version: latest
 
