@@ -18,7 +18,7 @@
 [app-link]: https://synclounge.ttshivers.com
 [license-link]: https://opensource.org/licenses/MIT "MIT License"
 
-![SyncLounge](https://app.synclounge.tv/logo-long-dark.png)
+![SyncLounge](https://github.com/ttshivers/synclounge/raw/master/src/assets/images/logos/logo-long-dark.png)
 
 
 [![App][app-badge]][app-link]
