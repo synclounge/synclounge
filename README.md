@@ -1,24 +1,24 @@
-[github-release-badge]: https://img.shields.io/github/workflow/status/ttshivers/synclounge/release?label=release&style=for-the-badge
-[docker-version-badge]: https://img.shields.io/docker/v/ttshivers/synclounge?label=Docker&sort=semver&style=for-the-badge
-[docker-latest-size-badge]: https://img.shields.io/docker/image-size/ttshivers/synclounge?sort=semver&style=for-the-badge
-[docker-pulls-badge]: https://img.shields.io/docker/pulls/ttshivers/synclounge?style=for-the-badge
+[github-release-badge]: https://img.shields.io/github/workflow/status/synclounge/synclounge/release?label=release&style=for-the-badge
+[docker-version-badge]: https://img.shields.io/docker/v/synclounge/synclounge?label=Docker&sort=semver&style=for-the-badge
+[docker-latest-size-badge]: https://img.shields.io/docker/image-size/synclounge/synclounge?sort=semver&style=for-the-badge
+[docker-pulls-badge]: https://img.shields.io/docker/pulls/synclounge/synclounge?style=for-the-badge
 [npm-badge]: https://img.shields.io/npm/v/synclounge?style=for-the-badge
-[dependencies-badge]: https://img.shields.io/david/ttshivers/synclounge?style=for-the-badge
-[devdependencies-badge]: https://img.shields.io/david/dev/ttshivers/synclounge?style=for-the-badge
-[license-badge]: https://img.shields.io/github/license/ttshivers/synclounge?style=for-the-badge
-[app-badge]: https://img.shields.io/website?label=App&style=for-the-badge&up_message=online&url=https%3A%2F%2Fsynclounge.ttshivers.com
+[dependencies-badge]: https://img.shields.io/david/synclounge/synclounge?style=for-the-badge
+[devdependencies-badge]: https://img.shields.io/david/dev/synclounge/synclounge?style=for-the-badge
+[license-badge]: https://img.shields.io/github/license/synclounge/synclounge?style=for-the-badge
+[app-badge]: https://img.shields.io/website?label=App&style=for-the-badge&up_message=online&url=https%3A%2F%2Fapp.synclounge.tv
 
-[release-action-link]: https://github.com/ttshivers/synclounge/actions?query=workflow%3Arelease+branch%3Amaster "Release action"
-[dockerhub-link]: https://hub.docker.com/r/ttshivers/synclounge "Docker images of SyncLounge"
-[dockerhub-tags-link]: https://hub.docker.com/r/ttshivers/synclounge/tags "Docker tags of Synclounge"
-[docker-microbadger-link]: https://microbadger.com/images/ttshivers/synclounge "Docker size"
+[release-action-link]: https://github.com/synclounge/synclounge/actions?query=workflow%3Arelease+branch%3Amaster "Release action"
+[dockerhub-link]: https://hub.docker.com/r/synclounge/synclounge "Docker images of SyncLounge"
+[dockerhub-tags-link]: https://hub.docker.com/r/synclounge/synclounge/tags "Docker tags of Synclounge"
+[docker-microbadger-link]: https://microbadger.com/images/synclounge/synclounge "Docker size"
 [npm-link]: https://www.npmjs.com/package/synclounge "NPM package"
-[dependencies-link]: https://david-dm.org/ttshivers/synclounge
-[devdependencies-link]: https://david-dm.org/ttshivers/synclounge?type=dev
-[app-link]: https://synclounge.ttshivers.com
+[dependencies-link]: https://david-dm.org/synclounge/synclounge
+[devdependencies-link]: https://david-dm.org/synclounge/synclounge?type=dev
+[app-link]: https://app.synclounge.tv
 [license-link]: https://opensource.org/licenses/MIT "MIT License"
 
-![SyncLounge](https://github.com/ttshivers/synclounge/raw/master/src/assets/images/logos/logo-long-dark.png)
+![SyncLounge](https://github.com/synclounge/synclounge/raw/master/src/assets/images/logos/logo-long-dark.png)
 
 
 [![App][app-badge]][app-link]
@@ -31,26 +31,7 @@
 [![Dev Dependencies][devdependencies-badge]][devdependencies-link]
 [![License][license-badge]][license-link]
 
-
-This is a fork of [https://github.com/samcm/synclounge](https://github.com/samcm/synclounge) with improved stability and features like direct stream and direct play support. Some of the configuration is different than the main version, so that documentation may not always apply here.
-
-I run an instance of this version at [https://synclounge.ttshivers.com](https://synclounge.ttshivers.com) which you are free to use.
-
-# Features over main version
-	- Simplified room creation and joining process
-	- Better web player (same as what Plex web uses)
-		- Direct play and direct stream support
-		- Native subtitle support
-		- Skip next / previous controls to easily navigate episodes in a show
-		- Better high bitrate support with no more "appendBuffer" errors
-	- Skip intro / auto skip intro
-	- Auto Host (Anyone can start playing new content rather than just the host)
-	- Sound / desktop notifications for chat
-	- Major rewrite / cleanup of sync logic
-
----
-
-SyncLounge (Previously PlexTogether) is a tool to sync [Plex](http://plex.tv) content across multiple players in multiple locations.
+SyncLounge (Previously PlexTogether) is a tool to sync [Plex](https://plex.tv) content across multiple players in multiple locations.
 
 ## How it works
 SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of the SyncLounge clients. Users choose their Plex client, decide on a SyncLounge Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
@@ -80,7 +61,7 @@ The host has complete control over a room. Commands they send to their client wi
 
 ## Screenshots
 
-Head to the [website](http://synclounge.tv)
+Head to the [website](https://synclounge.tv)
 
 ## Supported Plex Clients
 Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with SyncLounge may vary. If you have access to one of the untested clients please let us know so we can update our list below.
@@ -110,8 +91,6 @@ Some low powered clients may be hard to achieve a perfect sync with (for example
 
 ## Documentation
 
-This fork has diverged some from the main SyncLounge repository, so not all the documentation for it is applicable here.
-
 ### Installation
 By default, it listens on port 8088. All the paths are relative, so you can use a reverse proxy at any subdirectory or subdomain without any additional configuration to SyncLounge. In this version, the webapp and socket server are combined so you only need to proxy that one port if you are using a reverse proxy.
 
@@ -120,11 +99,11 @@ By default, it listens on port 8088. All the paths are relative, so you can use 
 Using the Docker image is the easiest path because it works out of the box.
 You can get it running immediately by
 ```sh
-docker pull ttshivers/synclounge
-docker run -p 8088:8088 ttshivers/synclounge:latest
+docker pull synclounge/synclounge
+docker run -p 8088:8088 synclounge/synclounge:latest
 ```
 
-You can use environment variables to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js).
+You can use environment variables to change any of the [default configuration](https://github.com/synclounge/synclounge/blob/master/config/defaults.js).
 
 #### Linux (Without Docker)
 Make sure you have nodejs installed.
@@ -137,7 +116,7 @@ Then you can run it:
 synclounge
 ```
 
-If you want to change any of the [default configuration](https://github.com/ttshivers/synclounge/blob/master/config/defaults.js), you can either use environment variables with the same name, use command line arguments, or use a config file and run synclounge like `synclounge --config_file /path/to/config.json`
+If you want to change any of the [default configuration](https://github.com/synclounge/synclounge/blob/master/config/defaults.js), you can either use environment variables with the same name, use command line arguments, or use a config file and run synclounge like `synclounge --config_file /path/to/config.json`
 
 ### Sample Nginx config
 If you want to run SyncLounge behind Nginx, here is an example configuration
@@ -229,7 +208,7 @@ server {
 
 
 ### Older Help
-The FAQ, Self-Hosting, Development, Contributing, and other documentation has been move to [docs.synclounge.tv](http://docs.synclounge.tv)! Head there for more information!
+The FAQ, Self-Hosting, Development, Contributing, and other documentation has been move to [docs.synclounge.tv](https://docs.synclounge.tv)! Head there for more information!
 
 ## Contributors
 [samcm](https://twitter.com/durksau) - Developer

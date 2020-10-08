@@ -3,7 +3,7 @@ import { detect } from 'detect-browser';
 const state = () => ({
   version: process.env.VUE_APP_VERSION,
   gitHash: process.env.VUE_APP_GIT_HASH,
-  repositoryUrl: 'https://github.com/ttshivers/synclounge',
+  repositoryUrl: 'https://github.com/synclounge/synclounge',
   discordUrl: 'https://discord.gg/fKQB3yt',
 
   background: null,

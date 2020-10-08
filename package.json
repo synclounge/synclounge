@@ -67,13 +67,13 @@
     "vuex-persistedstate": "^3.1.0"
   },
   "bugs": {
-    "url": "https://github.com/ttshivers/synclounge/issues"
+    "url": "https://github.com/synclounge/synclounge/issues"
   },
-  "homepage": "https://synclounge.tv/",
+  "homepage": "https://synclounge.tv",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ttshivers/synclounge.git"
+    "url": "https://github.com/synclounge/synclounge.git"
   },
   "engines": {
     "node": ">=12"
