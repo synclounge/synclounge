@@ -37,7 +37,7 @@
     "caf": "^9.1.0",
     "core-js": "^3.6.5",
     "date-fns": "^2.16.1",
-    "detect-browser": "^5.1.1",
+    "detect-browser": "^5.2.0",
     "eslint": "^7.10.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-vue": "^7.0.1",
