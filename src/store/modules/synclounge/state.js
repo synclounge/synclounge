@@ -1,0 +1,25 @@
+const state = () => ({
+  socketId: null,
+  server: null,
+  room: null,
+  password: null,
+  users: {},
+  hostId: null,
+  messagesUserCache: {},
+  messages: [],
+  isPartyPausingEnabled: null,
+  isAutoHostEnabled: null,
+  serversHealth: null,
+  syncCancelToken: null,
+  recentRooms: [],
+  isInRoom: false,
+  upnextTimeoutId: null,
+
+  // This tracks whether the upnext screen was triggered for this playback already.
+  // It is reset to false when the player gets out of the upNext time zone (at the end of episode)
+  upNextTriggered: false,
+  areNotificationsEnabled: false,
+  areSoundNotificationsEnabled: false,
+});
+
+export default state;

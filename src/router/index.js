@@ -1,142 +1,180 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-// ===================== Pages Components ======================
-import signin from '../components/signin';
-import signout from '../components/signout';
-import join from '../components/join';
-
-const SettingsHelper = require('../../SettingsHelper.js');
-
-const settings = new SettingsHelper();
 
 Vue.use(Router);
 
-// ==================== Router registration ====================
+const searchBar = () => import('@/components/SearchBar.vue');
+const rightSidebar = () => import('@/components/TheSidebarRight.vue');
+const rightSidebarButton = () => import('@/components/TheSidebarRightButton.vue');
+
 export default new Router({
   mode: 'hash',
-  base: settings.webroot || '/',
-  routes: [{
-    path: '/',
-    meta: {
-      protected: true,
+  routes: [
+    {
+      path: '/',
+      name: 'RoomCreation',
+      component: () => import('@/views/RoomCreation.vue'),
+      meta: {
+        requiresAuth: true,
+      },
     },
-  },
-  {
-    path: '/signin',
-    meta: {
-      noload: true,
-    },
-    component: signin,
-  },
-  {
-    path: '/signout',
-    meta: {
-      noload: true,
-    },
-    component: signout,
-  },
-  {
-    path: '/join',
-    meta: {
-      noload: true,
-      protected: false,
-    },
-    component: join,
-  },
-  {
-    path: '/clientselect',
-    meta: {
-      noload: false,
-    },
-    component: require('../components/application/walkthrough.vue'),
-  },
-  {
-    path: '/joinroom',
-    meta: {
-      noload: false,
-    },
-    component: require('../components/application/joinroom.vue'),
-  },
 
-  {
-    path: '/player',
-    meta: {
-      protected: true,
+    {
+      path: '/signin',
+      name: 'SignIn',
+      component: () => import('@/views/SignIn.vue'),
+      meta: {
+        requiresNoAuth: true,
+      },
     },
-    component: require('../components/application/ptplayer.vue'),
-  },
-  {
-    path: '/nowplaying/:machineIdentifier/:ratingKey',
-    meta: {
-      protected: true,
-    },
-    name: 'nowplaying',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
 
-  {
-    path: '/browse',
-    meta: {
-      protected: true,
+    {
+      path: '/signout',
+      name: 'SignOut',
+      component: () => import('@/views/SignOut.vue'),
+      meta: {
+        requiresPlexToken: true,
+      },
     },
-    name: 'browse',
-    component: require('../components/application/plexbrowser.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier',
-    meta: {
-      protected: true,
+
+    {
+      path: '/join/:room/:server?',
+      name: 'RoomJoin',
+      component: () => import('@/views/RoomJoin.vue'),
+      props: true,
+      meta: {
+        requiresAuth: true,
+        redirectAfterAuth: true,
+      },
     },
-    name: 'server',
-    component: require('../components/application/plexbrowser/plexserver.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId',
-    meta: {
-      protected: true,
+
+    {
+      path: '/clientselect',
+      name: 'AdvancedRoomWalkthrough',
+      component: () => import('@/views/AdvancedRoomWalkthrough.vue'),
+      meta: {
+        requiresAuth: true,
+      },
     },
-    name: 'library',
-    component: require('../components/application/plexbrowser/plexlibrary.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/:ratingKey',
-    meta: {
-      protected: true,
+
+    {
+      path: '/joinroom',
+      name: 'AdvancedRoomJoin',
+      component: () => import('@/views/AdvancedRoomJoin.vue'),
+      meta: {
+        requiresAuth: true,
+      },
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:ratingKey',
-    meta: {
-      protected: true,
+
+    {
+      path: '/room/:room/player/:server?',
+      name: 'WebPlayer',
+      components: {
+        default: () => import('@/views/WebPlayer.vue'),
+        rightSidebar,
+        rightSidebarButton,
+      },
+      meta: {
+        requiresAuth: true,
+        protected: true,
+      },
     },
-    name: 'series',
-    component: require('../components/application/plexbrowser/plexseries.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+
+    {
+      path: '/room/:room/browse/:server?',
+      name: 'PlexHome',
+      components: {
+        default: () => import('@/views/PlexHome.vue'),
+        searchBar,
+        rightSidebar,
+        rightSidebarButton,
+      },
+      meta: {
+        requiresAuth: true,
+        protected: true,
+        showAppBarExtension: true,
+      },
     },
-    name: 'season',
-    component: require('../components/application/plexbrowser/plexseason.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/:sectionId/tv/:grandparentKey/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+
+    {
+      path: '/room/:room/browse/server/:machineIdentifier/:server?',
+      name: 'PlexServer',
+      components: {
+        default: () => import('@/views/PlexServer.vue'),
+        searchBar,
+        rightSidebar,
+        rightSidebarButton,
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
+      meta: {
+        requiresAuth: true,
+        protected: true,
+        showAppBarExtension: true,
+      },
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
-  {
-    path: '/browse/:machineIdentifier/tv/:grandparentKey/:parentKey/:ratingKey',
-    meta: {
-      protected: true,
+
+    {
+      path: '/room/:room/browse/server/:machineIdentifier/library/:sectionId/:server?',
+      name: 'PlexLibrary',
+      components: {
+        default: () => import('@/views/PlexLibrary.vue'),
+        searchBar,
+        appBarView: () => import('@/components/LibraryViewButton.vue'),
+        rightSidebar,
+        rightSidebarButton,
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
+      meta: {
+        requiresAuth: true,
+        protected: true,
+        showAppBarExtension: true,
+      },
     },
-    name: 'content',
-    component: require('../components/application/plexbrowser/plexcontent.vue'),
-  },
+
+    {
+      path: '/room/:room/browse/server/:machineIdentifier/ratingKey/:ratingKey/:server?',
+      name: 'PlexMedia',
+      components: {
+        default: () => import('@/views/PlexMedia.vue'),
+        searchBar,
+        rightSidebar,
+        rightSidebarButton,
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
+      meta: {
+        requiresAuth: true,
+        protected: true,
+        showAppBarExtension: true,
+      },
+    },
+
+    {
+      path: '/room/:room/search/:query/:server?',
+      name: 'PlexSearch',
+      components: {
+        default: () => import('@/views/PlexSearch.vue'),
+        searchBar,
+        rightSidebar,
+        rightSidebarButton,
+      },
+      props: {
+        default: true,
+        searchBar: true,
+      },
+      meta: {
+        requiresAuth: true,
+        protected: true,
+        showAppBarExtension: true,
+      },
+    },
   ],
 });

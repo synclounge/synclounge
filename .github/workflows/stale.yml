@@ -9,14 +9,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/stale@v3
+      - uses: actions/stale@v3.0.11
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           stale-issue-message: "This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions."
           stale-pr-message: "This pull request has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions."
           stale-issue-label: "no-issue-activity"
-          exempt-issue-labels: 'keep-open,feature-request,needs-triage'
+          exempt-issue-labels: "keep-open,feature-request,needs-triage"
           stale-pr-label: "no-pr-activity"
-          exempt-pr-labels: 'keep-open,work-in-progress'
+          exempt-pr-labels: "keep-open,work-in-progress"
           days-before-stale: 60
           days-before-close: 7

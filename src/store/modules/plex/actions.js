@@ -1,276 +1,222 @@
-const request = require('request');
-const parseXMLString = require('xml2js').parseString;
-
-const _PlexAuth = require('./helpers/PlexAuth.js');
-const PlexConnection = require('./helpers/PlexConnection.js');
-const PlexServer = require('./helpers/PlexServer.js');
-const PlexClient = require('./helpers/PlexClient.js');
-
-const PlexAuth = new _PlexAuth();
+import promiseutils from '@/utils/promiseutils';
+import { fetchJson, queryFetch } from '@/utils/fetchutils';
+import { difference } from '@/utils/lightlodash';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
-  PLEX_LOGIN_TOKEN: ({ commit, dispatch, rootState }, token) => new Promise((resolve, reject) => {
-    const options = PlexAuth.getApiOptions('https://plex.tv/users/sign_in.json', token, 5000, 'POST');
-    options.headers['X-Plex-Client-Identifier'] = rootState.settings.CLIENTIDENTIFIER;
-    request(options, (error, response, body) => {
-      if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
-        const data = JSON.parse(body);
-        if (!data) {
-          commit('PLEX_SET_VALUE', ['signedin', false]);
-          return reject(new Error('No response data from Plex'));
-        }
-        commit('PLEX_SET_VALUE', ['user', data.user]);
-        commit('PLEX_SET_VALUE', ['signedin', true]);
-        dispatch('PLEX_GET_DEVICES');
-        // state.signedin = true
-        return resolve(true);
-      }
-      commit('PLEX_SET_VALUE', ['signedin', false]);
-      return reject(error);
-    });
-  }),
-
-  PLEX_LOGIN_STANDARD: ({ dispatch, commit }, data) => new Promise((resolve, reject) => {
-    const { username, password } = data;
-    const base64encoded = new Buffer(`${username}:${password}`).toString('base64');
-    const options = {
-      url: 'https://plex.tv/users/sign_in.json',
-      headers: {
-        Authorization: `Basic ${base64encoded}`,
-        'X-Plex-Client-Identifier': 'PlexTogether',
-      },
+  FETCH_PLEX_INIT_AUTH: async ({ getters }, signal) => fetchJson(
+    'https://plex.tv/api/v2/pins',
+    { strong: true },
+    {
       method: 'POST',
-    };
-    request(options, (error, response, body) => {
-      if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
-        const data = JSON.parse(body);
-        if (!data) {
-          commit('PLEX_SET_VALUE', ['signedin', false]);
-          return reject(response.statusCode);
-        }
-        commit('PLEX_SET_VALUE', ['user', data.user]);
-        commit('PLEX_SET_VALUE', ['signedin', true]);
-        dispatch('PLEX_GET_DEVICES');
-      } else {
-        commit('PLEX_SET_VALUE', ['signedin', false]);
-        return reject(response.statusCode);
-      }
+      headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
+      signal,
+    },
+  ),
+
+  REQUEST_PLEX_AUTH_TOKEN: async ({ getters, commit, dispatch }, { signal, id }) => {
+    const data = await fetchJson(
+      `https://plex.tv/api/v2/pins/${id}`,
+      null,
+      {
+        headers: getters.GET_PLEX_INITIAL_AUTH_PARAMS,
+        signal,
+      },
+    );
+
+    if (!data.authToken) {
+      throw new Error("Plex didn't give authToken");
+    }
+
+    commit('SET_PLEX_AUTH_TOKEN', data.authToken);
+
+    await dispatch('FETCH_PLEX_USER', signal);
+  },
+
+  FETCH_PLEX_USER: async ({ getters, commit }, signal) => {
+    const data = await fetchJson('https://plex.tv/api/v2/user', {
+      ...getters.GET_PLEX_BASE_PARAMS(),
+      includeSubscriptions: 1,
+      includeProviders: 1,
+      includeSettings: 1,
+      includeSharedSettings: 1,
+    }, { signal });
+
+    commit('SET_PLEX_USER', data);
+  },
+
+  // Private function, please use FETCH_PLEX_DEVICES instead
+  _FETCH_PLEX_DEVICES: async ({
+    commit, dispatch, getters, rootGetters,
+  }) => {
+    // Store old list of server/client ids, to be able to take difference after the update and
+    // find devices that weren't updated and remove them
+    const oldClientIds = rootGetters['plexclients/GET_PLEX_CLIENT_IDS']
+      .filter((clientId) => clientId !== slPlayerClientId);
+    const oldServersIds = rootGetters['plexservers/GET_PLEX_SERVER_IDS'];
+
+    const devices = await fetchJson('https://plex.tv/api/v2/resources', {
+      ...getters.GET_PLEX_BASE_PARAMS(),
+      includeHttps: 1,
+      includeRelay: 1,
     });
-  }),
 
-  PLEX_GET_DEVICES: ({ state, commit, dispatch }, dontDelete) => new Promise((resolve, reject) => {
-    if (!state.user) {
-      return reject(new Error('Sign in before getting devices'));
-    }
-
-    if (!dontDelete) {
-      commit('PLEX_SET_VALUE', ['gotDevices', false]);
-      commit('PLEX_SET_VALUE', ['servers', {}]);
-      commit('PLEX_SET_VALUE', ['clients', {}]);
-    }
-    const options = PlexAuth.getApiOptions('https://plex.tv/api/resources?includeHttps=1', state.user.authToken, 5000, 'GET');
-    request(options, (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        // Valid response
-        parseXMLString(body, async (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          for (const index in result.MediaContainer.Device) {
-            // Handle the individual device
-            const device = result.MediaContainer.Device[index].$;
-            // Each device can have multiple network connections
-            // Any of them can be viable routes to interacting with the device
-            const connections = result.MediaContainer.Device[index].Connection;
-            const tempConnectionsArray = [];
-            // Create a temporary array of object:PlexConnection
-            for (const i in connections) {
-              const connection = connections[i].$;
-              // Exclude local IPs starting with 169.254
-              if (!connection.address.startsWith('169.254')) {
-                const tempConnection = new PlexConnection();
-                for (const key in connection) {
-                  tempConnection[key] = connection[key];
-                }
-                tempConnectionsArray.push(tempConnection);
-                if (connection.local === '1' && connection.uri.indexOf('plex') > -1) {
-                  const rawConnection = new PlexConnection();
-                  Object.assign(rawConnection, connection);
-                  rawConnection.uri = `${connection.protocol}://${connection.address}:${connection.port}`;
-                  rawConnection.isManual = true;
-                  tempConnectionsArray.push(rawConnection);
-                }
-              }
-            }
-            // If device is a player
-            if (device.provides.indexOf('player') !== -1) {
-              // If device is not Plex Web
-              if(device.product.indexOf('Plex Web') === -1) {
-                // This is a Client
-                // Create a new PlexClient object
-                const tempClient = new PlexClient();
-                for (const key in device) {
-                  tempClient[key] = device[key];
-                }
-                tempClient.accessToken = state.user.authToken;
-                tempClient.plexConnections = tempConnectionsArray;
-                dispatch('PLEX_ADD_CLIENT', tempClient);
-              }
-            // If device is a server
-            } else if (device.provides.indexOf('server') !== -1) {
-              // This is a Server
-              // Create a new PlexServer object
-              const tempServer = new PlexServer();
-              for (const key in device) {
-                tempServer[key] = device[key];
-              }
-              // Push a manual connection string for when DNS rebind doesnt work
-              tempServer.plexConnections = tempConnectionsArray;
-              if (tempServer.accessToken == null) {
-                tempServer.accessToken = state.user.authToken;
-              }
-
-              dispatch('PLEX_ADD_SERVER', tempServer);
-            }
-          }
-          // Setup our slPlayer
-          const ptplayer = new PlexClient();
-          ptplayer.provides = 'player';
-          ptplayer.clientIdentifier = 'PTPLAYER9PLUS10';
-          ptplayer.platform = 'Web';
-          ptplayer.device = 'Web';
-          ptplayer.product = 'SyncLounge';
-          ptplayer.name = 'SyncLounge Player';
-          ptplayer.labels = [
-            ['Recommended', 'green'],
-          ];
-          ptplayer.lastSeenAt = Math.round((new Date()).getTime() / 1000);
-          for (const i in state.clients) {
-            const client = state.clients[i];
-            for (const j in client.plexConnections) {
-              const clientConnection = client.plexConnections[j];
-              // Check if this URL matches any server connections
-              for (const x in state.servers) {
-                const server = state.servers[x];
-                for (const y in server.plexConnections) {
-                  const serverConnection = server.plexConnections[y];
-                  if (serverConnection.uri === clientConnection.uri) {
-                    client.accessToken = server.accessToken;
-                  }
-                }
-              }
-            }
-          }
-
-          dispatch('PLEX_ADD_CLIENT', ptplayer);
-          commit('PLEX_SET_VALUE', ['gotDevices', true]);
-          dispatch('PLEX_REFRESH_SERVER_CONNECTIONS');
-          return resolve(true);
-        });
-      } else {
-        // Invalid response
-        commit('PLEX_SET_VALUE', ['gotDevices', true]);
-        return reject(new Error('Invalid Response'));
-      }
-    });
-  }),
-
-  PLEX_REFRESH_SERVER_CONNECTIONS: ({ state, dispatch }) => {
-    for (const id in state.servers) {
-      const server = state.servers[id];
-      dispatch('PLEX_SERVER_FINDCONNECTION', server).catch(() => {});
-    }
-  },
-
-  PLEX_SERVER_FINDCONNECTION: async ({ state }, server) => server.findConnection(),
-
-  PLEX_ADD_CLIENT: ({ commit, dispatch }, client) => {
-    commit('PLEX_CLIENT_SET', client);
-    commit('PLEX_CLIENT_SET_VALUE', [client, 'commit', commit]);
-    commit('PLEX_CLIENT_SET_VALUE', [client, 'dispatch', dispatch]);
-  },
-  PLEX_ADD_SERVER: ({ commit }, server) => {
-    commit('PLEX_SERVER_SET', server);
-    commit('PLEX_SERVER_SET_VALUE', [server, 'commit', commit]);
-  },
-
-  PLEX_CLIENT_FINDCONNECTION: ({ commit }, client) =>
-    // This function iterates through all available connections and
-    // if any of them return a valid response we'll set that connection
-    // as the chosen connection for future use.
-    /*eslint-disable */
-     new Promise(async (resolve, reject) => {
-      if (client.clientIdentifier === 'PTPLAYER9PLUS10') {
-        return resolve(true)
-      }
-
-      let resolved = false
-      let rootResolve = resolve
-      try {
-        await Promise.all(client.plexConnections.map((connection) => {
-          return new Promise(async (resolve, reject) => {
-            try {
-              try {
-                await client.hitApi('/player/timeline/poll', { wait: 0 }, connection, false, true)
-              } catch (e) {
-                // We dont care about this result, some clients require a poll command before sending a subscription command
-              }
-              await client.hitApi('/player/timeline/poll', { wait: 0 }, connection)
-              console.log('Got good response on', connection)
-              commit('PLEX_CLIENT_SET_CONNECTION', {
-                client,
-                connection
-              })              
-              if (!resolved) {
-                rootResolve()
-              }
-              resolved = true
-              resolve()
-
-            } catch (e) {
-              resolve()
-            }
+    await Promise.allSettled(devices.map(async (device) => {
+      if (device.provides.indexOf('player') !== -1) {
+        // This is a Client
+        commit('plexclients/ADD_PLEX_CLIENT', device, { root: true });
+      } else if (device.provides.indexOf('server') !== -1) {
+        // This is a Server
+        // TODO: potentially find connections async and not hold up the fetch devices
+        try {
+          const chosenConnection = await dispatch('FIND_WORKING_CONNECTION_PREFERRED', {
+            name: device.name,
+            connections: device.connections,
+            accessToken: device.accessToken,
           });
-          
-        }))
-        if (!resolved) {
-          console.log('Couldnt find a connection')
-          return reject()
+
+          const libraries = await dispatch('plexservers/FETCH_ALL_LIBRARIES', {
+            machineIdentifier: device.clientIdentifier,
+            manualConnection: {
+              chosenConnection,
+              accessToken: device.accessToken,
+            },
+          }, { root: true });
+
+          commit('plexservers/ADD_PLEX_SERVER', {
+            ...device,
+            libraries,
+            chosenConnection,
+          }, { root: true });
+        } catch (e) {
+          const message = `Unable to find working connection to plex server: "${device.name}`;
+          await dispatch('DISPLAY_NOTIFICATION', message, { root: true });
+          console.error(message, e);
         }
-        console.log('Resolved connection finder')
-        return resolve() 
-      } catch (e) {
-        console.log('Error connecting to client', e)
-        reject(e)
       }
-    }), /* eslint-enable */
+    }));
 
+    // Find devices that weren't updated
+    const staleClientIds = difference([
+      oldClientIds,
+      rootGetters['plexclients/GET_PLEX_CLIENT_IDS'],
+    ]);
 
-  PLEX_CLIENT_UPDATETIMELINE: ({}, data) => {
-    const [client, timeline] = data;
-    console.log('Updating timeline for', client, 'with', timeline);
+    staleClientIds.forEach((clientId) => {
+      commit('plexclients/DELETE_PLEX_CLIENT', clientId, { root: true });
+    });
+
+    const staleServerIds = difference([
+      oldServersIds,
+      rootGetters['plexservers/GET_PLEX_SERVER_IDS'],
+    ]);
+
+    staleServerIds.forEach((serverId) => {
+      commit('plexservers/DELETE_PLEX_SERVER', serverId, { root: true });
+    });
+
+    commit('plexclients/UPDATE_SLPLAYER_LAST_SEEN_TO_NOW', null, { root: true });
+
+    if (!getters.ARE_DEVICES_CACHED) {
+      commit('SET_ARE_DEVICES_CACHED', true);
+    }
   },
 
-  PLEX_GET_SERVERS: ({ state, commit, dispatch }, token) => new Promise((resolve, reject) => {
-    if (!state.user) {
-      return reject(new Error('Sign in before getting devices'));
+  FETCH_PLEX_DEVICES: async ({ getters, commit, dispatch }) => {
+    // If we already have started checking for devices,
+    // wait for that to finish instead of starting new request
+    if (!getters.GET_DEVICE_FETCH_PROMISE) {
+      const fetchPromise = dispatch('_FETCH_PLEX_DEVICES');
+      commit('SET_DEVICE_FETCH_PROMISE', fetchPromise);
     }
 
-    const options = PlexAuth.getApiOptions('https://plex.tv/pms/servers.xml', token, 5000, 'GET');
-    request(options, (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        // Valid response
-        parseXMLString(body, async (err, result) => {
-          if (err) {
-            return reject(err);
-          }
-          // Save the servers list associated with the logged in account
-          state.user.servers = result.MediaContainer.Server;
-          return resolve(true);
-        });
-      }
-      return reject(error);
-    });
-  }),
+    await getters.GET_DEVICE_FETCH_PROMISE;
+    commit('SET_DEVICE_FETCH_PROMISE', null);
+  },
 
+  // Use this to trigger a fetch if you don't need the devices refreshed
+  FETCH_PLEX_DEVICES_IF_NEEDED: async ({ getters, dispatch }) => {
+    if (!getters.ARE_DEVICES_CACHED && getters.GET_DEVICE_FETCH_PROMISE == null) {
+      await dispatch('FETCH_PLEX_DEVICES');
+    }
+
+    await getters.GET_DEVICE_FETCH_PROMISE;
+  },
+
+  TEST_PLEX_CONNECTION: async ({ getters }, { connection, accessToken, signal }) => {
+    await queryFetch(
+      connection.uri,
+      getters.GET_PLEX_BASE_PARAMS(accessToken),
+      { signal },
+    );
+
+    return connection;
+  },
+
+  FIND_WORKING_CONNECTION: async ({ dispatch }, { connections, accessToken }) => {
+    const controller = new AbortController();
+    const workingConnection = await promiseutils.any(
+      connections.map((connection) => dispatch(
+        'TEST_PLEX_CONNECTION',
+        { connection, accessToken, signal: controller.signal },
+      )),
+    );
+
+    // Abort other connection attempts since we found one
+    controller.abort();
+
+    return workingConnection;
+  },
+
+  // This function iterates through all available connections and
+  // if any of them return a valid response we'll set that connection
+  // as the chosen connection for future use.
+  FIND_WORKING_CONNECTION_PREFERRED: async ({ dispatch }, { name, connections, accessToken }) => {
+    console.debug('FIND_WORKING_CONNECTION_PREFERRED', name);
+
+    const nonRelayConnections = connections.filter((connection) => !connection.relay);
+    // Prefer secure connections first.
+    const secureConnections = nonRelayConnections.filter((connection) => connection.protocol
+      === 'https');
+
+    try {
+      const conn = await dispatch('FIND_WORKING_CONNECTION', {
+        connections: secureConnections,
+        accessToken,
+      });
+      console.log(name, 'using secure connection', conn);
+      return conn;
+    } catch (e) {
+      console.warn(name, 'no working secure connections found');
+    }
+
+    // If we are using synclounge over https, we can't access connections over http because
+    // most modern web browsers block mixed content
+    const insecureConnections = nonRelayConnections.filter((connection) => connection.protocol
+      === 'http');
+    try {
+      const conn = await dispatch('FIND_WORKING_CONNECTION', {
+        connections: insecureConnections,
+        accessToken,
+      });
+      console.log(name, 'using insecure connection', conn);
+      return conn;
+    } catch (e) {
+      console.warn(name, 'no working insecure connections found');
+    }
+
+    // Finally try relay connections if we failed everywhere else.
+    const relayConnections = connections.filter((connection) => connection.relay);
+    try {
+      const relayConnection = await dispatch('FIND_WORKING_CONNECTION', {
+        connections: relayConnections,
+        accessToken,
+      });
+      console.log(name, 'using relay connection', name);
+      return relayConnection;
+    } catch (e) {
+      console.error(name, 'no working connections found', connections);
+      throw e;
+    }
+  },
 };

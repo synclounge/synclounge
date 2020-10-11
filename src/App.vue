@@ -1,574 +1,388 @@
 <template>
-  <v-app dark style="height:100%">
-    <v-navigation-drawer app temporary style="padding: 0" v-model="drawer" disable-route-watcher>
-      <leftsidebar></leftsidebar>
-    </v-navigation-drawer>
-    <v-navigation-drawer
-      v-if="showRightDrawerButton"
-      style="padding: 0; z-index: 6"
-      app
-      persistent
-      v-model="drawerRight"
-      right
-      enable-resize-watcher
-    >
-      <drawerright></drawerright>
-    </v-navigation-drawer>
+  <v-app>
+    <TheSidebarLeft />
+    <router-view name="rightSidebar" />
 
-    <v-toolbar
+    <v-app-bar
       app
-      fixed
       scroll-off-screen
       :scroll-threshold="1"
-      :manual-scroll="appIsFullscreen"
-      style="z-index: 5"
+      style="z-index: 5;"
     >
-      <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
-      <a href="https://synclounge.tv" target="_blank">
-        <img
-          class="ma-1 hidden-xs-only"
-          style="height: 42px; width: auto; vertical-align: middle"
-          v-bind:src="logos.light.long"
-        />
-        <img
-          class="ma-1 hidden-sm-and-up"
-          style="height: 42px; width: auto; vertical-align: middle"
-          v-bind:src="logo"
-        />
-      </a>
-      <nowplayingchip class="pl-4" v-if="showNowPlaying"></nowplayingchip>
-      <v-spacer></v-spacer>
+      <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN" />
+
+      <router-link
+        :to="{ name: 'RoomCreation'}"
+      >
+        <picture>
+          <source
+            srcset="@/assets/images/logos/logo-small-light.png"
+            :media="smallLogoMedia"
+          >
+          <img
+            height="42"
+            src="@/assets/images/logos/logo-long-light.png"
+            style="vertical-align: middle;"
+          >
+        </picture>
+      </router-link>
+
+      <TheNowPlayingChip
+        v-if="showNowPlaying"
+        class="pl-4"
+      />
+
+      <v-spacer />
+
       <v-toolbar-items>
         <v-btn
+          v-if="inviteUrl"
           color="primary"
-          dark
           raised
-          v-if="shortUrl != null"
-          v-clipboard="shortUrl"
-          @success="sendNotification()"
-        >Invite</v-btn>
-        <v-btn dark @click="goFullscreen" class="hidden-lg-and-up" icon>
+          @click="copyToClipboard(inviteUrl)"
+        >
+          Invite
+        </v-btn>
+
+        <v-btn
+          class="hidden-lg-and-up"
+          icon
+          @click="toggleFullScreen"
+        >
           <v-icon>fullscreen</v-icon>
         </v-btn>
+
         <v-btn
+          v-for="item in links"
+          :key="item.title"
           small
           tag="a"
           class="hidden-sm-and-down"
-          flat
-          v-for="item in links"
-          :key="item.title"
+          text
           :href="item.href"
           :target="item.target"
-        >{{ item.title }}</v-btn>
-        <v-btn small tag="a" class="hidden-sm-and-down" flat @click="donateDialog = true">Donate ♥</v-btn>
-        <v-icon
-          v-if="showRightDrawerButton"
-          @click="toggleDrawerRight"
-          class="clickable"
-        >{{ drawerRight ? 'last_page' : 'first_page' }}</v-icon>
+        >
+          {{ item.title }}
+        </v-btn>
+
+        <DonateDialog v-slot="{ on, attrs }">
+          <v-btn
+            small
+            class="hidden-sm-and-down"
+            text
+            v-bind="attrs"
+            v-on="on"
+          >
+            Donate ♥
+          </v-btn>
+        </DonateDialog>
       </v-toolbar-items>
-    </v-toolbar>
-    <v-content v-bind:style="mainStyle" app>
+
+      <router-view name="rightSidebarButton" />
+
+      <template
+        v-if="showAppBarExtension"
+        #extension
+      >
+        <TheAppBarCrumbs />
+
+        <v-spacer />
+        <router-view
+          style="max-width: 400px;"
+          name="searchBar"
+        />
+
+        <router-view name="appBarView" />
+      </template>
+    </v-app-bar>
+
+    <v-main
+      class="main-content"
+      app
+    >
       <v-container
-        class="ma-0 pa-0"
-        align-start
-        :style="containerStyle"
-        style="height: 100%; z-index: 250"
+        align="start"
+        class="pa-0"
         fluid
       >
-        <v-flex xs12 v-if="configError">
-          <v-alert
-            :dismissible="true"
-            :value="configError"
-            type="error"
-            class="mt-0"
-          >{{ configError }}</v-alert>
-        </v-flex>
-        <v-flex xs12 v-if="(loading || (plex && !plex.gotDevices)) && route.protected">
-          <v-container fill-height>
-            <v-layout justify-center align-center wrap row class="pt-4 text-xs-center">
-              <v-flex xs8 md4>
-                <v-progress-circular indeterminate v-bind:size="60" class="amber--text"></v-progress-circular>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-flex>
-        <div v-else :style="paddingStyle">
-          <v-breadcrumbs
-            :items="crumbs"
-            v-if="crumbs && crumbs.length > 0"
-            class="text-xs-left"
-            style="justify-content: left"
+        <v-img
+          :src="GET_BACKGROUND"
+          :height="bgHeight"
+          @load="backgroundLoad"
+          @error="backgroundError"
+        >
+          <v-sheet
+            :color="sheetColor"
+            class="overflow-y-auto pa-3"
+            :height="bgHeight"
           >
-            <template v-slot:divider>
-              <v-icon>chevron_right</v-icon>
-            </template>
-            <template v-slot:item="props">
-              <v-breadcrumbs-item :to="props.item.to" :exact="true">{{ props.item.text }}</v-breadcrumbs-item>
-            </template>
-          </v-breadcrumbs>
-          <router-view></router-view>
-        </div>
-        <v-snackbar color="green darken-2" bottom :timeout="4000" v-model="snackbar">
-          <div style="text-align:center; width:100%">{{ snackbarMsg }}</div>
-        </v-snackbar>
-        <upnext></upnext>
-        <v-dialog v-model="donateDialog" max-width="650px">
-          <donate :donateDialog="donateDialog" :onClose="() => this.donateDialog = false"></donate>
-        </v-dialog>
+            <v-container
+              v-if="!GET_CONFIG"
+              fill-height
+            >
+              <v-row
+                justify="center"
+                align="center"
+                class="pt-4 text-center"
+              >
+                <v-col>
+                  <v-progress-circular
+                    indeterminate
+                    size="60"
+                    class="amber--text"
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
+
+            <router-view v-else />
+
+            <v-snackbar
+              :value="GET_SNACKBAR_OPEN"
+              :color="GET_SNACKBAR_MESSAGE.color"
+              bottom
+              timeout="4000"
+              content-class="text-center"
+              @input="SET_SNACKBAR_OPEN"
+            >
+              {{ GET_SNACKBAR_MESSAGE.text }}
+            </v-snackbar>
+
+            <TheUpnextDialog v-if="GET_UP_NEXT_POST_PLAY_DATA" />
+          </v-sheet>
+        </v-img>
       </v-container>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
 <script>
-// Custom css
 import './assets/css/style.css';
 
-import fscreen from 'fscreen';
-
-import drawerright from './sidebar';
-import leftsidebar from './leftsidebar';
-import upnext from './upnext';
-import nowplayingchip from './nowplayingchip';
-import donate from './donate';
-
-import { mapActions, mapState } from 'vuex';
-
-const SettingsHelper = require('../SettingsHelper');
-
-const settings = new SettingsHelper();
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+import redirection from '@/mixins/redirection';
+import clipboard from '@/mixins/clipboard';
+import linkWithRoom from '@/mixins/linkwithroom';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
   components: {
-    drawerright,
-    upnext,
-    nowplayingchip,
-    leftsidebar,
-    donate,
+    TheSidebarLeft: () => import('@/components/TheSidebarLeft.vue'),
+    TheUpnextDialog: () => import('@/components/TheUpnextDialog.vue'),
+    TheNowPlayingChip: () => import('@/components/TheNowPlayingChip.vue'),
+    DonateDialog: () => import('@/components/DonateDialog.vue'),
+    TheAppBarCrumbs: () => import('@/components/TheAppBarCrumbs.vue'),
   },
-  data() {
-    return {
-      drawer: false,
-      mini: false,
-      drawerRight: false,
-      right: null,
-      fixed: false,
-      initialized: false,
-      donateDialog: false,
 
-      loading: true,
-      configError: null,
+  mixins: [
+    redirection,
+    clipboard,
+    linkWithRoom,
+  ],
 
-      snackbar: false,
-      snackbarMsg: false,
+  data: () => ({
+    numBackgroundErrors: 0,
+  }),
 
-      items: [
-        {
-          title: 'Preferences',
-        },
-        {
-          title: 'Signout',
-        },
-      ],
-      links: [
+  computed: {
+    ...mapGetters([
+      'GET_UP_NEXT_POST_PLAY_DATA',
+      'GET_CONFIG',
+      'GET_ACTIVE_METADATA',
+      'GET_SNACKBAR_MESSAGE',
+      'GET_SNACKBAR_OPEN',
+      'GET_BACKGROUND',
+      'GET_NAVIGATE_TO_PLAYER',
+      'GET_REPOSITORY_URL',
+      'GET_DISCORD_URL',
+      'GET_NAVIGATE_HOME',
+    ]),
+
+    ...mapGetters('plex', [
+      'GET_PLEX_AUTH_TOKEN',
+    ]),
+
+    ...mapGetters('plexclients', [
+      'GET_CHOSEN_CLIENT_ID',
+      'GET_ACTIVE_SERVER_ID',
+      'GET_PLEX_CLIENT_TIMELINE',
+      'GET_ACTIVE_MEDIA_METADATA',
+    ]),
+
+    ...mapGetters('plexservers', [
+      'GET_PLEX_SERVER',
+    ]),
+
+    ...mapGetters('synclounge', [
+      'IS_IN_ROOM',
+      'GET_ROOM',
+      'GET_SERVER',
+      'GET_PASSWORD',
+    ]),
+
+    links() {
+      return [
         {
           title: 'Github',
-          href: 'https://github.com/samcm/SyncLounge',
+          href: this.GET_REPOSITORY_URL,
           target: '_blank',
         },
         {
           title: 'Discord',
           target: '_blank',
-          href: 'https://discord.gg/fKQB3yt',
-        },
-      ],
-      appIsFullscreen: false,
-    };
-  },
-  methods: {
-    ...mapActions('config', ['fetchConfig']),
-    sendNotification() {
-      window.EventBus.$emit('notification', 'Copied to clipboard');
-    },
-    toggleDrawerRight() {
-      this.drawerRight = !this.drawerRight;
-    },
-    goFullscreen() {
-      fscreen.requestFullscreen(document.body);
-    },
-  },
-  async mounted() {
-    try {
-      await this.fetchConfig();
-    } catch (e) {
-      this.configError = `Failed to fetch config: ${e}`;
-    }
-
-    //
-    //  Settings
-    //
-    // Set AutoJoin information in order of importance: query -> config -> settings
-    if (this.$route.query.autojoin) {
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINROOM', this.$route.query.room);
-      this.$store.commit('SET_AUTOJOINURL', this.$route.query.server);
-      this.$store.commit('SET_VALUE', [
-        'autoJoinOwner',
-        this.$route.query.owner,
-      ]);
-      if (this.$route.query.password) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', this.$route.query.password);
-      }
-    } else if (this.config) {
-      if (
-        this.config.autoJoin &&
-        (this.config.autoJoin === true || this.config.autoJoin === 'true')
-      ) {
-        this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', this.config.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', this.config.autoJoinServer);
-        this.$store.commit(
-          'SET_AUTOJOINPASSWORD',
-          this.config.autoJoinPassword,
-        );
-      }
-    } else if (settings) {
-      if (
-        settings.autoJoin &&
-        (settings.autoJoin === true || settings.autoJoin === 'true')
-      ) {
-        this.$store.commit('SET_AUTOJOIN', true);
-        this.$store.commit('SET_AUTOJOINROOM', settings.autoJoinRoom);
-        this.$store.commit('SET_AUTOJOINURL', settings.autoJoinServer);
-        this.$store.commit('SET_AUTOJOINPASSWORD', settings.autoJoinPassword);
-      }
-    }
-
-    // Get other settings in order of importance: config -> settings
-    // Authentication Mechanism setting
-    if (this.config && this.config.authentication) {
-      this.$store.commit('SET_AUTHENTICATION', this.config.authentication);
-    } else if (settings && settings.authentication) {
-      this.$store.commit('SET_AUTHENTICATION', settings.authentication);
-    } else {
-      this.$store.commit('SET_AUTHENTICATION', {
-        type: 'none',
-      });
-    }
-
-    // Custom Servers list settings
-    let servers = [
-      {
-        name: 'SyncLounge AU1',
-        location: 'Sydney, Australia',
-        url: 'https://v3au1.synclounge.tv/slserver',
-        image: 'flags/au.png',
-      },
-      {
-        name: 'SyncLounge EU1',
-        location: 'Amsterdam, Netherlands',
-        url: 'https://v2eu1.synclounge.tv/server',
-        image: 'flags/eu.png',
-      },
-      {
-        name: 'SyncLounge US1',
-        location: 'Miami, United States',
-        url: 'https://v2us1.synclounge.tv/server',
-        image: 'flags/us.png',
-      },
-      {
-        name: 'SyncLounge US2',
-        location: 'Miami, United States',
-        url: 'https://v3us1.synclounge.tv/slserver',
-        image: 'flags/us.png',
-      },
-      {
-        name: 'SyncLounge US3',
-        location: 'Miami, United States',
-        url: 'https://v3us2.synclounge.tv/slserver',
-        image: 'flags/us.png',
-      },
-    ];
-    const customServer = {
-      name: 'Custom Server',
-      location: 'Anywhere!',
-      url: 'custom',
-      image: 'synclounge-white.png',
-    };
-
-    if (this.config && this.config.servers) {
-      servers = this.config.servers;
-      if (this.config.customServer) {
-        console.error("'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.");
-      }
-    } else if (settings && settings.servers) {
-      servers = settings.servers;
-      if (settings.customServer) {
-        console.error("'customServer' setting provided with 'servers' setting. Ignoring 'customServer' setting.");
-      }
-    } else if (this.config && this.config.customServer) {
-      servers.push(this.config.customServer);
-    } else if (settings && settings.customServer) {
-      servers.push(settings.customServer);
-    } else {
-      servers.push(customServer);
-    }
-
-    this.$store.commit('setSetting', ['SERVERS', servers]);
-
-    // Auto-join if a single server is provided and autoJoinServer is not
-    if (servers.length == 1 && !this.$store.autoJoinServer) {
-      const server = servers[0];
-      this.$store.commit('SET_AUTOJOIN', true);
-      this.$store.commit('SET_AUTOJOINURL', server.url);
-      if (!this.$store.autoJoinRoom && server.defaultRoom) {
-        this.$store.commit('SET_AUTOJOINROOM', server.defaultRoom);
-      }
-      if (!this.$store.autoJoinPassword && server.defaultPassword) {
-        this.$store.commit('SET_AUTOJOINPASSWORD', server.defaultPassword);
-      }
-    }
-    //
-    // End Settings
-    //
-
-    window.EventBus.$on('notification', (msg) => {
-      this.snackbarMsg = msg;
-      this.snackbar = true;
-    });
-    window.EventBus.$on('NEW_TIMELINE', (timeline) => {
-      this.$store.dispatch('NEW_TIMELINE', timeline);
-    });
-    window.EventBus.$on('PLAYBACK_CHANGE', (data) => {
-      if (this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' && data[1]) {
-        this.$router.push(`/nowplaying/${data[2].machineIdentifier}/${data[1]}`);
-      }
-      if (
-        this.chosenClient.clientIdentifier !== 'PTPLAYER9PLUS10' &&
-        !data[1] &&
-        this.$route.fullPath.indexOf('/nowplaying') > -1
-      ) {
-        this.$router.push('/browse/');
-      }
-      this.$store.dispatch('PLAYBACK_CHANGE', data);
-    });
-    if (!window.localStorage.getItem('plexuser')) {
-      this.$router.push('/signin');
-      this.loading = false;
-      return;
-    }
-    if (this.$route.path === '/') {
-      this.$router.push('/clientselect');
-    }
-    const plexstorage = JSON.parse(window.localStorage.getItem('plexuser'));
-    try {
-      await this.$store.dispatch('PLEX_LOGIN_TOKEN', plexstorage.authToken);
-    } catch (e) {
-      this.$router.push('/signin');
-      return;
-    }
-
-    if (this.$store.state.autoJoin) {
-      this.$store.dispatch('autoJoin', {
-        server: this.$store.state.autoJoinUrl,
-        password: this.$store.state.autoJoinPassword,
-        room: this.$store.state.autoJoinRoom,
-      });
-    }
-
-    fscreen.addEventListener('fullscreenchange', () => {
-      const isFullscreen = fscreen.fullscreenElement !== null;
-      this.appIsFullscreen = isFullscreen;
-      document.body.classList.toggle('is-fullscreen', isFullscreen);
-    });
-
-    this.loading = false;
-  },
-  watch: {
-    showRightDrawerButton() {
-      if (this.showRightDrawerButton) {
-        this.drawerRight = true;
-      }
-    },
-  },
-  computed: {
-    ...mapState('config', {
-      config: state => state.configuration,
-    }),
-    plex() {
-      return this.$store.getters.getPlex;
-    },
-    itemCache() {
-      return this.$store.getters.getItemCache;
-    },
-    libraryCache() {
-      return this.$store.getters.getLibraryCache;
-    },
-    extAvailable() {
-      return this.$store.getters.getExtAvailable;
-    },
-    crumbs() {
-      if (
-        this.$route.path.indexOf('browse') === -1 &&
-        this.$route.path.indexOf('nowplaying') === -1
-      ) {
-        return [];
-      }
-      const getTitle = (id) => {
-        try {
-          return this.itemCache[this.$route.params.machineIdentifier][id].title;
-        } catch (e) {
-          return 'Loading..';
-        }
-      };
-      const getLibrary = (id) => {
-        try {
-          return this.libraryCache[this.$route.params.machineIdentifier][id];
-        } catch (e) {
-          return 'Library';
-        }
-      };
-      const data = [
-        {
-          text: 'Home',
-          to: '/browse',
+          href: this.GET_DISCORD_URL,
         },
       ];
-      const map = {
-        machineIdentifier: () => ({
-          text: this.plex.servers[this.$route.params.machineIdentifier].name,
-          to: `/browse/${this.$route.params.machineIdentifier}`,
-        }),
-        sectionId: () => ({
-          text: getLibrary(this.$route.params.sectionId),
-          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}`,
-        }),
-        parentKey: () => {
-          let to;
-          if (this.$route.params.grandparentKey) {
-            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentKey}/${this.$route.params.parentKey}`;
-          } else {
-            to = `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.parentKey}`;
-          }
-          return {
-            text: getTitle(this.$route.params.parentKey),
-            to,
-          };
-        },
-        grandparentKey: () => ({
-          text: getTitle(this.$route.params.grandparentKey),
-          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/tv/${this.$route.params.grandparentKey}/`,
-        }),
-        ratingKey: () => ({
-          text: getTitle(this.$route.params.ratingKey),
-          to: `/browse/${this.$route.params.machineIdentifier}/${this.$route.params.sectionId}/${this.$route.params.ratingKey}`,
-        }),
-      };
-      Object.keys(this.$route.params).forEach((param) => {
-        const link = map[param]();
-        if (link) {
-          data.push(link);
-        }
-      });
-      return data;
-    },
-    showNowPlaying() {
-      return (
-        this.chosenClient &&
-        this.chosenClient.clientPlayingMetadata &&
-        this.$route.name === 'browse'
-      );
-    },
-    showRightDrawerButton() {
-      return this.ptConnected && this.chosenClient && this.ptRoom;
-    },
-    chosenClient() {
-      return this.$store.getters.getChosenClient;
-    },
-    plexusername() {
-      return this.$store.state.plex.user.username;
-    },
-    plexthumb() {
-      return this.$store.state.plex.user.thumb;
-    },
-    logo() {
-      return this.logos.light.small;
-    },
-    isPlayer() {
-      if (this.$route.path === '/') {
-        return true;
-      }
-      return false;
-    },
-    validDevices() {
-      if (!this.plex) {
-        return false;
-      }
-      return this.plex.gotDevices;
-    },
-    ptConnected() {
-      return this.$store.getters.getConnected;
-    },
-    ptServer() {
-      return this.$store.getters.getServer;
-    },
-    ptRoom() {
-      return this.$store.getters.getRoom;
-    },
-    ptPassword() {
-      return this.$store.getters.getPassword;
-    },
-    showLinkShortener() {
-      return this.ptConnected && this.ptServer && this.ptRoom && this.shortUrl;
-    },
-    shortUrl() {
-      return this.$store.getters.getShortLink;
-    },
-    firstRun() {
-      return !this.$store.getters.getSettingHOMEINIT;
     },
 
-    mainStyle() {
-      if (this.$store.getters.getBackground !== null) {
-        return {
-          'background-image': `url(${this.$store.getters.getBackground})`,
-          'background-repeat': 'no-repeat',
-          'background-size': 'cover',
-          'background-position': 'center',
-        };
-      }
-      return {};
+    showNowPlaying() {
+      return this.GET_ACTIVE_SERVER_ID && this.GET_CHOSEN_CLIENT_ID !== slPlayerClientId;
     },
-    containerStyle() {
-      const arr = [];
-      if (this.$store.getters.getBackground !== null) {
-        arr.push({
-          background: 'rgba(0,0,0,0.7)',
+
+    showAppBarExtension() {
+      return this.$route.meta.showAppBarExtension;
+    },
+
+    smallLogoMedia() {
+      return `(max-width: ${this.$vuetify.breakpoint.thresholds.xs}px)`;
+    },
+
+    sheetColor() {
+      return this.GET_BACKGROUND
+        ? 'rgba(0,0,0,0.7)'
+        : 'transparent';
+    },
+
+    bgHeight() {
+      return this.$vuetify.breakpoint.height - this.$vuetify.application.top;
+    },
+
+    inviteUrl() {
+      if (this.GET_ROOM) {
+        if (this.GET_CONFIG?.autojoin) {
+          // If autojoin, just link to main site
+          return window.location.origin;
+        }
+
+        const invitePart = this.$router.resolve({
+          name: 'RoomJoin',
+          params: {
+            room: this.GET_ROOM,
+            ...(this.GET_SERVER && { server: this.GET_SERVER }),
+          },
+        }).href;
+
+        const currentUrl = new URL(window.location.pathname, window.location.origin);
+        return new URL(invitePart, currentUrl).toString();
+      }
+      return '';
+    },
+  },
+
+  watch: {
+    GET_ACTIVE_MEDIA_METADATA(metadata) {
+      // This handles regular plex clients (nonslplayer) playback changes
+      if (this.IS_IN_ROOM && this.GET_CHOSEN_CLIENT_ID !== slPlayerClientId) {
+        if (metadata) {
+          this.redirectToMediaPage();
+        } else {
+          this.$router.push(this.linkWithRoom({ name: 'PlexHome' }));
+        }
+      }
+    },
+
+    GET_NAVIGATE_TO_PLAYER(navigate) {
+      if (navigate) {
+        this.$router.push(this.linkWithRoom({ name: 'WebPlayer' }));
+        this.SET_NAVIGATE_TO_PLAYER(false);
+      }
+    },
+
+    async GET_NAVIGATE_HOME(navigate) {
+      if (navigate) {
+        console.debug('NAVIGATE_HOME');
+        this.$router.push({ name: 'RoomCreation' });
+        this.SET_NAVIGATE_HOME(false);
+      }
+    },
+  },
+
+  async created() {
+    if (this.GET_PLEX_AUTH_TOKEN) {
+      // Kick off a bunch of requests that we need for later
+      this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE();
+
+      try {
+        await Promise.all([
+          this.FETCH_PLEX_USER(),
+          this.FETCH_PLEX_DEVICES(),
+        ]);
+      } catch (e) {
+        // If these fail, then the auth token is probably invalid
+        console.error(e);
+        await this.DISPLAY_NOTIFICATION({
+          text: 'Failed to connect to Plex API. Try logging out and back in.',
+          color: 'error',
         });
       }
-      return arr;
+    }
+  },
+
+  mounted() {
+    document.addEventListener('fullscreenchange', this.onFullScreenChange);
+  },
+
+  beforeDestroy() {
+    document.removeEventListener('fullscreenchange', this.onFullScreenChange);
+  },
+
+  methods: {
+    ...mapActions([
+      'DISPLAY_NOTIFICATION',
+    ]),
+
+    ...mapActions('plex', [
+      'FETCH_PLEX_DEVICES',
+      'FETCH_PLEX_USER',
+    ]),
+
+    ...mapActions('plexservers', [
+      'FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE',
+    ]),
+
+    ...mapMutations([
+      'SET_SNACKBAR_OPEN',
+      'SET_NAVIGATE_TO_PLAYER',
+      'SET_NAVIGATE_HOME',
+      'SET_LEFT_SIDEBAR_OPEN',
+    ]),
+
+    backgroundLoad() {
+      this.numBackgroundFailures = 0;
     },
-    paddingStyle() {
-      const arr = [];
-      if (this.$route.path.indexOf('/player') === -1) {
-        arr.push({
-          padding: '16px',
-        });
+
+    async backgroundError(e) {
+      this.numBackgroundFailures += 1;
+      if (this.numBackgroundFailures > 3) {
+        console.error(`Failed ${this.numBackgroundFailures} times finding a background. Giving up`);
+        return;
       }
-      return arr;
+
+      console.warn('Error loading background, trying again', e);
+      await this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE();
+    },
+
+    onFullScreenChange() {
+      document.body.classList.toggle('is-fullscreen', document.fullscreenElement);
+    },
+
+    toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
     },
   },
 };
 </script>
-
-<style>
-.a {
-  color: unset !important;
-  text-decoration: none !important;
-}
-</style>
-
-<style lang="stylus">
-@import './stylus/main';
-</style>

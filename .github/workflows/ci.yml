@@ -1,0 +1,102 @@
+name: ci
+
+on:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dockerfile:
+          - Dockerfile
+          - Dockerfile.web
+        include:
+          - dockerfile: Dockerfile
+            docker-image: localhost:5000/${{ github.event.repository.full_name }}
+          - dockerfile: Dockerfile.web
+            docker-image: localhost:5000/${{ github.event.repository.full_name }}web
+
+    services:
+      registry:
+        image: registry:latest
+        ports:
+          - 5000:5000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.3
+
+      - name: Prepare
+        id: prep
+        run: |
+          echo ::set-output name=build-date::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1.0.1
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1.0.2
+        with:
+          version: latest
+          driver-opts: network=host
+
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+
+      - name: Get platforms
+        uses: actions/github-script@v3.0.0
+        id: platforms
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+        with:
+          result-encoding: string
+          script: |
+            const script = require(`${process.env.GITHUB_WORKSPACE}/.github/getDockerPlatforms.js`)
+            return script("${{ matrix.dockerfile }}", "${{ steps.buildx.outputs.platforms }}");
+
+      - name: Platforms
+        run: echo ${{ steps.platforms.outputs.result }}
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2.1.1
+        id: cache
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ matrix.dockerfile }}-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-${{ matrix.dockerfile }}-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-docker-${{ matrix.dockerfile }}-
+            ${{ runner.os }}-docker-
+
+      - name: Cache hit
+        run: echo ${{ steps.cache.outputs.cache-hit }}
+
+      - name: Build and push
+        id: docker-build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          builder: ${{ steps.buildx.outputs.name }}
+          context: .
+          file: ./${{ matrix.dockerfile}}
+          platforms: ${{ steps.platforms.outputs.result }}
+          tags: ${{ matrix.docker-image }}:${{ github.sha }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          build-args: |
+            BUILD_DATE=${{ steps.prep.outputs.build-date }}
+            REVISION=${{ github.sha }}
+
+      - name: Inspect
+        run: |
+          docker buildx imagetools inspect ${{ matrix.docker-image }}:${{ github.sha }}
+
+      - name: Image digest
+        run: echo ${{ steps.docker-build.outputs.digest }}
+
+      - name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v1.0.0

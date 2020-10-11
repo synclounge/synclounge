@@ -1,57 +1,23 @@
-import Vue from 'vue';
+import stateFactory from './state';
 
 export default {
-  PLEX_SET_VALUE: (state, data) => {
-    const key = data[0];
-    const value = data[1];
-    // console.log('Setting PLEX Key', key, 'to', value)
-    Vue.set(state, key, value);
-    state[key] = value;
-  },
-  PLEX_CLIENT_SET_VALUE: (state, data) => {
-    const client = data[0];
-    const key = data[1];
-    const value = data[2];
-    // console.log('Setting CLIENT VALUE Key', key, 'to', value, client)
-    Vue.set(state.clients[client.clientIdentifier], key, value);
-    // state.clients[client.clientIdentifier][key] = value
-  },
-  PLEX_SERVER_SET_VALUE: (state, data) => {
-    const server = data[0];
-    const key = data[1];
-    const value = data[2];
-    Vue.set(state.servers[server.clientIdentifier], key, value);
+  RESET: (state) => {
+    Object.assign(state, stateFactory());
   },
 
-  PLEX_CLIENT_SET: (state, client) => {
-    // state.clients[client.clientIdentifier] = client
-    Vue.set(state.clients, client.clientIdentifier, client);
-  },
-  PLEX_SERVER_SET: (state, server) => {
-    // state.servers[server.clientIdentifier] = server
-    Vue.set(state.servers, server.clientIdentifier, server);
+  SET_ARE_DEVICES_CACHED: (state, cached) => {
+    state.areDevicesCached = cached;
   },
 
-  PLEX_SERVER_SET_CONNECTION: (state, data) => {
-    const { server, connection } = data;
-    state.servers[server.clientIdentifier].chosenConnection = connection;
+  SET_DEVICE_FETCH_PROMISE: (state, promise) => {
+    state.deviceFetchPromise = promise;
   },
-  PLEX_CLIENT_SET_CONNECTION: (state, data) => {
-    const { client, connection } = data;
-    state.clients[client.clientIdentifier].chosenConnection = connection;
+
+  SET_PLEX_USER: (state, user) => {
+    state.user = user;
   },
-  SET_ITEMCACHE: (state, data) => {
-    const [ratingKey, newData] = data;
-    if (!state.itemCache[newData.machineIdentifier]) {
-      state.itemCache[newData.machineIdentifier] = {};
-    }
-    Vue.set(state.itemCache[newData.machineIdentifier], ratingKey, newData);
-  },
-  SET_LIBRARYCACHE: (state, data) => {
-    const [id, machineIdentifier, newData] = data;
-    if (!state.libraryCache[machineIdentifier]) {
-      state.libraryCache[machineIdentifier] = {};
-    }
-    Vue.set(state.libraryCache[machineIdentifier], id, newData);
+
+  SET_PLEX_AUTH_TOKEN: (state, token) => {
+    state.plexAuthToken = token;
   },
 };
