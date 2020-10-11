@@ -61,7 +61,7 @@ jobs:
         run: echo ${{ steps.platforms.outputs.result }}
 
       - name: Cache Docker layers
-        uses: actions/cache@v2.1.1
+        uses: actions/cache@v2.1.2
         id: cache
         with:
           path: /tmp/.buildx-cache
