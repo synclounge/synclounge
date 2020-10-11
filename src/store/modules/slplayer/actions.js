@@ -120,8 +120,7 @@ export default {
   },
 
   SEND_PLEX_TIMELINE_UPDATE: async ({ getters, dispatch },
-    { signal, ...extraParams } = {},
-  ) => queryFetch(
+    { signal, ...extraParams } = {}) => queryFetch(
     getters.GET_TIMELINE_URL,
     {
       ...await dispatch('MAKE_TIMELINE_PARAMS'),
