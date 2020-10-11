@@ -14,15 +14,9 @@ jobs:
           - Dockerfile.web
         include:
           - dockerfile: Dockerfile
-            docker-image: localhost:5000/${{ github.event.repository.full_name }}
+            docker-image: ${{ github.event.repository.full_name }}
           - dockerfile: Dockerfile.web
-            docker-image: localhost:5000/${{ github.event.repository.full_name }}web
-
-    services:
-      registry:
-        image: registry:latest
-        ports:
-          - 5000:5000
+            docker-image: ${{ github.event.repository.full_name }}web
 
     steps:
       - name: Checkout
@@ -78,7 +72,6 @@ jobs:
         id: docker-build
         uses: docker/build-push-action@v2
         with:
-          push: true
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./${{ matrix.dockerfile}}
@@ -89,6 +82,13 @@ jobs:
           build-args: |
             BUILD_DATE=${{ steps.prep.outputs.build-date }}
             REVISION=${{ github.sha }}
+          outputs: |
+            type=oci,dest=${{ matrix.dockerfile }}.tar
+
+      - name: Load
+        run: |
+          ls
+          docker load -i ${{ matrix.dockerfile }}.tar
 
       - name: Inspect
         run: |
@@ -96,6 +96,12 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker-build.outputs.digest }}
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v2.2.0
+        with:
+          name: ${{ matrix.dockerfile }}
+          path: ${{ matrix.dockerfile }}.tar
 
       - name: Dump context
         if: always()
