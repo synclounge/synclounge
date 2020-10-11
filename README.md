@@ -213,13 +213,15 @@ The FAQ, Self-Hosting, Development, Contributing, and other documentation has be
 ## Contributors
 [samcm](https://twitter.com/durksau) - Developer
 
-[gcordalis](https://twitter.com/midnitegc) - User Interface
+[gcordalis](https://twitter.com/gcordalis) - User Interface
 
 [Brandz](https://twitter.com/homebrandz) - Design
 
 [TheGrimmChester](https://github.com/TheGrimmChester) - Developer/Tester
 
 [MagicalCodeMonkey](https://github.com/MagicalCodeMonkey) - Developer/Tester
+
+[ttshivers](https://github.com/ttshivers) - Developer
 
 [Starbix](https://github.com/Starbix) - Docker Support
 
