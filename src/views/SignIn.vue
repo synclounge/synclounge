@@ -61,7 +61,6 @@ export default {
   computed: {
     ...mapGetters([
       'GET_CONFIG',
-      'GET_REPOSITORY_URL',
     ]),
 
     ...mapGetters('plex', [

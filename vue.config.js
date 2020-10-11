@@ -1,7 +1,4 @@
 const path = require('path');
-const LCL = require('last-commit-log');
-
-const lcl = new LCL();
 
 const config = require('./config');
 
@@ -13,17 +10,6 @@ config.save(appConfig, configFile);
 const pkgVersion = require('./package.json').version;
 
 process.env.VUE_APP_VERSION = process.env.VERSION || pkgVersion;
-
-try {
-  const lastCommit = lcl.getLastCommitSync();
-  process.env.VUE_APP_GIT_HASH = lastCommit.hash;
-  process.env.VUE_APP_GIT_DATE = lastCommit.committer.date;
-} catch (e) {
-  // Sometimes on CI stuff they build with .git being present
-  // TODO: find better way to do this
-  process.env.VUE_APP_GIT_DATE = Math.floor(Date.now() / 1000);
-  process.env.VUE_APP_GIT_HASH = process.env.REVISION;
-}
 
 module.exports = {
   // Relative publicPath to support subfolders

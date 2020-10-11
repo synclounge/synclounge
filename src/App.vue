@@ -159,7 +159,9 @@
 <script>
 import './assets/css/style.css';
 
-import { mapActions, mapGetters, mapMutations } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 import redirection from '@/mixins/redirection';
 import clipboard from '@/mixins/clipboard';
 import linkWithRoom from '@/mixins/linkwithroom';
@@ -193,8 +195,6 @@ export default {
       'GET_SNACKBAR_OPEN',
       'GET_BACKGROUND',
       'GET_NAVIGATE_TO_PLAYER',
-      'GET_REPOSITORY_URL',
-      'GET_DISCORD_URL',
       'GET_NAVIGATE_HOME',
     ]),
 
@@ -220,17 +220,22 @@ export default {
       'GET_PASSWORD',
     ]),
 
+    ...mapState([
+      'repositoryUrl',
+      'discordUrl',
+    ]),
+
     links() {
       return [
         {
           title: 'Github',
-          href: this.GET_REPOSITORY_URL,
+          href: this.repositoryUrl,
           target: '_blank',
         },
         {
           title: 'Discord',
           target: '_blank',
-          href: this.GET_DISCORD_URL,
+          href: this.discordUrl,
         },
       ];
     },
