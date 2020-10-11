@@ -1,5 +1,5 @@
 # build environment
-FROM --platform=$BUILDPLATFORM node:14.11.0-alpine3.12 as build-stage
+FROM --platform=$BUILDPLATFORM node:14.13.1-alpine3.12 as build-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache python3 make g++
