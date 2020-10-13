@@ -128,10 +128,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.3
 
+      - name: Repo metadata
+        id: repo
+        uses: actions/github-script@v3.0.0
+        with:
+          script: |
+            const repo = await github.repos.get(context.repo)
+            return repo.data
+
       - name: Prepare
         id: prep
         run: |
-          echo ::set-output name=build-date::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1.0.1
@@ -193,12 +201,19 @@ jobs:
             ${{ matrix.docker-image }}:${{ needs.release-semantic.outputs.release-version }}
             ${{ matrix.docker-image }}:${{ needs.release-semantic.outputs.release-version-major }}.${{ needs.release-semantic.outputs.release-version-minor }}
             ${{ matrix.docker-image }}:${{ needs.release-semantic.outputs.release-version-major }}
+          labels: |
+            org.opencontainers.image.title=${{ fromJson(steps.repo.outputs.result).name }}
+            org.opencontainers.image.description=${{ fromJson(steps.repo.outputs.result).description }}
+            org.opencontainers.image.url=${{ fromJson(steps.repo.outputs.result).html_url }}
+            org.opencontainers.image.source=${{ fromJson(steps.repo.outputs.result).clone_url }}
+            org.opencontainers.image.version=${{ needs.release-semantic.outputs.release-version }}
+            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=${{ fromJson(steps.repo.outputs.result).license.spdx_id }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
           build-args: |
             VERSION=${{ needs.release-semantic.outputs.release-version }}
-            BUILD_DATE=${{ steps.prep.outputs.build-date }}
-            REVISION=${{ github.sha }}
 
       - name: Update repo description
         uses: peter-evans/dockerhub-description@v2.4.0

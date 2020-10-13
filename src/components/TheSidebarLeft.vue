@@ -64,12 +64,12 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>v{{ GET_VERSION }}</v-list-item-title>
+          <v-list-item-title>v{{ version }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
       <v-list-item
-        :href="GET_DISCORD_URL"
+        :href="discordUrl"
         target="_blank"
       >
         <v-list-item-icon>
@@ -82,7 +82,7 @@
       </v-list-item>
 
       <v-list-item
-        :href="GET_REPOSITORY_URL"
+        :href="repositoryUrl"
         target="_blank"
       >
         <v-list-item-icon>
@@ -109,30 +109,11 @@
         </v-list-item>
       </DonateDialog>
     </v-list>
-
-    <template #append>
-      <v-divider />
-      <div
-        class="text-center pa-2"
-        style="opacity: 0.7; font-size: 12px;"
-      >
-        <div>
-          Build <a
-            class="text-decoration-none"
-            :href="GET_COMMIT_URL"
-          >
-            #{{ GET_GIT_HASH.substring(0, 7) }}
-          </a>
-        </div>
-        <div>Last updated {{ updatedAt }}</div>
-      </div>
-    </template>
   </v-navigation-drawer>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex';
-import { formatDistanceToNow } from 'date-fns';
 
 export default {
   name: 'TheSidebarLeft',
@@ -143,47 +124,26 @@ export default {
   },
 
   computed: {
-    ...mapState(['isLeftSidebarOpen']),
+    ...mapState([
+      'isLeftSidebarOpen',
+      'version',
+      'repositoryUrl',
+      'discordUrl',
+    ]),
 
     ...mapGetters([
-      'GET_REPOSITORY_URL',
-      'GET_VERSION',
-      'GET_GIT_HASH',
-      'GET_DISCORD_URL',
       'GET_RELEASE_URL',
-      'GET_COMMIT_URL',
     ]),
 
     ...mapGetters('plex', [
       'GET_PLEX_USER',
     ]),
-
-    date() {
-      return new Date(parseInt(process.env.VUE_APP_GIT_DATE, 10) * 1000);
-    },
-
-    updatedAt() {
-      return `${formatDistanceToNow(this.date)} ago`;
-    },
   },
 
   methods: {
     ...mapMutations([
       'SET_LEFT_SIDEBAR_OPEN',
     ]),
-
-    getTimeFromMs(ms) {
-      const hours = ms / (1000 * 60 * 60);
-      const absoluteHours = Math.floor(hours);
-      const h = absoluteHours > 9 ? absoluteHours : `0${absoluteHours}`;
-      const minutes = (hours - absoluteHours) * 60;
-      const absoluteMinutes = Math.floor(minutes);
-      const m = absoluteMinutes > 9 ? absoluteMinutes : `0${absoluteMinutes}`;
-      const seconds = (minutes - absoluteMinutes) * 60;
-      const absoluteSeconds = Math.floor(seconds);
-      const s = absoluteSeconds > 9 ? absoluteSeconds : `0${absoluteSeconds}`;
-      return `${h}:${m}:${s}`;
-    },
   },
 };
 </script>

@@ -10,27 +10,9 @@ COPY --chown=node:node . .
 
 ARG SERVERS
 ARG VERSION
-ARG REVISION
 
 RUN npm run build
 
 # production environment
 FROM nginx:1.19.3-alpine as production-stage
-LABEL org.opencontainers.image.title="SyncLounge Web"
-LABEL org.opencontainers.image.description="Enjoy Plex with your friends. In Sync. Together."
-LABEL org.opencontainers.image.url="https://synclounge.tv"
-LABEL org.opencontainers.image.source="https://github.com/synclounge/synclounge"
-LABEL org.opencontainers.image.vendor="SyncLounge"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.documentation="https://docs.synclounge.tv"
-
 COPY --chown=nginx:nginx --from=build-stage /app/dist /usr/share/nginx/html
-
-ARG VERSION
-LABEL org.opencontainers.image.version=$VERSION
-
-ARG REVISION
-LABEL org.opencontainers.image.revision=$REVISION
-
-ARG BUILD_DATE
-LABEL org.opencontainers.image.created=$BUILD_DATE
