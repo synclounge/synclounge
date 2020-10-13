@@ -84,7 +84,11 @@ export default {
 
   GET_UP_NEXT_TRIGGERED: (state) => state.upNextTriggered,
 
-  ARE_NOTIFICATIONS_ENABLED: (state) => state.areNotificationsEnabled,
+  ARE_NOTIFICATIONS_ENABLED: (state, getters, rootState, rootGetters) => state
+    .areNotificationsEnabled
+    ?? rootGetters.GET_CONFIG?.default_are_notification_enabled,
 
-  ARE_SOUND_NOTIFICATIONS_ENABLED: (state) => state.areSoundNotificationsEnabled,
+  ARE_SOUND_NOTIFICATIONS_ENABLED: (state, getters, rootState, rootGetters) => state
+    .areSoundNotificationsEnabled
+    ?? rootGetters.GET_CONFIG?.default_are_sound_notification_enabled,
 };

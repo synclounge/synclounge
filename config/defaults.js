@@ -49,6 +49,8 @@ const defaults = {
 
   default_party_pause_enabled: true,
   default_auto_host_enabled: false,
+  default_are_notification_enabled: false,
+  default_are_sound_notification_enabled: false,
 
   force_slplayer: false,
 
