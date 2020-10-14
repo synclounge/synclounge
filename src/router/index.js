@@ -20,6 +20,13 @@ export default new Router({
     },
 
     {
+      path: '*',
+      redirect: {
+        name: 'RoomCreation',
+      },
+    },
+
+    {
       path: '/signin',
       name: 'SignIn',
       component: () => import('@/views/SignIn.vue'),
