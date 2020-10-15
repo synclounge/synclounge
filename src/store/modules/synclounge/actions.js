@@ -420,6 +420,13 @@ export default {
     }
 
     if (getters.ARE_NOTIFICATIONS_ENABLED) {
+      if (Notification.permission !== 'granted') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          return;
+        }
+      }
+
       const { username, thumb } = getters.GET_MESSAGES_USER_CACHE_USER(msg.senderId);
 
       // TODO: notifications don't work when on http. Maybe make alternative popup thing?
