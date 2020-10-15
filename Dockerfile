@@ -26,9 +26,13 @@ RUN npm prune --production
 FROM node:14.13.1-alpine3.12 as production-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
+RUN apk add --no-cache tini
+
+USER node
 COPY --chown=node:node server.js .
 COPY --chown=node:node config config
 COPY --chown=node:node --from=dependency-stage /app/node_modules node_modules
 COPY --chown=node:node --from=build-stage /app/dist dist
 
-ENTRYPOINT ["/app/server.js"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/app/server.js"]
