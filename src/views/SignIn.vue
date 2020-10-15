@@ -30,7 +30,7 @@
               target="_blank"
               x-large
               text
-              :disabled="loading || !plexAuthResponse"
+              :disabled="allowSignIn"
               :href="plexAuthUrl"
               @click="authenticate"
             >
@@ -75,6 +75,11 @@ export default {
       }
 
       return this.GET_PLEX_AUTH_URL(this.plexAuthResponse.code);
+    },
+
+    allowSignIn() {
+      return this.loading || !this.plexAuthResponse
+      || (!this.IS_USER_AUTHORIZED && !!this.GET_PLEX_AUTH_TOKEN);
     },
   },
 
