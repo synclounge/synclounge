@@ -21,7 +21,7 @@
     "syncloungeserver": "^6.0.16"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.10.4",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.12.0",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
