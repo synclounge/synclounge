@@ -79,6 +79,11 @@ export default {
   },
 
   async created() {
+    if (this.IS_USER_AUTHORIZED && this.GET_PLEX_AUTH_TOKEN) {
+      this.redirect();
+      return;
+    }
+
     const cookieToken = getCookie('mpt');
     if (cookieToken) {
       await this.cookieAuth(cookieToken);
@@ -149,8 +154,12 @@ export default {
       this.loading = false;
     },
 
-    async postAuth() {
+    redirect() {
       this.$router.push(this.$route.query.redirect || '/');
+    },
+
+    async postAuth() {
+      this.redirect();
       await Promise.all([
         this.FETCH_PLEX_DEVICES_IF_NEEDED(),
         this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE(),

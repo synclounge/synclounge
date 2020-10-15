@@ -44,7 +44,7 @@ router.beforeEach(async (to, from, next) => {
       next({ name: 'SignIn' });
     }
   } else if (to.matched.some((record) => record.meta.requiresNoAuth)
-    && store.getters['plex/GET_PLEX_AUTH_TOKEN']) {
+    && store.getters['plex/GET_PLEX_AUTH_TOKEN'] && store.getters['plex/IS_USER_AUTHORIZED']) {
     next({ name: 'RoomCreation' });
   } else if (to.matched.some((record) => record.meta.protected)
     && (!store.getters['synclounge/IS_IN_ROOM']
