@@ -6,7 +6,6 @@ import { slPlayerClientId } from '@/player/constants';
 import {
   open, close, on, waitForEvent, isConnected, emit,
 } from '@/socket';
-import JoinError from '@/utils/joinerror';
 import notificationSound from '@/assets/sounds/notification_simple-01.wav';
 
 const notificationAudio = new Audio(notificationSound);
@@ -17,10 +16,9 @@ export default {
     await dispatch('JOIN_ROOM_AND_INIT');
   },
 
-  SET_AND_CONNECT_AND_JOIN_ROOM: ({ commit, dispatch }, { server, room, password }) => {
+  SET_AND_CONNECT_AND_JOIN_ROOM: ({ commit, dispatch }, { server, room }) => {
     commit('SET_SERVER', server);
     commit('SET_ROOM', room);
-    commit('SET_PASSWORD', password);
     return dispatch('CONNECT_AND_JOIN_ROOM');
   },
 
@@ -67,7 +65,6 @@ export default {
       eventName: 'join',
       data: {
         roomId: getters.GET_ROOM,
-        password: getters.GET_PASSWORD,
         desiredUsername: getters.GET_DISPLAY_USERNAME,
         desiredPartyPausingEnabled: getters.IS_PARTY_PAUSING_ENABLED,
         desiredAutoHostEnabled: getters.IS_AUTO_HOST_ENABLED,
@@ -79,8 +76,7 @@ export default {
 
     const { success, error, ...rest } = await waitForEvent('joinResult');
     if (!success) {
-      // Password was wrong
-      throw new JoinError(true, error);
+      throw new Error(error);
     }
 
     return rest;
@@ -102,7 +98,6 @@ export default {
       {
         server: getters.GET_SERVER,
         room: getters.GET_ROOM,
-        password: getters.GET_PASSWORD,
         time: Date.now(),
       },
     );
@@ -137,7 +132,7 @@ export default {
     // Purposefully not awaited
     dispatch('plexclients/START_CLIENT_POLLER_IF_NEEDED', null, { root: true });
     await dispatch('DISPLAY_NOTIFICATION', {
-      text: `Joined room: ${getters.GET_ROOM}`,
+      text: 'Joined room',
       color: 'success',
     }, { root: true });
     await dispatch('SYNC_MEDIA_AND_PLAYER_STATE');

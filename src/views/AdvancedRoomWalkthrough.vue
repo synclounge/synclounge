@@ -36,7 +36,7 @@
             step="2"
             :complete="false"
           >
-            Join a room
+            Join a server
           </v-stepper-step>
 
           <v-divider />
