@@ -1,16 +1,27 @@
 const { readFileSync } = require('fs');
 const { execSync } = require('child_process');
 
+const fromRegex = /^\s*FROM\s+(?:--platform\=\S+\s+)?(?<tag>\S+)\s+as\s+(?<alias>\S+)\s*$/mg
+
 const findLastFromLineIndex = (lines) => lines.reduce((acc, line, index) => (
   line.startsWith('FROM') ? index : acc
 ), 0);
 
-const getDockerfileImage = (file) => {
-  const lines = readFileSync(file, { encoding: 'utf8' })
-    .split('\n');
+const findBaseImage = (fromGroups, tag) => {
+  const origin = fromGroups.find((group) => group.alias === tag);
+  return origin
+    ? findBaseImage(fromGroups, origin.tag)
+    : tag;
+};
 
-  const lastFromLine = lines[findLastFromLineIndex(lines)];
-  return lastFromLine.split(' ')[1];
+const getDockerfileImage = (file) => {
+  const lines = readFileSync(file, { encoding: 'utf8' });
+
+  const matches = [...lines.matchAll(fromRegex)];
+  const fromGroups = matches.map((match) => match.groups);
+
+  const lastTag = fromGroups[fromGroups.length - 1].tag;
+  return findBaseImage(fromGroups, lastTag);
 };
 
 const getImageManifest = (image) => execSync(`docker manifest inspect ${image}`, {
