@@ -23,7 +23,6 @@ export default {
     ?? rootGetters.GET_CONFIG?.default_slplayer_force_transcode,
 
   GET_ALTUSERNAME: (state) => state.altUsername,
-  GET_CUSTOM_SERVER_USER_INPUTTED_URL: (state) => state.customServerUserInputtedUrl,
 
   GET_AUTO_SKIP_INTRO: (state, getters, rootState, rootGetters) => state.autoSkipIntro
     ?? rootGetters.GET_CONFIG?.default_auto_skip_intro,

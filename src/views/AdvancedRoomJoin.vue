@@ -115,7 +115,7 @@
             align="center"
           >
             <v-col
-              v-for="server in GET_SYNCLOUNGE_SERVERS"
+              v-for="server in GET_CONFIG.servers"
               :key="server.url"
               cols="12"
               md="3"
@@ -197,7 +197,7 @@
                 <v-card-text>
                   <v-text-field
                     hide-details
-                    :value="GET_CUSTOM_SERVER_USER_INPUTTED_URL"
+                    :value="customServerUrl"
                     class="input-group pt-input"
                     @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
                   />
@@ -208,7 +208,7 @@
                     block
                     color="primary"
                     :disabled="connectionPending"
-                    @click="connect(GET_CUSTOM_SERVER_USER_INPUTTED_URL)"
+                    @click="connect(customServerUrl)"
                   >
                     Connect
                   </v-btn>
@@ -255,7 +255,9 @@
 
 <script>
 import { formatDistanceToNow } from 'date-fns';
-import { mapGetters, mapMutations, mapActions } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 import { v4 as uuidv4 } from 'uuid';
 import redirection from '@/mixins/redirection';
 import linkWithRoom from '@/mixins/linkwithroom';
@@ -277,20 +279,22 @@ export default {
   }),
 
   computed: {
+    ...mapGetters([
+      'GET_CONFIG',
+    ]),
+
     ...mapGetters('plexclients', [
       'GET_CHOSEN_CLIENT_ID',
       'GET_ACTIVE_MEDIA_METADATA',
     ]),
 
     ...mapGetters('synclounge', [
-      'GET_SYNCLOUNGE_SERVERS',
-      'GET_SERVER',
       'GET_RECENT_ROOMS',
       'GET_SERVER_HEALTH',
     ]),
 
-    ...mapGetters('settings', [
-      'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
+    ...mapState('settings', [
+      'customServerUrl',
     ]),
   },
 
@@ -349,7 +353,6 @@ export default {
     },
 
     async connect(server, room) {
-      console.log(server);
       this.serverError = null;
       this.connectionPending = true;
 

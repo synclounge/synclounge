@@ -199,7 +199,7 @@ export default {
     }
   },
 
-  FETCH_SERVERS_HEALTH: async ({ getters, rootGetters, commit }) => {
+  FETCH_SERVERS_HEALTH: async ({ rootGetters, commit }) => {
     const start = Date.now();
     const controller = new AbortController();
 
@@ -207,16 +207,16 @@ export default {
       controller.abort();
     }, rootGetters.GET_CONFIG.socket_server_health_timeout);
 
-    const results = await Promise.allSettled(getters.GET_SYNCLOUNGE_SERVERS
-      .filter((server) => server.url !== 'custom')
-      .map(async ({ url }) => [
+    const results = await Promise.allSettled(
+      rootGetters.GET_CONFIG.servers.map(async ({ url }) => [
         url,
         {
           ...await fetchJson(combineRelativeUrlParts(url, 'health'), null,
             { signal: controller.signal }),
           latency: Date.now() - start,
         },
-      ]));
+      ]),
+    );
 
     clearTimeout(timeout);
 

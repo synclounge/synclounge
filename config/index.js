@@ -30,11 +30,6 @@ const get = (file, blockList = []) => {
         'authentication__type',
         'authentication__authorized',
 
-        'custom_server__name',
-        'custom_server__location',
-        'custom_server__url',
-        'custom_server__image',
-
         'default_slplayer_quality',
       ]),
     });
