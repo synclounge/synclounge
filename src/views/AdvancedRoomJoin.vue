@@ -258,7 +258,7 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   mapActions, mapGetters, mapMutations, mapState,
 } from 'vuex';
-import { v4 as uuidv4 } from 'uuid';
+import { getRandomRoomId } from '@/utils/random';
 import redirection from '@/mixins/redirection';
 import linkWithRoom from '@/mixins/linkwithroom';
 import { slPlayerClientId } from '@/player/constants';
@@ -359,7 +359,7 @@ export default {
       try {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
           server,
-          room: room || uuidv4(),
+          room: room || getRandomRoomId(),
         });
 
         if (this.$route.name === 'AdvancedRoomJoin') {

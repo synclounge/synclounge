@@ -88,7 +88,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
-import { v4 as uuidv4 } from 'uuid';
+import { getRandomRoomId } from '@/utils/random';
 import linkWithRoom from '@/mixins/linkwithroom';
 
 export default {
@@ -166,7 +166,7 @@ export default {
       try {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
           server: this.GET_BEST_SERVER,
-          room: this.roomName || uuidv4(),
+          room: getRandomRoomId(),
         });
 
         if (this.$route.name === 'RoomCreation') {
