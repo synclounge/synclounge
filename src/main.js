@@ -27,6 +27,14 @@ const doesServerMatch = (expected, got) => expected.room === got.room
 router.beforeEach(async (to, from, next) => {
   if (!store.getters.GET_CONFIG) {
     await store.dispatch('FETCH_CONFIG');
+
+    // This will only happen once per refresh of the page
+    if (store.getters.GET_CONFIG.autojoin) {
+      next({
+        name: 'RoomJoin',
+        params: this.GET_CONFIG.autojoin,
+      });
+    }
   }
 
   if ((store.getters['plex/IS_UNAUTHORIZED']

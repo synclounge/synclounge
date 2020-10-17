@@ -132,15 +132,7 @@ export default {
 
   async created() {
     await this.DISCONNECT_IF_CONNECTED();
-
-    if (this.GET_CONFIG.autojoin) {
-      this.$router.push({
-        name: 'RoomJoin',
-        params: this.GET_CONFIG.autojoin,
-      });
-    } else {
-      await this.fetchServersHealth();
-    }
+    await this.fetchServersHealth();
   },
 
   methods: {
