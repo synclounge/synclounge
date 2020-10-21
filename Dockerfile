@@ -13,7 +13,7 @@ ARG VERSION
 RUN npm run build
 
 # dependency environment
-FROM node:14.13.1-alpine3.12 as dependency-stage
+FROM node:14.14.0-alpine3.12 as dependency-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache python3 make g++
@@ -23,7 +23,7 @@ RUN SKIP_BUILD=true npm ci
 RUN npm prune --production
 
 # production environment
-FROM node:14.13.1-alpine3.12 as production-stage
+FROM node:14.14.0-alpine3.12 as production-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache tini
