@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.2
         with:
-          node-version: 14
+          node-version: 15
 
       - name: Cache Node.js modules
         id: cache
@@ -53,7 +53,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.2
         with:
-          node-version: 14
+          node-version: 15
 
       - name: Turnstyle
         uses: softprops/turnstyle@v0.1.3
