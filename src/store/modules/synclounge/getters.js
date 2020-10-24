@@ -35,14 +35,9 @@ export default {
   GET_HOST_USER: (state, getters) => getters.GET_USER(getters.GET_HOST_ID),
   AM_I_HOST: (state, getters) => getters.GET_HOST_ID === getters.GET_SOCKET_ID,
 
-  GET_SYNCLOUNGE_SERVERS: (state, getters, rootState, rootGetters) => (
-    rootGetters.GET_CONFIG.customServer
-      ? rootGetters.GET_CONFIG.servers.concat([rootGetters.GET_CONFIG.customServer])
-      : rootGetters.GET_CONFIG.servers),
-
   GET_SERVERS_HEALTH: (state) => state.serversHealth,
 
-  GET_SERVER_HEALTH: (state) => (url) => state.serversHealth[url],
+  GET_SERVER_HEALTH: (state) => (url) => state.serversHealth?.[url],
 
   GET_SERVER_HEALTH_SCORES: (state, getters) => (getters.GET_SERVERS_HEALTH
     ? Object.fromEntries(Object.entries(getters.GET_SERVERS_HEALTH).map(([url, health]) => [
@@ -66,8 +61,6 @@ export default {
   GET_SYNC_CANCEL_TOKEN: (state) => state.syncCancelToken,
 
   GET_RECENT_ROOMS: (state) => state.recentRooms,
-
-  GET_PASSWORD: (state) => state.password,
 
   IS_IN_ROOM: (state) => state.isInRoom,
 

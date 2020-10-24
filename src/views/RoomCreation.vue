@@ -45,7 +45,6 @@
 
           <v-expansion-panels
             multiple
-            :value="panels"
           >
             <v-expansion-panel
               :readonly="GET_CONFIG.force_slplayer"
@@ -59,27 +58,6 @@
                   @loading-change="loading = $event"
                   @client-connectable-change="clientConnectable = $event"
                 />
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                Room
-              </v-expansion-panel-header>
-
-              <v-expansion-panel-content>
-                <v-form>
-                  <v-text-field
-                    v-model="roomName"
-                    label="Room Name (Optional)"
-                  />
-                  <v-text-field
-                    v-model="roomPassword"
-                    label="Room Password (Optional)"
-                    type="password"
-                    autocomplete="room-password"
-                  />
-                </v-form>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -110,8 +88,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
-import JoinError from '@/utils/joinerror';
-import { v4 as uuidv4 } from 'uuid';
+import { getRandomRoomId } from '@/utils/random';
 import linkWithRoom from '@/mixins/linkwithroom';
 
 export default {
@@ -133,9 +110,6 @@ export default {
 
       // Default true because default client is slplayer
       clientConnectable: true,
-      roomName: null,
-      roomPassword: null,
-      panels: [1],
     };
   },
 
@@ -158,15 +132,7 @@ export default {
 
   async created() {
     await this.DISCONNECT_IF_CONNECTED();
-
-    if (this.GET_CONFIG.autojoin) {
-      this.$router.push({
-        name: 'RoomJoin',
-        params: this.GET_CONFIG.autojoin,
-      });
-    } else {
-      await this.fetchServersHealth();
-    }
+    await this.fetchServersHealth();
   },
 
   methods: {
@@ -192,8 +158,7 @@ export default {
       try {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
           server: this.GET_BEST_SERVER,
-          room: this.roomName || uuidv4(),
-          password: this.roomPassword,
+          room: getRandomRoomId(),
         });
 
         if (this.$route.name === 'RoomCreation') {
@@ -207,12 +172,8 @@ export default {
         this.DISCONNECT_IF_CONNECTED();
         console.error(e);
 
-        if (e instanceof JoinError) {
-          this.error = 'Room already in use';
-        } else {
-          this.error = e.message;
-          await this.fetchServersHealth();
-        }
+        this.error = e.message;
+        await this.fetchServersHealth();
       }
 
       this.loading = false;

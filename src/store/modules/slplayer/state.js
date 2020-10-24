@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
+import { getRandomPlexId } from '@/utils/random';
 import { subtitlePositions, subtitleSizes, subtitleColors } from '@/utils/subtitleutils';
 
 const state = () => ({
   session: null,
-  xplexsessionId: uuidv4(),
+  xplexsessionId: getRandomPlexId(),
   plexDecision: null,
   mediaIndex: 0,
   offsetMs: 0,

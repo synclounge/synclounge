@@ -14,10 +14,6 @@ export default {
     state.room = value;
   },
 
-  SET_PASSWORD: (state, value) => {
-    state.password = value;
-  },
-
   SET_IS_PARTY_PAUSING_ENABLED: (state, isEnabled) => {
     state.isPartyPausingEnabled = isEnabled;
   },

@@ -25,7 +25,7 @@
 
       <v-stepper
         v-model="e1"
-        style="background: rgba(0, 0, 0, 0.3); border-radius: 20px;"
+        style="background: rgba(0, 0, 0, 0.3);"
         class="ma-4"
       >
         <v-stepper-header>
@@ -42,7 +42,7 @@
             step="2"
             :complete="false"
           >
-            Join a room
+            Join a server
           </v-stepper-step>
 
           <v-divider />
@@ -57,30 +57,9 @@
         justify="center"
       >
         <v-col
+          v-if="GET_RECENT_ROOMS.length"
           cols="12"
-          class="ml-4"
-        >
-          <h2 class="text-xs-left">
-            Connect to a SyncLounge room
-          </h2>
-        </v-col>
-
-        <v-col
-          cols="12"
-          class="ml-4"
-        >
-          <p>
-            It's time to connect to SyncLounge. From the list select a server which is closest to
-            your location. Once you've chosen one that works for you it's time to create a room for
-            your friends to join. If the room does not exist it will be created for you.
-          </p>
-        </v-col>
-
-        <v-col
-          v-if="!GET_SOCKET_ID && GET_RECENT_ROOMS.length > 0"
-          cols="12"
-          class="nicelist pa-4"
-          style="color: white !important;"
+          class="pa-4"
         >
           <v-subheader>Recent Rooms</v-subheader>
 
@@ -88,7 +67,7 @@
             <v-list-item
               v-for="(item, index) in GET_RECENT_ROOMS.slice(0, 3)"
               :key="index"
-              @click="recentConnect(item)"
+              @click="connect(item.server, item.room)"
             >
               <v-list-item-avatar
                 width="32px"
@@ -108,13 +87,9 @@
               </v-list-item-content>
 
               <v-list-item-action>
-                <v-tooltip
-                  top
-                  color="light-blue darken-4"
-                >
+                <v-tooltip top>
                   <template #activator="{ on, attrs }">
                     <v-icon
-                      color="white"
                       v-bind="attrs"
                       v-on="on"
                       @click.stop="REMOVE_RECENT_ROOM(item)"
@@ -130,10 +105,8 @@
         </v-col>
 
         <v-col
-          v-if="!GET_SOCKET_ID"
           cols="12"
-          class="nicelist pa-4"
-          style="color: white !important;"
+          class="pa-4"
         >
           <v-subheader>Select a server</v-subheader>
 
@@ -142,169 +115,107 @@
             align="center"
           >
             <v-col
-              v-for="server in GET_SYNCLOUNGE_SERVERS"
+              v-for="server in GET_CONFIG.servers"
               :key="server.url"
-              class="pa-2"
               cols="12"
               md="3"
               lg="2"
             >
-              <v-card
-                height="300px"
-                style="border-radius: 20px;"
-              >
-                <v-row
-                  justify="center"
-                  align="center"
-                  style="height: 100%;"
+              <v-card>
+                <v-img
+                  height="125"
+                  :src="server.image"
+                  class="white--text align-end"
+                  gradient="to bottom, rgba(0,0,0,.6), rgba(0,0,0,.9)"
                 >
-                  <v-col
-                    cols="12"
-                    class="text-center pa-2"
-                    style="height: 80px;"
-                  >
-                    <img
-                      :src="server.image"
-                      class="server-image"
-                    >
-                  </v-col>
+                  <v-card-title v-text="server.name" />
+                  <v-card-subtitle v-text="server.location" />
+                </v-img>
 
-                  <v-col
-                    cols="12"
-                    class="text-center"
-                  >
-                    <h2>{{ server.name }}</h2>
-                    <h4>{{ server.location }}</h4>
-                  </v-col>
-
-                  <template v-if="GET_SERVERS_HEALTH && server.url !== 'custom'">
-                    <template v-if="GET_SERVER_HEALTH(server.url)">
-                      <v-col
-                        cols="12"
-                        class="text-center"
+                <v-card-text>
+                  <template v-if="GET_SERVER_HEALTH(server.url)">
+                    <div>
+                      Ping:
+                      <span
+                        class="font-weight-bold"
+                        :class="connectionQualityClass(GET_SERVER_HEALTH(server.url).latency)"
                       >
-                        Ping:
-                        <span
-                          class="font-weight-bold"
-                          :class="connectionQualityClass(GET_SERVER_HEALTH(server.url).latency)"
-                        >{{ GET_SERVER_HEALTH(server.url).latency }}ms</span>
-                      </v-col>
+                        {{ GET_SERVER_HEALTH(server.url).latency }}ms
+                      </span>
+                    </div>
 
-                      <v-col
-                        cols="12"
-                        class="text-center"
+                    <div>
+                      Load:
+                      <span
+                        class="font-weight-bold"
+                        :class="loadQualityClass(GET_SERVER_HEALTH(server.url).load)"
                       >
-                        <div>
-                          Load:
-                          <span
-                            class="font-weight-bold"
-                            :class="loadQualityClass(GET_SERVER_HEALTH(server.url).load)"
-                          >{{ GET_SERVER_HEALTH(server.url).load }}</span>
-                        </div>
-                      </v-col>
-                    </template>
-
-                    <div
-                      v-else
-                      class="text-center red--text"
-                    >
-                      error
+                        {{ GET_SERVER_HEALTH(server.url).load }}
+                      </span>
                     </div>
                   </template>
 
-                  <v-col
-                    cols="12"
-                    class="text-center pt-1 mt-4"
+                  <div
+                    v-else
+                    class="text-center red--text"
                   >
-                    <v-btn
-                      color="primary"
-                      :disabled="connectionPending"
-                      class="connect-button"
-                      @click="serverSelected(server)"
-                    >
-                      Connect
-                    </v-btn>
-                  </v-col>
-                </v-row>
+                    error
+                  </div>
+                </v-card-text>
+
+                <v-card-actions>
+                  <v-btn
+                    block
+                    color="primary"
+                    :disabled="connectionPending"
+                    @click="connect(server.url)"
+                  >
+                    Connect
+                  </v-btn>
+                </v-card-actions>
               </v-card>
             </v-col>
 
             <v-col
-
               class="pa-2"
               cols="12"
               md="3"
               lg="2"
             >
-              <v-card
-                height="300px"
-                style="border-radius: 20px;"
-              >
-                <v-row
-                  justify="center"
-                  align="center"
-                  style="height: 100%;"
+              <v-card>
+                <v-img
+                  height="125"
+                  src="@/assets/images/synclounge-white.png"
+                  class="white--text align-end"
+                  gradient="to bottom, rgba(0,0,0,.6), rgba(0,0,0,.9)"
                 >
-                  <v-col
-                    cols="12"
-                    class="text-center pa-2"
-                    style="height: 80px;"
-                  >
-                    <img
-                      src="@/assets/images/synclounge-white.png"
-                      class="server-image"
-                    >
-                  </v-col>
+                  <v-card-title>
+                    Custom
+                  </v-card-title>
+                </v-img>
 
-                  <v-col
-                    cols="12"
-                    class="text-center"
-                  >
-                    <h2>Custom Server</h2>
-                    <h4>Anywhere!</h4>
-                  </v-col>
+                <v-card-text>
+                  <v-text-field
+                    hide-details
+                    :value="customServerUrl"
+                    class="input-group pt-input"
+                    @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
+                  />
+                </v-card-text>
 
-                  <v-col
-                    cols="12"
-                    class="text-center pt-1 mt-4"
+                <v-card-actions>
+                  <v-btn
+                    block
+                    color="primary"
+                    :disabled="connectionPending"
+                    @click="connect(customServerUrl)"
                   >
-                    <v-btn
-                      color="primary"
-                      :disabled="connectionPending"
-                      class="connect-button"
-                      @click="serverSelected({custom: true})"
-                    >
-                      Connect
-                    </v-btn>
-                  </v-col>
-                </v-row>
+                    Connect
+                  </v-btn>
+                </v-card-actions>
               </v-card>
             </v-col>
           </v-row>
-
-          <template v-if="selectedServer && selectedServer.custom">
-            <v-text-field
-              name="input-2"
-              label="Custom Server"
-              :value="GET_CUSTOM_SERVER_USER_INPUTTED_URL"
-              class="input-group pt-input"
-              @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
-            />
-
-            <v-row>
-              <v-col cols="12">
-                <v-btn
-                  color="primary"
-                  class="pa-0 ma-0"
-                  primary
-                  style="width: 100%;"
-                  @click="attemptConnectCustom"
-                >
-                  Connect
-                </v-btn>
-              </v-col>
-            </v-row>
-          </template>
 
           <v-row
             v-if="connectionPending && !serverError"
@@ -337,76 +248,6 @@
             </v-col>
           </v-row>
         </v-col>
-
-        <v-col
-          v-if="GET_SOCKET_ID"
-          cols="12"
-          class="text-center"
-        >
-          <v-row>
-            <v-col
-              cols="12"
-              md="6"
-              class="offset-md-3"
-            >
-              <v-text-field
-                :value="GET_ROOM"
-                origin="center center"
-                :maxlength="25"
-                name="input-2"
-                label="Room name"
-                :autofocus="true"
-                @input="SET_ROOM"
-                @keyup.enter.native="joinRoom"
-              />
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="6"
-              class="offset-md-3"
-            >
-              <v-text-field
-                :value="GET_PASSWORD"
-                transition="v-scale-transition"
-                origin="center center"
-                name="input-2"
-                label="Room password"
-                @input="SET_PASSWORD"
-                @keyup.enter.native="joinRoom"
-              />
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="6"
-              class="offset-md-3"
-            >
-              <v-btn
-                block
-                color="primary"
-                @click="joinRoom"
-              >
-                Join
-              </v-btn>
-            </v-col>
-
-            <v-row
-              v-if="roomError"
-              class="pt-3 text-center"
-            >
-              <v-col
-                cols="12"
-                class="red--text"
-              >
-                <v-icon class="red--text">
-                  info
-                </v-icon>
-                {{ roomError }}
-              </v-col>
-            </v-row>
-          </v-row>
-        </v-col>
       </v-row>
     </v-col>
   </v-row>
@@ -414,57 +255,47 @@
 
 <script>
 import { formatDistanceToNow } from 'date-fns';
-import { mapGetters, mapMutations, mapActions } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
+import { getRandomRoomId } from '@/utils/random';
+import redirection from '@/mixins/redirection';
 import linkWithRoom from '@/mixins/linkwithroom';
+import { slPlayerClientId } from '@/player/constants';
 
 export default {
   name: 'AdvancedRoomJoin',
 
   mixins: [
+    redirection,
     linkWithRoom,
   ],
 
   data: () => ({
-    selectedServer: null,
     serverError: null,
-    roomError: null,
     e1: 2,
     connectionPending: false,
     testConnectionInterval: null,
   }),
 
   computed: {
+    ...mapGetters([
+      'GET_CONFIG',
+    ]),
+
+    ...mapGetters('plexclients', [
+      'GET_CHOSEN_CLIENT_ID',
+      'GET_ACTIVE_MEDIA_METADATA',
+    ]),
+
     ...mapGetters('synclounge', [
-      'GET_SOCKET_ID',
-      'GET_SYNCLOUNGE_SERVERS',
-      'GET_SERVER',
       'GET_RECENT_ROOMS',
-      'GET_ROOM',
-      'GET_PASSWORD',
-      'IS_IN_ROOM',
       'GET_SERVER_HEALTH',
-      'GET_SERVERS_HEALTH',
     ]),
 
-    ...mapGetters('settings', [
-      'GET_CUSTOM_SERVER_USER_INPUTTED_URL',
+    ...mapState('settings', [
+      'customServerUrl',
     ]),
-  },
-
-  watch: {
-    selectedServer() {
-      this.serverError = null;
-    },
-
-    IS_IN_ROOM: {
-      handler(inRoom) {
-        if (inRoom) {
-          this.$router.push(this.linkWithRoom({ name: 'PlexHome' }));
-        }
-      },
-
-      immediate: true,
-    },
   },
 
   beforeDestroy() {
@@ -480,20 +311,15 @@ export default {
   },
 
   methods: {
-    ...mapMutations('settings', ['SET_CUSTOM_SERVER_USER_INPUTTED_URL']),
-
-    ...mapMutations('synclounge', [
-      'SET_ROOM',
-      'SET_PASSWORD',
-      'SET_SERVER',
+    ...mapMutations('settings', [
+      'SET_CUSTOM_SERVER_USER_INPUTTED_URL',
     ]),
 
     ...mapActions('synclounge', [
-      'JOIN_ROOM_AND_INIT',
-      'ESTABLISH_SOCKET_CONNECTION',
       'REMOVE_RECENT_ROOM',
-      'ADD_EVENT_HANDLERS',
       'FETCH_SERVERS_HEALTH',
+      'SET_AND_CONNECT_AND_JOIN_ROOM',
+      'DISCONNECT_IF_CONNECTED',
     ]),
 
     sinceNow(x) {
@@ -526,107 +352,31 @@ export default {
       return ['white--text'];
     },
 
-    async serverSelected(server) {
-      this.selectedServer = server;
-      if (this.selectedServer.defaultRoom) {
-        this.room = this.selectedServer.defaultRoom;
-
-        if (this.selectedServer.defaultPassword) {
-          this.password = this.selectedServer.defaultPassword;
-        }
-      }
-
-      if (!this.selectedServer.custom) {
-        await this.attemptConnect();
-      }
-    },
-
-    async attemptConnect() {
+    async connect(server, room) {
       this.serverError = null;
-
-      try {
-        this.SET_SERVER(this.selectedServer.url);
-        await this.ESTABLISH_SOCKET_CONNECTION();
-
-        if (this.GET_ROOM) {
-          await this.joinRoom();
-        }
-      } catch (e) {
-        this.serverError = `Failed to connect to ${this.selectedServer.url}`;
-        console.error(e);
-      } finally {
-        this.connectionPending = false;
-      }
-    },
-
-    async attemptConnectCustom() {
       this.connectionPending = true;
-      this.serverError = null;
 
       try {
-        this.SET_SERVER(this.GET_CUSTOM_SERVER_USER_INPUTTED_URL);
-        const result = await this.ESTABLISH_SOCKET_CONNECTION();
+        await this.SET_AND_CONNECT_AND_JOIN_ROOM({
+          server,
+          room: room || getRandomRoomId(),
+        });
 
-        if (result) {
-          this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
-        } else {
-          this.serverError = null;
+        if (this.$route.name === 'AdvancedRoomJoin') {
+          if (this.GET_CHOSEN_CLIENT_ID === slPlayerClientId || !this.GET_ACTIVE_MEDIA_METADATA) {
+            this.$router.push(this.linkWithRoom({ name: 'PlexHome' }));
+          } else {
+            this.redirectToMediaPage();
+          }
         }
       } catch (e) {
-        this.serverError = `Failed to connect to ${this.GET_CUSTOM_SERVER_USER_INPUTTED_URL}`;
+        this.DISCONNECT_IF_CONNECTED();
         console.error(e);
-      } finally {
-        this.connectionPending = false;
-      }
-    },
-
-    async recentConnect(recent) {
-      console.log('Attempting to connect to', recent);
-      this.selectedServer = {
-        url: recent.server,
-      };
-
-      this.SET_ROOM(recent.room);
-      this.SET_PASSWORD(recent.password);
-      await this.attemptConnect();
-    },
-
-    async joinRoom() {
-      if (!this.GET_SOCKET_ID) {
-        throw new Error('not connected to a server');
+        this.serverError = e.message;
       }
 
-      if (this.GET_ROOM === '' || this.GET_ROOM == null) {
-        this.roomError = 'You must enter a room name!';
-        throw new Error('no room specified');
-      }
-
-      try {
-        await this.JOIN_ROOM_AND_INIT();
-      } catch (e) {
-        console.error(e);
-        this.roomError = e;
-      }
+      this.connectionPending = false;
     },
   },
 };
 </script>
-
-<style scope>
-.server-image {
-  max-height: 100%;
-  vertical-align: middle;
-  max-width: 80%;
-  border-radius: 7px;
-}
-
-.connect-button {
-  width: 80%;
-  border-radius: 7px;
-  margin: auto;
-  position: absolute;
-  bottom: 5px;
-  left: 0;
-  right: 0;
-}
-</style>

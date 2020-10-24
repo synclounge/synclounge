@@ -9,10 +9,8 @@
     @input="SET_RIGHT_SIDEBAR_OPEN"
   >
     <template #prepend>
-      <v-list-item three-line>
+      <v-list-item>
         <v-list-item-content>
-          <v-list-item-title>{{ GET_ROOM }}</v-list-item-title>
-
           <v-list-item-subtitle
             v-if="Object.keys(GET_USERS).length != 1"
             class="participant-count"
@@ -158,7 +156,6 @@ export default {
       'IS_PARTY_PAUSING_ENABLED',
       'IS_AUTO_HOST_ENABLED',
       'GET_USERS',
-      'GET_ROOM',
       'GET_HOST_USER',
       'AM_I_HOST',
     ]),

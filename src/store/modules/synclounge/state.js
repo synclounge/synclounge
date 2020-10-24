@@ -2,7 +2,6 @@ const state = () => ({
   socketId: null,
   server: null,
   room: null,
-  password: null,
   users: {},
   hostId: null,
   messagesUserCache: {},

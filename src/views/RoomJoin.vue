@@ -25,7 +25,6 @@
           </v-alert>
 
           <v-expansion-panels
-            :value="panels"
             multiple
           >
             <v-expansion-panel
@@ -40,31 +39,6 @@
                   @loading-change="loading = $event"
                   @client-connectable-change="clientConnectable = $event"
                 />
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                Room
-              </v-expansion-panel-header>
-
-              <v-expansion-panel-content>
-                <v-form>
-                  <v-text-field
-                    readonly
-                    :value="room"
-                    label="Room Name"
-                  />
-
-                  <v-text-field
-                    v-model="password"
-                    name="password"
-                    type="password"
-                    :error="passwordNeeded"
-                    autocomplete="room-password"
-                    label="Password"
-                  />
-                </v-form>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -88,7 +62,6 @@
 import { mapActions, mapGetters } from 'vuex';
 import redirection from '@/mixins/redirection';
 import { slPlayerClientId } from '@/player/constants';
-import JoinError from '@/utils/joinerror';
 import linkWithRoom from '@/mixins/linkwithroom';
 
 export default {
@@ -117,14 +90,10 @@ export default {
 
   data: () => ({
     loading: false,
+    error: null,
 
     // Default true because default client is slplayer
     clientConnectable: true,
-
-    error: null,
-    password: null,
-    passwordNeeded: false,
-    panels: [1],
   }),
 
   computed: {
@@ -157,7 +126,6 @@ export default {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
           server: this.server,
           room: this.room,
-          password: this.password,
         });
 
         if (this.$route.name === 'RoomJoin') {
@@ -171,11 +139,6 @@ export default {
         this.DISCONNECT_IF_CONNECTED();
         console.error(e);
         this.error = e.message;
-
-        if (e instanceof JoinError) {
-          this.passwordNeeded = true;
-          this.panels = [1];
-        }
       }
 
       this.loading = false;

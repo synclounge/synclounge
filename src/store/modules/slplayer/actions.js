@@ -1,6 +1,6 @@
 import CAF from 'caf';
 
-import { v4 as uuidv4 } from 'uuid';
+import { getRandomPlexId } from '@/utils/random';
 import { fetchJson, queryFetch } from '@/utils/fetchutils';
 import {
   play, pause, getDurationMs, getCurrentTimeMs, isTimeInBufferedRange,
@@ -94,7 +94,7 @@ export default {
       commit('SET_FORCE_TRANSCODE_RETRY', false);
     }
 
-    commit('SET_SESSION', uuidv4());
+    commit('SET_SESSION', getRandomPlexId());
 
     try {
       await dispatch('SEND_PLEX_DECISION_REQUEST');

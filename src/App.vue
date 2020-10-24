@@ -217,7 +217,6 @@ export default {
       'IS_IN_ROOM',
       'GET_ROOM',
       'GET_SERVER',
-      'GET_PASSWORD',
     ]),
 
     ...mapState([

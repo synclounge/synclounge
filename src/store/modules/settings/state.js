@@ -4,7 +4,7 @@ const state = () => ({
   clientPollInterval: null,
   syncMode: null,
   syncFlexibility: null,
-  customServerUserInputtedUrl: 'http://',
+  customServerUrl: 'https://',
   slPlayerQuality: null,
   slPlayerVolume: null,
   slPlayerForceTranscode: null,
