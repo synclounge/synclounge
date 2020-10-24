@@ -317,7 +317,7 @@ export default {
         'X-Plex-Container-Start': start,
         'X-Plex-Container-Size': size,
         ...(sort && { sort }),
-        includeCollections: 1,
+        includeCollections: 0,
         includeAdvanced: 1,
         includeMeta: 1,
       },
