@@ -82,7 +82,7 @@ jobs:
 
       - name: Semantic release
         id: release
-        uses: ahmadnassri/action-semantic-release@v1.2.8
+        uses: ahmadnassri/action-semantic-release@v1.4.0
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -189,7 +189,7 @@ jobs:
 
       - name: Build and push
         id: docker-build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v2.0.0
         with:
           push: true
           builder: ${{ steps.buildx.outputs.name }}
