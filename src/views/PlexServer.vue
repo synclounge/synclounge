@@ -25,10 +25,10 @@
               :img="getArtLibrary(library)"
               v-bind="attrs"
               flat
-              :to="{ name: 'PlexLibrary', params: {
+              :to="linkWithRoom({ name: 'PlexLibrary', params: {
                 machineIdentifier: machineIdentifier,
                 sectionId: library.key,
-              }}"
+              }})"
               v-on="on"
             >
               <div class="hidden-xs-only pa-2">
@@ -76,6 +76,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { getAppWidth, getAppHeight } from '@/utils/sizing';
+import linkWithRoom from '@/mixins/linkwithroom';
 
 export default {
   name: 'PlexServer',
@@ -84,6 +85,10 @@ export default {
     PlexOnDeck: () => import('@/components/PlexOnDeck.vue'),
     PlexRecentlyAdded: () => import('@/components/PlexRecentlyAdded.vue'),
   },
+
+  mixins: [
+    linkWithRoom,
+  ],
 
   props: {
     machineIdentifier: {
