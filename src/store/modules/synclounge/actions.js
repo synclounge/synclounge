@@ -82,25 +82,13 @@ export default {
     return rest;
   },
 
-  JOIN_ROOM_AND_INIT: async ({
-    getters, rootGetters, dispatch, commit,
-  }) => {
+  JOIN_ROOM_AND_INIT: async ({ rootGetters, dispatch, commit }) => {
     // Note: this is also called on rejoining, so be careful not to register handlers twice
     // or duplicate tasks
     const {
       user: { id, ...rest }, users, isPartyPausingEnabled, isAutoHostEnabled, hostId,
     } = await dispatch('JOIN_ROOM');
     const updatedAt = Date.now();
-
-    // Add this item to our recently-connected list
-    await dispatch(
-      'ADD_RECENT_ROOM',
-      {
-        server: getters.GET_SERVER,
-        room: getters.GET_ROOM,
-        time: Date.now(),
-      },
-    );
 
     commit('SET_HOST_ID', hostId);
 
@@ -227,22 +215,6 @@ export default {
 
     commit('SET_SERVERS_HEALTH', aliveServerHealths);
   },
-
-  ADD_RECENT_ROOM: ({ commit, getters, rootGetters }, newRoom) => commit(
-    'SET_RECENT_ROOMS',
-    Array.of(newRoom).concat(
-      getters.GET_RECENT_ROOMS.filter(
-        (room) => room.server !== newRoom.server || room.room !== newRoom.room,
-      ),
-    ).slice(0, rootGetters.GET_CONFIG.synclounge_max_recent_room_history),
-  ),
-
-  REMOVE_RECENT_ROOM: ({ commit, getters }, roomToRemove) => commit(
-    'SET_RECENT_ROOMS',
-    getters.GET_RECENT_ROOMS.filter(
-      (room) => room.server !== roomToRemove.server || room.room !== roomToRemove.room,
-    ),
-  ),
 
   ADD_EVENT_HANDLERS: ({ dispatch }) => {
     const makeHandler = (action) => (data) => dispatch(action, data);

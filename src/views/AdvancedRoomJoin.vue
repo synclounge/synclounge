@@ -57,54 +57,6 @@
         justify="center"
       >
         <v-col
-          v-if="GET_RECENT_ROOMS.length"
-          cols="12"
-          class="pa-4"
-        >
-          <v-subheader>Recent Rooms</v-subheader>
-
-          <v-list class="pa-0">
-            <v-list-item
-              v-for="(item, index) in GET_RECENT_ROOMS.slice(0, 3)"
-              :key="index"
-              @click="connect(item.server, item.room)"
-            >
-              <v-list-item-avatar
-                width="32px"
-              >
-                <v-img
-                  src="@/assets/images/logos/logo-small-light.png"
-                />
-              </v-list-item-avatar>
-
-              <v-list-item-content>
-                <v-list-item-title>{{ item.name || item.server || 'Custom' }}</v-list-item-title>
-
-                <v-list-item-subtitle>
-                  <b>{{ item.room }}</b>
-                  <span style="opacity: 0.5; float: right;">{{ sinceNow(item.time) }}</span>
-                </v-list-item-subtitle>
-              </v-list-item-content>
-
-              <v-list-item-action>
-                <v-tooltip top>
-                  <template #activator="{ on, attrs }">
-                    <v-icon
-                      v-bind="attrs"
-                      v-on="on"
-                      @click.stop="REMOVE_RECENT_ROOM(item)"
-                    >
-                      close
-                    </v-icon>
-                  </template>
-                  Remove
-                </v-tooltip>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list>
-        </v-col>
-
-        <v-col
           cols="12"
           class="pa-4"
         >
@@ -254,7 +206,6 @@
 </template>
 
 <script>
-import { formatDistanceToNow } from 'date-fns';
 import {
   mapActions, mapGetters, mapMutations, mapState,
 } from 'vuex';
@@ -289,7 +240,6 @@ export default {
     ]),
 
     ...mapGetters('synclounge', [
-      'GET_RECENT_ROOMS',
       'GET_SERVER_HEALTH',
     ]),
 
@@ -316,15 +266,10 @@ export default {
     ]),
 
     ...mapActions('synclounge', [
-      'REMOVE_RECENT_ROOM',
       'FETCH_SERVERS_HEALTH',
       'SET_AND_CONNECT_AND_JOIN_ROOM',
       'DISCONNECT_IF_CONNECTED',
     ]),
-
-    sinceNow(x) {
-      return formatDistanceToNow(x);
-    },
 
     connectionQualityClass(value) {
       if (value < 50) {
@@ -352,14 +297,14 @@ export default {
       return ['white--text'];
     },
 
-    async connect(server, room) {
+    async connect(server) {
       this.serverError = null;
       this.connectionPending = true;
 
       try {
         await this.SET_AND_CONNECT_AND_JOIN_ROOM({
           server,
-          room: room || getRandomRoomId(),
+          room: getRandomRoomId(),
         });
 
         if (this.$route.name === 'AdvancedRoomJoin') {

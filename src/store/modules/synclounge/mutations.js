@@ -42,10 +42,6 @@ export default {
     state.syncCancelToken = token;
   },
 
-  SET_RECENT_ROOMS: (state, rooms) => {
-    state.recentRooms = rooms;
-  },
-
   SET_IS_IN_ROOM: (state, isInRoom) => {
     state.isInRoom = isInRoom;
   },
