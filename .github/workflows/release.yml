@@ -217,10 +217,10 @@ jobs:
 
       - name: Update repo description
         uses: peter-evans/dockerhub-description@v2.4.1
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKERHUB_REPOSITORY: ${{ matrix.docker-image }}
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ matrix.docker-image }}
 
       - name: Inspect
         run: |
