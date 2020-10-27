@@ -89,9 +89,12 @@ export default {
             chosenConnection,
           }, { root: true });
         } catch (e) {
-          const message = `Unable to find working connection to plex server: "${device.name}`;
-          await dispatch('DISPLAY_NOTIFICATION', message, { root: true });
-          console.error(message, e);
+          const text = `Unable to find working connection to plex server: ${device.name}`;
+          await dispatch('DISPLAY_NOTIFICATION', {
+            text,
+            color: 'error',
+          }, { root: true });
+          console.error(text, e);
         }
       }
     }));
