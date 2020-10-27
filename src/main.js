@@ -32,7 +32,7 @@ router.beforeEach(async (to, from, next) => {
     if (store.getters.GET_CONFIG.autojoin) {
       next({
         name: 'RoomJoin',
-        params: this.GET_CONFIG.autojoin,
+        params: store.getters.GET_CONFIG.autojoin,
       });
     }
   }
