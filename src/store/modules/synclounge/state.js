@@ -10,7 +10,6 @@ const state = () => ({
   isAutoHostEnabled: null,
   serversHealth: null,
   syncCancelToken: null,
-  recentRooms: [],
   isInRoom: false,
   upnextTimeoutId: null,
 

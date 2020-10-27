@@ -60,8 +60,6 @@ export default {
 
   GET_SYNC_CANCEL_TOKEN: (state) => state.syncCancelToken,
 
-  GET_RECENT_ROOMS: (state) => state.recentRooms,
-
   IS_IN_ROOM: (state) => state.isInRoom,
 
   // Note: the host should really always have a playback rate of 1
