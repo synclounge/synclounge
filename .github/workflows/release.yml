@@ -216,7 +216,7 @@ jobs:
             VERSION=${{ needs.release-semantic.outputs.release-version }}
 
       - name: Update repo description
-        uses: peter-evans/dockerhub-description@v2.4.0
+        uses: peter-evans/dockerhub-description@v2.4.1
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
