@@ -65,7 +65,7 @@
         </v-row>
 
         <div
-          v-if="!ARE_DEVICES_CACHED"
+          v-if="!areDevicesCached"
           class="text-center pa-4"
         >
           <v-progress-circular
@@ -275,7 +275,9 @@
 
 <script>
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { mapActions, mapGetters, mapMutations } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 import plexPlatformMap from '@/utils/plexplatformmap';
 import { slPlayerClientId } from '@/player/constants';
 
@@ -296,14 +298,14 @@ export default {
   }),
 
   computed: {
-    ...mapGetters('plex', [
-      'ARE_DEVICES_CACHED',
-    ]),
-
     ...mapGetters('plexclients', [
       'GET_PLEX_CLIENT_IDS_SORTED_BY_LAST_SEEN',
       'GET_CHOSEN_CLIENT_ID',
       'GET_PLEX_CLIENT',
+    ]),
+
+    ...mapState('plex', [
+      'areDevicesCached',
     ]),
 
     slPlayerClientId() {

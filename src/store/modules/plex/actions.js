@@ -47,7 +47,7 @@ export default {
 
   // Private function, please use FETCH_PLEX_DEVICES instead
   _FETCH_PLEX_DEVICES: async ({
-    commit, dispatch, getters, rootGetters,
+    state: { areDevicesCached }, commit, dispatch, getters, rootGetters,
   }) => {
     // Store old list of server/client ids, to be able to take difference after the update and
     // find devices that weren't updated and remove them
@@ -120,7 +120,7 @@ export default {
 
     commit('plexclients/UPDATE_SLPLAYER_LAST_SEEN_TO_NOW', null, { root: true });
 
-    if (!getters.ARE_DEVICES_CACHED) {
+    if (!areDevicesCached) {
       commit('SET_ARE_DEVICES_CACHED', true);
     }
   },
@@ -138,8 +138,8 @@ export default {
   },
 
   // Use this to trigger a fetch if you don't need the devices refreshed
-  FETCH_PLEX_DEVICES_IF_NEEDED: async ({ getters, dispatch }) => {
-    if (!getters.ARE_DEVICES_CACHED && getters.GET_DEVICE_FETCH_PROMISE == null) {
+  FETCH_PLEX_DEVICES_IF_NEEDED: async ({ state: { areDevicesCached }, getters, dispatch }) => {
+    if (!areDevicesCached && getters.GET_DEVICE_FETCH_PROMISE == null) {
       await dispatch('FETCH_PLEX_DEVICES');
     }
 

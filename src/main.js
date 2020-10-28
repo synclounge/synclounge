@@ -34,6 +34,7 @@ router.beforeEach(async (to, from, next) => {
         name: 'RoomJoin',
         params: store.getters.GET_CONFIG.autojoin,
       });
+      return;
     }
   }
 

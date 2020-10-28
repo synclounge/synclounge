@@ -5,7 +5,7 @@ const capitalizeFirstLetter = (string) => string[0].toUpperCase() + string.slice
 
 export default {
   IS_UNAUTHORIZED: (state, getters) => !getters.GET_PLEX_AUTH_TOKEN
-    || (getters.ARE_DEVICES_CACHED && !getters.IS_USER_AUTHORIZED),
+    || (state.areDevicesCached && !getters.IS_USER_AUTHORIZED),
 
   GET_PLEX_DEVICE_NAME: (state, getters, rootState, rootGetters) => {
     switch (rootGetters.GET_BROWSER.name) {
@@ -74,7 +74,6 @@ export default {
     return makeUrl('https://app.plex.tv/auth#', urlParams);
   },
 
-  ARE_DEVICES_CACHED: (state) => state.areDevicesCached,
   GET_DEVICE_FETCH_PROMISE: (state) => state.deviceFetchPromise,
   GET_PLEX_USER: (state) => state.user,
 

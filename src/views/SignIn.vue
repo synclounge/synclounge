@@ -165,10 +165,8 @@ export default {
 
     async postAuth() {
       this.redirect();
-      await Promise.all([
-        this.FETCH_PLEX_DEVICES_IF_NEEDED(),
-        this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE(),
-      ]);
+      await this.FETCH_PLEX_DEVICES_IF_NEEDED();
+      await this.FETCH_AND_SET_RANDOM_BACKGROUND_IMAGE();
     },
 
     plexAuthChecker: CAF(function* plexAuthChecker(signal) {
