@@ -38,7 +38,9 @@
         xl="3"
       >
         <v-card
-          :to="{ name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier }}"
+          :to="linkWithRoom(
+            { name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier }},
+          )"
           style="background: rgba(0, 0, 0, 0.6);"
           :title="server.name"
         >
@@ -92,6 +94,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
+import linkWithRoom from '@/mixins/linkwithroom';
 
 export default {
   name: 'PlexHome',
@@ -99,6 +102,10 @@ export default {
   components: {
     PlexOnDeck: () => import('@/components/PlexOnDeck.vue'),
   },
+
+  mixins: [
+    linkWithRoom,
+  ],
 
   data: () => ({
     abortController: null,
