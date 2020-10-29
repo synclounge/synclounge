@@ -11,6 +11,6 @@ jobs:
       - name: Commit lint
         # Dependabot sometimes makes some really long commit messages and I can't stop it
         continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'dependencies') || github.actor == 'dependabot[bot]' }}
-        uses: ahmadnassri/action-conventional-commit-lint@v1.0.2
+        uses: ahmadnassri/action-conventional-commit-lint@v1.0.3
         with:
           token: ${{ github.token }}
