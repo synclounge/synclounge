@@ -150,8 +150,7 @@
                   <v-text-field
                     hide-details
                     :value="customServerUrl"
-                    class="input-group pt-input"
-                    @change="SET_CUSTOM_SERVER_USER_INPUTTED_URL"
+                    @change="SET_CUSTOM_SERVER_URL"
                   />
                 </v-card-text>
 
@@ -262,7 +261,7 @@ export default {
 
   methods: {
     ...mapMutations('settings', [
-      'SET_CUSTOM_SERVER_USER_INPUTTED_URL',
+      'SET_CUSTOM_SERVER_URL',
     ]),
 
     ...mapActions('synclounge', [
