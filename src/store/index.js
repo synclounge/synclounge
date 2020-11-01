@@ -30,6 +30,7 @@ const persistedState = createPersistedState({
     'synclounge.areNotificationsEnabled',
     'synclounge.areSoundNotificationsEnabled',
 
+    'slplayer.forceBurnSubtitles',
     'slplayer.subtitleSize',
     'slplayer.subtitlePosition',
     'slplayer.subtitleColor',

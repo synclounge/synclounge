@@ -106,4 +106,8 @@ export default {
   SET_FORCE_TRANSCODE_RETRY: (state, force) => {
     state.forceTranscodeRetry = force;
   },
+
+  SET_FORCE_BURN_SUBTITLES: (state, forceBurn) => {
+    state.forceBurnSubtitles = forceBurn;
+  },
 };

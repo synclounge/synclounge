@@ -52,6 +52,27 @@
           </v-list-item-action>
         </v-list-item>
 
+        <v-list-item
+          three-line
+          @click="SET_FORCE_BURN_SUBTITLES(!forceBurnSubtitles)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>Force Burn Subtitles</v-list-item-title>
+            <v-list-item-subtitle>
+              Force Plex to burn all subtitles.
+            </v-list-item-subtitle>
+          </v-list-item-content>
+
+          <v-list-item-action>
+            <v-switch
+              hide-details
+              :input-value="forceBurnSubtitles"
+              @change="SET_FORCE_BURN_SUBTITLES"
+              @click.stop
+            />
+          </v-list-item-action>
+        </v-list-item>
+
         <v-list-item @click="streamingProtocolSelectOpen=!streamingProtocolSelectOpen">
           <v-list-item-content>
             <v-list-item-title>Streaming Protocol</v-list-item-title>
@@ -292,7 +313,9 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from 'vuex';
+import {
+  mapActions, mapGetters, mapMutations, mapState,
+} from 'vuex';
 import { streamingProtocols } from '@/utils/streamingprotocols';
 
 export default {
@@ -339,6 +362,10 @@ export default {
       'GET_PLEX_USER',
     ]),
 
+    ...mapState('slplayer', [
+      'forceBurnSubtitles',
+    ]),
+
     username() {
       return this.GET_PLEX_USER?.username;
     },
@@ -383,6 +410,7 @@ export default {
 
     ...mapMutations('slplayer', [
       'SET_STREAMING_PROTOCOL',
+      'SET_FORCE_BURN_SUBTITLES',
     ]),
 
     ...mapMutations('synclounge', [

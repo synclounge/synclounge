@@ -222,7 +222,8 @@ export default {
       : base;
   },
 
-  SHOULD_FORCE_BURN_SUBTITLES: (state, getters) => getters.IS_IN_PICTURE_IN_PICTURE,
+  SHOULD_FORCE_BURN_SUBTITLES: (state, getters) => getters.IS_IN_PICTURE_IN_PICTURE
+    || state.forceBurnSubtitles,
 
   GET_SUBTITLE_PARAMS: (state, getters) => {
     if (!getters.GET_SELECTED_SUBTITLE_STREAM || getters.CAN_DIRECT_PLAY

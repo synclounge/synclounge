@@ -33,6 +33,7 @@ const state = () => ({
   subtitleOffset: 0,
   streamingProtocol: 'dash',
   forceTranscodeRetry: false,
+  forceBurnSubtitles: false,
 });
 
 export default state;

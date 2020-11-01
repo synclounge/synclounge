@@ -169,7 +169,7 @@
 
 <script>
 
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 import initialize from '@/player/init';
 import { getControlsOffset } from '@/player';
@@ -203,6 +203,7 @@ export default {
       'GET_SECONDARY_TITLE',
       'ARE_PLAYER_CONTROLS_SHOWN',
       'GET_PLAYER_STATE',
+      'IS_USING_NATIVE_SUBTITLES',
     ]),
 
     ...mapGetters('synclounge', [
@@ -220,6 +221,10 @@ export default {
 
     ...mapGetters([
       'GET_CONFIG',
+    ]),
+
+    ...mapState('slplayer', [
+      'forceBurnSubtitles',
     ]),
 
     playerConfig() {
@@ -290,6 +295,12 @@ export default {
       },
       immediate: true,
     },
+
+    async forceBurnSubtitles(forceBurn) {
+      if (forceBurn && this.IS_USING_NATIVE_SUBTITLES) {
+        await this.UPDATE_PLAYER_SRC_AND_KEEP_TIME();
+      }
+    },
   },
 
   async mounted() {
@@ -338,6 +349,7 @@ export default {
       'SEND_PARTY_PLAY_PAUSE',
       'SKIP_INTRO',
       'RERENDER_SUBTITLE_CONTAINER',
+      'UPDATE_PLAYER_SRC_AND_KEEP_TIME',
     ]),
 
     ...mapActions('synclounge', [
