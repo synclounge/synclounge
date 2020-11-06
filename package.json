@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "nconf": "^0.10.0",
-    "syncloungeserver": "^7.0.7"
+    "syncloungeserver": "^7.0.8"
   },
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.12.1",
