@@ -45,7 +45,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
-import CAF from 'caf';
+import CAF from 'caf/dist/caf';
 
 import getCookie from '@/utils/getcookie';
 
