@@ -59,7 +59,7 @@ jobs:
         uses: github/codeql-action/analyze@v1
 
       - name: Upload dist artifact
-        uses: actions/upload-artifact@v2.2.0
+        uses: actions/upload-artifact@v2.2.1
         with:
           name: dist
           path: dist/
