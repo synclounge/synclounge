@@ -31,7 +31,7 @@
     "@vue/cli-plugin-eslint": "^4.5.8",
     "@vue/cli-plugin-router": "^4.5.8",
     "@vue/cli-plugin-vuex": "^4.5.8",
-    "@vue/cli-service": "^4.5.8",
+    "@vue/cli-service": "^4.5.9",
     "@vue/eslint-config-airbnb": "^5.1.0",
     "babel-eslint": "^10.1.0",
     "caf": "^9.1.0",
