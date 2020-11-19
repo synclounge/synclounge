@@ -1,4 +1,4 @@
-import CAF from 'caf';
+import CAF from 'caf/dist/caf';
 
 import { getRandomPlexId } from '@/utils/random';
 import { fetchJson, queryFetch } from '@/utils/fetchutils';
