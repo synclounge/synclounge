@@ -17,7 +17,7 @@
     "prepare": "if-env SKIP_BUILD=true && echo 'Skipping build' || npm run build"
   },
   "dependencies": {
-    "nconf": "^0.10.0",
+    "nconf": "^0.11.0",
     "syncloungeserver": "^7.0.13"
   },
   "devDependencies": {
