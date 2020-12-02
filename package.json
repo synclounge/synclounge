@@ -44,7 +44,7 @@
     "fast-xml-parser": "^3.17.4",
     "husky": "^4.3.0",
     "lint-staged": "^10.5.2",
-    "mux.js": "^5.6.7",
+    "mux.js": "^5.7.0",
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
     "shaka-player": "^3.0.6",
