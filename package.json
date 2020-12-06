@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "nconf": "^0.11.0",
-    "syncloungeserver": "^7.0.13"
+    "syncloungeserver": "^8.0.9"
   },
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.12.1",
@@ -48,7 +48,7 @@
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
     "shaka-player": "^3.0.6",
-    "socket.io-client": "^2.3.1",
+    "socket.io-client": "^3.0.1",
     "string-similarity": "^4.0.3",
     "stylelint": "^13.8.0",
     "stylelint-config-standard": "^20.0.0",
