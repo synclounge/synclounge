@@ -83,7 +83,7 @@ export default {
     ?.find(({ streamType, selected }) => streamType === 3 && selected),
 
   CAN_DIRECT_PLAY_SUBTITLES: (state, getters) => {
-    if (getters.SHOULD_FORCE_BURN_SUBTITLES) {
+    if (!state.allowDirectPlay || getters.SHOULD_FORCE_BURN_SUBTITLES) {
       return false;
     }
 
@@ -93,6 +93,10 @@ export default {
   },
 
   CAN_DIRECT_PLAY: (state, getters, rootState, rootGetters) => {
+    if (!state.allowDirectPlay || getters.GET_FORCE_TRANSCODE) {
+      return false;
+    }
+
     if (!isContainerSupported(getters.GET_PART)) {
       console.log(`CAN_DIRECT_PLAY: container not supported: ${getters.GET_PART.container}`);
       return false;

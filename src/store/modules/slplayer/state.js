@@ -34,6 +34,7 @@ const state = () => ({
   streamingProtocol: 'dash',
   forceTranscodeRetry: false,
   forceBurnSubtitles: false,
+  allowDirectPlay: true,
 });
 
 export default state;

@@ -33,6 +33,27 @@
 
         <v-list-item
           three-line
+          @click="SET_ALLOW_DIRECT_PLAY(!allowDirectPlay)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>Allow Direct Play</v-list-item-title>
+            <v-list-item-subtitle>
+              Allow direct play when available
+            </v-list-item-subtitle>
+          </v-list-item-content>
+
+          <v-list-item-action>
+            <v-switch
+              hide-details
+              :input-value="allowDirectPlay"
+              @change="SET_ALLOW_DIRECT_PLAY"
+              @click.stop
+            />
+          </v-list-item-action>
+        </v-list-item>
+
+        <v-list-item
+          three-line
           @click="SET_SLPLAYERFORCETRANSCODE(!GET_SLPLAYERFORCETRANSCODE)"
         >
           <v-list-item-content>
@@ -364,6 +385,7 @@ export default {
 
     ...mapState('slplayer', [
       'forceBurnSubtitles',
+      'allowDirectPlay',
     ]),
 
     username() {
@@ -411,6 +433,7 @@ export default {
     ...mapMutations('slplayer', [
       'SET_STREAMING_PROTOCOL',
       'SET_FORCE_BURN_SUBTITLES',
+      'SET_ALLOW_DIRECT_PLAY',
     ]),
 
     ...mapMutations('synclounge', [
