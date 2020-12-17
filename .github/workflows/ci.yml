@@ -46,7 +46,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1.0.3
+        uses: docker/setup-buildx-action@v1.0.4
         with:
           version: latest
           driver-opts: network=host
@@ -84,7 +84,7 @@ jobs:
 
       - name: Build and push
         id: docker-build
-        uses: docker/build-push-action@v2.2.0
+        uses: docker/build-push-action@v2.2.1
         with:
           push: true
           builder: ${{ steps.buildx.outputs.name }}
