@@ -110,4 +110,8 @@ export default {
   SET_FORCE_BURN_SUBTITLES: (state, forceBurn) => {
     state.forceBurnSubtitles = forceBurn;
   },
+
+  SET_ALLOW_DIRECT_PLAY: (state, allow) => {
+    state.allowDirectPlay = allow;
+  },
 };
