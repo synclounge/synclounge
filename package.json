@@ -34,7 +34,7 @@
     "@vue/cli-service": "^4.5.10",
     "@vue/eslint-config-airbnb": "^5.3.0",
     "babel-eslint": "^10.1.0",
-    "caf": "^10.0.5",
+    "caf": "^11.0.0",
     "core-js": "^3.8.3",
     "date-fns": "^2.16.1",
     "detect-browser": "^5.2.0",
