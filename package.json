@@ -50,7 +50,7 @@
     "shaka-player": "^3.0.7",
     "socket.io-client": "^3.1.0",
     "string-similarity": "^4.0.4",
-    "stylelint": "^13.8.0",
+    "stylelint": "^13.9.0",
     "stylelint-config-standard": "^20.0.0",
     "synclounge-libjass": "^1.0.0",
     "vanilla-tilt": "^1.7.0",
