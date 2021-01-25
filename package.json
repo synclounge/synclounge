@@ -28,7 +28,7 @@
     "@delucis/if-env": "^1.1.2",
     "@samhammer/vue-cli-plugin-stylelint": "^2.0.1",
     "@vue/cli-plugin-babel": "^4.5.10",
-    "@vue/cli-plugin-eslint": "^4.5.10",
+    "@vue/cli-plugin-eslint": "^4.5.11",
     "@vue/cli-plugin-router": "^4.5.10",
     "@vue/cli-plugin-vuex": "^4.5.10",
     "@vue/cli-service": "^4.5.10",
