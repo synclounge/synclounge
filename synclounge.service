@@ -1,0 +1,15 @@
+[Unit]
+Description=SyncLounge
+After=network.target
+
+[Service]
+Type=simple
+#user running synclounge
+User=root
+#updates to the latest version before starting
+ExecStartPre=/usr/bin/npm install -g synclounge
+ExecStart=/usr/bin/synclounge --config-file /opt/synclounge/settings.json
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
