@@ -108,7 +108,15 @@ docker pull synclounge/synclounge
 docker run -p 8088:8088 synclounge/synclounge:latest
 ```
 
-You can use environment variables to change any of the [default configuration](https://github.com/synclounge/synclounge/blob/master/config/defaults.js).
+You can use environment variables to change any of the [default configuration](https://github.com/synclounge/synclounge/blob/master/config/defaults.js).  
+Note that nested objects and arrays can be passed as environment variables in the following way:
+
+```
+AUTHENTICATION='{"mechanism":"plex","type":["server"],"authorized":["MACHINE_ID"]}'
+
+SERVERS='[{"name":"My Server","location":"Mothership","url":"https://myserver.com","image":"https://myserver.com/myimage.jpg"}]'
+```
+
 
 #### Linux (Without Docker)
 
