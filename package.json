@@ -24,7 +24,7 @@
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
     "@babel/plugin-proposal-optional-chaining": "^7.13.8",
     "@commitlint/cli": "^11.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/config-conventional": "^12.1.4",
     "@delucis/if-env": "^1.1.2",
     "@samhammer/vue-cli-plugin-stylelint": "^2.0.1",
     "@vue/cli-plugin-babel": "^4.5.11",
