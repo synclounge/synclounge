@@ -51,7 +51,7 @@
     "socket.io-client": "^4.1.2",
     "string-similarity": "^4.0.4",
     "stylelint": "^13.13.1",
-    "stylelint-config-standard": "^20.0.0",
+    "stylelint-config-standard": "^22.0.0",
     "synclounge-libjass": "^1.0.0",
     "vanilla-tilt": "^1.7.0",
     "vue": "^2.6.14",
