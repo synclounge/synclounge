@@ -1,4 +1,4 @@
-import CAF from 'caf/dist/caf';
+import CAF from 'caf';
 import eventhandlers from '@/store/modules/synclounge/eventhandlers';
 import { combineUrl, combineRelativeUrlParts } from '@/utils/combineurl';
 import { fetchJson } from '@/utils/fetchutils';
