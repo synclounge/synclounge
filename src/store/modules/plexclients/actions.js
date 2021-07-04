@@ -1,4 +1,4 @@
-import CAF from 'caf/dist/caf';
+import CAF from 'caf';
 import promiseutils from '@/utils/promiseutils';
 import contentTitleUtils from '@/utils/contenttitleutils';
 import { fetchXmlAndTransform } from '@/utils/fetchutils';
