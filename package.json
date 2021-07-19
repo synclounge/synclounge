@@ -38,7 +38,7 @@
     "core-js": "^3.15.2",
     "date-fns": "^2.22.1",
     "detect-browser": "^5.2.0",
-    "eslint": "^7.29.0",
+    "eslint": "^7.31.0",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-vue": "^7.13.0",
     "fast-xml-parser": "^3.18.0",
