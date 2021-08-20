@@ -39,7 +39,7 @@
     "date-fns": "^2.23.0",
     "detect-browser": "^5.2.0",
     "eslint": "^7.32.0",
-    "eslint-plugin-import": "^2.24.0",
+    "eslint-plugin-import": "^2.24.1",
     "eslint-plugin-vue": "^7.16.0",
     "fast-xml-parser": "^3.18.0",
     "husky": "^7.0.1",
