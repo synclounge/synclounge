@@ -26,7 +26,7 @@
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-conventional": "^12.1.4",
     "@delucis/if-env": "^1.1.2",
-    "@samhammer/vue-cli-plugin-stylelint": "^2.0.1",
+    "@samhammer/vue-cli-plugin-stylelint": "^2.1.0",
     "@vue/cli-plugin-babel": "^4.5.13",
     "@vue/cli-plugin-eslint": "^4.5.13",
     "@vue/cli-plugin-router": "^4.5.13",
