@@ -48,7 +48,7 @@
     "sass": "^1.43.2",
     "sass-loader": "^10.1.1",
     "shaka-player": "^3.2.1",
-    "socket.io-client": "^4.3.0",
+    "socket.io-client": "^4.3.2",
     "string-similarity": "^4.0.4",
     "stylelint": "^13.13.1",
     "stylelint-config-standard": "^22.0.0",
