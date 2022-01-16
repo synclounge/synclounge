@@ -170,12 +170,12 @@ export default {
 
   GET_AUDIO_STREAM_ID: (state, getters) => {
     const selectedAudioStream = getters.GET_DECISION_STREAMS
-      .find((stream) => stream.streamType === '2' && stream.selected === '1');
+      .find((stream) => stream.streamType === 2 && stream.selected);
     return selectedAudioStream ? parseInt(selectedAudioStream.id, 10) : 0;
   },
 
   GET_SUBTITLE_STREAM: (state, getters) => getters.GET_DECISION_STREAMS
-    .find((stream) => stream.streamType === '3' && stream.selected === '1'),
+    .find((stream) => stream.streamType === 3 && stream.selected),
 
   GET_SUBTITLE_STREAM_ID: (state, getters) => (getters.GET_SUBTITLE_STREAM
     ? parseInt(getters.GET_SUBTITLE_STREAM.id, 10)
