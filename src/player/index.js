@@ -2,6 +2,8 @@ import {
   getPlayer, setPlayer, getOverlay, setOverlay,
 } from './state';
 
+let cachedDuration = 0;
+
 // eslint-disable-next-line no-underscore-dangle
 export const areControlsShown = () => !getOverlay() || (getOverlay()?.getControls().enabled_
     && (getOverlay()?.getControls().getControlsContainer().getAttribute('shown') != null
@@ -28,7 +30,13 @@ export const getCurrentTime = () => getPlayer()?.getMediaElement().currentTime;
 export const getCurrentTimeMs = () => getPlayer()?.getMediaElement()
   .currentTime * 1000;
 
-export const getDurationMs = () => getPlayer().getMediaElement().duration * 1000;
+export const getDurationMs = () => {
+  const { duration } = getPlayer().getMediaElement();
+  if (!Number.isNaN(duration)) {
+    cachedDuration = duration * 1000;
+  }
+  return cachedDuration;
+};
 
 export const getVolume = () => getPlayer().getMediaElement().volume;
 
