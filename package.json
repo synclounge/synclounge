@@ -62,7 +62,7 @@
     "vuetify": "^2.3.19",
     "vuetify-loader": "^1.7.3",
     "vuex": "^3.6.2",
-    "vuex-persistedstate": "^3.2.0"
+    "vuex-persistedstate": "^4.1.0"
   },
   "bugs": {
     "url": "https://github.com/synclounge/synclounge/issues"
