@@ -100,7 +100,7 @@ jobs:
 
     steps:
       - name: Recreate tag
-        uses: actions/github-script@v4.1.1
+        uses: actions/github-script@v6.1.0
         with:
           script: |
             const tag = 'tags/${{ matrix.tag }}';
@@ -108,8 +108,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             };
-            await github.git.deleteRef({ ...repo, ref: tag }).catch(() => {});
-            await github.git.createRef({ ...repo, ref: `refs/${tag}` , sha: process.env.GITHUB_SHA });
+            await github.rest.git.deleteRef({ ...repo, ref: tag }).catch(() => {});
+            await github.rest.git.createRef({ ...repo, ref: `refs/${tag}` , sha: process.env.GITHUB_SHA });
 
   release-docker:
     needs: release-semantic
@@ -130,10 +130,10 @@ jobs:
 
       - name: Repo metadata
         id: repo
-        uses: actions/github-script@v4.1.1
+        uses: actions/github-script@v6.1.0
         with:
           script: |
-            const repo = await github.repos.get(context.repo)
+            const repo = await github.rest.repos.get(context.repo)
             return repo.data
 
       - name: Prepare
@@ -154,7 +154,7 @@ jobs:
         run: echo ${{ steps.buildx.outputs.platforms }}
 
       - name: Get platforms
-        uses: actions/github-script@v4.1.1
+        uses: actions/github-script@v6.1.0
         id: platforms
         env:
           DOCKER_CLI_EXPERIMENTAL: enabled

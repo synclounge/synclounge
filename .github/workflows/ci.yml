@@ -30,10 +30,10 @@ jobs:
 
       - name: Repo metadata
         id: repo
-        uses: actions/github-script@v4.1.1
+        uses: actions/github-script@v6.1.0
         with:
           script: |
-            const repo = await github.repos.get(context.repo)
+            const repo = await github.rest.repos.get(context.repo)
             return repo.data
 
       - name: Prepare
@@ -55,7 +55,7 @@ jobs:
         run: echo ${{ steps.buildx.outputs.platforms }}
 
       - name: Get platforms
-        uses: actions/github-script@v4.1.1
+        uses: actions/github-script@v6.1.0
         id: platforms
         env:
           DOCKER_CLI_EXPERIMENTAL: enabled

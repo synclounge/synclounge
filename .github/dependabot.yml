@@ -6,6 +6,9 @@ updates:
       interval: "daily"
     versioning-strategy: increase
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
 
   - package-ecosystem: "github-actions"
     directory: "/"
