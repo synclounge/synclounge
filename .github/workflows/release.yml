@@ -82,7 +82,7 @@ jobs:
 
       - name: Semantic release
         id: release
-        uses: ahmadnassri/action-semantic-release@v2.1.7
+        uses: ahmadnassri/action-semantic-release@v2.1.9
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
