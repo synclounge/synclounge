@@ -47,7 +47,7 @@
     "mux.js": "^6.2.0",
     "sass": "^1.55.0",
     "sass-loader": "^10.1.1",
-    "shaka-player": "^3.3.1",
+    "shaka-player": "^4.2.1",
     "socket.io-client": "^4.5.2",
     "string-similarity": "^4.0.4",
     "stylelint": "^13.13.1",
