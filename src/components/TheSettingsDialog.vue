@@ -15,7 +15,7 @@
           @click="SET_AUTO_SKIP_INTRO(!GET_AUTO_SKIP_INTRO)"
         >
           <v-list-item-content>
-            <v-list-item-title>Auto Skip Into</v-list-item-title>
+            <v-list-item-title>Auto Skip Intro</v-list-item-title>
             <v-list-item-subtitle>
               Automatically skip the intros of media when available
             </v-list-item-subtitle>
