@@ -46,7 +46,7 @@
     "lint-staged": "^13.0.3",
     "mux.js": "^6.2.0",
     "sass": "^1.56.1",
-    "sass-loader": "^10.1.1",
+    "sass-loader": "^13.1.0",
     "shaka-player": "^3.3.1",
     "socket.io-client": "^4.5.3",
     "string-similarity": "^4.0.4",
