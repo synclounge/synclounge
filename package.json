@@ -54,7 +54,7 @@
     "stylelint-config-standard": "^22.0.0",
     "synclounge-libjass": "^1.0.0",
     "vanilla-tilt": "^1.8.0",
-    "vue": "^2.6.14",
+    "vue": "^3.2.47",
     "vue-chat-scroll": "^1.4.0",
     "vue-cli-plugin-vuetify": "^2.5.8",
     "vue-router": "^3.4.9",
