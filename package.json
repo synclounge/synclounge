@@ -43,7 +43,7 @@
     "eslint-plugin-vue": "^7.20.0",
     "fast-xml-parser": "^4.2.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.0",
+    "lint-staged": "^13.2.1",
     "mux.js": "^6.3.0",
     "sass": "^1.61.0",
     "sass-loader": "^10.1.1",
