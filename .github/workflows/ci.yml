@@ -112,4 +112,4 @@ jobs:
 
       - name: Dump context
         if: always()
-        uses: crazy-max/ghaction-dump-context@v2.0.0
+        uses: crazy-max/ghaction-dump-context@v2.1.0
