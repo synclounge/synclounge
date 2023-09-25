@@ -18,21 +18,31 @@ jobs:
 
     steps:
       - name: Checkout
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         uses: actions/checkout@v3.5.0
 
       - name: Setup Node.js ${{ matrix.node-version }}
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         uses: actions/setup-node@v3.6.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
 
       - name: Install dependencies
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         run: npm ci
         env:
           SKIP_BUILD: true
 
       - name: Lint
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         run: npm run lint -- --no-fix
 
       - name: Build
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         run: npm run build
