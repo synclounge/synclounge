@@ -94,7 +94,7 @@
           </v-list-item-action>
         </v-list-item>
 
-        <v-list-item @click="streamingProtocolSelectOpen=!streamingProtocolSelectOpen">
+        <v-list-item @click="streamingProtocolSelectOpen = !streamingProtocolSelectOpen">
           <v-list-item-content>
             <v-list-item-title>Streaming Protocol</v-list-item-title>
 
@@ -248,7 +248,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item @click="syncModeSelectOpen=!syncModeSelectOpen">
+        <v-list-item @click="syncModeSelectOpen = !syncModeSelectOpen">
           <v-list-item-content>
             <v-list-item-title>Syncing Method</v-list-item-title>
 
@@ -296,7 +296,7 @@
 
         <v-list-item
           three-line
-          @click="blockedServersSelectOpen=!blockedServersSelectOpen"
+          @click="blockedServersSelectOpen = !blockedServersSelectOpen"
         >
           <v-list-item-content>
             <v-list-item-title>Blocked Servers</v-list-item-title>

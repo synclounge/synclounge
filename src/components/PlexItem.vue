@@ -136,10 +136,10 @@
 
             <v-list-item
               :href="
-                'https://app.plex.tv/desktop#!/server/' +
-                  metadata.machineIdentifier +
-                  '/details?key=' +
-                  metadata.key
+                'https://app.plex.tv/desktop#!/server/'
+                  + metadata.machineIdentifier
+                  + '/details?key='
+                  + metadata.key
               "
               target="_blank"
             >

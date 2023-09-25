@@ -1,4 +1,7 @@
 // Inspired by https://stackoverflow.com/a/60187886
+const path = require('node:path');
+const createAliasSetting = require('@vue/eslint-config-airbnb/createAliasSetting');
+
 module.exports = {
   root: true,
   env: {
@@ -29,5 +32,11 @@ module.exports = {
     'vuejs-accessibility/media-has-caption': 'off',
     'vuejs-accessibility/click-events-have-key-events': 'off',
     'vue/no-v-text-v-html-on-component': 'off',
+    'vue/no-template-target-blank': 'off',
+  },
+  settings: {
+    ...createAliasSetting({
+      '@': `${path.resolve(__dirname, './src')}`,
+    }),
   },
 };

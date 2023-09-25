@@ -25,10 +25,13 @@
               :img="getArtLibrary(library)"
               v-bind="attrs"
               flat
-              :to="linkWithRoom({ name: 'PlexLibrary', params: {
-                machineIdentifier: machineIdentifier,
-                sectionId: library.key,
-              }})"
+              :to="linkWithRoom({
+                name: 'PlexLibrary',
+                params: {
+                  machineIdentifier: machineIdentifier,
+                  sectionId: library.key,
+                },
+              })"
               v-on="on"
             >
               <div class="hidden-xs-only pa-2">

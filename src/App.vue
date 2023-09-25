@@ -12,7 +12,7 @@
       <v-app-bar-nav-icon @click="SET_LEFT_SIDEBAR_OPEN" />
 
       <router-link
-        :to="{ name: 'RoomCreation'}"
+        :to="{ name: 'RoomCreation' }"
       >
         <picture>
           <source

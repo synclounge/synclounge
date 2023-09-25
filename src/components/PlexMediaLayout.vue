@@ -23,7 +23,7 @@
                       <v-img
                         :src="thumbUrl"
                         width="200"
-                        :aspect-ratio="2/3"
+                        :aspect-ratio="2 / 3"
                         class="hidden-sm-and-down"
                       />
                     </v-col>
