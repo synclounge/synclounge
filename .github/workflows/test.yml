@@ -14,17 +14,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [12, 14, 16]
+        node-version: [12, 14, 16, 20]
 
     steps:
       - name: Checkout
         # Temporarily skip older node-version checks until they are removed from required checks
-        if: ${{ matrix.node-version == 16 }}
+        if: ${{ matrix.node-version >= 16 }}
         uses: actions/checkout@v4.1.0
 
       - name: Setup Node.js ${{ matrix.node-version }}
         # Temporarily skip older node-version checks until they are removed from required checks
-        if: ${{ matrix.node-version == 16 }}
+        if: ${{ matrix.node-version >= 16 }}
         uses: actions/setup-node@v3.8.1
         with:
           node-version: ${{ matrix.node-version }}
@@ -32,17 +32,17 @@ jobs:
 
       - name: Install dependencies
         # Temporarily skip older node-version checks until they are removed from required checks
-        if: ${{ matrix.node-version == 16 }}
+        if: ${{ matrix.node-version >= 16 }}
         run: npm ci
         env:
           SKIP_BUILD: true
 
       - name: Lint
         # Temporarily skip older node-version checks until they are removed from required checks
-        if: ${{ matrix.node-version == 16 }}
+        if: ${{ matrix.node-version >= 16 }}
         run: npm run lint -- --no-fix
 
       - name: Build
         # Temporarily skip older node-version checks until they are removed from required checks
-        if: ${{ matrix.node-version == 16 }}
+        if: ${{ matrix.node-version >= 16 }}
         run: npm run build
