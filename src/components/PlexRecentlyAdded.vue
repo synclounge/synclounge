@@ -108,8 +108,10 @@ export default {
     },
 
     subsetRecentlyAdded() {
-      return this.recentlyAdded.slice(this.recentlyAddedOffset,
-        this.recentlyAddedOffset + this.recentItemsPer);
+      return this.recentlyAdded.slice(
+        this.recentlyAddedOffset,
+        this.recentlyAddedOffset + this.recentItemsPer,
+      );
     },
   },
 
