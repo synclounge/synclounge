@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "nconf": "^0.12.0",
-    "syncloungeserver": "^8.0.67"
+    "syncloungeserver": "^8.0.69"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.22.15",
