@@ -262,7 +262,7 @@ export default {
   font-size: 26px;
   opacity: 0.8;
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgb(0 0 0 / 70%);
 }
 
 .border-error {

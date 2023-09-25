@@ -86,7 +86,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import CAF from 'caf';
+import CAF from 'caf/core';
 import contentTitle from '@/mixins/contentTitle';
 import linkwithroom from '@/mixins/linkwithroom';
 import contentLink from '@/mixins/contentlink';

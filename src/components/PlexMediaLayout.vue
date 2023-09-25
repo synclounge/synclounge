@@ -6,7 +6,7 @@
           :img="artUrl"
         >
           <v-container
-            style="background: rgba(0, 0, 0, 0.7);"
+            style="background: rgb(0 0 0 / 70%);"
             fluid
           >
             <v-row no-gutters>

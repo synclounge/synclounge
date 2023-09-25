@@ -5,7 +5,7 @@
     <v-col
       cols="12"
       lg="10"
-      style="background: rgba(0, 0, 0, 0.1); border-radius: 10px;"
+      style="background: rgb(0 0 0 / 10%); border-radius: 10px;"
       class="pa-4"
     >
       <v-row
@@ -25,7 +25,7 @@
 
       <v-stepper
         v-model="e1"
-        style="background: rgba(0, 0, 0, 0.3);"
+        style="background: rgb(0 0 0 / 30%);"
         class="ma-4"
       >
         <v-stepper-header>

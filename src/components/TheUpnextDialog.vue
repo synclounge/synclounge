@@ -14,7 +14,7 @@
         align-center
         justify="start"
         class="pa-0"
-        style="background: rgba(0, 0, 0, 0.7);"
+        style="background: rgb(0 0 0 / 70%);"
       >
         <v-row
           no-gutters

@@ -40,7 +40,7 @@
               </div>
 
               <v-card-title
-                style="background: rgba(0, 0, 0, 0.7);"
+                style="background: rgb(0 0 0 / 70%);"
                 class="px-3 py-1"
               >
                 <div class="text-subtitle-1">
