@@ -133,7 +133,7 @@ jobs:
 
       - name: Build and push
         id: docker-build
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@v5.0.0
         with:
           push: true
           builder: ${{ steps.buildx.outputs.name }}
