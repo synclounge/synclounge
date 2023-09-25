@@ -31,7 +31,7 @@
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-plugin-router": "^5.0.8",
     "@vue/cli-plugin-vuex": "^5.0.8",
-    "@vue/cli-service": "^4.5.15",
+    "@vue/cli-service": "^5.0.8",
     "@vue/eslint-config-airbnb": "^5.3.0",
     "babel-eslint": "^10.1.0",
     "caf": "^15.0.1",
@@ -59,7 +59,7 @@
     "vue-cli-plugin-vuetify": "^2.5.8",
     "vue-router": "^3.4.9",
     "vue-template-compiler": "^2.6.14",
-    "vuetify": "^2.3.19",
+    "vuetify": "^2.7.1",
     "vuetify-loader": "^1.8.0",
     "vuex": "^3.6.2",
     "vuex-persistedstate": "^4.1.0"
