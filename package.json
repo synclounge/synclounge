@@ -40,7 +40,7 @@
     "detect-browser": "^5.3.0",
     "eslint": "^7.32.0",
     "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-vue": "^7.20.0",
+    "eslint-plugin-vue": "^9.17.0",
     "fast-xml-parser": "^4.3.1",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.1",
