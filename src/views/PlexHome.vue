@@ -39,7 +39,7 @@
       >
         <v-card
           :to="linkWithRoom(
-            { name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier }},
+            { name: 'PlexServer', params: { machineIdentifier: server.clientIdentifier } },
           )"
           style="background: rgb(0 0 0 / 60%);"
           :title="server.name"

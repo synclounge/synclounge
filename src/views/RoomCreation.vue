@@ -74,7 +74,7 @@
 
             <v-spacer />
 
-            <v-btn :to="{name: 'AdvancedRoomWalkthrough'}">
+            <v-btn :to="{ name: 'AdvancedRoomWalkthrough' }">
               Advanced
             </v-btn>
           </v-card-actions>

@@ -42,7 +42,7 @@
 
       <v-list-item
         :router="true"
-        :to="{name: 'SignOut'}"
+        :to="{ name: 'SignOut' }"
       >
         <v-list-item-icon>
           <v-icon>cancel</v-icon>
