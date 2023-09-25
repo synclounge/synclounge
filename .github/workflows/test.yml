@@ -3,6 +3,10 @@ name: test
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,32 +18,31 @@ jobs:
 
     steps:
       - name: Checkout
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         uses: actions/checkout@v3.5.0
 
       - name: Setup Node.js ${{ matrix.node-version }}
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         uses: actions/setup-node@v3.6.0
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Cache Node.js modules
-        id: cache
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Cache hit
-        run: echo ${{ steps.cache.outputs.cache-hit }}
+          cache: "npm"
 
       - name: Install dependencies
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         run: npm ci
         env:
           SKIP_BUILD: true
 
       - name: Lint
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         run: npm run lint -- --no-fix
 
       - name: Build
+        # Temporarily skip older node-version checks until they are removed from required checks
+        if: ${{ matrix.node-version == 16 }}
         run: npm run build

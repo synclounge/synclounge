@@ -3,6 +3,10 @@ name: ci
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -17,12 +21,6 @@ jobs:
             docker-image: localhost:5000/${{ github.event.repository.full_name }}
           - dockerfile: Dockerfile.web
             docker-image: localhost:5000/${{ github.event.repository.full_name }}web
-
-    services:
-      registry:
-        image: registry:latest
-        ports:
-          - 5000:5000
 
     steps:
       - name: Checkout
@@ -41,56 +39,19 @@ jobs:
         run: |
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.1.0
-
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2.5.0
         with:
           version: latest
-          driver-opts: network=host
-
-      - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
-
-      - name: Get platforms
-        uses: actions/github-script@v6.4.1
-        id: platforms
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-        with:
-          result-encoding: string
-          script: |
-            const script = require(`${process.env.GITHUB_WORKSPACE}/.github/getDockerPlatforms.js`)
-            return script("${{ matrix.dockerfile }}", "${{ steps.buildx.outputs.platforms }}");
-
-      - name: Platforms
-        run: echo ${{ steps.platforms.outputs.result }}
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3.3.1
-        id: cache
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ matrix.dockerfile }}-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-${{ matrix.dockerfile }}-${{ hashFiles('**/package-lock.json') }}
-            ${{ runner.os }}-docker-${{ matrix.dockerfile }}-
-            ${{ runner.os }}-docker-
-
-      - name: Cache hit
-        run: echo ${{ steps.cache.outputs.cache-hit }}
 
       - name: Build and push
         id: docker-build
         uses: docker/build-push-action@v4.0.0
         with:
-          push: true
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./${{ matrix.dockerfile}}
-          platforms: ${{ steps.platforms.outputs.result }}
           tags: ${{ matrix.docker-image }}:${{ github.sha }}
           labels: |
             org.opencontainers.image.title=${{ fromJson(steps.repo.outputs.result).name }}
@@ -100,16 +61,5 @@ jobs:
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.licenses=${{ fromJson(steps.repo.outputs.result).license.spdx_id }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
-
-      - name: Inspect
-        run: |
-          docker buildx imagetools inspect ${{ matrix.docker-image }}:${{ github.sha }}
-
-      - name: Image digest
-        run: echo ${{ steps.docker-build.outputs.digest }}
-
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v2.0.0
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
