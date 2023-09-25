@@ -126,7 +126,8 @@ export default {
     getters.GET_TIMELINE_URL,
     {
       ...await dispatch('MAKE_TIMELINE_PARAMS'),
-      ...extraParams,
+      ...(extraParams.state !== undefined && { state: extraParams.state }),
+      ...(extraParams.continuing !== undefined && { continuing: extraParams.continuing }),
     },
     { signal },
   ),

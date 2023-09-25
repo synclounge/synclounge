@@ -2,8 +2,8 @@ export const makeUrl = (url, params) => {
   if (!params) {
     return url;
   }
-
-  return `${url}?${new URLSearchParams(params)}`;
+  const queryStr = (new URLSearchParams(params)).toString();
+  return `${url}?${queryStr}`;
 };
 
 const safeFetch = async (...args) => {
