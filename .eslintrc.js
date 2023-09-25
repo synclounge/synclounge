@@ -28,5 +28,6 @@ module.exports = {
     'vuejs-accessibility/label-has-for': 'off',
     'vuejs-accessibility/media-has-caption': 'off',
     'vuejs-accessibility/click-events-have-key-events': 'off',
+    'vue/no-v-text-v-html-on-component': 'off',
   },
 };
