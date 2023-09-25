@@ -45,7 +45,7 @@
     "husky": "^8.0.3",
     "lint-staged": "^13.2.1",
     "mux.js": "^6.3.0",
-    "sass": "^1.62.1",
+    "sass": "^1.68.0",
     "sass-loader": "^10.1.1",
     "shaka-player": "^3.3.1",
     "socket.io-client": "^4.6.1",
