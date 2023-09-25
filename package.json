@@ -21,6 +21,7 @@
     "syncloungeserver": "^8.0.67"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.22.15",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.18.6",
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@commitlint/cli": "^17.7.1",
@@ -32,13 +33,12 @@
     "@vue/cli-plugin-router": "^5.0.8",
     "@vue/cli-plugin-vuex": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
-    "@vue/eslint-config-airbnb": "^5.3.0",
-    "babel-eslint": "^10.1.0",
+    "@vue/eslint-config-airbnb": "^6.0.0",
     "caf": "^15.0.1",
     "core-js": "^3.32.2",
     "date-fns": "^2.30.0",
     "detect-browser": "^5.3.0",
-    "eslint": "^7.32.0",
+    "eslint": "^8.50.0",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-vue": "^7.20.0",
     "fast-xml-parser": "^4.3.1",
