@@ -17,18 +17,7 @@ jobs:
         uses: actions/setup-node@v3.6.0
         with:
           node-version: 16
-
-      - name: Cache Node.js modules
-        id: cache
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Cache hit
-        run: echo ${{ steps.cache.outputs.cache-hit }}
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -54,6 +43,7 @@ jobs:
         uses: actions/setup-node@v3.6.0
         with:
           node-version: 16
+          cache: "npm"
 
       - name: Turnstyle
         uses: softprops/turnstyle@v1
@@ -62,18 +52,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3.5.0
-
-      - name: Cache Node.js modules
-        id: cache
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Cache hit
-        run: echo ${{ steps.cache.outputs.cache-hit }}
 
       - name: Install dependencies
         run: npm ci
@@ -147,20 +125,6 @@ jobs:
         with:
           version: latest
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3.3.1
-        id: cache
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ matrix.dockerfile }}-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-${{ matrix.dockerfile }}-${{ hashFiles('**/package-lock.json') }}
-            ${{ runner.os }}-docker-${{ matrix.dockerfile }}-
-            ${{ runner.os }}-docker-
-
-      - name: Cache hit
-        run: echo ${{ steps.cache.outputs.cache-hit }}
-
       - name: Login to DockerHub
         uses: docker/login-action@v2.1.0
         with:
@@ -189,8 +153,8 @@ jobs:
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.licenses=${{ fromJson(steps.repo.outputs.result).license.spdx_id }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             VERSION=${{ needs.release-semantic.outputs.release-version }}
 

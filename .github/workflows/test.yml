@@ -20,18 +20,7 @@ jobs:
         uses: actions/setup-node@v3.6.0
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Cache Node.js modules
-        id: cache
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Cache hit
-        run: echo ${{ steps.cache.outputs.cache-hit }}
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
