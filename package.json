@@ -36,7 +36,7 @@
     "babel-eslint": "^10.1.0",
     "caf": "^15.0.1",
     "core-js": "^3.32.2",
-    "date-fns": "^2.29.3",
+    "date-fns": "^2.30.0",
     "detect-browser": "^5.3.0",
     "eslint": "^7.32.0",
     "eslint-plugin-import": "^2.28.1",
