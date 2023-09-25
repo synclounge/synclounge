@@ -65,6 +65,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_unsafe_perm: true
+          NODE_OPTIONS: --openssl-legacy-provider
 
   release-alias:
     needs: release-semantic
