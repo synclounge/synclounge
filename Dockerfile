@@ -1,38 +1,38 @@
 # build environment
-FROM --platform=$BUILDPLATFORM node:16.20.2-alpine3.18 as build-stage
+FROM --platform=$BUILDPLATFORM node:20.7.0-alpine3.18 as build-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache python3 make g++
 USER node
-COPY --chown=node:node package*.json ./
+COPY --link --chown=1000:1000 package*.json ./
 RUN SKIP_BUILD=true npm ci
-COPY --chown=node:node . .
+COPY --link --chown=1000:1000 . .
 
 ARG VERSION
 
 RUN npm run build
 
 # dependency environment
-FROM node:16.20.2-alpine3.18 as dependency-stage
+FROM node:20.7.0-alpine3.18 as dependency-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache python3 make g++
 USER node
-COPY --chown=node:node package*.json ./
+COPY --link --chown=1000:1000 package*.json ./
 RUN SKIP_BUILD=true npm ci
 RUN npm prune --production
 
 # production environment
-FROM node:16.20.2-alpine3.18 as production-stage
+FROM node:20.7.0-alpine3.18 as production-stage
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 RUN apk add --no-cache tini
 
 USER node
-COPY --chown=node:node server.js .
-COPY --chown=node:node config config
-COPY --chown=node:node --from=dependency-stage /app/node_modules node_modules
-COPY --chown=node:node --from=build-stage /app/dist dist
+COPY --link --chown=1000:1000 server.js .
+COPY --link --chown=1000:1000 config config
+COPY --link --chown=1000:1000 --from=dependency-stage /app/node_modules node_modules
+COPY --link --chown=1000:1000 --from=build-stage /app/dist dist
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/app/server.js"]
