@@ -231,7 +231,6 @@ export default {
       return {
         streaming: {
           bufferingGoal: this.GET_CONFIG.slplayer_buffering_goal,
-          jumpLargeGaps: true,
         },
       };
     },
