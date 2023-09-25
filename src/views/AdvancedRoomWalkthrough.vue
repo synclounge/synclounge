@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-col
       lg="8"
-      style="background: rgba(0, 0, 0, 0.1); border-radius: 10px;"
+      style="background: rgb(0 0 0 / 10%); border-radius: 10px;"
       class="pa-4"
     >
       <v-row justify="center">
@@ -19,7 +19,7 @@
 
       <v-stepper
         v-model="e1"
-        style="background: rgba(0, 0, 0, 0.3); color: white !important; border-radius: 20px;"
+        style="background: rgb(0 0 0 / 30%); color: white !important; border-radius: 20px;"
         class="ma-4"
       >
         <v-stepper-header>

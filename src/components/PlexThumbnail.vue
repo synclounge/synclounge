@@ -41,7 +41,7 @@
               style="position: absolute;
                     top: 0;
                     right: 0;
-                    background-color: rgba(43, 43, 191, 0.8);
+                    background-color: rgb(43 43 191 / 80%);
                     min-width: 16px;
                     min-height: 16px;"
               class="pa-1 text-body-2"
@@ -337,6 +337,6 @@ export default {
   top: 0;
   text-align: right;
   right: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgb(0 0 0 / 50%);
 }
 </style>

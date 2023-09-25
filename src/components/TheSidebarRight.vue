@@ -188,6 +188,6 @@ export default {
 
 .participant-count {
   font-size: 0.8em;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgb(255 255 255 / 70%);
 }
 </style>

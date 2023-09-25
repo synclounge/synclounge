@@ -1,22 +1,22 @@
 $material-dark-elevation-colors: (
-  '0': #151924,
-  '1': #171b26,
-  '2': #1a1e28,
-  '3': #1c202b,
-  '4': #1e222d,
-  '6': #232731,
-  '8': #282b36,
-  '12': #31353e,
-  '16': #3a3e47,
-  '24': #4d5059
+  "0": #151924,
+  "1": #171b26,
+  "2": #1a1e28,
+  "3": #1c202b,
+  "4": #1e222d,
+  "6": #232731,
+  "8": #282b36,
+  "12": #31353e,
+  "16": #3a3e47,
+  "24": #4d5059
 );
 
 $material-dark: (
-  'surface': #151924,
-  'app-bar': map-get($material-dark-elevation-colors, '4'),
-  'bottom-navigation': map-get($material-dark-elevation-colors, '8'),
-  'cards': map-get($material-dark-elevation-colors, '1'),
-  // This elevation is different. Normally its 16
-  'navigation-drawer': map-get($material-dark-elevation-colors, '8'),
-  'toolbar': map-get($material-dark-elevation-colors, '4'),
+  "surface": #151924,
+  "app-bar": map-get($material-dark-elevation-colors, "4"),
+  "bottom-navigation": map-get($material-dark-elevation-colors, "8"),
+  "cards": map-get($material-dark-elevation-colors, "1"),
+  
+  "navigation-drawer": map-get($material-dark-elevation-colors, "8"),
+  "toolbar": map-get($material-dark-elevation-colors, "4"),
 );
