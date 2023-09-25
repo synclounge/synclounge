@@ -255,8 +255,10 @@ export default {
     await this.FETCH_SERVERS_HEALTH();
 
     // TODO: rewrite this with a generator
-    this.testConnectionInterval = setInterval(() => this.FETCH_SERVERS_HEALTH(),
-      5000);
+    this.testConnectionInterval = setInterval(
+      () => this.FETCH_SERVERS_HEALTH(),
+      5000,
+    );
   },
 
   methods: {

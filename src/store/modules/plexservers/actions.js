@@ -11,11 +11,7 @@ const playQueueParams = {
   includeExternalMedia: 1,
 };
 
-const searchHubs = [
-  'movie',
-  'show',
-  'episode',
-];
+const searchHubs = ['movie', 'show', 'episode'];
 
 export default {
   FETCH_RANDOM_SECTION_ID: async ({ getters }, machineIdentifier) => {
@@ -37,8 +33,10 @@ export default {
     return machineIdentifier;
   },
 
-  FETCH_RANDOM_LIBRARY_ITEM: async ({ getters, dispatch },
-    { machineIdentifier, sectionId, signal }) => {
+  FETCH_RANDOM_LIBRARY_ITEM: async (
+    { getters, dispatch },
+    { machineIdentifier, sectionId, signal },
+  ) => {
     const randomItemIndex = randomInt(
       getters.GET_SERVER_LIBRARY_SIZE({ machineIdentifier, sectionId }) - 1,
     );
@@ -55,10 +53,12 @@ export default {
   },
 
   FETCH_RANDOM_ITEM: async ({ dispatch }, { machineIdentifier, sectionId, signal } = {}) => {
-    const chosenServerId = machineIdentifier || await dispatch('FETCH_RANDOM_SERVER');
+    const chosenServerId = machineIdentifier || (await dispatch('FETCH_RANDOM_SERVER'));
 
-    const chosenSectionId = sectionId
-    || await dispatch('FETCH_RANDOM_SECTION_ID', chosenServerId);
+    const chosenSectionId = sectionId || (await dispatch(
+      'FETCH_RANDOM_SECTION_ID',
+      chosenServerId,
+    ));
 
     const item = await dispatch('FETCH_RANDOM_LIBRARY_ITEM', {
       machineIdentifier: chosenServerId,
@@ -72,34 +72,48 @@ export default {
     };
   },
 
-  FETCH_PLEX_SERVER: ({ getters, rootGetters }, {
-    machineIdentifier, path, params, manualConnection, ...rest
-  }) => {
-    const { accessToken, chosenConnection: { uri } } = manualConnection
-     || getters.GET_PLEX_SERVER(machineIdentifier);
+  FETCH_PLEX_SERVER: (
+    { getters, rootGetters },
+    {
+      machineIdentifier, path, params, manualConnection, ...rest
+    },
+  ) => {
+    const {
+      accessToken,
+      chosenConnection: { uri },
+    } = manualConnection || getters.GET_PLEX_SERVER(machineIdentifier);
 
     return fetchJson(
-      `${uri}${path}`, {
+      `${uri}${path}`,
+      {
         ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
         ...params,
-      }, rest,
+      },
+      rest,
     );
   },
 
   QUERY_PLEX_SERVER: ({ getters, rootGetters }, {
     machineIdentifier, path, params, ...rest
   }) => {
-    const { accessToken, chosenConnection: { uri } } = getters.GET_PLEX_SERVER(machineIdentifier);
+    const {
+      accessToken,
+      chosenConnection: { uri },
+    } = getters.GET_PLEX_SERVER(machineIdentifier);
     return queryFetch(
-      `${uri}${path}`, {
+      `${uri}${path}`,
+      {
         ...rootGetters['plex/GET_PLEX_BASE_PARAMS'](accessToken),
         ...params,
-      }, rest,
+      },
+      rest,
     );
   },
 
   SEARCH_PLEX_SERVER: async ({ dispatch }, { query, machineIdentifier, signal }) => {
-    const { MediaContainer: { Metadata } } = await dispatch('FETCH_PLEX_SERVER', {
+    const {
+      MediaContainer: { Metadata },
+    } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: '/search',
       params: {
@@ -119,7 +133,11 @@ export default {
   },
 
   FETCH_PLEX_METADATA: async ({ dispatch }, { ratingKey, machineIdentifier, signal }) => {
-    const { MediaContainer: { Metadata: [item] } } = await dispatch('FETCH_PLEX_SERVER', {
+    const {
+      MediaContainer: {
+        Metadata: [item],
+      },
+    } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: `/library/metadata/${ratingKey}`,
       params: {
@@ -148,13 +166,13 @@ export default {
 
   SEARCH_UNBLOCKED_PLEX_SERVERS: ({ getters, dispatch }, query) => Promise.allSettled(
     getters.GET_UNBLOCKED_PLEX_SERVER_IDS.map((machineIdentifier) => dispatch(
-      'SEARCH_PLEX_SERVER', {
+      'SEARCH_PLEX_SERVER',
+      {
         machineIdentifier,
         query,
       },
     )),
-  ).then((results) => results.filter((result) => result.status === 'fulfilled')
-    .flatMap((result) => result.value)),
+  ).then((results) => results.filter((r) => r.status === 'fulfilled').flatMap((r) => r.value)),
 
   FIND_BEST_MEDIA_MATCH: async ({ getters, dispatch }, hostTimeline) => {
     // If we have access the same server, play same content
@@ -179,10 +197,11 @@ export default {
       return null;
     }
 
-    const bestResult = results.map((result) => ({
-      result,
-      score: scoreMedia(result, hostTimeline),
-    }))
+    const bestResult = results
+      .map((result) => ({
+        result,
+        score: scoreMedia(result, hostTimeline),
+      }))
       .reduce((prev, current) => (prev.score > current.score ? prev : current)).result;
 
     const metadata = await dispatch('FETCH_PLEX_METADATA', {
@@ -196,7 +215,9 @@ export default {
   FETCH_ON_DECK: async ({ dispatch }, {
     machineIdentifier, start, size, signal,
   }) => {
-    const { MediaContainer: { Metadata } } = await dispatch('FETCH_PLEX_SERVER', {
+    const {
+      MediaContainer: { Metadata },
+    } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: '/library/onDeck',
       params: {
@@ -206,14 +227,18 @@ export default {
       signal,
     });
 
-    return Metadata?.map((item) => ({
-      machineIdentifier,
-      ...item,
-    })) || [];
+    return (
+      Metadata?.map((item) => ({
+        machineIdentifier,
+        ...item,
+      })) || []
+    );
   },
 
   FETCH_ALL_LIBRARIES: async ({ dispatch }, { machineIdentifier, signal, ...rest }) => {
-    const { MediaContainer: { Directory } } = await dispatch('FETCH_PLEX_SERVER', {
+    const {
+      MediaContainer: { Directory },
+    } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: '/library/sections',
       signal,
@@ -239,21 +264,28 @@ export default {
   },
 
   FETCH_RECENTLY_ADDED_MEDIA: async ({ dispatch }, { machineIdentifier, signal }) => {
-    const { MediaContainer: { Metadata } } = await dispatch('FETCH_PLEX_SERVER', {
+    const {
+      MediaContainer: { Metadata },
+    } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: '/library/recentlyAdded',
       signal,
     });
 
-    return Metadata?.map((item) => ({
-      machineIdentifier,
-      ...item,
-    })) || [];
+    return (
+      Metadata?.map((item) => ({
+        machineIdentifier,
+        ...item,
+      })) || []
+    );
   },
 
-  FETCH_CHILDREN_CONTAINER: async ({ dispatch }, {
-    machineIdentifier, ratingKey, start, size, excludeAllLeaves, signal,
-  }) => {
+  FETCH_CHILDREN_CONTAINER: async (
+    { dispatch },
+    {
+      machineIdentifier, ratingKey, start, size, excludeAllLeaves, signal,
+    },
+  ) => {
     const { MediaContainer } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: `/library/metadata/${ratingKey}/children`,
@@ -268,11 +300,12 @@ export default {
     // Add librarySectionID to all children
     return {
       ...MediaContainer,
-      Metadata: MediaContainer.Metadata?.map((child) => ({
-        librarySectionID: MediaContainer.librarySectionID,
-        machineIdentifier,
-        ...child,
-      })) || [],
+      Metadata:
+        MediaContainer.Metadata?.map((child) => ({
+          librarySectionID: MediaContainer.librarySectionID,
+          machineIdentifier,
+          ...child,
+        })) || [],
     };
   },
 
@@ -285,7 +318,9 @@ export default {
     machineIdentifier, ratingKey, count, signal,
   }) => {
     try {
-      const { MediaContainer: { Hub, librarySectionID } } = await dispatch('FETCH_PLEX_SERVER', {
+      const {
+        MediaContainer: { Hub, librarySectionID },
+      } = await dispatch('FETCH_PLEX_SERVER', {
         machineIdentifier,
         path: `/library/metadata/${ratingKey}/related`,
         params: {
@@ -296,20 +331,25 @@ export default {
       });
 
       // TODO: potentially include the other hubs too (related director etc...)
-      return Hub?.[0]?.Metadata?.map((child) => ({
-        librarySectionID,
-        machineIdentifier,
-        ...child,
-      })) || [];
+      return (
+        Hub?.[0]?.Metadata?.map((child) => ({
+          librarySectionID,
+          machineIdentifier,
+          ...child,
+        })) || []
+      );
     } catch (e) {
       console.error(e);
       return [];
     }
   },
 
-  FETCH_LIBRARY_ALL: async ({ dispatch }, {
-    machineIdentifier, sectionId, start, size, sort, signal, ...rest
-  }) => {
+  FETCH_LIBRARY_ALL: async (
+    { dispatch },
+    {
+      machineIdentifier, sectionId, start, size, sort, signal, ...rest
+    },
+  ) => {
     const { MediaContainer } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: `/library/sections/${sectionId}/all`,
@@ -382,17 +422,19 @@ export default {
     return MediaContainer;
   },
 
-  MARK_WATCHED: ({ dispatch }, { machineIdentifier, ratingKey, signal }) => dispatch(
-    'FETCH_PLEX_SERVER', {
-      machineIdentifier,
-      path: '/:/scrobble',
-      params: {
-        identifier: 'com.plexapp.plugins.library',
-        key: ratingKey,
-      },
-      signal,
+  MARK_WATCHED: ({ dispatch }, {
+    machineIdentifier,
+    ratingKey,
+    signal,
+  }) => dispatch('FETCH_PLEX_SERVER', {
+    machineIdentifier,
+    path: '/:/scrobble',
+    params: {
+      identifier: 'com.plexapp.plugins.library',
+      key: ratingKey,
     },
-  ),
+    signal,
+  }),
 
   UPDATE_STREAM: ({ dispatch }, {
     machineIdentifier, id, offset, signal,
@@ -420,7 +462,9 @@ export default {
   SEARCH_PLEX_SERVER_HUB: async ({ dispatch }, {
     query, machineIdentifier, signal, ...extra
   }) => {
-    const { MediaContainer: { Hub } } = await dispatch('FETCH_PLEX_SERVER', {
+    const {
+      MediaContainer: { Hub },
+    } = await dispatch('FETCH_PLEX_SERVER', {
       machineIdentifier,
       path: '/hubs/search',
       params: {
@@ -431,13 +475,14 @@ export default {
       signal,
     });
 
-    return Hub.filter(({ Metadata, type }) => Metadata && searchHubs.includes(type))
-      .map(({ Metadata, ...rest }) => ({
+    return Hub.filter(({ Metadata, type }) => Metadata && searchHubs.includes(type)).map(
+      ({ Metadata, ...rest }) => ({
         ...rest,
         Metadata: Metadata.map((item) => ({
           ...item,
           machineIdentifier,
         })),
-      }));
+      }),
+    );
   },
 };

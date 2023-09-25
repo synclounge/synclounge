@@ -27,11 +27,15 @@ export default {
   CACHE_ORIGINAL_SUBTITLE_RESOLUTION: ({ getters, commit }) => {
     if (!getters.GET_ORIGINAL_SUBTITLE_RESOLUTION_X_CACHE
       || !getters.GET_ORIGINAL_SUBTITLE_RESOLUTION_Y_CACHE) {
-      commit('SET_ORIGINAL_SUBTITLE_RESOLUTION_X_CACHE',
-        subtitleRenderer.ass.properties.resolutionX);
+      commit(
+        'SET_ORIGINAL_SUBTITLE_RESOLUTION_X_CACHE',
+        subtitleRenderer.ass.properties.resolutionX,
+      );
 
-      commit('SET_ORIGINAL_SUBTITLE_RESOLUTION_Y_CACHE',
-        subtitleRenderer.ass.properties.resolutionY);
+      commit(
+        'SET_ORIGINAL_SUBTITLE_RESOLUTION_Y_CACHE',
+        subtitleRenderer.ass.properties.resolutionY,
+      );
     }
   },
 

@@ -7,19 +7,17 @@ let cachedDuration = 0;
 // eslint-disable-next-line no-underscore-dangle
 export const areControlsShown = () => !getOverlay() || (getOverlay()?.getControls().enabled_
     && (getOverlay()?.getControls().getControlsContainer().getAttribute('shown') != null
-    || getOverlay()?.getControls().getControlsContainer().getAttribute('casting') != null));
+      || getOverlay()?.getControls().getControlsContainer().getAttribute('casting') != null));
 
 export const getControlsOffset = (fallbackHeight) => (getPlayer()?.getMediaElement()?.offsetHeight
   || fallbackHeight) * 0.025 + 48 || 0;
 
 export const getControlsOffsetWithVisibility = (fallbackHeight) => (areControlsShown()
-  ? getControlsOffset(fallbackHeight)
-  : 0);
+  ? getControlsOffset(fallbackHeight) : 0);
 
 export const isPaused = () => getPlayer()?.getMediaElement()?.paused;
 
-export const isPresentationPaused = () => isPaused()
-  && !getOverlay().getControls().isSeeking();
+export const isPresentationPaused = () => isPaused() && !getOverlay().getControls().isSeeking();
 
 export const isBuffering = () => getPlayer()?.isBuffering();
 
@@ -27,8 +25,7 @@ export const isPlaying = () => !isPaused() && !isBuffering();
 
 export const getCurrentTime = () => getPlayer()?.getMediaElement().currentTime;
 
-export const getCurrentTimeMs = () => getPlayer()?.getMediaElement()
-  .currentTime * 1000;
+export const getCurrentTimeMs = () => (getPlayer()?.getMediaElement().currentTime ?? 0) * 1000;
 
 export const getDurationMs = () => {
   const { duration } = getPlayer().getMediaElement();
@@ -66,10 +63,12 @@ export const addEventListener = (...args) => getPlayer().addEventListener(...arg
 
 export const removeEventListener = (...args) => getPlayer().removeEventListener(...args);
 
-const addMediaElementEventListener = (...args) => getPlayer().getMediaElement()
+const addMediaElementEventListener = (...args) => getPlayer()
+  .getMediaElement()
   .addEventListener(...args);
 
-const removeMediaElementEventListener = (...args) => getPlayer().getMediaElement()
+const removeMediaElementEventListener = (...args) => getPlayer()
+  .getMediaElement()
   .removeEventListener(...args);
 
 // TODO: potentialy make cancellable
@@ -98,7 +97,9 @@ export const setCurrentTimeMs = (timeMs) => {
   getPlayer().getMediaElement().currentTime = timeMs / 1000;
 };
 
-export const getSmallPlayButton = () => getOverlay().getControls().getControlsContainer()
+export const getSmallPlayButton = () => getOverlay()
+  .getControls()
+  .getControlsContainer()
   .getElementsByClassName('shaka-small-play-button')[0];
 
 export const getBigPlayButton = () => getOverlay().getControls().getControlsContainer()
@@ -110,17 +111,17 @@ export const getDimensions = () => {
   } = getPlayer().getMediaElement();
 
   return {
-    videoWidth, videoHeight, offsetWidth, offsetHeight,
+    videoWidth,
+    videoHeight,
+    offsetWidth,
+    offsetHeight,
   };
 };
 
 export const insertElementBeforeVideo = (element) => {
   const parent = getPlayer().getMediaElement().parentNode;
 
-  parent.insertBefore(
-    element,
-    getPlayer().getMediaElement(),
-  );
+  parent.insertBefore(element, getPlayer().getMediaElement());
 };
 
 export const getMediaElement = () => getPlayer().getMediaElement();

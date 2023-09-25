@@ -112,8 +112,10 @@ export default {
     },
 
     subsetOnDeck() {
-      return this.onDeck.slice(this.onDeckOffset,
-        this.onDeckOffset + this.onDeckItemsPer);
+      return this.onDeck.slice(
+        this.onDeckOffset,
+        this.onDeckOffset + this.onDeckItemsPer,
+      );
     },
   },
 

@@ -423,7 +423,7 @@ export default {
     },
 
     handleTimeUpdate() {
-      this.videoTimeStamp = this.$refs?.videoPlayer?.currentTime * 1000;
+      this.videoTimeStamp = (this.$refs?.videoPlayer?.currentTime ?? 0) * 1000;
     },
 
     async checkAutoSkipIntro() {
