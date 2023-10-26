@@ -65,7 +65,7 @@ Head to the [website](https://synclounge.tv)
 
 ## Supported Plex Clients
 
-Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compability with SyncLounge may vary. If you have access to one of the untested clients please let us know so we can update our list below.
+Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compatibility with SyncLounge may vary. If you have access to one of the untested clients please let us know so we can update our list below.
 
 Some low powered clients may be hard to achieve a perfect sync with (for example: Raspberry Pi clients).
 
