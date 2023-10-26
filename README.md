@@ -33,9 +33,9 @@ SyncLounge (Previously PlexTogether) is a tool to sync [Plex](https://plex.tv) c
 
 ## How it works
 
-SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of the SyncLounge clients. Users choose their Plex client, decide on a SyncLounge Server and Room name and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
+SyncLounge aims to keep multiple viewing sessions in sync regardless of whether the clients are in the same room or across the globe. To do this SyncLounge utilizes a middle-man server to communicate between each of the SyncLounge clients. Users choose their Plex client, decide on a SyncLounge Server and Room name, and join up. Your friends/family can do the same. Whoever joins the room first will become the host.
 
-The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek etc). If the host starts playing something different, SyncLounge will search all of your available Plex Media Servers for an equivalent copy, even if it is not from the same Plex Media Server as the Host.
+The host has complete control over a room. Commands they send to their client will be sent through to other people in the room (Play, Pause, Seek, etc). If the host starts playing something different, SyncLounge will search all of your available Plex Media Servers for an equivalent copy, even if it is not from the same Plex Media Server as the Host.
 
 ## Features
 
@@ -48,15 +48,15 @@ The host has complete control over a room. Commands they send to their client wi
   - Sync Flexibility - Sets the acceptable distance away from the host in milliseconds.
   - Sync method:
   - Clean seek - Seeks straight to where the host is.
-  - Skip ahead - Seeks 10 seconds ahead, pauses and then resumes 10 seconds later.
+  - Skip ahead - Seeks 10 seconds ahead, pauses, and then resumes 10 seconds later.
   - Plex Media Server blocking - allows you to restrict the servers SyncLounge searches for content.
 - Autoplay content
   - SyncLounge will automatically search all of your available Plex Media Servers for content that is similar to the Host.
-- Plex Media Server Browsing - find, search and fling content to Plex Clients from within SyncLounge.
+- Plex Media Server Browsing - find, search, and fling content to Plex Clients from within SyncLounge.
 - Metadata fetching from Plex Media Server
-- Chat to others in your room
+- Chat with others in your room
 - Password locked rooms
-- Invite others via generated short link
+- Invite others via the generated short link
 - Movies and TV Shows (Music not supported)
 
 ## Screenshots
@@ -65,9 +65,9 @@ Head to the [website](https://synclounge.tv)
 
 ## Supported Plex Clients
 
-Theoretically, all Plex Clients that implement the Plex Client Protocol will work. As some clients have this implemented slightly differently, compatibility with SyncLounge may vary. If you have access to one of the untested clients please let us know so we can update our list below.
+Theoretically, all Plex Clients that implement the Plex Client Protocol will work. Compatibility with SyncLounge may vary for some clients, as they may implement the protocol slightly differently. If you have access to one of the untested clients please let us know so we can update our list below.
 
-Some low powered clients may be hard to achieve a perfect sync with (for example: Raspberry Pi clients).
+Some low-powered clients may find it hard to achieve a perfect sync with (for example: Raspberry Pi clients).
 
 ### Unsupported
 
@@ -180,9 +180,9 @@ server {
 }
 ```
 
-#### Subfolder domain.com/somefolder/
+#### Subfolder domain.com/somefolder/:
 
-To make synclounge run at a subfolder, all you need to do is change your reverse proxy configuration.
+To make SyncLounge run in a subfolder, change your reverse proxy configuration. Be sure to replace "somefolder" with your desired subfolder.
 
 ```
 map $http_upgrade $connection_upgrade {
@@ -226,7 +226,7 @@ server {
 }
 ``` 
 
-The FAQ, Self-Hosting, Development, Contributing, and other documentation has been move to [docs.synclounge.tv](https://docs.synclounge.tv)! Head there for more information!
+The FAQ, Self-Hosting, Development, Contributing, and other documentation has been moved to [docs.synclounge.tv](https://docs.synclounge.tv)! Head there for more information!
 
 ## Contributors
 
