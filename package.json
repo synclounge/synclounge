@@ -33,7 +33,7 @@
     "@vue/cli-plugin-router": "^5.0.8",
     "@vue/cli-plugin-vuex": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
-    "@vue/eslint-config-airbnb": "^7.0.0",
+    "@vue/eslint-config-airbnb": "^7.0.1",
     "caf": "^15.0.1",
     "core-js": "^3.33.3",
     "date-fns": "^2.30.0",
