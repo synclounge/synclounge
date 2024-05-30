@@ -47,7 +47,7 @@
     "mux.js": "^6.3.0",
     "postcss-html": "^1.7.0",
     "postcss-sass": "^0.5.0",
-    "sass": "^1.77.2",
+    "sass": "^1.77.3",
     "sass-loader": "^13.3.3",
     "shaka-player": "^4.8.9",
     "socket.io-client": "^4.7.5",
