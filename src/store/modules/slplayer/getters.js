@@ -216,12 +216,18 @@ export default {
     'plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
-    const base = 'append-transcode-target-codec('
-      + `type=videoProfile&context=streaming&audioCodec=aac&protocol=${
-        getters.GET_STREAMING_PROTOCOL})`;
+    const videoStream = getters.GET_STREAMS.find(({ streamType }) => streamType === 1);
+    const protocol = getters.GET_STREAMING_PROTOCOL;
+
+    let base = `append-transcode-target-codec('type=videoProfile&context=streaming&audioCodec=aac&protocol=${protocol})`;
+
+    if (videoStream.codec === 'hevc') {
+      base = `append-transcode-target-codec(type=videoProfile&context=streaming&protocol=${protocol}&videoCodec=hevc&audioCodec=aac)`
+       + '+add-limitation(scope=videoCodec&scopeName=hevc&type=upperBound&name=video.bitDepth&value=10&replace=true)';
+    }
+
     return rootGetters['settings/GET_SLPLAYERQUALITY']
-      ? `${base
-      }+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${
+      ? `${base}+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${
         rootGetters['settings/GET_SLPLAYERQUALITY']}&replace=true)`
       : base;
   },
