@@ -221,7 +221,7 @@ export default {
 
     let base = `append-transcode-target-codec('type=videoProfile&context=streaming&audioCodec=aac&protocol=${protocol})`;
 
-    if (videoStream.codec === 'hevc') {
+    if (videoStream.codec === 'hevc' && !getters.GET_FORCE_TRANSCODE) {
       base = `append-transcode-target-codec(type=videoProfile&context=streaming&protocol=${protocol}&videoCodec=hevc&audioCodec=aac)`
        + '+add-limitation(scope=videoCodec&scopeName=hevc&type=upperBound&name=video.bitDepth&value=10&replace=true)';
     }
