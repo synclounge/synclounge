@@ -32,9 +32,9 @@ const getH264Mime = ({ profile, level }) => {
 };
 
 const getH265Mime = ({ profile, level }) => {
-  function getProfileSpace(profile) {
+  function getProfileSpace(p) {
     // TODO: add more HEVC profile space
-    switch (profile) {
+    switch (p) {
       case 'high':
       case 'main':
         return 1;
@@ -45,9 +45,9 @@ const getH265Mime = ({ profile, level }) => {
     }
   }
 
-  function getProfileIndicator(profile) {
+  function getProfileIndicator(p) {
     // TODO: same as profile space?
-    switch (profile) {
+    switch (p) {
       case 'high':
       case 'main':
         return 1;
@@ -58,9 +58,9 @@ const getH265Mime = ({ profile, level }) => {
     }
   }
 
-  function getTier(profile) {
+  function getTier(p) {
     // TODO: make sure this is correct
-    switch (profile) {
+    switch (p) {
       case 'high':
         return 'H';
       default:
@@ -76,7 +76,7 @@ const getH265Mime = ({ profile, level }) => {
 };
 
 export const isVideoSupported = (videoStream) => {
-  const codec = videoStream.codec;
+  const { codec } = videoStream;
   console.log('Videostream codec:', codec);
   switch (codec) {
     case 'h264': {
