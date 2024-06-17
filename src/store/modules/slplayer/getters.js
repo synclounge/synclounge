@@ -216,14 +216,29 @@ export default {
     'plex/GET_PLEX_BASE_PARAMS'](getters.GET_PLEX_SERVER_ACCESS_TOKEN),
 
   GET_PLEX_PROFILE_EXTRAS: (state, getters, rootState, rootGetters) => {
-    const base = 'append-transcode-target-codec('
-      + `type=videoProfile&context=streaming&audioCodec=aac&protocol=${
-        getters.GET_STREAMING_PROTOCOL})`;
-    return rootGetters['settings/GET_SLPLAYERQUALITY']
-      ? `${base
-      }+add-limitation(scope=videoCodec&scopeName=*&type=upperBound&name=video.bitrate&value=${
-        rootGetters['settings/GET_SLPLAYERQUALITY']}&replace=true)`
-      : base;
+    const targetCodec = (x) => `append-transcode-target-codec(${x})`;
+    const addLimitation = (x) => `+add-limitation(${x})`;
+
+    const videoStream = getters.GET_STREAMS.find(({ streamType }) => streamType === 1);
+    const protocol = getters.GET_STREAMING_PROTOCOL;
+
+    let extras = targetCodec('type=videoProfile&context=streaming&audioCodec=aac'
+                             + `&protocol=${protocol}`);
+
+    if (videoStream.codec === 'hevc' && !getters.GET_FORCE_TRANSCODE) {
+      extras = targetCodec('type=videoProfile&context=streaming&videoCodec=hevc&audioCodec=aac'
+                           + `&protocol=${protocol}`);
+      extras += addLimitation('scope=videoCodec&scopeName=hevc&type=upperBound'
+                              + '&name=video.bitDepth&value=10&replace=true');
+    }
+
+    if (rootGetters['settings/GET_SLPLAYERQUALITY']) {
+      const quality = rootGetters['settings/GET_SLPLAYERQUALITY'];
+      extras += addLimitation('scope=videoCodec&scopeName=*&type=upperBound'
+                              + `&name=video.bitrate&value=${quality}&replace=true`);
+    }
+
+    return extras;
   },
 
   SHOULD_FORCE_BURN_SUBTITLES: (state, getters) => getters.IS_IN_PICTURE_IN_PICTURE
