@@ -18,11 +18,11 @@ const h264Profiles = {
   ucscalableconstrainedhigh: 259,
 };
 
-const getH264Mime = (videoProfile, level) => {
+const getH264Mime = ({ profile, level }) => {
   // https://blog.pearce.org.nz/2013/11/what-does-h264avc1-codecs-parameters.html
   // Making avc1.PPCCLL
-  const profile = h264Profiles[videoProfile.toLowerCase()] || 0;
-  const ppcc = profile.toString(16).padStart(2, '0').padEnd(4, '0');
+  const videoProfile = h264Profiles[profile.toLowerCase()] || 0;
+  const ppcc = videoProfile.toString(16).padStart(2, '0').padEnd(4, '0');
   // Note: I'm ignoring the constraint_set flags because I appear I don't really need to set them
   // and it looks like the microsoft profiles may set them too
 
@@ -31,11 +31,62 @@ const getH264Mime = (videoProfile, level) => {
   return `video/mp4; codecs="avc1.${ppcc}${ee}"`;
 };
 
-export const isVideoSupported = ({ codec, profile, level }) => {
-  console.log('isVideoSupported', codec);
+const getH265Mime = ({ profile, level }) => {
+  function getProfileSpace(p) {
+    // TODO: add more HEVC profile space
+    switch (p) {
+      case 'high':
+      case 'main':
+        return 1;
+      case 'main 10':
+        return 2;
+      default:
+        return 1000;
+    }
+  }
+
+  function getProfileIndicator(p) {
+    // TODO: same as profile space?
+    switch (p) {
+      case 'high':
+      case 'main':
+        return 1;
+      case 'main 10':
+        return 2;
+      default:
+        return 1000;
+    }
+  }
+
+  function getTier(p) {
+    // TODO: make sure this is correct
+    switch (p) {
+      case 'high':
+        return 'H';
+      default:
+        return 'L';
+    }
+  }
+
+  const ps = getProfileSpace(profile.toLowerCase());
+  const pi = getProfileIndicator(profile.toLowerCase());
+  const t = getTier(profile.toLowerCase());
+
+  return `video/mp4; codecs="hev1.${ps}.${pi}.${t}${level}.B0"`;
+};
+
+export const isVideoSupported = (videoStream) => {
+  const { codec } = videoStream;
+  console.log('Videostream codec:', codec);
   switch (codec) {
     case 'h264': {
-      return MediaSource.isTypeSupported(getH264Mime(profile, level));
+      return MediaSource.isTypeSupported(getH264Mime(videoStream));
+    }
+
+    case 'h265':
+    case 'hev1':
+    case 'hevc': {
+      return MediaSource.isTypeSupported(getH265Mime(videoStream));
     }
 
     case 'av1': {
