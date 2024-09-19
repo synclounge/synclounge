@@ -49,7 +49,7 @@
     "postcss-sass": "^0.5.0",
     "sass": "^1.79.1",
     "sass-loader": "^14.2.1",
-    "shaka-player": "^4.11.3",
+    "shaka-player": "^4.11.4",
     "socket.io-client": "^4.7.5",
     "string-similarity": "^4.0.4",
     "stylelint": "^14.16.1",
