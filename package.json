@@ -42,7 +42,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-vue": "^9.31.0",
     "fast-xml-parser": "^4.5.0",
-    "husky": "^9.1.6",
+    "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "mux.js": "^6.3.0",
     "postcss-html": "^1.7.0",
