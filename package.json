@@ -63,7 +63,7 @@
     "vue-template-compiler": "^2.7.16",
     "vuetify": "^2.7.1",
     "vuetify-loader": "^1.9.2",
-    "vuex": "^3.6.2",
+    "vuex": "^4.1.0",
     "vuex-persistedstate": "^4.1.0"
   },
   "bugs": {
