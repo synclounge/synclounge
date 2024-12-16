@@ -48,7 +48,7 @@
     "postcss-html": "^1.7.0",
     "postcss-sass": "^0.5.0",
     "sass": "^1.83.0",
-    "sass-loader": "^14.2.1",
+    "sass-loader": "^16.0.4",
     "shaka-player": "^4.12.5",
     "socket.io-client": "^4.8.1",
     "string-similarity": "^4.0.4",
