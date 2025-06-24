@@ -53,7 +53,7 @@
     "socket.io-client": "^4.8.1",
     "string-similarity": "^4.0.4",
     "stylelint": "^14.16.1",
-    "stylelint-config-standard": "^29.0.0",
+    "stylelint-config-standard": "^38.0.0",
     "synclounge-libjass": "^1.0.0",
     "vanilla-tilt": "^1.8.1",
     "vue": "^2.7.14",
