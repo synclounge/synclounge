@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         # Temporarily skip older node-version checks until they are removed from required checks
         if: ${{ matrix.node-version >= 16 }}
-        uses: actions/checkout@v4.3.0
+        uses: actions/checkout@v6.0.0
 
       - name: Setup Node.js ${{ matrix.node-version }}
         # Temporarily skip older node-version checks until they are removed from required checks
