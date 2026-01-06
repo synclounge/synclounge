@@ -52,7 +52,7 @@
     "shaka-player": "^4.16.13",
     "socket.io-client": "^4.8.3",
     "string-similarity": "^4.0.4",
-    "stylelint": "^14.16.1",
+    "stylelint": "^16.26.1",
     "stylelint-config-standard": "^29.0.0",
     "synclounge-libjass": "^1.0.0",
     "vanilla-tilt": "^1.8.1",
