@@ -14,5 +14,5 @@ ARG VERSION
 RUN npm run build
 
 # production environment
-FROM nginx:1.27.5-alpine as production-stage
+FROM nginx:1.29.4-alpine as production-stage
 COPY --chown=nginx:nginx --from=build-stage /app/dist /usr/share/nginx/html
