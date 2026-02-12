@@ -131,7 +131,7 @@ jobs:
 
       - name: Build and push
         id: docker-build
-        uses: docker/build-push-action@v6.18.0
+        uses: docker/build-push-action@v6.19.2
         with:
           push: true
           builder: ${{ steps.buildx.outputs.name }}
